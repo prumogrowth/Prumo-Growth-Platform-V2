@@ -12,7 +12,8 @@ Fontes: `26_Contratos_Conceituais_Eventos_APIs` C04 (CNT-01–03), C05/C06/C08; 
 - C05 só agenda plano com evidência fictícia explicitamente inserida na loja/canal/finalidade de teste e sem supressão correspondente; a mera importação não é prova.
 - C06, mesmo que o plano exista, revalida evidência, opt-out, estado técnico, estado comercial e template antes de reserva. Não transmite mensagem externa.
 - `registrar_optout_sintetico` grava evento idempotente, cancela planos e tentativas ainda programadas/reservadas **somente** naquele lead, loja, emissor e finalidade e preserva histórico. Repetição da chave não duplica efeitos.
-- Uma entrada espontânea C02 não modifica as tabelas de elegibilidade/supressão, tampouco gera opt-in implícito.
+- Uma entrada espontânea C02 não modifica as tabelas de elegibilidade/supressão, tampouco gera opt-in implícito. **Após opt-out no mesmo emissor/finalidade, C02 envia à rota humana pendente**, sem promover status comercial para IA (migração 018). A ocorrência continua sintética; a resolução humana real está pendente.
+- Repetição idempotente de um plano já cancelado devolve `estado_plano=cancelado` e `executavel_simulacao=false` (migração 017), sem criar nova tentativa.
 - Gestor com vínculo ativo pode consultar metadados do próprio escopo; usuários anônimos/operadores sem poder correspondente e outras lojas não podem ler nem gravar por REST. Mudanças somente por processo interno `postgres` em sandbox.
 - Nenhuma interface externa, automação de mensagens nem IA decide consentimento nesta etapa.
 
