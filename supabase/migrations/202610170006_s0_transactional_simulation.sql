@@ -110,7 +110,7 @@ begin
  if p_versao is distinct from v_c.versao_registro then
    raise exception 'CONFLICT_VERSION' using errcode='40001';
  end if;
- if v_c.status_comercial<>'aguardando primeiro disparo' then
+ if v_c.status_comercial not in ('aguardando primeiro disparo','primeiro disparo enviado') then
    raise exception 'INVALID_STATE_TRANSITION' using errcode='22023';
  end if;
  if exists(select 1 from public.casos_humanos h
