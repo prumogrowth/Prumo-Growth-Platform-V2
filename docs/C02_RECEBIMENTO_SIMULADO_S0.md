@@ -8,14 +8,15 @@ Fonte: documentos vigentes 13A, 21–23 e 41; escopo técnico proposto nos docum
 3. Validação de dados sintéticos, bloqueio por identificador externo, uma mensagem recebida por `(loja,canal,id_externo)`; reentrega idêntica retorna `ALREADY_APPLIED`. Mesmo identificador com payload diferente gera erro de conflito.
 4. Conversa escopada por loja, canal, lead e ocorrência humana. Retornos `cadastro enviado ao banco` e `vendido` criam casos humanos sintéticos separados sem reverter o status comercial ou produzir venda fictícia.
 5. Primeira entrada elegível no ciclo `aguardando primeiro disparo` ou `primeiro disparo enviado` registra evento e muda para `em atendimento pela IA`, mas **não executa a IA nem envia mensagem**.
-6. Com caso humano prévio, o recebimento permanece com humano. Não há retomada automática da IA. Para múltiplos ciclos do mesmo lead, falha sem atribuir a um ciclo arbitrariamente.
-7. Teste automatizado `supabase/tests/s0_c02_inbound.sql` integrado à suíte PostgreSQL 17.
+6. Com caso humano prévio, o recebimento permanece com humano. Não há retomada automática da IA. Para múltiplos ciclos do mesmo lead, a mensagem é persistida com rota `HUMANO_PENDENTE` e pendência em `pendencias_inbound_simulado`, SEM associação arbitrária a ciclo/caso nem envio IA; a triagem humana real ainda será implementada.
+7. Testes `supabase/tests/s0_c02_inbound.sql` e concorrência PostgreSQL 17; regressões da exclusividade de canal emissor, inclusive entradas vazias/formatos não canônicos simples.
+8. Migrações 010/011 reforçam a validade básica do identificador emissor e persistem entrada ambígua para revisão. Não resolvem equivalência internacional de números Meta/telefones sem adaptador homologado.
 
 ## Limites importantes
 - `IA_PENDENTE` e `HUMANO_PENDENTE` indicam **roteamento interno pendente**, não atendimento executado.
 - `CANCELAMENTO_PENDENTE` indica que não há ainda `PLANO_RECONTATO`/`ENVIOS_TEMPLATE` para cancelar; logo, o C02 integral ainda não está concluído.
 - Nenhum webhook recebido é considerado autenticação Meta. A camada HTTP deverá validar assinatura, origem, replay, esquema oficial, consentimento/opt-out, horários e trilha de integração antes de habilitar ingestão externa.
-- A abertura automática de caso em pós-remessa/pós-venda é mock de S0/S1; fila real, atribuição e eventos de caso ainda requerem implementação.
+- A abertura automática de caso em pós-remessa/pós-venda é mock de S0/S1; fila real, atribuição e eventos de caso ainda requerem implementação. Pendência de múltiplos ciclos não se converte em caso atribuído até decisão humana; requer fila operacional de triagem na próxima fatia.
 - A transição de status e o conteúdo são estritamente sintéticos. Não há mensagens de cliente real, mídia, documento de identidade ou serviço conectado.
 - Dados e políticas de RLS seguem o escopo de cada loja e caso. A função SQL privilegiada **não é delegável ao navegador**.
 - Ainda faltam testes concorrentes de duas mensagens externas distintas, integração real Supabase Auth/Data API, proteção de recontatos, retenção, recuperação, LGPD e aceite do responsável.
