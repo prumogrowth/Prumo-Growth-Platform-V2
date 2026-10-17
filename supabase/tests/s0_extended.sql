@@ -92,7 +92,7 @@ end $$;
 \echo 'PASS: gestor B so loja B'
 select set_config('request.jwt.claim.sub','10000000-0000-4000-8000-000000000014',true);
 do $$ begin
- if (select count(*) from public.conversas)<>0 then raise exception 'FAIL OP nao atribuido'; end if;
+ if (select count(*) from public.conversas)<>0 or (select count(*) from public.leads_loja)<>0 then raise exception 'FAIL OP nao atribuido'; end if;
  begin
  insert into public.mensagens(concessionaria_id,conversa_id,canal_id,caso_id,direcao,origem,conteudo_sintetico,enviada_por)
  values('20000000-0000-4000-8000-000000000011','80000000-0000-4000-8000-000000000011','40000000-0000-4000-8000-000000000011','70000000-0000-4000-8000-000000000011','saida','simulado','nao autorizado','10000000-0000-4000-8000-000000000014');
@@ -102,7 +102,7 @@ end $$;
 \echo 'PASS: operador sem caso nao le/escreve'
 select set_config('request.jwt.claim.sub','10000000-0000-4000-8000-000000000013',true);
 do $$ begin
- if (select count(*) from public.conversas)<>1 then raise exception 'FAIL OP atribuido'; end if;
+ if (select count(*) from public.conversas)<>1 or (select count(*) from public.leads_loja)<>1 then raise exception 'FAIL OP atribuido/lead'; end if;
 end $$;
 insert into public.mensagens(concessionaria_id,conversa_id,canal_id,caso_id,direcao,origem,conteudo_sintetico,enviada_por)
  values('20000000-0000-4000-8000-000000000011','80000000-0000-4000-8000-000000000011','40000000-0000-4000-8000-000000000011','70000000-0000-4000-8000-000000000011','saida','simulado','texto do OP ficticio','10000000-0000-4000-8000-000000000013');
@@ -115,7 +115,7 @@ insert into public.atribuicoes_humanas(concessionaria_id,caso_id,operador_id) va
 set local role authenticated;
 select set_config('request.jwt.claim.sub','10000000-0000-4000-8000-000000000013',true);
 do $$ begin
- if (select count(*) from public.conversas)<>0 then raise exception 'FAIL ex-OP le'; end if;
+ if (select count(*) from public.conversas)<>0 or (select count(*) from public.leads_loja)<>0 then raise exception 'FAIL ex-OP le caso/lead'; end if;
  begin
  insert into public.mensagens(concessionaria_id,conversa_id,canal_id,caso_id,direcao,origem,conteudo_sintetico,enviada_por)
  values('20000000-0000-4000-8000-000000000011','80000000-0000-4000-8000-000000000011','40000000-0000-4000-8000-000000000011','70000000-0000-4000-8000-000000000011','saida','simulado','ex OP','10000000-0000-4000-8000-000000000013');
@@ -158,7 +158,7 @@ update public.vinculos_papel_escopo set valido_ate=clock_timestamp()
 set local role authenticated;
 select set_config('request.jwt.claim.sub','10000000-0000-4000-8000-000000000011',true);
 do $$ begin
- if (select count(*) from public.conversas)<>0 or (select count(*) from public.atribuicoes_humanas)<>0 then
+ if (select count(*) from public.conversas)<>0 or (select count(*) from public.atribuicoes_humanas)<>0 or (select count(*) from public.leads_loja)<>0 then
   raise exception 'FAIL revogacao: conversa ou atribuicao ainda visivel'; end if;
  begin
   insert into public.mensagens(concessionaria_id,conversa_id,canal_id,caso_id,direcao,origem,conteudo_sintetico,enviada_por)
