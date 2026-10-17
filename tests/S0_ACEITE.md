@@ -110,3 +110,17 @@ CI [#39066422146](https://github.com/prumogrowth/Prumo-Growth---Platform/actions
 Fonte de escopo: `docs/RECONTATOS_C05_C08_SIMULACAO_2026_10_17.md`.
 
 O texto anterior que indicava **cancelamento de recontatos pendente** refere-se à versão anterior à migração 013; a pendência atual é **cancelamento operacional de envios reais e homologação Meta**, não a gravação sintética de cancelamento. Ainda não existe emissor real nem confirmação de entrega; não computar o aviso final como enviado nem 24 horas de silêncio.
+
+## C04 — evidência fictícia de elegibilidade e opt-out (17/10/2026)
+
+[GitHub Actions PostgreSQL 17 #39072889947 — PASS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39072889947): C04-01..06 aprovados, além das regressões C01/C02/C05/C08, REC-RACE, idempotência e RLS.
+
+- C04-01: sem comprovação sequer sintética, C05 rejeita novo recontato; decisão indeterminada.
+- C04-02: evidência fictícia da loja A não autoriza B; resultado positivo é SOMENTE para simulação.
+- C04-03: opt-out grava supressão idempotente, cancela C08 pendentes e bloqueia reserva C06.
+- C04-04: inbound espontâneo não é opt-in geral e não elimina supressão.
+- C04-05: mesmo telefone de cliente em A/B sem compartilhar provas ou histórico.
+- C04-06: RLS por concessionária e negação de escrita dos registros por usuário comum.
+- Auth/REST das duas tabelas novas: verificar a execução do workflow `s0-auth-rest`; os testes adicionados têm rótulo AUTH-10 e resultado separado.
+
+**Escopo e pendências:** `docs/C04_ELEGIBILIDADE_OPTOUT_SIMULADO_2026_10_17.md`. Decisão sobre opt-out entre emissor/lojas [R/V]; sem comprovação Meta, LGPD, opt-in real, transporte de mensagens, recuperação ou produção. A evidência interna fictícia não é autorização comercial.
