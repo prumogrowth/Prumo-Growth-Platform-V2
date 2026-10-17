@@ -16,6 +16,8 @@ flowchart TD
   BAN --> RES[Resultado com prova]
   L --> REC[Recontatos]
   REC --> PLA[Planejadora: templates aprovados]
+  REC --> ELIG[C04: elegibilidade e opt-out por loja/canal]
+  ELIG --> CAN
   REC --> CAN[Resposta ou gestor: cancelar pendentes]
   INB --> CAN
   P --> ADM[Gestão e MCP com confirmação]
@@ -26,4 +28,4 @@ flowchart TD
   INT --> N[n8n a decidir]
 ```
 
-S0 fundação: telefone de cliente pode existir em A/B/C com históricos isolados; emissor Prumo exclusivo por loja; importação C01, ingresso C02, planos C05 e cancelamento C08 simulados com eventos e idempotência; nenhuma transmissão externa. S0 testes sintéticos; S1 operação humana/banco simulados; S2 IA/Meta simulados; S3 MCP controlado; S4 ativação real somente por autorização específica. Não há IA Analista autônoma. Nenhum dado cruza lojas.
+S0 fundação: telefone de cliente pode existir em A/B/C com históricos isolados; emissor Prumo exclusivo por loja; importação C01, ingresso C02, elegibilidade C04, planos C05 e cancelamento C08 simulados com eventos e idempotência; nenhuma transmissão externa. S0 testes sintéticos; S1 operação humana/banco simulados; S2 IA/Meta simulados; S3 MCP controlado; S4 ativação real somente por autorização específica. Não há IA Analista autônoma. Nenhum dado cruza lojas.
