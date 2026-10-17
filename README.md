@@ -9,6 +9,9 @@ Arquivos:
 - `supabase/tests/`: fixtures sintéticas, importação C01 e testes SQL de isolamento/transições.
 - `supabase/migrations/202610170006_s0_transactional_simulation.sql`: serviços internos C01 e evento de inbound simulados; **não expostos à API**.
 - `scripts/test_s0_concurrency.sh`: ensaio com duas conexões PostgreSQL concorrentes.
+- `supabase/migrations/202610170009_s0_c02_inbound_synthetic.sql`: recebimento fictício de mensagens e roteamento pendente, **sem Meta**.
+- `scripts/test_s0_c02_concurrency.sh`: duplicidade de webhook fictício e eventos paralelos.
+- `docs/C02_RECEBIMENTO_SIMULADO_S0.md`: contrato implementado, limitações e próximos portões.
 - `scripts/run-s0-local.sh`: runner restrito a Postgres LOCAL e base descartável.
 - `docs/MAPA_MENTAL.md`: mapa mental simples.
 - `docs/DECISOES_E_GATES.md`: regras, custos e próximos portões.
@@ -20,4 +23,4 @@ S0: gestores autenticados podem ler leads/ciclos **somente de lojas vinculadas**
 
 Teste futuro: crie um banco local descartável `prumo_s0_test_*`, exporte `PRUMO_TEST_DATABASE_URL` e rode `./scripts/run-s0-local.sh`. **Não apontar para Supabase remoto.**
 
-Migrações versionadas 001–006 e 008 (007 indevida retirada antes de deploy) não estão implantadas no Supabase. Suíte SQL e teste concorrente executados em CI; veja `tests/S0_ACEITE.md`. Não gravar segredos nem dados pessoais reais no repositório.
+Migrações versionadas 001–006, 008 e 009 (007 indevida retirada antes de deploy) não estão implantadas no Supabase. Suíte SQL e teste concorrente executados em CI; veja `tests/S0_ACEITE.md`. Não gravar segredos nem dados pessoais reais no repositório.
