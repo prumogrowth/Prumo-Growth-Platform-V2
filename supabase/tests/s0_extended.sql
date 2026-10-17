@@ -127,4 +127,47 @@ insert into public.mensagens(concessionaria_id,conversa_id,canal_id,caso_id,dire
  values('20000000-0000-4000-8000-000000000011','80000000-0000-4000-8000-000000000011','40000000-0000-4000-8000-000000000011','70000000-0000-4000-8000-000000000011','saida','simulado','gestor autoatribuido','10000000-0000-4000-8000-000000000011');
 \echo 'PASS AP41-05/06/09: remanejamento e autoatribuicao'
 reset role;
+-- Integridade: um caso da loja A nao pode associar outro lead de A ao mesmo ciclo.
+insert into public.leads_loja(id,concessionaria_id,telefone_cliente_normalizado)
+ values('30000000-0000-4000-8000-000000000019','20000000-0000-4000-8000-000000000011','+5500000000019');
+do $ begin
+ begin
+  insert into public.casos_humanos(concessionaria_id,lead_id,ciclo_id) values
+  ('20000000-0000-4000-8000-000000000011','30000000-0000-4000-8000-000000000019','50000000-0000-4000-8000-000000000011');
+  raise exception 'FAIL ciclo/caso associados a leads diferentes';
+ exception when foreign_key_violation then null; end;
+end $;
+-- Oito status comerciais, versao e evento sao trilhas independentes.
+update public.ciclos_comerciais set status_comercial='em atendimento pela IA',versao_registro=2
+ where id='50000000-0000-4000-8000-000000000011';
+insert into public.eventos_status_comercial(concessionaria_id,ciclo_id,versao_ciclo_apos,status_anterior,status_posterior)
+ values('20000000-0000-4000-8000-000000000011','50000000-0000-4000-8000-000000000011',2,
+ 'aguardando primeiro disparo','em atendimento pela IA');
+do $ begin
+ begin
+  insert into public.eventos_status_comercial(concessionaria_id,ciclo_id,versao_ciclo_apos,status_anterior,status_posterior)
+  values('20000000-0000-4000-8000-000000000011','50000000-0000-4000-8000-000000000011',2,
+  'aguardando primeiro disparo','em atendimento pela IA');
+  raise exception 'FAIL evento duplicado por versao';
+ exception when unique_violation then null; end;
+end $;
+\echo 'PASS: escopo lead-ciclo-caso e historico de status por versao'
+-- Desligar concessao ainda durante a transacao: leitura e escrita devem cessar nas consultas seguintes.
+update public.vinculos_papel_escopo set valido_ate=clock_timestamp()
+ where ator_id='10000000-0000-4000-8000-000000000011' and papel='gestor';
+set local role authenticated;
+select set_config('request.jwt.claim.sub','10000000-0000-4000-8000-000000000011',true);
+do $ begin
+ if (select count(*) from public.conversas)<>0 then
+  raise exception 'FAIL gestor sem concessao ainda le conversa'; end if;
+ begin
+  insert into public.mensagens(concessionaria_id,conversa_id,canal_id,caso_id,direcao,origem,conteudo_sintetico,enviada_por)
+  values('20000000-0000-4000-8000-000000000011','80000000-0000-4000-8000-000000000011',
+  '40000000-0000-4000-8000-000000000011','70000000-0000-4000-8000-000000000011',
+  'saida','simulado','gestor revogado','10000000-0000-4000-8000-000000000011');
+  raise exception 'FAIL vinculo revogado ainda escreve';
+ exception when insufficient_privilege then null; end;
+end $;
+\echo 'PASS: concessao revogada invalida direitos em operacao seguinte'
+reset role;
 rollback;
