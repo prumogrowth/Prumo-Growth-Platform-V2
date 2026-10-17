@@ -202,7 +202,7 @@ end $$;
 create function prumo_private.verificar_contato_sintetico(
  p_loja uuid,p_lead uuid,p_canal uuid,p_finalidade text
 ) returns jsonb language plpgsql security invoker set search_path=''
-as $
+as $tri$
 begin
  if current_user<>'postgres' then raise exception 'INTERNAL_ONLY' using errcode='42501'; end if;
  if p_finalidade is distinct from 'recontato_comercial_sintetico'
@@ -225,7 +225,7 @@ begin
    'motivo','EVIDENCIA_FICTICIA','real','DEPENDENCY_UNVERIFIED'); end if;
  return jsonb_build_object('decisao','INDETERMINADO',
     'motivo','SEM_EVIDENCIA','real','DEPENDENCY_UNVERIFIED');
-end $;
+end $tri$;
 
 -- Register a scoped synthetic opt-out. Never delete historical plans or messages.
 -- Atomic with pending cancellation and concurrent reservation via lead lock.
