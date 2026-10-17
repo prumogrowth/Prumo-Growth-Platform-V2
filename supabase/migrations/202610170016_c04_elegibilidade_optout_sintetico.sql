@@ -198,6 +198,35 @@ begin
  return jsonb_build_object('outcome','RESERVED_SIMULATED','transmissao_externa','DESABILITADA');
 end $$;
 
+-- C04 tri-state; simulated evidence is NEVER proof for real Meta operations.
+create function prumo_private.verificar_contato_sintetico(
+ p_loja uuid,p_lead uuid,p_canal uuid,p_finalidade text
+) returns jsonb language plpgsql security invoker set search_path=''
+as $
+begin
+ if current_user<>'postgres' then raise exception 'INTERNAL_ONLY' using errcode='42501'; end if;
+ if p_finalidade is distinct from 'recontato_comercial_sintetico'
+ or not exists(select 1 from public.leads_loja l
+    where l.concessionaria_id=p_loja and l.id=p_lead)
+ or not exists(select 1 from public.canais_loja c
+    where c.concessionaria_id=p_loja and c.id=p_canal)
+ then return jsonb_build_object('decisao','INDETERMINADO',
+    'motivo','ESCOPO_OU_FINALIDADE_NAO_VERIFICADA','real','DEPENDENCY_UNVERIFIED'); end if;
+ if exists(select 1 from public.supressoes_contato_sinteticas sp
+    where sp.concessionaria_id=p_loja and sp.lead_id=p_lead
+    and sp.canal_id=p_canal and sp.finalidade=p_finalidade)
+ then return jsonb_build_object('decisao','INELEGIVEL','motivo','OPT_OUT',
+   'real','DEPENDENCY_UNVERIFIED'); end if;
+ if exists(select 1 from public.evidencias_elegibilidade_sinteticas e
+    where e.concessionaria_id=p_loja and e.lead_id=p_lead
+    and e.canal_id=p_canal and e.finalidade=p_finalidade
+    and e.estado='verificada_simulada')
+ then return jsonb_build_object('decisao','ELEGIVEL_SOMENTE_SIMULACAO',
+   'motivo','EVIDENCIA_FICTICIA','real','DEPENDENCY_UNVERIFIED'); end if;
+ return jsonb_build_object('decisao','INDETERMINADO',
+    'motivo','SEM_EVIDENCIA','real','DEPENDENCY_UNVERIFIED');
+end $;
+
 -- Register a scoped synthetic opt-out. Never delete historical plans or messages.
 -- Atomic with pending cancellation and concurrent reservation via lead lock.
 create function prumo_private.registrar_optout_sintetico(
