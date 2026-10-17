@@ -1,6 +1,7 @@
 name: Prumo S0 - PostgreSQL isolado
 on:
-  pull_request:
+  push:
+    branches: [feat/s0-fundacao-prumo]
     paths:
       - 'supabase/**'
       - 'scripts/**'
@@ -11,7 +12,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: prumo-s0-postgres-${{ github.event.pull_request.number || github.ref }}
+  group: prumo-s0-postgres-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
