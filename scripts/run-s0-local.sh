@@ -15,4 +15,5 @@ for file in supabase/tests/bootstrap_fake_auth.sql supabase/migrations/202610170
  psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$ROOT/$file"
 done
 bash "$ROOT/scripts/test_s0_concurrency.sh"
+bash "$ROOT/scripts/test_s0_cross_shop.sh"
 echo 'Teste local concluído. Não houve escrita no Supabase.'
