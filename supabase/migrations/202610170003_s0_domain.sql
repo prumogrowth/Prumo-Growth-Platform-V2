@@ -85,8 +85,8 @@ begin
   select 1 from public.vinculos_papel_escopo v
   where v.ator_id=new.operador_id and v.concessionaria_id=new.concessionaria_id
   and v.papel in ('gestor','operador')
-  and v.valido_desde<=pg_catalog.now()
-  and (v.valido_ate is null or v.valido_ate>pg_catalog.now())
+  and v.valido_desde<=pg_catalog.statement_timestamp()
+  and (v.valido_ate is null or v.valido_ate>pg_catalog.statement_timestamp())
  ) then
   raise exception 'operador sem concessao ativa na loja' using errcode='23514';
  end if;
