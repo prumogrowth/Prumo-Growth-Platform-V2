@@ -1,0 +1,17 @@
+# Supabase local e EFÊMERO — desenvolvimento e CI; nunca vincular a produção.
+project_id = "prumo-s0-auth-ci"
+
+[api]
+enabled = true
+
+[db]
+major_version = 17
+
+[auth]
+enabled = true
+enable_signup = true
+enable_anonymous_sign_ins = false
+
+[auth.email]
+enable_signup = true
+enable_confirmations = false
