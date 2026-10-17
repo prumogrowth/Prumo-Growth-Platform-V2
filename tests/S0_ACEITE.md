@@ -46,3 +46,21 @@ Evidência: [CI #39063441684](https://github.com/prumogrowth/Prumo-Growth---Plat
 A função do lote **não é endpoint público**: exige execução interna com papel SQL `postgres` e verifica o ator gestor/loja. Ela ainda carece de um adaptador de identidade real, de política de retenção e de auditoria operacional. O controle de concorrência foi comprovado especificamente para duas chamadas concorrentes com a **mesma chave de lote**; lotes distintos, filas e concorrência de atribuições permanecem pendentes.
 
 **S0 não homologado:** C02 real, Auth real, APIs Meta/Banco, acesso fino D3/D4, reações externas, backup/restauração e portões LGPD permanecem bloqueados. Nenhuma migração comercial foi aplicada ao Supabase remoto. Não alterar a porcentagem histórica de planejamento (19F) por esses testes.
+
+## Auditoria e reparos de exclusividade (17/10/2026)
+
+**Evidência atual:** [GitHub Actions #39064447771](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39064447771) — PostgreSQL 17 descartável, suíte concluída com sucesso.
+
+| Regressão | Resultado |
+|---|---|
+| Global UNIQUE cliente E.164: segunda concessionária não grava telefone existente | PASS |
+| Emissor exclusivo por loja: número idêntico em dois canais é negado | PASS |
+| C01: segunda loja recebe item recusado genérico sem histórico alheio | PASS |
+| Corrida entre duas concessionárias distintas pelo mesmo telefone | PASS; 1 lead, 1 ciclo, 1 aceite, 1 rejeição |
+| Reatribuição: operador perde leitura do lead e da conversa antiga | PASS |
+| Operador designado recebe apenas lead do seu caso | PASS |
+| RLS A/B, importação, eventos, handoff humano e simultaneidade por mesma chave | PASS |
+
+**Supersessão:** os relatórios de CI anteriores que davam PASS para *mesmo cliente telefônico em lojas A/B* documentam testes antigos — esse resultado **não é mais um critério válido** e foi substituído pela exclusividade global conforme orientação posterior. Preservar os links históricos apenas como trilha de auditoria.
+
+**Pendente:** validação de privacidade do índice global e inferência de recusas; procedimento de número reciclado/troca de concessionária; provas Supabase Auth/REST; autorização documental consolidada; recuperação/backup e retenção. Nenhuma migration comercial no remoto, nem produção ativada.
