@@ -15,12 +15,17 @@ insert into public.vinculos_papel_escopo(ator_id,concessionaria_id,papel) values
  ('10000000-0000-4000-8000-000000000003','20000000-0000-4000-8000-000000000001','operador');
 insert into public.leads_loja(id,concessionaria_id,telefone_cliente_normalizado) values
  ('30000000-0000-4000-8000-000000000001','20000000-0000-4000-8000-000000000001','+5500000000000'),
- ('30000000-0000-4000-8000-000000000002','20000000-0000-4000-8000-000000000002','+5500000000000');
+ ('30000000-0000-4000-8000-000000000002','20000000-0000-4000-8000-000000000002','+5500000000001');
 insert into public.ciclos_comerciais(concessionaria_id,lead_id) values
  ('20000000-0000-4000-8000-000000000001','30000000-0000-4000-8000-000000000001'),
  ('20000000-0000-4000-8000-000000000002','30000000-0000-4000-8000-000000000002');
 do $$ begin
- if (select count(*) from public.leads_loja)<>2 then raise exception 'same phone two leads: FAIL'; end if;
+ if (select count(*) from public.leads_loja)<>2 then raise exception 'dois telefones distintos: FAIL'; end if;
+ begin
+ insert into public.leads_loja(concessionaria_id,telefone_cliente_normalizado)
+ values('20000000-0000-4000-8000-000000000002','+5500000000000');
+ raise exception 'telefone repetido entre lojas: FAIL';
+ exception when unique_violation then null; end;
  begin
  insert into public.ciclos_comerciais(concessionaria_id,lead_id) values
   ('20000000-0000-4000-8000-000000000001','30000000-0000-4000-8000-000000000002');
@@ -32,7 +37,7 @@ do $$ begin
  raise exception 'ninth status: FAIL';
  exception when check_violation then null; end;
 end $$;
-\echo 'PASS: isolamento FK e oito status'
+\echo 'PASS: exclusividade global de telefone, isolamento FK e oito status'
 set local role authenticated;
 select set_config('request.jwt.claim.sub','10000000-0000-4000-8000-000000000001',true);
 do $$ begin
