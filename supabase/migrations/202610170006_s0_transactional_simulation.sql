@@ -113,6 +113,9 @@ begin
  if v_c.status_comercial<>'aguardando primeiro disparo' then
    raise exception 'INVALID_STATE_TRANSITION' using errcode='22023';
  end if;
+ if exists(select 1 from public.casos_humanos h
+   where h.concessionaria_id=p_loja and h.ciclo_id=p_ciclo)
+ then raise exception 'HANDOFF_HUMANO_DEFINITIVO' using errcode='22023'; end if;
  if not exists(
    select 1 from public.mensagens m
    join public.conversas c on c.concessionaria_id=m.concessionaria_id and c.id=m.conversa_id
