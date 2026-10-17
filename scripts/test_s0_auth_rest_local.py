@@ -166,6 +166,20 @@ commit;
 """)
 
 
+# Elegibilidade sintética: evidência só na mesma loja/canal; opt-out da loja A.
+run_sql(f"""
+insert into public.evidencias_elegibilidade_sinteticas(
+ concessionaria_id,lead_id,canal_id,finalidade,referencia_ficticia)
+values ('{LOJA_A}','{LEAD_A}','{CANAL_A}',
+ 'recontato_comercial_sintetico','AUTH_FICTICIO_A_01'),
+ ('{LOJA_B}','{LEAD_B}','{CANAL_B}',
+ 'recontato_comercial_sintetico','AUTH_FICTICIO_B_01');
+insert into public.supressoes_contato_sinteticas(
+ concessionaria_id,lead_id,canal_id,finalidade,evento_origem)
+values ('{LOJA_A}','{LEAD_A}','{CANAL_A}',
+ 'recontato_comercial_sintetico','AUTH_OPTOUT_A_01');
+""")
+
 def select(table, person=None):
     token = actors[person][1] if person else None
     return http("GET", "/rest/v1/" + table + "?select=*", token=token)
@@ -214,6 +228,32 @@ for table in schedule_tables:
     if code not in (401, 403):
         fail("ACC: direct schedule mutation allowed " + table)
 print("PASS AUTH-08: recontatos 4 tabelas, RLS gestor A/B e negativa OP/anon/POST")
+
+for table, counts in (
+    ("evidencias_elegibilidade_sinteticas", (1, 1)),
+    ("supressoes_contato_sinteticas", (1, 0)),
+):
+    for person, expected in zip(("gestora", "gestorb"), counts):
+        code, rows = select(table, person)
+        if code != 200 or not isinstance(rows, list) or len(rows) != expected:
+            fail("ACC: C04 gestor wrong count " + person + "/" + table)
+        shop = LOJA_A if person == "gestora" else LOJA_B
+        if any(row["concessionaria_id"] != shop for row in rows):
+            fail("ACC: C04 data leaked cross-shop " + table)
+    for person in ("operador", "outsider"):
+        code, rows = select(table, person)
+        if code != 200 or rows != []:
+            fail("ACC: C04 unauthorised reader " + person + "/" + table)
+    code, _ = select(table)
+    if code not in (401, 403):
+        fail("ACC: C04 anonymous disclosure " + table)
+    code, _ = http("POST", "/rest/v1/" + table,
+                   token=actors["gestora"][1], payload={})
+    if code not in (401, 403):
+        fail("ACC: C04 user wrote evidence/suppression directly " + table)
+print("PASS AUTH-10: C04 RLS gestor A/B, OP/anon negados e sem escrita REST")
+
+
 
 
 
@@ -266,4 +306,9 @@ for table in schedule_tables:
     if code != 200 or rows != []:
         fail("ACC: revoked manager still reads schedule " + table)
 print("PASS AUTH-09: revogacao do gestor remove leitura de todos recontatos com JWT existente")
+for table in ("evidencias_elegibilidade_sinteticas", "supressoes_contato_sinteticas"):
+    code, rows = select(table, "gestora")
+    if code != 200 or rows != []:
+        fail("ACC: revoked manager still accesses C04 " + table)
+
 
