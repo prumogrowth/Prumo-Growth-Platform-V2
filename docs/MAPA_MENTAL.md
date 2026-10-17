@@ -6,6 +6,7 @@ flowchart TD
   E --> IMP[Lotes por loja]
   E --> INB[Mensagens C02 por canal exclusivo]
   INB --> L
+  INB --> PEND[Multiplos ciclos: revisao humana]
   IMP --> L[Cliente por loja → lead/ciclo: 8 estados]
   L --> EV[Eventos de status]
   L --> IA[IA Vendedora]
