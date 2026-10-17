@@ -48,3 +48,7 @@
 Para continuar **programando**: GO sintético. Para aceitar **C07 pela Data API**: executar uma vez, deliberadamente, o teste Auth/REST atualizado e rever negativas/RLS dos quatro objetos C07, dentro do orçamento. Para habilitar **WhatsApp real**: NO-GO até conclusão de DEC-13/14/15, homologação Meta/LGPD, provas de envio, filas de recuperação, autorização e testes operacionais.
 
 **Limite da conclusão:** a auditoria confirma integridade dos cenários executados; não certifica automaticamente operação segura com clientes reais.
+
+## Atualização de aceite posterior à auditoria — 17/10/2026
+
+A pendência de execução de `AUTH-11` registrada nas seções anteriores **foi encerrada posteriormente**. [GoTrue/PostgREST local #39079580129 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39079580129): `AUTH-01` a `AUTH-11` passaram, incluindo as quatro tabelas de C07, controles por gestor A/B, bloqueios de operador/anônimo/POST e revogação sob JWT existente. O job foi iniciado uma vez com etiqueta explícita e terminou em aproximadamente dois minutos de tempo decorrido; a etiqueta foi retirada após a conclusão. Continua **NO-GO para produção/Meta/Supabase remoto**: Auth local não valida credencial externa, LGPD, backup/restore nem cliente real.
