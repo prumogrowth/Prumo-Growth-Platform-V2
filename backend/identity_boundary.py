@@ -183,7 +183,7 @@ class PsycopgTrustedDatabase:
 
     def __init__(self, dsn: str):
         u = urllib.parse.urlsplit(dsn)
-        if u.scheme not in ("postgres", "postgresql") or u.hostname not in ("127.0.0.1", "localhost", "::1") or not u.path.strip("/").startswith(("prumo_s0_test_", "postgres")):
+        if u.scheme not in ("postgres", "postgresql") or u.hostname not in ("127.0.0.1", "localhost", "::1") or not (u.path.strip("/") == "postgres" or u.path.strip("/").startswith("prumo_s0_test_")):
             raise ValueError("ONLY_DISPOSABLE_LOCAL_DATABASE")
         self._dsn = dsn
 
