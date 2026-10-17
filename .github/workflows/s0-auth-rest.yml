@@ -41,7 +41,7 @@ jobs:
       - name: Instalar driver de teste fixado e somente para sandbox
         run: python3 -m pip install -r backend/requirements-s0-local.txt
       - name: Testar GoTrue real e RLS pela Data API (dados fictícios)
-        run: python3 scripts/test_s0_auth_rest_local.py
+        run: PYTHONPATH=. python3 scripts/test_s0_auth_rest_local.py
       - name: Finalizar instância efêmera
         if: always()
         run: supabase stop --no-backup || true
