@@ -8,18 +8,18 @@ create policy concessionarias_select_linked on public.concessionarias for select
  using(exists(
  select 1 from public.vinculos_papel_escopo v where v.ator_id=(select auth.uid())
  and v.concessionaria_id=concessionarias.id
- and v.valido_desde <= now() and (v.valido_ate is null or v.valido_ate>now())
+ and v.valido_desde <= statement_timestamp() and (v.valido_ate is null or v.valido_ate>statement_timestamp())
  ));
 create policy leads_select_gestor_loja on public.leads_loja for select to authenticated
  using(exists(
  select 1 from public.vinculos_papel_escopo v where v.ator_id=(select auth.uid())
  and v.concessionaria_id=leads_loja.concessionaria_id and v.papel='gestor'
- and v.valido_desde <= now() and (v.valido_ate is null or v.valido_ate>now())
+ and v.valido_desde <= statement_timestamp() and (v.valido_ate is null or v.valido_ate>statement_timestamp())
  ));
 create policy ciclos_select_gestor_loja on public.ciclos_comerciais for select to authenticated
  using(exists(
  select 1 from public.vinculos_papel_escopo v where v.ator_id=(select auth.uid())
  and v.concessionaria_id=ciclos_comerciais.concessionaria_id and v.papel='gestor'
- and v.valido_desde <= now() and (v.valido_ate is null or v.valido_ate>now())
+ and v.valido_desde <= statement_timestamp() and (v.valido_ate is null or v.valido_ate>statement_timestamp())
  ));
 -- Nenhuma permissão INSERT/UPDATE/DELETE ou leitura universal para OP e responsável.
