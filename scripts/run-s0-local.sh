@@ -16,4 +16,5 @@ for file in supabase/tests/bootstrap_fake_auth.sql supabase/migrations/202610170
 done
 bash "$ROOT/scripts/test_s0_concurrency.sh"
 bash "$ROOT/scripts/test_s0_cross_shop.sh"
+bash "$ROOT/scripts/test_s0_c02_concurrency.sh"
 echo 'Teste local concluído. Não houve escrita no Supabase.'
