@@ -136,6 +136,7 @@ class IdentityBoundaryTests(unittest.TestCase):
     def test_09_privileged_database_cannot_point_remote(self):
         for dsn in ("postgresql://postgres:x@db.example.com:5432/postgres",
                     "postgresql://postgres:x@localhost:5432/producao",
+                    "postgresql://postgres:x@localhost:5432/postgresproducao",
                     "sqlite:///tmp/test.db"):
             with self.assertRaises(ValueError):
                 PsycopgTrustedDatabase(dsn)
