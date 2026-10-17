@@ -135,6 +135,32 @@ begin
 end $verify$;
 \echo 'PASS C07-REC-02: duas falhas do mesmo envio contam uma tentativa, bloqueio de nova reserva'
 
+-- The original plan still says 'ativo' when a prior attempt has failed.
+-- An idempotent replay MUST NOT report it as currently executable.
+do $replay$
+declare v_data jsonb;v_r jsonb;
+begin
+ select jsonb_agg(jsonb_build_object(
+  'template_id',e.template_id::text,'agendado_em',e.agendado_em::text)
+  order by e.ordem) into v_data
+ from public.planos_recontato_sinteticos p
+ join public.envios_template_sinteticos e
+  on e.concessionaria_id=p.concessionaria_id and e.plano_id=p.id
+ where p.concessionaria_id='c2000000-0000-4000-8000-000000000071'
+  and p.chave_idempotencia='RECON-A';
+ v_r:=prumo_private.agendar_recontatos_sinteticos(
+ 'c1000000-0000-4000-8000-000000000071',
+ 'c2000000-0000-4000-8000-000000000071',
+ 'c5000000-0000-4000-8000-000000000071',
+ 'c3000000-0000-4000-8000-000000000071','RECON-A',v_data);
+ if v_r->>'outcome'<>'ALREADY_APPLIED'
+  or v_r->>'estado_plano'<>'ativo'
+  or (v_r->>'executavel_simulacao')::boolean is distinct from false
+ then raise exception 'FAIL audit C07 replay still claims execution permitted';end if;
+end $replay$;
+\echo 'PASS C07-AUD-01: replay de plano ativo com falha retorna nao executavel'
+
+
 do $review$
 declare v_unknown uuid;v_failure uuid;v_A uuid;v_B uuid;
  r jsonb;
