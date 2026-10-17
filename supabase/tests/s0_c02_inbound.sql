@@ -204,14 +204,16 @@ do $test$
 begin
  if (select count(*) from public.leads_loja where telefone_cliente_normalizado='+5581000000001')<>1
  or (select count(*) from public.mensagens where id_externo='same-event')<>1
- then raise exception 'FAIL gestor A acessa B'; end if;
+ or (select count(*) from public.pendencias_inbound_simulado)<>1
+ then raise exception 'FAIL gestor A acessa B ou perdeu pendencia'; end if;
 end $test$;
 select set_config('request.jwt.claim.sub','a1000000-0000-4000-8000-000000000002',true);
 do $test$
 begin
  if (select count(*) from public.leads_loja where telefone_cliente_normalizado='+5581000000001')<>1
  or (select count(*) from public.mensagens where id_externo='same-event')<>1
- then raise exception 'FAIL gestor B acessa A'; end if;
+ or (select count(*) from public.pendencias_inbound_simulado)<>0
+ then raise exception 'FAIL gestor B acessa pendencia A'; end if;
 end $test$;
 reset role;
 \echo 'PASS C02-08: gestor A/B isolados para o mesmo telefone cliente'
