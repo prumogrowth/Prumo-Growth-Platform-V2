@@ -365,4 +365,51 @@ for table in ("evidencias_elegibilidade_sinteticas", "supressoes_contato_sinteti
     if code != 200 or rows != []:
         fail("ACC: revoked manager still accesses C04 " + table)
 
+# AUTH-12: Trusted backend verifies GoTrue token, live session and database scope.
+# No caller-controlled actor_id, no service credentials in client, no external API.
+from backend.identity_boundary import (
+    AuthenticatedCommands, Denied, InvalidCommand, PsycopgTrustedDatabase,
+    SupabaseGoTrueVerifier,
+)
+import psycopg
+
+verifier = SupabaseGoTrueVerifier(API, ANON)
+adapter = AuthenticatedCommands(verifier, PsycopgTrustedDatabase(DB))
+payload = {
+    "loja_id": LOJA_B,
+    "plano_id": "d7000000-0000-4000-8000-000000000092",
+    "expected_version": 1,
+}
+# The manager of B is not revoked; the manager of A was revoked above.
+verified_b = verifier.verify("Bearer " + actors["gestorb"][1])
+if str(verified_b.actor_id) != B:
+    fail("AUTH-12: identity is not issued by GoTrue")
+try:
+    adapter.execute("Bearer " + actors["gestorb"][1], "cancelar_plano",
+                    dict(payload, actor_id=A))
+    fail("AUTH-12: spoofed actor_id accepted")
+except InvalidCommand:
+    pass
+for person in ("gestora", "outsider", "operador"):
+    try:
+        adapter.execute("Bearer " + actors[person][1], "cancelar_plano", payload)
+        fail("AUTH-12: unauthorized actor cancelled B plan: " + person)
+    except (Denied, psycopg.errors.InsufficientPrivilege):
+        pass
+result = adapter.execute("Bearer " + actors["gestorb"][1], "cancelar_plano", payload)
+if result.get("outcome") != "APPLIED":
+    fail("AUTH-12: verified manager B could not cancel local simulated plan")
+again = adapter.execute("Bearer " + actors["gestorb"][1], "cancelar_plano", payload)
+if again.get("outcome") != "ALREADY_APPLIED":
+    fail("AUTH-12: repeated authorized operation not idempotent")
+# Remove local Auth session: the old signed JWT cannot authorize another DB write.
+run_sql(f"delete from auth.sessions where id='{verified_b.session_id}' and user_id='{B}';")
+try:
+    adapter.execute("Bearer " + actors["gestorb"][1], "cancelar_plano", payload)
+    fail("AUTH-12: revoked session still authorized by privileged backend")
+except Denied:
+    pass
+print("PASS AUTH-12: GoTrue->sessao viva->funcao privada, ator autenticado e escopo/expiracao")
+
+
 
