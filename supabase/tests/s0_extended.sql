@@ -158,8 +158,8 @@ update public.vinculos_papel_escopo set valido_ate=clock_timestamp()
 set local role authenticated;
 select set_config('request.jwt.claim.sub','10000000-0000-4000-8000-000000000011',true);
 do $$ begin
- if (select count(*) from public.conversas)<>0 then
-  raise exception 'FAIL gestor sem concessao ainda le conversa'; end if;
+ if (select count(*) from public.conversas)<>0 or (select count(*) from public.atribuicoes_humanas)<>0 then
+  raise exception 'FAIL revogacao: conversa ou atribuicao ainda visivel'; end if;
  begin
   insert into public.mensagens(concessionaria_id,conversa_id,canal_id,caso_id,direcao,origem,conteudo_sintetico,enviada_por)
   values('20000000-0000-4000-8000-000000000011','80000000-0000-4000-8000-000000000011',
