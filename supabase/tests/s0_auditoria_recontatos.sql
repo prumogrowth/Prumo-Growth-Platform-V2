@@ -18,6 +18,8 @@ insert into public.canais_loja(id,concessionaria_id,identificador_emissor) value
 insert into public.catalogo_templates_sinteticos(id,concessionaria_id,codigo,versao,aprovado_simulacao)
  values('b6000000-0000-4000-8000-000000000010','b2000000-0000-4000-8000-000000000010','T1',1,true);
 
+insert into public.evidencias_elegibilidade_sinteticas(concessionaria_id,lead_id,canal_id,finalidade,referencia_ficticia) values
+('b2000000-0000-4000-8000-000000000010','b3000000-0000-4000-8000-000000000010','b5000000-0000-4000-8000-000000000010','recontato_comercial_sintetico','PROVA_FICTICIA_CI_1');
 do $test$
 declare v jsonb; t jsonb; p uuid; e uuid;
 begin
