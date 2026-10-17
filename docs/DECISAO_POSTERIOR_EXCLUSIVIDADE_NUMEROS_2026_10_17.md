@@ -1,20 +1,20 @@
-# DECISÃO POSTERIOR — Exclusividade de números entre concessionárias
+# REGISTRO RETRATADO — interpretação incorreta de números
 
-Data: 17/10/2026 — orientação posterior do responsável.
+**Status: RETRATADO / NÃO VIGENTE.** Este documento registrou uma interpretação equivocada sobre a unicidade do telefone do cliente e NÃO deve ser usado como requisito técnico.
 
-**Nova regra operacional, adotada nesta branch:** um telefone de **cliente/lead** não pode estar vinculado simultaneamente a concessionárias distintas na Prumo. O número **emissor** de WhatsApp gerenciado pela Prumo também permanece único por loja — essa última exclusividade já existia.
+## Esclarecimento final de 17/10/2026, confirmado pelo responsável
 
-## Divergência registrada (sem apagar o histórico)
-As fontes anteriores 08A, 25, 26, 30, 38 e 43 expressamente admitiam um mesmo telefone de cliente nas lojas A e B, com históricos independentes; esse **cenário de teste foi substituído pela decisão posterior**. Permanece normativo o isolamento das lojas, das conversas e das provas. Não unificar histórico, movimentar lead, consultar loja alheia nem resolver telefone reciclado automaticamente.
+1. **Telefone do cliente:** pode constar em concessionárias A, B e C simultaneamente, cada uma com seu lead, ciclo, conversas e histórico próprios e isolados. A unicidade é `(concessionaria_id, telefone_cliente_normalizado)`.
+2. **Número de atendimento da Prumo (emissor/receptor WhatsApp):** não pode ser vinculado a duas concessionárias distintas. `canais_loja.identificador_emissor` mantém unicidade global.
 
-## Implementação candidata
-- Migração 007: UNIQUE global de telefone normalizado do lead + formato E.164; mantém chaves compostas e RLS por loja.
-- Migração 006 ajustada: tentativa de importar o mesmo telefone pela segunda loja gera item rejeitado com motivo genérico `CONTATO_NAO_ELEGIVEL`, sem revelar nome, ID ou histórico da loja que já o possui; o lote preserva outras linhas válidas.
-- Migração 008: leitura de lead do operador somente com caso ativo atribuído, vínculo vigente e mesma loja; sem leitura generalizada.
-- Tests S0: A/B usam telefones distintos; colisão global direta é negada; importação de colisão retorna rejeição genérica; disputa simultânea entre duas lojas não cria duplicação.
-- `canais_loja.identificador_emissor` já utiliza UNIQUE global: um número emissor por concessionária.
+## Reparação
 
-## Portões e questões ainda abertas
-Esta regra muda um requisito de negócio e a política de índices globais do documento 30; deve entrar na **consolidação documental vigente** antes de produção. O índice global de telefone pode facilitar correlação interlojas pelo banco privilegiado, exigindo análise de minimização/LGPD, privilégios e registro de alçadas. O motivo genérico impede expor a loja titular, mas não elimina inferência operacional pela recusa. Não há regra aprovada de transferência, exclusão, reciclagem ou contestação de titularidade; operações devem ser bloqueadas e encaminhadas a processo humano até essa decisão.
+- A migração 007 que criava índice UNIQUE global de cliente foi **excluída da branch antes de qualquer implantação**.
+- A função interna de importação 006 voltou a deduplicar telefone por concessionária, não por plataforma.
+- Os testes de mesma pessoa nas lojas A/B e de isolamento entre elas foram restaurados.
+- O teste de concorrência multiloja deve aprovar dois leads/ciclos da mesma pessoa e nenhum cruzamento de dados.
+- A migração 008 de acesso limitado do operador permanece, por ser um reparo independente e válido.
 
-Nenhum número real ou credencial foi empregado. Não implantar no Supabase remoto antes da validação em ambiente integrado e dos controles LGPD.
+Este registro retratado permanece apenas para rastreabilidade dos commits. **Documento vigente de substituição:** `docs/REGRA_NUMEROS_ATENDIMENTO_CLIENTE_2026_10_17.md`.
+
+Nenhuma migração comercial foi aplicada ao Supabase remoto; não foram afetados dados reais.
