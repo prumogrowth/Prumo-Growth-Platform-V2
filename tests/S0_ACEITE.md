@@ -53,7 +53,7 @@ A função do lote **não é endpoint público**: exige execução interna com p
 
 O link do CI antigo #39064447771 refere-se a implementação retirada e não serve como aceite vigente.
 
-**Evidência atual de CI:** a ser atualizada após execução do pipeline corretivo. Critérios obrigatórios:
+**Evidência corrigida e efetivamente executada:** [GitHub Actions #39065589861](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39065589861) — PostgreSQL 17 efêmero, resultado **PASS** com conferência dos logs. Critérios aprovados nesta simulação:
 - Mesmo telefone em lojas A/B: 2 leads/ciclos independentes, RLS gestor A/B e nenhuma conversa cruzada.
 - Mesmo telefone reimportado na MESMA loja: sem duplicação, com reencontro.
 - Emissor Prumo repetido para duas lojas: rejeição por constraint única.
@@ -62,3 +62,5 @@ O link do CI antigo #39064447771 refere-se a implementação retirada e não ser
 - Demais testes C01, eventos, handoff e idempotência continuam obrigatórios.
 
 **Portões permanecem:** Auth/REST em ambiente Supabase integrado, revisão de grants, backup/restauração, LGPD, aprovação humana, nenhuma migração no remoto.
+
+**Evidência específica:** log `PASS TX-CROSS-SHOP: mesmo cliente em A e B sob concorrencia; historicos isolados`; `PASS TX-C01`, `PASS TX-STATUS`, `PASS TX-HANDOFF`, `PASS TX-CONC` e RLS A/B confirmados. Esses testes não substituem Supabase Auth real nem homologação operacional.
