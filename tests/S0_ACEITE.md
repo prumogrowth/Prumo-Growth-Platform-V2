@@ -30,3 +30,19 @@ Banco: PostgreSQL 17 efêmero; identidade Supabase simulada exclusivamente para 
 - Revisão humana final de migrações, configuração de grants/toggles API e procedimento de recuperação antes de deploy.
 
 **Portão: PR continua DRAFT. Não fazer merge ou deploy remoto somente com os PASS desta página. A régua documental histórica 19F não é modificada automaticamente.**
+
+## Incremento C01 e eventos atômicos — evidência em 17/10/2026
+
+Evidência: [CI #39063441684](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39063441684), PostgreSQL 17 descartável.
+
+| Teste da nova implementação | Resultado |
+|---|---|
+| TX-C01: função transacional de importação, linhas rejeitadas e reentrega com mesma chave | PASS (CI) |
+| TX-AUTH: esquema interno não acessível a `anon` / `authenticated` | PASS (CI) |
+| TX-STATUS: versão esperada, prova de inbound sintética, evento e idempotência | PASS (CI) |
+| TX-HANDOFF: ciclo com caso humano não volta para atendimento pela IA | PASS (CI) |
+| TX-CONC: duas conexões simultâneas, sem duplicar lote/lead/ciclo/item | PASS (CI) |
+
+A função do lote **não é endpoint público**: exige execução interna com papel SQL `postgres` e verifica o ator gestor/loja. Ela ainda carece de um adaptador de identidade real, de política de retenção e de auditoria operacional. O controle de concorrência foi comprovado especificamente para duas chamadas concorrentes com a **mesma chave de lote**; lotes distintos, filas e concorrência de atribuições permanecem pendentes.
+
+**S0 não homologado:** C02 real, Auth real, APIs Meta/Banco, acesso fino D3/D4, reações externas, backup/restauração e portões LGPD permanecem bloqueados. Nenhuma migração comercial foi aplicada ao Supabase remoto. Não alterar a porcentagem histórica de planejamento (19F) por esses testes.
