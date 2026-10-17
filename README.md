@@ -23,6 +23,8 @@ Arquivos:
 - `docs/C07_CALLBACKS_SIMULADOS_2026_10_17.md`: eventos técnicos correlacionados, duplicados, tardios e pendências de reconciliação; sem prova externa.
 - `docs/C07_RECONCILIACAO_FALHAS_SIMULADAS_2026_10_17.md`: pendências por evento, revisão humana com versão, histórico e bloqueio de retry cego.
 - `docs/ESTADO_AMBIENTES_GITHUB_SUPABASE_2026_10_17.md`: diferença entre GitHub, Supabase descartável de testes e projeto hospedado (sem migrações comerciais).
+- `backend/identity_boundary.py`, `backend/tests/test_identity_boundary.py`: protótipo **interno/local** que deriva ator do GoTrue autenticado, confirma sessão ativa e só permite dois comandos sintéticos via SQL parametrizado; não expõe API pública nem DSN remoto.
+- `docs/BACKEND_IDENTIDADE_AUTENTICADA_S0_2026_10_17.md`: fronteira de confiança, limitações e gates antes de serviço operacional.
 - `docs/AUDITORIA_C07_RECONCILIACAO_2026_10_17.md`: resultados da auditoria, reparo do replay C05 e pendências de Auth/REST.
 - `scripts/test_s0_c07_recon_concurrency.sh`: duas revisões concorrentes do mesmo evento, uma única decisão auditada.
 - `docs/CONTROLE_CUSTOS_GITHUB_ACTIONS_2026_10_17.md`: workflows enxutos, timeouts, cancelamento de execuções obsoletas e Auth/REST opt-in.
