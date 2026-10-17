@@ -110,32 +110,34 @@ run_sql(f"""
 begin;
 insert into public.atores(id) values ('{A}'),('{B}'),('{OP}'),('{OUT}');
 insert into public.concessionarias(id,nome_operacional) values
-('{LOJA_A}','A - sintética'),('{LOJA_B}','B - sintética');
+('{LOJA_A}','A - sintetica'),('{LOJA_B}','B - sintetica');
 insert into public.vinculos_papel_escopo(ator_id,concessionaria_id,papel) values
 ('{A}','{LOJA_A}','gestor'),('{B}','{LOJA_B}','gestor'),('{OP}','{LOJA_A}','operador');
 insert into public.canais_loja(id,concessionaria_id,identificador_emissor) values
-('{CANAL_A}','CANAL_LOJA_A','CANAL_LOJA_A');
-rollback;
-""".replace(f"('{CANAL_A}','CANAL_LOJA_A','CANAL_LOJA_A')",
-             f"('{CANAL_A}','{LOJA_A}','emissor_sintetico_A'),('{CANAL_B}','{LOJA_B}','emissor_sintetico_B')"
-             ).replace("rollback;",f"""
+('{CANAL_A}','{LOJA_A}','emissor_sintetico_A'),
+('{CANAL_B}','{LOJA_B}','emissor_sintetico_B');
 insert into public.leads_loja(id,concessionaria_id,telefone_cliente_normalizado) values
-('{LEAD_A}','{LOJA_A}','+5581999000001'),('{LEAD_B}','{LOJA_B}','+5581999000001');
-insert into public.ciclos_comerciais(id,concessionaria_id,lead_id)
-values ('{CICLO_A}','{LOJA_A}','{LEAD_A}'),('{CICLO_B}','{LOJA_B}','{LEAD_B}');
+('{LEAD_A}','{LOJA_A}','+5581999000001'),
+('{LEAD_B}','{LOJA_B}','+5581999000001');
+insert into public.ciclos_comerciais(id,concessionaria_id,lead_id) values
+('{CICLO_A}','{LOJA_A}','{LEAD_A}'),
+('{CICLO_B}','{LOJA_B}','{LEAD_B}');
 insert into public.casos_humanos(id,concessionaria_id,lead_id,ciclo_id)
-values ('{CASO_A}','{LOJA_A}','{LEAD_A}','{CICLO_A}');
+values('{CASO_A}','{LOJA_A}','{LEAD_A}','{CICLO_A}');
 insert into public.atribuicoes_humanas(concessionaria_id,caso_id,operador_id)
 values('{LOJA_A}','{CASO_A}','{OP}');
-insert into public.conversas(id,concessionaria_id,lead_id,canal_id,caso_id)
-values ('{CONV_A}','{LOJA_A}','{LEAD_A}','{CANAL_A}','{CASO_A}'),
+insert into public.conversas(id,concessionaria_id,lead_id,canal_id,caso_id) values
+('{CONV_A}','{LOJA_A}','{LEAD_A}','{CANAL_A}','{CASO_A}'),
 ('{CONV_B}','{LOJA_B}','{LEAD_B}','{CANAL_B}',null);
 insert into public.mensagens(concessionaria_id,conversa_id,canal_id,caso_id,direcao,origem,
-conteudo_sintetico,id_externo)
-values('{LOJA_A}','{CONV_A}','{CANAL_A}','{CASO_A}','entrada','simulado','A teste','A-test1'),
+conteudo_sintetico,id_externo) values
+('{LOJA_A}','{CONV_A}','{CANAL_A}','{CASO_A}','entrada','simulado','A teste','A-test1'),
 ('{LOJA_B}','{CONV_B}','{CANAL_B}',null,'entrada','simulado','B teste','B-test1');
+insert into public.pendencias_inbound_simulado(concessionaria_id,canal_id,lead_id,mensagem_id,motivo)
+select '{LOJA_A}','{CANAL_A}','{LEAD_A}',id,'MULTIPLOS_CICLOS'
+from public.mensagens where concessionaria_id='{LOJA_A}' and id_externo='A-test1';
 commit;
-"""))
+""")
 
 
 def select(table, person=None):
@@ -157,7 +159,11 @@ for table in ("leads_loja", "conversas", "mensagens"):
     code, records = select(table, "outsider")
     if code != 200 or records != []:
         fail("ACC: unlinked user was allowed data in " + table)
-print("PASS AUTH-02: operador designado somente caso A; usuario sem vinculo bloqueado")
+print("PASS AUTH-02: operador designado somente caso A; usuario sem vinculo bloqueado")for name, expected in (("gestora", 1), ("gestorb", 0), ("operador", 0), ("outsider", 0)):
+    code, rows = select("pendencias_inbound_simulado", name)
+    if code != 200 or not isinstance(rows, list) or len(rows) != expected:
+        fail("ACC: unauthorized review inbox disclosure for " + name)
+print("PASS AUTH-07: pendencia C02 legivel apenas pela gestora da loja A")
 
 for table in ("leads_loja", "conversas", "mensagens"):
     code, records = select(table)
