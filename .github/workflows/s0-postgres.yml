@@ -1,11 +1,5 @@
 name: Prumo S0 - PostgreSQL isolado
 on:
-  push:
-    branches: [feat/s0-fundacao-prumo]
-    paths:
-      - 'supabase/**'
-      - 'scripts/**'
-      - '.github/workflows/s0-postgres.yml'
   pull_request:
     paths:
       - 'supabase/**'
@@ -13,10 +7,17 @@ on:
       - '.github/workflows/s0-postgres.yml'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: prumo-s0-postgres-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   s0-db-isolation:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 5
     services:
       postgres:
         image: postgres:17
