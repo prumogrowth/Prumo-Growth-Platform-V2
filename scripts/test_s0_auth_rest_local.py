@@ -159,7 +159,8 @@ for table in ("leads_loja", "conversas", "mensagens"):
     code, records = select(table, "outsider")
     if code != 200 or records != []:
         fail("ACC: unlinked user was allowed data in " + table)
-print("PASS AUTH-02: operador designado somente caso A; usuario sem vinculo bloqueado")for name, expected in (("gestora", 1), ("gestorb", 0), ("operador", 0), ("outsider", 0)):
+print("PASS AUTH-02: operador designado somente caso A; usuario sem vinculo bloqueado")
+for name, expected in (("gestora", 1), ("gestorb", 0), ("operador", 0), ("outsider", 0)):
     code, rows = select("pendencias_inbound_simulado", name)
     if code != 200 or not isinstance(rows, list) or len(rows) != expected:
         fail("ACC: unauthorized review inbox disclosure for " + name)
