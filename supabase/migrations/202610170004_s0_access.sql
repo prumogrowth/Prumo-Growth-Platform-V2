@@ -7,7 +7,11 @@ grant select on public.canais_loja,public.lotes_importacao,public.itens_lote,
 -- Atribuições são legíveis por gestor da loja ou pelo próprio operador designado.
 create policy atribuicoes_select_escopo on public.atribuicoes_humanas
  for select to authenticated using (
- operador_id=(select auth.uid()) or exists(
+ (operador_id=(select auth.uid()) and encerrada_em is null
+ and exists(select 1 from public.vinculos_papel_escopo va
+ where va.ator_id=(select auth.uid()) and va.concessionaria_id=atribuicoes_humanas.concessionaria_id
+ and va.papel in ('gestor','operador') and va.valido_desde<=statement_timestamp()
+ and (va.valido_ate is null or va.valido_ate>statement_timestamp()))) or exists(
   select 1 from public.vinculos_papel_escopo v where
    v.ator_id=(select auth.uid()) and v.concessionaria_id=atribuicoes_humanas.concessionaria_id
    and v.papel='gestor' and v.valido_desde<=statement_timestamp() and (v.valido_ate is null or v.valido_ate>statement_timestamp())
