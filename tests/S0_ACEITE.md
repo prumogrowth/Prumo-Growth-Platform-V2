@@ -145,3 +145,18 @@ Parecer: `docs/AUDITORIA_C04_PRE_C07_2026_10_17.md`. **GO somente simulação C0
 **Economia:** workflow PG só com `push` seletivo por arquivos alterados (sem duplicação PR nem disparo por commits documentais), `cancel-in-progress` e timeout 5 min. Auth sob opt-in e timeout 12 min. Detalhes: `docs/CONTROLE_CUSTOS_GITHUB_ACTIONS_2026_10_17.md`.
 
 **Gate:** GO apenas para engenharia C07 sintética; NO-GO para webhook Meta real, disparo, callbacks autenticados, relógio final + 24h ou alteração comercial por eventos simulados. Fontes: `docs/C07_CALLBACKS_SIMULADOS_2026_10_17.md`.
+
+## C07 — reconciliação de incerteza e falhas (17/10/2026)
+
+**[GitHub Actions PostgreSQL 17 #39078241536 — PASS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39078241536)**: `C07-REC-01..05` e regressões anteriores.
+
+- REC-01: fila por loja para evento não correlacionado, resultado incerto, falha reportada e sinais contraditórios; reentrega não duplica.
+- REC-02: duas notificações de falha no mesmo envio contam **uma tentativa distinta**; nova reserva bloqueada sem decisão de retry.
+- REC-03: gestor A pode reconciliar só sua loja, `expected_version`, justificativa, vínculo fictício no mesmo canal e replay idempotente. Gestor B negado; histórico original permanece.
+- REC-04: observação de falha impede **novo plano** mesmo depois de cancelamento do anterior e conclusão de revisão sem prova.
+- REC-05: RLS por concessionária nas novas tabelas, sem UPDATE direto do gestor.
+- **[GitHub Actions PostgreSQL 17 #39078390224 — PASS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39078390224)**: `C07-REC-RACE` com duas conexões resolvendo a mesma pendência; uma única auditoria, segunda execução `ALREADY_APPLIED`.
+
+**Auth/REST:** foi acrescentado `AUTH-11` à suíte local para callbacks/pendências/associações/auditoria, mas essa suíte custosa **não foi acionada** nesta rodada. A migration 021 não está homologada por teste integrado PostgREST. Antes de qualquer gate externo, executar deliberadamente o teste integrado e revisar segurança.
+
+**Norma:** `docs/C07_RECONCILIACAO_FALHAS_SIMULADAS_2026_10_17.md`. DEC-13/14/15 ainda pendentes; duas falhas técnicas NÃO equivalem a duas falhas qualificadas. Nenhum novo envio real, retry, 24h, prova Meta ou status `perdido` foi gerado. Somente engenharia sintética em ambiente isolado.
