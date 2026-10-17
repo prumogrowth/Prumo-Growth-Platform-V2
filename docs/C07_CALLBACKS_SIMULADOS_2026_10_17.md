@@ -36,3 +36,7 @@
 6. RLS via GoTrue/REST real para a tabela 019 ainda requer execução opt-in antes de homologação; LGPD, backups/restore, Meta/Banco e outros gates permanecem.
 
 **Gate: GO apenas para a próxima engenharia sintética/segura; NO-GO para qualquer Meta real, dados comerciais reais, merge ou deploy remoto.**
+
+## Adendo — validação integrada posterior (17/10/2026)
+
+Embora a seção original registre que Auth/REST ainda não havia sido executado naquele momento, o marco foi concluído depois: [GitHub Actions #39079580129 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39079580129), inclusive `AUTH-11` da tabela de callbacks e das novas tabelas de reconciliação. Testes locais efêmeros, sem implantação comercial Supabase ou envio Meta.
