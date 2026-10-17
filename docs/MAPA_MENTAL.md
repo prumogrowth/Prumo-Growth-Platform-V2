@@ -25,6 +25,9 @@ flowchart TD
   C07 --> RISK[Falha ou incerteza: sem retry automatico]
   RC --> GEST[Revisao do gestor: versao e justificativa]
   RISK --> GEST
+  P --> AUTH[Backend S0: GoTrue verificado + sessao ativa]
+  AUTH --> OP[Comandos sintéticos restritos: gestor/versao/loja]
+  OP --> GEST
   P --> ADM[Gestão e MCP com confirmação]
   P --> DB[Supabase: dados, RLS e auditoria]
   P --> INT[Integrações futuras]
