@@ -6,7 +6,9 @@ Operação comercial do produto **LiberaCred**, da instituição financeira. As 
 
 Arquivos:
 - `supabase/migrations/`: fundamento e RLS de leitura segura por concessionária.
-- `supabase/tests/`: fixtures sintéticas e testes SQL de isolamento.
+- `supabase/tests/`: fixtures sintéticas, importação C01 e testes SQL de isolamento/transições.
+- `supabase/migrations/202610170006_s0_transactional_simulation.sql`: serviços internos C01 e evento de inbound simulados; **não expostos à API**.
+- `scripts/test_s0_concurrency.sh`: ensaio com duas conexões PostgreSQL concorrentes.
 - `scripts/run-s0-local.sh`: runner restrito a Postgres LOCAL e base descartável.
 - `docs/MAPA_MENTAL.md`: mapa mental simples.
 - `docs/DECISOES_E_GATES.md`: regras, custos e próximos portões.
@@ -16,4 +18,4 @@ S0: gestores autenticados podem ler leads/ciclos **somente de lojas vinculadas**
 
 Teste futuro: crie um banco local descartável `prumo_s0_test_*`, exporte `PRUMO_TEST_DATABASE_URL` e rode `./scripts/run-s0-local.sh`. **Não apontar para Supabase remoto.**
 
-Migrações versionadas não estão implantadas no Supabase. Não gravar segredos nem dados pessoais reais no repositório.
+Migrações versionadas 001–006 não estão implantadas no Supabase. Suíte SQL e teste concorrente executados em CI; veja `tests/S0_ACEITE.md`. Não gravar segredos nem dados pessoais reais no repositório.
