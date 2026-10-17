@@ -25,7 +25,7 @@ Em conformidade conceitual com os documentos vigentes **09** (catálogo, envios 
 ## Itens propositalmente não implementados
 1. **Nenhuma transmissão** ou integração real da Meta, nenhum aceite/sent/delivered/read, nenhuma chamada de IA Planejadora e nenhum n8n.
 2. Agenda (1 a 5 itens sintéticos) é **limite técnico de ensaio**, não política comercial aprovada. Os números/cadências finais (primeira abordagem, duas adicionais, 2–5 após conversa) e horários dependem da homologação externa e da regra oficial.
-3. Ainda **não existe** opt-in, opt-out real por emissor/finalidade, timezone de cliente, janela da Meta, limite de volume, consentimento legítimo, callback tardio, resultado incerto, retentativa de transmissão, duas falhas consecutivas qualificadas, reconciliação ou recuperação de outbox real.
+3. Existe o protótipo **sintético** C04 de elegibilidade e opt-out por loja/emissor/finalidade, sem prova real. Ainda **não existe** opt-in, opt-out real por emissor/finalidade, timezone de cliente, janela da Meta, limite de volume, consentimento legítimo, callback tardio, resultado incerto, retentativa de transmissão, duas falhas consecutivas qualificadas, reconciliação ou recuperação de outbox real.
 4. Não criar período de 24 horas ou marcar `perdido` sem comprovante real do **template final efetivamente enviado**. Cancelamento de plano jamais muda status comercial.
 5. O argumento `p_ator` deve ser derivado de identidade autenticada pelo backend privilegiado; não aceitar do navegador. Nenhuma permissão de execução das funções privadas foi concedida a usuários comuns.
 6. Não realizar merge nem implantar migrations comerciais no Supabase hospedado sem revisão humana, teste integrado e gate LGPD/Meta.
