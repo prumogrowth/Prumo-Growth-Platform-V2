@@ -175,17 +175,27 @@ insert into public.ciclos_comerciais(concessionaria_id,lead_id)
  where concessionaria_id='a2000000-0000-4000-8000-000000000001'
  and telefone_cliente_normalizado='+5581000000001';
 do $test$
-begin
- begin
-  perform prumo_private.receber_mensagem_sintetica(
-   'a3000000-0000-4000-8000-000000000001',
-   '+5581000000001','ambiguous','Novo pedido ficticio');
-  raise exception 'FAIL ciclo ambiguo escolhido automaticamente';
- exception when invalid_parameter_value then null; end;
- if exists(select 1 from public.mensagens where id_externo='ambiguous')
- then raise exception 'FAIL ciclo ambiguo criou mensagem'; end if;
+declare r jsonb; r2 jsonb; begin
+ r:=prumo_private.receber_mensagem_sintetica(
+    'a3000000-0000-4000-8000-000000000001',
+    '+5581000000001','ambiguous','Novo pedido ficticio');
+ r2:=prumo_private.receber_mensagem_sintetica(
+    'a3000000-0000-4000-8000-000000000001',
+    '+5581000000001','ambiguous','Novo pedido ficticio');
+ if r->>'outcome'<>'APPLIED' or r->>'roteamento'<>'HUMANO_PENDENTE'
+    or r->>'revisao'<>'MULTIPLOS_CICLOS'
+    or r->>'ciclo_id' is not null or r->>'caso_id' is not null
+    or r2->>'outcome'<>'ALREADY_APPLIED'
+    or (select count(*) from public.mensagens
+         where concessionaria_id='a2000000-0000-4000-8000-000000000001'
+           and id_externo='ambiguous')<>1
+    or (select count(*) from public.pendencias_inbound_simulado
+         where concessionaria_id='a2000000-0000-4000-8000-000000000001')<>1
+    or (select count(*) from public.eventos_status_comercial
+         where concessionaria_id='a2000000-0000-4000-8000-000000000001')<>2
+ then raise exception 'FAIL C02 inbox ambiguo perdeu mensagem ou inventou ciclo'; end if;
 end $test$;
-\echo 'PASS C02-07: multiplos ciclos sao enviados a revisao sem associacao arbitraria'
+\echo 'PASS C02-07: multiplos ciclos preservam mensagem para revisao sem acionar IA'
 
 -- RLS A/B: mesmos numeros de cliente nao compartilham linhas.
 set local role authenticated;
