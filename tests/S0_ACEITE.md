@@ -169,3 +169,14 @@ Parecer: `docs/AUDITORIA_C04_PRE_C07_2026_10_17.md`. **GO somente simulação C0
 - Migração **022** reforça os diagnósticos de associação manual, respeitando eventos históricos e sem alterar estados comerciais.
 - **Auth/REST: PENDENTE, não falhou nem passou** para migrations 019–022. O teste `AUTH-11` existe no script mas não foi executado devido ao gate deliberado de minutos GitHub Actions. Fazer execução opt-in antes de homologar C07 por Data API.
 - Ver parecer: `docs/AUDITORIA_C07_RECONCILIACAO_2026_10_17.md`. GO apenas para continuar engenharia sintética; NO-GO para produção/merge/deploy/Meta.
+
+## Gate Auth/REST de C07 — execução deliberada (17/10/2026)
+
+**[GitHub Actions #39079580129 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39079580129)**. Teste GoTrue/PostgREST rodado **uma única vez** em Supabase descartável com limite configurado de 12 minutos, no código vigente (migrations até 022). Logs conferidos: `AUTH-01` a `AUTH-11` PASS (sequência técnica dos rótulos varia).
+
+- `AUTH-11` PASS: tabelas `eventos_callback_sinteticos`, `pendencias_reconciliacao_c07_sinteticas`, `associacoes_callback_c07_sinteticas` e `auditoria_reconciliacao_c07_sintetica`. Gestores A/B leem somente a própria concessionária; operador, sem vínculo e anônimo não leem; tentativas de INSERT via REST bloqueadas.
+- A revogação do gestor bloqueia essas leituras mesmo com JWT previamente emitido. Revisões continuam operando somente via funções internas sob identidade privilegiada no sandbox.
+- Após o job, a etiqueta `run-auth-integration` foi retirada do PR para não deixar novo disparo habilitado. **Não foi usado `db push` nem migração do projeto hospedado.**
+- [Regressão PostgreSQL #39079075704 — PASS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39079075704), incluindo `C07-AUD-01` e concorrência. Ambos são testes **locais**, não homologação de origem Meta, LGPD ou operação real.
+
+Esse gate resolve a pendência de **validação Auth/REST local de C07**; não resolve backend autenticado de produção, tráfego Meta real, recuperação, backup/restore, revisão DEC-13/14/15 ou autorização para merge/deploy.
