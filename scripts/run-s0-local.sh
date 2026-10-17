@@ -19,4 +19,5 @@ bash "$ROOT/scripts/test_s0_cross_shop.sh"
 bash "$ROOT/scripts/test_s0_c02_concurrency.sh"
 bash "$ROOT/scripts/test_s0_recontato_race.sh"
 bash "$ROOT/scripts/test_s0_c04_optout_race.sh"
+bash "$ROOT/scripts/test_s0_c07_recon_concurrency.sh"
 echo 'Teste local concluído. Não houve escrita no Supabase.'
