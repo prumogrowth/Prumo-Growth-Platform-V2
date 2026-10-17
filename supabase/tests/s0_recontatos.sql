@@ -26,6 +26,9 @@ insert into public.catalogo_templates_sinteticos(id,concessionaria_id,codigo,ver
  ('d6000000-0000-4000-8000-000000000002','d2000000-0000-4000-8000-000000000002','T1',1,true),
  ('d6000000-0000-4000-8000-000000000003','d2000000-0000-4000-8000-000000000001','UNAPPROVED',1,false);
 
+insert into public.evidencias_elegibilidade_sinteticas(concessionaria_id,lead_id,canal_id,finalidade,referencia_ficticia) values
+('d2000000-0000-4000-8000-000000000001','d4000000-0000-4000-8000-000000000001','d3000000-0000-4000-8000-000000000001','recontato_comercial_sintetico','PROVA_FICTICIA_CI_1'),
+('d2000000-0000-4000-8000-000000000002','d4000000-0000-4000-8000-000000000002','d3000000-0000-4000-8000-000000000002','recontato_comercial_sintetico','PROVA_FICTICIA_CI_2');
 do $test$
 declare r jsonb; again jsonb; ra jsonb; rb jsonb; input jsonb; pa uuid; pb uuid;
 begin
