@@ -11,7 +11,7 @@ if u.scheme not in ('postgres','postgresql') or u.hostname not in ('localhost','
  sys.exit('RECUSADO: apenas PostgreSQL LOCAL descartável prumo_s0_test_*')
 PY
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-for file in supabase/tests/bootstrap_fake_auth.sql supabase/migrations/202610170001_s0_foundation.sql supabase/migrations/202610170002_s0_read_policies.sql supabase/migrations/202610170003_s0_domain.sql supabase/migrations/202610170004_s0_access.sql supabase/tests/s0_isolation.sql supabase/tests/s0_extended.sql; do
+for file in supabase/tests/bootstrap_fake_auth.sql supabase/migrations/202610170001_s0_foundation.sql supabase/migrations/202610170002_s0_read_policies.sql supabase/migrations/202610170003_s0_domain.sql supabase/migrations/202610170004_s0_access.sql supabase/migrations/202610170005_s0_scope_integrity.sql supabase/tests/s0_isolation.sql supabase/tests/s0_extended.sql; do
  psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$ROOT/$file"
 done
 echo 'Teste local concluído. Não houve escrita no Supabase.'
