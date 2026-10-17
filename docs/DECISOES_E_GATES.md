@@ -17,4 +17,4 @@
 5. Supabase Free remoto é desenvolvimento, nunca produção sem os portões aplicáveis.
 6. Operação real depende de GO/NO-GO humano por capacidade e validação Meta/Banco/LGPD. Nenhuma assinatura é feita automaticamente.
 
-**Estado:** branch GitHub S0 contém código candidato; testes PostgreSQL ainda não executados.
+**Estado:** branch S0 publicada em PR draft #1. Testes limitados de isolamento A/B aprovados em PostgreSQL 17 descartável ([CI PASS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39059980947)). Casos/importações/eventos e revisão humana permanecem pendentes. Nenhuma migration foi aplicada ao Supabase remoto.
