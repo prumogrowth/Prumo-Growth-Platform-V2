@@ -26,6 +26,8 @@ insert into public.catalogo_templates_sinteticos(id,concessionaria_id,codigo,ver
 ('f6000000-0000-4000-8000-000000000002','f2000000-0000-4000-8000-000000000001','PENDENTE',1,false),
 ('f6000000-0000-4000-8000-000000000003','f2000000-0000-4000-8000-000000000002','APROVADO',1,true);
 
+insert into public.evidencias_elegibilidade_sinteticas(concessionaria_id,lead_id,canal_id,finalidade,referencia_ficticia) values
+('f2000000-0000-4000-8000-000000000001','f3000000-0000-4000-8000-000000000001','f5000000-0000-4000-8000-000000000001','recontato_comercial_sintetico','PROVA_FICTICIA_CI_1');
 do $test$
 begin
  begin
