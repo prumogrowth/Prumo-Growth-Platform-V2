@@ -12,9 +12,9 @@ O workflow PostgreSQL recebia gatilhos `push` **e** `pull_request` para os mesmo
    - `timeout-minutes: 5` para terminar jobs travados.
    - O filtro de `push` por paths olha os arquivos do commit, evitando regressão após simples correção de documentação.
 2. `.github/workflows/s0-auth-rest.yml`:
-   - Executa job caro **somente com etiqueta `run-auth-integration` presente no PR**, ou com `workflow_dispatch`, se o fluxo manual estiver disponível pelo GitHub. Sem opt-in, o job é `skipped`; esse estado **não significa teste aprovado**.
+   - O workflow de Auth reage **somente ao evento de adicionar a etiqueta `run-auth-integration` ao PR** (evento `labeled`) ou a `workflow_dispatch`, se o fluxo manual estiver disponível. Isso evita até os eventos `skipped` gerados por alterações de código e documentos. Sem opt-in, **nenhum teste Auth é executado**, portanto não há novo aceite de Auth/REST. A etiqueta pode precisar ser criada pelo responsável no repositório antes do primeiro uso.
    - `concurrency` cancela execução antiga substituída; `timeout-minutes: 12`.
-   - Para validar uma mudança crítica com Auth/REST, habilitar a etiqueta, executar/verificar o resultado e **retirar a etiqueta**. A automação ainda exige controle humano do gatilho; nunca declarar uma alteração nova aprovada pela API porque um teste anterior passou.
+   - Para validar uma mudança crítica com Auth/REST, adicionar a etiqueta **após consolidar o commit candidato**, conferir a execução e **retirar a etiqueta**. Para rodar novamente, adicionar a etiqueta outra vez. A automação ainda exige controle humano do gatilho; nunca declarar uma alteração nova aprovada pela API porque um teste anterior passou.
 3. Todos os workflows usam `ubuntu-latest`/Postgres descartável local. Nenhum script de teste aceita `DATABASE_URL` remota; sem `supabase link` ou `db push` ao Supabase hospedado.
 
 ## Contabilidade e limites
