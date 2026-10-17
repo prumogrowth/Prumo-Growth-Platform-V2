@@ -66,14 +66,18 @@ begin
    v_lead:=null;
    insert into public.leads_loja(concessionaria_id,telefone_cliente_normalizado)
       values(p_loja,v_tel)
-      on conflict(concessionaria_id,telefone_cliente_normalizado) do nothing
+      on conflict do nothing
       returning id into v_lead;
    v_novo:=v_lead is not null;
    if not v_novo then
      select id into v_lead from public.leads_loja
      where concessionaria_id=p_loja and telefone_cliente_normalizado=v_tel;
      if v_lead is null then
-       raise exception 'CONFLICT_CONCURRENT_LEAD' using errcode='40001';
+       -- Colisao com outra loja: registrar recusa sem identificar o outro escopo.
+       insert into public.itens_lote(concessionaria_id,lote_id,ordinal_linha,resultado,motivo_rejeicao)
+       values(p_loja,v_id,v_n,'rejeitado','CONTATO_NAO_ELEGIVEL');
+       v_bad:=v_bad+1;
+       continue;
      end if;
    end if;
    insert into public.itens_lote(concessionaria_id,lote_id,ordinal_linha,lead_id)
