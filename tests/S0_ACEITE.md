@@ -142,6 +142,6 @@ Parecer: `docs/AUDITORIA_C04_PRE_C07_2026_10_17.md`. **GO somente simulação C0
 
 **Auth/REST:** a suíte de integração de containers GoTrue/PostgREST ficou **intencionalmente SKIPPED** neste incremento para poupar minutos GitHub Actions; isso NÃO significa aprovação nova da tabela C07 pela API. Exige execução expressamente habilitada por etiqueta `run-auth-integration` ou via fluxo manual antes de qualquer gate de homologação. O teste anterior [#39074017823](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39074017823) comprovou C01–C04/C05–C08 pré-C07, não a migration 019.
 
-**Economia:** workflow PG sem gatilho `push` duplicado; `cancel-in-progress` e timeout 5 min. Auth sob opt-in e timeout 12 min. Detalhes: `docs/CONTROLE_CUSTOS_GITHUB_ACTIONS_2026_10_17.md`.
+**Economia:** workflow PG só com `push` seletivo por arquivos alterados (sem duplicação PR nem disparo por commits documentais), `cancel-in-progress` e timeout 5 min. Auth sob opt-in e timeout 12 min. Detalhes: `docs/CONTROLE_CUSTOS_GITHUB_ACTIONS_2026_10_17.md`.
 
 **Gate:** GO apenas para engenharia C07 sintética; NO-GO para webhook Meta real, disparo, callbacks autenticados, relógio final + 24h ou alteração comercial por eventos simulados. Fontes: `docs/C07_CALLBACKS_SIMULADOS_2026_10_17.md`.
