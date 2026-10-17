@@ -180,3 +180,11 @@ Parecer: `docs/AUDITORIA_C04_PRE_C07_2026_10_17.md`. **GO somente simulação C0
 - [Regressão PostgreSQL #39079075704 — PASS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39079075704), incluindo `C07-AUD-01` e concorrência. Ambos são testes **locais**, não homologação de origem Meta, LGPD ou operação real.
 
 Esse gate resolve a pendência de **validação Auth/REST local de C07**; não resolve backend autenticado de produção, tráfego Meta real, recuperação, backup/restore, revisão DEC-13/14/15 ou autorização para merge/deploy.
+
+## Backend autenticado S0 — gate de identidade (17/10/2026)
+
+- [**PostgreSQL 17 #39080940371 — PASS**](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39080940371): doze testes unitários do pacote `backend` e regressões C01/C02/C04/C05/C07/C08 após endurecer DSN para `postgres` local exato ou `prumo_s0_test_*` local. Corridas anteriores continuam PASS.
+- [**Supabase Auth/REST local #39080757870 — PASS**](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39080757870): `AUTH-01..12` com JWT e sessão reais do GoTrue temporário. `AUTH-12` comprova ator derivado do token, sessão `auth.sessions` ativa, gestor B autorizado, negativas de ator inventado/gestor revogado/operador/outro escopo e bloqueio após exclusão da sessão. Corresponde à versão funcional anterior ao reforço estrito do prefixo de DSN, sem alteração do caminho de sessão/SQL.
+- Uma tentativa anterior (#39080593068) detectou falha de importação Python no runner e foi reparada antes do PASS integrado. Etiqueta `run-auth-integration` removida após execução.
+- `backend/identity_boundary.py` é **biblioteca interna e somente para S0 local**, não um servidor ou API publicamente implantada. `PsycopgTrustedDatabase` usa postgres local privilegiado, não aceitável para produção.
+- **NO-GO** para deploy remoto, cliente real, credenciais administrativas expostas, Meta ou operação comercial. Documento: `docs/BACKEND_IDENTIDADE_AUTENTICADA_S0_2026_10_17.md` e `docs/GATE_BACKEND_AUTH_S0_2026_10_17.md`.
