@@ -6,7 +6,7 @@ create or replace function prumo_private.agendar_recontatos_sinteticos(
 ) returns jsonb language plpgsql security invoker set search_path=''
 as $guard$
 declare v_lead uuid; v_status text; v_plano uuid; v_hash text; v_prev text;
- v_ordem int:=0; v_tentativa jsonb; v_template uuid; v_hora timestamptz; v_prev_hora timestamptz;
+ v_ordem int:=0; v_tentativa jsonb; v_template uuid; v_hora timestamptz; v_prev_hora timestamptz; v_plano_estado text;
 begin
  if current_user<>'postgres' then raise exception 'INTERNAL_ONLY' using errcode='42501'; end if;
  if p_chave is null or length(btrim(p_chave)) not between 1 and 160
@@ -24,12 +24,14 @@ begin
  perform 1 from public.leads_loja
   where concessionaria_id=p_loja and id=v_lead for update;
  v_hash:=encode(sha256(convert_to(jsonb_build_object('ciclo_id',p_ciclo,'canal_id',p_canal,'tentativas',p_tentativas)::text,'UTF8')),'hex');
- select id,fingerprint into v_plano,v_prev from public.planos_recontato_sinteticos
+ select id,fingerprint,estado into v_plano,v_prev,v_plano_estado from public.planos_recontato_sinteticos
   where concessionaria_id=p_loja and chave_idempotencia=p_chave;
  if found then
   if v_prev is distinct from v_hash then
    raise exception 'CONFLICT_IDEMPOTENCY_KEY' using errcode='23505'; end if;
-  return jsonb_build_object('outcome','ALREADY_APPLIED','plano_id',v_plano); end if;
+  return jsonb_build_object('outcome','ALREADY_APPLIED','plano_id',v_plano,
+   'estado_plano',v_plano_estado,'executavel_simulacao',v_plano_estado='ativo',
+   'transmissao_externa','DESABILITADA'); end if;
  select status_comercial into v_status from public.ciclos_comerciais
   where concessionaria_id=p_loja and id=p_ciclo for update;
  if not exists(
@@ -88,6 +90,7 @@ begin
   v_prev_hora:=v_hora;
  end loop;
  return jsonb_build_object('outcome','APPLIED','plano_id',v_plano,'envios',v_ordem,
+   'estado_plano','ativo','executavel_simulacao',true,
    'transmissao_externa','DESABILITADA');
 end $guard$;
 create or replace function prumo_private.reservar_envio_sintetico(
