@@ -87,8 +87,30 @@ begin
    from public.ciclos_comerciais
    where concessionaria_id=v_loja and lead_id=v_lead for update;
  else
-  -- Nao escolher um ciclo arbitrario sem regra de reabertura aprovada.
-  raise exception 'AMBIGUOUS_CYCLE_REQUIRES_HUMAN' using errcode='22023';
+  -- Preservar mensagem valida em quarentena escopada, sem associar ciclo
+  -- arbitrario, abrir caso falso ou provocar resposta da IA.
+  select id into v_conversa from public.conversas
+   where concessionaria_id=v_loja and lead_id=v_lead and canal_id=p_canal
+     and caso_id is null
+   order by criada_em desc,id desc limit 1;
+  if v_conversa is null then
+   insert into public.conversas(concessionaria_id,lead_id,canal_id)
+   values(v_loja,v_lead,p_canal) returning id into v_conversa;
+  end if;
+  insert into public.mensagens(
+     concessionaria_id,conversa_id,canal_id,caso_id,
+     direcao,origem,conteudo_sintetico,id_externo,roteamento_simulado)
+  values(v_loja,v_conversa,p_canal,null,
+     'entrada','simulado',p_texto,p_id_externo,'HUMANO_PENDENTE')
+  returning id into v_msg;
+  insert into public.pendencias_inbound_simulado(
+     concessionaria_id,canal_id,lead_id,mensagem_id,motivo)
+  values(v_loja,p_canal,v_lead,v_msg,'MULTIPLOS_CICLOS');
+  return pg_catalog.jsonb_build_object(
+     'outcome','APPLIED','mensagem_id',v_msg,'conversa_id',v_conversa,
+     'ciclo_id',null,'caso_id',null,
+     'roteamento','HUMANO_PENDENTE','revisao','MULTIPLOS_CICLOS',
+     'recontatos','CANCELAMENTO_PENDENTE');
  end if;
 
  v_caso:=null;
