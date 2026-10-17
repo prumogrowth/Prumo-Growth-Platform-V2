@@ -82,3 +82,14 @@ CI [#39066422146](https://github.com/prumogrowth/Prumo-Growth---Platform/actions
 | C02-CONC | webhook repetido concorrente cria uma só mensagem; dois eventos distintos em paralelo criam duas mensagens, apenas um lead/ciclo/conversa/evento |
 
 **Limites:** este teste **não** autentica Meta, WhatsApp, IA, opt-in/out ou transporte HTTP; não cancela ENVIOS_TEMPLATE porque o planejador ainda não foi implementado; retorna `CANCELAMENTO_PENDENTE`. Roteamento `IA_PENDENTE`/`HUMANO_PENDENTE` não significa atendimento efetuado. Não libera S0/S2, merge nem implantação remota.
+
+## Auditoria S0/C01/C02 — reparos executados e regressão
+
+**CI validado:** [PostgreSQL 17 #39067051654](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39067051654) — `success`, logs C01/C02/concorrência/RLS conferidos. Dados e Auth exclusivamente sintéticos.
+
+- PASS: C02-02 — rejeição de canal com identificador vazio ou espaços indevidos (migração 010).
+- PASS: C02-07 — mensagem com vários ciclos possíveis é armazenada em `mensagens` e `pendencias_inbound_simulado`, sem atribuir ciclo/caso arbitrário, sem acionar IA, com reentrega idempotente (migração 011).
+- PASS: C02-08 — gestor de A consegue consultar a pendência A; gestor de B não consegue consultar pendência A.
+- PASS: demais C01/C02, mesmo cliente em A/B e emissores únicos, controle de status, handoff e múltiplas conexões concorrentes.
+
+**Classificação: GO apenas para próxima engenharia sintética; NO-GO para uso real.** Documento completo: `docs/AUDITORIA_TECNICA_S0_C01_C02_2026_10_17.md`. Auth real, cancelamento de recontatos, prova bancária, integração Meta, tratamento humano de pendências, LGPD e backup/restauração continuam PENDENTES.
