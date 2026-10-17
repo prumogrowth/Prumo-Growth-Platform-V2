@@ -22,6 +22,7 @@ Arquivos:
 - `docs/C04_ELEGIBILIDADE_OPTOUT_SIMULADO_2026_10_17.md`: evidência fictícia, supressão por emissor/finalidade e bloqueios C05/C06.
 - `docs/C07_CALLBACKS_SIMULADOS_2026_10_17.md`: eventos técnicos correlacionados, duplicados, tardios e pendências de reconciliação; sem prova externa.
 - `docs/C07_RECONCILIACAO_FALHAS_SIMULADAS_2026_10_17.md`: pendências por evento, revisão humana com versão, histórico e bloqueio de retry cego.
+- `docs/ESTADO_AMBIENTES_GITHUB_SUPABASE_2026_10_17.md`: diferença entre GitHub, Supabase descartável de testes e projeto hospedado (sem migrações comerciais).
 - `docs/AUDITORIA_C07_RECONCILIACAO_2026_10_17.md`: resultados da auditoria, reparo do replay C05 e pendências de Auth/REST.
 - `scripts/test_s0_c07_recon_concurrency.sh`: duas revisões concorrentes do mesmo evento, uma única decisão auditada.
 - `docs/CONTROLE_CUSTOS_GITHUB_ACTIONS_2026_10_17.md`: workflows enxutos, timeouts, cancelamento de execuções obsoletas e Auth/REST opt-in.
