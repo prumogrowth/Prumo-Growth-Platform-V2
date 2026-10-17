@@ -22,6 +22,9 @@ flowchart TD
   INB --> CAN
   P --> C07[C07 simulado: callbacks tecnicos, sem reenvio]
   C07 --> RC[Sem correlacao: reconciliacao pendente]
+  C07 --> RISK[Falha ou incerteza: sem retry automatico]
+  RC --> GEST[Revisao do gestor: versao e justificativa]
+  RISK --> GEST
   P --> ADM[Gestão e MCP com confirmação]
   P --> DB[Supabase: dados, RLS e auditoria]
   P --> INT[Integrações futuras]
