@@ -93,3 +93,20 @@ CI [#39066422146](https://github.com/prumogrowth/Prumo-Growth---Platform/actions
 - PASS: demais C01/C02, mesmo cliente em A/B e emissores únicos, controle de status, handoff e múltiplas conexões concorrentes.
 
 **Classificação: GO apenas para próxima engenharia sintética; NO-GO para uso real.** Documento completo: `docs/AUDITORIA_TECNICA_S0_C01_C02_2026_10_17.md`. Auth real, cancelamento de recontatos, prova bancária, integração Meta, tratamento humano de pendências, LGPD e backup/restauração continuam PENDENTES.
+
+## Recontatos C05/C08 — entrega sintética, validação técnica 17/10/2026
+
+[CI PostgreSQL 17 #39069478063 — PASS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39069478063), logs REC-01..06, C05-APPROVAL, C08-GESTOR, C08-PRIVATE e REC-RACE verificados.
+
+| Teste | Resultado |
+|---|---|
+| REC-01/02 | PASS — plano idempotente e reserva sem transmissão externa |
+| REC-03/04 | PASS — resposta C02 cancela programados/reservados da loja A sem afetar B; envio cancelado não volta à reserva |
+| REC-05/06 | PASS — cancelamento não altera estado comercial; trilha de eventos e RLS A/B preservados |
+| C05-APPROVAL | PASS — template sintético não aprovado recusado sem registro parcial |
+| C08-GESTOR / C08-PRIVATE | PASS — gestor autorizado, expected_version, reexecução idempotente, sem execução da função via API |
+| REC-RACE | PASS — duas conexões PostgreSQL; reserva→inbound e inbound→reserva não deixam envio obsoleto elegível |
+
+Fonte de escopo: `docs/RECONTATOS_C05_C08_SIMULACAO_2026_10_17.md`.
+
+O texto anterior que indicava **cancelamento de recontatos pendente** refere-se à versão anterior à migração 013; a pendência atual é **cancelamento operacional de envios reais e homologação Meta**, não a gravação sintética de cancelamento. Ainda não existe emissor real nem confirmação de entrega; não computar o aviso final como enviado nem 24 horas de silêncio.
