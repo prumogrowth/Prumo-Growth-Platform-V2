@@ -1,7 +1,7 @@
 name: Prumo S0 — Supabase Auth + REST local
 on:
   pull_request:
-    types: [opened, reopened, synchronize, labeled]
+    types: [labeled]
     paths:
       - 'supabase/migrations/**'
       - 'supabase/config.toml'
