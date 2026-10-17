@@ -160,3 +160,12 @@ Parecer: `docs/AUDITORIA_C04_PRE_C07_2026_10_17.md`. **GO somente simulação C0
 **Auth/REST:** foi acrescentado `AUTH-11` à suíte local para callbacks/pendências/associações/auditoria, mas essa suíte custosa **não foi acionada** nesta rodada. A migration 021 não está homologada por teste integrado PostgREST. Antes de qualquer gate externo, executar deliberadamente o teste integrado e revisar segurança.
 
 **Norma:** `docs/C07_RECONCILIACAO_FALHAS_SIMULADAS_2026_10_17.md`. DEC-13/14/15 ainda pendentes; duas falhas técnicas NÃO equivalem a duas falhas qualificadas. Nenhum novo envio real, retry, 24h, prova Meta ou status `perdido` foi gerado. Somente engenharia sintética em ambiente isolado.
+
+## Auditoria C07 após a reconciliação — 17/10/2026
+
+- **[CI PostgreSQL 17 #39079075704 — PASS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39079075704)**: migrations 001–006, 008–022 e regressões de C01/C02/C04/C05/C07/C08 no PostgreSQL 17 descartável, incluindo os testes concorrentes.
+- **C07-AUD-01 — PASS**: `agendar_recontatos_sinteticos` reconhece a mesma chave idempotente, mas responde `executavel_simulacao=false` quando um plano ainda `ativo` acumula sinal de falha/incerteza no ciclo. Não concede novo envio.
+- **C07-REC-01..05, C07-REC-RACE — PASS**: filas de reconciliação, contagem de falhas por tentativa, vínculo versionado, restrição interlojas, nenhuma repetição de auditoria e nenhum retry cego.
+- Migração **022** reforça os diagnósticos de associação manual, respeitando eventos históricos e sem alterar estados comerciais.
+- **Auth/REST: PENDENTE, não falhou nem passou** para migrations 019–022. O teste `AUTH-11` existe no script mas não foi executado devido ao gate deliberado de minutos GitHub Actions. Fazer execução opt-in antes de homologar C07 por Data API.
+- Ver parecer: `docs/AUDITORIA_C07_RECONCILIACAO_2026_10_17.md`. GO apenas para continuar engenharia sintética; NO-GO para produção/merge/deploy/Meta.
