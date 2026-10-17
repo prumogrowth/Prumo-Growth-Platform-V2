@@ -5,6 +5,7 @@ on:
     paths:
       - 'supabase/**'
       - 'scripts/**'
+      - 'backend/**'
       - '.github/workflows/s0-postgres.yml'
   workflow_dispatch:
 
@@ -42,5 +43,7 @@ jobs:
         run: command -v psql || (sudo apt-get update -qq && sudo apt-get install -y postgresql-client)
       - name: Criar banco de testes descartável
         run: psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c 'CREATE DATABASE prumo_s0_test_ci'
+      - name: Testar fronteira de identidade sem rede externa
+        run: python3 -m unittest discover -s backend/tests -v
       - name: Testar migrations e isolamento de concessionárias
         run: bash scripts/run-s0-local.sh
