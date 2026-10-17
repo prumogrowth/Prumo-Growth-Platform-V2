@@ -7,10 +7,10 @@ O workflow PostgreSQL recebia gatilhos `push` **e** `pull_request` para os mesmo
 
 ## Controles efetivamente configurados
 1. `.github/workflows/s0-postgres.yml`:
-   - Somente `pull_request` com mudanças em `supabase/**`, `scripts/**` ou o próprio workflow, e `workflow_dispatch`. **Removido `push` duplicado.**
-   - `concurrency` por PR/branch e `cancel-in-progress=true`. Substitui teste antigo por novo em um commit mais recente.
+   - Somente `push` da branch de desenvolvimento quando o commit realmente modifica `supabase/**`, `scripts/**` ou o próprio workflow, e `workflow_dispatch`. **Removido `pull_request` duplicado e seu filtro de diff acumulado**, que podia disparar testes em commits apenas documentais.
+   - `concurrency` por branch e `cancel-in-progress=true`. Substitui teste antigo por novo em um commit mais recente.
    - `timeout-minutes: 5` para terminar jobs travados.
-   - Gatilho por paths evita execução devido a simples correção da documentação.
+   - O filtro de `push` por paths olha os arquivos do commit, evitando regressão após simples correção de documentação.
 2. `.github/workflows/s0-auth-rest.yml`:
    - Executa job caro **somente com etiqueta `run-auth-integration` presente no PR**, ou com `workflow_dispatch`, se o fluxo manual estiver disponível pelo GitHub. Sem opt-in, o job é `skipped`; esse estado **não significa teste aprovado**.
    - `concurrency` cancela execução antiga substituída; `timeout-minutes: 12`.
