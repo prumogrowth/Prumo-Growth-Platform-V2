@@ -21,6 +21,8 @@ Arquivos:
 - `docs/AUTH_REST_S0_VALIDACAO_LOCAL.md`: evidências e limitações da integração de autenticação.
 - `docs/C04_ELEGIBILIDADE_OPTOUT_SIMULADO_2026_10_17.md`: evidência fictícia, supressão por emissor/finalidade e bloqueios C05/C06.
 - `docs/C07_CALLBACKS_SIMULADOS_2026_10_17.md`: eventos técnicos correlacionados, duplicados, tardios e pendências de reconciliação; sem prova externa.
+- `docs/C07_RECONCILIACAO_FALHAS_SIMULADAS_2026_10_17.md`: pendências por evento, revisão humana com versão, histórico e bloqueio de retry cego.
+- `scripts/test_s0_c07_recon_concurrency.sh`: duas revisões concorrentes do mesmo evento, uma única decisão auditada.
 - `docs/CONTROLE_CUSTOS_GITHUB_ACTIONS_2026_10_17.md`: workflows enxutos, timeouts, cancelamento de execuções obsoletas e Auth/REST opt-in.
 - `tests/S0_ACEITE.md`: status dos ensaios.
 
@@ -30,4 +32,4 @@ S0: gestores autenticados leem dados somente das lojas vinculadas; operadores le
 
 Teste futuro: crie um banco local descartável `prumo_s0_test_*`, exporte `PRUMO_TEST_DATABASE_URL` e rode `./scripts/run-s0-local.sh`. **Não apontar para Supabase remoto.**
 
-Migrações versionadas 001–006 e 008–019 (007 indevida retirada antes de deploy) não estão implantadas no Supabase. Suíte SQL e teste concorrente executados em CI; veja `tests/S0_ACEITE.md`. Não gravar segredos nem dados pessoais reais no repositório.
+Migrações versionadas 001–006 e 008–021 (007 indevida retirada antes de deploy) não estão implantadas no Supabase. Suíte SQL e teste concorrente executados em CI; veja `tests/S0_ACEITE.md`. Não gravar segredos nem dados pessoais reais no repositório.
