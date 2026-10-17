@@ -140,6 +140,32 @@ commit;
 """)
 
 
+# Recontatos: fixtures novas para verificar Data API real e isolamento A/B.
+run_sql(f"""
+begin;
+insert into public.catalogo_templates_sinteticos(id,concessionaria_id,codigo,versao,aprovado_simulacao)
+values ('d6000000-0000-4000-8000-000000000091','{LOJA_A}','TEST',1,true),
+       ('d6000000-0000-4000-8000-000000000092','{LOJA_B}','TEST',1,true);
+insert into public.planos_recontato_sinteticos(
+ id,concessionaria_id,lead_id,ciclo_id,canal_id,chave_idempotencia,fingerprint)
+values ('d7000000-0000-4000-8000-000000000091','{LOJA_A}','{LEAD_A}','{CICLO_A}','{CANAL_A}','auth-a','fixture_a'),
+       ('d7000000-0000-4000-8000-000000000092','{LOJA_B}','{LEAD_B}','{CICLO_B}','{CANAL_B}','auth-b','fixture_b');
+insert into public.envios_template_sinteticos(
+ id,concessionaria_id,plano_id,template_id,ordem,agendado_em,chave_idempotencia)
+values ('d8000000-0000-4000-8000-000000000091','{LOJA_A}',
+  'd7000000-0000-4000-8000-000000000091',
+  'd6000000-0000-4000-8000-000000000091',1,statement_timestamp()+interval '1 day','auth-a:1'),
+       ('d8000000-0000-4000-8000-000000000092','{LOJA_B}',
+  'd7000000-0000-4000-8000-000000000092',
+  'd6000000-0000-4000-8000-000000000092',1,statement_timestamp()+interval '1 day','auth-b:1');
+insert into public.eventos_envio_template_sinteticos(
+ concessionaria_id,envio_id,estado_anterior,estado_posterior,motivo)
+values ('{LOJA_A}','d8000000-0000-4000-8000-000000000091','preparado','programado','fixture'),
+       ('{LOJA_B}','d8000000-0000-4000-8000-000000000092','preparado','programado','fixture');
+commit;
+""")
+
+
 def select(table, person=None):
     token = actors[person][1] if person else None
     return http("GET", "/rest/v1/" + table + "?select=*", token=token)
@@ -165,6 +191,31 @@ for name, expected in (("gestora", 1), ("gestorb", 0), ("operador", 0), ("outsid
     if code != 200 or not isinstance(rows, list) or len(rows) != expected:
         fail("ACC: unauthorized review inbox disclosure for " + name)
 print("PASS AUTH-07: pendencia C02 legivel apenas pela gestora da loja A")
+
+schedule_tables = (
+    "catalogo_templates_sinteticos",
+    "planos_recontato_sinteticos",
+    "envios_template_sinteticos",
+    "eventos_envio_template_sinteticos",
+)
+for table in schedule_tables:
+    for manager, store in (("gestora", LOJA_A), ("gestorb", LOJA_B)):
+        code, rows = select(table, manager)
+        if code != 200 or not isinstance(rows, list) or len(rows) != 1 or rows[0]["concessionaria_id"] != store:
+            fail("ACC: schedule metadata scope violation for " + manager + " in " + table)
+    for user in ("operador", "outsider"):
+        code, rows = select(table, user)
+        if code != 200 or rows != []:
+            fail("ACC: schedule metadata leaked to " + user + " in " + table)
+    code, _ = select(table)
+    if code not in (401, 403):
+        fail("ACC: anonymous schedule table exposed " + table)
+    code, _ = http("POST", "/rest/v1/" + table, token=actors["gestora"][1], payload={})
+    if code not in (401, 403):
+        fail("ACC: direct schedule mutation allowed " + table)
+print("PASS AUTH-08: recontatos 4 tabelas, RLS gestor A/B e negativa OP/anon/POST")
+
+
 
 for table in ("leads_loja", "conversas", "mensagens"):
     code, records = select(table)
@@ -210,3 +261,9 @@ for table in ("leads_loja", "conversas", "mensagens"):
     if code != 200 or records != []:
         fail("ACC: revoked manager with existing JWT reads " + table)
 print("PASS AUTH-06: revogacao do vinculo do gestor prevalece sobre JWT ainda valido")
+for table in schedule_tables:
+    code, rows = select(table, "gestora")
+    if code != 200 or rows != []:
+        fail("ACC: revoked manager still reads schedule " + table)
+print("PASS AUTH-09: revogacao do gestor remove leitura de todos recontatos com JWT existente")
+
