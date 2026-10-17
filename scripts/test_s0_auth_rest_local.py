@@ -180,6 +180,26 @@ values ('{LOJA_A}','{LEAD_A}','{CANAL_A}',
  'recontato_comercial_sintetico','AUTH_OPTOUT_A_01');
 """)
 
+# C07: eventos reais do PostgREST sobre tabelas sintéticas; não são webhooks Meta.
+run_sql(f"""
+select prumo_private.registrar_callback_c07_sintetico(
+'{CANAL_A}','auth-unmatched-A','auth-c07-event-A','INCERTO_SIMULADO',statement_timestamp());
+select prumo_private.registrar_callback_c07_sintetico(
+'{CANAL_B}','auth-unmatched-B','auth-c07-event-B','FALHOU_SIMULADO',statement_timestamp());
+update public.envios_template_sinteticos
+set estado='reservado',reservado_em=statement_timestamp(),
+    correlacao_externa_ficticia='auth-unmatched-A'
+where concessionaria_id='{LOJA_A}'
+  and id='d8000000-0000-4000-8000-000000000091';
+select prumo_private.conciliar_pendencia_c07_sintetica(
+'{A}','{LOJA_A}',
+(select id from public.pendencias_reconciliacao_c07_sinteticas
+ where concessionaria_id='{LOJA_A}'),
+1,'VINCULAR_SINTETICAMENTE',
+'Referencia ficticia confirmada apenas para teste REST',
+'d8000000-0000-4000-8000-000000000091');
+""")
+
 def select(table, person=None):
     token = actors[person][1] if person else None
     return http("GET", "/rest/v1/" + table + "?select=*", token=token)
@@ -253,6 +273,35 @@ for table, counts in (
         fail("ACC: C04 user wrote evidence/suppression directly " + table)
 print("PASS AUTH-10: C04 RLS gestor A/B, OP/anon negados e sem escrita REST")
 
+review_tables = (
+    ("eventos_callback_sinteticos", (1, 1)),
+    ("pendencias_reconciliacao_c07_sinteticas", (1, 1)),
+    ("associacoes_callback_c07_sinteticas", (1, 0)),
+    ("auditoria_reconciliacao_c07_sintetica", (1, 0)),
+)
+for table, expected_counts in review_tables:
+    for person, expected in zip(("gestora", "gestorb"), expected_counts):
+        code, rows = select(table, person)
+        if code != 200 or not isinstance(rows, list) or len(rows) != expected:
+            fail("ACC: C07 REST scoping " + person + "/" + table)
+        shop = LOJA_A if person == "gestora" else LOJA_B
+        if any(row["concessionaria_id"] != shop for row in rows):
+            fail("ACC: C07 cross-store disclosure in " + table)
+    for person in ("operador", "outsider"):
+        code, rows = select(table, person)
+        if code != 200 or rows != []:
+            fail("ACC: C07 unauthorized read " + person + "/" + table)
+    code, _ = select(table)
+    if code not in (401, 403):
+        fail("ACC: C07 anon read " + table)
+    code, _ = http("POST", "/rest/v1/" + table,
+                   token=actors["gestora"][1], payload={})
+    if code not in (401, 403):
+        fail("ACC: C07 direct mutation " + table)
+print("PASS AUTH-11: C07 callback/pendencias/vinculos/auditoria RLS A/B e POST negado")
+
+
+
 
 
 
@@ -306,6 +355,11 @@ for table in schedule_tables:
     if code != 200 or rows != []:
         fail("ACC: revoked manager still reads schedule " + table)
 print("PASS AUTH-09: revogacao do gestor remove leitura de todos recontatos com JWT existente")
+for table, _ in review_tables:
+    code, rows = select(table, "gestora")
+    if code != 200 or rows != []:
+        fail("ACC: revoked manager still reads C07 " + table)
+
 for table in ("evidencias_elegibilidade_sinteticas", "supressoes_contato_sinteticas"):
     code, rows = select(table, "gestora")
     if code != 200 or rows != []:
