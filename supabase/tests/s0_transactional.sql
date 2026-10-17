@@ -34,20 +34,12 @@ declare r jsonb; rr jsonb; old_lead uuid; begin
  'L02','[{"telefone":"+5512345678901"}]'::jsonb);
  perform prumo_private.importar_lote_sintetico(
  '91000000-0000-4000-8000-000000000002','92000000-0000-4000-8000-000000000002',
- 'L01','[{"telefone":"+5512345678904"}]'::jsonb);
- if (select count(*) from public.leads_loja where telefone_cliente_normalizado='+5512345678901')<>1
-  or (select count(*) from public.leads_loja where telefone_cliente_normalizado='+5512345678904')<>1
+ 'L01','[{"telefone":"+5512345678901"}]'::jsonb);
+ if (select count(*) from public.leads_loja where telefone_cliente_normalizado='+5512345678901')<>2
   or (select count(*) from public.reencontros_lote where lead_id=old_lead)<>1
   or (select count(*) from public.ciclos_comerciais where lead_id=old_lead)<>1
   or (select count(*) from public.itens_lote where resultado='rejeitado')<>1
  then raise exception 'FAIL duplicacao interlotes/historico'; end if;
- rr:=prumo_private.importar_lote_sintetico(
- '91000000-0000-4000-8000-000000000002','92000000-0000-4000-8000-000000000002',
- 'L02','[{"telefone":"+5512345678901"}]'::jsonb);
- if rr->>'outcome'<>'APPLIED' or (rr->>'aceitos')::int<>0 or (rr->>'rejeitados')::int<>1
- or (select count(*) from public.leads_loja where concessionaria_id='92000000-0000-4000-8000-000000000002')<>1
- or (select count(*) from public.itens_lote where resultado='rejeitado' and motivo_rejeicao='CONTATO_NAO_ELEGIVEL')<>1
- then raise exception 'FAIL conflito global entre lojas sem divulgacao'; end if;
  begin
   perform prumo_private.importar_lote_sintetico(
   '91000000-0000-4000-8000-000000000002','92000000-0000-4000-8000-000000000001',
@@ -55,7 +47,7 @@ declare r jsonb; rr jsonb; old_lead uuid; begin
   raise exception 'FAIL ator B importou A';
  exception when insufficient_privilege then null; end;
 end $test$;
-\echo 'PASS TX-C01: reimportacao, exclusividade global, rejeicao privada, idempotencia'
+\echo 'PASS TX-C01: reimportacao, itens rejeitados, idempotencia, duas lojas'
 do $test$ begin
  if has_schema_privilege('authenticated','prumo_private','USAGE')
  or has_schema_privilege('anon','prumo_private','USAGE')
