@@ -14,4 +14,5 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 for file in supabase/tests/bootstrap_fake_auth.sql supabase/migrations/202610170001_s0_foundation.sql supabase/migrations/202610170002_s0_read_policies.sql supabase/migrations/202610170003_s0_domain.sql supabase/migrations/202610170004_s0_access.sql supabase/migrations/202610170005_s0_scope_integrity.sql supabase/migrations/202610170006_s0_transactional_simulation.sql supabase/tests/s0_isolation.sql supabase/tests/s0_extended.sql supabase/tests/s0_transactional.sql; do
  psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$ROOT/$file"
 done
+bash "$ROOT/scripts/test_s0_concurrency.sh"
 echo 'Teste local concluído. Não houve escrita no Supabase.'
