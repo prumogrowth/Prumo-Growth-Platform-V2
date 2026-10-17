@@ -135,3 +135,13 @@ O texto anterior que indicava **cancelamento de recontatos pendente** refere-se 
 - Restante da regressão de C01/C02/C04/C05/C08, oito estados e isolamento de concessionárias: PASS neste ambiente de teste.
 
 Parecer: `docs/AUDITORIA_C04_PRE_C07_2026_10_17.md`. **GO somente simulação C07; NO-GO para operação real**. Auth/REST integrado da revisão atual requer evidência própria; teste baseline anterior [#39073125189](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39073125189) havia passado.
+
+## C07 — callbacks técnicos sintéticos e controle de custos (17/10/2026)
+
+[PostgreSQL 17 #39076677999 — PASS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39076677999). Evidências executadas: `PASS C07-01` a `PASS C07-05` (vínculo fictício, duplicidade e conflito, ordem tardia, incerteza/falha sem status comercial, pendência sem correlação, callback depois de opt-out, RLS A/B). As regressões anteriores também passaram no mesmo banco descartável.
+
+**Auth/REST:** a suíte de integração de containers GoTrue/PostgREST ficou **intencionalmente SKIPPED** neste incremento para poupar minutos GitHub Actions; isso NÃO significa aprovação nova da tabela C07 pela API. Exige execução expressamente habilitada por etiqueta `run-auth-integration` ou via fluxo manual antes de qualquer gate de homologação. O teste anterior [#39074017823](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39074017823) comprovou C01–C04/C05–C08 pré-C07, não a migration 019.
+
+**Economia:** workflow PG sem gatilho `push` duplicado; `cancel-in-progress` e timeout 5 min. Auth sob opt-in e timeout 12 min. Detalhes: `docs/CONTROLE_CUSTOS_GITHUB_ACTIONS_2026_10_17.md`.
+
+**Gate:** GO apenas para engenharia C07 sintética; NO-GO para webhook Meta real, disparo, callbacks autenticados, relógio final + 24h ou alteração comercial por eventos simulados. Fontes: `docs/C07_CALLBACKS_SIMULADOS_2026_10_17.md`.
