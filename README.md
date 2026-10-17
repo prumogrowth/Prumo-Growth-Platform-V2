@@ -28,4 +28,4 @@ S0: gestores autenticados leem dados somente das lojas vinculadas; operadores le
 
 Teste futuro: crie um banco local descartável `prumo_s0_test_*`, exporte `PRUMO_TEST_DATABASE_URL` e rode `./scripts/run-s0-local.sh`. **Não apontar para Supabase remoto.**
 
-Migrações versionadas 001–006 e 008–016 (007 indevida retirada antes de deploy) não estão implantadas no Supabase. Suíte SQL e teste concorrente executados em CI; veja `tests/S0_ACEITE.md`. Não gravar segredos nem dados pessoais reais no repositório.
+Migrações versionadas 001–006 e 008–018 (007 indevida retirada antes de deploy) não estão implantadas no Supabase. Suíte SQL e teste concorrente executados em CI; veja `tests/S0_ACEITE.md`. Não gravar segredos nem dados pessoais reais no repositório.
