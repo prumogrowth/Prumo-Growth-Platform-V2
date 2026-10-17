@@ -10,7 +10,7 @@
 | instituição financeira | integração/autorizações reais pendentes; remessas humanas comprovadas |
 
 ## Decisão posterior de 17/10/2026
-Telefone do cliente não se repete entre concessionárias; emissor da Prumo continua exclusivo por loja. A regra substitui o cenário anterior de mesmo telefone em A/B (documentos 08A/25/26/30/38/43). A revisão de LGPD e titularidade/transferência está pendente. Detalhes: `docs/DECISAO_POSTERIOR_EXCLUSIVIDADE_NUMEROS_2026_10_17.md`.
+**Regra esclarecida:** mesmo cliente pode contatar A, B e C, com registros independentes e RLS por loja. O número **emissor da Prumo** não pode ser compartilhado por concessionárias; já possui índice UNIQUE global. Migração 007 errada foi excluída antes de qualquer deploy. Consulte `docs/REGRA_NUMEROS_ATENDIMENTO_CLIENTE_2026_10_17.md`. O documento da interpretação global do cliente está retratado.
 
 ## Portões
 1. Fonte vigente: 00A, 13A, 21–23, 41. Documento 01 é histórico e não determina implementação.
@@ -20,4 +20,4 @@ Telefone do cliente não se repete entre concessionárias; emissor da Prumo cont
 5. Supabase Free remoto é desenvolvimento, nunca produção sem os portões aplicáveis.
 6. Operação real depende de GO/NO-GO humano por capacidade e validação Meta/Banco/LGPD. Nenhuma assinatura é feita automaticamente.
 
-**Estado:** branch S0 publicada em PR draft #1. Testes limitados de isolamento A/B aprovados em PostgreSQL 17 descartável ([CI PASS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39059980947)). Casos/importações/eventos e revisão humana permanecem pendentes. Nenhuma migration foi aplicada ao Supabase remoto.
+**Estado:** branch S0 publicada em PR draft #1. Testes limitados de isolamento A/B aprovados em PostgreSQL 17 descartável ([CI PASS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39059980947)). Transações sintéticas, casos e testes de isolamento foram ampliados, mas Auth/REST real, recuperabilidade, integrações e revisão humana permanecem pendentes. Nenhuma migration foi aplicada ao Supabase remoto.
