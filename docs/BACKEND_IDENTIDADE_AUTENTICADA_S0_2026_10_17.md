@@ -40,3 +40,8 @@ Arquivos `backend/identity_boundary.py`, `backend/tests/test_identity_boundary.p
 Implementar transporte de backend com autenticação/sessão realmente gerenciada, autorização de origem por aplicativo, atendimento humano, auditoria de recusas e erros, conta de banco menos privilegiada e mecanismos de controle de sessão em produção; submeter Auth/REST integrado e revisão de segurança antes de qualquer rede real.
 
 **Decisão:** GO para testes e evolução S0 em branch DRAFT; NO-GO para merge, deploy de banco remoto, exposição de endpoint, Meta, produção, coleta D3/D4 ou cliente real.
+
+## Evidências de execução do gate
+
+- [GitHub PostgreSQL 17 #39080940371 — PASS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39080940371): 12 testes unitários + regressão SQL; proteção adicional para DSN local restrito.
+- [GitHub Auth/REST GoTrue local #39080757870 — PASS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39080757870): `AUTH-01..12`; `AUTH-12` integra usuário, sessão ativa/revogada e comando privado. Teste foi opt-in uma única vez, sem alteração de Supabase hospedado.
