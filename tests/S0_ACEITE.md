@@ -121,6 +121,6 @@ O texto anterior que indicava **cancelamento de recontatos pendente** refere-se 
 - C04-04: inbound espontâneo não é opt-in geral e não elimina supressão.
 - C04-05: mesmo telefone de cliente em A/B sem compartilhar provas ou histórico.
 - C04-06: RLS por concessionária e negação de escrita dos registros por usuário comum.
-- Auth/REST das duas tabelas novas: verificar a execução do workflow `s0-auth-rest`; os testes adicionados têm rótulo AUTH-10 e resultado separado.
+- [Supabase Auth/REST local #39072893018 — PASS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39072893018): AUTH-10 aprovado para as duas tabelas novas, acesso restrito por loja, operador/anon bloqueados e sem escrita via REST. AUTH-01..09 também aprovados.
 
 **Escopo e pendências:** `docs/C04_ELEGIBILIDADE_OPTOUT_SIMULADO_2026_10_17.md`. Decisão sobre opt-out entre emissor/lojas [R/V]; sem comprovação Meta, LGPD, opt-in real, transporte de mensagens, recuperação ou produção. A evidência interna fictícia não é autorização comercial.
