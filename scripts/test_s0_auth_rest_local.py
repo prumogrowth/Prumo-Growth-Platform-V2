@@ -1,0 +1,205 @@
+#!/usr/bin/env python3
+"""Prumo S0 integration: GoTrue REAL (local) + PostgREST REAL (local), no external accounts.
+
+Hard fail on all failed authorization assertions. Never prints token, email or key.
+"""
+import json
+import os
+import re
+import subprocess
+import sys
+import urllib.error
+import urllib.parse
+import urllib.request
+import uuid
+
+
+def fail(message):
+    raise AssertionError(message)
+
+
+def local_config():
+    result = subprocess.run(
+        ["supabase", "status", "--output", "env"], capture_output=True, text=True, check=True
+    )
+    config = {}
+    for line in result.stdout.splitlines():
+        if "=" in line and not line.startswith("#"):
+            k, v = line.split("=", 1)
+            config[k.strip()] = v.strip().strip('"').strip("'")
+    for key in ("API_URL", "ANON_KEY", "DB_URL"):
+        if not config.get(key):
+            fail("Local Supabase status missing required key: " + key)
+    if not re.match(r"^https?://(127[.]0[.]0[.]1|localhost):", config["API_URL"]):
+        fail("Refusing non-local Supabase API")
+    u = urllib.parse.urlparse(config["DB_URL"])
+    if u.hostname not in ("localhost", "127.0.0.1", "::1") or u.path != "/postgres":
+        fail("Refusing non-local Supabase database")
+    return config
+
+
+CONF = local_config()
+API, ANON, DB = CONF["API_URL"], CONF["ANON_KEY"], CONF["DB_URL"]
+PASSWORD = "Only-For-Local-Testing!A93v"
+
+
+def http(method, path, token=None, payload=None):
+    data = None if payload is None else json.dumps(payload).encode("utf8")
+    headers = {"apikey": ANON, "Content-Type": "application/json"}
+    if token:
+        headers["Authorization"] = "Bearer " + token
+    request = urllib.request.Request(
+        API + path, data=data, method=method, headers=headers
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=20) as resp:
+            raw = resp.read()
+            return resp.status, json.loads(raw) if raw else None
+    except urllib.error.HTTPError as e:
+        # Do not log response bodies: may contain provider details.
+        return e.code, None
+
+
+def new_actor(label):
+    email = "prumo-ci-" + label + "@example.invalid"
+    code, obj = http("POST", "/auth/v1/signup", payload={
+        "email": email, "password": PASSWORD
+    })
+    if code not in (200, 201) or not isinstance(obj, dict) or not obj.get("user"):
+        fail("Local GoTrue signup failed for " + label + ": " + str(code))
+    code, login = http(
+        "POST", "/auth/v1/token?grant_type=password",
+        payload={"email": email, "password": PASSWORD}
+    )
+    if code != 200 or not login or not login.get("access_token"):
+        fail("Local GoTrue password login failed for " + label + ": " + str(code))
+    subject = str(uuid.UUID(login["user"]["id"]))
+    if obj["user"]["id"] != subject:
+        fail("GoTrue token user mismatch")
+    return subject, login["access_token"]
+
+
+def run_sql(sql):
+    result = subprocess.run(
+        ["psql", "-X", "-q", "-v", "ON_ERROR_STOP=1", DB, "-c", sql],
+        capture_output=True, text=True
+    )
+    if result.returncode:
+        # SQL may contain synthetic IDs but no user data or secrets.
+        fail("Local SQL fixture/test failed: " + result.stderr[-700:])
+
+
+actors = {name: new_actor(name) for name in ("gestora", "gestorb", "operador", "outsider")}
+A, B, OP, OUT = (actors[k][0] for k in ("gestora", "gestorb", "operador", "outsider"))
+for subject in (A, B, OP, OUT):
+    uuid.UUID(subject)
+
+LOJA_A = "c2000000-0000-4000-8000-000000000001"
+LOJA_B = "c2000000-0000-4000-8000-000000000002"
+LEAD_A = "c3000000-0000-4000-8000-000000000001"
+LEAD_B = "c3000000-0000-4000-8000-000000000002"
+CICLO_A = "c4000000-0000-4000-8000-000000000001"
+CICLO_B = "c4000000-0000-4000-8000-000000000002"
+CANAL_A = "c5000000-0000-4000-8000-000000000001"
+CANAL_B = "c5000000-0000-4000-8000-000000000002"
+CASO_A = "c6000000-0000-4000-8000-000000000001"
+CONV_A = "c7000000-0000-4000-8000-000000000001"
+CONV_B = "c7000000-0000-4000-8000-000000000002"
+
+run_sql(f"""
+begin;
+insert into public.atores(id) values ('{A}'),('{B}'),('{OP}'),('{OUT}');
+insert into public.concessionarias(id,nome_operacional) values
+('{LOJA_A}','A - sintética'),('{LOJA_B}','B - sintética');
+insert into public.vinculos_papel_escopo(ator_id,concessionaria_id,papel) values
+('{A}','{LOJA_A}','gestor'),('{B}','{LOJA_B}','gestor'),('{OP}','{LOJA_A}','operador');
+insert into public.canais_loja(id,concessionaria_id,identificador_emissor) values
+('{CANAL_A}','CANAL_LOJA_A','CANAL_LOJA_A');
+rollback;
+""".replace(f"('{CANAL_A}','CANAL_LOJA_A','CANAL_LOJA_A')",
+             f"('{CANAL_A}','{LOJA_A}','emissor_sintetico_A'),('{CANAL_B}','{LOJA_B}','emissor_sintetico_B')"
+             ).replace("rollback;",f"""
+insert into public.leads_loja(id,concessionaria_id,telefone_cliente_normalizado) values
+('{LEAD_A}','{LOJA_A}','+5581999000001'),('{LEAD_B}','{LOJA_B}','+5581999000001');
+insert into public.ciclos_comerciais(id,concessionaria_id,lead_id)
+values ('{CICLO_A}','{LOJA_A}','{LEAD_A}'),('{CICLO_B}','{LOJA_B}','{LEAD_B}');
+insert into public.casos_humanos(id,concessionaria_id,lead_id,ciclo_id)
+values ('{CASO_A}','{LOJA_A}','{LEAD_A}','{CICLO_A}');
+insert into public.atribuicoes_humanas(concessionaria_id,caso_id,operador_id)
+values('{LOJA_A}','{CASO_A}','{OP}');
+insert into public.conversas(id,concessionaria_id,lead_id,canal_id,caso_id)
+values ('{CONV_A}','{LOJA_A}','{LEAD_A}','{CANAL_A}','{CASO_A}'),
+('{CONV_B}','{LOJA_B}','{LEAD_B}','{CANAL_B}',null);
+insert into public.mensagens(concessionaria_id,conversa_id,canal_id,caso_id,direcao,origem,
+conteudo_sintetico,id_externo)
+values('{LOJA_A}','{CONV_A}','{CANAL_A}','{CASO_A}','entrada','simulado','A teste','A-test1'),
+('{LOJA_B}','{CONV_B}','{CANAL_B}',null,'entrada','simulado','B teste','B-test1');
+commit;
+"""))
+
+
+def select(table, person=None):
+    token = actors[person][1] if person else None
+    return http("GET", "/rest/v1/" + table + "?select=*", token=token)
+
+
+for person, shop in (("gestora", LOJA_A), ("gestorb", LOJA_B)):
+    for table in ("leads_loja", "ciclos_comerciais", "conversas", "mensagens"):
+        code, records = select(table, person)
+        if code != 200 or len(records) != 1 or records[0]["concessionaria_id"] != shop:
+            fail("ACC: gestor " + person + " crossed scope in " + table)
+print("PASS AUTH-01: GoTrue login e REST/RLS gestoras A e B isoladas com cliente comum")
+
+for table in ("leads_loja", "conversas", "mensagens"):
+    code, records = select(table, "operador")
+    if code != 200 or len(records) != 1 or records[0]["concessionaria_id"] != LOJA_A:
+        fail("ACC: assigned operator cannot see only assigned case in " + table)
+    code, records = select(table, "outsider")
+    if code != 200 or records != []:
+        fail("ACC: unlinked user was allowed data in " + table)
+print("PASS AUTH-02: operador designado somente caso A; usuario sem vinculo bloqueado")
+
+for table in ("leads_loja", "conversas", "mensagens"):
+    code, records = select(table)
+    if code not in (401, 403):
+        fail("ACC: anon readable " + table + " (HTTP " + str(code) + ")")
+print("PASS AUTH-03: anon sem SELECT")
+
+payload = {
+    "concessionaria_id": LOJA_A, "conversa_id": CONV_A, "canal_id": CANAL_A,
+    "caso_id": CASO_A, "direcao": "saida", "origem": "simulado",
+    "conteudo_sintetico": "Resposta sintética local", "enviada_por": OP
+}
+code, _ = http("POST", "/rest/v1/mensagens", token=actors["operador"][1], payload=payload)
+if code not in (200, 201):
+    fail("ACC: assigned operator cannot write allowed synthetic reply, HTTP " + str(code))
+for person in ("outsider", "gestorb"):
+    code, _ = http("POST", "/rest/v1/mensagens", token=actors[person][1], payload=payload)
+    if code not in (401, 403):
+        fail("ACC: " + person + " wrote A message, HTTP " + str(code))
+code, _ = http("POST", "/rest/v1/leads_loja", token=actors["gestora"][1], payload={
+    "concessionaria_id": LOJA_A, "telefone_cliente_normalizado": "+5581999000044"
+})
+if code not in (401, 403):
+    fail("ACC: browser wrote lead directly")
+print("PASS AUTH-04: insert sintético designado autorizado, escrita interloja e em leads negadas")
+
+# Revocation tested USING THE SAME JWT (no token refresh). No reliance on user metadata.
+run_sql(f"""update public.atribuicoes_humanas set encerrada_em=statement_timestamp()
+where concessionaria_id='{LOJA_A}' and caso_id='{CASO_A}' and encerrada_em is null;""")
+for table in ("leads_loja", "conversas", "mensagens"):
+    code, records = select(table, "operador")
+    if code != 200 or records != []:
+        fail("ACC: revoked operator with existing token reads " + table)
+code, _ = http("POST", "/rest/v1/mensagens", token=actors["operador"][1], payload=payload)
+if code not in (401, 403):
+    fail("ACC: revoked operator still wrote with existing JWT")
+print("PASS AUTH-05: remanejamento revoga leitura/escrita sem reemitir JWT")
+
+run_sql(f"""update public.vinculos_papel_escopo set valido_ate=statement_timestamp()
+where concessionaria_id='{LOJA_A}' and ator_id='{A}' and papel='gestor';""")
+for table in ("leads_loja", "conversas", "mensagens"):
+    code, records = select(table, "gestora")
+    if code != 200 or records != []:
+        fail("ACC: revoked manager with existing JWT reads " + table)
+print("PASS AUTH-06: revogacao do vinculo do gestor prevalece sobre JWT ainda valido")
