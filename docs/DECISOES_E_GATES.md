@@ -9,6 +9,9 @@
 | WhatsApp Meta | pendente de canal, políticas, opt-in/out e homologação |
 | instituição financeira | integração/autorizações reais pendentes; remessas humanas comprovadas |
 
+## Decisão posterior de 17/10/2026
+Telefone do cliente não se repete entre concessionárias; emissor da Prumo continua exclusivo por loja. A regra substitui o cenário anterior de mesmo telefone em A/B (documentos 08A/25/26/30/38/43). A revisão de LGPD e titularidade/transferência está pendente. Detalhes: `docs/DECISAO_POSTERIOR_EXCLUSIVIDADE_NUMEROS_2026_10_17.md`.
+
 ## Portões
 1. Fonte vigente: 00A, 13A, 21–23, 41. Documento 01 é histórico e não determina implementação.
 2. Ensaiar esquema/RLS/grants com dados A/B em Postgres **descartável** antes de qualquer deploy.
