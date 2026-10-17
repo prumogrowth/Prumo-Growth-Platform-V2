@@ -1,6 +1,7 @@
 name: Prumo S0 — Supabase Auth + REST local
 on:
   pull_request:
+    types: [opened, reopened, synchronize, labeled]
     paths:
       - 'supabase/migrations/**'
       - 'supabase/config.toml'
@@ -17,8 +18,10 @@ concurrency:
 
 jobs:
   auth-rest-local:
+    # expensive local Supabase starts only after deliberate PR label
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.pull_request.labels.*.name, 'run-auth-integration')
     runs-on: ubuntu-latest
-    timeout-minutes: 22
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
       - name: Instalar Supabase CLI (versao fixada)
