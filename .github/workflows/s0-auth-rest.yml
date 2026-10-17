@@ -1,0 +1,37 @@
+name: Prumo S0 — Supabase Auth + REST local
+on:
+  pull_request:
+    paths:
+      - 'supabase/migrations/**'
+      - 'supabase/config.toml'
+      - 'scripts/test_s0_auth_rest_local.py'
+      - '.github/workflows/s0-auth-rest.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  auth-rest-local:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+      - name: Instalar Supabase CLI (versao fixada)
+        uses: supabase/setup-cli@v3
+        with:
+          version: 2.84.2
+      - name: Validar opções disponíveis antes de executar
+        run: |
+          supabase --version
+          supabase start --help > /dev/null
+          supabase status --help > /dev/null
+      - name: Iniciar Supabase EFÊMERO (não vincular ao projeto remoto)
+        run: supabase start
+      - name: Preparar cliente PostgreSQL
+        run: command -v psql || (sudo apt-get update -qq && sudo apt-get install -y postgresql-client)
+      - name: Testar GoTrue real e RLS pela Data API (dados fictícios)
+        run: python3 scripts/test_s0_auth_rest_local.py
+      - name: Finalizar instância efêmera
+        if: always()
+        run: supabase stop --no-backup || true
