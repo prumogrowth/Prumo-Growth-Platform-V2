@@ -117,9 +117,22 @@ declare r jsonb;begin
  'ac000000-0000-4000-8000-000000000031','recontato_comercial_sintetico');
  if r->>'decisao'<>'INELEGIVEL'
  or (select count(*) from public.supressoes_contato_sinteticas)<>1
- then raise exception 'FAIL C04 inbound virou opt-in'; end if;
+ or not exists (
+   select 1 from public.mensagens m
+   join public.casos_humanos h on h.id=m.caso_id
+    and h.concessionaria_id=m.concessionaria_id
+   where m.id_externo='C04-IN-1'
+     and m.concessionaria_id='ab000000-0000-4000-8000-000000000031'
+     and m.roteamento_simulado='HUMANO_PENDENTE'
+     and h.motivo_simulado='revisao_humana'
+ )
+ or exists(select 1 from public.eventos_status_comercial
+    where concessionaria_id='ab000000-0000-4000-8000-000000000031')
+ or (select status_comercial from public.ciclos_comerciais
+    where id='ae000000-0000-4000-8000-000000000031')<>'aguardando primeiro disparo'
+ then raise exception 'FAIL C04 inbound virou opt-in ou reativou IA'; end if;
 end $test$;
-\echo 'PASS C04-04: inbound espontaneo nao revoga optout nem cria consentimento'
+\echo 'PASS C04-04: inbound optout permanece humano sem IA, status nem optin'
 
 insert into public.evidencias_elegibilidade_sinteticas(
  concessionaria_id,lead_id,canal_id,finalidade,referencia_ficticia)
