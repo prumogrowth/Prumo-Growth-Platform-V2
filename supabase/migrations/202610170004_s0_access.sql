@@ -19,7 +19,11 @@ create policy casos_select_escopo on public.casos_humanos
   and v.papel='gestor' and v.valido_desde<=now() and (v.valido_ate is null or v.valido_ate>now()))
  or exists(select 1 from public.atribuicoes_humanas a
   where a.concessionaria_id=casos_humanos.concessionaria_id and a.caso_id=casos_humanos.id
-  and a.operador_id=(select auth.uid()) and a.encerrada_em is null)
+  and a.operador_id=(select auth.uid()) and a.encerrada_em is null
+  and exists(select 1 from public.vinculos_papel_escopo vx
+   where vx.ator_id=(select auth.uid()) and vx.concessionaria_id=a.concessionaria_id
+   and vx.papel in ('gestor','operador') and vx.valido_desde<=now()
+   and (vx.valido_ate is null or vx.valido_ate>now())))
 );
 create policy conversas_select_escopo on public.conversas
  for select to authenticated using (
@@ -28,7 +32,11 @@ create policy conversas_select_escopo on public.conversas
   and v.papel='gestor' and v.valido_desde<=now() and (v.valido_ate is null or v.valido_ate>now()))
  or exists(select 1 from public.atribuicoes_humanas a
   where a.concessionaria_id=conversas.concessionaria_id and a.caso_id=conversas.caso_id
-  and a.operador_id=(select auth.uid()) and a.encerrada_em is null)
+  and a.operador_id=(select auth.uid()) and a.encerrada_em is null
+  and exists(select 1 from public.vinculos_papel_escopo vx
+   where vx.ator_id=(select auth.uid()) and vx.concessionaria_id=a.concessionaria_id
+   and vx.papel in ('gestor','operador') and vx.valido_desde<=now()
+   and (vx.valido_ate is null or vx.valido_ate>now())))
 );
 create policy mensagens_select_escopo on public.mensagens
  for select to authenticated using (
@@ -74,7 +82,11 @@ create policy mensagens_insert_operador_simulado on public.mensagens
  and enviada_por=(select auth.uid()) and caso_id is not null
  and exists(select 1 from public.atribuicoes_humanas a
   where a.concessionaria_id=mensagens.concessionaria_id and a.caso_id=mensagens.caso_id
-  and a.operador_id=(select auth.uid()) and a.encerrada_em is null)
+  and a.operador_id=(select auth.uid()) and a.encerrada_em is null
+  and exists(select 1 from public.vinculos_papel_escopo vx
+   where vx.ator_id=(select auth.uid()) and vx.concessionaria_id=a.concessionaria_id
+   and vx.papel in ('gestor','operador') and vx.valido_desde<=now()
+   and (vx.valido_ate is null or vx.valido_ate>now())))
  and exists(select 1 from public.vinculos_papel_escopo v
   where v.concessionaria_id=mensagens.concessionaria_id and v.ator_id=(select auth.uid())
   and v.papel in ('operador','gestor') and v.valido_desde<=now()
