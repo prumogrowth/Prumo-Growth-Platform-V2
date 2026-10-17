@@ -23,3 +23,7 @@ O projeto Supabase hospedado já foi provisionado anteriormente, vinculado à co
 **Restrições imutáveis:** telefone do cliente pode existir em várias concessionárias; emissor da plataforma é exclusivo por concessionária; não há auto-reenvio após incerteza, nem status `perdido` sem prova real exigida. Nenhuma integração Meta/Banco/OpenAI é ativada por simplesmente aplicar migrações.
 
 **Gate de hoje:** desenvolvimento e testes locais autorizados; **merge e implantação comercial remota não autorizados**.
+
+## Marco de validação C07 — 17/10/2026
+
+Executado **uma única vez** o fluxo integrado GoTrue/PostgREST [#39079580129 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39079580129) com Auth-01..11 PASS, aproximadamente dois minutos de tempo decorrido. A etiqueta de acionamento foi retirada. Isso verifica a arquitetura no **Supabase local descartável**, não significa aplicar as migrações no projeto hospedado. O próximo gate segue sendo aprovação específica para homologação/implantação, após plano de retenção, backup, backend autenticado e decisão de segurança.
