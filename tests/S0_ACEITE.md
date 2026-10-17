@@ -124,3 +124,14 @@ O texto anterior que indicava **cancelamento de recontatos pendente** refere-se 
 - [Supabase Auth/REST local #39072893018 — PASS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39072893018): AUTH-10 aprovado para as duas tabelas novas, acesso restrito por loja, operador/anon bloqueados e sem escrita via REST. AUTH-01..09 também aprovados.
 
 **Escopo e pendências:** `docs/C04_ELEGIBILIDADE_OPTOUT_SIMULADO_2026_10_17.md`. Decisão sobre opt-out entre emissor/lojas [R/V]; sem comprovação Meta, LGPD, opt-in real, transporte de mensagens, recuperação ou produção. A evidência interna fictícia não é autorização comercial.
+
+## Auditoria corretiva C04 antes de C07 — 17/10/2026
+
+**[GitHub Actions PostgreSQL 17 #39073858011 — PASS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39073858011)**, logs inspecionados.
+
+- `C04-RACE`: duas conexões PostgreSQL disputando opt-out e reserva em ambas as ordens; ambos os planos e tentativas resultaram cancelados, sem envio elegível.
+- `C04-REPLAY`: a mesma chave de plano cancelado retorna `ALREADY_APPLIED`, mas sinaliza `estado_plano=cancelado` e `executavel_simulacao=false` (migração 017).
+- `C04-04`: após opt-out, mensagem espontânea permanece inelegível para recontato, vai para revisão humana sintética, não reativa IA nem muda status comercial (migração 018).
+- Restante da regressão de C01/C02/C04/C05/C08, oito estados e isolamento de concessionárias: PASS neste ambiente de teste.
+
+Parecer: `docs/AUDITORIA_C04_PRE_C07_2026_10_17.md`. **GO somente simulação C07; NO-GO para operação real**. Auth/REST integrado da revisão atual requer evidência própria; teste baseline anterior [#39073125189](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39073125189) havia passado.
