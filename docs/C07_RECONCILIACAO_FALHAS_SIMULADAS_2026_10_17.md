@@ -40,3 +40,7 @@
 - Faltam RLS via Auth/REST real após as migrations 019–021, tests de recovery, LGPD, retenção, Storage D3/D4, Banco e critérios de produção. Preservar PR como DRAFT e Supabase remoto sem migrações comerciais.
 
 **Gate:** GO apenas para continuar engenharia segura em sandbox. NO-GO para produção, merge, Meta, banco real, envio/retentativa automática ou declaração de `perdido` com base em callback fictício.
+
+## Adendo de validação posterior — 17/10/2026
+
+O teste `AUTH-11`, anteriormente apenas preparado e indicado como não executado acima, **foi executado depois**: [Supabase Auth/REST local #39079580129 — PASS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39079580129), junto com `AUTH-01..10`. RLS e negativas REST das quatro tabelas C07 passaram com tokens de usuários fictícios. O projeto Supabase hospedado continua sem migrações comerciais, e o teste não elimina DEC-13/14/15, Meta, LGPD ou os outros gates de produção.
