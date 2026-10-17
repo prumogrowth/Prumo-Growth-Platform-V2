@@ -64,3 +64,21 @@ O link do CI antigo #39064447771 refere-se a implementação retirada e não ser
 **Portões permanecem:** Auth/REST em ambiente Supabase integrado, revisão de grants, backup/restauração, LGPD, aprovação humana, nenhuma migração no remoto.
 
 **Evidência específica:** log `PASS TX-CROSS-SHOP: mesmo cliente em A e B sob concorrencia; historicos isolados`; `PASS TX-C01`, `PASS TX-STATUS`, `PASS TX-HANDOFF`, `PASS TX-CONC` e RLS A/B confirmados. Esses testes não substituem Supabase Auth real nem homologação operacional.
+
+## Incremento C02 simulado — evidência de execução (17/10/2026)
+
+CI [#39066422146](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39066422146) — `success`; conferidos os logs. PostgreSQL 17 descartável, sem canal Meta conectado.
+
+| Caso | Evidência |
+|---|---|
+| C02-01 | mesmo telefone em A/B com canais diferentes, lead/ciclo independente; mesmo ID externo em A e B permitido |
+| C02-02 | canal emissor exclusivo, canal desconhecido recusado, função interna sem acesso dos papéis API |
+| C02-03 | segunda mensagem da mesma conversa não duplica status/evento |
+| C02-04 | primeira resposta simulada depois de primeiro disparo enviado gera transição com evento |
+| C02-05 | retorno após cadastro enviado ao banco cria caso humano; ciclo histórico intacto |
+| C02-06 | retorno após vendido cria ocorrência humana distinta; sem retorno à IA |
+| C02-07 | mais de um ciclo do mesmo lead não é associado arbitrariamente |
+| C02-08 | gestores A/B só veem suas próprias mensagens mesmo com telefone de cliente igual |
+| C02-CONC | webhook repetido concorrente cria uma só mensagem; dois eventos distintos em paralelo criam duas mensagens, apenas um lead/ciclo/conversa/evento |
+
+**Limites:** este teste **não** autentica Meta, WhatsApp, IA, opt-in/out ou transporte HTTP; não cancela ENVIOS_TEMPLATE porque o planejador ainda não foi implementado; retorna `CANCELAMENTO_PENDENTE`. Roteamento `IA_PENDENTE`/`HUMANO_PENDENTE` não significa atendimento efetuado. Não libera S0/S2, merge nem implantação remota.
