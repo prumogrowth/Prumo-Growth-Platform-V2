@@ -47,20 +47,18 @@ A função do lote **não é endpoint público**: exige execução interna com p
 
 **S0 não homologado:** C02 real, Auth real, APIs Meta/Banco, acesso fino D3/D4, reações externas, backup/restauração e portões LGPD permanecem bloqueados. Nenhuma migração comercial foi aplicada ao Supabase remoto. Não alterar a porcentagem histórica de planejamento (19F) por esses testes.
 
-## Auditoria e reparos de exclusividade (17/10/2026)
+## Auditoria corretiva — regra esclarecida de cliente x emissor (17/10/2026)
 
-**Evidência atual:** [GitHub Actions #39064447771](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39064447771) — PostgreSQL 17 descartável, suíte concluída com sucesso.
+**Correção do registro anterior:** o requisito que impunha UNIQUE global no telefone de cliente foi **retratado**. O número do cliente pode existir em concessionárias diferentes; apenas o número de **atendimento emissor da Prumo** é exclusivo. A migração 007 foi excluída antes de implantar e a importação 006 voltou a deduplicar por `(concessionaria_id,telefone_cliente_normalizado)`. A migração 008 (leitura do lead por operador designado) permanece.
 
-| Regressão | Resultado |
-|---|---|
-| Global UNIQUE cliente E.164: segunda concessionária não grava telefone existente | PASS |
-| Emissor exclusivo por loja: número idêntico em dois canais é negado | PASS |
-| C01: segunda loja recebe item recusado genérico sem histórico alheio | PASS |
-| Corrida entre duas concessionárias distintas pelo mesmo telefone | PASS; 1 lead, 1 ciclo, 1 aceite, 1 rejeição |
-| Reatribuição: operador perde leitura do lead e da conversa antiga | PASS |
-| Operador designado recebe apenas lead do seu caso | PASS |
-| RLS A/B, importação, eventos, handoff humano e simultaneidade por mesma chave | PASS |
+O link do CI antigo #39064447771 refere-se a implementação retirada e não serve como aceite vigente.
 
-**Supersessão:** os relatórios de CI anteriores que davam PASS para *mesmo cliente telefônico em lojas A/B* documentam testes antigos — esse resultado **não é mais um critério válido** e foi substituído pela exclusividade global conforme orientação posterior. Preservar os links históricos apenas como trilha de auditoria.
+**Evidência atual de CI:** a ser atualizada após execução do pipeline corretivo. Critérios obrigatórios:
+- Mesmo telefone em lojas A/B: 2 leads/ciclos independentes, RLS gestor A/B e nenhuma conversa cruzada.
+- Mesmo telefone reimportado na MESMA loja: sem duplicação, com reencontro.
+- Emissor Prumo repetido para duas lojas: rejeição por constraint única.
+- Dois lotes concorrentes entre A/B para o mesmo cliente: dois leads/ciclos isolados, 0 itens rejeitados por compartilhamento.
+- Operador não designado ou desatribuído não lê lead/conversa de outro caso.
+- Demais testes C01, eventos, handoff e idempotência continuam obrigatórios.
 
-**Pendente:** validação de privacidade do índice global e inferência de recusas; procedimento de número reciclado/troca de concessionária; provas Supabase Auth/REST; autorização documental consolidada; recuperação/backup e retenção. Nenhuma migration comercial no remoto, nem produção ativada.
+**Portões permanecem:** Auth/REST em ambiente Supabase integrado, revisão de grants, backup/restauração, LGPD, aprovação humana, nenhuma migração no remoto.
