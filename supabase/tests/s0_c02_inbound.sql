@@ -73,6 +73,16 @@ begin
   values('a2000000-0000-4000-8000-000000000002','C02_EMISSOR_A');
   raise exception 'FAIL emissor compartilhado';
  exception when unique_violation then null; end;
+ begin
+  insert into public.canais_loja(concessionaria_id,identificador_emissor)
+  values('a2000000-0000-4000-8000-000000000002','   ');
+  raise exception 'FAIL canal emissor vazio';
+ exception when check_violation then null; end;
+ begin
+  insert into public.canais_loja(concessionaria_id,identificador_emissor)
+  values('a2000000-0000-4000-8000-000000000002',' C02_EMISSOR_A ');
+  raise exception 'FAIL canal emissor com espacos';
+ exception when check_violation then null; end;
  if has_schema_privilege('authenticated','prumo_private','USAGE')
    or has_function_privilege('authenticated',
       'prumo_private.receber_mensagem_sintetica(uuid,text,text,text)','EXECUTE')
