@@ -19,6 +19,7 @@ Arquivos:
 - `docs/DECISOES_E_GATES.md`: regras, custos e próximos portões.
 - `supabase/config.toml`, `scripts/test_s0_auth_rest_local.py`, `.github/workflows/s0-auth-rest.yml`: testes locais de GoTrue e PostgREST com JWTs reais de sandbox, sem usar Supabase hospedado.
 - `docs/AUTH_REST_S0_VALIDACAO_LOCAL.md`: evidências e limitações da integração de autenticação.
+- `docs/C04_ELEGIBILIDADE_OPTOUT_SIMULADO_2026_10_17.md`: evidência fictícia, supressão por emissor/finalidade e bloqueios C05/C06.
 - `tests/S0_ACEITE.md`: status dos ensaios.
 
 **Regra vigente:** um cliente pode atender-se em A, B e C com o mesmo telefone, com leads/históricos isolados por loja; número **emissor de atendimento da Prumo** é exclusivo de uma loja. Veja `docs/REGRA_NUMEROS_ATENDIMENTO_CLIENTE_2026_10_17.md`.
@@ -27,4 +28,4 @@ S0: gestores autenticados leem dados somente das lojas vinculadas; operadores le
 
 Teste futuro: crie um banco local descartável `prumo_s0_test_*`, exporte `PRUMO_TEST_DATABASE_URL` e rode `./scripts/run-s0-local.sh`. **Não apontar para Supabase remoto.**
 
-Migrações versionadas 001–006 e 008–014 (007 indevida retirada antes de deploy) não estão implantadas no Supabase. Suíte SQL e teste concorrente executados em CI; veja `tests/S0_ACEITE.md`. Não gravar segredos nem dados pessoais reais no repositório.
+Migrações versionadas 001–006 e 008–016 (007 indevida retirada antes de deploy) não estão implantadas no Supabase. Suíte SQL e teste concorrente executados em CI; veja `tests/S0_ACEITE.md`. Não gravar segredos nem dados pessoais reais no repositório.
