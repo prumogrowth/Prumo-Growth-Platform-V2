@@ -103,4 +103,34 @@ declare v_ciclo uuid; r jsonb; rr jsonb; begin
  then raise exception 'FAIL transicao evento atomico'; end if;
 end $test$;
 \echo 'PASS TX-STATUS: versao, evento correlacionado, reentrega, prova escopada'
+-- Handoff humano definitivo: mesmo uma conversa antiga sem caso não reativa IA.
+select prumo_private.importar_lote_sintetico(
+ '91000000-0000-4000-8000-000000000001','92000000-0000-4000-8000-000000000001',
+ 'L03','[{"telefone":"+5512345678903"}]'::jsonb);
+do $test$
+declare v_lead uuid; v_ciclo uuid; v_conv uuid; v_msg uuid;
+begin
+ select id into v_lead from public.leads_loja
+ where concessionaria_id='92000000-0000-4000-8000-000000000001'
+ and telefone_cliente_normalizado='+5512345678903';
+ select id into v_ciclo from public.ciclos_comerciais where lead_id=v_lead;
+ insert into public.conversas(concessionaria_id,lead_id,canal_id)
+ values('92000000-0000-4000-8000-000000000001',v_lead,
+ '94000000-0000-4000-8000-000000000001') returning id into v_conv;
+ insert into public.mensagens(concessionaria_id,conversa_id,canal_id,direcao,conteudo_sintetico,id_externo)
+ values('92000000-0000-4000-8000-000000000001',v_conv,
+ '94000000-0000-4000-8000-000000000001','entrada','Mensagem antiga fictícia','HUMAN-TEST-1')
+ returning id into v_msg;
+ insert into public.casos_humanos(concessionaria_id,lead_id,ciclo_id)
+ values('92000000-0000-4000-8000-000000000001',v_lead,v_ciclo);
+ begin
+  perform prumo_private.transicao_inbound_sintetico(
+   '92000000-0000-4000-8000-000000000001',v_ciclo,v_msg,1);
+  raise exception 'FAIL handoff humano retornou a IA';
+ exception when invalid_parameter_value then null; end;
+ if (select status_comercial from public.ciclos_comerciais where id=v_ciclo)<>'aguardando primeiro disparo'
+ or exists(select 1 from public.eventos_status_comercial where ciclo_id=v_ciclo)
+ then raise exception 'FAIL tentativa humana mudou status/evento'; end if;
+end $test$;
+\echo 'PASS TX-HANDOFF: humano definitivo, sem retorno IA e sem evento comercial'
 rollback;
