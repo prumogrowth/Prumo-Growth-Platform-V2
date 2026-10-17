@@ -17,4 +17,5 @@ done
 bash "$ROOT/scripts/test_s0_concurrency.sh"
 bash "$ROOT/scripts/test_s0_cross_shop.sh"
 bash "$ROOT/scripts/test_s0_c02_concurrency.sh"
+bash "$ROOT/scripts/test_s0_recontato_race.sh"
 echo 'Teste local concluído. Não houve escrita no Supabase.'
