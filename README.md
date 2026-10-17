@@ -14,10 +14,10 @@ Arquivos:
 - `docs/DECISOES_E_GATES.md`: regras, custos e próximos portões.
 - `tests/S0_ACEITE.md`: status dos ensaios.
 
-Decisão posterior: telefone de cliente exclusivo globalmente; canais emissores também exclusivos por loja. Veja `docs/DECISAO_POSTERIOR_EXCLUSIVIDADE_NUMEROS_2026_10_17.md`.
+**Regra vigente:** um cliente pode atender-se em A, B e C com o mesmo telefone, com leads/históricos isolados por loja; número **emissor de atendimento da Prumo** é exclusivo de uma loja. Veja `docs/REGRA_NUMEROS_ATENDIMENTO_CLIENTE_2026_10_17.md`.
 
 S0: gestores autenticados podem ler leads/ciclos **somente de lojas vinculadas**; operadores não recebem leitura geral até existirem casos/atribuições na S1. Nenhum cliente recebe escrita direta. Gestão D2, autoatribuição e D3/D4 exigem módulo de casos S1 e provas adicionais.
 
 Teste futuro: crie um banco local descartável `prumo_s0_test_*`, exporte `PRUMO_TEST_DATABASE_URL` e rode `./scripts/run-s0-local.sh`. **Não apontar para Supabase remoto.**
 
-Migrações versionadas 001–008 não estão implantadas no Supabase. Suíte SQL e teste concorrente executados em CI; veja `tests/S0_ACEITE.md`. Não gravar segredos nem dados pessoais reais no repositório.
+Migrações versionadas 001–006 e 008 (007 indevida retirada antes de deploy) não estão implantadas no Supabase. Suíte SQL e teste concorrente executados em CI; veja `tests/S0_ACEITE.md`. Não gravar segredos nem dados pessoais reais no repositório.
