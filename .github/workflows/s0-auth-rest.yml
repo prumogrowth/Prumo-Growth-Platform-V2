@@ -6,6 +6,7 @@ on:
       - 'supabase/migrations/**'
       - 'supabase/config.toml'
       - 'scripts/test_s0_auth_rest_local.py'
+      - 'backend/**'
       - '.github/workflows/s0-auth-rest.yml'
   workflow_dispatch:
 
@@ -37,6 +38,8 @@ jobs:
         run: supabase start --exclude realtime,storage-api,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
       - name: Preparar cliente PostgreSQL
         run: command -v psql || (sudo apt-get update -qq && sudo apt-get install -y postgresql-client)
+      - name: Instalar driver de teste fixado e somente para sandbox
+        run: python3 -m pip install -r backend/requirements-s0-local.txt
       - name: Testar GoTrue real e RLS pela Data API (dados fictícios)
         run: python3 scripts/test_s0_auth_rest_local.py
       - name: Finalizar instância efêmera
