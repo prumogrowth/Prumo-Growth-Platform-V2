@@ -14,11 +14,11 @@ Fonte: documentos vigentes 13A, 21–23 e 41; escopo técnico proposto nos docum
 
 ## Limites importantes
 - `IA_PENDENTE` e `HUMANO_PENDENTE` indicam **roteamento interno pendente**, não atendimento executado.
-- `CANCELAMENTO_PENDENTE` indica que não há ainda `PLANO_RECONTATO`/`ENVIOS_TEMPLATE` para cancelar; logo, o C02 integral ainda não está concluído.
+- Após migrations 012/013, **C02 cancela no banco** planos e tentativas sintéticos `programado` ou `reservado` do lead da MESMA loja no mesmo commit do inbound; o resultado é `recontatos` com contagem. Essa persistência não comprova cancelamento de envio externo, pois não existe emissor real.
 - Nenhum webhook recebido é considerado autenticação Meta. A camada HTTP deverá validar assinatura, origem, replay, esquema oficial, consentimento/opt-out, horários e trilha de integração antes de habilitar ingestão externa.
 - A abertura automática de caso em pós-remessa/pós-venda é mock de S0/S1; fila real, atribuição e eventos de caso ainda requerem implementação. Pendência de múltiplos ciclos não se converte em caso atribuído até decisão humana; requer fila operacional de triagem na próxima fatia.
 - A transição de status e o conteúdo são estritamente sintéticos. Não há mensagens de cliente real, mídia, documento de identidade ou serviço conectado.
 - Dados e políticas de RLS seguem o escopo de cada loja e caso. A função SQL privilegiada **não é delegável ao navegador**.
-- Ainda faltam testes concorrentes de duas mensagens externas distintas, integração real Supabase Auth/Data API, proteção de recontatos, retenção, recuperação, LGPD e aceite do responsável.
+- Os ensaios SQL de concorrência e a integração local de GoTrue/PostgREST estão documentados no repositório. A lógica de recontatos é sintética e não compreende opt-out/Meta real, disparo, callback, retenção, recuperação, LGPD nem aceite operacional.
 
 **Implantação:** candidato exclusivo no PR #1, sem merge. Não aplicar migrações comerciais no Supabase remoto antes de homologação com dados fictícios.
