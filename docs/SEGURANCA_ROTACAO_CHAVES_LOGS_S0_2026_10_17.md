@@ -45,3 +45,9 @@ A análise `docs/AUDITORIA_GATEWAY_S0_2026_10_17.md` e a migração 025 motivara
 6. Respeitar mesmo telefone de cliente entre concessionárias A/B/C, isolamento por loja e número emissor Prumo exclusivo. Oito estados comerciais e restrição de reenvio pós-incerteza intactos.
 
 **Gate atual:** GO apenas para continuar desenvolvimento e auditoria em S0; **NO-GO para merge, Supabase remoto, usuários reais, webhook/WhatsApp e produção** sem autorização humana específica.
+
+## Aceite final registrado
+
+- [**PostgreSQL 17 #39084739387 — SUCCESS**](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39084739387): KEY-01..05, 24 testes unitários e demais regressões S0.
+- [**Supabase GoTrue/PostgREST local #39084803545 — SUCCESS**](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39084803545): AUTH-01..14, incluindo a ativação sintética de chave antes da assinatura. A etiqueta de execução foi retirada após PASS, sem migração comercial do Supabase hospedado.
+- O resultado **não** inclui simulação de recuperação do cofre de chaves, auditoria durável externa de negativas, rotação automatizada em produção, revisão do privilégio proprietário postgres ou teste de continuidade sob comprometimento dos dois segredos.
