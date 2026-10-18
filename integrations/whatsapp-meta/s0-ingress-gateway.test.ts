@@ -69,7 +69,6 @@ test('GATE-20 batch replay is still denied after service revocation',async()=>{c
 test('GATE-21 provider status kind or timestamp must be bound by scoped checksum',async()=>{const f=await fixture(payload([entry('100001','12345678901',true)]));const altered={...f.candidate,occurrences:f.candidate.occurrences.map(x=>({...x,provider_kind:'failed',provider_timestamp:'2026-10-18T00:00:00.000Z'}))};assert.equal((await tryIt(f,altered)).reason,'SCOPE_DIGEST_MISMATCH');});
 test('GATE-22 same batch ref with a different protected reference is LAB_CONFLICT, not replay',async()=>{const f=await fixture();assert.equal((await tryIt(f)).decision,'LAB_ACCEPTED');assert.equal(f.store.putFixture('PRIVATE_PAYLOAD_2',f.raw),true);const second=await prepareS0HandoffFixture({request:{raw_body:f.raw,route:{route_ref:'ROUTE_A',expected_revision:4},signature_header:await sign(f.raw)},batch_ref:'BATCH_1',protected_payload_ref:'PRIVATE_PAYLOAD_2'},{currentRegistry:()=>registry,resolveSecret:(n:string)=>n==='A_HMAC'?secret:undefined,nowMs:()=>at});assert.equal(second.ok,true);if(second.ok){const outcome=await tryIt(f,second.candidate);assert.equal(outcome.decision,'LAB_CONFLICT');assert.equal(outcome.reason,'BATCH_REF_COLLISION');}assert.equal(f.gateway.occurrenceCount,1);});
 
-
 test('GATE-23 edited status with recomputed public scope SHA is denied without a new service MAC',async()=>{
  const f=await fixture(payload([entry('100001','12345678901',true)]));
  const proof=await createFakeS0ServiceProof(f.candidate,caller.service_ref,internalKey,at,at+500);
