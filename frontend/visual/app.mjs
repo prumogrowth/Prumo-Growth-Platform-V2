@@ -125,6 +125,7 @@ function renderThread() {
     children.push(bubble);
   }
   body.replaceChildren(...children);
+  // Rolar somente depois de renderizar; não dispara solicitações externas.
   body.scrollTop = body.scrollHeight;
   const note = el('div','workflow-copy');
   const s = el('span', 'status-indicator ' + statusTone(item.status), item.status);
