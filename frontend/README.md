@@ -11,6 +11,7 @@ Esta branch reserva o trabalho de **frontend, experiência de uso, navegação, 
 - [x] Inventário inicial de telas e fluxos registrado em `docs/02_MAPA_DE_TELAS_E_JORNADAS.md`.
 - [x] Materiais-base, precedência normativa e critérios de continuidade reunidos em `docs/03_MATERIAIS_E_PREPARACAO.md`.
 - [x] Área `design/` reservada a materiais visuais.
+- [x] Contratos técnicos FV-01 e FV-02 redigidos e auditoria documental FV registrada; **homologação S0/OpenAI pendente**.
 - [ ] Interface final, componentes e fluxos codificados.
 - [ ] Testes visuais/responsivos e acessibilidade executados.
 - [ ] Integração autenticada com backend.
@@ -32,3 +33,13 @@ As branches `feat/s2-openai-adapter-sintetico` (provedor OpenAI) e `docs/whatsap
 5. Usar **somente conteúdo sintético** e submeter a revisão qualquer interface com ações sensíveis.
 
 Nenhuma mudança nesta branch equivale a aceite de implementação, aprovação de MVP global, autorização externa ou incremento automático na régua de planejamento.
+
+## Contratos técnicos e nova regra de extração pós-humana (18/10/2026)
+
+A partir da decisão funcional mais recente, **operadores não preenchem rotineiramente os campos do cadastro**. O fluxo normal é **conversa humana → ação “Concluir atendimento” (rótulo provisório) → processamento OpenAI de retaguarda → validação/persistência pela S0 → ficha consultável com pendências**. A interface não chama a OpenAI diretamente nem modifica dados no banco. Concluir não envia ao banco, não marca vendido/perdido e não reativa a IA Vendedora.
+
+- [FV-01 — contrato visual ↔ S0](docs/04_CONTRATO_FV01_UI_BACKEND_v0_1.md) — responsabilidades, leitura/escrita, permissões e telas.
+- [FV-02 — conclusão de conversa e extração](docs/05_CONTRATO_FV02_CONCLUSAO_EXTRAÇÃO_POS_HUMANA_v0_1.md) — ação, feedback, idempotência, falhas e compatibilidade.
+- [Auditoria dos contratos](docs/06_AUDITORIA_CONTRATOS_FV_2026_10_18.md) — achados, limites e pendências.
+
+**Importante:** docs 23 e 41 continuam autorizando **correção humana excepcional** da ficha versionada; isto não significa voltar ao preenchimento manual rotina. O contrato interno OpenAI OAI-05/E01 está em outra branch e permanece sob responsabilidade da sua equipe. FV-01/FV-02 são [P/R] e não foram implementados nem aprovados entre frentes.
