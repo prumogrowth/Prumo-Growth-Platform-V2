@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { inspectMetaWebhook, type MetaIngressEvent } from './inbound.ts';
 import { decideBatchAck } from './durable-receipt.ts';
 import { FakeS0Outbox, ScriptedFakeGraph, simulateOfflineDispatch,
-  type OfflineCommand } from './offline-dispatch.ts';
+  type OfflineCommand, type ScriptedObservation } from './offline-dispatch.ts';
 import { FakeMetaStatusReconciler, type CorrelationReference } from './technical-reconciliation.ts';
 import type { GraphTextIntent, GraphSendOutcome } from './graph-outbound.ts';
 import type { TrustedTemplateScope } from './graph-template.ts';
@@ -21,7 +21,7 @@ const status=(kind:string,t='1792320000',dest='5581900000000')=>({id:'wamid.SYNT
 const pack=(m:unknown[]=[],s:unknown[]=[])=>({object:'whatsapp_business_account',entry:[{id:scope.meta_waba_id,changes:[{field:'messages',value:{metadata:{phone_number_id:scope.phone_number_id},messages:m,statuses:s}}]}]});
 async function signature(bytes:Uint8Array,key=secret){const cryptoKey=await crypto.subtle.importKey('raw',enc.encode(key),{name:'HMAC',hash:'SHA-256'},false,['sign']);const mac=new Uint8Array(await crypto.subtle.sign('HMAC',cryptoKey,bytes));return 'sha256='+Array.from(mac,n=>n.toString(16).padStart(2,'0')).join('');}
 async function parse(payload:unknown,key=secret){const raw=enc.encode(JSON.stringify(payload));return inspectMetaWebhook(raw,await signature(raw,key),secret);}
-function dispatch(result=GraphAccepted){const s0=new FakeS0Outbox();s0.upsertCurrent({intent_id:intent.intent_id,attempt_id:intent.attempt_id,correlation_id:intent.correlation_id,authorized_business_action:'C12',current_state_version:5,allowed_now:true,scope,recipient_verified:intent.recipient_verified});const graph=new ScriptedFakeGraph([result]);return {s0,graph,result:simulateOfflineDispatch(command,s0,graph,'v24.0')};}
+function dispatch(result: ScriptedObservation = GraphAccepted){const s0=new FakeS0Outbox();s0.upsertCurrent({intent_id:intent.intent_id,attempt_id:intent.attempt_id,correlation_id:intent.correlation_id,authorized_business_action:'C12',current_state_version:5,allowed_now:true,scope,recipient_verified:intent.recipient_verified});const graph=new ScriptedFakeGraph([result]);return {s0,graph,result:simulateOfflineDispatch(command,s0,graph,'v24.0')};}
 const successReceipt=(n:number)=>({outcome:'ACCEPTED_DURABLE',commit_state:'COMMITTED',total:n,accepted:n,duplicates:0,quarantined:0});
 
 test('CROSS-01 valid HMAC aggregate: two messages+two statuses; hypothetical 4-item receipt',async()=>{
