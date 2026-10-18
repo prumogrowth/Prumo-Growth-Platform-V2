@@ -54,3 +54,12 @@ Rodar apenas WA-02A: `node --experimental-strip-types --test integrations/whatsa
 `graph-template.ts` prepara somente templates textuais **posicionais** (body e header de texto opcional), com correspondência estrita entre intenção C06 e manifesto confiável de template/idioma/revisão/status, sem mídia/botões/Graph/token/HTTP. Não concede elegibilidade nem envia; `trustedSnapshot` deve ser fornecido e revalidado pelo núcleo. Não registrar em logs o destinatário nem as variáveis de texto.
 
 Testes locais: `node --experimental-strip-types --test integrations/whatsapp-meta/graph-template.test.ts` (**WA-TPL-01..18 PASS**). Compilação TypeScript estrita do módulo **PASS**; o teste foi executado mas não typechecked por ausência local de `@types/node`. Referência: `docs/integracoes/whatsapp-meta/wa02b-graph-templates-c06-v0_1.md`.
+
+
+## Reparos auditados WA-02A/B — 18/10/2026
+
+Os construtores Graph continuam **inertes** e não concedem direito de envio. Após a auditoria, `graph-outbound.ts` trata 408/425 como `UNCERTAIN_EXTERNAL` sem retry cego e admite IDs `wamid` opacos com padding `=`, rejeitando controles. `graph-template.ts` agora exige contexto autenticado fornecido de fora e catálogo de componentes completo, rejeitando cross-tenant e formatos não suportados.
+
+**Assinatura atual [P]:** `prepareGraphTemplateRequest(intent, trustedSnapshot, trustedScope, apiVersion)` — quatro argumentos. Os três objetos coincidentes não comprovam autorização; `trustedScope` e `trustedSnapshot` devem vir de backend interno confiável, que revalida C06 no instante do envio.
+
+Executados localmente: **41/41 testes PASS** para `graph-outbound.test.ts` + `graph-template.test.ts` e TypeScript estrito PASS dos dois módulos. Os arquivos de teste não passaram typecheck completo por ausência de tipos Node; sem CI remoto. Relatório: `docs/integracoes/whatsapp-meta/wa02-reparos-pos-auditoria-2026-10-18.md`.
