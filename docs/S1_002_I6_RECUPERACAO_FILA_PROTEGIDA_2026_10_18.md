@@ -22,3 +22,7 @@ Para pedido elegível sem titular, cria nova atribuição (sujeita ao guard I2),
 ## Critérios de testes [P, até ver CI]
 
 `S1Q-01..10`: casos A/B entram na fila ao suspender O1; gestor não ganha caso; reativação do ex-responsável não restaura posse; ativar O2 com escopo A realoca só A; novo grant O4 em B realoca B; `vendido` não reabre; pendência stale com titular é limpa sem duplicação; reexecução idempotente; isolamento RLS B versus A; cliente `authenticated` bloqueado; limites inválidos recusados. A execução deve ocorrer após 038–042 e regressões anteriores. Todos testes até prova do CI **não executados**.
+
+## I6 — Corridas de recuperação [cenários candidatos]
+
+`scripts/test_s1_002_queue_recovery_race.sh` executa com duas conexões PostgreSQL reais e fixtures exclusivamente fictícias. Verifica `S1QC-01..04`: dois consumidores em competição pela mesma pendência; nova atribuição por fluxo concorrente enquanto recuperação aguarda trava do caso; suspensão/RLS; ausência de duplicidade na tabela de auditoria. Critérios de aprovação: PG17 SUCCESS e marcadores PASS. **Nenhum teste S1QC declarado aprovado antes do log.**

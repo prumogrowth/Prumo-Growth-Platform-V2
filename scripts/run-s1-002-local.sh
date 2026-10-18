@@ -17,4 +17,5 @@ psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$ROOT/supabase/tests/s
 bash "$ROOT/scripts/test_s1_002_simultaneous_suspensions.sh"
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$ROOT/supabase/migrations/202610180042_s1_recuperacao_fila_protegida.sql"
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$ROOT/supabase/tests/s1_004_recuperacao_fila_protegida.sql"
+bash "$ROOT/scripts/test_s1_002_queue_recovery_race.sh"
 echo 'S1-002/I1–I6 sintético e concorrência; apenas PostgreSQL local descartável.'
