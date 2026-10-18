@@ -43,4 +43,12 @@ Em `supabase/tests/s0_037d_capacidade_transacional.sql`:
 
 **Decisão de engenharia:** S0-037D é uma prova de **limites e predicados RLS** que complementa S0-037B/C, não uma implementação comercial aprovada. Se passar no CI, **GO para desenho de emissor/transação autenticados em etapa posterior**, **NO-GO para reassinar owners, persistir as policies de teste, ativar ambiente hospedado, mesclar PRs ou produção.**
 
-**Evidências finais:** acrescentar SHA e run apenas depois de verificação dos logs.
+## Evidências finais — 18/10/2026
+
+**[GitHub Actions PostgreSQL 17 #39130042204 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39130042204)**, código/fixture do commit `f785e4e51bbec419f7fad5997510695d802e460a`, com `OWNER37D-01..04 PASS`, regressões SQL e concorrência anteriores e **24 testes Python OK**; logs revisados sem erro.
+
+A primeira tentativa [#39129933121 — FAILURE](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39129933121) passou OWNER37D-01/02 e falhou em OWNER37D-03 porque o UPDATE da fixture não preenchia `revisado_por` (e não criava o ator), exigido pelo CHECK da tabela de pendências C07. Correção **somente na fixture**: ator sintético e revisor incluídos no fechamento das pendências. A migration 020, tabelas, guardas, ACLs persistentes e funções comerciais não foram alteradas.
+
+**Parecer:** comprovada a viabilidade *limitada* dos predicados RLS transacionais sob autorização protegida e sem confiança em GUC. A emissão da capacidade na fixture depende de `postgres` e as escritas são SQL de teste **sem sessão/HMAC, associação C07 nem auditoria comercial completa**. A S0-037C continua como teste separado da cadeia HMAC completa (ainda com wrappers `SECURITY DEFINER postgres`). Não é GO para transferir proprietários ou instalar a capacidade temporária como mecanismo real.
+
+**Baseline de integração Supabase GoTrue/PostgREST local:** [#39122948236 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39122948236), **não reexecutada** neste incremento sem migrations nem runtime novos. A role e a tabela TEMP da 037D são descartadas via ROLLBACK no PostgreSQL 17 de testes.
