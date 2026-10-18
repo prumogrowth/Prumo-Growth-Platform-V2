@@ -63,10 +63,10 @@ test('IN-02: extracts two inbound and two callbacks from one signed HTTP POST', 
   assert.deepEqual(result.events.map(e => e.event_kind),
     ['inbound_message', 'inbound_message', 'status_callback', 'status_callback']);
   assert.deepEqual(result.events.map(e => e.position), [
-    { entry_index: 0, change_index: 0, item_index: 0 },
-    { entry_index: 0, change_index: 0, item_index: 1 },
-    { entry_index: 0, change_index: 0, item_index: 0 },
-    { entry_index: 0, change_index: 1, item_index: 0 },
+    { entry_index: 0, change_index: 0, array_kind: 'messages', item_index: 0 },
+    { entry_index: 0, change_index: 0, array_kind: 'messages', item_index: 1 },
+    { entry_index: 0, change_index: 0, array_kind: 'statuses', item_index: 0 },
+    { entry_index: 0, change_index: 1, array_kind: 'statuses', item_index: 0 },
   ]);
   assert.equal(result.events[0].phone_number_id, 'fixture_sender');
   assert.equal(result.events[1].participant_identifier, '558100000000');
