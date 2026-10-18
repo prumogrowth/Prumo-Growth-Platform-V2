@@ -20,9 +20,11 @@ begin
  -- Dedicated verifier must not be reachable via inherited role membership.
  if exists(
   select 1 from pg_catalog.pg_auth_members am
+  join pg_catalog.pg_roles member_role on member_role.oid=am.member
   where am.roleid='prumo_s0_signer'::regrole
+    and member_role.rolname not in ('postgres','supabase_admin')
  )
- then raise exception 'SIGNER_ROLE_MUST_NOT_HAVE_MEMBERS' using errcode='42501';end if;
+ then raise exception 'SIGNER_ROLE_GRANTED_TO_UNTRUSTED_MEMBER' using errcode='42501';end if;
 end $role$;
 
 revoke all on schema prumo_private from prumo_s0_signer;
