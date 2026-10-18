@@ -136,6 +136,8 @@ Webhook Meta (GET challenge; POST HMAC bytes brutos)
 **Regras de proteção:** sem alterar migrations S0, sem merge ou alteração automática do PR #1, sem implantar novo webhook/SQL, sem usar números comerciais; sem confundir sinal de sandbox com prontidão para produção. Alteração atual é exclusivamente documental e solicita coordenação antes de engenharia.
 
 
+**Contrato de interface derivado:** [Interface compartilhada S0 ↔ Meta/Supabase v0.1](interface-compartilhada-s0-meta-v0_1.md) — envelopes candidatos, protocolos de ACK, identidade 8↔9, outbox, responsabilidades e testes, em conformidade com DEC-WA-01/02/03. O conteúdo físico permanece [P] e requer revisão da frente principal.
+
 ## 9. Registro de decisão posterior
 
 **Registro da aprovação do responsável:** resposta explícita **“Aprovado.”** à pergunta conjunta sobre **DEC-WA-01/02/03**. Não confundir com aprovação de DEC-WA-04/05/06 nem com autorização de alteração operacional. A próxima entrega autorizada é o **desenho de interface de implementação compartilhada**, documentado separadamente e revisável pela frente principal. PR permanece Draft. **Os detalhes de campos/DDL, guarda de dados, segurança, posse de WABA, ambiente final, contratos jurídicos e rollout continuam sujeitos aos seus respectivos gates.**
