@@ -49,6 +49,10 @@ O JSON de resposta OpenAI terá estrutura/campos tipados estritos conforme OAI-0
 
 **Critério de amostragem:** estas 32 descrições são PLANO, não 32 testes completos, nem casos executados. Antes de iniciar E04, cada linha precisa virar fixture concreta, com entradas e expectativas e versão; ampliar casos de números, dialetos, conflitos e concorrência. Evitar uso de DNI/CPF válido ou de clientes reais.
 
+## 2A. Casos complementares da orientação OAI-07
+
+Os **14 testes candidatos NC-01 a NC-14**, incluindo todos os campos elegíveis (essenciais e opcionais), retorno humano só se faltar essencial, aviso curto em todos os handoffs, desfecho conversacional distinto de venda/recusa oficial, pedido explícito de texto/voz, preferência não inferida de um áudio, autorização por lote e remessa humana como fallback, estão especificados em `OAI_07_DESFECHO_ENCAMINHAMENTO_PREFERENCIA_CANAL_v0_1.md`. São requisitos adicionais, sem substituir os 32 SYN desta matriz. Nenhum deles está implementado ou executado; não declarar 46 casos validados.
+
 ## 3. Métricas e definições auditáveis [P]
 
 - false_autofill_rate = número de campos AUTOAPLICADOS sem prova/permitidos / total de campos autoaplicados. **Objetivo P0: zero em corpus crítico sintético; meta de laboratório, não garantia para produção.**
