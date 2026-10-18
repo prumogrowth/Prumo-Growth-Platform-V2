@@ -42,6 +42,8 @@ A referência aos intervalos CF2 é indicativa (cobre mais de uma disciplina), n
 4. E04 só pode declarar PASS/FAIL com `fixture_id`, `expected`, `actual`, versão, commit e log sanitizado. Enquanto não houver suíte executada, estado de cada caso é **PLANEJADO, NÃO EXECUTADO**.
 5. Dependências Meta e S1 permanecem nos contratos proprietários; esta matriz não autoriza mexer neles.
 
+**Detalhamento de SYN [P/R]:** a entrada e os resultados esperados para os 32 casos-base estão no `E02_GABARITO_DOCUMENTAL_SYN_01_32_v0_1.md`. Os nomes/criticidades originais permanecem os da matriz E02; o texto não é prova de execução nem contrato físico homologado.
+
 ## 3A. Exemplos EX-01..EX-16 [P/R]
 
 O pacote [E02_PACOTE_REVISAO_CASOS_FICTICIOS_CFI_CF02_v0_1.md](E02_PACOTE_REVISAO_CASOS_FICTICIOS_CFI_CF02_v0_1.md) apresenta 16 entradas/expectativas de revisão: extração de campos opcionais e essenciais, bloqueio por evidência, handoff, modelo silencioso, F02 nova cadeia, opt-out, finalidade bancária e os três relógios. **Não são fixtures executáveis nem 16 testes PASS.** O resultado EX-16 está explicitamente bloqueado até matriz C09 S0 ratificada. A contagem das famílias anteriores não ganha nova prova por ter exemplos adicionais.
