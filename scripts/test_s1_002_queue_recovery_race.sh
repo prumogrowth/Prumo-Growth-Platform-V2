@@ -82,7 +82,7 @@ insert into prumo_private.s1_remanejamento_pendencias(
         'b5020000-0000-4000-8000-000000000002',
         'b1020000-0000-4000-8000-000000000001','EQUIPE_INATIVA');
 SQL
--- Outra operacao transacional ganha posse do CASO antes de recuperar.
+# Outra operacao transacional ganha posse do CASO antes de recuperar.
 psql -X -qAt -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" >"$scratch/manual" 2>&1 <<'SQL' &
 begin;
 select id from public.casos_humanos
