@@ -107,7 +107,7 @@ flowchart TD
 O `MAPA_MENTAL.md` é índice de navegação. As decisões normativas e os registros de aceite versionados têm precedência sobre os nós simplificados deste mapa. Atualizá-lo a cada incremento **depois de verificar** CI e escopo real, sem rotular proposta como entregue.
 
 
-## Acompanhamento vivo — WhatsApp/Meta WA-01 a WA-05C (18/10/2026)
+## Acompanhamento vivo — WhatsApp/Meta WA-01 a WA-05D (18/10/2026)
 
 **Convenção:** este mapa é um **índice**, não um aceite técnico. A cada incremento relevante realizado nas frentes, atualizar também a linha do tempo, os bloqueios e a evidência observada; não mover automaticamente um item de [P] para [V], [D] ou **produção**. A atualização ocorrerá durante as próximas atividades de desenvolvimento, **não em segundo plano**. Os documentos e testes de cada PR prevalecem sobre este resumo.
 
@@ -137,6 +137,7 @@ flowchart TD
 | WA-05B | **[P/V local]** Recuperação de ingressos e reentrega, com falhas antes/depois do commit **fictício** | **26 novos RECOV PASS + 268 anteriores = 294/294 testes sintéticos PASS**; leases e prevenção de efeito **interno** repetido em memória, **sem** durabilidade/ACK ou exactly-once externo |
 | WA-05-AUD1 | **[V local]** Auditoria independente WA-05A/B e reparos no journal fake | **306/306 testes sintéticos PASS** (294 anteriores + 12 adversariais); TypeScript estrito PASS. Corrigidos snapshot, exceções, segregação por App/loja/canal e campos extras. **Não** há persistência S0 ou autenticação real |
 | WA-05C | **[P/V local]** Contrato técnico Meta → S0 e conferência **não autenticada** de recibos candidatos | **24 novos S0C + 306 anteriores = 330/330 testes sintéticos PASS**, TS estrito PASS; vincula batch, hash do corpo, revisão de rota, digest de escopo e canais por item. **ACK continua bloqueado** |
+| WA-05D | **[P/V local]** Interface interna S0 privilegiada simulada, com duas fontes de escopo | **20 GATE novos + 330 anteriores = 350/350 testes sintéticos PASS**, TypeScript estrito PASS. Revalida origem de serviço **fictícia**, corpo, App/loja/canal/versão antes de inserção em memória. **Não** prova auth real/ACID/ACK |
 | Credenciais Meta definitivas | **[R]** Dependência de **verificação por terceira pessoa** para liberar o token | **Não disponíveis** para esta frente; testes reais WhatsApp adiados; não pedir valores em Git, issue, chat ou arquivo |
 | S0 ↔ Meta real | **[R]** Gate operacional pendente | Ambiente DEC-WA-04, segredos/rotação/ACK/retensão DEC-WA-06, registro App→loja/canal autenticado, payload protegido, `occurrence_ref`, autorização C03/C06/C12 e C07 |
 
@@ -183,3 +184,5 @@ S1-001 é um protótipo visual de uso local, não conclusão da S1, não substit
 
 
 **D-ORG-01 / validação de fixture S1:** [CI #39136909717 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39136909717), SHA `806d6465c1ec28c64cc67cc5154977a49b48f538`, **28/28 PASS**. Cinco personagens têm `organizationId = prumo`; `shopId` continua somente cenário de acesso em navegador. Nenhuma funcionalidade de multi-loja/autoatribuição foi acrescentada à demo; **[R] implementar e homologar na S1-002**, mantendo o backend como fonte de autorização.
+
+**WA-05D (18/10/2026):** contrato S0/Meta exercitado por uma **porta interna simulada**, que confere o contexto do serviço pela fixture, bytes e hashes de corpo/escopo, App/loja/canal em fonte independente e revogação antes do commit em memória. **350/350 testes locais PASS**, TS estrito PASS (16 módulos/22 suítes). **Ainda [R]:** autenticação verdadeira do principal de serviço, owner/ACL mínimo, payload protegido e transação ACID, receipt confirmado e DEC-WA-06/ACK. A S0-037D/F usa papéis e sessões de laboratório, **não** constitui gateway Meta aprovado. Nenhum nó novo no primeiro diagrama: a inbox durável já representa essa dependência. [Documento WA-05D](https://github.com/prumogrowth/Prumo-Growth---Platform/blob/docs/whatsapp-meta-concessionária de demonstração-poc-20261017/docs/integracoes/whatsapp-meta/wa05d-porta-interna-s0-simulada-v0_1.md).
