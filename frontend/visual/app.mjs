@@ -88,7 +88,8 @@ function renderList() {
   const listProjection = projectInbox(state.cases,state.actorId,state.shopId,state.inboxView);
   const total = listProjection.length;
   $('list-count').textContent = `${total} ${total === 1 ? 'atendimento' : 'atendimentos'}`;
-  $('list-context').textContent = getActor(state.actorId).role === 'gestor' ? 'Visão de supervisão' : 'Atribuídos a mim';
+  const currentActor = getActor(state.actorId);
+  $('list-context').textContent = currentActor.teamState !== 'active' ? 'Acesso fictício suspenso' : currentActor.role === 'gestor' ? 'Visão de supervisão' : 'Atribuídos a mim';
   const activeRows=projectInbox(state.cases,state.actorId,state.shopId,'active');
   const summary={total:activeRows.length,unread:activeRows.filter(x=>x.unread>0).length,human:activeRows.filter(x=>x.status==='em atendimento pelo operador').length};
   const tiles=[['Total',summary.total],['Não lidas',summary.unread],['Em atendimento',summary.human]];
@@ -120,7 +121,8 @@ function renderList() {
   });
   if (!nodes.length) {
     const box = el('div','no-results');
-    box.append(el('strong','', 'Nenhuma conversa neste filtro'),el('span','', 'Altere a busca, o filtro ou o perfil fictício.'));
+    const suspended = getActor(state.actorId).teamState !== 'active';
+    box.append(el('strong','', suspended?'Sem acesso demonstrativo':'Nenhuma conversa neste filtro'),el('span','', suspended?'Profissional suspenso na fixture. Acesso real pertence ao S0/S1-002.':'Altere a busca, o filtro ou o perfil fictício.'));
     list.replaceChildren(box);
   } else list.replaceChildren(...nodes);
   document.querySelectorAll('[data-filter]').forEach(btn => {
@@ -164,7 +166,7 @@ function renderThread() {
   if (canMockClose(item)) {
     const close = el('button', 'btn btn-primary', 'Concluir atendimento');
     close.type = 'button'; close.id='request-completion';
-    close.addEventListener('click', () => $('completion-dialog').showModal());
+    close.addEventListener('click', () => { const dialog=$('completion-dialog');dialog.returnValue='';dialog.showModal(); });
     bar.append(close);
   } else if (state.processing[item.id]) {
     const label = state.processing[item.id].kind === 'accepted' ? 'Solicitação simulada' : 'Resultado fictício';
@@ -183,7 +185,7 @@ function renderThread() {
         const option=el('option','',template.title+' · '+template.version+' (fictício)');
         option.value=template.id;return option;
       }));
-      $('template-dialog').showModal();
+      const dialog=$('template-dialog');dialog.returnValue='';dialog.showModal();
     });
     bar.append(btn);
   }
@@ -218,16 +220,20 @@ function renderDetails() {
   const tabs=el('div','detail-tabs');tabs.setAttribute('role','tablist');tabs.setAttribute('aria-label','Detalhes do caso fictício');
   for(const tab of DETAIL_TABS){
     const button=el('button','detail-tab'+(state.detailTab===tab.id?' active':''),tab.title);
-    button.type='button';button.setAttribute('role','tab');button.setAttribute('aria-selected',String(state.detailTab===tab.id));
+    button.type='button';button.id='case-tab-'+tab.id;
+    button.setAttribute('role','tab');button.setAttribute('aria-selected',String(state.detailTab===tab.id));
+    button.setAttribute('aria-controls','case-tab-panel');
     button.setAttribute('tabindex',state.detailTab===tab.id?'0':'-1');
-    button.addEventListener('click',()=>{state.detailTab=tab.id;renderDetails();});
+    button.addEventListener('click',()=>{state.detailTab=tab.id;renderDetails();
+      target.querySelector('.detail-tab.active')?.focus();});
     button.addEventListener('keydown',e=>{if(e.key!=='ArrowLeft'&&e.key!=='ArrowRight')return;
       e.preventDefault();const i=DETAIL_TABS.findIndex(x=>x.id===tab.id);
       state.detailTab=DETAIL_TABS[(i+(e.key==='ArrowRight'?1:DETAIL_TABS.length-1))%DETAIL_TABS.length].id;
       renderDetails();const active=target.querySelector('.detail-tab.active');active?.focus();
     });tabs.append(button);
   }
-  const content=el('div','tab-content');content.setAttribute('role','tabpanel');
+  const content=el('div','tab-content');content.id='case-tab-panel';content.setAttribute('role','tabpanel');
+  content.setAttribute('aria-labelledby','case-tab-'+state.detailTab);content.setAttribute('tabindex','0');
   if(state.detailTab==='overview'){
     const group=detailSection('CONTEXTO DO ATENDIMENTO');
     const actor=ACTORS.find(a=>a.id===item.assignedTo);
@@ -364,7 +370,7 @@ function openTeamSummary(){
     const card=el('div','team-member');
     card.append(el('strong','',actor.name),el('span','',`${actor.role==='gestor'?'Gestor':'Operador'} da Prumo · ${assigned} caso(s) sintéticos atribuídos`));return card;
   }));
-  $('team-dialog').showModal();
+  const dialog=$('team-dialog');dialog.returnValue='';dialog.showModal();
 }
 $('team-nav').addEventListener('click',openTeamSummary);
 $('team-nav-mobile').addEventListener('click',openTeamSummary);
@@ -389,12 +395,14 @@ $('composer').addEventListener('submit',event=>{
 });
 $('completion-dialog').addEventListener('close',()=>{
   if($('completion-dialog').returnValue!=='confirm')return;
+  $('completion-dialog').returnValue='';
   const item=selectedCase(); if(!item || !canMockClose(item))return;
   state.processing[item.id]={kind:'accepted'};state.detailTab='extraction';
   render();showToast('Solicitação de conclusão simulada. Nenhuma API foi chamada.');
 });
 $('template-dialog').addEventListener('close',()=>{
   if($('template-dialog').returnValue!=='confirm')return;
+  $('template-dialog').returnValue='';
   const item=selectedCase();if(!item)return;
   const template=DEMO_TEMPLATES.find(x=>x.id===$('template-select').value);
   try {state.followupRequests[item.id]=applyLocalFollowupRequest(item,state.actorId,state.shopId,'single_template',template);
