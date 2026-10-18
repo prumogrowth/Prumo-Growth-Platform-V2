@@ -65,7 +65,15 @@ begin
  and concessionaria_id='62020000-0000-4000-8000-000000000002' and encerrada_em is null)<>1
  or (select count(*) from prumo_private.s1_remanejamento_historico
  where motivo='ESCOPO_REVOGADO')<>1 then
- raise exception 'S1R-03 B revoke failed';end if;
+ raise exception 'S1R-03 B revoke failed: old %, new %, audit %',
+ (select count(*) from public.atribuicoes_humanas
+  where operador_id='61020000-0000-4000-8000-000000000001' and encerrada_em is null),
+ (select count(*) from public.atribuicoes_humanas
+  where operador_id='61020000-0000-4000-8000-000000000002'
+   and concessionaria_id='62020000-0000-4000-8000-000000000002'
+   and encerrada_em is null),
+ (select count(*) from prumo_private.s1_remanejamento_historico
+  where motivo='ESCOPO_REVOGADO');end if;
 end $q$;
 \echo 'PASS S1R-03 revogacao B redistribui somente B'
 -- Suspensao O1 distribui 3 A entre O2/O3; C sem substituto; terminal nao revive.
