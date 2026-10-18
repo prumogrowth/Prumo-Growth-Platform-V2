@@ -48,6 +48,7 @@ type LinkedSend = {
   readonly intent_id: string;
   readonly attempt_id: string;
   readonly recipient: string;
+  readonly scope: TrustedTemplateScope;
   observations: SavedObservation[];
   progress: TechnicalProgress;
   failure_observed: boolean;
@@ -67,6 +68,10 @@ const recipient = (s: unknown): s is string =>
 const isoUTC = (s: unknown): s is string =>
   typeof s === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(s) &&
   !Number.isNaN(Date.parse(s)) && new Date(s).toISOString() === s;
+const sameScope = (a: TrustedTemplateScope, b: TrustedTemplateScope): boolean =>
+  a.concessionaria_id === b.concessionaria_id && a.canal_id === b.canal_id &&
+  a.meta_app_ref === b.meta_app_ref && a.meta_waba_id === b.meta_waba_id &&
+  a.phone_number_id === b.phone_number_id;
 const scopeKey = (app: string, waba: string, phone: string, message: string): string =>
   JSON.stringify([app, waba, phone, message]);
 const defaultProjection = (): TechnicalProjection =>
@@ -98,13 +103,14 @@ export class FakeMetaStatusReconciler {
     if (present) {
       if (present.intent_id === reference.intent_id &&
           present.attempt_id === outcome.attempt_id &&
-          present.recipient === reference.recipient_verified) return result('ALREADY_LINKED');
+          present.recipient === reference.recipient_verified &&
+          sameScope(present.scope, s)) return result('ALREADY_LINKED');
       return result('CONFLICT');
     }
     if (this.sends.size >= MAX_LINKED) return result('CAPACITY_REACHED');
     const linked: LinkedSend = {
       intent_id: reference.intent_id, attempt_id: outcome.attempt_id,
-      recipient: reference.recipient_verified,
+      recipient: reference.recipient_verified, scope: structuredClone(s),
       observations: [], progress: 'NONE', failure_observed: false,
     };
     this.sends.set(key, linked);
@@ -171,7 +177,8 @@ export class FakeMetaStatusReconciler {
         s.meta_app_ref !== reference.app_ref) return undefined;
     const linked = this.sends.get(scopeKey(reference.app_ref, s.meta_waba_id,
       s.phone_number_id, providerMessageId));
-    return linked && linked.recipient === reference.recipient_verified ? this.project(linked) : undefined;
+    return linked && linked.recipient === reference.recipient_verified &&
+      sameScope(linked.scope, s) ? this.project(linked) : undefined;
   }
 
   get pendingCount(): number { return this.pending.length; }
