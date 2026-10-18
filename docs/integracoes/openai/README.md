@@ -24,7 +24,8 @@ Preparar o acesso da plataforma técnica Prumo à API da OpenAI: entendimento de
 11. **E02_POLITICAS_SEGURANCA_CRITERIOS_ACEITE_v0_1.md** — E02: segurança, privacidade, autoaplicação de campos com fonte, limites e gates propostos [P/R/V].
 12. **E02_MATRIZ_CASOS_SINTETICOS_E_METRICAS_v0_1.md** — E02: 32 cenários de teste a implementar em E04, métricas, bloqueios críticos e comparação futura [P].
 13. **OAI_07_DESFECHO_ENCAMINHAMENTO_PREFERENCIA_CANAL_v0_1.md** — esclarecimentos [D-NEGÓCIO] do responsável em 18/10 sobre fechamento humano, motivo/desfecho da conversa, todos os campos disponíveis, essenciais × opcionais, roteamento e avisos IA → humano, voz adaptativa e orçamento por lote; limites bancários [R/V].
-14. **PLANO_EXECUCAO_E_CRITERIOS_DE_CONCLUSAO_v0_1.md** — roteiro fechado E00–E08: E00 concluído; E01 e E02 documentados em revisão, E03–E08 pendentes. Nenhum teste E02 executado.
+14. **E03_PREPARACAO_CONTA_CREDENCIAL_GATES_v0_1.md** — checklist [P/R] de projeto API OpenAI, billing, credencial e armazenamento MANUAL no runtime homologado; E03 ainda pendente.
+15. **PLANO_EXECUCAO_E_CRITERIOS_DE_CONCLUSAO_v0_1.md** — roteiro fechado E00–E08: E00 concluído; E01 e E02 documentados em revisão, E03–E08 pendentes. Nenhum teste E02 executado.
 
 ## Princípios de precedência
 
@@ -48,5 +49,7 @@ Supabase secrets para funções autorizadas: https://supabase.com/docs/guides/fu
 **Emenda OAI-07 [D-NEGÓCIO; implementação P/R]:** quando operador clicar encerrar, analisar evidências e desfecho conversacional, preencher automaticamente TODOS os campos elegíveis que foram explicitamente informados, voltar ao humano apenas se faltar dado realmente essencial ou houver outra necessidade legítima de revisão e exibir motivo curto para CADA handoff IA → humano; somente campos exigidos e legalmente autorizados seguem para remessa. A modalidade áudio/texto adapta-se ao padrão reiterado e pedido explícito, sem inferir preferência por um único áudio. Venda/recusa bancária oficiais permanecem atos humanos com prova conforme 13A/21/41; classificação IA é hipótese, não mudança de status. Não há teto global de gasto em testes: exigir autorização de estimativa por lote. Ver OAI-07.
 
 **Esclarecimento de resultado comercial [D-NEGÓCIO, 18/10/2026]:** atendimento “fechado” significa interesse confirmado e dados preparados para remessa, NÃO `vendido`. A OpenAI poderá sugerir `NEGOTIATION_READY_FOR_BANK_HANDOFF` com fonte, e S0 encaminha para operador de remessa conforme regras. Status `cadastro enviado ao operador` após fechamento HUMANO requer validação da transição pela frente S0, e `cadastro enviado ao banco` exige envio real com prova. `vendido` continua condicionado à confirmação bancária efetiva de venda/pagamento e marcação humana com evidência. Ver OAI-07 atualizado.
+
+**E03 [P/R]:** checklist de conta, credencial e controles de uso por lote publicado; nenhuma conta, chave ou secret OpenAI foi criado ou verificado nesta etapa. Não armazenar chave no Supabase por inferência enquanto n8n versus direto estiver pendente. Cada chamada paga ainda exige estimativa e aprovação específica.
 
 **Topologia OpenAI ↔ backend [R]:** chamada direta autenticada pelo runtime servidor/Edge Functions OU orquestração via n8n; nenhum caminho foi testado/selecionado para esta frente. O contrato de domínio deve ser independente da topologia. **Sem GO para operação real.** Mudanças em outra frente dependem da frente proprietária e de revisão cruzada.
