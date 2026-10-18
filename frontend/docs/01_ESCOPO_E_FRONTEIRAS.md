@@ -8,6 +8,7 @@
 - Telas para **operador da Prumo**, **gestor da Prumo** e visualizações administrativas cuja experiência visual venha a ser autorizada.
 - Representações **fiéis** dos dados que um backend autorizado forneceria: estado comercial, fila/atribuição, conversas, históricos, cadastros permitidos, remessa e resultado; transparência quanto a carregamento, falha, permissão e informação ainda não confirmada.
 - Protótipos **sem dados reais**, fluxos de navegação, testes de interface e documentação de decisões de design.
+- Contrato de apresentação do gatilho de **conclusão da conversa humana** e retorno de **extração cadastral pós-humana**, sem tocar em APIs/credenciais da OpenAI ou em persistência S0.
 
 ## Responsabilidades que NÃO migram para a frente visual
 
@@ -37,3 +38,13 @@
 - Diretório de trabalho reservado: `frontend/` e sua documentação. **Não alterar** `supabase/`, `backend/`, `integrations/`, workflows de outras frentes, seus documentos de auditoria nem a branch `main`.
 - A S1-001 de `feat/s0-fundacao-prumo` é uma **referência existente**, não código desta branch. Qualquer reaproveitamento dependerá de revisão coordenada, evitando duas implementações concorrentes da mesma tela.
 - Antes de integrar código, verificar contratos técnicos vigentes e alterações recentes de D-ORG-01, sem transformar propostas em regras aprovadas.
+
+## Emenda FV-2026-10-18 — cadastro extraído automaticamente, não digitado rotineiramente
+
+**[D-direção atual]** O operador conversa com o cliente e conclui sua etapa. A plataforma solicita ao backend S0 processamento de extração pela OpenAI; o S0 valida e grava automaticamente os campos elegíveis na base, com origem e versão rastreáveis. **Nenhum campo de cadastro é digitado rotineiramente pelo operador no frontend.**
+
+**[P/R]** O botão, contrato de solicitação, tela de andamento/pendência e opção de conferência são definidos por [FV-01](04_CONTRATO_FV01_UI_BACKEND_v0_1.md) e [FV-02](05_CONTRATO_FV02_CONCLUSAO_EXTRAÇÃO_POS_HUMANA_v0_1.md). A frente OpenAI já dispõe de OAI-05/E01 e mantém total titularidade de extração/adaptador; S0 continua dono de evento, identidade, catálogo, validação, escrita e auditoria.
+
+**[D preservada]** Correção humana individual excepcional doc.23/C13/D41-04 não foi expressamente revogada; não criar formulário regular de digitação. Encerramento da conversa é evento técnico, não remessa, venda, recusa, status comercial novo ou reativação da IA Vendedora.
+
+**Auditoria:** [06_AUDITORIA_CONTRATOS_FV_2026_10_18.md](06_AUDITORIA_CONTRATOS_FV_2026_10_18.md); sem testes de contrato/aceite interfrentes.
