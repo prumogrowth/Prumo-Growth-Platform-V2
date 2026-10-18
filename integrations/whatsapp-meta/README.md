@@ -104,3 +104,14 @@ Relatório: `docs/integracoes/whatsapp-meta/wa03b-auditoria-pendencias-e-reparos
 `credential-routing.ts` implementa somente o **contrato candidato de roteamento** entre `route_ref` confiável, App titular da concessionária, WABA, número emissor e canal S0. Distingue as referências de **verify token GET, App Secret POST HMAC e Graph access token**. Retorna apenas o nome do slot protegido; nunca lê ou devolve o valor do segredo, usa rede ou fornece autorização comercial. Vigência, revogação, rotação por revisão e duplicidades são negadas por padrão; `production_authorized:false` sempre.
 
 **19/19 testes sintéticos PASS** em Node 22.16 e TypeScript estrito do módulo PASS, hashes conferidos com GitHub. O cadastro definitivo será feito pelo responsável e não foi acessado nesta etapa. Ver `docs/integracoes/whatsapp-meta/wa04a-roteamento-credenciais-meta-offline-v0_1.md`. DEC-WA-04/06 e contratos S0 continuam pendentes; não usar a POC da concessionária de demonstração como ambiente definitivo sem decisão específica.
+
+
+## WA-04B — Simulação de GET/POST com HMAC por App e canal autenticado
+
+`routed-webhook.ts` faz a **composição offline** dos módulos WA-04A, WA-01D e WA-01A: seleciona os nomes dos slots por **rota confiável**, recebe valor de segredo somente por uma porta privilegiada **fictícia**, valida GET ou HMAC do corpo bruto POST e associa cada evento a App/WABA/Phone/canal/loja configurados. Revalida revisão/vigência/slot após leituras assíncronas e recusa lotes que misturem canais de Apps independentes. Nenhum token sai na decisão e **`ack_allowed:false` sempre**.
+
+A WA-04A também passou a rejeitar globalmente um `phone_number_id` ou `canal_id` reutilizado por Apps distintos e WABAs atribuídas a Apps diferentes. Essas verificações são de fixture, não prova do registro S0 em Supabase.
+
+**Evidência local:** 28 cenários novos WA-04B + 19 WA-04A + 120 regressões = **167/167 testes PASS**, `tsc --strict` PASS para os módulos e 10 arquivos de testes selecionados, após pequenos reparos de tipagem em `cross-contract.test.ts` e `graph-template.test.ts`. Não houve CI remoto ou reexecução dos quatro arquivos de teste unitário WA-01 legados. Referência: `docs/integracoes/whatsapp-meta/wa04b-get-post-roteamento-hmac-v0_1.md`.
+
+**Sem Supabase hospedado, env secrets reais, endpoint, Graph API, migrations, ACK durável, merge ou deploy.** O responsável avisará quando finalizar o cadastro de credenciais; não pedir valores no chat.
