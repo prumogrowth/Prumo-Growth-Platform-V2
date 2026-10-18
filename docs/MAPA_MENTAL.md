@@ -29,6 +29,9 @@ flowchart TD
   AUTH --> OP[Comandos sintéticos restritos: gestor/versao/loja]
   AUTH --> GWAY[Papel NOLOGIN, wrappers C07/C08]
   GWAY --> AUD[Auditoria de comandos aplicados sem dados sensiveis]
+  GWAY --> ROT[Chaves HMAC: ativar, revogar e historico de versao]
+  GWAY --> NONCE[Nonce unico, limpeza conservadora]
+  AUTH --> NEG[Negativas sanitizadas sem token ou PII]
   OP --> GEST
   P --> ADM[Gestão e MCP com confirmação]
   P --> DB[Supabase: dados, RLS e auditoria]
