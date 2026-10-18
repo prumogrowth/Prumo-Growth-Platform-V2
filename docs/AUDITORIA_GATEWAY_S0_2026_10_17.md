@@ -43,3 +43,11 @@
 **NO-GO:** implantação remota, dados reais, Meta/Banco/OpenAI/n8n, credencial gateway de produção, API pública ou merge até resolução expressa das fragilidades AUD-GW-04/05 e demais requisitos de autorização/recuperação.
 
 A auditoria registra o limite da confiança: **um papel com poucas permissões não equivale a autenticação do ator dentro do banco**. O controle do token ainda depende do backend confiável e da proteção de sua credencial SQL.
+
+## Atualização de tratamento de risco — 18/10/2026
+
+O bloqueio **AUD-GW-04** registrado acima foi **parcialmente mitigado** pela migration `025_s0_prova_dupla_gateway.sql`: o papel SQL restrito perdeu EXECUTE nas wrappers sem assinatura. Agora exige assinatura HMAC-SHA256 de uma segunda chave, curta duração (30s + tolerância de relógio) e nonce de uso único, vinculando ator/sessão, loja, versão e comando. Essa barreira foi testada em [PostgreSQL #39083792469 — PASS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39083792469) e em [GoTrue/REST local #39083914275 — PASS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39083914275).
+
+**O risco não está encerrado para produção:** o runtime possui a senha SQL e a chave HMAC. Comprometimento de ambos, exfiltração do material da chave ou ataque ao proprietário privilegiado `postgres` podem contornar essa defesa. Também faltam armazenamento e rotação de chaves, observabilidade segura de negativas e recuperação. Assim, AUD-GW-04 permanece **bloqueio para produção**, mas a variante específica de **senha SQL isolada com par ator/sessão conhecido** passa a estar mitigada nos cenários S0 testados. A migration 025 não foi aplicada no projeto Supabase hospedado.
+
+Guia: `docs/GATEWAY_PROVA_DUPLA_S0_2026_10_18.md`.
