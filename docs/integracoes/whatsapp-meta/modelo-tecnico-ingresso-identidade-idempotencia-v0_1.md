@@ -115,21 +115,39 @@ resolveContact(concessionariaId, canalId, rawFrom, optionalProviderWaId):
   parsed = parseBrazilianNumber(rawFrom, trustedCountryContext)
   if invalid/ambiguous: return NEEDS_REVIEW
   exact = findVerifiedOrObservedExactAlias(concessionariaId, canalId, parsed.exact)
-  if exact is confirmed, current and unambiguous: return MATCH_EXACT(leadId)
   if exact has collision/shared/recycled flags: return IDENTITY_CONFLICT
-  possibleVariant = propose8or9Candidate(parsed)
-  // Candidate has NO authority to merge, change lead, initiate outbound or read another tenant.
-  if possibleVariant and explicitEvidenceAlreadyConfirmedSameContact(...):
-      return MATCH_VERIFIED_ALIAS(leadId)
-  return NEW_PROVISIONAL_OR_REVIEW(parsed.exact, possibleVariant)
+  if exact is current and unambiguous: return MATCH_EXACT(leadId)
+  candidateKey = comparableBrazilMobile8or9Key(parsed) // somente BR + DDD, variante 9 elegível
+  candidates = findAliasesByScopedCandidateKey(concessionariaId, canalId, candidateKey)
+  if candidates have multiple distinct leads or conflict flags: return IDENTITY_CONFLICT
+  if candidates resolve to exactly one lead and trustedOriginEvidence(rawFrom, optionalProviderWaId)
+      and candidate is an eligible 8<->9 representation:
+      linkObservedVariantWithAuditTrail(parsed.exact, leadId)
+      return MATCH_CANONICAL_VARIANT(leadId)
+  if no match: return CREATE_SCOPED_PROVISIONAL_OR_CONFIRMED_BY_POLICY(parsed.exact)
+  return NEEDS_REVIEW
 ```
 
-**Resolução explícita de colisão:** potencial 8↔9 não equivale a prova; `from` e `wa_id` no mesmo webhook assinado podem ser evidência **da vinculação técnica declarada pelo provedor**, mas não provam titularidade civil. Associação definitiva exige critério aprovado da frente de identidade [R] e ausência de colisão. Nunca substituir automaticamente `telefone_cliente_normalizado` do lead nem alterar lead/ciclo bancário devido a alias.
+**Regra aprovada [D]:** variantes brasileiras elegíveis `55 + DDD + 9 + oito dígitos` e `55 + DDD + oito dígitos` devem localizar **automaticamente o mesmo contato lógico na mesma loja** quando houver correspondência única, origem de canal confiável e ausência de conflito. `from` e `wa_id` autenticados podem contribuir para evidência técnica, **não comprovam titularidade civil**. Em colisão, número fixo, compartilhado/reciclado ou formato importado não confiável, bloquear fusão e pedir revisão; não alterar ciclo bancário por transformação de telefone.
 
 **Exemplos inteiramente fictícios** (representação ilustrativa, não números contatáveis):
 - `+55 (81) 9XXXX-XXXX` e `+55 (81) XXXX-XXXX`: suportados como formatos candidatos distintos.
-- Se ambos forem aliases validados da **mesma identidade comercial da mesma loja**, podem apontar ao mesmo `lead_id`; se não houver evidência, manter registros/provisórios separados.
+- Quando ambos os formatos forem variantes válidas com **correspondência única e origem confiável na mesma loja**, apontam automaticamente ao mesmo `lead_id`, preservando aliases e histórico. Em caso de colisão ou falta de evidência técnica, manter em revisão.
 - O mesmo número exato na loja A e B = dois `lead_id`, histórico e casos separados.
+
+
+### 5.5 Chave de comparação e política de normalização — decisão complementar [D/P]
+
+**Exemplo sintético dado pelo responsável:** `5581900000000` ↔ `558100000000`, entendidos como mesmo número de contato para o caso de variante móvel brasileira. O `9` é o primeiro dígito local, **logo após DDI 55 e DDD 81**. Não são números a enviar no piloto.
+
+- **[D]** A plataforma **não pode duplicar o contato** quando duas variantes válidas correspondem inequivocamente ao mesmo identificador WhatsApp no contexto de uma loja. Pesquisa, inbound, reimportação e resposta devem chegar ao mesmo `lead_id`/histórico.
+- **[P]** Manter `numero_original` (protegido), `alias_exato`, `chave_comparacao_mobile_8_9` (HMAC escopado), `identificador_meta_verificado`, `formato_meta_operacional` e `origem/evidencia/vigencia`. A chave de comparação é `DDI + DDD + oito dígitos finais` **apenas quando** a forma de nove dígitos tiver `9` nessa posição e for compatível com celular. Uma forma de oito dígitos também deve passar critérios de canal/origem para participar da correspondência.
+- **[D/P]** Sem colisões e com origem técnica confiável (por exemplo webhook HMAC válido no canal conhecido + histórico Meta associado), ligação automática de aliases ao mesmo `lead_id`; não exigir confirmação humana em todos esses casos comuns. Se não há contato, criar um registro local, com chave candidata, permitindo resolução posterior sem duplicação.
+- **[D]** Preferir no envio o formato efetivamente verificado/aceito pela Meta para aquele contato/canal; **não converter destrutivamente** o cadastro humano e não enviar simultaneamente a 8/9 como tentativa.
+- **[R/V]** A fórmula numérica **não** pode confirmar sozinha titularidade civil: se duas pessoas/leads possuem a mesma chave, há fixo, número reciclado, canal equivocado ou proveniência não confiável, produzir `IDENTITY_CONFLICT` / `NEEDS_REVIEW`, mantendo a operação segura. Priorizar o identificador técnico confirmado do provedor, não assumir que a Meta sempre adota o mesmo comprimento.
+- **Idempotência:** normalização de alias não altera `external_message_id`. Mensagens diferentes conservam IDs próprios; webhooks repetidos mantêm único efeito mesmo que a variante de telefone recebida mude.
+
+**Testes adicionais obrigatórios:** busca por ambas as variantes retorna mesmo lead quando seguras; primeiro 8→9 e 9→8; evento real autenticado duplicado sob formatos alternados; número fixo de oito dígitos não vira celular automaticamente; colisão entre dois leads não une históricos; mesmo telefone em lojas diferentes mantém isolamento; envio apenas para destino autorizado pela Meta.
 
 ### 5.4 Seleção de destino de saída
 
@@ -176,8 +194,8 @@ resolveContact(concessionariaId, canalId, rawFrom, optionalProviderWaId):
 | IDEM-05 | Worker morre após reservar lease | Lease expira e retry não duplica efeito |
 | IDEM-06 | Meta timeout após possível envio outbound | `UNCERTAIN_EXTERNAL`, sem segundo envio automático |
 | IDBR-01 | `55+DDD+8` e `55+DDD+9` isolados | Ambos aceitos no cadastro técnico quando plausíveis |
-| IDBR-02 | Duas variantes sem prova | Não unifica e não tenta envio a ambas |
-| IDBR-03 | Alias confirmado por evidência, mesma loja | Resolução ao mesmo lead, trilha de vínculo |
+| IDBR-02 | Duas variantes elegíveis recebidas por webhook autenticado, único lead da loja e nenhum conflito | Reconhece automaticamente o mesmo lead, adiciona alias e não envia para ambas |
+| IDBR-03 | Primeiro entra `5581900000000`, depois `558100000000` na mesma loja em origem confiável; teste de ordem reversa | Ambos resolvem ao mesmo lead e histórico com trilha de vínculo, sem contato adicional |
 | IDBR-04 | Mesmo número exato em lojas A e B | Leads e históricos independentes |
 | IDBR-05 | Alias colide com outro lead/telefone reciclado | `IDENTITY_CONFLICT`, sem acesso misturado |
 | IDBR-06 | Formato ambíguo sem DDI/contexto | `NEEDS_REVIEW`, sem envio |
@@ -200,7 +218,7 @@ resolveContact(concessionariaId, canalId, rawFrom, optionalProviderWaId):
 
 **ETAPA C — ingestão isolada:** nova função/versão em sandbox separado; HMAC, persistência e ACK rápido; teste de eventos sintéticos múltiplos e reenvio. Não substituir `whatsapp-webhook-sandbox` sem plano de mudança.
 
-**ETAPA D — resolvedor BR + C02/C07:** alias/política de conflito + dedupe/outbox com testes de concorrência, sem IA e sem encaminhar mensagens reais a clientes.
+**ETAPA D — resolvedor BR + C02/C07:** normalização e resolução automática de variantes brasileiras elegíveis 8↔9 no escopo da mesma loja, com alias auditável e fallback conservador para colisões, dedupe/outbox e testes de concorrência; sem IA e sem encaminhar mensagens reais a clientes.
 
 **ETAPA E — saída autorizada C06/C12/C03:** outbox com provas de opt-out, janela/template, handoff e estados `UNCERTAIN_EXTERNAL` e reconciliação; homologação específica Meta/Banco/LGPD antes de produção.
 
@@ -210,7 +228,7 @@ resolveContact(concessionariaId, canalId, rawFrom, optionalProviderWaId):
 
 ## 10. Decisões e provas pendentes (sem disfarçar como implementação)
 
-- **[R]** Critério humano/evidencial de associação entre aliases de 8 e 9 dígitos; tratamento de número compartilhado/reciclado e concorrência de leads.
+- **[D]** Reconhecer automaticamente variantes elegíveis 8↔9 como mesmo número lógico no escopo da loja quando origem confiável e correspondência única; **[R]** parametrizar evidências e critérios técnicos de colisão, telefone fixo/compartilhado/reciclado e concorrência de leads.
 - **[V]** Escopo e estabilidade dos IDs Meta, forma exata de status/callback e política de replay; revisar com payloads sintéticos ou sandbox autorizado.
 - **[R]** Físico de aliases (projeção E04 versus tabela separada), índice/criptografia HMAC e gestão de segredo de lookup.
 - **[R]** Forma de vincular conversas/casos humanos a inbound provisório antes da confirmação de identidade, preservando mensagens sem inventar titularidade.
