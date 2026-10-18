@@ -239,3 +239,8 @@ g) Reprocessamento/reimportação só acrescenta evento de descoberta; não dupl
 **POC fonte:** `poc-meta-sandbox-documentacao-publica-2026-10-17.md` e `adr-001-transporte-webhook-supabase-vs-n8n.md` nesta branch. Webhook atual POC somente recebeu e respondeu comando; **este contrato é planejamento para a integração principal**, não refatoração já implantada.
 
 **Mudanças desta versão 0.1:** definida fronteira Meta/Supabase, funções conceituais C02/C06/C07 e riscos; suporte explícito 8/9 dígitos com aliases protegidos e sem fusão automática; critérios para sugerir Pro somente quando houver necessidade; referência explícita à decisão de usar Supabase diretamente.
+
+
+## 12. Especificação técnica derivada
+
+O detalhamento de estruturas candidatas, integração com E02/E03/E04/E10/E11/E29, máquina de processamento, escopo temporal do canal, resolução cautelosa de números brasileiros com oito/nove dígitos, inbox/outbox, dedupe de eventos/efeitos, testes de concorrência e separação entre POC e projeto exclusivo está documentado em [Modelo técnico de ingresso, identidade e idempotência v0.1](modelo-tecnico-ingresso-identidade-idempotencia-v0_1.md). **Este texto é uma especificação proposta, sem DDL ou execução em Supabase.**
