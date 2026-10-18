@@ -17,6 +17,8 @@ export type FakeS0IngressPorts = Readonly<{
   trustedCaller(): FakePrivilegedCaller;
   /** In future: locked/serializable S0 mapping at the SAME commit boundary. */
   trustedRegistry(): TrustedMetaRegistry;
+  /** Privileged server-only source, isolated from the Meta App Secret. */
+  trustedInternalSigningKey(service_ref: string): string | undefined;
   nowMs(): number;
   /** This is a memory fixture, not protected durable storage. */
   payloads: FakeProtectedPayloads;
@@ -25,11 +27,41 @@ export type FakeS0IngressResult = Readonly<{
   decision: 'LAB_ACCEPTED' | 'LAB_REPLAY' | 'DENIED' | 'LAB_CONFLICT';
   reason: 'FAKE_COMMIT' | 'SAME_BATCH' | 'MALFORMED' | 'UNTRUSTED_CALLER' |
     'BODY_NOT_PRESERVED' | 'SCOPE_OR_REVISION_INVALID' | 'SCOPE_DIGEST_MISMATCH' |
-    'BATCH_REF_COLLISION' | 'FAKE_WRITE_FAILED';
+    'BATCH_REF_COLLISION' | 'FAKE_WRITE_FAILED' | 'SERVICE_ATTESTATION_DENIED';
   simulated_occurrences: number;
   ack_allowed: false;
   production_authorized: false;
 }>;
+export type FakeInternalServiceProof = Readonly<{
+  service_ref: string; issued_at_ms: number; expires_at_ms: number; mac_hex: string;
+}>;
+/** Lab-only MAC: separate fake internal key, NEVER a Meta Graph token or App Secret. */
+const proofBytes = (candidate:S0HandoffCandidate,service_ref:string,issued:number,expires:number):Uint8Array =>
+  new TextEncoder().encode(JSON.stringify([service_ref,issued,expires,candidate]));
+const hmacKey = async (secret:string) => crypto.subtle.importKey('raw',
+  new TextEncoder().encode(secret),{name:'HMAC',hash:'SHA-256'},false,['sign','verify']);
+export async function createFakeS0ServiceProof(candidate:S0HandoffCandidate,
+  service_ref:string,secret:string,issued_at_ms:number,expires_at_ms:number):Promise<FakeInternalServiceProof> {
+  const mac=new Uint8Array(await crypto.subtle.sign('HMAC',await hmacKey(secret),
+    proofBytes(candidate,service_ref,issued_at_ms,expires_at_ms)));
+  return {service_ref,issued_at_ms,expires_at_ms,
+    mac_hex:Array.from(mac,x=>x.toString(16).padStart(2,'0')).join('')};
+}
+async function validProof(candidate:S0HandoffCandidate,proof:unknown,service:FakePrivilegedCaller,
+  ports:FakeS0IngressPorts,now:number):Promise<boolean> {
+  try {
+    if(!onlyDataFields(proof,['service_ref','issued_at_ms','expires_at_ms','mac_hex']))return false;
+    const p=proof as FakeInternalServiceProof;
+    if(p.service_ref!==service.service_ref || !nonnegative(p.issued_at_ms) ||
+      !positive(p.expires_at_ms) || !hash(p.mac_hex) || p.issued_at_ms>now ||
+      p.expires_at_ms<=now || p.expires_at_ms-p.issued_at_ms>300000)return false;
+    const key=ports.trustedInternalSigningKey(service.service_ref);
+    if(typeof key!=='string' || key.length<12 || key.length>4096)return false;
+    return crypto.subtle.verify('HMAC',await hmacKey(key),
+      Uint8Array.from(p.mac_hex.match(/../g)!,h=>parseInt(h,16)),
+      proofBytes(candidate,p.service_ref,p.issued_at_ms,p.expires_at_ms));
+  }catch{return false;}
+}
 const deny = (reason: FakeS0IngressResult['reason'], decision: FakeS0IngressResult['decision']='DENIED'): FakeS0IngressResult =>
   ({decision,reason,simulated_occurrences:0,ack_allowed:false,production_authorized:false});
 const identifier = (v:unknown):v is string => typeof v==='string' && /^[A-Za-z0-9_.:-]{1,128}$/.test(v);
@@ -120,7 +152,7 @@ export class FakePrivilegedS0Ingress {
   get batchCount():number{return this.batches.size;}
   get occurrenceCount():number{return this.count;}
 
-  async admit(input:{candidate:S0HandoffCandidate;raw_body:Uint8Array},ports:FakeS0IngressPorts,
+  async admit(input:{candidate:S0HandoffCandidate;raw_body:Uint8Array;attestation:FakeInternalServiceProof},ports:FakeS0IngressPorts,
     options:{beforeCommit?:()=>void;failWrite?:boolean}={}):Promise<FakeS0IngressResult> {
     try {
       const candidate=checkedSnapshot(input?.candidate);
@@ -128,6 +160,7 @@ export class FakePrivilegedS0Ingress {
          input.raw_body.length===0 || input.raw_body.length>256*1024 ||
          !ports || typeof ports.trustedCaller!=='function' ||
          typeof ports.trustedRegistry!=='function' || typeof ports.nowMs!=='function' ||
+         typeof ports.trustedInternalSigningKey!=='function' ||
          !ports.payloads || typeof ports.payloads.matchesFixture!=='function')return deny('MALFORMED');
       // Capture bytes and metadata before any await. No claim from candidate is
       // treated as a service credential or proof of persistence.
@@ -142,8 +175,13 @@ export class FakePrivilegedS0Ingress {
         return deny('SCOPE_DIGEST_MISMATCH');
       const fingerprint=JSON.stringify([candidate.route_ref,candidate.route_revision,candidate.app_ref,
         candidate.protected_payload_ref,candidate.payload_sha256,candidate.scope_sha256]);
+      // An unkeyed SHA256 is insufficient: require a separate internal-service MAC.
+      if(!await validProof(candidate,input.attestation,ports.trustedCaller(),ports,ports.nowMs()))
+        return deny('SERVICE_ATTESTATION_DENIED');
       // Offline fault injection: simulate a configuration change before commit.
       options.beforeCommit?.();
+      if(!await validProof(candidate,input.attestation,ports.trustedCaller(),ports,ports.nowMs()))
+        return deny('SERVICE_ATTESTATION_DENIED');
       // Sync final check + fake insertion, not atomic persistence across services.
       if(!trustedAtCommit(candidate,ports.trustedCaller(),ports.trustedRegistry(),ports.nowMs()))
         return deny('SCOPE_OR_REVISION_INVALID');
