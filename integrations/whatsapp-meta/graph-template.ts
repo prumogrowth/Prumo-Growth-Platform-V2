@@ -11,6 +11,11 @@ export type TemplateIntent = {
   correlation_id: string;
   authorized_business_action: 'C06';
   authorized_state_version: number;
+  /** Claimed business context, MUST match the separate verified scope. */
+  concessionaria_id: string;
+  canal_id: string;
+  meta_app_ref: string;
+  meta_waba_id: string;
   phone_number_id: string;
   recipient_verified: string;
   template_name: string;
@@ -32,6 +37,28 @@ export type TrustedTemplateSnapshot = {
   parameter_format: 'POSITIONAL_TEXT_ONLY';
   header_text_parameter_count: 0 | 1;
   body_text_parameter_count: number;
+  /** Full current Meta catalog schema, issued by trusted backend. */
+  schema_complete: true;
+  components: readonly {
+    type: 'HEADER' | 'BODY' | 'FOOTER';
+    format: 'TEXT';
+    parameter_count: number;
+  }[];
+  /** Binding must match the authenticated dispatch scope. */
+  concessionaria_id: string;
+  canal_id: string;
+  meta_app_ref: string;
+  meta_waba_id: string;
+  phone_number_id: string;
+};
+
+/** Provided only by a verified S0 service, never by the caller's JSON. */
+export type TrustedTemplateScope = {
+  concessionaria_id: string;
+  canal_id: string;
+  meta_app_ref: string;
+  meta_waba_id: string;
+  phone_number_id: string;
 };
 
 type TextParameter = { type: 'text'; text: string };
@@ -58,7 +85,7 @@ export type GraphTemplateRequest = {
 export class TemplatePreflightError extends Error {
   readonly code: 'INVALID_INTENT' | 'INVALID_DESTINATION' | 'INVALID_TEMPLATE' |
     'TEMPLATE_NOT_APPROVED' | 'TEMPLATE_REVISION_MISMATCH' |
-    'UNSUPPORTED_COMPONENTS' | 'INVALID_PARAMETERS';
+    'UNSUPPORTED_COMPONENTS' | 'INVALID_PARAMETERS' | 'SCOPE_MISMATCH';
   constructor(code: TemplatePreflightError['code']) {
     super(code);
     this.code = code;
@@ -74,7 +101,9 @@ const locale = (v: unknown): v is string =>
   typeof v === 'string' && /^[a-z]{2,3}(?:_[A-Z]{2})?$/.test(v);
 const textParameter = (v: unknown, max: number): v is string =>
   typeof v === 'string' && v.trim().length > 0 &&
-  [...v].length <= max && !/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/.test(v);
+  [...v].length <= max && !/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/.test(v) &&
+  // Reject malformed UTF-16; UTF-8 serializers may silently replace it.
+  !/(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])/.test(v);
 
 /**
  * Creates an inert relative request description, NEVER a send authorization.
@@ -89,6 +118,7 @@ const textParameter = (v: unknown, max: number): v is string =>
 export function prepareGraphTemplateRequest(
   intent: TemplateIntent,
   trustedSnapshot: TrustedTemplateSnapshot,
+  trustedScope: TrustedTemplateScope,
   apiVersion: string,
 ): GraphTemplateRequest {
   if (!intent || intent.contract_version !== 'meta-s0.v0.1-proposed' ||
@@ -106,6 +136,8 @@ export function prepareGraphTemplateRequest(
       !ref(intent.template_revision_ref)) {
     throw new TemplatePreflightError('INVALID_TEMPLATE');
   }
+  // Runtime boundary: a snapshot with unknown fields (e.g. required_buttons)
+  // or without a complete component manifest is NOT supported.
   if (!trustedSnapshot || trustedSnapshot.status !== 'APPROVED') {
     throw new TemplatePreflightError('TEMPLATE_NOT_APPROVED');
   }
@@ -114,11 +146,46 @@ export function prepareGraphTemplateRequest(
       trustedSnapshot.template_revision_ref !== intent.template_revision_ref) {
     throw new TemplatePreflightError('TEMPLATE_REVISION_MISMATCH');
   }
-  if (trustedSnapshot.parameter_format !== 'POSITIONAL_TEXT_ONLY' ||
+  const scopeFields = ['concessionaria_id', 'canal_id', 'meta_app_ref', 'meta_waba_id', 'phone_number_id'] as const;
+  if (!trustedScope || !scopeFields.every(key =>
+    ref(trustedScope[key]) && ref(trustedSnapshot[key]) && ref(intent[key]) &&
+    trustedScope[key] === trustedSnapshot[key] && trustedScope[key] === intent[key])) {
+    throw new TemplatePreflightError('SCOPE_MISMATCH');
+  }
+  const knownKeys = new Set([
+    'template_name', 'language_code', 'template_revision_ref', 'status',
+    'parameter_format', 'header_text_parameter_count', 'body_text_parameter_count',
+    'schema_complete', 'components', ...scopeFields,
+  ]);
+  if (Object.keys(trustedSnapshot).some(key => !knownKeys.has(key)) ||
+      trustedSnapshot.schema_complete !== true ||
+      trustedSnapshot.parameter_format !== 'POSITIONAL_TEXT_ONLY' ||
       ![0, 1].includes(trustedSnapshot.header_text_parameter_count) ||
       !Number.isSafeInteger(trustedSnapshot.body_text_parameter_count) ||
       trustedSnapshot.body_text_parameter_count < 0 ||
-      trustedSnapshot.body_text_parameter_count > 10) {
+      trustedSnapshot.body_text_parameter_count > 10 ||
+      !Array.isArray(trustedSnapshot.components) ||
+      trustedSnapshot.components.length === 0 || trustedSnapshot.components.length > 3) {
+    throw new TemplatePreflightError('UNSUPPORTED_COMPONENTS');
+  }
+  const kinds = new Set<string>();
+  for (const component of trustedSnapshot.components) {
+    if (!component || typeof component !== 'object' ||
+        Object.keys(component).some(key => !['type','format','parameter_count'].includes(key)) ||
+        !['HEADER','BODY','FOOTER'].includes(component.type) ||
+        component.format !== 'TEXT' ||
+        !Number.isSafeInteger(component.parameter_count) || component.parameter_count < 0 ||
+        kinds.has(component.type)) {
+      throw new TemplatePreflightError('UNSUPPORTED_COMPONENTS');
+    }
+    kinds.add(component.type);
+    if (component.type === 'HEADER' && component.parameter_count !== trustedSnapshot.header_text_parameter_count ||
+        component.type === 'BODY' && component.parameter_count !== trustedSnapshot.body_text_parameter_count ||
+        component.type === 'FOOTER' && component.parameter_count !== 0) {
+      throw new TemplatePreflightError('UNSUPPORTED_COMPONENTS');
+    }
+  }
+  if (!kinds.has('BODY') || (!kinds.has('HEADER') && trustedSnapshot.header_text_parameter_count !== 0)) {
     throw new TemplatePreflightError('UNSUPPORTED_COMPONENTS');
   }
   const bodyParams = intent.body_text_parameters ?? [];
