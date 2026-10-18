@@ -43,3 +43,8 @@ Node 22 recomendado. O workflow `.github/workflows/s1-synthetic-ui.yml` executa 
 - Não reutilizar o protótipo como portal operacional sem arquitetura autenticada, autorização server-side, testes RLS/GoTrue, preservação de auditoria e gates de publicação.
 
 Especificação e evidências em `docs/S1_001_JORNADA_HUMANA_VISUAL_2026_10_18.md` e `docs/MAPA_MENTAL.md` na raiz do repositório.
+
+
+## Evidência automatizada S1-001
+
+[CI S1 #39133454184 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39133454184) no SHA `6bd187148da74da6906493b0e2a97d817ffe84ba`: 18 testes de domínio + 6 testes de montagem usando DOM fictício, todos aprovados em Node 22. **Ainda é necessário abrir a interface em um navegador local para avaliação visual e de acessibilidade** antes de evoluir para S1 integrada.

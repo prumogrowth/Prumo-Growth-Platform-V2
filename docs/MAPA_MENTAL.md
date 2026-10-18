@@ -33,7 +33,7 @@ flowchart TD
   GWAY --> NONCE[Nonce unico, limpeza conservadora]
   AUTH --> NEG[Negativas sanitizadas sem token ou PII]
   OP --> GEST
-  P --> S1["S1-001: central visual sintética para gestor e operador [P]"]
+  P --> S1["S1-001: central visual sintética para gestor e operador [TESTADO NODE]"]
   S1 --> S1CASE["Fila por loja, caso atribuído e trilha local"]
   S1 --> S1HUMAN["Handoff humano suspende IA automática"]
   S1 --> S1BANK["Remessa e resultado bancários: somente simulação"]
@@ -157,10 +157,10 @@ flowchart TD
 
 ## S1 — primeira jornada operacional visual (18/10/2026)
 
-**S1-001 — Central de operações local (primeiro incremento, em validação):** novos arquivos `frontend/s1/index.html`, `styles.css`, `app.mjs`, `domain.mjs`, `tests/domain.test.mjs`, `README.md` e workflow `.github/workflows/s1-synthetic-ui.yml`. Jornada de demonstração em memória: gestor vê loja própria, operador vê apenas caso atribuído, gestor atribui caso a operador da mesma loja, IA fica suspensa após transferência humana, ações C01/C02/primeiro disparo/IA/banco são explicitamente **simuladas**. Notas e histórico de evento têm autor e versão. Mesmos telefones fictícios podem existir em lojas diferentes sem misturar registros; **exatamente oito estados comerciais**. Não há API, sessão real, D3/D4 bancários, rede, Graph, segredo ou persistência.
+**S1-001 — Central de operações local (primeiro incremento, testado no Node 22):** novos arquivos `frontend/s1/index.html`, `styles.css`, `app.mjs`, `domain.mjs`, `tests/domain.test.mjs`, `README.md` e workflow `.github/workflows/s1-synthetic-ui.yml`. Jornada de demonstração em memória: gestor vê loja própria, operador vê apenas caso atribuído, gestor atribui caso a operador da mesma loja, IA fica suspensa após transferência humana, ações C01/C02/primeiro disparo/IA/banco são explicitamente **simuladas**. Notas e histórico de evento têm autor e versão. Mesmos telefones fictícios podem existir em lojas diferentes sem misturar registros; **exatamente oito estados comerciais**. Não há API, sessão real, D3/D4 bancários, rede, Graph, segredo ou persistência.
 
 - [Código da interface S1](https://github.com/prumogrowth/Prumo-Growth---Platform/tree/feat/s0-fundacao-prumo/frontend/s1)
 - [Especificação de produto e gates S1-001](https://github.com/prumogrowth/Prumo-Growth---Platform/blob/feat/s0-fundacao-prumo/docs/S1_001_JORNADA_HUMANA_VISUAL_2026_10_18.md)
-- **[P] Aceite de CI:** não promover a entrega a testada até workflow S1 no SHA correspondente passar. **[R]** GoTrue, RLS real, auditoria, atribuição persistente, transações bancárias e privilégio mínimo comercial continuam bloqueios de produto.
+- **[TESTADO] Aceite técnico local:** [Workflow S1 #39133454184 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39133454184), commit `6bd187148da74da6906493b0e2a97d817ffe84ba`, **24 testes Node 22 PASS** (18 regras, 6 smoke DOM fictício). **Não houve homologação visual manual, navegador real ou backend**. **[R]** GoTrue, RLS real, auditoria, atribuição persistente, transações bancárias e privilégio mínimo comercial continuam bloqueios de produto.
 
 S1-001 é um protótipo visual de uso local, não conclusão da S1, não substitui as normas comerciais nem autoriza produção/merge. O `MAPA_MENTAL.md` deve permanecer sincronizado com os resultados do CI e com a frente Meta, sem inflar a porcentagem de desenvolvimento por uma demo.

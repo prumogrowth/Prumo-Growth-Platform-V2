@@ -1,6 +1,6 @@
 # S1-001 — Primeira jornada operacional visual com gestores e operadores
 
-**Data:** 18/10/2026. **Branch:** `feat/s0-fundacao-prumo`, PR #1 Draft. **Natureza:** demonstração local, inteiramente sintética, sem autenticação ou backend real. **Estado inicial:** implementação proposta, aceite condicionado ao workflow S1.
+**Data:** 18/10/2026. **Branch:** `feat/s0-fundacao-prumo`, PR #1 Draft. **Natureza:** demonstração local, inteiramente sintética, sem autenticação ou backend real. **Estado final:** protótipo local S1-001 testado automaticamente, **não** homologado em navegador real/produção.
 
 ## Objetivo
 
@@ -45,7 +45,15 @@ A demonstração não coleta CPF, documentos, valor financiado, provas bancária
 
 **Ambiente:** PRs #1/#2 Draft, sem merge; sem migrations hospedadas, RPC pública, recursos pagos, Meta/Graph/Banco real, frontend em domínio público ou produção. DEC-WA-04/06 e identidade de ocorrência do C07 continuam pendentes.
 
-**Evidência definitiva:** preencher apenas após inspecionar o workflow S1 relativo ao SHA do código testado; até então este documento é especificação de protótipo.
+## Aceite técnico confirmado — 18/10/2026
+
+**[Workflow GitHub Actions S1 #39133454184 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39133454184)**, commit de código e testes `6bd187148da74da6906493b0e2a97d817ffe84ba`. Node 22: `node --check` dos módulos e testes, **24 casos PASS, 0 FAIL**, verificação de `index.html`, `styles.css` e guia de execução. Sem `npm install`, dependências externas, migrações ou segredos.
+
+- **S1-001..018:** regras puras da jornada humana, oito estados, escopos A/B, visibilidade de operador designado, atribuição, suspensão de IA, estados e motivos/evidência, notas, versão otimista e ausência de rede/persistência.
+- **S1-UI-01..06:** smoke test de DOM **fictício** verifica IDs referenciados, montagem inicial, troca de perfil operador, troca de concessionária, pesquisa vazia e restauração do estado.
+- A primeira execução do protótipo [#39133175311 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39133175311) também aprovou 18/18 testes de domínio. O workflow foi simplificado depois para evitar execuções duplicadas por push e PR. O aceite final considera o commit posterior com smoke tests incluídos.
+
+**Não coberto:** nenhum navegador foi aberto pelo CI, nenhuma revisão visual manual, mobile real, leitor de tela, RLS/GoTrue, backend persistente, concorrência em múltiplas sessões, envio Meta, IA OpenAI, cadastro bancário ou resultado comercial real foi testado. Qualquer evolução para aplicação conectada requer novo gate de segurança/autorização/auditoria. O protótipo **não** deve ser usado com dados pessoais reais.
 
 
 **Verificação visual adicional:** os seis smoke tests de interface usam DOM fictício em Node para conferir referências de IDs, montagem inicial, seleção de operador, troca de loja, filtro vazio e reset. Isso **não substitui testes de navegador, mobile, leitores de tela ou auditoria UX**. O workflow é acionado por PR e execução manual, evitando duas rodadas iguais de push + PR na mesma revisão.
