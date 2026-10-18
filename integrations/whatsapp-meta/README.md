@@ -164,3 +164,11 @@ Ver `docs/integracoes/whatsapp-meta/wa05a-ingresso-transacional-simulado-v0_1.md
 DEC-WA-04/06, token Meta e implementação de inbox transacional S0 continuam pendentes. Sem Graph API, Supabase hospedado, merge/deploy ou modificações na POC concessionária de demonstração.
 
 **Complemento de auditoria WA-05B:** IDs `wamid` com padding e caracteres opacos são aceitos, controles recusados; fixture não clonável produz `LAB_INVALID` sem exceção. Total final **294/294 PASS**, 26 RECOV + 268 regressões, com hashes Git atualizados no relatório.
+
+## WA-05-AUD1 — auditoria retroativa WA-05A/B e reparos
+
+Revisão independente da fronteira fake `transactional-ingress.ts` (WA-05A) e do journal `recovery-journal.ts` (WA-05B). A WA-05A manteve seus cenários sem novo defeito reproduzido. **Cinco falhas/lacunas WA-05B foram demonstradas e corrigidas**: divergência entre metadados lidos e clonados, exceções em getters, ausência de escopo App/loja/canal em `claim` e `finish`, e aceitação de campos desconhecidos potencialmente sensíveis.
+
+`TrustedWorkerScope` é agora obrigatório **em runtime** nas operações de worker da fixture; ele **não é autenticação**, somente validação simulada de contexto. Os 26 testes RECOV foram adaptados e o novo `recovery-audit.test.ts` acrescenta 12 cenários adversariais.
+
+**306/306 testes locais PASS**, TypeScript estrito PASS sobre 14 módulos e 20 arquivos de testes. Hashes publicados conferidos; não há CI remoto, credenciais, transação real ou ACK. Documento: `docs/integracoes/whatsapp-meta/wa05aud1-auditoria-retroativa-ingresso-recuperacao-v0_1.md`.
