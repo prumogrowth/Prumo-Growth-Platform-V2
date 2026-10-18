@@ -62,10 +62,13 @@ begin
  -- Gateway cannot browse tables or invoke original internal functions.
  if has_table_privilege(current_user,'public.leads_loja','SELECT')
  or has_table_privilege(current_user,'prumo_private.auditoria_gateway_s0','SELECT')
- or has_table_privilege(current_user,'auth.sessions','SELECT')
  or has_function_privilege(current_user,
   'prumo_private.cancelar_plano_gestor_sintetico(uuid,uuid,uuid,bigint)','EXECUTE')
  then raise exception 'FAIL GW-01 gateway inherited powerful privilege';end if;
+ begin
+  perform count(*) from auth.sessions;
+  raise exception 'FAIL GW-01 auth session read escaped';
+ exception when insufficient_privilege then null;end;
  begin
   perform count(*) from public.leads_loja;
   raise exception 'FAIL GW-01 read escaped';
