@@ -170,3 +170,31 @@ test('formulário de nota obsoleto não escreve em outro caso da fila', () => {
     .find(x=>x.textContent==='Notas').click();
   assert.equal(get('detail-content').textContent.includes('Nota obsoleta que deve ser rejeitada'),false);
 });
+
+test('O3: operador vê ficha confirmada com fonte, versão, pendência e conflito fictícios', () => {
+  reset();
+  env.openCase('Exemplo 09');
+  env.descendants(get('detail-content')).filter(n=>n.attrs.role==='tab')
+    .find(n=>n.textContent==='Extração').click();
+  const text=get('detail-content').textContent;
+  assert.ok(text.includes('v1-ficticia'));
+  assert.ok(text.includes('Valor fictício confirmado'));
+  assert.ok(text.includes('Mensagem ilustrativa do cliente'));
+  assert.ok(text.includes('Informação demonstrativa B — ausente'));
+  assert.ok(text.includes('Informação demonstrativa D — fontes'));
+  assert.equal(text.includes('Somente proposta'),false);
+});
+
+test('O3: gestora supervisora não recebe campos, valores, fontes e pendências D3', () => {
+  reset();
+  env.selectActor('marina');
+  env.openCase('Exemplo 09');
+  env.descendants(get('detail-content')).filter(n=>n.attrs.role==='tab')
+    .find(n=>n.textContent==='Extração').click();
+  const text=get('detail-content').textContent;
+  assert.ok(text.includes('Detalhes restritos ao responsável'));
+  for(const forbidden of ['Valor fictício confirmado','v1-ficticia','a108-1',
+    'Informação demonstrativa B — ausente','Informação demonstrativa D — fontes']){
+    assert.equal(text.includes(forbidden),false);
+  }
+});
