@@ -690,3 +690,42 @@ for role in (None, "gestorb"):
         if code not in (401, 403, 404):
             fail("AUTH-17: signed privileged gateway RPC publicly exposed")
 print("PASS AUTH-17: Supabase managed admite owner assinado restrito sem REST publico")
+
+
+# AUTH-18: full inventory of the private schema, not just known gateway
+# signatures. Catches PostgreSQL function default EXECUTE to PUBLIC after
+# migrations, including non-callable trigger functions with loose ACLs.
+run_sql("""
+do $auth18$
+declare v_procs text;
+begin
+ select pg_catalog.string_agg(p.proname,', ' order by p.proname)
+ into v_procs from pg_catalog.pg_proc p
+ join pg_catalog.pg_namespace n on n.oid=p.pronamespace
+ where n.nspname='prumo_private'
+ and (
+  pg_catalog.has_function_privilege('anon',p.oid,'EXECUTE')
+  or pg_catalog.has_function_privilege('authenticated',p.oid,'EXECUTE')
+  or pg_catalog.has_function_privilege('service_role',p.oid,'EXECUTE')
+  or (pg_catalog.has_function_privilege('prumo_s0_gateway',p.oid,'EXECUTE')
+    and p.oid not in (
+     'prumo_private.gateway_cancelar_plano_assinado_s0(uuid,uuid,uuid,uuid,bigint,uuid,bigint,uuid,text)'::regprocedure::oid,
+     'prumo_private.gateway_conciliar_c07_assinado_s0(uuid,uuid,uuid,uuid,bigint,text,text,uuid,uuid,bigint,uuid,text)'::regprocedure::oid))
+ );
+ if v_procs is not null then
+  raise exception 'AUTH-18: private EXECUTE privilege leak: %',v_procs;end if;
+ if (select count(*) from pg_catalog.pg_proc p
+  join pg_catalog.pg_namespace n on n.oid=p.pronamespace
+  where n.nspname='prumo_private'
+  and pg_catalog.has_function_privilege('prumo_s0_gateway',p.oid,'EXECUTE'))<>2
+ then raise exception 'AUTH-18: gateway has unexpected entrypoint count';end if;
+ select pg_catalog.string_agg(p.proname,', ' order by p.proname)
+ into v_procs from pg_catalog.pg_proc p
+ join pg_catalog.pg_namespace n on n.oid=p.pronamespace
+ where n.nspname='prumo_private' and p.prosecdef
+ and not ('search_path='=any(coalesce(p.proconfig,array[]::text[])));
+ if v_procs is not null then
+  raise exception 'AUTH-18: unsafe definer search_path: %',v_procs;end if;
+end $auth18$;
+""")
+print("PASS AUTH-18: inventario completo ACL de funcoes privadas e search_path seguro")
