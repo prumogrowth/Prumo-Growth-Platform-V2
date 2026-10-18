@@ -204,7 +204,7 @@ Os testes devem ser **sintéticos** em PostgreSQL descartável; smoke test sandb
 | DEC-WA-03: inbox/outbox transacionais e execução assíncrona | **APROVADO [D]** |
 | Esquemas JSON exatos, RPCs, constraints, migrations, workers | **PROPOSTOS [P]** |
 | DEC-WA-04: ambiente Supabase definitivo e titularidade operacional | **PENDENTE [R]** |
-| DEC-WA-05: posse/mandato Meta de números da gestora por loja | **PENDENTE [R/V]** |
+| DEC-WA-05: conta empresarial, App, WABA e números próprios de cada concessionária | **TITULARIDADE APROVADA [D]; permissões, onboarding e implantação pendentes [R/V]** — [decisão](decisao-titularidade-meta-por-concessionaria-v1_0.md) |
 | DEC-WA-06: segredo/retencão/continuidade/monitoramento/homologações | **PENDENTE [R/V]** |
 | Plano Supabase atual Free | **Mantido**, até necessidade comprovada; avisar antes de custo |
 | Execução em Supabase, migrations, webhook de produção ou merge | **NÃO AUTORIZADA** por este documento |
