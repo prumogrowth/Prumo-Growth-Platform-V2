@@ -11,6 +11,8 @@
 | Estado/caso, permissões, RLS, versão, auditoria | S0 / PR #1 | Especificar campo e validação esperados; revisão cruzada | Migrar esquema, alterar funções, abrir API pública ou modificar fluxo |
 | IA Vendedora / intenção C03 | S0 + adaptador OpenAI [P] | Formatar proposta sem efeito | Decidir status ou enviar Meta |
 | IA Planejadora C05 | S0 + adaptador OpenAI [P] | Sugerir itens existentes, sujeito ao domínio | Criar template, publicar/agendar sozinho |
+| Cadastro automático após conversa humana encerrada | OpenAI extrai propostas; **S0 / PR #1** autoriza evento e persiste versões | Propostas de campos/fonte + flags, OAI-05 | Criar/alterar ficha via SQL, UI de operador, mudar status ou remeter Banco |
+| Áudio/voz da IA | OpenAI STT/TTS; **S0** valida respostas/guardas; **Meta / PR #2** transporta mídias | Portas de transcrição e síntese, OAI-06 | Webhook/download/upload Graph ou reabrir IA após handoff |
 | Transportes WhatsApp C02/C06/C07/C12 | Meta / PR #2 e S0, segundo contrato | Receber apenas referência ao destino da intenção | Implementar Graph, callback, HMAC, worker ou alterar o PR #2 |
 | Handoff C10 e resultado Banco | S0 + humano | Recusar geração/saída após bloqueio | Retomar IA, registrar venda/recusa ou operar Banco |
 | MCP administrativo | Fluxo de governança | Nada nesta fase | Substituir MCP ou retirar segunda confirmação |
@@ -34,6 +36,12 @@ Executar os casos equivalentes sob a topologia direta e, se necessário, a topol
 - OAI-T13: comparar integração direta e n8n usando mesmo contrato e fixtures, medindo tentativas, retries, latência e custos sem intervenção em S0/Meta.
 - OAI-T14: provar que segredo Supabase só é usado pelo runtime autorizado; caso n8n seja escolhido, auditar armazenamento de suas credenciais e logs, sem copiar segredo para execução ou log.
 - OAI-T15: falha da camada intermediária n8n, se houver, não reabre handoff nem dispara saída Meta, não altera estado e registra diagnóstico seguro.
+- OAI-T16: fechamento humano legítimo → extração silenciosa estruturada, campos com fontes e lacunas; operador não digita ficha como etapa nominal.
+- OAI-T17: número ambíguo, campo inventado, áudio mal transcrito ou conflito entre mensagens → resultado parcial/revisão, sem gravação de valor não fundamentado.
+- OAI-T18: fechamento e mensagem posterior/retificação humana → resposta antiga descartada pela S0, sem sobrescrita/duplicação de ficha.
+- OAI-T19: handoff definitivo bloqueia sales_reply/speech_synthesize, mas permite human_close_extract quando legitimamente autorizada, sem qualquer envio ao cliente.
+- OAI-T20: STT/TTS com áudio fictício → transcrição com fonte e resposta falada do mesmo texto aprovado; nenhuma comunicação direta Meta pelo adaptador.
+- OAI-T21: comparar modelos por função (vendedora, extrator, planejadora, transcrição, síntese) por qualidade, falsas afirmações, proveniência, latência e custo antes de fixar modelo.
 
 ## Portões de coordenação
 
