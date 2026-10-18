@@ -43,3 +43,10 @@ A partir da decisão funcional mais recente, **operadores não preenchem rotinei
 - [Auditoria dos contratos](docs/06_AUDITORIA_CONTRATOS_FV_2026_10_18.md) — achados, limites e pendências.
 
 **Importante:** docs 23 e 41 continuam autorizando **correção humana excepcional** da ficha versionada; isto não significa voltar ao preenchimento manual rotina. O contrato interno OpenAI OAI-05/E01 está em outra branch e permanece sob responsabilidade da sua equipe. FV-01/FV-02 são [P/R] e não foram implementados nem aprovados entre frentes.
+
+## Conciliação contratual S0/OpenAI — 18/10/2026
+
+- [CFI-01 — relatório de conciliação interfrentes](docs/07_CONCILIACAO_INTERFRENTES_FV_S0_OAI_v0_1.md): mapeia FV-01/FV-02, contratos S0 (docs 26/40) e OAI-05/E01, divergências dos envelopes e critérios de decisão.
+- [MAT-CFI-01 — 36 cenários de aceite contratual](docs/08_MATRIZ_ACEITE_CONTRATUAL_FV_S0_OAI_v0_1.md): **especificados, não executados**.
+
+A OpenAI padronizou o nome candidato `human_close_extract` nos documentos OAI-05/E01. **Ainda há divergências nas estruturas de request/response**, cuja resolução pertence às frentes S0 e OpenAI. A operação browser→S0 permanece sem nome físico; o navegador **nunca** envia diretamente à OpenAI. Nenhuma revisão por proprietários S0/OpenAI, teste integrado ou deploy foi concluído nesta frente.
