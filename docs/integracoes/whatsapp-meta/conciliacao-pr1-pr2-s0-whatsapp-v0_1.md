@@ -110,10 +110,10 @@ Webhook Meta (GET challenge; POST HMAC bytes brutos)
 | **DEC-WA-02** Modelo físico | evoluir tabelas S0 existentes, sem domínio paralelo | **APROVADO [D]** como diretriz; migrations [P] |
 | **DEC-WA-03** Transações | inbox/outbox num único fluxo transacional, ACK durável, workers e reconciliação | **APROVADO [D]** como diretriz; desenho detalhado [P] |
 | **DEC-WA-04** Ambiente | decidir instância/projeto dedicado e responsáveis antes de migration; não presumir POC | **Pendente [R]** |
-| **DEC-WA-05** Posse Meta | titularidade/mandato dos números/contas/WABAs por loja e modelo onboarding | **Pendente [R/V]** |
+| **DEC-WA-05** Posse Meta | conta empresarial, App, WABA e número(s) **de cada concessionária**; Prumo integra por permissão | **Titularidade aprovada [D]; onboarding/mandato técnico/homologação [R/V]** |
 | **DEC-WA-06** Operação | segredos, rotação, retenção, backups, SLA, fallback/quarentena, plano de segurança | **Pendente [R/V]** |
 
-**O responsável aprovou expressamente as DEC-WA-01/02/03 nesta conversa, após receber o parecer.** Essa aprovação define **direção arquitetural**, sem autorizar DDL/SQL, deploy, reconfiguração da Meta ou publicação de PR; a frente principal deverá aprovar alterações físicas e executar somente em ambiente autorizado. Os grupos 04–06 dependem de provas e aprovações próprias. Não contratar Supabase Pro por esse documento; só informar necessidade objetiva antes da etapa correspondente.
+**O responsável aprovou expressamente as DEC-WA-01/02/03 nesta conversa, após receber o parecer.** Essa aprovação define **direção arquitetural**, sem autorizar DDL/SQL, deploy, reconfiguração da Meta ou publicação de PR; a frente principal deverá aprovar alterações físicas e executar somente em ambiente autorizado. DEC-WA-04 e DEC-WA-06 dependem de provas e aprovações próprias; na DEC-WA-05 a **titularidade foi definida posteriormente como pertencente a cada concessionária**, mas validações e autorização operacional continuam pendentes. Não contratar Supabase Pro por esse documento; só informar necessidade objetiva antes da etapa correspondente.
 
 ## 7. Ordem de implementação sugerida e gates
 
@@ -140,4 +140,4 @@ Webhook Meta (GET challenge; POST HMAC bytes brutos)
 
 ## 9. Registro de decisão posterior
 
-**Registro da aprovação do responsável:** resposta explícita **“Aprovado.”** à pergunta conjunta sobre **DEC-WA-01/02/03**. Não confundir com aprovação de DEC-WA-04/05/06 nem com autorização de alteração operacional. A próxima entrega autorizada é o **desenho de interface de implementação compartilhada**, documentado separadamente e revisável pela frente principal. PR permanece Draft. **Os detalhes de campos/DDL, guarda de dados, segurança, posse de WABA, ambiente final, contratos jurídicos e rollout continuam sujeitos aos seus respectivos gates.**
+**Registro da aprovação do responsável:** resposta explícita **“Aprovado.”** à pergunta conjunta sobre **DEC-WA-01/02/03**. Não confundir com aprovação de DEC-WA-04/06 ou autorização operacional; a **titularidade de DEC-WA-05 foi esclarecida posteriormente** pelo responsável, sem aprovar alterações de canais. A próxima entrega autorizada é o **desenho de interface de implementação compartilhada**, documentado separadamente e revisável pela frente principal. PR permanece Draft. **Os detalhes de campos/DDL, guarda de dados, segurança, posse de WABA, ambiente final, contratos jurídicos e rollout continuam sujeitos aos seus respectivos gates.**
