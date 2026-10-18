@@ -51,7 +51,7 @@ O JSON de resposta OpenAI terá estrutura/campos tipados estritos conforme OAI-0
 
 ## 2A. Casos complementares da orientação OAI-07
 
-Os **14 testes candidatos NC-01 a NC-14**, incluindo todos os campos elegíveis (essenciais e opcionais), retorno humano só se faltar essencial, aviso curto em todos os handoffs, desfecho conversacional distinto de venda/recusa oficial, pedido explícito de texto/voz, preferência não inferida de um áudio, autorização por lote e remessa humana como fallback, estão especificados em `OAI_07_DESFECHO_ENCAMINHAMENTO_PREFERENCIA_CANAL_v0_1.md`. São requisitos adicionais, sem substituir os 32 SYN desta matriz. Nenhum deles está implementado ou executado; não declarar 46 casos validados.
+Os **17 testes candidatos NC-01 a NC-17**, incluindo a distinção entre negociação concluída para remessa e venda bancária efetiva, todos os campos elegíveis (essenciais e opcionais), retorno humano só se faltar essencial, aviso curto em todos os handoffs, desfecho conversacional distinto de venda/recusa oficial, pedido explícito de texto/voz, preferência não inferida de um áudio, autorização por lote e remessa humana como fallback, estão especificados em `OAI_07_DESFECHO_ENCAMINHAMENTO_PREFERENCIA_CANAL_v0_1.md`. São requisitos adicionais, sem substituir os 32 SYN desta matriz. Nenhum deles está implementado ou executado; não declarar 49 casos validados.
 
 ## 3. Métricas e definições auditáveis [P]
 
