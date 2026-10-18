@@ -247,6 +247,8 @@ BEGIN
    IF SQLERRM<>'LAB_SCOPE_DENIED' THEN RAISE;END IF;
  END;
  RAISE NOTICE 'WA06D-10 PASS';
+ -- Restore the fixture after the revocation test; later cases need a valid channel.
+ UPDATE pg_temp.wa06d_registry SET active=true WHERE channel='chan_a';
 
  -- This record is visible only INSIDE the uncommitted laboratory transaction.
  IF (SELECT r.state FROM pg_temp.wa06d_receipt r JOIN pg_temp.wa06d_batch b USING(batch)
