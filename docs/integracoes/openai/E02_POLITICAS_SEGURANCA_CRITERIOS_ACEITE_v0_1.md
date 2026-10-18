@@ -108,6 +108,15 @@ OAI-07 acrescenta ao validador: **extrair todo campo elegível identificado**, m
 
 O desfecho conversacional pode ser classificado pelo modelo com fonte como **negociação concluída, interesse confirmado e pronta para remessa**, sem equivaler a `vendido`. A eventual transição para `cadastro enviado ao operador` após atendimento HUMANO depende de homologação pelo S0; o caso só chega a `cadastro enviado ao banco` com remessa real e prova. `vendido` exige venda/pagamento efetivamente confirmado pelo Banco e marcação manual de operador autorizado com evidência, conforme 13A/21/41. Desistência sem negativa bancária mantém regra de `perdido` em revisão [R]. Áudio é preferência contextual: pedidos expressos e padrões reiterados, sem inferir preferência permanente com um áudio. Sem teto global pré-definido, mas NÃO existe autorização irrestrita de gasto: cada lote de testes pagos deve ter escopo, estimativa e aprovação específica. Ver OAI-07 e NC-01 a NC-14, que ainda NÃO foram executados.
 
+## 8B. Atualização de segurança CF-OP-02 — Planejadora pós-humana [P/R]
+
+- OAI-08 permite à F03 propor `followup_need_advisory` com fontes e compromisso temporal, mas **não** autoriza plano, gasto ou envio. Somente S0 decide elegibilidade, consulta opt-out e solicita F02, com escopo e versão autenticados.
+- F02 é tarefa interna de planejamento, por isso pode ser usada em caso humanizado autorizado **sem reativar IA Vendedora**. Template individual escolhido pelo operador é ação separada S0→Meta, sem necessidade de F02.
+- Novo plano pós-humano exige identidade técnica distinta do plano C08/C10 cancelado no handoff, catálogo de templates pré-aprovados, quantidade limitada (referência 2–5 para atendido silencioso), template final separado, compromisso com referência verificável e regras de concorrência [R].
+- **Três relógios:** prazo Meta da última mensagem do cliente, ato de conclusão humana e prazo C09 após prova de template final `sent` são independentes. Só S0 pode tomar a decisão de `perdido` quando houver elegibilidade pré-banco ratificada; `cadastro enviado ao banco`, `vendido` e `perdido` históricos não recebem perda por silêncio. `cadastro enviado ao operador` permanece [R]. O texto do modelo não é evento de envio, prova bancária ou sinal de expiração.
+- Nova mensagem, revogação de operador, alteração de versão, opt-out, falha/uncertain da Meta ou divergência de data invalidam ou colocam em revisão propostas de cadeia conforme política S0. Referências em `E02_RASTREABILIDADE_CF_OP_02_v0_1.md`.
+- Nenhum dos critérios CF-OP-02 foi executado; S0/Meta/Frontend/S1-002 devem ratificar suas próprias interfaces e elegibilidade. Não presumir aprovação só porque a direção funcional [D-negócio] foi registrada.
+
 ## 9. Fases de gate e responsabilidades
 
 - E02-DOC: arquivo presente, revisão documental pendente.
