@@ -10,7 +10,7 @@ html = (base / 'index.html').read_text(encoding='utf-8')
 css = (base / 'styles.css').read_text(encoding='utf-8')
 html = html.replace('<link rel="stylesheet" href="./styles.css">', '<style>'+css+'</style>')
 html = html.replace('<script type="module" src="./app.mjs"></script>', '')
-script = '\n'.join((base / name).read_text(encoding='utf-8') for name in ('fixtures.mjs','view-model.mjs','app.mjs'))
+script = '\n'.join((base / name).read_text(encoding='utf-8') for name in ('fixtures.mjs','view-model.mjs','cf-op-02.mjs','app.mjs'))
 script = re.sub(r'(?ms)^import \{.*?\} from ["\']\./[^"\']+["\'];\s*', '', script)
 script = re.sub(r'(?m)^export ', '', script)
 
@@ -23,7 +23,7 @@ with sync_playwright() as p:
         page.on('pageerror', lambda error: errors.append(str(error)))
         page.set_content(html)
         page.add_script_tag(content=script)
-        assert page.locator('.conversation-card').count() == 2
+        assert page.locator('.conversation-card').count() == 6
         assert not errors
         assert not page.evaluate('document.documentElement.scrollWidth > innerWidth')
         page.locator('.conversation-card').first.click()
@@ -49,9 +49,9 @@ with sync_playwright() as p:
     page = browser.new_page(viewport={'width':1366,'height':768})
     page.set_content(html); page.add_script_tag(content=script)
     page.locator('#actor-select').select_option('marina')
-    assert page.locator('.conversation-card').count() == 5
+    assert page.locator('.conversation-card').count() == 10
     page.locator('#team-nav').click()
-    assert page.locator('#team-list .team-member').count() == 3
+    assert page.locator('#team-list .team-member').count() == 4
     page.locator('#team-close').click()
     page.locator('#shop-select').select_option('horizonte')
     assert page.locator('.conversation-card').count() == 2
@@ -60,5 +60,22 @@ with sync_playwright() as p:
     page.locator('#actor-select').select_option('rafael')
     page.locator('#team-nav').click()
     assert not page.locator('#team-dialog').is_visible()
+    # FV-03: a janela expirada não permite texto livre, mas mantém o caso pendente.
+    page.locator('[data-inbox="active"]').click()
+    page.get_by_role('button',name='Abrir conversa Cliente Exemplo 08',exact=False).click()
+    assert page.locator('#message-input').is_disabled()
+    assert page.get_by_role('button',name='Selecionar e solicitar template aprovado').count()==1
+    assert page.get_by_role('button',name='Solicitar cadeia de tentativas à IA').count()==1
+    page.get_by_role('button',name='Selecionar e solicitar template aprovado').click()
+    assert page.locator('#template-dialog').is_visible()
+    page.locator('#template-form button[value="confirm"]').click()
+    assert page.locator('#message-input').is_disabled()
+    assert 'Pedido simulado' in page.locator('#workflow-bar').inner_text()
+    page.locator('[data-inbox="history"]').click()
+    assert page.locator('.conversation-card').count()==2
+    page.get_by_role('button',name='Abrir conversa Cliente Exemplo 12',exact=False).click()
+    assert page.locator('#message-input').is_disabled()
+    assert 'perdido' in page.locator('#workflow-bar').inner_text()
+    print('FV-03 janela, template e histórico: PASS')
     print('FV-UI-002 gestor/escopo: PASS')
     browser.close()
