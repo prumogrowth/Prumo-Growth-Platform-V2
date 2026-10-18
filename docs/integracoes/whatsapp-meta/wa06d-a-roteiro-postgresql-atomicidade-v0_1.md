@@ -50,3 +50,19 @@ O teste versionado `integrations/whatsapp-meta/lab/test_wa06d_runner.py` usa **p
 `bash integrations/whatsapp-meta/lab/run-wa06d-local.sh wa06d_test_scratch`
 
 **Contagem honesta:** **5/5 testes do protetor de execução aprovados; 0/11 testes SQL PostgreSQL executados**. O SQL continua candidato, pode precisar de correções ao ser executado; tampouco houve prova de durabilidade pós-commit nem concorrência em duas sessões, muito menos autenticação de produção.
+
+## WA-06D/A3 — reparo de identidade posicional e 14 casos (18/10/2026)
+
+**Falha identificada na revisão pré-execução:** a tabela TEMP de ocorrências usava `UNIQUE(batch,kind,item_index)`, insuficiente para um POST Meta com `entry[]` e `changes[]` agregados: dois eventos legítimos em entradas diferentes podem compartilhar o mesmo índice de item. O contrato WA-05C/WA-06B exige **quatro coordenadas** `entry_index + change_index + array_kind(messages|statuses) + item_index`. Este é um **achado de inspeção técnica**, não falha reproduzida em PostgreSQL.
+
+**Reparo em código SQL publicado** no blob `e011969413332565bc4c3e1e37490f5ad99d5ac8`: acrescenta `entry_index` e `change_index` com validação de tipo/limites, troca a unicidade pela posição completa, preserva callbacks com mesmo `wamid` em posições distintas e restaura o canal da fixture depois do teste de revogação WA06D-10 para que testes posteriores não sejam contaminados. Continua isolado em TEMP, sem DDL S0.
+
+**A matriz foi ampliada dos 11 casos originais para 14 casos candidatos:**
+- `WA06D-12`: duas posições `entry[]` diferentes com o mesmo `item_index=0` são legítimas e geram duas ocorrências/tarefas.
+- `WA06D-13`: repetição da **mesma posição completa** falha, com rollback integral de batch, corpo, nonce, ocorrências e recibo.
+- `WA06D-14`: dois canais válidos e distintos da mesma Meta App/concessionária são admitidos.
+
+**Verificações realmente realizadas:** 11 critérios estáticos conferidos diretamente no conteúdo publicado — sete tabelas TEMP, função `pg_temp`, quatro coordenadas na chave, todos os 14 marcadores, ausência de índice antigo, fixtures multientrada/dois canais, negativa de duplicação, restauração pós-revogação, BEGIN/ROLLBACK e ausência de DDL persistente. Estas verificações **NÃO executam SQL**. O ambiente segue sem `postgres`, `psql`, `initdb` ou `pg_ctl`, portanto **0/14 testes PostgreSQL executados**, inclusive 0/11 originais. Não considerar versão anterior como validada nem concluir WA-06D.
+
+**Próxima dependência [R S0]:** executar e revisar a sintaxe/resultado em PG17 descartável; se necessário, reparar e reexecutar. Depois de execução local aprovada, desenvolver separadamente concorrência, autenticação de workload, nonce/revogação transacionais e recibo pós-commit/COMMIT_UNKNOWN. Nenhum ACK, token, Meta real, hospedagem ou migração autorizado por esta etapa.
+
