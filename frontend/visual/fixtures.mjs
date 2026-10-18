@@ -18,10 +18,10 @@ export const SHOPS = Object.freeze([
 ]);
 
 export const ACTORS = Object.freeze([
-  { id: 'rafael', name: 'Rafael Lima', role: 'operador', shops: ['aurora'], organization: 'Prumo' },
-  { id: 'bianca', name: 'Bianca Rocha', role: 'operador', shops: ['aurora'], organization: 'Prumo' },
-  { id: 'marina', name: 'Marina Costa', role: 'gestor', shops: ['aurora', 'horizonte'], organization: 'Prumo' },
-  { id: 'lia', name: 'Lia Martins', role: 'operador', shops: ['horizonte'], organization: 'Prumo' },
+  { id: 'rafael', name: 'Rafael Lima', role: 'operador', shops: ['aurora'], organization: 'Prumo', teamState: 'active' },
+  { id: 'bianca', name: 'Bianca Rocha', role: 'operador', shops: ['aurora'], organization: 'Prumo', teamState: 'active' },
+  { id: 'marina', name: 'Marina Costa', role: 'gestor', shops: ['aurora', 'horizonte'], organization: 'Prumo', teamState: 'active' },
+  { id: 'lia', name: 'Lia Martins', role: 'operador', shops: ['horizonte'], organization: 'Prumo', teamState: 'active' },
   { id: 'otavio', name: 'Otávio (suspenso)', role: 'operador', shops: ['aurora'], organization: 'Prumo', teamState: 'suspended' }
 ]);
 
@@ -99,13 +99,13 @@ export function getShop(shopId) {
 }
 export function visibleConversations(records, actorId, shopId) {
   const actor = getActor(actorId);
-  if (!actor || actor.teamState === 'suspended' || actor.teamState === 'removed' || !actor.shops.includes(shopId)) return [];
+  if (!actor || actor.teamState !== 'active' || !actor.shops.includes(shopId)) return [];
   return records.filter(record => record.shopId === shopId &&
     (actor.role === 'gestor' || record.assignedTo === actorId));
 }
 export function canSimulateCompletion(record, actorId, shopId) {
   const actor = getActor(actorId);
-  return Boolean(actor && actor.teamState !== 'suspended' && actor.teamState !== 'removed' && record && actor.shops.includes(shopId) &&
+  return Boolean(actor && actor.teamState === 'active' && record && actor.shops.includes(shopId) &&
     record.shopId === shopId && record.assignedTo === actorId &&
     record.status === 'em atendimento pelo operador');
 }
