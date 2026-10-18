@@ -104,60 +104,60 @@ end $sig$;
 
 -- Only fixture postgres computes signatures. The gateway receives string
 -- proofs; it cannot read key material, auth.sessions or commercial tables.
-select pg_catalog.set_config('prumo.037c.issue',
+select pg_catalog.set_config('prumo.test037c.issue',
  (extract(epoch from clock_timestamp())::bigint)::text,true);
-select pg_catalog.set_config('prumo.037c.pending_enc',(
+select pg_catalog.set_config('prumo.test037c.pending_enc',(
  select id::text from public.pendencias_reconciliacao_c07_sinteticas p
  join public.eventos_callback_sinteticos e
   on e.concessionaria_id=p.concessionaria_id and e.id=p.evento_id
  where e.evento_externo_ficticio='037C.EVENT.ENC'),true);
-select pg_catalog.set_config('prumo.037c.pending_link',(
+select pg_catalog.set_config('prumo.test037c.pending_link',(
  select id::text from public.pendencias_reconciliacao_c07_sinteticas p
  join public.eventos_callback_sinteticos e
   on e.concessionaria_id=p.concessionaria_id and e.id=p.evento_id
  where e.evento_externo_ficticio='037C.EVENT.LINK'),true);
-select pg_catalog.set_config('prumo.037c.pending_b',(
+select pg_catalog.set_config('prumo.test037c.pending_b',(
  select id::text from public.pendencias_reconciliacao_c07_sinteticas p
  join public.eventos_callback_sinteticos e
   on e.concessionaria_id=p.concessionaria_id and e.id=p.evento_id
  where e.evento_externo_ficticio='037C.EVENT.B'),true);
-select pg_catalog.set_config('prumo.037c.sig_cancel',pg_temp.assinar_037c(
+select pg_catalog.set_config('prumo.test037c.sig_cancel',pg_temp.assinar_037c(
  'cancelar_plano','c3900000-0000-4000-8000-000000000001',
  'c3910000-0000-4000-8000-000000000001','c3920000-0000-4000-8000-000000000001',
  'c3970000-0000-4000-8000-000000000001',1,null,null,null,
- current_setting('prumo.037c.issue')::bigint,'c39a0000-0000-4000-8000-000000000001'),true);
-select pg_catalog.set_config('prumo.037c.sig_cancel_again',pg_temp.assinar_037c(
+ current_setting('prumo.test037c.issue')::bigint,'c39a0000-0000-4000-8000-000000000001'),true);
+select pg_catalog.set_config('prumo.test037c.sig_cancel_again',pg_temp.assinar_037c(
  'cancelar_plano','c3900000-0000-4000-8000-000000000001',
  'c3910000-0000-4000-8000-000000000001','c3920000-0000-4000-8000-000000000001',
  'c3970000-0000-4000-8000-000000000001',1,null,null,null,
- current_setting('prumo.037c.issue')::bigint,'c39a0000-0000-4000-8000-000000000002'),true);
-select pg_catalog.set_config('prumo.037c.sig_enc',pg_temp.assinar_037c(
+ current_setting('prumo.test037c.issue')::bigint,'c39a0000-0000-4000-8000-000000000002'),true);
+select pg_catalog.set_config('prumo.test037c.sig_enc',pg_temp.assinar_037c(
  'conciliar_c07','c3900000-0000-4000-8000-000000000001',
  'c3910000-0000-4000-8000-000000000001','c3920000-0000-4000-8000-000000000001',
- current_setting('prumo.037c.pending_enc')::uuid,1,
+ current_setting('prumo.test037c.pending_enc')::uuid,1,
  'ENCERRAR_SEM_PROVA','Revisao ficticia de incerteza com justificativa suficiente',
- null,current_setting('prumo.037c.issue')::bigint,
+ null,current_setting('prumo.test037c.issue')::bigint,
  'c39a0000-0000-4000-8000-000000000003'),true);
-select pg_catalog.set_config('prumo.037c.sig_link',pg_temp.assinar_037c(
+select pg_catalog.set_config('prumo.test037c.sig_link',pg_temp.assinar_037c(
  'conciliar_c07','c3900000-0000-4000-8000-000000000001',
  'c3910000-0000-4000-8000-000000000001','c3920000-0000-4000-8000-000000000001',
- current_setting('prumo.037c.pending_link')::uuid,1,
+ current_setting('prumo.test037c.pending_link')::uuid,1,
  'VINCULAR_SINTETICAMENTE','Associacao ficticia conferida manualmente para teste',
  'c3980000-0000-4000-8000-000000000002',
- current_setting('prumo.037c.issue')::bigint,
+ current_setting('prumo.test037c.issue')::bigint,
  'c39a0000-0000-4000-8000-000000000004'),true);
-select pg_catalog.set_config('prumo.037c.sig_cross',pg_temp.assinar_037c(
+select pg_catalog.set_config('prumo.test037c.sig_cross',pg_temp.assinar_037c(
  'conciliar_c07','c3900000-0000-4000-8000-000000000001',
  'c3910000-0000-4000-8000-000000000001','c3920000-0000-4000-8000-000000000002',
- current_setting('prumo.037c.pending_b')::uuid,1,'ENCERRAR_SEM_PROVA',
+ current_setting('prumo.test037c.pending_b')::uuid,1,'ENCERRAR_SEM_PROVA',
  'Revisao proibida de concessionaria B ficticia',null,
- current_setting('prumo.037c.issue')::bigint,
+ current_setting('prumo.test037c.issue')::bigint,
  'c39a0000-0000-4000-8000-000000000005'),true);
-select pg_catalog.set_config('prumo.037c.sig_revoked',pg_temp.assinar_037c(
+select pg_catalog.set_config('prumo.test037c.sig_revoked',pg_temp.assinar_037c(
  'cancelar_plano','c3900000-0000-4000-8000-000000000001',
  'c3910000-0000-4000-8000-000000000001','c3920000-0000-4000-8000-000000000001',
  'c3970000-0000-4000-8000-000000000001',1,null,null,null,
- current_setting('prumo.037c.issue')::bigint,
+ current_setting('prumo.test037c.issue')::bigint,
  'c39a0000-0000-4000-8000-000000000006'),true);
 
 set local role prumo_s0_gateway;
@@ -177,7 +177,7 @@ begin
    'c3920000-0000-4000-8000-000000000001',
    'c3970000-0000-4000-8000-000000000001',1,
    'c3990000-0000-4000-8000-000000000001',
-   current_setting('prumo.037c.issue')::bigint,
+   current_setting('prumo.test037c.issue')::bigint,
    'c39a0000-0000-4000-8000-000000000007',repeat('0',64));
   raise exception 'FAIL OWNER37C-01: invalid HMAC accepted';
  exception when insufficient_privilege then
@@ -195,8 +195,8 @@ begin
   'c3910000-0000-4000-8000-000000000001','c3920000-0000-4000-8000-000000000001',
   'c3970000-0000-4000-8000-000000000001',1,
   'c3990000-0000-4000-8000-000000000001',
-  current_setting('prumo.037c.issue')::bigint,
-  'c39a0000-0000-4000-8000-000000000001',current_setting('prumo.037c.sig_cancel'));
+  current_setting('prumo.test037c.issue')::bigint,
+  'c39a0000-0000-4000-8000-000000000001',current_setting('prumo.test037c.sig_cancel'));
  if v->>'outcome'<>'APPLIED' then raise exception 'FAIL OWNER37C-02 cancel';end if;
  begin
   perform prumo_private.gateway_cancelar_plano_assinado_s0(
@@ -204,8 +204,8 @@ begin
    'c3910000-0000-4000-8000-000000000001','c3920000-0000-4000-8000-000000000001',
    'c3970000-0000-4000-8000-000000000001',1,
    'c3990000-0000-4000-8000-000000000001',
-   current_setting('prumo.037c.issue')::bigint,
-   'c39a0000-0000-4000-8000-000000000001',current_setting('prumo.037c.sig_cancel'));
+   current_setting('prumo.test037c.issue')::bigint,
+   'c39a0000-0000-4000-8000-000000000001',current_setting('prumo.test037c.sig_cancel'));
   raise exception 'FAIL OWNER37C-02 replay nonce accepted';
  exception when insufficient_privilege then null;end;
  v:=prumo_private.gateway_cancelar_plano_assinado_s0(
@@ -213,8 +213,8 @@ begin
   'c3910000-0000-4000-8000-000000000001','c3920000-0000-4000-8000-000000000001',
   'c3970000-0000-4000-8000-000000000001',1,
   'c3990000-0000-4000-8000-000000000001',
-  current_setting('prumo.037c.issue')::bigint,
-  'c39a0000-0000-4000-8000-000000000002',current_setting('prumo.037c.sig_cancel_again'));
+  current_setting('prumo.test037c.issue')::bigint,
+  'c39a0000-0000-4000-8000-000000000002',current_setting('prumo.test037c.sig_cancel_again'));
  if v->>'outcome'<>'ALREADY_APPLIED'
  then raise exception 'FAIL OWNER37C-02 idempotency';end if;
 end $gate$;
@@ -226,31 +226,31 @@ begin
  v:=prumo_private.gateway_conciliar_c07_assinado_s0(
   'c3900000-0000-4000-8000-000000000001',
   'c3910000-0000-4000-8000-000000000001','c3920000-0000-4000-8000-000000000001',
-  current_setting('prumo.037c.pending_enc')::uuid,1,
+  current_setting('prumo.test037c.pending_enc')::uuid,1,
   'ENCERRAR_SEM_PROVA','Revisao ficticia de incerteza com justificativa suficiente',null,
   'c3990000-0000-4000-8000-000000000001',
-  current_setting('prumo.037c.issue')::bigint,
-  'c39a0000-0000-4000-8000-000000000003',current_setting('prumo.037c.sig_enc'));
+  current_setting('prumo.test037c.issue')::bigint,
+  'c39a0000-0000-4000-8000-000000000003',current_setting('prumo.test037c.sig_enc'));
  if v->>'outcome'<>'APPLIED' then raise exception 'FAIL OWNER37C-03 close';end if;
  v:=prumo_private.gateway_conciliar_c07_assinado_s0(
   'c3900000-0000-4000-8000-000000000001',
   'c3910000-0000-4000-8000-000000000001','c3920000-0000-4000-8000-000000000001',
-  current_setting('prumo.037c.pending_link')::uuid,1,
+  current_setting('prumo.test037c.pending_link')::uuid,1,
   'VINCULAR_SINTETICAMENTE','Associacao ficticia conferida manualmente para teste',
   'c3980000-0000-4000-8000-000000000002',
   'c3990000-0000-4000-8000-000000000001',
-  current_setting('prumo.037c.issue')::bigint,
-  'c39a0000-0000-4000-8000-000000000004',current_setting('prumo.037c.sig_link'));
+  current_setting('prumo.test037c.issue')::bigint,
+  'c39a0000-0000-4000-8000-000000000004',current_setting('prumo.test037c.sig_link'));
  if v->>'outcome'<>'APPLIED' then raise exception 'FAIL OWNER37C-03 link';end if;
  begin
   perform prumo_private.gateway_conciliar_c07_assinado_s0(
    'c3900000-0000-4000-8000-000000000001',
    'c3910000-0000-4000-8000-000000000001','c3920000-0000-4000-8000-000000000002',
-   current_setting('prumo.037c.pending_b')::uuid,1,
+   current_setting('prumo.test037c.pending_b')::uuid,1,
    'ENCERRAR_SEM_PROVA','Revisao proibida de concessionaria B ficticia',null,
    'c3990000-0000-4000-8000-000000000001',
-   current_setting('prumo.037c.issue')::bigint,
-   'c39a0000-0000-4000-8000-000000000005',current_setting('prumo.037c.sig_cross'));
+   current_setting('prumo.test037c.issue')::bigint,
+   'c39a0000-0000-4000-8000-000000000005',current_setting('prumo.test037c.sig_cross'));
   raise exception 'FAIL OWNER37C-03 cross store accepted';
  exception when insufficient_privilege then
   if SQLERRM<>'FORBIDDEN_SCOPE' then
@@ -299,8 +299,8 @@ begin
    'c3910000-0000-4000-8000-000000000001','c3920000-0000-4000-8000-000000000001',
    'c3970000-0000-4000-8000-000000000001',1,
    'c3990000-0000-4000-8000-000000000001',
-   current_setting('prumo.037c.issue')::bigint,
-   'c39a0000-0000-4000-8000-000000000006',current_setting('prumo.037c.sig_revoked'));
+   current_setting('prumo.test037c.issue')::bigint,
+   'c39a0000-0000-4000-8000-000000000006',current_setting('prumo.test037c.sig_revoked'));
   raise exception 'FAIL OWNER37C-05 revoked session allowed';
  exception when insufficient_privilege then
   if SQLERRM<>'SESSAO_INATIVA'
