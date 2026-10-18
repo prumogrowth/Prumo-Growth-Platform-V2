@@ -51,7 +51,7 @@ function canMockClose(record) {
   return canSimulateCompletion(record,state.actorId,state.shopId) &&
     isInActiveInbox(record) && humanCompletion(record) === 'pending' &&
     record?.allowedActionsProjection?.includes('complete') &&
-    !state.processing[record.id];
+    !state.processing[record.id] && !state.followupRequests[record.id];
 }
 
 function showToast(message) {
@@ -263,7 +263,8 @@ function renderDetails() {
   } else if(state.detailTab==='extraction') {
     const extract=detailSection('FICHA E EXTRAÇÃO · FV-02');const proc=state.processing[item.id];
     if(!proc){
-      extract.append(callout('Ainda não solicitada','Após a conclusão humana, o S0 poderá solicitar extração. Nenhum dado foi processado neste exemplo.'));
+      const completed=humanCompletion(item)!=='pending';
+      extract.append(completed ? callout('Etapa concluída · retorno não disponível','A fixture informa conclusão humana, mas não informa resultado de extração. Não afirmar que ela foi solicitada, gravada ou concluída.','warning') : callout('Ainda não solicitada','Após a conclusão humana, o S0 poderá solicitar extração. Nenhum dado foi processado neste exemplo.'));
     }else{
       const scenario=modelExtraction(proc.kind);
       extract.append(callout(scenario.title,scenario.explanation,proc.kind==='accepted'||proc.kind==='partial'?'warning':''));
