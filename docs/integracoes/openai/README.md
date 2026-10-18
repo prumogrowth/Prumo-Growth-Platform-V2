@@ -20,7 +20,8 @@ Preparar o acesso da plataforma técnica Prumo à API da OpenAI: entendimento de
 7. **matriz-dependencias-e-testes-v0_1.md** — titularidade preservada e cenários de teste.
 8. **avaliacao-transporte-openai-direto-ou-n8n-v0_1.md** — conexão direta versus n8n ainda em aberto [R].
 9. **AUDITORIA_CONTRATO_OAI_2026_10_18.md** — auditoria da fase de abertura e seus gates.
-10. **PLANO_EXECUCAO_E_CRITERIOS_DE_CONCLUSAO_v0_1.md** — roteiro fechado E00–E08: E00 concluído, E01 em revisão documental, demais marcos pendentes.
+10. **MAPA_CAPACIDADES_E_PENDENCIAS_OPENAI_v0_1.md** — inventário que preserva também mídia visual/documentos como pesquisa futura sujeita a autorizações, governança de conhecimento, modelos e dependências, sem ampliar o escopo sem decisão.
+11. **PLANO_EXECUCAO_E_CRITERIOS_DE_CONCLUSAO_v0_1.md** — roteiro fechado E00–E08: E00 concluído, E01 em revisão documental, demais marcos pendentes.
 
 ## Princípios de precedência
 
