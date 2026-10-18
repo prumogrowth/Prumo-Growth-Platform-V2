@@ -454,3 +454,18 @@ Artefatos: `docs/S0_036A_AUDITORIA_ACL_2026_10_18.md`, `supabase/tests/s0_036a_a
 - OWNER37B-05: roles reais `prumo_s0_gateway`, `prumo_s0_signed_executor` sem DML comercial direto adicional; toda política/grant/role/fixture experimentais removidos por `ROLLBACK`.
 
 **Conclusão:** apenas a viabilidade de DML SQL escopado sob políticas literais de laboratório foi demonstrada. **Não** existe ainda credencial confiável de sessão/ator vinculado ao escopo do papel técnico; o SQL direto de teste **não verifica HMAC nem nonce**. Portanto **NÃO** promover grants/policies temporários à migration, usuário autenticado ou worker, nem transferir o owner das wrappers `SECURITY DEFINER postgres`. `auth.sessions` e `prumo_private.auditoria_gateway_s0` continuam bloqueios relevantes, assim como locks `FOR UPDATE`, concorrência, auditoria integrada e as duas decisões C07 completas. Sem deploy, merge ou escrita no Supabase hospedado. Auth/REST local não repetido porque o incremento só adicionou testes/documentação; última baseline [#39122948236 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39122948236). **GO para design/ensaio sintético; NO-GO para redução comercial ou operação real.**
+
+
+## S0-037C — regressão assinada C08 e C07 completo (18/10/2026 UTC)
+
+**Evidência:** [GitHub Actions PostgreSQL 17 #39127146330 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39127146330), commit de código `219240503ea966e7a392aef6d2342872bb6929bb`; logs conferidos: **OWNER37C-01..05 PASS**, regressões SQL/concor­rência S0 e **24 testes Python OK**. Artefatos: `supabase/tests/s0_037c_execucao_assinada_c07_c08.sql`, runner `scripts/run-s0-local.sh`, `docs/S0_037C_EXECUCAO_ASSINADA_COMERCIAL_2026_10_18.md` e **`docs/MAPA_MENTAL.md` atualizado**.
+
+- OWNER37C-01: gateway sem acesso SQL direto a sessão/dados/auditoria; HMAC falso recebe `PROVA_INVALIDA`.
+- OWNER37C-02: cancelamento C08 assinado de plano/envio fictício com nonce irrepetível e replay de novo nonce `ALREADY_APPLIED`.
+- OWNER37C-03: C07 `ENCERRAR_SEM_PROVA` e `VINCULAR_SINTETICAMENTE` assinados em A; tentativa de A sobre B negada por `FORBIDDEN_SCOPE`.
+- OWNER37C-04: quatro provas consumidas e quatro registros de gateway consistentes com as transições; loja B intacta; oito estados comerciais preservados.
+- OWNER37C-05: remoção da sessão de teste no banco bloqueia assinatura válida com `SESSAO_INATIVA`, sem persistir nonce/auditoria adicionais.
+
+**Falhas intermediárias do teste resolvidas antes do aceite:** [#39126937486](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39126937486) (GUC malformada), [#39127006581](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39127006581) (JOIN com `id` ambíguo), [#39127073850](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39127073850) (checagem de `auth.sessions` sem acesso ao esquema). Somente fixture/teste corrigida; nenhuma migration, permissão permanente ou regra comercial alterada.
+
+**Não é homologação de privilégio mínimo ponta a ponta.** As wrappers legadas seguem `SECURITY DEFINER postgres`, dependem de `current_user='postgres'`; a role temporária de RLS da S0-037B não foi promovida. Última compatibilidade Auth/REST local [#39122948236 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39122948236). DEC-WA-04/06 e C07 Meta real pendentes; PRs Draft, sem merge, sem migração hospedada nem tráfego real.

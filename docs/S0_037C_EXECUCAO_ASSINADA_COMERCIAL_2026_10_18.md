@@ -1,6 +1,6 @@
 # S0-037C — autorização assinada e transação C08/C07 (ensaio PG17, sem novos owners)
 
-**Data:** 18/10/2026. PR #1, branch `feat/s0-fundacao-prumo`. Status inicial: prova **em execução, sem aceite presumido**. S0-037A comprovou que alterar owner comercial isoladamente falha; S0-037B comprovou DML sob RLS literal em lojas fictícias, mas **sem autenticação nem HMAC**. Esta etapa fecha esse hiato apenas como **regressão da cadeia assinada existente**, não como solução de privilégio mínimo integral.
+**Data:** 18/10/2026. PR #1, branch `feat/s0-fundacao-prumo`. **Status final: regressão sintética aprovada em PostgreSQL 17**. S0-037A comprovou que alterar owner comercial isoladamente falha; S0-037B comprovou DML sob RLS literal em lojas fictícias, mas **sem autenticação nem HMAC**. Esta etapa fecha esse hiato apenas como **regressão da cadeia assinada existente**, não como solução de privilégio mínimo integral.
 
 ## Objetivo
 
@@ -34,4 +34,10 @@ Futuros gates: projeto de sessão com leitura mínima e revogação/lock, autori
 - DEC-WA-01/02/03 aprovadas, DEC-WA-05 titularidade Meta por concessionária; DEC-WA-04/06 pendentes.
 - PR #1 e #2 Draft sem merge. Não executar migrations no Supabase hospedado, deploy, Meta Graph, operaçãa instituição financeira ou tráfego real.
 
-**Aceite:** incluir o SHA do commit e a execução PG17 com logs `OWNER37C-01..05` apenas depois de confirmar o CI; até lá a proposta é um teste não homologado.
+## Aceite efetivo — 18/10/2026
+
+[**PostgreSQL 17 #39127146330 — SUCCESS**](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39127146330), código testado `219240503ea966e7a392aef6d2342872bb6929bb`. Logs: `OWNER37C-01..05 PASS`, regressões SQL e concorrência anteriores e **24 testes Python OK**.
+
+Histórico transparente de três falhas de **fixture/teste**, corrigidas sem alterar funções comerciais, owners, ACL permanentes ou migrations: [#39126937486](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39126937486) (GUC com segmento numérico inválido); [#39127006581](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39127006581) (`id` ambíguo nas três consultas de pendência); [#39127073850](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39127073850) (introspecção de `auth.sessions` por papel sem USAGE do esquema substituída por SELECT real negado). O último CI comprovou o caminho completo.
+
+**Limite do aceite:** a cadeia atual assinada C08/C07 funciona nos cenários sintéticos, **mas ainda chama wrappers comerciais `SECURITY DEFINER postgres`**. Não comprova nem autoriza redução efetiva dos seus owners, migração hospedada, operação Meta, serviço real ou produção. A última rodada Auth/REST local acumulada continua [#39122948236 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39122948236), não repetida sem alteração de runtime.
