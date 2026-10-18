@@ -23,7 +23,8 @@ Preparar o acesso da plataforma técnica Prumo à API da OpenAI: entendimento de
 10. **MAPA_CAPACIDADES_E_PENDENCIAS_OPENAI_v0_1.md** — inventário que preserva também mídia visual/documentos como pesquisa futura sujeita a autorizações, governança de conhecimento, modelos e dependências, sem ampliar o escopo sem decisão.
 11. **E02_POLITICAS_SEGURANCA_CRITERIOS_ACEITE_v0_1.md** — E02: segurança, privacidade, autoaplicação de campos com fonte, limites e gates propostos [P/R/V].
 12. **E02_MATRIZ_CASOS_SINTETICOS_E_METRICAS_v0_1.md** — E02: 32 cenários de teste a implementar em E04, métricas, bloqueios críticos e comparação futura [P].
-13. **PLANO_EXECUCAO_E_CRITERIOS_DE_CONCLUSAO_v0_1.md** — roteiro fechado E00–E08: E00 concluído; E01 e E02 documentados em revisão, E03–E08 pendentes. Nenhum teste E02 executado.
+13. **OAI_07_DESFECHO_ENCAMINHAMENTO_PREFERENCIA_CANAL_v0_1.md** — esclarecimentos [D-NEGÓCIO] do responsável em 18/10 sobre fechamento humano, motivo/desfecho da conversa, todos os campos disponíveis, essenciais × opcionais, roteamento e avisos IA → humano, voz adaptativa e orçamento por lote; limites bancários [R/V].
+14. **PLANO_EXECUCAO_E_CRITERIOS_DE_CONCLUSAO_v0_1.md** — roteiro fechado E00–E08: E00 concluído; E01 e E02 documentados em revisão, E03–E08 pendentes. Nenhum teste E02 executado.
 
 ## Princípios de precedência
 
@@ -43,5 +44,7 @@ OpenAI segurança de chaves: https://help.openai.com/en/articles/5112595-best-pr
 Supabase secrets para funções autorizadas: https://supabase.com/docs/guides/functions/secrets
 
 **Nova orientação F03 [D-direção/R-interface, 18/10/2026]:** ao encerrar o atendimento humano, uma rotina OpenAI separada da IA Vendedora extrai informações declaradas e propõe preenchimento automático dos campos elegíveis; S0 valida/persiste sem exigir digitação rotineira do operador. A falta de informação permanece pendente, sem preenchimento fictício. Nenhuma tela/SQL/ação Meta foi assumida pela frente OpenAI. Também entram no contrato TTS (áudio de saída), STT (áudio de entrada) e avaliação por tarefa/modelo, sujeitos a provas e autorizações próprias.
+
+**Emenda OAI-07 [D-NEGÓCIO; implementação P/R]:** quando operador clicar encerrar, analisar evidências e desfecho conversacional, preencher automaticamente TODOS os campos elegíveis que foram explicitamente informados, voltar ao humano apenas se faltar dado realmente essencial ou houver outra necessidade legítima de revisão e exibir motivo curto para CADA handoff IA → humano; somente campos exigidos e legalmente autorizados seguem para remessa. A modalidade áudio/texto adapta-se ao padrão reiterado e pedido explícito, sem inferir preferência por um único áudio. Venda/recusa bancária oficiais permanecem atos humanos com prova conforme 13A/21/41; classificação IA é hipótese, não mudança de status. Não há teto global de gasto em testes: exigir autorização de estimativa por lote. Ver OAI-07.
 
 **Topologia OpenAI ↔ backend [R]:** chamada direta autenticada pelo runtime servidor/Edge Functions OU orquestração via n8n; nenhum caminho foi testado/selecionado para esta frente. O contrato de domínio deve ser independente da topologia. **Sem GO para operação real.** Mudanças em outra frente dependem da frente proprietária e de revisão cruzada.
