@@ -204,7 +204,9 @@ begin
  or has_table_privilege('prumo_s0_gateway','prumo_037f_lab.auditoria_mock','INSERT')
  or has_table_privilege('prumo_s0_probe_037f_exec',
    'prumo_private.gateway_chaves_assinatura_s0','SELECT')
- or has_table_privilege('prumo_s0_probe_037f_exec','auth.sessions','SELECT')
+ or (case when to_regclass('auth.sessions') is not null
+ then has_table_privilege('prumo_s0_probe_037f_exec',
+      to_regclass('auth.sessions'),'SELECT') else false end)
  or not (select p.prosecdef and
    pg_catalog.pg_get_userbyid(p.proowner)='prumo_s0_probe_037f_exec'
    from pg_catalog.pg_proc p where p.oid=
