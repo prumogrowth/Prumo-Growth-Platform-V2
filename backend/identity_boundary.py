@@ -24,6 +24,8 @@ import uuid
 from dataclasses import dataclass
 from typing import Any, Mapping, Protocol
 
+from backend.security_events import SecurityEventSink
+
 
 class Denied(Exception):
     """No valid identity or session, or no permission to perform the command."""
@@ -155,11 +157,28 @@ _STATEMENTS = {
 class AuthenticatedCommands:
     """Command boundary (not an HTTP route) with only two S0 permitted writes."""
 
-    def __init__(self, identity: IdentityProvider, database: CommandDatabase):
+    def __init__(self, identity: IdentityProvider, database: CommandDatabase,
+                 security_events: SecurityEventSink | None = None):
         self._identity = identity
         self._database = database
+        self._security_events = security_events
 
     def execute(self, authorization: str, command: str, payload: Mapping[str, Any]) -> dict[str, Any]:
+        try:
+            return self._execute_checked(authorization, command, payload)
+        except (Denied, InvalidCommand, IdentityUnavailable) as exc:
+            if self._security_events is not None:
+                category = ("AUTH_DENIED" if isinstance(exc, Denied)
+                            else "INPUT_REJECTED" if isinstance(exc, InvalidCommand)
+                            else "IDENTITY_UNAVAILABLE")
+                try:
+                    self._security_events.emit(category, command)
+                except Exception:
+                    # Logging failure must not convert denial into authorization.
+                    pass
+            raise
+
+    def _execute_checked(self, authorization: str, command: str, payload: Mapping[str, Any]) -> dict[str, Any]:
         if command not in _STATEMENTS or not isinstance(payload, dict):
             raise InvalidCommand("COMANDO_NAO_PERMITIDO")
         expected = set(_STATEMENTS[command][1])
