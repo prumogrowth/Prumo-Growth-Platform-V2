@@ -232,3 +232,6 @@ Foi publicado um [roteiro SQL autocontido](lab/wa06d_pg17_atomicity.sql), com 7 
 
 **Situação:** artefato no PR #2, checagens editoriais/estáticas passaram, mas **0/11 SQL executados** porque o ambiente de auditoria não possui servidor nem cliente PostgreSQL. Exige execução posterior em PG17 local descartável, evidência de logs, revisão S0 e teste separado de concorrência, nonce/autorização real e recibo pós-commit. DEC-WA-04/06 abertas. Nada de Supabase hospedado, POC concessionária de demonstração, Graph, merge ou deploy.
 
+## WA-06D/A2 — runner local protegido (18/10/2026)
+
+O roteiro PostgreSQL WA-06D/A deve ser chamado apenas pelo `lab/run-wa06d-local.sh`, com banco descartável `wa06d_test_<sufixo>`, `127.0.0.1:5432`, removendo `PGHOSTADDR/PGSERVICE/PGSERVICEFILE/PGOPTIONS`. O guard não identifica um túnel externo: **nunca usar porta encaminhada a ambiente hospedado**. `lab/test_wa06d_runner.py` executou **5/5 testes Python locais PASS com binário `psql` falso**, `bash -n` PASS, incluindo injeção de `PGHOSTADDR` remoto; blobs coincidem com código testado. Detalhes no [adendo WA-06D/A2](../../docs/integracoes/whatsapp-meta/wa06d-a-roteiro-postgresql-atomicidade-v0_1.md). **Ainda 0/11 testes SQL executados**, nenhum serviço ou Meta comercial alterado.
