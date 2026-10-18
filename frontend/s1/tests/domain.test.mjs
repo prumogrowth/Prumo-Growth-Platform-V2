@@ -203,3 +203,13 @@ test("AUD-S1-03: entradas de versão e perfil inválidos são negadas, mesmo sem
     leadId:"A-101",type:"note",text:"Nota válida",expectedVersion:1
   }),/ACESSO_NEGADO/);
 });
+
+test("AUD-ORG-01: todos os perfis humanos da fixture pertencem à Prumo, não às lojas", () => {
+  assert.equal(ACTORS.length, 5);
+  assert.ok(ACTORS.every(actor => actor.organizationId === "prumo"));
+  assert.ok(ACTORS.every(actor => SHOPS.some(shop => shop.id === actor.shopId)));
+  // shopId indica apenas o cenário de acesso demonstrativo; a empresa é Prumo.
+  assert.notEqual(ACTORS[0].organizationId, ACTORS[0].shopId);
+  assert.equal(getActor("gestor-aurora").organizationId, "prumo");
+  assert.equal(getActor("operador-horizonte").organizationId, "prumo");
+});

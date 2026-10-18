@@ -74,7 +74,7 @@ function renderPersona() {
   const sel = $("#profile");
   sel.replaceChildren();
   ACTORS.forEach(a => {
-    const option = node("option", "", a.name+" · "+(a.role === "gestor" ? "Gestor" : "Operador")+" / "+SHOPS.find(s => s.id === a.shopId).name);
+    const option = node("option", "", a.name+" · "+(a.role === "gestor" ? "Gestor" : "Operador")+" da Prumo | Escopo: "+SHOPS.find(s => s.id === a.shopId).name);
     option.value = a.id; sel.append(option);
   });
   sel.value = activeActorId;
@@ -83,7 +83,7 @@ function renderPersona() {
   $("#shop-region").textContent = shop().region;
   $("#avatar").textContent = initials(actor().name);
   $("#actor-name").textContent = actor().name;
-  $("#actor-role").textContent = actor().role === "gestor" ? "Gestor • simulado" : "Operador • simulado";
+  $("#actor-role").textContent = actor().role === "gestor" ? "Gestor da Prumo • simulado" : "Operador da Prumo • simulado";
 }
 function renderMetrics() {
   const m = countsByStatus(state, activeActorId);

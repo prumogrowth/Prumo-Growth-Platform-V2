@@ -1,4 +1,7 @@
 // S1-001 — Demonstrador local. Não confere autenticação nem autoriza operações reais.
+// D-ORG-01: organizationId identifica equipe Prumo; shopId é apenas UM escopo
+// fictício do cenário de teste, não é a concessionária empregadora.
+// S1-002 deverá suportar concessões multi-loja e autoatribuição D41-04.
 export const STATUS = Object.freeze([
   "aguardando primeiro disparo",
   "primeiro disparo enviado",
@@ -16,11 +19,11 @@ export const SHOPS = Object.freeze([
 ]);
 
 export const ACTORS = Object.freeze([
-  { id: "gestor-aurora", name: "Marina Costa", role: "gestor", shopId: "aurora" },
-  { id: "operador-aurora-1", name: "Rafael Lima", role: "operador", shopId: "aurora" },
-  { id: "operador-aurora-2", name: "Bianca Rocha", role: "operador", shopId: "aurora" },
-  { id: "gestor-horizonte", name: "Paulo Nunes", role: "gestor", shopId: "horizonte" },
-  { id: "operador-horizonte", name: "Lia Martins", role: "operador", shopId: "horizonte" }
+  { id: "gestor-aurora", name: "Marina Costa", role: "gestor", shopId: "aurora", organizationId: "prumo" },
+  { id: "operador-aurora-1", name: "Rafael Lima", role: "operador", shopId: "aurora", organizationId: "prumo" },
+  { id: "operador-aurora-2", name: "Bianca Rocha", role: "operador", shopId: "aurora", organizationId: "prumo" },
+  { id: "gestor-horizonte", name: "Paulo Nunes", role: "gestor", shopId: "horizonte", organizationId: "prumo" },
+  { id: "operador-horizonte", name: "Lia Martins", role: "operador", shopId: "horizonte", organizationId: "prumo" }
 ]);
 
 const BASE_TIME = "2026-10-18T11:00:00.000Z";
