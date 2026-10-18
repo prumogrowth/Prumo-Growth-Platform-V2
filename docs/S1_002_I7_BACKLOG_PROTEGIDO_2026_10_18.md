@@ -17,3 +17,12 @@ A varredura é a operação que um futuro worker interno poderá usar mediante c
 ## Pendências reais
 
 Tempo/escala/plantão, política do gestor para casos presos, idempotência do agendador real, custo e taxa da fila grande, autenticação GoTrue/REST e interface de alerta não foram implementados. RLS role fake PG não substitui token Supabase validado. Não rodar em Supabase hospedado, nem merge/deploy; percentual global não deve ser inflado.
+
+
+## Evidência I7 — 100 casos sintéticos, 18/10/2026
+
+[**GitHub Actions PostgreSQL 17 #39168767820 — SUCCESS**](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39168767820), SHA testado `a3313e1de6b72a1284f37b481dcba294c8037a37`, job `117797244695`. Logs conferidos: **S1B-01..10 (10/10 PASS)** em 100 pendências fictícias e duas concessionárias; baseline no mesmo job: S1E 7/7, S1R 9/9 duas vezes, S1X 7/7 duas vezes, S1C 5/5, S1D 5/5, S1Q 10/10, S1QC 4/4. A hipótese de bloqueio das primeiras 30 pendências foi mitigada: 10 posteriores recuperáveis foram processadas. Vendas mantidas como terminais e nenhuma atribuição a operador inválido.
+
+A execução inicial [#39168641246](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39168641246) falhou somente na expectativa do teste sobre **número de inspeções**: uma mesma pendência sem destinatário pode ser inspecionada mais de uma vez em lotes distintos, sem duplicar casos ou histórico. O teste foi corrigido para distinguir total de tentativas de inspeção de casos exclusivos, e toda a suíte passou em #39168767820.
+
+**Limites persistentes:** rotinas de ativação/concessão ainda processam até 25 registros por evento; o saldo maior requer **chamada interna explícita à função de drenagem**, não há scheduler nem automação contínua implantada. Não é prova de serviço REST/GoTrue hospedado, regra de escala/plantão, performance com dados reais ou autorização RH. Sem merge/deploy/progresso global.

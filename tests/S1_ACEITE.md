@@ -109,3 +109,12 @@ O ensaio inicial de S1QC [#39167719374](https://github.com/prumogrowth/Prumo-Gro
 ## S1-002/I7 — Backlog acima do lote automático [proposta, testes pendentes]
 
 Migração 043: `ultima_inspecao_em` na fila privada, rotação justa de pendências sem operador e entrada interna `s1_drenar_backlog_protegido(loja,max_lotes)` limitada a 10 lotes de 25. Isso elimina o bloqueio por 25 pendências antigas sem candidato, sem atribuir caso a profissional inválido. Não cria cron, worker ou permissão REST, e não altera as outras frentes. Testes S1B-01..10 com 100 registros fictícios, isolamento multiloja e estado vendido. Evidência [P] até PG17. [Descrição I7](../docs/S1_002_I7_BACKLOG_PROTEGIDO_2026_10_18.md).
+
+
+## Evidência I7 — 100 casos sintéticos, 18/10/2026
+
+[**GitHub Actions PostgreSQL 17 #39168767820 — SUCCESS**](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39168767820), SHA testado `a3313e1de6b72a1284f37b481dcba294c8037a37`, job `117797244695`. Logs conferidos: **S1B-01..10 (10/10 PASS)** em 100 pendências fictícias e duas concessionárias; baseline no mesmo job: S1E 7/7, S1R 9/9 duas vezes, S1X 7/7 duas vezes, S1C 5/5, S1D 5/5, S1Q 10/10, S1QC 4/4. A hipótese de bloqueio das primeiras 30 pendências foi mitigada: 10 posteriores recuperáveis foram processadas. Vendas mantidas como terminais e nenhuma atribuição a operador inválido.
+
+A execução inicial [#39168641246](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39168641246) falhou somente na expectativa do teste sobre **número de inspeções**: uma mesma pendência sem destinatário pode ser inspecionada mais de uma vez em lotes distintos, sem duplicar casos ou histórico. O teste foi corrigido para distinguir total de tentativas de inspeção de casos exclusivos, e toda a suíte passou em #39168767820.
+
+**Limites persistentes:** rotinas de ativação/concessão ainda processam até 25 registros por evento; o saldo maior requer **chamada interna explícita à função de drenagem**, não há scheduler nem automação contínua implantada. Não é prova de serviço REST/GoTrue hospedado, regra de escala/plantão, performance com dados reais ou autorização RH. Sem merge/deploy/progresso global.
