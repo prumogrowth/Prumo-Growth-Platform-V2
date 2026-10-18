@@ -48,3 +48,9 @@ Referência: `docs/integracoes/whatsapp-meta/interface-compartilhada-s0-meta-v0_
 Rodar apenas WA-02A: `node --experimental-strip-types --test integrations/whatsapp-meta/graph-outbound.test.ts`.
 
 **IMPORTANTE:** nem strings de intento marcadas `authorized` nem o request preparado concedem permissão comercial real. A frente principal deverá revalidar autorização imediatamente antes de qualquer envio, persistir tentativa, limitar credenciais por concessionária, reconciliar timeout e tratar callbacks. Não logar `request.body` que contém destinatário e conteúdo. Referência: `docs/integracoes/whatsapp-meta/wa02a-graph-outbound-texto-v0_1.md`.
+
+## WA-02B — template WhatsApp C06, offline
+
+`graph-template.ts` prepara somente templates textuais **posicionais** (body e header de texto opcional), com correspondência estrita entre intenção C06 e manifesto confiável de template/idioma/revisão/status, sem mídia/botões/Graph/token/HTTP. Não concede elegibilidade nem envia; `trustedSnapshot` deve ser fornecido e revalidado pelo núcleo. Não registrar em logs o destinatário nem as variáveis de texto.
+
+Testes locais: `node --experimental-strip-types --test integrations/whatsapp-meta/graph-template.test.ts` (**WA-TPL-01..18 PASS**). Compilação TypeScript estrita do módulo **PASS**; o teste foi executado mas não typechecked por ausência local de `@types/node`. Referência: `docs/integracoes/whatsapp-meta/wa02b-graph-templates-c06-v0_1.md`.
