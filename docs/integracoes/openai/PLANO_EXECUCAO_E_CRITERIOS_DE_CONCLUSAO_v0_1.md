@@ -43,6 +43,8 @@ O laboratório pode avançar com stub/mock de S0 enquanto PR #1 evolui. O acopla
 
 **Saneamento pós-auditoria CF-OP-02, 18/10/2026:** publicação de proposta de assinatura única F03 (CFI-01), indexação de OAI-08, matriz de rastreabilidade E02 e correção de IDs duplicados são apenas ações documentais. C09 do doc.26 "sob IA" segue requerendo emenda S0 para casos humanos elegíveis; `cadastro enviado ao operador` ainda não tem decisão de elegibilidade. Templates únicos e cadeias concorrentes, provas Meta de `sent`, riscos e contrato físico ainda [R/V]. **Não marcar E01/E02 concluídos por este saneamento.**
 
+**Preparação adicional E02:** 16 casos sintéticos de revisão EX-01..16 documentados em E02_PACOTE_REVISAO_CASOS_FICTICIOS_CFI_CF02_v0_1.md, com resultados esperados, sem executar nenhum. EX-16 permanece BLOQUEADO por elegibilidade C09 S0 [R]; demais exemplos não substituem aprovação dos limites do gate. A documentação pode ser revisada antes de E04, mas não equivale a fixture programada ou critério aprovado.
+
 **Sequência padrão:** E00 → E01 → E02 → E03 → E04 → E05 → E06 → E07 → E08. O desenvolvimento offline E04 pode ocorrer antes de E03 para não depender da chave. A integração real com a S0 nunca é pré-requisito para continuar os testes locais. Não marcar E05 concluído sem uma chamada real autorizada e verificada.
 
 ## Gates de autorização
