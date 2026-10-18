@@ -77,7 +77,10 @@ begin
  into v_error from pg_catalog.pg_proc p
  join pg_catalog.pg_namespace n on n.oid=p.pronamespace
  where n.nspname='prumo_private' and p.prosecdef
- and not ('search_path=' = any(coalesce(p.proconfig,array[]::text[])));
+ and not exists (
+  select 1 from pg_catalog.unnest(coalesce(p.proconfig,array[]::text[])) as cfg(item)
+  where cfg.item in ('search_path=', 'search_path=""')
+ );
  if v_error is not null then
   raise exception 'FAIL AUD-036A-03 unsafe search_path for SECURITY DEFINER: %',v_error;end if;
 end $acl$;
