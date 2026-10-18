@@ -11,8 +11,8 @@
 | Domínio comercial, autenticação de atores, autorização loja/caso, RLS/GRANT, cadastros, oito estados, handoff, C03/C05/C08/C10/C12 e auditoria de domínio | **S0 / PR #1** | Consumir contrato autorizado, nunca modificar regras, estados, SQL, tabelas, workers ou autorizações por decisão própria |
 | Persistência de mensagens, contexto comercial confiável, versions, inbox/outbox e decisão final de publicar uma mensagem | **S0 / PR #1** | Receber somente contexto filtrado/autorizado e devolver proposta tipada; não criar segundo banco, fila nem fonte de verdade |
 | Webhook, HMAC Meta, números/canais por concessionária, Graph, templates como transporte, recibos, callbacks e reconciliação externa | **Meta / PR #2**, conforme fronteira acordada com S0 | Não enviar ao WhatsApp diretamente, não tocar em credenciais Meta ou em seus módulos |
-| Criação de projeto de API OpenAI e emissão/revogação de credencial, configuração manual de segredo Supabase e decisão sobre gastos | **Responsável humano** | Especificar procedimento e provas NÃO sensíveis; nunca acessar/copiar/exibir a chave |
-| Adaptador de provedor OpenAI, tratamento do protocolo da API, normalização de retorno e erros, política técnica de timeout e rastreabilidade sem PII | **Frente OpenAI [P]** | Implementar em branch própria apenas quando autorizado, com portas isoladas e testes sintéticos |
+| Criação de projeto de API OpenAI, emissão/revogação de credencial, armazenamento MANUAL da chave pelo responsável e decisão sobre gastos | **Responsável humano** | Especificar procedimento e evidências NÃO sensíveis; nunca inserir a chave no GitHub, em logs ou na conversa |
+| Adaptador de provedor OpenAI, tratamento do protocolo da API, normalização de retorno e erros, política técnica de timeout e rastreabilidade sem PII | **Frente OpenAI [P]** | Especificar porta independente de transporte; implementar em branch própria apenas quando autorizado, com testes sintéticos, sem decidir n8n versus ligação direta antecipadamente |
 | Configuração do comportamento IA Vendedora e IA Planejadora | **Governança humana com execução/validação S0 [D/P]** | Podem existir propostas de prompts/versionamento, mas não mudança autônoma de parâmetros; sem IA Analista |
 | ChatGPT/MCP administrativo e confirmações de escrita | **Fluxo independente vigente** | Não absorver por esta frente a autorização/escrita MCP |
 
@@ -58,12 +58,14 @@ O adaptador retorna **proposta sem efeito colateral**, com contract_version, req
 
 O backend S0, como única autoridade do ciclo, deverá revalidar versão, caso, loja, handoff, elegibilidade e permissão da ação antes de persistir. Resposta tardia/desatualizada deve ser descartada com motivo e evidência técnica segura.
 
-## 5. Conectividade OpenAI [P/V/R]
+## 5. Conectividade OpenAI e transporte [P/V/R]
 
 - **API preferida para avaliação:** Responses API, conforme documentação oficial vigente; seleção definitiva de endpoint/modelo, SDK, formato de saída, retenção, recursos e configurações NÃO aprovada [R].
-- Chamada somente server-to-server. A credencial (referência lógica 'OPENAI_API_KEY' [P]) será provisionada MANUALMENTE pelo responsável como secret no projeto Supabase CORRETO quando definido, sem valor no repositório/chat/browser; esta branch não acessa o Supabase.
+- **Topologia ainda não escolhida [R]:** A) backend autorizado/Edge Function Supabase → HTTPS → OpenAI; B) backend autorizado → n8n → OpenAI, com retorno ao núcleo. Não existe prova de integração desta frente nem decisão de contratar n8n. Em qualquer rota, a entrada do adaptador permanece estritamente server-to-server, autenticada e com autorizações aplicadas pelo núcleo.
+- **Credential placement depende do caminho [R]:** referência lógica 'OPENAI_API_KEY' [P]; o responsável realizará o cadastramento MANUAL da chave no destino aprovado. Se for Edge Functions, secret do projeto Supabase correto; se for n8n, será preciso definir e aprovar armazenamento próprio de credencial n8n ou outro mecanismo seguro, sem supor que um segredo Supabase seja automaticamente acessível ao n8n. Nunca gravar a chave no repositório/chat/frontend.
+- A existência de suporte oficial Supabase → OpenAI e n8n → OpenAI prova viabilidade documental, **não** prova integração real, idempotência, latência, observabilidade ou adequação à Prumo. Comparar caminhos segundo `avaliacao-transporte-openai-direto-ou-n8n-v0_1.md`.
 - A frente OpenAI pode redigir exemplo de adaptador e mocks futuramente. Não implantar função nem chamar serviço real antes de autorização explícita, decisão de gasto e conformidade externa.
-- Segregar credenciais e recursos de OpenAI dos segredos HMAC internos S0 e App Secret/Graph Token Meta.
+- Segregar credenciais e recursos de OpenAI dos segredos HMAC internos S0 e App Secret/Graph Token Meta. No caminho n8n, limitar histórico/payload de execuções, administração da instância, exposição dos segredos e permissões de workflows; nas duas rotas, somente S0 efetiva comandos comerciais.
 - Projeto de API OpenAI, chave, modelo habilitado, billing, limites e autorização de tratamento de dados devem ser verificados por responsável [R/V]. A assinatura ChatGPT não equivale ao faturamento da API.
 
 ## 6. Falhas, privacidade e segurança [D/P/R]
@@ -79,10 +81,10 @@ O backend S0, como única autoridade do ciclo, deverá revalidar versão, caso, 
 ## 7. Gates e aceite [P]
 
 - G0 documental: aprovar divisão de responsabilidade e versão candidata por revisão S0/Meta sem interromper PRs #1/#2.
-- G1 credencial humana: responsável decide organização/projeto OpenAI, cria chave apropriada, limita permissão/gasto e configura manualmente 'OPENAI_API_KEY' em Edge Function Secrets do Supabase da Prumo; comprovar SOMENTE metadados e presença do nome, nunca valor.
-- G2 técnica offline: fixtures sintéticas para request/response, incompatibilidade de versão, isolamento A/B, injeção, timeout, 401/429, JSON inválido, custo, stale version e handoff; sem custos.
-- G3 laboratório isolado: primeira chamada real apenas com aprovação explícita de custos e dados 100% sintéticos, sem banco comercial nem Meta.
-- G4 integração futura: revisão cruzada da autenticação S0, auditoria, contratos, consentimentos/transferência e operações; autorização separada antes de Supabase hospedado, dados pessoais ou produção.
+- G1 credencial humana: responsável decide organização/projeto OpenAI, cria chave apropriada, limita permissão/gasto e providencia seu armazenamento MANUAL no mecanismo secreto do caminho aprovado; se escolhido Supabase Edge Functions, usar Edge Function Secrets do projeto Prumo verificado. Comprovar SOMENTE metadados e presença do nome, nunca valor. **Não presumir que o segredo Supabase, sozinho, atende ao caminho n8n.**
+- G2 técnica offline: fixtures sintéticas para request/response, incompatibilidade de versão, isolamento A/B, injeção, timeout, 401/429, JSON inválido, custo, stale version e handoff; sem custos. Preparar os mesmos cenários para A (direto) e B (n8n) sem reescrever regras S0/Meta.
+- G3 laboratório isolado: primeira chamada real apenas com aprovação explícita de custos e dados 100% sintéticos, sem banco comercial nem Meta. Comparar, quando autorizado, sucesso, resposta tardia, latência, falhas, rastreabilidade, manutenção e custo de ambos os caminhos; não contratar n8n antes de demonstrar necessidade.
+- G4 integração futura: revisão cruzada da autenticação S0, auditoria, contratos, consentimentos/transferência e operações; decisão explícita da topologia mediante evidências; autorização separada antes de implantação, dados pessoais ou produção.
 
 **Situação ao criar v0.1:** apenas G0 proposto, NÃO aprovado; G1–G4 NÃO executados. Nenhum incremento no percentual de planejamento sem evidência conforme doc 19.
 
@@ -92,3 +94,6 @@ Normas do pacote auditado: 00A, 06, 13A, 21, 22, 23, 26, 33, 38, 40, 41. Estado 
 OpenAI API: https://developers.openai.com/api/reference/overview
 Projetos/chaves: https://help.openai.com/en/articles/9186755-managing-projects-in-the-api-platform
 Segredos Supabase: https://supabase.com/docs/guides/functions/secrets
+Edge Functions e chamadas a LLMs: https://supabase.com/docs/guides/functions
+Responses API: https://developers.openai.com/api/reference/resources/responses/methods/create
+Integração n8n OpenAI: https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-langchain.openai
