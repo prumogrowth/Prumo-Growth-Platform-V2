@@ -218,26 +218,26 @@ begin
  'a3300000-0000-4000-8000-000000000001',
  'a3310000-0000-4000-8000-000000000001',
  'a3320000-0000-4000-8000-000000000006');
- begin
-  perform prumo_private.aplicar_inbox_c02_s0(
+ r:=prumo_private.aplicar_inbox_c02_s0(
    'a3300000-0000-4000-8000-000000000001',
    'a3310000-0000-4000-8000-000000000001',
    v,'a3320000-0000-4000-8000-000000000006',(r->>'versao')::bigint);
-  raise exception 'FAIL WA33-04 accepted unresolved identity';
- exception when invalid_parameter_value then null;end;
+ if r->>'outcome'<>'QUARANTINED_IDENTITY' or r->>'motivo'<>'NEEDS_REVIEW'
+ then raise exception 'FAIL WA33-04 identity was not quarantined';end if;
  if exists(select 1 from public.mensagens where id_externo='wamid.WA33.REVIEW')
  or exists(select 1 from prumo_private.aplicacoes_c02_inbox_s0 where inbox_id=v)
- or exists(select 1 from prumo_private.pendencias_identidade_s0
-  where id_externo='wamid.WA33.REVIEW')
- then raise exception 'FAIL WA33-04 partial identity write';end if;
- r:=prumo_private.registrar_resultado_ingresso_s0(
- 'a3300000-0000-4000-8000-000000000001',
- 'a3310000-0000-4000-8000-000000000001',
- v,'a3320000-0000-4000-8000-000000000006',
- (r->>'versao')::bigint,'RESULTADO_INCERTO');
- if r->>'estado'<>'QUARANTINED' then raise exception 'FAIL WA33-04 quarantine';end if;
+ or (select count(*) from prumo_private.pendencias_identidade_s0
+     where concessionaria_id='a3300000-0000-4000-8000-000000000001'
+       and canal_id='a3310000-0000-4000-8000-000000000001'
+       and id_externo='wamid.WA33.REVIEW' and motivo='NEEDS_REVIEW')<>1
+ or (select count(*) from prumo_private.tarefas_ingresso_s0
+     where inbox_id=v and estado='QUARANTINED'
+       and motivo_terminal_s0='NEEDS_REVIEW')<>1
+ or (select count(*) from prumo_private.historico_tarefas_ingresso_s0
+     where inbox_id=v and acao='NEEDS_REVIEW')<>1
+ then raise exception 'FAIL WA33-04 identity reason not durable';end if;
 end $t$;
-\echo 'PASS WA33-04: conflito de identidade nao cria efeito falso; quarentena explicita'
+\echo 'PASS WA33-04: identidade ambigua preservada em pendencia e quarentena atomica'
 
 do $t$
 declare v uuid;
