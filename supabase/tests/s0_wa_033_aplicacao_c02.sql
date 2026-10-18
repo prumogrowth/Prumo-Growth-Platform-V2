@@ -155,7 +155,8 @@ begin
    v,w,(r->>'versao')::bigint);
   raise exception 'FAIL WA33-02 expected abort';
  exception when raise_exception then
-  null;
+  if SQLERRM is distinct from 'FIXTURE_ABORT_AFTER_C02'
+  then raise exception 'FAIL WA33-02 wrong injected exception: %',SQLERRM;end if;
  end;
  if exists(select 1 from public.mensagens where id_externo='wamid.WA33.ROLLBACK')
  or exists(select 1 from prumo_private.aplicacoes_c02_inbox_s0 where inbox_id=v)
