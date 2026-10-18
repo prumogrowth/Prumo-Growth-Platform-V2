@@ -95,7 +95,7 @@ function scopeData(c:S0HandoffCandidate):string {
     c.occurrences.map((e:S0HandoffOccurrence)=>[
       e.position.entry_index,e.position.change_index,e.position.array_kind,e.position.item_index,
       e.app_ref,e.concessionaria_id,e.canal_id,e.waba_id,e.phone_number_id,
-      e.event_kind,e.provider_message_id])]);
+      e.event_kind,e.provider_message_id,e.provider_timestamp,e.provider_kind])]);
 }
 const sameScope=(a:S0HandoffOccurrence,b:ReturnType<typeof resolveSignedMetaChannel>):boolean =>
   b.ok && b.scope.app_ref===a.app_ref && b.scope.concessionaria_id===a.concessionaria_id &&
