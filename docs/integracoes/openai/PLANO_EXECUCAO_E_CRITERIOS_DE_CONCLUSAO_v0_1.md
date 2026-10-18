@@ -45,6 +45,8 @@ O laboratório pode avançar com stub/mock de S0 enquanto PR #1 evolui. O acopla
 
 **Preparação adicional E02:** 16 casos sintéticos de revisão EX-01..16 documentados em E02_PACOTE_REVISAO_CASOS_FICTICIOS_CFI_CF02_v0_1.md, com resultados esperados, sem executar nenhum. EX-16 permanece BLOQUEADO por elegibilidade C09 S0 [R]; demais exemplos não substituem aprovação dos limites do gate. A documentação pode ser revisada antes de E04, mas não equivale a fixture programada ou critério aprovado.
 
+**Rubrica pré-E04 — nova proposta de revisão E02:** `E02_RUBRICA_DE_ACEITE_PRE_E04_CF_OP_02_v0_1.md` organiza critérios P0/P1, denominadores, gabaritos EX-01..16 e registro de evidências. Distingue **proposta documental**, teste de stub e avaliação com API real; não é aprovação do responsável, aceite S0 nem fixture executada. EX-16 e elegibilidade C09 continuam [R].
+
 **Sequência padrão:** E00 → E01 → E02 → E03 → E04 → E05 → E06 → E07 → E08. O desenvolvimento offline E04 pode ocorrer antes de E03 para não depender da chave. A integração real com a S0 nunca é pré-requisito para continuar os testes locais. Não marcar E05 concluído sem uma chamada real autorizada e verificada.
 
 ## Gates de autorização
