@@ -27,6 +27,8 @@ flowchart TD
   RISK --> GEST
   P --> AUTH[Backend S0: GoTrue verificado + sessao ativa]
   AUTH --> OP[Comandos sintéticos restritos: gestor/versao/loja]
+  AUTH --> GWAY[Papel NOLOGIN, wrappers C07/C08]
+  GWAY --> AUD[Auditoria de comandos aplicados sem dados sensiveis]
   OP --> GEST
   P --> ADM[Gestão e MCP com confirmação]
   P --> DB[Supabase: dados, RLS e auditoria]
