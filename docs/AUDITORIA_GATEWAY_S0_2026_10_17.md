@@ -51,3 +51,9 @@ O bloqueio **AUD-GW-04** registrado acima foi **parcialmente mitigado** pela mig
 **O risco não está encerrado para produção:** o runtime possui a senha SQL e a chave HMAC. Comprometimento de ambos, exfiltração do material da chave ou ataque ao proprietário privilegiado `postgres` podem contornar essa defesa. Também faltam armazenamento e rotação de chaves, observabilidade segura de negativas e recuperação. Assim, AUD-GW-04 permanece **bloqueio para produção**, mas a variante específica de **senha SQL isolada com par ator/sessão conhecido** passa a estar mitigada nos cenários S0 testados. A migration 025 não foi aplicada no projeto Supabase hospedado.
 
 Guia: `docs/GATEWAY_PROVA_DUPLA_S0_2026_10_18.md`.
+
+## Atualização adicional — ciclo de vida de chaves e negativas (17/10/2026)
+
+A migration **026** e o módulo `backend/security_events.py` ampliaram os controles de S0: nova chave precisa ser registrada inativa, ativada por versão/justificativa, pode coexistir temporariamente com a anterior e, uma vez revogada, nunca é reativada. Identificadores anti-replay são limpos somente após dez minutos, com registro da quantidade excluída. O backend permite categorizar negativas sem JWT, IDs ou texto do cliente, mas o logger ainda depende de coletor externo protegido.
+
+Evidências: [PostgreSQL #39084739387 — PASS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39084739387) (KEY-01..05 e 24 testes unitários) e [Auth/REST local #39084803545 — PASS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39084803545) (AUTH-01..14). Esses testes **não encerram** os riscos de SEGREDO SQL + HMAC simultaneamente comprometidos, `SECURITY DEFINER` dono `postgres`, ausência de cofre de segredos, coleta durável de negativas, recuperação/restore e retenção LGPD. **NO-GO para produção/merge/deploy remoto permanece.**
