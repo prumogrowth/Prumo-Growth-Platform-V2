@@ -88,3 +88,12 @@ Testes: **24/24 REC PASS** e **88/88 PASS** com regressões WA-02A/B/C locais; T
 Foram acrescentados `cross-contract.test.ts` (14 testes entre HMAC/parser → guarda hipotética de ACK → fake Graph → fake callbacks) e `scope-isolation.test.ts` (3 regressões adversariais). Um defeito do **laboratório** foi corrigido em `technical-reconciliation.ts`: agora consultas a projeções e pedidos `ALREADY_LINKED` precisam manter **concessionária e canal originais**, além de App/WABA/Phone/recipient. Antes da correção, os três testes de isolamento falhavam; depois, **105/105 testes PASS** com as 88 regressões anteriores. TypeScript estrito dos seis módulos PASS, sem CI remoto ou typecheck integral dos testes.
 
 O identificador **interno de ocorrência** de callback deve ser criado/guardado pelo ingresso durável S0, não derivado de `statuses[].id` ou de `status+timestamp`. O `occurrence_ref` dos ensaios é só um exemplo gerado em memória; não prova persistência ou idempotência real. Ver `docs/integracoes/whatsapp-meta/wa03a-auditoria-integrada-e-ocorrencias-v0_1.md`. **Nenhum módulo de laboratório emite ACK real ou envia mensagens.**
+
+
+## WA-03B — auditoria complementar e reparos em módulos anteriores
+
+Revisados WA-01A/B/C/D e contratos residuais da WA-02C/D. Cinco falhas adversariais reproduzidas e corrigidas: posições `messages[0]`/`statuses[0]` ambíguas (agora `position.array_kind`), buffer HMAC mutável antes do parse (agora snapshot), recibo com `outcome` não textual aceito, projeção sem `intent_id` exato e falsa duplicata com `correlation_id` diferente. Nenhum destes reparos implementa autorização ou persistência operacional.
+
+Testes locais **120/120 PASS**, TypeScript estrito dos oito módulos **PASS**. Somam 105 testes anteriores de integração/saída e 15 adversariais novos, `preaudit-gaps.test.ts` e `wa01-audit.test.ts`. Os quatro arquivos de testes unitários originais WA-01 não foram reexecutados nesta rodada e os testes Node não foram integralmente typechecked; sem CI remoto. Blobs reparados e testes novos conferidos no GitHub.
+
+Relatório: `docs/integracoes/whatsapp-meta/wa03b-auditoria-pendencias-e-reparos-v0_1.md`. Para C07 real: `position.array_kind` por evento, mais `ingestion_batch_ref`/`occurrence_ref` e payload protegido conferidos pelo ingresso S0. Não conectar a uma operação Meta, Graph, webhook ou Supabase hospedado sem gates.
