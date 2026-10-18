@@ -31,7 +31,8 @@ Preparar o acesso da plataforma técnica Prumo à API da OpenAI: entendimento de
 18. **AUDITORIA_POS_SANEAMENTO_CF_OP_02_2026_10_18.md** — controle dos 8 achados, correções documentais verificáveis e pendências de aceite S0/Meta.
 19. **E02_PACOTE_REVISAO_CASOS_FICTICIOS_CFI_CF02_v0_1.md** — 16 exemplos sintéticos de entrada/saída F03, F02 pós-humana, três relógios e C09, aguardando homologação da assinatura e elegibilidade; zero testes implementados.
 20. **E02_RUBRICA_DE_ACEITE_PRE_E04_CF_OP_02_v0_1.md** — rubrica candidata de avaliação pré-E04, separando revisão textual, ensaio stub e API real, com P0/P1, métricas, fonte e bloqueios [P/R]. Nenhum teste executado.
-21. **PLANO_EXECUCAO_E_CRITERIOS_DE_CONCLUSAO_v0_1.md** — roteiro E00–E08: somente E00 concluído; E01/E02 em revisão, E03 preparado documentalmente, E04–E08 não iniciados.
+21. **E02_GABARITO_DOCUMENTAL_SYN_01_32_v0_1.md** — desenvolvimento documental dos 32 casos SYN com estímulos e expectativas fictícias, sem schema/fixture física ou teste executado [P/R].
+22. **PLANO_EXECUCAO_E_CRITERIOS_DE_CONCLUSAO_v0_1.md** — roteiro E00–E08: somente E00 concluído; E01/E02 em revisão, E03 preparado documentalmente, E04–E08 não iniciados.
 
 ## Princípios de precedência
 
