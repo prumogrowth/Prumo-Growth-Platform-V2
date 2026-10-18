@@ -79,3 +79,7 @@ Foi localizado o novo contrato [FV-03 — janela e cadeias contextuais](docs/09_
 ## FV-UI-005 — Verificação de interação (18/10/2026)
 
 Foram criados ensaios DOM de navegação e funções (desktop/mobile) independentes de APIs, com correção de atalho de teclado em diálogo modal. **36 testes sintéticos executados PASS no harness V8** (24 de regras + 12 de interação). Execução Node direta e Chromium pós-FV-03 permanecem pendentes. [Relatório e limites](docs/14_TESTES_INTERACAO_FV_UI_005_2026_10_18.md). Não alterar progresso 19F, não declarar GO de produção.
+
+## FV-UI-006 — Integridade de estado e callbacks (18/10/2026)
+
+Atualização em `frontend/visual/`: conclusão solicitada não é conclusão confirmada; projeções de conclusão ausentes não são interpretadas como sucesso; mensagens/notas e diálogos antigos deixam de produzir efeitos ao trocar de caso, loja ou ator. **48 verificações sintéticas aprovadas no harness V8** (25 regras, 17 interações DOM, 6 inspeções de fonte), com [auditoria e limites](docs/15_AUDITORIA_FV_UI_006_FIDELIDADE_E_CONCORRENCIA_2026_10_18.md). Ainda pendem execução Node nativa e Playwright real, além de revisões externas. Sem alteração do progresso 19F.
