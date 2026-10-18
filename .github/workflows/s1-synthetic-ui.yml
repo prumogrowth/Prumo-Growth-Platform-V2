@@ -4,12 +4,6 @@ on:
     paths:
       - 'frontend/s1/**'
       - '.github/workflows/s1-synthetic-ui.yml'
-  push:
-    branches:
-      - 'feat/s0-fundacao-prumo'
-    paths:
-      - 'frontend/s1/**'
-      - '.github/workflows/s1-synthetic-ui.yml'
   workflow_dispatch:
 permissions:
   contents: read
@@ -30,8 +24,9 @@ jobs:
           node --check frontend/s1/domain.mjs
           node --check frontend/s1/app.mjs
           node --check frontend/s1/tests/domain.test.mjs
+          node --check frontend/s1/tests/app.smoke.test.mjs
       - name: Testar regras humanas e isolamento A/B
-        run: node --test frontend/s1/tests/domain.test.mjs
+        run: node --test frontend/s1/tests/*.test.mjs
       - name: Verificar estrutura dos arquivos de visualização
         run: |
           test -s frontend/s1/index.html

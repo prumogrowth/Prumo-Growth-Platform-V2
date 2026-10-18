@@ -17,7 +17,7 @@ Abra `http://127.0.0.1:4173` no seu navegador. **Não publicar esse servidor na 
 ```bash
 node --check frontend/s1/domain.mjs
 node --check frontend/s1/app.mjs
-node --test frontend/s1/tests/domain.test.mjs
+node --test frontend/s1/tests/*.test.mjs
 ```
 
 Node 22 recomendado. O workflow `.github/workflows/s1-synthetic-ui.yml` executa a mesma suíte em CI quando os arquivos da S1 mudam.

@@ -6,7 +6,7 @@
 
 Sair de uma fundação S0 predominantemente SQL e auditoria para uma **primeira interface navegável** em que seja possível acompanhar a jornada de um lead fictício desde a importação/primeiro disparo simulado até o atendimento humano, uma remessa bancária simulada e o registro manual de encerramento. Isso **não inicia** integrações Meta, Banco, OpenAI ou Supabase hospedado; também não transforma S0 em produção. A S1-001 é o primeiro incremento visual, não a entrega total da fase S1.
 
-Arquivos implementados: `frontend/s1/index.html`, `styles.css`, `app.mjs`, `domain.mjs`, `tests/domain.test.mjs`, `README.md`; workflow isolado `.github/workflows/s1-synthetic-ui.yml`. Sem bibliotecas, pacotes, credenciais ou execução de API remota. O modelo de estado permanece em **memória de página**; atualizar ou restaurar desfaz a demonstração.
+Arquivos implementados: `frontend/s1/index.html`, `styles.css`, `app.mjs`, `domain.mjs`, `tests/domain.test.mjs`, `tests/app.smoke.test.mjs`, `README.md`; workflow isolado `.github/workflows/s1-synthetic-ui.yml`. Sem bibliotecas, pacotes, credenciais ou execução de API remota. O modelo de estado permanece em **memória de página**; atualizar ou restaurar desfaz a demonstração.
 
 ## Jornada do demonstrador
 
@@ -39,10 +39,13 @@ A demonstração não coleta CPF, documentos, valor financiado, provas bancária
 
 ## Portões de aceite
 
-**Automação S1:** `node --check` nos módulos, `node --test frontend/s1/tests/domain.test.mjs` (18 cenários) e verificações de arquivos HTML/CSS no workflow específico S1. Cobertura: exatos oito status, telefone repetido A/B, isolamento por loja, operador designado, atribuição e suspensão da IA, transições de status, evidência manual de venda, perda, prevenção de replay por versão, notas, re-atribuição e ausência de rede/armazenamento persistente.
+**Automação S1:** `node --check` nos módulos, `node --test frontend/s1/tests/domain.test.mjs` (24 cenários (18 de domínio e 6 smoke tests de montagem da interface)) e verificações de arquivos HTML/CSS no workflow específico S1. Cobertura: exatos oito status, telefone repetido A/B, isolamento por loja, operador designado, atribuição e suspensão da IA, transições de status, evidência manual de venda, perda, prevenção de replay por versão, notas, re-atribuição e ausência de rede/armazenamento persistente.
 
 **Antes de chamar de S1 integrada:** autenticação GoTrue, backend com auditoria persistente, integração de atribuição real com `casos_humanos` e `atribuicoes_humanas`, permissões D2 versus D3/D4, jornada de cadastro conforme normas 00A/13A/21–23/41, testes de acessibilidade e aplicação visual conectada em ambiente *local* de homologação. Isso exigirá revisão explícita de segurança e decisões de produto. A S1-001 não publica interface como portal real.
 
 **Ambiente:** PRs #1/#2 Draft, sem merge; sem migrations hospedadas, RPC pública, recursos pagos, Meta/Graph/Banco real, frontend em domínio público ou produção. DEC-WA-04/06 e identidade de ocorrência do C07 continuam pendentes.
 
 **Evidência definitiva:** preencher apenas após inspecionar o workflow S1 relativo ao SHA do código testado; até então este documento é especificação de protótipo.
+
+
+**Verificação visual adicional:** os seis smoke tests de interface usam DOM fictício em Node para conferir referências de IDs, montagem inicial, seleção de operador, troca de loja, filtro vazio e reset. Isso **não substitui testes de navegador, mobile, leitores de tela ou auditoria UX**. O workflow é acionado por PR e execução manual, evitando duas rodadas iguais de push + PR na mesma revisão.
