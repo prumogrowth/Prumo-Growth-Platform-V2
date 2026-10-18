@@ -60,3 +60,7 @@ A versão **navegável e independente da lógica S0**, com composição inspirad
 **Estado desta etapa:** código visual sintético [P], navegação e estilos elaborados; **sem integração** com S0, Supabase, OpenAI, Meta ou Banco. Usuários e informações exibidas são inteiramente artificiais; filtros JavaScript não são autenticação real. A nova direção exclui preenchimento cadastral manual habitual. O botão de conclusão e a extração retornam apenas sinais artificiais no navegador.
 
 [Diretriz e evidências FV-UI-001](./docs/09_DIRETRIZ_VISUAL_MENSAGERIA_RESPONSIVA_v0_1.md). A frente S0 abriu também `feat/s1-002-equipe-prumo`, que permanece separada; **não copiar nem editar seu diretório `frontend/s1/`**. A aprovação visual do responsável e a auditoria interfrentes do [issue #4](https://github.com/prumogrowth/Prumo-Growth---Platform/issues/4) seguem pendentes. Sem merge ou mudança automática na pontuação de planejamento 19F.
+
+## FV-UI-002 — Evolução sem dependências externas
+
+Continuação realizada na pasta [`frontend/visual/`](visual/README.md): indicadores de fila e filtros, visão sintética de equipe para gestor, abas de caso com histórico e notas internas, modelos de erro/pendência/versão para extração pós-humana e navegação desktop/mobile. **12 testes Node PASS**, mais ensaio Chromium sintético nos quatro tamanhos; ver [auditoria](docs/10_AUDITORIA_FRONTEND_FV_UI_002_2026_10_18.md). Só a branch frontend foi modificada. O responsável poderá avaliar a experiência visual quando estiver madura, sem antecipar homologação funcional das integrações.
