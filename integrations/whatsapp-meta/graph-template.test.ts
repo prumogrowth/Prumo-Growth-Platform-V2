@@ -197,7 +197,7 @@ test('WA-TPL-22: component counts, duplicates and unsupported keys reject', () =
     { type: 'BODY', format: 'TEXT', parameter_count: 2 },
   ] }), 'UNSUPPORTED_COMPONENTS');
   code(() => run(intent, { ...catalog, components: [
-    { type: 'BODY', format: 'TEXT', parameter_count: 2, required_buttons: 1 },
+    { type: 'BODY', format: 'TEXT', parameter_count: 2, required_buttons: 1 } as unknown as TrustedTemplateSnapshot['components'][number],
   ] }), 'UNSUPPORTED_COMPONENTS');
 });
 test('WA-TPL-23: static text footer is representable without extra outbound data', () => {
