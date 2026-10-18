@@ -10,7 +10,7 @@ O termo **segredo**, neste projeto, refere-se a material que deve ficar confiden
 
 ## Mudança incremental 027
 
-- Cria `prumo_s0_signer` como papel PostgreSQL **NOLOGIN/NOINHERIT**, sem `SUPERUSER`, `CREATEROLE`, `CREATEDB`, replicação ou `BYPASSRLS`; recusa migração se existir esse papel com permissões mais amplas ou com membros.
+- Cria `prumo_s0_signer` como papel PostgreSQL **NOLOGIN/NOINHERIT**, sem `SUPERUSER`, `CREATEROLE`, `CREATEDB`, replicação ou `BYPASSRLS`; recusa migração se o papel tiver privilégios mais amplos ou for concedido a membros não administrativos. Associações administrativas internas a `postgres`/`supabase_admin`, quando criadas pelo Supabase, são permitidas; não representam acesso de usuários comuns.
 - Altera **somente** o proprietário de `prumo_private.gateway_validar_prova_s0` para esse papel. Mantém `SECURITY DEFINER` e `search_path=''`, no esquema privado sem RPC externa.
 - Concede apenas leitura das colunas estritamente necessárias da tabela de chaves HMAC, inserção do nonce e leitura do nonce retornado, USAGE do esquema privado e acesso à função HMAC do `pgcrypto`. **Não concede UPDATE do material secreto, leitura de leads, sessão de usuário ou execução das wrappers comerciais**.
 - `FOR SHARE` exigiria privilégio SQL de UPDATE até mesmo num SELECT. Para manter o verificador incapaz de atualizar a chave, a validação e a função administrativa de ativação/revogação obtêm o mesmo **advisory lock transacional** derivado da chave antes de ler/modificar o estado. O lock só cobre caminhos oficiais da aplicação; alterações diretas feitas por superusuários não respeitam obrigatoriamente esse protocolo.
@@ -24,3 +24,7 @@ O termo **segredo**, neste projeto, refere-se a material que deve ficar confiden
 As regressões existentes `GW-01..07`, `KEY-01..05`, `AUTH-01..14`, idempotência/concorrência e o teste unitário Python precisam continuar passando.
 
 **Gate:** GO exclusivamente para desenvolvimento local sintético após regressão; **NO-GO** para merge, produção, dados reais, credencial operacional, Meta, Banco, OpenAI ou aplicação da migration no Supabase hospedado. O relatório de aceite deve distinguir validação PostgreSQL da suíte GoTrue/REST, caso esta última não seja reexecutada.
+
+## Evidência PostgreSQL
+
+[GitHub Actions PostgreSQL 17 #39086116542 — PASS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39086116542): OWNER-01..03, GW-01..07, KEY-01..05, 24 testes unitários e regressões anteriores. Inclui bloqueio de papel não administrativo e assinatura com proprietário restrito. A primeira tentativa Auth/REST revelou uma associação administrativa padrão do Supabase não prevista; a política foi ajustada para permitir somente administradores `postgres`/`supabase_admin`, preservando as negativas para outros membros. O aceite GoTrue/REST da versão ajustada deve ser registrado separadamente.
