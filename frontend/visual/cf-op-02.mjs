@@ -83,6 +83,17 @@ const SCENARIOS = Object.freeze([
     status:'em atendimento pelo operador', unread:0, updatedAt:'10:50', tag:'Etapa humana concluída',
     inboxProjection:'active', metaWindowProjection:'open', humanCompletionProjection:'completed',
     allowedActionsProjection:[],
+    registrationProjection:{
+      state:'partial',confirmedPersisted:true,formVersionRef:'v1-ficticia',
+      fields:[
+        {key:'demonst_a',label:'Informação demonstrativa A',safeDisplayValue:'Valor fictício confirmado',
+         sourceRef:'a108-1',sourceLabel:'Mensagem ilustrativa do cliente',validationState:'applied'},
+        {key:'demonst_c',label:'Informação demonstrativa C',safeDisplayValue:'Somente proposta',
+         sourceRef:'a108-1',sourceLabel:'Trecho ilustrativo',validationState:'proposed'}
+      ],
+      missing:['Informação demonstrativa B — ausente na conversa'],
+      conflicts:['Informação demonstrativa D — fontes fictícias conflitantes']
+    },
     messages:[{id:'a108-1',side:'in',body:'Obrigado pelo atendimento. Vou analisar.',time:'10:50'}] },
   { id:'A-109', shopId:'aurora', name:'Cliente Exemplo 10', initials:'CE', assignedTo:'rafael',
     status:'em atendimento pelo operador', unread:0, updatedAt:'Ontem', tag:'Histórico preservado',
