@@ -19,7 +19,7 @@ export function projectedMetaWindow(record) {
 }
 
 export function humanCompletion(record, simulatedCompletion = false) {
-  return simulatedCompletion ? 'completed_demo' : (record?.humanCompletionProjection ?? 'unknown');
+  return simulatedCompletion ? 'requested_demo' : (record?.humanCompletionProjection ?? 'unknown');
 }
 
 function currentlyAssigned(record, actorId, shopId) {
