@@ -8,7 +8,7 @@ const inbound: MetaIngressEvent = {
   waba_id: 'fixture_waba_A', phone_number_id: 'fixture_sender_A',
   provider_message_id: 'wamid.FIXTURE-1', provider_timestamp: '2026-10-17T00:00:00Z',
   participant_identifier: '5581900000000', provider_kind: 'text',
-  position: { entry_index: 0, change_index: 0, item_index: 0 },
+  position: { entry_index: 0, change_index: 0, array_kind: 'messages', item_index: 0 },
 };
 const status: MetaIngressEvent = {
   ...inbound, event_kind: 'status_callback', provider_kind: 'delivered',
@@ -20,7 +20,7 @@ test('WA-KEY-01: same message replay with 8↔9 variant has same candidate key',
   assert.equal(await key(inbound), await key({
     ...inbound, participant_identifier: '558100000000',
     provider_timestamp: '2026-10-18T00:00:00Z',
-    position: { entry_index: 2, change_index: 3, item_index: 4 },
+    position: { entry_index: 2, change_index: 3, array_kind: 'messages', item_index: 4 },
   }));
 });
 test('WA-KEY-02: two message IDs remain distinct even with equal text/phone', async () => {
