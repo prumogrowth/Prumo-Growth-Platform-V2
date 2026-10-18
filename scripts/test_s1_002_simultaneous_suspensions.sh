@@ -144,7 +144,8 @@ psql -X -qAt -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" >"$work/idempotent" <
 do $t$ declare r jsonb;begin
  r:=prumo_private.s1_reconciliar_elegibilidade_vencida(100);
  if (r->>'cases_reassigned_or_closed')::integer<>0
- or (select count(*) from prumo_private.s1_remanejamento_historico)<>4
+ or (select count(*) from prumo_private.s1_remanejamento_historico
+  where caso_id::text like '95020000-%')<>4
  then raise exception 'S1D-05 duplicacao em reconciliação %',r;end if;
 end $t$;
 SQL
