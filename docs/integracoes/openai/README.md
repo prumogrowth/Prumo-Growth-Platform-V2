@@ -17,13 +17,15 @@ Preparar o acesso da plataforma técnica Prumo à API da OpenAI: entendimento de
 4. **avaliacao-transporte-openai-direto-ou-n8n-v0_1.md** — decisão de topologia EM ABERTO [R], caminhos A/B, teste comparativo e critérios de escolha.
 5. **AUDITORIA_CONTRATO_OAI_2026_10_18.md** — resultados da auditoria e pendências separadas de evidências executadas.
 6. **PLANO_EXECUCAO_E_CRITERIOS_DE_CONCLUSAO_v0_1.md** — roteiro fechado E00–E08, responsáveis, gates, evidências de conclusão e limite da entrega laboratorial [P].
+7. **OAI_05_CONTRATO_EXTRAÇÃO_PÓS_ATENDIMENTO_HUMANO_v0_1.md** — cadastro extraído após conversa humana concluída, com fontes e validação S0; interface [P/R].
+8. **OAI_06_VOZ_AUDIO_E_MODELOS_v0_1.md** — áudio recebido/enviado, STT/TTS, modelos por tarefa e critérios de comparação [P/R/V].
 
 ## Princípios de precedência
 
 - A plataforma ainda NÃO tem marca comercial aprovada; LiberaCred é o produta instituição financeira.
 - As normas vigentes são 00A, 13A, 21–23 e 41, com apoio dos docs 06/26/33/38/40. Propostas [P], pendências [R] e validações [V] não são decisões [D].
 - Exatamente oito estados comerciais; nenhuma saída da OpenAI modifica estado automaticamente.
-- IA Vendedora e IA Planejadora estão no escopo; **IA Analista autônoma está EXCLUÍDA**; ChatGPT/MCP administrativo é fluxo independente sob normas próprias.
+- IA Vendedora e IA Planejadora estão no escopo; há ainda extrator pós-atendimento humano SILENCIOSO (nova orientação funcional, interface P/R) e capacidade futura de áudio/voz; **IA Analista autônoma está EXCLUÍDA**; ChatGPT/MCP administrativo é fluxo independente sob normas próprias.
 - Concessionárias não compartilham contexto de cliente, histórico ou resultado. Handoff humano encerra definitivamente a IA Vendedora do caso.
 - Somente o núcleo decide elegibilidade, permissões, persistência, status, handoff e intenção de envio; somente a frente Meta responde por transporte/callbacks WhatsApp.
 
