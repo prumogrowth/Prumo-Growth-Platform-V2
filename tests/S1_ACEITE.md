@@ -23,3 +23,8 @@
 ## D-ORG-01 — governança organizacional do demonstrador
 
 **Alinhamento organizacional D-ORG-01 (18/10/2026):** gestores e operadores são profissionais **da Prumo**, inclusive quando dedicados exclusivamente a uma concessionária. Loja é escopo de atendimento, não vínculo empregatício. Uma pessoa pode ter múltiplas lojas por concessão explícita; gestor pode autoatribuir caso segundo D41-04. Ver `docs/D_ORG_01_EQUIPE_PRUMO_2026_10_18.md`. A demo ainda não implementa múltiplas concessões por usuário nem gestor atuando como operador autoatribuído, funcionalidades aprovadas/necessárias para futura S1-002. Não interpretar os perfis exclusivos dos testes como funcionários das lojas. Validar o próximo commit S1 antes de acrescentar números de aceite.
+
+
+## AUD-ORG-01 — equipe Prumo e escopo de concessionária (18/10/2026)
+
+[GitHub Actions S1 #39136909717 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39136909717), SHA `806d6465c1ec28c64cc67cc5154977a49b48f538`: **28 testes PASS, 0 FAIL**, incluindo `AUD-ORG-01` para os cinco atores fictícios de `frontend/s1/domain.mjs`. Cada um tem `organizationId: "prumo"`; `shopId` representa apenas **escopo de concessionária selecionado na demonstração**, nunca vínculo profissional com a loja. UI atualizada para exibir “Gestor/Operador da Prumo · escopo [concessionária]”. Ver norma [D-ORG-01](../docs/D_ORG_01_EQUIPE_PRUMO_2026_10_18.md) e [auditoria documental](../docs/AUDITORIA_EQUIPE_PRUMO_DOCUMENTAL_2026_10_18.md). S1-002 ainda necessita autorizações multi-loja e gestor autoatribuído D41-04, com autenticação/RLS persistentes. **Sem novos grants, migration, merge ou produção.**

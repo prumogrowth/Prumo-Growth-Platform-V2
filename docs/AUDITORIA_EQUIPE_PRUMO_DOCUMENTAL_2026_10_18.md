@@ -10,4 +10,8 @@
 
 **Acervo revisado:** cópia preservadora do ZIP histórico, com 13 emendas datadas e nova norma, fornecida separadamente ao responsável; não substitui contratos ou aprovações externas. Esta auditoria não instala migrations, não mescla PR, não altera Supabase hospedado nem conecta Meta/Banco.
 
-**Critério de fechamento:** conferir CI S1 para regressão de organização e atualizar este registro com o commit efetivo. Documentação histórica tem precedência somente quando não conflitar com D-ORG-01.
+## Fechamento validado — D-ORG-01
+
+**Commit de código testado:** `806d6465c1ec28c64cc67cc5154977a49b48f538`. [**GitHub Actions S1 #39136909717 — SUCCESS**](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39136909717), **28 testes PASS, 0 FAIL**, incluindo `AUD-ORG-01`: os cinco atores fictícios da S1 declaram `organizationId: "prumo"` e permanecem associados a concessionárias **somente por escopo da demonstração**. Nenhum acesso adicional concedido, nenhum token, dado real ou recurso de produção.
+
+**Resultado:** documentação ativa e fixture S1 padronizadas. A S1-002 continua obrigada a implementar equipe Prumo multi-escopo, atribuições por caso e autoatribuição gerencial D41-04; a S1-001 **não** passa a oferecer essas funcionalidades apenas por esta correção. PR #1/#2 Draft, sem merge nem migrações hospedadas.
