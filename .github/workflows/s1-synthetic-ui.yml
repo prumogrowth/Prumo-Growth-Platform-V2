@@ -1,0 +1,40 @@
+name: S1 · Jornada humana sintética
+on:
+  pull_request:
+    paths:
+      - 'frontend/s1/**'
+      - '.github/workflows/s1-synthetic-ui.yml'
+  push:
+    branches:
+      - 'feat/s0-fundacao-prumo'
+    paths:
+      - 'frontend/s1/**'
+      - '.github/workflows/s1-synthetic-ui.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: s1-ui-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  s1-synthetic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verificar JavaScript, sem instalar dependências
+        run: |
+          node --check frontend/s1/domain.mjs
+          node --check frontend/s1/app.mjs
+          node --check frontend/s1/tests/domain.test.mjs
+      - name: Testar regras humanas e isolamento A/B
+        run: node --test frontend/s1/tests/domain.test.mjs
+      - name: Verificar estrutura dos arquivos de visualização
+        run: |
+          test -s frontend/s1/index.html
+          test -s frontend/s1/styles.css
+          test -s frontend/s1/README.md
+          grep -q 'type="module" src="./app.mjs"' frontend/s1/index.html

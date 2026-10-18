@@ -33,6 +33,10 @@ flowchart TD
   GWAY --> NONCE[Nonce unico, limpeza conservadora]
   AUTH --> NEG[Negativas sanitizadas sem token ou PII]
   OP --> GEST
+  P --> S1["S1-001: central visual sintética para gestor e operador [P]"]
+  S1 --> S1CASE["Fila por loja, caso atribuído e trilha local"]
+  S1 --> S1HUMAN["Handoff humano suspende IA automática"]
+  S1 --> S1BANK["Remessa e resultado bancários: somente simulação"]
   P --> ADM[Gestão e MCP com confirmação]
   P --> DB[Supabase: dados, RLS e auditoria]
   P --> INT[Integrações futuras]
@@ -149,3 +153,14 @@ flowchart TD
 **WA-05B (18/10/2026):** a frente Meta publicou um laboratório de recuperação/reentrega com batch/ref escopado, status de commit fictício desconhecido, recuperação de trabalho e leases internos, preservando callbacks diferentes mesmo com mesmo `wamid`. **294/294 testes sintéticos locais PASS** e TypeScript estrito PASS (14 módulos, 19 suítes). **Não há recuperação de banco real**, ACK ou exatamente-uma-vez externo; cofre, commit durável, efeitos C02/C07 e política DEC-WA-06 permanecem [R S0]. O **primeiro diagrama** já possui `Inbox durável antes do ACK`; manter sem nós extras para detalhes de worker. [Relatório WA-05B](https://github.com/prumogrowth/Prumo-Growth---Platform/blob/docs/whatsapp-meta-concessionária de demonstração-poc-20261017/docs/integracoes/whatsapp-meta/wa05b-recuperacao-ingressos-sem-token-v0_1.md).
 
 **Auditoria incremental WA-05B (18/10/2026):** dois testes adversariais adicionais detectaram e corrigiram filtro excessivo do `wamid` (padding `=`) e exceção com fixture não clonável; **294/294 testes locais PASS** em 19 arquivos/14 módulos e TypeScript estrito PASS. Os testes reais Meta, o token e a persistência/ACK durável S0 **seguem bloqueados**. O primeiro diagrama já contém o nó da inbox; nenhuma nova ramificação arquitetural é necessária.
+
+
+## S1 — primeira jornada operacional visual (18/10/2026)
+
+**S1-001 — Central de operações local (primeiro incremento, em validação):** novos arquivos `frontend/s1/index.html`, `styles.css`, `app.mjs`, `domain.mjs`, `tests/domain.test.mjs`, `README.md` e workflow `.github/workflows/s1-synthetic-ui.yml`. Jornada de demonstração em memória: gestor vê loja própria, operador vê apenas caso atribuído, gestor atribui caso a operador da mesma loja, IA fica suspensa após transferência humana, ações C01/C02/primeiro disparo/IA/banco são explicitamente **simuladas**. Notas e histórico de evento têm autor e versão. Mesmos telefones fictícios podem existir em lojas diferentes sem misturar registros; **exatamente oito estados comerciais**. Não há API, sessão real, D3/D4 bancários, rede, Graph, segredo ou persistência.
+
+- [Código da interface S1](https://github.com/prumogrowth/Prumo-Growth---Platform/tree/feat/s0-fundacao-prumo/frontend/s1)
+- [Especificação de produto e gates S1-001](https://github.com/prumogrowth/Prumo-Growth---Platform/blob/feat/s0-fundacao-prumo/docs/S1_001_JORNADA_HUMANA_VISUAL_2026_10_18.md)
+- **[P] Aceite de CI:** não promover a entrega a testada até workflow S1 no SHA correspondente passar. **[R]** GoTrue, RLS real, auditoria, atribuição persistente, transações bancárias e privilégio mínimo comercial continuam bloqueios de produto.
+
+S1-001 é um protótipo visual de uso local, não conclusão da S1, não substitui as normas comerciais nem autoriza produção/merge. O `MAPA_MENTAL.md` deve permanecer sincronizado com os resultados do CI e com a frente Meta, sem inflar a porcentagem de desenvolvimento por uma demo.

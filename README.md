@@ -44,3 +44,8 @@ S0: gestores autenticados leem dados somente das lojas vinculadas; operadores le
 Teste futuro: crie um banco local descartável `prumo_s0_test_*`, exporte `PRUMO_TEST_DATABASE_URL` e rode `./scripts/run-s0-local.sh`. **Não apontar para Supabase remoto.**
 
 Migrações versionadas 001–006 e 008–027 (007 indevida retirada antes de deploy) não estão implantadas no Supabase. Suíte SQL e teste concorrente executados em CI; veja `tests/S0_ACEITE.md`. Não gravar segredos nem dados pessoais reais no repositório.
+
+
+## S1 — primeira jornada visual sintética
+
+A demonstração local da **Central de operações** está em `frontend/s1/`. Abra `frontend/s1/README.md` para servir em `http://127.0.0.1:4173` e executar testes Node 22, sem API externa, dados reais, autenticação ou persistência. O protótipo cobre visão de gestor por loja, operador apenas em caso designado, handoff humano com IA suspensa, notas, histórico, oito estados comerciais e remessa bancária estritamente fictícia. Para gates e limites, veja `docs/S1_001_JORNADA_HUMANA_VISUAL_2026_10_18.md` e `docs/MAPA_MENTAL.md`. **Não é uma interface de produção.**
