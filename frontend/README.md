@@ -50,3 +50,5 @@ A partir da decisão funcional mais recente, **operadores não preenchem rotinei
 - [MAT-CFI-01 — 36 cenários de aceite contratual](docs/08_MATRIZ_ACEITE_CONTRATUAL_FV_S0_OAI_v0_1.md): **especificados, não executados**.
 
 A OpenAI padronizou o nome candidato `human_close_extract` nos documentos OAI-05/E01. **Ainda há divergências nas estruturas de request/response**, cuja resolução pertence às frentes S0 e OpenAI. A operação browser→S0 permanece sem nome físico; o navegador **nunca** envia diretamente à OpenAI. Nenhuma revisão por proprietários S0/OpenAI, teste integrado ou deploy foi concluído nesta frente.
+
+**Rastreamento de revisão cruzada:** [GitHub issue #4 — CFI-01](https://github.com/prumogrowth/Prumo-Growth---Platform/issues/4), ABERTO, ainda sem validação dos proprietários das frentes S0 e OpenAI.
