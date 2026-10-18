@@ -40,9 +40,9 @@ Foram revisados os contratos reais versionados nas duas branches:
 
 Teste local Node.js **v22.16.0**, TypeScript **5.8.3**:
 
-- \`node --experimental-strip-types --test *.test.ts\` → **350/350 PASS** em **22 arquivos de teste**: 330 testes anteriores da frente Meta e **20 novos GATE-01..20**.
+- \`node --experimental-strip-types --test *.test.ts\` → **352/352 PASS** em **22 arquivos de teste**: 330 testes anteriores da frente Meta e **22 novos GATE-01..22**.
 - \`tsc --noEmit --strict --target es2022 --module nodenext --moduleResolution nodenext --allowImportingTsExtensions --skipLibCheck --esModuleInterop --types node *.ts\` → **PASS** nos 16 módulos e 22 arquivos de testes, utilizando definições Node locais.
-- Hashes confirmados como idênticos entre GitHub e arquivos executados: \`s0-ingress-gateway.ts\` \`cfd5952e61444c8d940273ac02d771ba9afa7701\`; \`s0-ingress-gateway.test.ts\` \`ddcc09ad43c72cd6c671f4fc19610b37bbd44bb7\`.
+- Hashes confirmados como idênticos entre GitHub e arquivos executados: \`s0-ingress-gateway.ts\` \`df8382ff49a4fbc61355e64a41f71d6d2b093d93\`; \`s0-ingress-gateway.test.ts\` \`a5c2c21cbf8bb0db7a35e169bee93a4dca589464\`.
 - Cenários: caller revogado/não autorizado, App vencido, troca de loja ou canal mantendo revisão, revogação antes do commit fake, lote multicanal, bytes divergentes, digest falso, propriedades getter, campos extras sensíveis, replay, duplicação de eventos entre batches e falha de escrita fake.
 - **Nenhum** GitHub Actions remoto, HMAC externo Meta, Supabase hosted/local real, Postgres, deploy, mudança de números, migração ou contato com Graph API foi realizado nesta etapa.
 
@@ -51,3 +51,7 @@ Teste local Node.js **v22.16.0**, TypeScript **5.8.3**:
 **GO** para documentação e próxima auditoria sintética do contrato; **NO-GO** operacional enquanto token Meta, DEC-WA-04/06, principal de serviço verificável, privilégio mínimo, proteção/restore de payload, transação ACID e política de ACK não forem resolvidos.
 
 Atualizar a linha do tempo da frente Meta em \`docs/MAPA_MENTAL.md\` da branch S0. O **primeiro Mermaid já possui a ligação da Meta à inbox durável antes do ACK**, portanto esta etapa apenas detalha a fronteira existente; não acrescentar nó de simulação que poderia sugerir backend S0 já implantado.
+
+## Revisão adversarial final WA-05D
+
+Foi reproduzido um defeito **antes do reparo**: em GATE-21, modificar `provider_kind` e `provider_timestamp` de uma observação mantinha o antigo `scope_sha256` válido e o simulador retornava `LAB_ACCEPTED`. O cálculo canônico da WA-05C **e a verificação independente da WA-05D** agora incluem esses campos; GATE-21 nega com `SCOPE_DIGEST_MISMATCH`. GATE-22 confirma que o mesmo batch com referência de payload diferente produz `LAB_CONFLICT`, não replay. **Resultado final: 352/352 testes PASS**, TypeScript estrito PASS, hashes atuais: WA-05C `a9ae647a6cc5e99f79c3fa8a0c0bed21eeac6327`; WA-05D `df8382ff49a4fbc61355e64a41f71d6d2b093d93`; teste WA-05D `a5c2c21cbf8bb0db7a35e169bee93a4dca589464`. A serialização canônica continua **proposta**, ainda não é um contrato versionado de API operacional.
