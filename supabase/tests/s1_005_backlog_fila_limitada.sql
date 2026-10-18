@@ -104,7 +104,8 @@ do $t$ declare j jsonb;begin
   'c2020000-0000-4000-8000-000000000002',2);
  if (j->>'reassigned')::integer<>10
  or (j->>'pending_after')::integer<>30
- or (j->>'blocked_inspections')::integer<>30
+ or (j->>'blocked_inspections')::integer<30
+ or (j->>'blocked_inspections')::integer>50
  then raise exception 'S1B-06 starvation ou fuga de loja %',j;end if;
  if (select count(*) from public.atribuicoes_humanas
   where operador_id='c1020000-0000-4000-8000-000000000003'
