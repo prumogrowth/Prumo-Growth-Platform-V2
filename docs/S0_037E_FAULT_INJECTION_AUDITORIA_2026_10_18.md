@@ -32,4 +32,12 @@ Preencher o SHA/CI final somente com logs confirmados `AUTHATOM-01/02/03`, `OWNE
 - Meta C07 real não segue deste teste: `statuses[].id` é ID de mensagem, não de ocorrência; WA-01C, DEC-WA-04/06, armazenamento protegido e ACK COMMITTED ainda carecem de gate. DEC-WA-05 mantém titularidade Meta por concessionária.
 - PRs #1/#2 Draft, sem merge; sem credenciais reais, deploy ou migrações remotas.
 
-**Parecer provisório:** GO somente para ensaio e relatório sintético; NO-GO para mudança de owner e integração/produção.
+## Fechamento do incremento — evidência verificada
+
+**[CI PostgreSQL 17 #39130947663 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39130947663)**, SHA de código/fixture testado `59331c55975e2694a1e7d057d3ef16f3783c9331`. Logs consultados: **AUTHATOM-01/02 PASS** (falha de auditoria injetada nega C08/C07 e reverte plano/envio/pendência/eventos/nonces/auditoria), **AUTHATOM-03 PASS** (mesmo nonce e assinatura aceitos após retirada da falha, exatamente uma aplicação de cada operação), **OWNER37C-01..05 PASS**, **AUD37-01..03 PASS**, OWNER37D-01..04, demais regressões do runner e **24 testes Python OK**. Sem erros.
+
+Não houve mudança em migration, funções comerciais, papel técnico real, HMAC real ou esquema hospedado. A trigger e as fixtures de laboratório são revertidas via `ROLLBACK`; após a queda, o retry usa **a mesma prova sintética**, não credenciais de Meta. As contagens da auditoria privada e do ledger de nonce foram aumentadas de cinco para sete somente dentro do teste transacional por conta das duas operações novas válidas.
+
+**Parecer final restrito:** a cadeia assinada **existente**, ainda amparada em wrappers `SECURITY DEFINER postgres`, tem atomicidade de domínio/nonce/auditoria nos dois cenários adicionais injetados. **Não** foi implementado emissor de capacidade operacional de menor privilégio e **não** foi demonstrada transferência segura dos wrappers. A prova S0-037D de RLS continua separada. Último GoTrue/PostgREST local integrado do baseline [#39122948236 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39122948236); não foi reexecutado, pois o incremento não altera runtime.
+
+**GO** apenas para projetar e testar, em laboratório, um emissor confiável e a redução real de owner ou avançar a S1 visual com dados fictícios. **NO-GO** para publicação de grants, merge, Supabase hospedado, Meta, Banco ou produção.
