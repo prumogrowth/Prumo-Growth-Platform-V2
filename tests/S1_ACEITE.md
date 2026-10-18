@@ -69,3 +69,15 @@ A varredura **não acontece automaticamente pela simples passagem do tempo**: fu
 Script `scripts/test_s1_002_concurrency.sh` usa apenas banco `localhost/prumo_s0_test_*` e dados fictícios. Os cenários S1C-01..05 abrangem: atribuição nova concorrendo com suspensão, duas transições de equipe no mesmo profissional, duas reconciliações simultâneas de concessão B vencida, histórico único e rejeição de executor autenticado. A etapa usa o contrato de I2/I3, sem novas migrações, sem API pública, sem chamadas Meta/OpenAI/Banco e sem Supabase hospedado. **Não marcar PASS antes do GitHub Actions.**
 
 **Fora do escopo:** GoTrue real, fluxo REST, execução com worker/scheduler, dupla suspensão de dois operadores distintos e política formal de expediente/plantão; requerem ensaios e revisão separados.
+
+
+## I4 — Primeira evidência de concorrência entre sessões
+
+[GitHub Actions PG17 #39163239631 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39163239631), SHA `b0b5b5509107b15b4b42b7adeacc1695ff11c11d`, job `117780772360`: logs verificados **S1C-01..05, 5/5 PASS**. Suspensão versus nova atribuição, dupla mudança do mesmo profissional, reconciliação simultânea de concessão B, escopo privado negado a authenticated. A linha ERROR PROFISSIONAL_PRUMO_INELEGIVEL é **erro esperado e validado do teste negativo**; o job terminou SUCCESS. Não foi simulada suspensão simultânea de **dois** profissionais distintos neste ensaio.
+
+
+## I5 — Proteção contra interbloqueio de duas suspensões [P; ensaio pendente]
+
+Nova migration sintética `202610180041_s1_prevenir_deadlock_remanejamento.sql` reimplementa **somente** `prumo_private.s1_remanejar_ator` com `FOR SHARE ... SKIP LOCKED`: candidato cuja equipe/concessão esteja bloqueada em outra transação **não pode ser destinatário naquele momento**; selecionar outro operador Prumo ativo e desbloqueado, ou conservar em fila protegida se não houver alternativa. Evita aguardar outro operador simultaneamente suspenso e provocar deadlock mútuo. Não muda a elegibilidade comercial ou status do caso e não executa RLS/ação no browser.
+
+`scripts/test_s1_002_simultaneous_suspensions.sh` exercita S1D-01..05: A com terceiro profissional e carteira carregada; dois suspensos simultâneos migrando para terceiro; B com apenas dois suspensos e fila protegida; RLS; rerun sem duplicidade. **Ainda não executar/homologar fora do PG17 descartável.** Fila protegida após corrida exige política/worker de reatribuição futura [R] — a função 040 atual reconcilia atribuições ativas inválidas, não consome pendências sem titular. Sem autorização RH, cron ou API real.

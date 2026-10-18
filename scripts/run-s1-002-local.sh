@@ -10,4 +10,6 @@ psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$ROOT/supabase/tests/s
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$ROOT/supabase/migrations/202610180040_s1_concessoes_expiradas_reconciliacao.sql"
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$ROOT/supabase/tests/s1_003_concessoes_expiradas.sql"
 bash "$ROOT/scripts/test_s1_002_concurrency.sh"
-echo 'S1-002/I1+I2+I3 e concorrencia sintética; apenas PostgreSQL local descartável.'
+psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$ROOT/supabase/migrations/202610180041_s1_prevenir_deadlock_remanejamento.sql"
+bash "$ROOT/scripts/test_s1_002_simultaneous_suspensions.sh"
+echo 'S1-002/I1–I5 sintético e concorrência; apenas PostgreSQL local descartável.'
