@@ -72,6 +72,7 @@ function updateSelectors() {
     o.value = a.id; return o;
   }));
   actorSelect.value = state.actorId;
+  $('team-nav-mobile').hidden = actor.role !== 'gestor' || actor.teamState === 'suspended' || actor.teamState === 'removed';
   const shopSelect = $('shop-select');
   shopSelect.replaceChildren(...actor.shops.map(id => {
     const shop = getShop(id); const o = el('option', '', `${shop.name} · fictícia`); o.value = id; return o;
@@ -341,7 +342,7 @@ $('detail-toggle').addEventListener('click',()=>{
   const hidden=app.classList.toggle('details-hidden');$('detail-toggle').setAttribute('aria-expanded',String(!hidden));
 });
 $('detail-close').addEventListener('click',()=>{app.classList.add('details-hidden');$('detail-toggle').setAttribute('aria-expanded','false');});
-$('team-nav').addEventListener('click',()=>{
+function openTeamSummary(){
   if(!canSeeTeamSummary(state.actorId,state.shopId)){
     showToast('A visão da equipe está disponível somente no perfil fictício de gestor.');return;
   }
@@ -354,7 +355,9 @@ $('team-nav').addEventListener('click',()=>{
     card.append(el('strong','',actor.name),el('span','',`${actor.role==='gestor'?'Gestor':'Operador'} da Prumo · ${assigned} caso(s) sintéticos atribuídos`));return card;
   }));
   $('team-dialog').showModal();
-});
+}
+$('team-nav').addEventListener('click',openTeamSummary);
+$('team-nav-mobile').addEventListener('click',openTeamSummary);
 $('team-close').addEventListener('click',()=>$('team-dialog').close());
 document.addEventListener('keydown',event=>{
   const inField=['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName);
