@@ -5,4 +5,6 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 bash "$ROOT/scripts/run-s0-local.sh"
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$ROOT/supabase/migrations/202610180038_s1_equipe_prumo_gate.sql"
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$ROOT/supabase/tests/s1_002_equipe_prumo_gate.sql"
-echo 'S1-002/I1 testado apenas em PostgreSQL local descartavel.'
+psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$ROOT/supabase/migrations/202610180039_s1_remanejamento_transacional.sql"
+psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$ROOT/supabase/tests/s1_002_remanejamento_transacional.sql"
+echo 'S1-002/I1+I2 sinteticamente exercitados em PostgreSQL local descartavel; sem Supabase hospedado.'
