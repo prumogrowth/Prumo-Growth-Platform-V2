@@ -61,7 +61,10 @@ insert into prumo_private.gateway_chaves_assinatura_s0(
  chave_id,segredo,valido_desde,valido_ate,ativo)
  values('f1000000-0000-4000-8000-000000000001',
  decode(repeat('a5',32),'hex'),statement_timestamp()-interval '1 hour',
- statement_timestamp()+interval '1 hour',true);
+ statement_timestamp()+interval '1 hour',false);
+select prumo_private.alterar_estado_chave_gateway_s0(
+ 'f1000000-0000-4000-8000-000000000001',1,true,
+ 'Ativacao de chave exclusivamente ficticia');
 
 create function prumo_private.assinar_prova_gateway_teste(
  p_operacao text,p_ator uuid,p_sessao uuid,p_loja uuid,p_alvo uuid,
