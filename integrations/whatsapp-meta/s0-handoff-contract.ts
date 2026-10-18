@@ -121,7 +121,7 @@ export async function prepareS0HandoffFixture(input: {
       inspected.authenticated_app_ref,occurrences.map(x=>[x.position.entry_index,
       x.position.change_index,x.position.array_kind,x.position.item_index,
       x.app_ref,x.concessionaria_id,x.canal_id,x.waba_id,x.phone_number_id,
-      x.event_kind,x.provider_message_id])]);
+      x.event_kind,x.provider_message_id,x.provider_timestamp,x.provider_kind])]);
     const scope_sha256=hex(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(scopeData))));
     const candidate:S0HandoffCandidate={contract_version:'meta-s0-handoff.v0.1-proposed',
       batch_ref,route_ref:route.route_ref,route_revision:route.expected_revision,
