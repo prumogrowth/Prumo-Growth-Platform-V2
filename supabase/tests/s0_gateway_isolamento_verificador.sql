@@ -34,6 +34,8 @@ end $priv$;
 
 do $priv$
 begin
+ if has_schema_privilege('prumo_s0_signer','prumo_private','CREATE')
+ then raise exception 'FAIL OWNER-02: signer retained schema CREATE privilege';end if;
  if not has_column_privilege('prumo_s0_signer',
     'prumo_private.gateway_chaves_assinatura_s0','segredo','SELECT')
  or not has_column_privilege('prumo_s0_signer',
