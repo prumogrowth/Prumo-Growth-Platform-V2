@@ -39,3 +39,14 @@ Não executar com URL de Supabase hospedado. A execução esperada emitirá `WA0
 5. WA-07/CF-OP-02 regula mensagens de saída, janela Meta 24h, templates e `sent` comprovado; este ensaio é somente **ingresso** e não altera C03/C06/C09/C12.
 
 **Dependência [R S0]:** avaliar se a proposta PG deve ser adaptada às tabelas já existentes do núcleo, sem criar novo schema comercial nem misturar S0-037F mock com identidade Meta real. A futura WA-06D/B precisa rodar testes PG17 e depois exercício de múltiplas sessões para revogação/recibo. DEC-WA-04/06 continuam pendentes; PRs Draft; não executar CI pago, deploy, migrations hosted, Graph/Meta ou POC concessionária de demonstração sem aprovação.
+
+## WA-06D/A2 — proteção do executor local (18/10/2026)
+
+**Reparo auditado:** a linha de comando original para `psql` poderia ser usada manualmente com uma conexão não descartável. Acrescentado `integrations/whatsapp-meta/lab/run-wa06d-local.sh`, que aceita somente um argumento `wa06d_test_<sufixo>`, fixa `-h 127.0.0.1 -p 5432`, recusa nomes de produção/URLs/parâmetros extras, limpa `PGHOSTADDR` (override libpq potencialmente remoto), `PGSERVICE`, `PGSERVICEFILE` e `PGOPTIONS`, e se nega a continuar sem `psql`. A restrição é de execução local; um túnel/encaminhamento de portas configurado fora do programa não é detectável, então **usar somente banco efetivamente descartável**. Não há conexão de banco nesta entrega.
+
+O teste versionado `integrations/whatsapp-meta/lab/test_wa06d_runner.py` usa **psql falso**, sem qualquer conexão SQL. **5/5 testes Python PASS locais** e `bash -n` PASS. Entre os testes estão URL/nome real, argumentos extras, `psql` ausente, conexão fixada ao loopback e variável `PGHOSTADDR` remota propositalmente presente, comprovadamente eliminada. Blobs Git idênticos aos arquivos executados: runner `1d8cfc533712f12a0d77b357fc08862a4b96ebe2`, testes `6b350156226bb2d3e84c61fefbb9a5707ca537f5`.
+
+**Comando recomendado quando houver PostgreSQL local descartável já provisionado:**
+`bash integrations/whatsapp-meta/lab/run-wa06d-local.sh wa06d_test_scratch`
+
+**Contagem honesta:** **5/5 testes do protetor de execução aprovados; 0/11 testes SQL PostgreSQL executados**. O SQL continua candidato, pode precisar de correções ao ser executado; tampouco houve prova de durabilidade pós-commit nem concorrência em duas sessões, muito menos autenticação de produção.
