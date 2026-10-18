@@ -119,3 +119,8 @@ O responsável determinou que o botão **encerrar atendimento humano** deve func
 - Doc 26 C03 e C13 existentes: C03 continua proposta de mensagem na fase vendedora; C13 continua correção humana excepcional. A nova operação OAI-05 é candidata complementar, NÃO renumera, reaproveita sem aprovação ou substitui contratos existentes.
 
 **Resultado documental:** contrato candidato elaborado; sem revisão cruzada S0, teste de extração, modelo fixado, evento físico ou autorização de dados reais. **E01 segue EM REVISÃO [R]**, não concluído.
+
+
+## Adendo OAI-08 / CF-OP-02 — extração e cadeia pós-humana
+
+A conclusão humana continua iniciando F03 silenciosa, mas agora também analisa compromisso futuro e possível necessidade de nova cadeia de recontatos quando desfecho é inconclusivo, **sem enviar ou marcar perdido**. S0 autoriza pedido, Planejadora C05 propõe apenas templates preaprovados/horários/quantidade dentro de limites, com final separado e fontes; S0 valida/persiste e C09 aplica guarda bancária. Atendimento humanizado não volta à IA Vendedora. [Contrato proprietário OAI-08](OAI_08_CONTRATO_PLANEJADORA_POS_HUMANA_CF_OP_02_v0_1.md); [PR #7](https://github.com/prumogrowth/Prumo-Growth---Platform/pull/7). Assinaturas E01/OAI-05 continuam [R], nada implantado.

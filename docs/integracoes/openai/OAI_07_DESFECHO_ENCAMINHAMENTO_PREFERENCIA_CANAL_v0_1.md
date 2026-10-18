@@ -137,3 +137,8 @@ Critérios/heurísticas de contagem, duração e fallback, inclusive se o client
 **Esclarecimento de 18/10/2026:** o termo coloquial “foi vendido/fechado” era usado para **atendimento comercial finalizado, interesse confirmado e material pronto para enviar ao banco**. Isso NÃO é venda bancária consumada. No fluxo-alvo, o caso pode ser encaminhado para `cadastro enviado ao operador` após validação do S0, e somente passa a `cadastro enviado ao banco` após remessa real com evidência. `vendido` exige confirmação bancária efetiva da venda/pagamento e marcação humana com prova (detalhes do controle de pagamento/checkbox ainda [R] no S0).
 
 **Status:** direção de negócio esclarecida [D-NEGÓCIO]; interfaces e revisão S0/Meta [P/R] não concluídas. Nenhum teste, credencial, consumo ou alteração Supabase realizado.
+
+
+## Adendo CF-OP-02 — desfecho inconclusivo e compromisso futuro
+
+No ramo de resultado inconclusivo, **avaliar se há necessidade de recontato pós-humano com evidência** e devolver recomendação ao S0 para que este autorize pedido separado à IA Planejadora C05. O ramo “revisão humana justificada” permanece para conflito, falta essencial, opt-out e demais situações não elegíveis; não automatizar toda ambiguidade. Promessa de retorno futuro deve ter fonte/data inequívoca. A IA não define operador, não remete ao banco, não cria plano nem marca perdido. Referência: [OAI-08](OAI_08_CONTRATO_PLANEJADORA_POS_HUMANA_CF_OP_02_v0_1.md) e PR #7. A regra C09 original “sob IA” depende de emenda S0 antes de uso em caso humano; banco enviado/vendido continuam protegidos.

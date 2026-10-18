@@ -175,3 +175,8 @@ Meta recebe/valida mensagem e disponibiliza referência segura à mídia, respei
 **Fontes internas:** docs 06, 11, 13A, 23, 24, 26, 33, 38, 40 e 41 do pacote documental auditado, contratos Draft do PR #1 e PR #2, OAI-05 e OAI-06 desta mesma branch.
 
 **Fontes técnicas atuais:** https://developers.openai.com/api/docs/guides/structured-outputs ; https://developers.openai.com/api/docs/guides/audio ; https://developers.openai.com/api/docs/guides/text-to-speech ; https://developers.openai.com/api/docs/guides/voice-agents . Estas são bases de viabilidade, não teste nem seleção de modelo.
+
+
+## Adendo CF-OP-02 — fronteira entre F02 e F03
+
+**F03 / human_close_extract**: após conclusão humana, extrai ficha, avalia desfecho/compromisso e somente PROPÕE necessidade de recontato. **F02 / recontact_plan**: somente após pedido S0 válido, sugere a cadeia de templates pré-aprovados e agenda limitada, inclusive para caso humano pendente com janela expirada ou concluído inconclusivo; opção de um único template escolhido pelo operador é S0→Meta, NÃO chamada F02 obrigatória. Planejadora não fala com cliente, e resposta de caso humanizado vai ao operador autorizado atual. Ver [OAI-08](OAI_08_CONTRATO_PLANEJADORA_POS_HUMANA_CF_OP_02_v0_1.md). Contrato físico E01/OAI-05 ainda [R]; nenhum envio/status autorizado.
