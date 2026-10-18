@@ -127,7 +127,7 @@ export function copyCFDemoFixtures() {
     const windowState = { 'A-102':'open','A-105':'unknown','A-106':'open','B-201':'open' }[record.id] ?? 'unknown';
     return {
       ...record, inboxProjection:'active', metaWindowProjection:windowState,
-      humanCompletionProjection:'pending',
+      humanCompletionProjection: ['A-102','A-106','B-201'].includes(record.id) ? 'pending' : 'unknown',
       allowedActionsProjection: ['A-102','A-106','B-201'].includes(record.id) ? ['free_text','complete'] : []
     };
   });
