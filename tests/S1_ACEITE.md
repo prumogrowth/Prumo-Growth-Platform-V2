@@ -104,3 +104,8 @@ Migr. `202610180042_s1_recuperacao_fila_protegida.sql` e teste `s1_004_recuperac
 O ensaio inicial de S1QC [#39167719374](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39167719374) parou após S1QC-02 por comentário Bash incorreto (`--` em lugar de `#`); falha do script corrigida e toda a bateria retestada em #39167842391. **Não** equivale a prova GoTrue/REST, carga, scheduler, integração S0 de fila gerencial ou produção.
 
 **Gates abertos:** alerta/reapresentação da fila ao gestor via projeção S0, processamento de backlog com lote excedente ao gatilho 25, limites de escala/capacidade, identidade real de aprovador RH, grants expirados sem novo evento exigem executor 040, Auth/REST integrado, encerramento/venda/cadastro bancário interfrentes, custo/concorrência de workers, RLS entre equipe/serviço. Sem merge/deploy/Supabase hospedado e sem incremento de percentual global.
+
+
+## S1-002/I7 — Backlog acima do lote automático [proposta, testes pendentes]
+
+Migração 043: `ultima_inspecao_em` na fila privada, rotação justa de pendências sem operador e entrada interna `s1_drenar_backlog_protegido(loja,max_lotes)` limitada a 10 lotes de 25. Isso elimina o bloqueio por 25 pendências antigas sem candidato, sem atribuir caso a profissional inválido. Não cria cron, worker ou permissão REST, e não altera as outras frentes. Testes S1B-01..10 com 100 registros fictícios, isolamento multiloja e estado vendido. Evidência [P] até PG17. [Descrição I7](../docs/S1_002_I7_BACKLOG_PROTEGIDO_2026_10_18.md).
