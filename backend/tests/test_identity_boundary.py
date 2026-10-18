@@ -1,5 +1,7 @@
 """Synthetic S0 identity-boundary tests; do not use real user credentials."""
 import base64
+import hashlib
+import hmac
 import json
 import sys
 import types
@@ -10,6 +12,7 @@ from unittest.mock import patch
 from backend.identity_boundary import (
     AuthenticatedCommands, Denied, IdentityUnavailable, InvalidCommand,
     Principal, PsycopgTrustedDatabase, PsycopgGatewayDatabase, SupabaseGoTrueVerifier,
+    _gateway_signature_material,
 )
 
 A = "a1000000-0000-4000-8000-000000000001"
@@ -18,6 +21,8 @@ SESSION = "b1000000-0000-4000-8000-000000000001"
 SHOP_A = "c1000000-0000-4000-8000-000000000001"
 PLAN_A = "d1000000-0000-4000-8000-000000000001"
 PENDING = "e1000000-0000-4000-8000-000000000001"
+KEY_ID = uuid.UUID("f1000000-0000-4000-8000-000000000001")
+TEST_KEY = bytes.fromhex("a5" * 32)
 
 
 def fake_token(sub=A, session=SESSION, **extra):
@@ -210,7 +215,7 @@ class LeastPrivilegeGatewayTests(unittest.TestCase):
             "postgresql://gateway:x@localhost:5432/postgres?options=-crole=postgres",
         ):
             with self.assertRaises(ValueError):
-                PsycopgGatewayDatabase(url)
+                PsycopgGatewayDatabase(url, key_id=KEY_ID, signing_key=TEST_KEY)
 
     def test_14_gateway_queries_only_whitelisted_wrappers_with_session(self):
         executed = []
@@ -225,19 +230,49 @@ class LeastPrivilegeGatewayTests(unittest.TestCase):
             def __exit__(self, *_): return None
             def cursor(self): return Cursor()
         with patch.dict(sys.modules, {"psycopg": types.SimpleNamespace(connect=lambda *a, **k: Conn())}):
-            gateway = PsycopgGatewayDatabase("postgresql://prumo_gateway_ci:fake@localhost:5432/postgres")
+            gateway = PsycopgGatewayDatabase("postgresql://prumo_gateway_ci:fake@localhost:5432/postgres", key_id=KEY_ID, signing_key=TEST_KEY)
             result = gateway.invoke(Principal(uuid.UUID(A), uuid.UUID(SESSION)),
                 "cancelar_plano", (uuid.UUID(SHOP_A), uuid.UUID(PLAN_A), 1))
             self.assertEqual(result["outcome"], "APPLIED")
             self.assertEqual(executed[0], ("SET LOCAL ROLE prumo_s0_gateway", None))
-            self.assertIn("gateway_cancelar_plano_s0(", executed[1][0])
-            self.assertEqual(executed[1][1], (uuid.UUID(A), uuid.UUID(SESSION),
+            self.assertIn("gateway_cancelar_plano_assinado_s0(", executed[1][0])
+            args = executed[1][1]
+            self.assertEqual(args[:5], (uuid.UUID(A), uuid.UUID(SESSION),
                                               uuid.UUID(SHOP_A), uuid.UUID(PLAN_A), 1))
+            self.assertEqual(args[5], KEY_ID)
+            self.assertIsInstance(args[6], int)
+            self.assertIsInstance(args[7], uuid.UUID)
+            material = _gateway_signature_material(
+                Principal(uuid.UUID(A), uuid.UUID(SESSION)), "cancelar_plano",
+                (uuid.UUID(SHOP_A), uuid.UUID(PLAN_A), 1), args[6], args[7])
+            self.assertEqual(args[8], hmac.new(TEST_KEY, material, hashlib.sha256).hexdigest())
             self.assertNotIn("cancelar_plano_gestor_sintetico", executed[1][0])
             with self.assertRaises(InvalidCommand):
                 gateway.invoke(Principal(uuid.UUID(A), uuid.UUID(SESSION)),
                                "execute_sql", ())
             self.assertEqual(len(executed), 2)
+
+    def test_14b_requires_second_key_distinct_from_sql_password(self):
+        for bad in (b"", b"short", None):
+            with self.assertRaises(ValueError):
+                PsycopgGatewayDatabase(
+                    "postgresql://prumo_gateway_ci:fake@localhost/postgres",
+                    key_id=KEY_ID, signing_key=bad)
+
+    def test_14c_exact_signature_binds_decision_text_and_target(self):
+        principal = Principal(uuid.UUID(A), uuid.UUID(SESSION))
+        nonce = uuid.UUID("d1000000-0000-4000-8000-000000000007")
+        values = (uuid.UUID(SHOP_A), uuid.UUID(PENDING), 1,
+                  "ENCERRAR_SEM_PROVA", "Motivo ficticio suficiente", None)
+        m = _gateway_signature_material(principal, "conciliar_c07", values, 1234567890, nonce)
+        different = _gateway_signature_material(
+            principal, "conciliar_c07",
+            (uuid.UUID(SHOP_A), uuid.UUID(PENDING), 1,
+             "ENCERRAR_SEM_PROVA", "Motivo ficticio ALTERADO", None),
+            1234567890, nonce)
+        self.assertNotEqual(m, different)
+        self.assertNotEqual(m, _gateway_signature_material(
+            principal, "conciliar_c07", values, 1234567891, nonce))
 
     def test_15_gateway_fails_if_set_role_is_not_allowed(self):
         class Cursor:
@@ -252,7 +287,7 @@ class LeastPrivilegeGatewayTests(unittest.TestCase):
             def cursor(self): return Cursor()
         with patch.dict(sys.modules, {"psycopg": types.SimpleNamespace(connect=lambda *a, **k: Conn())}):
             with self.assertRaises(PermissionError):
-                PsycopgGatewayDatabase("postgresql://prumo_gateway_ci:fake@localhost/postgres").invoke(
+                PsycopgGatewayDatabase("postgresql://prumo_gateway_ci:fake@localhost/postgres", key_id=KEY_ID, signing_key=TEST_KEY).invoke(
                     Principal(uuid.UUID(A), uuid.UUID(SESSION)), "cancelar_plano",
                     (uuid.UUID(SHOP_A), uuid.UUID(PLAN_A), 1))
 
