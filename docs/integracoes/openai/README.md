@@ -25,7 +25,10 @@ Preparar o acesso da plataforma técnica Prumo à API da OpenAI: entendimento de
 12. **E02_MATRIZ_CASOS_SINTETICOS_E_METRICAS_v0_1.md** — E02: 32 cenários de teste a implementar em E04, métricas, bloqueios críticos e comparação futura [P].
 13. **OAI_07_DESFECHO_ENCAMINHAMENTO_PREFERENCIA_CANAL_v0_1.md** — esclarecimentos [D-NEGÓCIO] do responsável em 18/10 sobre fechamento humano, motivo/desfecho da conversa, todos os campos disponíveis, essenciais × opcionais, roteamento e avisos IA → humano, voz adaptativa e orçamento por lote; limites bancários [R/V].
 14. **E03_PREPARACAO_CONTA_CREDENCIAL_GATES_v0_1.md** — checklist [P/R] de projeto API OpenAI, billing, credencial e armazenamento MANUAL no runtime homologado; E03 ainda pendente.
-15. **PLANO_EXECUCAO_E_CRITERIOS_DE_CONCLUSAO_v0_1.md** — roteiro fechado E00–E08: E00 concluído; E01 e E02 documentados em revisão, E03–E08 pendentes. Nenhum teste E02 executado.
+15. **OAI_08_CONTRATO_PLANEJADORA_POS_HUMANA_CF_OP_02_v0_1.md** — atualização CF-OP-02 [D-negócio/P/R/V]: recomendação de nova cadeia pós-humana, pedidos humanos, templates aprovados, rota de retorno e três relógios; sem executar envio nem C09.
+16. **CFI_01_PROPOSTA_CONCILIACAO_ENVELOPE_F03_v0_1.md** — equivalência E01/OAI-05/OAI-08 e versão **candidata** do envelope F03 para revisão S0/OpenAI na issue #4; não homologado.
+17. **E02_RASTREABILIDADE_CF_OP_02_v0_1.md** — ligação entre casos OAI, NC, SYN e CF2, com áreas proprietárias e limites de execução.
+18. **PLANO_EXECUCAO_E_CRITERIOS_DE_CONCLUSAO_v0_1.md** — roteiro E00–E08: somente E00 concluído; E01/E02 em revisão, E03 preparado documentalmente, E04–E08 não iniciados.
 
 ## Princípios de precedência
 
@@ -51,5 +54,7 @@ Supabase secrets para funções autorizadas: https://supabase.com/docs/guides/fu
 **Esclarecimento de resultado comercial [D-NEGÓCIO, 18/10/2026]:** atendimento “fechado” significa interesse confirmado e dados preparados para remessa, NÃO `vendido`. A OpenAI poderá sugerir `NEGOTIATION_READY_FOR_BANK_HANDOFF` com fonte, e S0 encaminha para operador de remessa conforme regras. Status `cadastro enviado ao operador` após fechamento HUMANO requer validação da transição pela frente S0, e `cadastro enviado ao banco` exige envio real com prova. `vendido` continua condicionado à confirmação bancária efetiva de venda/pagamento e marcação humana com evidência. Ver OAI-07 atualizado.
 
 **E03 [P/R]:** checklist de conta, credencial e controles de uso por lote publicado; nenhuma conta, chave ou secret OpenAI foi criado ou verificado nesta etapa. Não armazenar chave no Supabase por inferência enquanto n8n versus direto estiver pendente. Cada chamada paga ainda exige estimativa e aprovação específica.
+
+**CF-OP-02 / OAI-08 (18/10/2026):** F03 pode sugerir, com evidências, acompanhamento após conclusão humana ambígua; F02 só prepara NOVA cadeia de templates pré-aprovados quando S0 solicitar/autorizar, inclusive por pedido do operador. Caso humanizado permanece humano e planos incompatíveis pré-handoff NÃO são retomados. Três eventos independentes: conclusão humana, janela Meta +24h desde último inbound e C09 +24h desde template final efetivamente enviado. S0 deve homologar extensão C09 para fase humana elegível [R]; banco enviado/vendido não sofrem perda por silêncio. Contratos de coordenação: [PR #7](https://github.com/prumogrowth/Prumo-Growth---Platform/pull/7), [issue #6](https://github.com/prumogrowth/Prumo-Growth---Platform/issues/6); assinatura F03 [issue #4](https://github.com/prumogrowth/Prumo-Growth---Platform/issues/4).
 
 **Topologia OpenAI ↔ backend [R]:** chamada direta autenticada pelo runtime servidor/Edge Functions OU orquestração via n8n; nenhum caminho foi testado/selecionado para esta frente. O contrato de domínio deve ser independente da topologia. **Sem GO para operação real.** Mudanças em outra frente dependem da frente proprietária e de revisão cruzada.
