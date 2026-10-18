@@ -326,3 +326,23 @@ Auditoria **estática**, sem modificação SQL ou novo teste: `docs/AUDITORIA_PR
 **Limites:** nenhum worker real C02/C07, mensagem efetivamente aplicada, API HTTP, ACK Meta, autenticação de serviço, payload de PII, cofre, credencial operacional, envio de saída ou integração bancária foi testado ou habilitado. `APLICADO_SINTETICO` é apenas declaração fictícia de worker; não certifica efeito comercial exatamente uma vez. `QUARANTINED` e `DEAD_LETTER` são **estados técnicos**, não novos estados comerciais. Três tentativas e atrasos 15/60 segundos são parâmetros de laboratório, sujeitos a DEC-WA-06; transição operacional e privilégios de produção seguem NO-GO. Teste pesado GoTrue/PostgREST local gerenciado das migrations 028–032 **NÃO EXECUTADO**.
 
 **Gates:** DEC-WA-01/02/03 direção aprovada; DEC-WA-05 titularidade Meta por concessionária aprovada, sem liberação de onboarding; DEC-WA-04/06 pendentes. PR #1 e #2 Draft, sem merge, sem migração no Supabase hospedado. **GO** só para engenharia/testes sintéticos; **NO-GO** para Meta real, Banco, OpenAI, API pública, canais comerciais e produção.
+
+
+## S0/033 — aplicação C02 e conclusão da inbox no mesmo commit (18/10/2026 UTC)
+
+**Evidência definitiva:** [GitHub Actions PostgreSQL 17 #39117446145 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39117446145), commit testado `ca706d3854ee4ef9f10884fdd765c8a85f13ba17` (primeiro CI do código `#39117349248` também SUCCESS; o segundo fortalece a asserção do teste de rollback). Logs verificados: `WA33-01..05 PASS`, `WA33-CONC-01 PASS`, `WA32-CONC-01 PASS`, regressões S0 anteriores e **24 testes Python — OK**; sem erros de execução.
+
+**Arquivos implementados:** `supabase/migrations/202610180033_s0_inbox_aplicacao_c02_atomica.sql`, `supabase/tests/s0_wa_033_aplicacao_c02.sql`, `scripts/test_s0_wa_033_concurrency.sh` e runner `scripts/run-s0-local.sh`. Norma de escopo: `docs/S0_033_APLICACAO_INBOX_C02_2026_10_18.md`.
+
+| Marcador | Resultado comprovado em PostgreSQL descartável |
+|---|---|
+| WA33-01 | Vínculo de fixture fictícia ao inbox, C02 e tarefa `APPLIED` em transação única; replay idêntico; equivalência 8↔9 e lojas distintas |
+| WA33-02 | Falha *identificada exatamente* como `FIXTURE_ABORT_AFTER_C02` após o efeito C02 aborta também a mensagem, a tarefa e o histórico; reexecução válida aplica uma vez |
+| WA33-03 | Lease vencido impossibilita aplicação e não cria mensagem |
+| WA33-04 | Identidade ambígua não gera aplicação falsa, permite quarentena técnica explicitamente |
+| WA33-05 | Checagens de loja/canal/provider message ID e revogação de EXECUTE/SELECT de papéis de API |
+| WA33-CONC-01 | Duas sessões em paralelo competem por mesma tarefa; apenas uma mensagem, uma aplicação e um settlement persistidos |
+
+**Limites:** somente `inbound_message` e prova **sintética** do C02; o conteúdo criado é fixture, não mensagem Meta durável/criptografada, o indicador móvel é de teste, e o vínculo App/WABA/loja deriva de registro fictício. `APPLIED_ATOMIC` comprova a transação PostgreSQL S0, não um ACK/commit do ingressor Meta real nem envio ou resultado bancário. C07 não foi conectado à fila; status callbacks não possuem identidade de evento única aprovada. Integração Auth/REST local gerenciado das migrations 028–033 **não executada**, assim como deploy Supabase hospedado, serviços externos e operações comerciais. Menor privilégio das wrappers `SECURITY DEFINER postgres` ainda pendente.
+
+**Gates:** DEC-WA-01/02/03 aprovadas como diretriz; DEC-WA-05 titularidade Meta de cada concessionária aprovada, sem onboarding; DEC-WA-04/06 permanecem pendentes. PR #1 e PR #2 Draft e sem merge. **GO para engenharia sintética; NO-GO para API pública, Meta/Bank/Marca A/IA reais, canais comerciais, produção ou migração hospedada.**
