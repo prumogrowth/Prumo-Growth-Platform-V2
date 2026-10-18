@@ -40,3 +40,25 @@
 .team-member{padding:13px 5px;border-top:1px solid #e6edef;display:flex;flex-direction:column;gap:5px}
 .team-member strong{font-size:12px;color:#47606b}.team-member span{font-size:11px;color:#8fa1a8}
 @media(max-width:400px){.queue-summary{gap:4px;margin-top:9px}.summary-tile{padding:8px 6px}.advanced-filter select{max-width:185px}}
+
+/* CF-OP-02 / FV-03: sinais de janela e histórico projetados pelo S0 no futuro */
+.inbox-mode{display:flex;gap:8px;margin:0 0 15px;border-bottom:1px solid #e4ecec}
+.inbox-tab{flex:1;background:transparent;border:0;border-bottom:2px solid transparent;padding:9px 6px;color:#7a909a;font-size:11px;font-weight:750;white-space:nowrap}
+.inbox-tab.selected{border-color:#1c9484;color:#176a60}
+.window-mini{margin-left:auto;font-size:9px;color:#8a7136;white-space:nowrap;max-width:105px;overflow:hidden;text-overflow:ellipsis}
+.window-indicator{display:inline-flex;align-items:center;border-radius:9px;background:#f6eee1;color:#856f46;font-size:10px;padding:6px 8px;font-weight:700}
+.window-indicator.open{color:#197263;background:#e7f6ef}
+.window-indicator.closed{color:#806643;background:#fff2de}
+.workflow-bar{flex-wrap:wrap;justify-content:flex-start;align-items:center}
+.workflow-copy{flex:1 1 100%}
+.workflow-bar .btn{flex:0 1 auto;max-width:100%;white-space:normal;line-height:1.45}
+#template-select{width:100%;border:1px solid #d9e6e5;border-radius:9px;background:white;padding:11px 12px;color:#314c56;font-size:12px;margin-top:7px}
+#template-select:focus-visible{outline:3px solid #5dbbb3}
+@media(max-width:760px){
+  .inbox-mode{margin-bottom:11px}
+  .inbox-tab{font-size:11px}
+  .workflow-bar{max-height:175px;overflow-y:auto}
+  .workflow-copy{flex-basis:100%}
+  .window-indicator{font-size:9px}
+  .workflow-bar .btn{font-size:10px}
+}
