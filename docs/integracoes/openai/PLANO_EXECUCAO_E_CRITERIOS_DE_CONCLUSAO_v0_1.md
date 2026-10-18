@@ -47,6 +47,8 @@ O laboratório pode avançar com stub/mock de S0 enquanto PR #1 evolui. O acopla
 
 **Rubrica pré-E04 — nova proposta de revisão E02:** `E02_RUBRICA_DE_ACEITE_PRE_E04_CF_OP_02_v0_1.md` organiza critérios P0/P1, denominadores, gabaritos EX-01..16 e registro de evidências. Distingue **proposta documental**, teste de stub e avaliação com API real; não é aprovação do responsável, aceite S0 nem fixture executada. EX-16 e elegibilidade C09 continuam [R].
 
+**Gabarito documental de cenários SYN:** `E02_GABARITO_DOCUMENTAL_SYN_01_32_v0_1.md` descreve entrada fictícia e expectativa de revisão para cada um dos 32 IDs originais, em complemento a EX-01..16 e rubrica. Não é E04 implementado, contrato canônico ou evidência de testes; E01/E02 permanecem [P/R] enquanto S0 e responsável não aceitarem os gates.
+
 **Sequência padrão:** E00 → E01 → E02 → E03 → E04 → E05 → E06 → E07 → E08. O desenvolvimento offline E04 pode ocorrer antes de E03 para não depender da chave. A integração real com a S0 nunca é pré-requisito para continuar os testes locais. Não marcar E05 concluído sem uma chamada real autorizada e verificada.
 
 ## Gates de autorização
