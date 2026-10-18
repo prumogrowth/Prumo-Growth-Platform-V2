@@ -77,7 +77,6 @@ begin
    '96000000-0000-4000-8000-000000000001',1);
   raise exception 'FAIL GW-01 raw function callable';
  exception when insufficient_privilege then null;end;
- select id into v_plan from public.planos_recontato_sinteticos where false;
 end $test$;
 \echo 'PASS GW-01: role gateway sem leitura direta e sem EXECUTE no dominio'
 
