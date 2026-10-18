@@ -53,6 +53,10 @@ O JSON de resposta OpenAI terá estrutura/campos tipados estritos conforme OAI-0
 
 Os **17 testes candidatos NC-01 a NC-17**, incluindo a distinção entre negociação concluída para remessa e venda bancária efetiva, todos os campos elegíveis (essenciais e opcionais), retorno humano só se faltar essencial, aviso curto em todos os handoffs, desfecho conversacional distinto de venda/recusa oficial, pedido explícito de texto/voz, preferência não inferida de um áudio, autorização por lote e remessa humana como fallback, estão especificados em `OAI_07_DESFECHO_ENCAMINHAMENTO_PREFERENCIA_CANAL_v0_1.md`. São requisitos adicionais, sem substituir os 32 SYN desta matriz. Nenhum deles está implementado ou executado; não declarar 49 casos validados.
 
+## 2B. Rastreabilidade CF-OP-02 / OAI-08 — SEM execução
+
+Além de SYN-01..32 e NC-01..17, existem OAI8-01..10, OAI-T01..27 (IDs antes duplicados OAI-T16..21 foram renumerados para OAI-T22..27) e CF2-01..34 em outra frente, com sobreposição de objetivos. A matriz de responsabilidade e links de regressão está em `E02_RASTREABILIDADE_CF_OP_02_v0_1.md`. Os **três relógios**, o plano NOVO após handoff, a escolha template único versus cadeia, prova efetiva de template final enviado, caso pré-banco elegível e opt-out devem ser cobertos por stubs/revisão cruzada. Nenhum total aritmético é quantidade de fixtures executadas. **C09 em casos humanos ainda depende de matriz de estados ratificada S0**.
+
 ## 3. Métricas e definições auditáveis [P]
 
 - false_autofill_rate = número de campos AUTOAPLICADOS sem prova/permitidos / total de campos autoaplicados. **Objetivo P0: zero em corpus crítico sintético; meta de laboratório, não garantia para produção.**
