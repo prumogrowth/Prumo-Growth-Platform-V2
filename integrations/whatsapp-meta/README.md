@@ -144,3 +144,12 @@ O **primeiro diagrama** do `docs/MAPA_MENTAL.md` na branch S0 foi ampliado apena
 **Defeito corrigido:** `routed-webhook.ts` podia conferir o encerramento de um POST com um snapshot do App anterior à revogação. Agora **reconsulta** a fonte de configuração e **revalida cada vínculo** do lote antes de liberar eventos técnicos; um teste adversarial falhou antes e passou após o reparo. Ainda existe janela de concorrência até um futuro commit transacional da S0; `ack_allowed:false` permanece.
 
 **Testes locais 250/250 PASS** (235 anteriores + 15 LIFE-D) e TypeScript estrito PASS nos 12 módulos/17 suítes, sem CI remoto nem dados reais. Relatório: `docs/integracoes/whatsapp-meta/wa04d-ciclo-credenciais-concorrencia-v0_1.md`. Os tokens permanecem bloqueados por verificação externa.
+
+
+## WA-05A — Transação fictícia de inbox com revalidação no commit
+
+`transactional-ingress.ts` adiciona **somente fixtures em memória**: `FakeProtectedPayloads` e `FakeTransactionalInbox`. Conecta o POST assinado e mapeado pela WA-04B ao registro fake versionado da WA-04D, refazendo o vínculo vigente **no instante da inserção simulada**. Se houver revogação/rotação do App ou canal, payload ausente/divergente, lote contraditório ou falha de gravação fictícia, nenhum marcador parcial é inserido. `messages[0]` e `statuses[0]` mantêm ocorrências separadas, e callbacks iguais em lotes distintos não sofrem dedupe por `wamid`.
+
+**268/268 testes sintéticos locais PASS** (250 anteriores + 18 WA-05A), TypeScript estrito PASS em 13 módulos/18 suítes, hashes dos 2 arquivos novos conferidos. **A fixture não possui cofre real, transação SQL, prova de commit, recibo COMMITTED ou ACK HTTP**: `ack_allowed:false` em todas as respostas. A S0 real deve realizar validação e persistência **atômicas**, com payload protegido e política DEC-WA-06, antes de qualquer ACK.
+
+Ver `docs/integracoes/whatsapp-meta/wa05a-ingresso-transacional-simulado-v0_1.md`. Sem Meta/Graph reais, token, Supabase hospedado, migrações, merge ou deploy.
