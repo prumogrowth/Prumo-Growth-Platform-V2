@@ -59,11 +59,15 @@ export function decideBatchAck(expectedItems: number, untrustedShape: unknown): 
   }
   const r = untrustedShape;
   if (!count(r.total) || !count(r.accepted) || !count(r.duplicates) || !count(r.quarantined) ||
-      !['ACCEPTED_DURABLE', 'ALREADY_ACCEPTED', 'QUARANTINED_DURABLE'].includes(String(r.outcome))) {
+      typeof r.outcome !== 'string' ||
+      !['ACCEPTED_DURABLE', 'ALREADY_ACCEPTED', 'QUARANTINED_DURABLE'].includes(r.outcome)) {
     return retry('INVALID_RECEIPT');
   }
   if (r.commit_state !== 'COMMITTED') return retry('COMMIT_UNCONFIRMED');
-  if (r.total !== expectedItems || r.accepted + r.duplicates + r.quarantined !== r.total) {
+  // Bound each component before adding; do not rely on imprecise integer sums.
+  if (r.total !== expectedItems || r.accepted > r.total ||
+      r.duplicates > r.total || r.quarantined > r.total ||
+      r.accepted + r.duplicates + r.quarantined !== r.total) {
     return retry('INCOMPLETE_BATCH');
   }
   if (r.quarantined > 0 || r.outcome === 'QUARANTINED_DURABLE') {
