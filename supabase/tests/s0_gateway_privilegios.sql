@@ -108,7 +108,7 @@ end $test$;
 reset role;
 -- Resolve the fixture identifiers as privileged owner, not via the gateway.
 select set_config('prumo.test.gw_plano',(select id::text from public.planos_recontato_sinteticos where chave_idempotencia='GW-PLAN-1'),true);
-select set_config('prumo.test.gw_pendencia',(select id::text from public.pendencias_reconciliacao_c07_sinteticas p
+select set_config('prumo.test.gw_pendencia',(select p.id::text from public.pendencias_reconciliacao_c07_sinteticas p
  join public.eventos_callback_sinteticos e
  on e.concessionaria_id=p.concessionaria_id and e.id=p.evento_id
  where e.evento_externo_ficticio='GW-CB-1'),true);
