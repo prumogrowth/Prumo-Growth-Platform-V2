@@ -60,19 +60,19 @@ begin
 end $priv$;
 \echo 'PASS OWNER-02: dono do validador tem somente grants tecnicos e nao acessa dados comerciais'
 
--- Both signed application entrypoints still run as postgres for compatibility
--- with legacy domain functions, making this only a partial hardening.
+-- Only legacy commercial wrappers remain owned by postgres.
+-- Signed entrypoints are tested separately in OWNER-04/05/06.
 do $scope$
 begin
  if not exists(select 1 from pg_catalog.pg_proc p where
-   p.oid='prumo_private.gateway_cancelar_plano_assinado_s0(
-     uuid,uuid,uuid,uuid,bigint,uuid,bigint,uuid,text)'::regprocedure::oid
+   p.oid='prumo_private.gateway_cancelar_plano_s0(
+     uuid,uuid,uuid,uuid,bigint)'::regprocedure::oid
    and p.prosecdef and pg_catalog.pg_get_userbyid(p.proowner)='postgres')
  or not exists(select 1 from pg_catalog.pg_proc p where
-   p.oid='prumo_private.gateway_conciliar_c07_assinado_s0(
-     uuid,uuid,uuid,uuid,bigint,text,text,uuid,uuid,bigint,uuid,text)'::regprocedure::oid
+   p.oid='prumo_private.gateway_conciliar_c07_s0(
+     uuid,uuid,uuid,uuid,bigint,text,text,uuid)'::regprocedure::oid
    and p.prosecdef and pg_catalog.pg_get_userbyid(p.proowner)='postgres')
- then raise exception 'FAIL OWNER-03: unexpected domain entrypoint ownership';end if;
+ then raise exception 'FAIL OWNER-03: unexpected legacy commercial wrapper owner';end if;
 end $scope$;
-\echo 'PASS OWNER-03: limite declarado -- wrappers de dominio ainda exigem revisao do owner postgres'
+\echo 'PASS OWNER-03: limite declarado -- wrappers comerciais legadas ainda pertencem ao postgres'
 rollback;

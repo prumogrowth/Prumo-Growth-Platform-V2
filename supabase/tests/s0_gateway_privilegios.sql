@@ -272,7 +272,7 @@ begin
   f_oid:=f_name::regprocedure::oid;
   select p.prosecdef,pg_get_userbyid(p.proowner) as owner_role into v_proc
   from pg_proc p where p.oid=f_oid;
-  if not v_proc.prosecdef or v_proc.owner_role<>'postgres'
+  if not v_proc.prosecdef or v_proc.owner_role<>'prumo_s0_signed_executor'
    or not has_function_privilege('prumo_s0_gateway',f_oid,'EXECUTE')
    or has_function_privilege('anon',f_oid,'EXECUTE')
    or has_function_privilege('authenticated',f_oid,'EXECUTE')

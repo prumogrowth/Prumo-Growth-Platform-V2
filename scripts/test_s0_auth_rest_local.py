@@ -641,3 +641,52 @@ for person in (None, "gestorb"):
         if code not in (401, 403, 404):
             fail("AUTH-16: privileged S0 RPC available from public REST")
 print("PASS AUTH-16: nenhuma tabela privada ou RPC C02/lease exposta ao REST")
+
+
+# AUTH-17: signed gateway entrypoints have a non-login owner on Supabase
+# managed postgres (non-superuser); legacy domain code still intentionally
+# runs through postgres-owned wrappers until its separate privilege gate.
+run_sql("""
+do $auth17$
+declare f oid;
+begin
+ if not exists(select 1 from pg_catalog.pg_roles
+ where rolname='prumo_s0_signed_executor'
+ and not rolcanlogin and not rolinherit and not rolsuper
+ and not rolbypassrls and not rolcreatedb and not rolcreaterole)
+ then raise exception 'AUTH-17: unsafe executor role';end if;
+ if has_schema_privilege('prumo_s0_signed_executor','prumo_private','CREATE')
+ or has_table_privilege('prumo_s0_signed_executor','auth.sessions','SELECT')
+ or has_table_privilege('prumo_s0_signed_executor','public.leads_loja','SELECT')
+ or has_table_privilege('prumo_s0_signed_executor',
+ 'prumo_private.gateway_chaves_assinatura_s0','SELECT')
+ then raise exception 'AUTH-17: executor direct privileged grants';end if;
+ foreach f in array array[
+ 'prumo_private.gateway_cancelar_plano_assinado_s0(uuid,uuid,uuid,uuid,bigint,uuid,bigint,uuid,text)'::regprocedure::oid,
+ 'prumo_private.gateway_conciliar_c07_assinado_s0(uuid,uuid,uuid,uuid,bigint,text,text,uuid,uuid,bigint,uuid,text)'::regprocedure::oid
+ ] loop
+  if not exists(select 1 from pg_catalog.pg_proc p where p.oid=f
+   and p.prosecdef and pg_catalog.pg_get_userbyid(p.proowner)='prumo_s0_signed_executor')
+  or not has_function_privilege('prumo_s0_gateway',f,'EXECUTE')
+  or has_function_privilege('authenticated',f,'EXECUTE')
+  or has_function_privilege('anon',f,'EXECUTE')
+  or has_function_privilege('service_role',f,'EXECUTE')
+  then raise exception 'AUTH-17: signed entrypoint owner/ACL';end if;
+ end loop;
+ if has_function_privilege('prumo_s0_gateway',
+   'prumo_private.gateway_cancelar_plano_s0(uuid,uuid,uuid,uuid,bigint)','EXECUTE')
+ or has_function_privilege('prumo_s0_gateway',
+   'prumo_private.gateway_conciliar_c07_s0(uuid,uuid,uuid,uuid,bigint,text,text,uuid)','EXECUTE')
+ then raise exception 'AUTH-17: old unsigned bypass';end if;
+end $auth17$;
+""")
+for role in (None, "gestorb"):
+    token = actors[role][1] if role else None
+    for route in (
+        "/rest/v1/rpc/gateway_cancelar_plano_assinado_s0",
+        "/rest/v1/rpc/gateway_conciliar_c07_assinado_s0",
+    ):
+        code, _ = http("POST", route, token=token, payload={})
+        if code not in (401, 403, 404):
+            fail("AUTH-17: signed privileged gateway RPC publicly exposed")
+print("PASS AUTH-17: Supabase managed admite owner assinado restrito sem REST publico")
