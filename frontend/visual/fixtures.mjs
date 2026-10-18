@@ -117,5 +117,5 @@ export function statusTone(status) {
   return 'neutral';
 }
 export function copyFixtures() {
-  return INITIAL_CONVERSATIONS.map(record => ({ ...record, messages: record.messages.map(m => ({ ...m })) }));
+  return INITIAL_CONVERSATIONS.map(record => ({ ...record, messages: record.messages.map(m => ({ ...m })), notes: [], }));
 }
