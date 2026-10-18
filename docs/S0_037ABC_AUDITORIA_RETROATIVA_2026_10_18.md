@@ -27,4 +27,12 @@ Nova prova de replay C07 idempotente gera **um registro a mais** de auditoria de
 
 Sem mudança de owner das wrappers comerciais, sem `BYPASSRLS`, sem nova role/conta persistente, sem RPC pública, sem Meta/Banco/OpenAI real, sem token, sem merge, sem hosted Supabase e sem produção. A S0-037D de redesenho de privilégios permanece **não iniciada** até o fechamento desta auditoria.
 
-**Status:** a confirmação do CI e o resultado final são registrados em seção adicional depois da execução. 
+## Fechamento — resultado confirmado
+
+**[PostgreSQL 17 #39128133133 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39128133133)**, commit de testes `2c2d81311b1bd275fb4364cd4fa422d1efb9e659`. Logs: AUD37-01..03, OWNER37C-01..05 e demais regressões PASS; 24 testes Python OK.
+
+- AUD37-01: sessão de outro ator recusada por SESSAO_INATIVA; gestor de outra loja recusado por FORBIDDEN_SCOPE, mesmo com assinatura de teste válida.
+- AUD37-02: replay idêntico de C07 com novo nonce retorna ALREADY_APPLIED; decisão divergente na versão encerrada retorna CONFLICT_VERSION.
+- AUD37-03: cinco nonces aceitos e cinco registros de gateway, incluindo replay idempotente; tentativas negadas não geram registro nem segunda associação C07. OWNER37C-05 permanece PASS após ajuste da contagem de auditoria.
+
+**Conclusão:** lacunas de cobertura supridas sem alterar migrations, funções comerciais ou proprietários. Não foi reproduzido desvio de autorização nesses cenários. A aprovação é apenas sintética: os proprietários comerciais postgres continuam pendentes de redesenho, assim como DEC-WA-04/06 e a integração Meta/C07 real. A execução Auth/REST local mais recente da baseline é [#39122948236](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39122948236); não foi repetida porque não houve alteração do runtime. MAPA_MENTAL.md sincronizado com o marco de auditoria. 
