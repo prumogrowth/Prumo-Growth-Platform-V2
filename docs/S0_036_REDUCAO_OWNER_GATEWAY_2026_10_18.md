@@ -46,3 +46,11 @@ Antes de rebaixar `gateway_cancelar_plano_s0` e `gateway_conciliar_c07_s0`, mape
 Faltam ainda: cofre de produção, isolamento de credenciais SQL/HMAC, auditoria externa durável de negativas, LGPD, restore e observabilidade. DEC-WA-04/06 permanecem pendentes; DEC-WA-05 aprovada quanto à titularidade Meta por concessionária. Contrato C07 de ocorrência da WA-01C ainda não homologado; `statuses[].id` não pode ser suposto identificador de observação único.
 
 **GO** exclusivamente para evolução e testes S0 com dados sintéticos. **NO-GO** para API privilegiada pública, integração Meta/Banco real, migrações no Supabase hospedado, produção ou merge dos PRs.
+
+## Fechamento — compatibilidade Supabase local gerenciado (18/10/2026)
+
+**[GitHub Actions Supabase Auth/REST #39120910939 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39120910939)** no mesmo commit de código `77062a5047e57c212dff51bad844ae990b3cdcea`. Logs efetivamente verificados: `AUTH-01..17` PASS (incluindo `AUTH-13-REVOKE`), sem traceback ou erro; inicialização, execução das migrações e teardown da instância Supabase **local** concluídos. `AUTH-17` validou owner `prumo_s0_signed_executor` nas funções assinadas com `SECURITY DEFINER`, negativas de acesso às tabelas/sessões/segredos e ausência de RPC pública. O fluxo assinado de cancelamento e reconciliação continua coberto por AUTH-12..14.
+
+O [CI PostgreSQL #39120829358 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39120829358) já havia comprovado OWNER-01..06, GW-01..07 e as demais regressões (24 unitários Python). A etiqueta cara `run-auth-integration` foi **retirada** após o teste.
+
+**Conclusão precisa:** compatibilidade da transferência das **duas entradas assinadas** está aprovada em PostgreSQL 17 e Supabase GoTrue/PostgREST local gerenciado. **Não foi reduzido o privilégio efetivo do código comercial legado**, que continua acessível a partir das funções `postgres SECURITY DEFINER` sob assinatura/sessão/escopo, e isso precisa de outro projeto de migração. Nenhuma implantação no Supabase hospedado.
