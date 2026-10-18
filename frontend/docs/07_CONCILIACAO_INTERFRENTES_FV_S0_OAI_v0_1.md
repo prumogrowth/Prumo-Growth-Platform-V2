@@ -96,3 +96,5 @@ Os códigos `C01–C24` e `UQ01–UQ09` são **contratos conceituais [P]** dos d
 - **G-CFI-3 — integração e lançamento:** **NÃO AUTORIZADO**; Supabase remoto, Meta, Banco, OpenAI real, custos, domínio e hospedagem fora desta entrega.
 
 Ver [matriz de aceite candidata](08_MATRIZ_ACEITE_CONTRATUAL_FV_S0_OAI_v0_1.md). **Nenhuma pontuação do documento 19F é acrescida automaticamente.** O acervo anterior, decisões 13A/21–23/41 e D-ORG-01 continuam prevalecendo.
+
+**Rastreamento de revisão cruzada:** [GitHub issue #4 — CFI-01](https://github.com/prumogrowth/Prumo-Growth---Platform/issues/4), ABERTO, ainda sem validação dos proprietários das frentes S0 e OpenAI.
