@@ -83,3 +83,7 @@ Foram criados ensaios DOM de navegação e funções (desktop/mobile) independen
 ## FV-UI-006 — Integridade de estado e callbacks (18/10/2026)
 
 Atualização em `frontend/visual/`: conclusão solicitada não é conclusão confirmada; projeções de conclusão ausentes não são interpretadas como sucesso; mensagens/notas e diálogos antigos deixam de produzir efeitos ao trocar de caso, loja ou ator. **48 verificações sintéticas aprovadas no harness V8** (25 regras, 17 interações DOM, 6 inspeções de fonte), com [auditoria e limites](docs/15_AUDITORIA_FV_UI_006_FIDELIDADE_E_CONCORRENCIA_2026_10_18.md). Ainda pendem execução Node nativa e Playwright real, além de revisões externas. Sem alteração do progresso 19F.
+
+## FV-UI-007 — Ficha e proveniência fictícias (O3)
+
+Implementada em [`frontend/visual/`](visual/README.md) a visualização de ficha parcial projetada, com origem, versão, pendências e conflitos; acesso de supervisão restringido a resumo **sem detalhes D3/D4**. **60/60 verificações sintéticas PASS** no harness V8 sobre os arquivos do GitHub, sem testes Node ou Chromium real desta versão. [Auditoria FV-UI-007](docs/16_AUDITORIA_FV_UI_007_FICHA_PROVENIENCIA_2026_10_18.md). Contratos físicos e integrações continuam pendentes.
