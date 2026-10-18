@@ -39,7 +39,7 @@ test('histórico sintético preserva autoria e notas, sem nova transição', () 
 });
 
 test('cenários de extração são claramente simulados e nunca persistidos', () => {
-  assert.deepEqual(DETAIL_TABS.map(x=>x.id),['overview','activity','notes','extraction']);
+  assert.deepEqual(DETAIL_TABS.map(x=>x.id),['overview','activity','notes','extraction','followup']);
   for (const k of ['accepted','partial','failed','stale']) {
     const x=modelExtraction(k);assert.equal(x.persisted,false);assert.equal(x.commercialTransition,false);
     assert.match(x.title,/simulação/i);
