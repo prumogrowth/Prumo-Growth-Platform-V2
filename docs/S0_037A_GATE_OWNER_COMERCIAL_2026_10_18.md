@@ -44,3 +44,13 @@ O SQL é `BEGIN`/`ROLLBACK`; não deixa role, GRANT, lead, concessionária, sess
 Não avançar para execução comercial, novos RPCs, contas SQL, credenciais reais, Meta/Graph/Banco, produção, merge de PRs ou banco hospedado. DEC-WA-01/02/03 e DEC-WA-05 permanecem aprovadas; DEC-WA-04/06 e a semântica de evento C07/WA-01C permanecem pendentes e não bloqueiam este estudo sintético.
 
 **Aceite e evidências:** preencher com SHA/run real somente após finalizar o CI deste incremento. Até lá é documentação de engenharia, não homologação da transferência.
+
+## Evidência concluída — 18/10/2026
+
+[**GitHub Actions PostgreSQL 17 #39123912355 — SUCCESS**](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39123912355), commit testado `5e99ba5761d54cfdf4d7ab77cabf2977e1d2724f`. Logs revisados: `OWNER37-01..05` PASS, `AUD-036A-01..04` PASS, suites GW/OWNER/KEY, C01/C02/C07 e concorrência anteriores aprovadas, **24 unitários Python OK**. Nenhum erro nos logs.
+
+**Gate atingido:** ficou demonstrado em PostgreSQL descartável que rebaixamento direto do proprietário comercial sem alterar guardas, grants, políticas RLS e acesso à sessão tornaria a função inutilizável. Esta etapa não modificou nenhuma migration, função comercial, owner, assinatura, segredo ou tabela permanente. A role de experimento `prumo_s0_probe_037a`, seu SELECT de teste e o lead fictício foram criados e revertidos dentro da mesma transação; não há persistência desses objetos.
+
+**Limite:** esta prova negativa **não** homologa o plano alternativo de RLS, nem executou o workflow pesado GoTrue/PostgREST neste commit, pois não houve alteração de runtime. O último gate de compatibilidade Supabase local da baseline de migrações permanece [#39122948236 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39122948236). Antes de uma transferência efetiva é obrigatório submeter migração e testes Auth/REST conjuntos.
+
+**Próxima atividade candidata:** construir matriz executável de concessões estritamente necessárias e ensaiar em *papel efêmero* as transições atômicas com RLS (somente em testes), sem instalar papel operacional persistente nem reduzir o `SECURITY DEFINER postgres` até que os cenários C08/C07, sessão revogada, isolamento loja A/B, locks e auditoria estejam demonstrados.
