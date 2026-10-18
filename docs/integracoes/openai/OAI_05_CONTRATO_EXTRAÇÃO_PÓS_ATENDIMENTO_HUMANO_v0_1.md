@@ -104,6 +104,12 @@ E01-X08: resposta atrasada, fechamento duplicado ou revisão posterior não caus
 E01-X09: mensagem em áudio só entra como fonte via transcrição autorizada e referência própria.
 E01-X10: o catálogo definitivo, exceções da política humana e integração com eventos S0 são revisados pelo proprietário S0 antes de marcar E01 concluído.
 
+## 5A. Esclarecimento funcional de 18/10/2026 — complementar com OAI-07
+
+O responsável determinou que o botão **encerrar atendimento humano** deve funcionar independentemente da causa do handoff; após encerramento, a OpenAI deve analisar também **desfecho conversacional e motivo**, sem que o operador escolha rotineiramente uma classificação. A extração deve propor **todos** os campos disponíveis de catálogo permitido, não apenas essenciais para remessa. Se campos **essenciais para envio ao Banco** estiverem faltando, S0 devolve para atendimento humano, com motivo curto e indicação de campos; faltas APENAS opcionais não bloqueiam. Quando completos e havendo intenção válida, segue processo de remessa humana comprovada, ou envio direto somente se formalmente autorizado e implementado. OpenAI não cria/remete prova ou status comercial.
+
+**Conflito/limite normativo:** 'venda indicada na conversa' não equivale a `vendido` bancário; 13A/21/41 exigem confirmação real e lançamento humano. Desistência sem recusa definitiva não autoriza automaticamente `perdido` pela norma atual. OAI-07 registra hipóteses e pendências [R] sem revogar decisões. A política S0 de retorno para complemento, fila, interface e fechamento é de outra frente. Esta nota não implementa UI nem banco.
+
 ## 6. Matriz de precedência — divergência declarada, NÃO resolvida unilateralmente
 
 - Doc 23 [D]: operador humano tem direito de corrigir ficha e pedir complemento depois do handoff; falha no cadastro pronto é incidente de qualidade; não retomar IA Vendedora. **Mantido.**
