@@ -21,3 +21,10 @@
 6. Operação real depende de GO/NO-GO humano por capacidade e validação Meta/Banco/LGPD. Nenhuma assinatura é feita automaticamente.
 
 **Estado:** branch S0 publicada em PR draft #1. Testes limitados de isolamento A/B aprovados em PostgreSQL 17 descartável ([CI PASS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39059980947)). Transações sintéticas, casos e testes de isolamento foram ampliados, mas Auth/REST real, recuperabilidade, integrações e revisão humana permanecem pendentes. Nenhuma migration foi aplicada ao Supabase remoto.
+
+
+## Atualização de precedência Meta / S0-030 — 18/10/2026
+
+**DEC-WA-05 — APROVADA quanto à titularidade por concessionária:** cada concessionária é proprietária de sua própria conta empresarial Meta, App Meta, WABA, números e autorizações; a Prumo opera somente como integradora autorizada. Esta regra posterior **substitui as afirmações históricas sobre Apps/WABAs/números da gestora**, sem mudar a exclusividade global do número emissor nem o isolamento do telefone do cliente por loja. Referência: PR #2, `docs/integracoes/whatsapp-meta/decisao-titularidade-meta-por-concessionaria-v1_0.md`. **Onboarding/permissões/canais reais ainda não aprovados.**
+
+DEC-WA-01/02/03: diretrizes aprovadas, protótipos sintéticos 028/029 e correção aditiva 030 versionados no PR #1; detalhes operacionais e contrato de API ainda não homologados. DEC-WA-04 (ambiente definitivo) e DEC-WA-06 (segredos, privacidade, retenção, continuidade) permanecem **pendentes**. Não promover POC Supabase existente a ambiente definitivo por inferência. Nenhuma migração comercial hospedada, conexão Meta real, merge ou canal real autorizado. Ver `docs/AUDITORIA_CORRECOES_WA_S0_030_2026_10_18.md`.
