@@ -7,6 +7,8 @@
 
 > **Precedência:** respeitar os docs canônicos 11, 13/13A, 25, 26, 28, 29, 30, 33, 34, 40, 41 e 43 do pacote auditado de 17/10/2026. `[D]` decisão de negócio aprovada, `[P]` especificação proposta, `[R]` decisão interna pendente e `[V]` validação de fornecedor/jurídica externa. Campos, filas, rotas e chaves deste documento são **[P]**, não migrações nem APIs já criadas. A POC permanece isolada do núcleo ainda em desenvolvimento.
 
+> **Conciliação com o núcleo S0 (PR #1, posterior ao contrato v0.1):** conferir [documento de conciliação PR #1 ↔ PR #2](conciliacao-pr1-pr2-s0-whatsapp-v0_1.md) antes de implementar. A S0 já tem `canais_loja`, `leads_loja`, `conversas` e `mensagens` em caráter **sintético**, e não uma tabela `canais_whatsapp` implementada. A integração deve evoluir esse domínio, usar resolvedor canônico do núcleo e preservar a diferença entre C06 (template), C03 (IA) e C12 (humano); não copiar o C07 fictício como contrato de callback da Meta.
+
 ## 1. Regras inegociáveis [D] e fronteiras [P]
 
 1. **Uma identidade comercial por concessionária.** O telefone identifica comercialmente o lead apenas **dentro da loja**; o mesmo número pode ter atendimentos distintos em lojas A e B. CPF não é chave global. Telefone reciclado ou compartilhado exige revisão humana, não fusão automática (docs 11, 25, 26 e 33).
