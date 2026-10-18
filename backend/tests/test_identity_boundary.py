@@ -86,6 +86,13 @@ class IdentityBoundaryTests(unittest.TestCase):
         with self.assertRaises(Denied):
             SupabaseGoTrueVerifier("http://localhost:54321", "local-key", opener=_Opener()).verify("Bearer " + fake_token(session="bad"))
 
+    def test_03b_malformed_base64_after_gotrue_is_denied_not_500(self):
+        verifier = SupabaseGoTrueVerifier(
+            "http://127.0.0.1:54321", "local-key", opener=_Opener()
+        )
+        with self.assertRaises(Denied):
+            verifier.verify("Bearer e30.a.fake-signature-long")
+
     def test_04_auth_origin_cannot_be_untrusted_http_or_path(self):
         for url in ("http://example.com", "https://example.com/evil", "https://user:pass@example.com", "https://example.com?foo=1"):
             with self.assertRaises(ValueError, msg=url):
