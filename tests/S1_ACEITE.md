@@ -62,3 +62,10 @@ A varredura **não acontece automaticamente pela simples passagem do tempo**: fu
 
 
 **Evidência executada de I3:** [CI PostgreSQL 17 #39161092070 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39161092070), commit `2a800609acfc3aaf151c29dc0c89a45bfebde9c9`, job `117774376189`; logs auditados: **S1X-01..07 = 7/7 PASS**. O mesmo runner também exercitou S1R-01..09 e S1E-01..07 no seu escopo sintético. Não há cron nem execução automática do reparo pela passagem do tempo; função exige acionamento por executor interno confiável. Sem Auth/REST integrado nem teste intersessões. **NO-GO para produção.**
+
+
+## S1-002/I4 — ensaios de duas sessões PostgreSQL [P; aguardando execução]
+
+Script `scripts/test_s1_002_concurrency.sh` usa apenas banco `localhost/prumo_s0_test_*` e dados fictícios. Os cenários S1C-01..05 abrangem: atribuição nova concorrendo com suspensão, duas transições de equipe no mesmo profissional, duas reconciliações simultâneas de concessão B vencida, histórico único e rejeição de executor autenticado. A etapa usa o contrato de I2/I3, sem novas migrações, sem API pública, sem chamadas Meta/OpenAI/Banco e sem Supabase hospedado. **Não marcar PASS antes do GitHub Actions.**
+
+**Fora do escopo:** GoTrue real, fluxo REST, execução com worker/scheduler, dupla suspensão de dois operadores distintos e política formal de expediente/plantão; requerem ensaios e revisão separados.
