@@ -204,3 +204,51 @@ class PsycopgTrustedDatabase:
                 if result is None or not isinstance(result[0], dict):
                     raise IdentityUnavailable("DB_RESULTADO_INVALIDO")
                 return result[0]
+
+
+# This is the ONLY database adapter intended for a future dedicated SQL login.
+# The login must be provisioned out of band with membership in the NOLOGIN
+# prumo_s0_gateway role. Never grant it direct table or domain-function access.
+_GATEWAY_STATEMENTS = {
+    "cancelar_plano": (
+        "select prumo_private.gateway_cancelar_plano_s0("
+        "%s::uuid,%s::uuid,%s::uuid,%s::uuid,%s::bigint)"
+    ),
+    "conciliar_c07": (
+        "select prumo_private.gateway_conciliar_c07_s0("
+        "%s::uuid,%s::uuid,%s::uuid,%s::uuid,%s::bigint,%s::text,%s::text,%s::uuid)"
+    ),
+}
+
+
+class PsycopgGatewayDatabase:
+    """LOCAL-ONLY restricted-role candidate; no admin user and no remote DSN."""
+
+    def __init__(self, dsn: str):
+        u = urllib.parse.urlsplit(dsn)
+        if (
+            u.scheme not in ("postgres", "postgresql")
+            or u.hostname not in ("127.0.0.1", "localhost", "::1")
+            or u.username in (None, "", "postgres", "supabase_admin", "service_role")
+            or u.query or u.fragment
+            or not (u.path.strip("/") == "postgres"
+                    or u.path.strip("/").startswith("prumo_s0_test_"))
+        ):
+            raise ValueError("GATEWAY_LOCAL_LEAST_PRIVILEGE_DSN_REQUIRED")
+        self._dsn = dsn
+
+    def invoke(self, principal: Principal, command: str, values: tuple[Any, ...]) -> dict[str, Any]:
+        import psycopg
+        sql = _GATEWAY_STATEMENTS.get(command)
+        if sql is None:
+            raise InvalidCommand("COMANDO_NAO_PERMITIDO")
+        # The DB login has NO ordinary data grants; SET ROLE must succeed through
+        # provisioned membership, and wrappers check live session again.
+        with psycopg.connect(self._dsn, connect_timeout=5) as connection:
+            with connection.cursor() as cursor:
+                cursor.execute("SET LOCAL ROLE prumo_s0_gateway")
+                cursor.execute(sql, (principal.actor_id, principal.session_id, *values))
+                row = cursor.fetchone()
+                if row is None or not isinstance(row[0], dict):
+                    raise IdentityUnavailable("DB_RESULTADO_INVALIDO")
+                return row[0]
