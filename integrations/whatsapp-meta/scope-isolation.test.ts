@@ -1,0 +1,10 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { FakeMetaStatusReconciler } from './technical-reconciliation.ts';
+import type { GraphSendOutcome } from './graph-outbound.ts';
+import type { CorrelationReference } from './technical-reconciliation.ts';
+const ref:CorrelationReference = {app_ref:'APP_A',intent_id:'INTENT_A',recipient_verified:'5581900000000',scope:{concessionaria_id:'STORE_A',canal_id:'CHANNEL_A',meta_app_ref:'APP_A',meta_waba_id:'WABA_A',phone_number_id:'123456789012'}};
+const accepted:GraphSendOutcome={attempt_id:'ATTEMPT_A',correlation_id:'CORR_A',send_state:'API_ACCEPTED',api_accepted:true,http_status:200,provider_message_id:'wamid.ID=',meta_error_code:null,meta_error_subcode:null,retry_automatically:false};
+test('AUDIT-01: projectionFor must deny wrong concessionaria_id with identical technical IDs',()=>{const x=new FakeMetaStatusReconciler();assert.equal(x.registerAcceptedSend(ref,accepted).decision,'LINKED');const crossed={...ref,scope:{...ref.scope,concessionaria_id:'STORE_B'}};assert.equal(x.projectionFor(crossed,'wamid.ID='),undefined)});
+test('AUDIT-02: projectionFor must deny wrong canal_id with identical technical IDs',()=>{const x=new FakeMetaStatusReconciler();assert.equal(x.registerAcceptedSend(ref,accepted).decision,'LINKED');const crossed={...ref,scope:{...ref.scope,canal_id:'CHANNEL_B'}};assert.equal(x.projectionFor(crossed,'wamid.ID='),undefined)});
+test('AUDIT-03: registerAcceptedSend must not mark different shop as ALREADY_LINKED',()=>{const x=new FakeMetaStatusReconciler();assert.equal(x.registerAcceptedSend(ref,accepted).decision,'LINKED');const crossed={...ref,scope:{...ref.scope,concessionaria_id:'STORE_B'}};assert.equal(x.registerAcceptedSend(crossed,accepted).decision,'CONFLICT')});
