@@ -88,6 +88,18 @@ FV02-T14: caso do tipo exceção humana em `em atendimento pelo operador` não g
 
 ## 9. Pendências de conciliação
 
-**S0 [R]:** confirmar nome/semântica de evento e comando, estados técnicos, ponto exato de coleta/conclusão, esquema de campos, guarda idempotente, versões, projeção para UI e quem pode reabrir esclarecimento sem criar novo status. **OpenAI [R]:** alinhar OAI-05 `human_close_extract` e E01 F03 `post_human_extract`, inclusive nomes candidatos distintos, sem assumir compatibilidade de payloads. **Produto [R]:** escopo de eventual exceção de correção humana, UI de confirmação do clique e obrigatoriedade de revisão humana para classes sensíveis. **Meta/Banco/LGPD [V]:** canal, mídia, tratamento e remessa reais.
+**S0 [R]:** confirmar nome/semântica de evento e comando, estados técnicos, ponto exato de coleta/conclusão, esquema de campos, guarda idempotente, versões, projeção para UI e quem pode reabrir esclarecimento sem criar novo status. **OpenAI + S0 [R]:** OAI-05 e a versão atual E01 F03 já usam `human_close_extract` como nome candidato comum; **ainda divergem na estrutura de request/response** (`trigger_ref` versus `closure_event_id`, `extraction.field_suggestions` versus `fields_proposed`, etc.), sem assumir compatibilidade de payloads. **Produto [R]:** escopo de eventual exceção de correção humana, UI de confirmação do clique e obrigatoriedade de revisão humana para classes sensíveis. **Meta/Banco/LGPD [V]:** canal, mídia, tratamento e remessa reais.
 
 **Veredito:** aprovado apenas como D-direção de negócio para **não digitação rotineira e gatilho de extração**; contrato técnico FV-02 ainda [P/R].
+
+## Adendo FV-02/CFI-01 — mapeamento de fronteiras em 18/10/2026 [P/R]
+
+**Nomes NÃO intercambiáveis:**
+- `FV-02.request_human_conversation_completion`: nome **lógico candidato** apenas para o pedido do navegador ao S0, sujeito a evento/comando físico do S0. **Não** é a operação da OpenAI nem C13.
+- `human_close_extract`: operação **candidata** exclusivamente da interface S0→adaptador OpenAI, hoje convergente como nome em OAI-05/E01 (sem schema físico unificado).
+- `atendimento_humano_concluido`: evento de domínio **candidato** que S0 deverá conferir/registar, **não status comercial** nem resposta de provider.
+- `Ficha atualizada`: feedback visual permitido apenas após confirmação e releitura, via projeção S0 autorizada, de nova versão persistida.
+
+**Divergências OpenAI ainda [R]:** request E01 (`scope`, `trigger_ref`, `fields_policy_version`) versus OAI-05 (`concessionaria_id`, `closure_event_id`, `allowed_fields_catalog_version`); retorno E01 (`extraction.field_suggestions`, `evidence_refs`, `missing_field_keys`) versus OAI-05 (`fields_proposed`, `source_message_refs`, `missing_fields`). A UI não consome esses payloads. O grupo S0/OpenAI definirá versão única antes de codificação. Matriz em [CFI-01](07_CONCILIACAO_INTERFRENTES_FV_S0_OAI_v0_1.md); testes candidatos em [MAT-CFI-01](08_MATRIZ_ACEITE_CONTRATUAL_FV_S0_OAI_v0_1.md).
+
+**Semântica ainda [R]:** concluir conversa humana NÃO é encerrar ciclo; política de mensagens em trânsito e corte, esclarecimento posterior, idempotência e reprocessamento só podem ser efetivados pelo backend. Os estados de frontend aqui descritos são [P] e não comprovam respostas reais. As 36 provas de conformidade ainda não foram executadas.
