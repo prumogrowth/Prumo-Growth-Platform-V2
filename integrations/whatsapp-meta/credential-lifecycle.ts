@@ -48,7 +48,8 @@ export function planMetaLifecycleTransition(
       request.expected_revision >= Number.MAX_SAFE_INTEGER ||
       !['REVOKE_APP','REVOKE_CHANNEL','STAGE_ROTATION'].includes(request.action))
     return deny('INVALID_INPUT');
-  const app = registry?.apps?.find(a => a?.app_ref === request.app_ref);
+  if (!registry || !Array.isArray(registry.apps)) return deny('REGISTRY_OR_APP_DENIED');
+  const app = registry.apps.find(a => a?.app_ref === request.app_ref);
   if (!app) return deny('REGISTRY_OR_APP_DENIED');
   if (app.concessionaria_id !== request.concessionaria_id) return deny('SCOPE_MISMATCH');
   if (app.revision !== request.expected_revision) return deny('REVISION_MISMATCH');
@@ -59,7 +60,13 @@ export function planMetaLifecycleTransition(
     expected_revision:request.expected_revision, at_ms:request.at_ms,
   });
   if (!before.ok || before.app_ref !== request.app_ref) return deny('REGISTRY_OR_APP_DENIED');
-  const next = structuredClone(registry);
+  let next: TrustedMetaRegistry;
+  try {
+    next = structuredClone(registry);
+  } catch {
+    // A malformed/non-clonable trusted registry is not a lifecycle command.
+    return deny('REGISTRY_OR_APP_DENIED');
+  }
   const selected = next.apps.find(a=>a.app_ref === request.app_ref)!;
   const rev = request.expected_revision + 1;
   let changed: TrustedAppRecord;
