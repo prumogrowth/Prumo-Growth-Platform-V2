@@ -42,6 +42,10 @@ A referência aos intervalos CF2 é indicativa (cobre mais de uma disciplina), n
 4. E04 só pode declarar PASS/FAIL com `fixture_id`, `expected`, `actual`, versão, commit e log sanitizado. Enquanto não houver suíte executada, estado de cada caso é **PLANEJADO, NÃO EXECUTADO**.
 5. Dependências Meta e S1 permanecem nos contratos proprietários; esta matriz não autoriza mexer neles.
 
+## 3A. Exemplos EX-01..EX-16 [P/R]
+
+O pacote [E02_PACOTE_REVISAO_CASOS_FICTICIOS_CFI_CF02_v0_1.md](E02_PACOTE_REVISAO_CASOS_FICTICIOS_CFI_CF02_v0_1.md) apresenta 16 entradas/expectativas de revisão: extração de campos opcionais e essenciais, bloqueio por evidência, handoff, modelo silencioso, F02 nova cadeia, opt-out, finalidade bancária e os três relógios. **Não são fixtures executáveis nem 16 testes PASS.** O resultado EX-16 está explicitamente bloqueado até matriz C09 S0 ratificada. A contagem das famílias anteriores não ganha nova prova por ter exemplos adicionais.
+
 ## 4. Nota de precedência obrigatória
 
 **[D-direção CF-OP-02]** A IA Planejadora pode sugerir plano pós-humano **NOVO** e limitado a templates aprovados, com retorno sempre ao humano autorizado do caso humanizado. O plano pré-handoff incompatível permanece cancelado. **S0 é quem decide criação e C09**, nunca a IA.
