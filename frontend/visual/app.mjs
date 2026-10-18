@@ -220,7 +220,16 @@ function renderDetails() {
   if(state.detailTab==='overview'){
     const group=detailSection('CONTEXTO DO ATENDIMENTO');
     const actor=ACTORS.find(a=>a.id===item.assignedTo);
-    group.append(prop('Concessionária',getShop(item.shopId).name),prop('Profissional atribuído',actor?.name??'Sem atribuição'),prop('Estado comercial',item.status));
+    group.append(
+      prop('Concessionária',getShop(item.shopId).name),
+      prop('Profissional atribuído',item.reassignmentProjection==='protected_queue'?'Fila protegida (demonstração)':actor?.name??'Sem atribuição'),
+      prop('Estado comercial',item.status),
+      prop('Janela Meta (projeção)',projectedMetaWindow(item)==='open'?'Aberta · fictícia':projectedMetaWindow(item)==='expired'?'Expirada · fictícia':'Não confirmada'),
+      prop('Etapa humana',humanCompletion(item,Boolean(state.processing[item.id]))==='pending'?'Pendente':'Concluída · cenário fictício'),
+      prop('Lista',isInActiveInbox(item)?'Ativa / pendente':'Histórico preservado')
+    );
+    if(item.reassignmentProjection==='protected_queue') group.append(callout('Acesso operacional protegido','A S1-002 decidirá o remanejamento real; não há escolha de operador pelo frontend.','warning'));
+    if(isSyntheticBankProtected(item)) group.append(callout('Marco bancário protegido','Silêncio de cliente ou janela Meta expirada não representa negativa da instituição financeira.','warning'));
     const rule=detailSection('REGRAS DA EXPERIÊNCIA');
     rule.append(callout('Atendimento humano independente','Concluir a conversa não envia cadastro ao banco, não marca vendido ou perdido e não reativa a IA Vendedora.'));
     rule.append(el('p','detail-small','Gestores veem conversas fictícias por loja. Dados financeiros protegidos D3/D4 não são disponibilizados na simulação.'));
@@ -237,7 +246,7 @@ function renderDetails() {
     notes.append(callout('Informação privada de operação','Notas fictícias não são enviadas ao cliente e não persistem fora desta página.'));
     for(const n of item.notes??[]){const card=el('div','detail-row');
       card.append(el('strong','',n.text),el('span','',`${ACTORS.find(x=>x.id===n.actorId)?.name??'Profissional fictício'} · ${n.time}`));notes.append(card);}
-    if(canWriteNote(item,state.actorId,state.shopId)){
+    if(canWriteNote(item,state.actorId,state.shopId) && isInActiveInbox(item)){
       const form=el('form','note-form');form.id='internal-note-form';
       const label=el('label','field-label','Nova nota fictícia');label.htmlFor='note-text';
       const textarea=el('textarea','note-textarea');textarea.id='note-text';textarea.maxLength=250;
@@ -251,7 +260,7 @@ function renderDetails() {
       });notes.append(form);
     }else notes.append(el('p','detail-small','Adição de nota não disponível neste perfil ou caso de demonstração.'));
     content.append(notes);
-  } else {
+  } else if(state.detailTab==='extraction') {
     const extract=detailSection('FICHA E EXTRAÇÃO · FV-02');const proc=state.processing[item.id];
     if(!proc){
       extract.append(callout('Ainda não solicitada','Após a conclusão humana, o S0 poderá solicitar extração. Nenhum dado foi processado neste exemplo.'));
@@ -263,7 +272,7 @@ function renderDetails() {
         const missing=el('div','detail-row');missing.append(el('strong','','Campo ilustrativo B'),el('span','','Sem fonte suficiente · pendente'));
         extract.append(example,missing);
       }
-      if(canSimulateCompletion(item,state.actorId,state.shopId)){
+      if(canSimulateCompletion(item,state.actorId,state.shopId) && humanCompletion(item)==='pending'){
         const actions=el('div','scenario-options');
         for(const [kind,label] of [['partial','Retorno parcial'],['failed','Falha técnica'],['stale','Versão obsoleta']]){
           const button=el('button','btn btn-light',label);button.type='button';
@@ -274,6 +283,34 @@ function renderDetails() {
     }
     extract.append(el('p','detail-small','Sem editor cadastral rotineiro. A OpenAI apenas propõe; S0 decidirá autorização, validação e gravação no futuro.'));
     content.append(extract);
+  } else {
+    const followup=detailSection('RECONTATOS CONTEXTUAIS · CF-OP-02');
+    const local=state.followupRequests[item.id]??null;
+    const projection=projectedFollowupState(item,local);
+    followup.append(callout('Regras de três acontecimentos separados',
+      '24h desde último inbound habilitam mensagem livre. Conclusão humana apenas solicita extração. Outras 24h, após prova de envio do template final, podem levar a perdido SOMENTE por decisão S0 e ciclo elegível.'));
+    if(!projection){
+      followup.append(callout('Sem plano confirmado',
+        projectedMetaWindow(item)==='expired'?
+        'Janela livre vencida: somente pedido de template elegível ou solicitação de plano, se autorizado pelo S0.':'Nenhum plano pós-humano confirmado nesta demonstração.','warning'));
+    } else if(projection.source==='local_demo'){
+      const title=projection.kind==='request_chain'?'Solicitação de cadeia fictícia':'Solicitação de template individual fictícia';
+      followup.append(callout(title,'SOLICITADO (demo), não agendado, não transmitido e nunca ENVIADO. A resposta da IA e o envio dependem de S0/Meta.','warning'));
+      if(projection.template) followup.append(prop('Template simulado',projection.template.id+' · '+projection.template.version));
+    } else {
+      followup.append(callout('Plano projetado (dados artificiais)','Situação técnica fornecida pela fixture: '+projection.state+'. O navegador não calcula agendamento nem prova de envio.'));
+      for(const attempt of projection.attempts??[]){
+        const line=el('div','detail-row');
+        line.append(el('strong','',attempt.label+' · '+attempt.state),el('span','',attempt.template+' · '+attempt.time));
+        followup.append(line);
+      }
+      followup.append(prop('Template final efetivamente enviado',projection.finalSentConfirmed?'Confirmado apenas no cenário fictício':'Não confirmado'));
+      followup.append(prop('Silêncio pós-final',projection.silenceResolution==='confirmed_eligible'?
+        'Perda já representada pelo S0 fictício': 'Prazo não iniciado/sem decisão'));
+    }
+    if(isSyntheticBankProtected(item)) followup.append(callout('Sem perda por silêncio bancário','Remessa ao banco e vendido não são estados elegíveis para perda automática C09.','warning'));
+    followup.append(el('p','detail-small','Não há templates reais, relógio local de 24h, chamada OpenAI nem envio WhatsApp. Fonte futura: projeções autorizadas pelo S0.'));
+    content.append(followup);
   }
   target.replaceChildren(profile,tabs,content);
 }
