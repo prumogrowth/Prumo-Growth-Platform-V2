@@ -52,3 +52,11 @@ A partir da decisão funcional mais recente, **operadores não preenchem rotinei
 A OpenAI padronizou o nome candidato `human_close_extract` nos documentos OAI-05/E01. **Ainda há divergências nas estruturas de request/response**, cuja resolução pertence às frentes S0 e OpenAI. A operação browser→S0 permanece sem nome físico; o navegador **nunca** envia diretamente à OpenAI. Nenhuma revisão por proprietários S0/OpenAI, teste integrado ou deploy foi concluído nesta frente.
 
 **Rastreamento de revisão cruzada:** [GitHub issue #4 — CFI-01](https://github.com/prumogrowth/Prumo-Growth---Platform/issues/4), ABERTO, ainda sem validação dos proprietários das frentes S0 e OpenAI.
+
+## FV-UI-001 — primeira estrutura visual de mensageria (18/10/2026)
+
+A versão **navegável e independente da lógica S0**, com composição inspirada no padrão de mensagens do WhatsApp sem copiar a marca, está em [`frontend/visual/`](./visual/README.md). Inclui `index.html`, `styles.css`, `app.mjs`, `fixtures.mjs` e testes Node, sem dependências. Abrir localmente com Python conforme o README de `visual/`. O desenho foi criado para **desktop (lista + conversa + detalhes)** e **celular (lista → conversa → detalhes)**.
+
+**Estado desta etapa:** código visual sintético [P], navegação e estilos elaborados; **sem integração** com S0, Supabase, OpenAI, Meta ou Banco. Usuários e informações exibidas são inteiramente artificiais; filtros JavaScript não são autenticação real. A nova direção exclui preenchimento cadastral manual habitual. O botão de conclusão e a extração retornam apenas sinais artificiais no navegador.
+
+[Diretriz e evidências FV-UI-001](./docs/09_DIRETRIZ_VISUAL_MENSAGERIA_RESPONSIVA_v0_1.md). A frente S0 abriu também `feat/s1-002-equipe-prumo`, que permanece separada; **não copiar nem editar seu diretório `frontend/s1/`**. A aprovação visual do responsável e a auditoria interfrentes do [issue #4](https://github.com/prumogrowth/Prumo-Growth---Platform/issues/4) seguem pendentes. Sem merge ou mudança automática na pontuação de planejamento 19F.
