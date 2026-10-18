@@ -538,3 +538,106 @@ print("PASS AUTH-12: GoTrue->sessao viva->funcao privada, ator autenticado e esc
 
 
 
+
+
+# AUTH-15/16: the accumulated S0/028..034 objects must remain restricted
+# when all migrations are applied by the Supabase LOCAL managed stack.
+# These tests do not create Meta apps, tokens, real messages, or public RPCs.
+run_sql("""
+do $audit$
+declare
+ v_table text;
+ v_fn text;
+ v_role text;
+ v_count integer;
+ v_oid oid;
+begin
+ foreach v_table in array array[
+  'aliases_identidade_s0','eventos_identidade_s0',
+  'pendencias_identidade_s0','inbox_eventos_s0',
+  'tarefas_ingresso_s0','outbox_intencoes_s0',
+  'meta_apps_fixture_s0','meta_canais_fixture_s0',
+  'historico_tarefas_ingresso_s0','inbox_c02_fixture_s0',
+  'aplicacoes_c02_inbox_s0'
+ ] loop
+  if to_regclass('prumo_private.'||v_table) is null then
+    raise exception 'AUTH-15: private S0 table missing: %',v_table;
+  end if;
+  if not exists(
+   select 1 from pg_class c join pg_namespace n on n.oid=c.relnamespace
+   where n.nspname='prumo_private' and c.relname=v_table
+     and c.relrowsecurity
+  ) then
+   raise exception 'AUTH-15: RLS disabled on %',v_table;end if;
+  foreach v_role in array array[
+    'anon','authenticated','service_role','prumo_s0_gateway',
+    'prumo_s0_signer'
+  ] loop
+   if has_table_privilege(v_role,'prumo_private.'||v_table,
+      'SELECT,INSERT,UPDATE,DELETE') then
+    raise exception 'AUTH-15: role % may access table %',v_role,v_table;
+   end if;
+  end loop;
+ end loop;
+ foreach v_fn in array array[
+  'receber_mensagem_identidade_s0','importar_lote_identidade_s0',
+  'aceitar_lote_ingresso_s0','aceitar_lote_multicanal_fixture_s0',
+  'reservar_ingresso_s0','registrar_resultado_ingresso_s0',
+  'reconciliar_lease_expirado_s0','anexar_fixture_c02_s0',
+  'aplicar_inbox_c02_s0','validar_prova_c02_s0',
+  'validar_applied_com_prova_s0'
+ ] loop
+  select count(*) into v_count from pg_proc p
+   join pg_namespace n on n.oid=p.pronamespace
+   where n.nspname='prumo_private' and p.proname=v_fn;
+  if v_count<1 then raise exception 'AUTH-15: function absent %',v_fn;end if;
+  for v_oid in select p.oid from pg_proc p
+    join pg_namespace n on n.oid=p.pronamespace
+    where n.nspname='prumo_private' and p.proname=v_fn
+  loop
+   foreach v_role in array array[
+    'anon','authenticated','service_role','prumo_s0_gateway',
+    'prumo_s0_signer'
+   ] loop
+    if has_function_privilege(v_role,v_oid,'EXECUTE') then
+     raise exception 'AUTH-15: role % can execute %',v_role,v_fn;
+    end if;
+   end loop;
+  end loop;
+ end loop;
+ foreach v_fn in array array[
+   'inbox_c02_evento_canal_s0','aplicacao_c02_evento_canal_s0',
+   'aplicacao_c02_mensagem_canal_s0'
+ ] loop
+  if not exists(select 1 from pg_constraint where conname=v_fn
+    and contype='f') then
+   raise exception 'AUTH-15: cross-channel FK missing: %',v_fn;end if;
+ end loop;
+ if not exists(select 1 from pg_trigger
+   where tgname='tarefa_c02_applied_exige_prova_s0' and tgenabled='O')
+ or not exists(select 1 from pg_trigger
+   where tgname='aplicacao_c02_prova_sem_desvio_s0' and tgenabled='O')
+ then raise exception 'AUTH-15: C02 proof guard disabled';end if;
+end $audit$;
+""")
+print("PASS AUTH-15: 028-034 tabelas RLS, FKs/guardas C02 e funcoes privadas sem grants")
+
+# REST must not expose the private schema or its C02 bridge, even to a valid
+# user with a manager JWT; no public proxy/worker has been approved.
+for person in (None, "gestorb"):
+    token = actors[person][1] if person else None
+    for path in (
+        "/rest/v1/inbox_c02_fixture_s0?select=*",
+        "/rest/v1/aplicacoes_c02_inbox_s0?select=*",
+    ):
+        code, _ = http("GET", path, token=token)
+        if code not in (401, 403, 404):
+            fail("AUTH-16: private S0 table available from public REST")
+    for path in (
+        "/rest/v1/rpc/aplicar_inbox_c02_s0",
+        "/rest/v1/rpc/registrar_resultado_ingresso_s0",
+    ):
+        code, _ = http("POST", path, token=token, payload={})
+        if code not in (401, 403, 404):
+            fail("AUTH-16: privileged S0 RPC available from public REST")
+print("PASS AUTH-16: nenhuma tabela privada ou RPC C02/lease exposta ao REST")
