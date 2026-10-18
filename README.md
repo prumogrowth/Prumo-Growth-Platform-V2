@@ -29,6 +29,8 @@ Arquivos:
 - `docs/GATEWAY_PRIVILEGIOS_MINIMOS_AUDITORIA_S0_2026_10_17.md`: limites do papel restrito, segredo apenas no teste descartável e gate de implantação.
 - `docs/AUDITORIA_GATEWAY_S0_2026_10_17.md`: achados de segurança, migração 024, testes GW-06/07 e limites de credenciais/SECURITY DEFINER antes da operação.
 - `docs/GATEWAY_PROVA_DUPLA_S0_2026_10_18.md`: migração 025, credencial SQL e HMAC separados, nonce anti-replay, janela temporal curta e limites antes de produção.
+- `docs/SEGURANCA_ROTACAO_CHAVES_LOGS_S0_2026_10_17.md`: migração 026, ativação/revogação versionada de chaves, retenção segura dos nonces e negativas sanitizadas no backend.
+- `backend/security_events.py`: categorias de recusa controladas; NÃO constitui ainda coletor externo durável de eventos.
 - `docs/AUDITORIA_C07_RECONCILIACAO_2026_10_17.md`: resultados da auditoria, reparo do replay C05 e pendências de Auth/REST.
 - `scripts/test_s0_c07_recon_concurrency.sh`: duas revisões concorrentes do mesmo evento, uma única decisão auditada.
 - `docs/CONTROLE_CUSTOS_GITHUB_ACTIONS_2026_10_17.md`: workflows enxutos, timeouts, cancelamento de execuções obsoletas e Auth/REST opt-in.
@@ -40,4 +42,4 @@ S0: gestores autenticados leem dados somente das lojas vinculadas; operadores le
 
 Teste futuro: crie um banco local descartável `prumo_s0_test_*`, exporte `PRUMO_TEST_DATABASE_URL` e rode `./scripts/run-s0-local.sh`. **Não apontar para Supabase remoto.**
 
-Migrações versionadas 001–006 e 008–025 (007 indevida retirada antes de deploy) não estão implantadas no Supabase. Suíte SQL e teste concorrente executados em CI; veja `tests/S0_ACEITE.md`. Não gravar segredos nem dados pessoais reais no repositório.
+Migrações versionadas 001–006 e 008–026 (007 indevida retirada antes de deploy) não estão implantadas no Supabase. Suíte SQL e teste concorrente executados em CI; veja `tests/S0_ACEITE.md`. Não gravar segredos nem dados pessoais reais no repositório.
