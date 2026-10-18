@@ -10,7 +10,7 @@
 | F02 — Planejadora de recontatos | Seleção apenas de templates pré-aprovados, cumprimento dos limites e políticas sem escrita direta | Mesma família de modelos de texto sob teste; não presumir modelo único | Plano C05 validável por S0 |
 | F03 — Extração após atendimento humano | Fidelidade, proveniência por mensagem, valores explícitos, faltantes/conflitos, Structured Outputs, custo por volume de histórico | Começar pelo candidato eficiente `gpt-6-luna`, comparar `gpt-6.1-sol` e escalar para `gpt-6-astra` se evidências mostrarem necessidade | Campos válidos, recusas de suposições e persistência somente pelo stub S0 |
 | F04 — Gerar áudio de mensagem | Entonação pt-BR, pronúncia de Prumo/LiberaCred/Marca A, clareza, custo, latência, formato e divulgação de voz sintética | `gpt-4o-mini-tts` como candidato de TTS; avaliar suporte atual antes do laboratório | Áudio de conteúdo previamente autorizado, referência segura; não envio Meta |
-| F05 — Transcrever áudio recebido | Acurácia de sotaques brasileiros, motocicletas/modelos, números sensíveis, ruído, pausas e incerteza | `gpt-4o-transcribe` e `gpt-4o-mini-transcribe`; comparar conforme custo e erro | Texto com fonte/caveats, sem afirmação de certeza indevida |
+| F05 — Transcrever áudio recebido | Acurácia de sotaques brasileiros, motocicletas/modelos, números sensíveis, ruído, pausas e incerteza | Partir de `gpt-transcribe` (recomendado em documentação oficial para áudio gravado); `gpt-4o-transcribe` e `gpt-4o-mini-transcribe` como comparadores existentes, sujeitos a acesso/custo e teste | Texto com fonte/caveats, sem afirmação de certeza indevida |
 | Conversação falada contínua (futuro) | Se surgir exigência real de streaming, interrupção, turnos e chamadas de ferramentas | GPT-Live/Realtime como ARQUITETURA ALTERNATIVA futura, não pressuposta para áudios de WhatsApp | Decisão separada; só incluir se requisitos demonstrarem necessidade |
 
 A shortlist é ponto de partida para ensaio — NÃO é aquisição, homologação nem promessa de acesso. Preferir testar uma configuração por tarefa com controle de versão de modelo/prompt, nunca usar o preço isolado para selecionar.
@@ -53,7 +53,7 @@ Esse pipeline favorece auditabilidade do texto e mantém responsabilidade existe
 - Modelos de texto atuais: https://developers.openai.com/api/docs/models
 - JSON estruturado: https://developers.openai.com/api/docs/guides/structured-outputs
 - TTS: https://developers.openai.com/api/docs/guides/text-to-speech
-- STT: https://developers.openai.com/api/docs/models/gpt-4o-transcribe
+- STT recomendado para áudio gravado em 18/10/2026: https://developers.openai.com/api/docs/guides/transcription ; https://developers.openai.com/api/docs/models/gpt-transcribe
 - Áudio em geral: https://developers.openai.com/api/docs/guides/audio
 - Pipeline vs Realtime: https://developers.openai.com/api/docs/guides/voice-agents
 
