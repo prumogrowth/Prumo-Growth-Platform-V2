@@ -36,3 +36,15 @@ As verificações OWNER37B-01..05 caracterizam respectivamente: cenário de A/B 
 6. Homologar a futura migração no PostgreSQL 17 **e** GoTrue/PostgREST Supabase **local gerenciado** antes de qualquer merge/deploy.
 
 **Resultado interpretável:** GO para análise de RLS em dados fictícios; **NO-GO** para transferir as duas wrappers ou habilitar worker comercial. A saída deste ensaio é matriz/prova de limitação, não autorização de operação ou arquitetura final de permissões.
+
+## Aceite efetivo do ensaio PostgreSQL — 18/10/2026
+
+[**GitHub Actions PostgreSQL 17 #39126117200 — SUCCESS**](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39126117200), commit de código `bd6772ce82a86ec8591cbb161d83e5f14f09bfdf`. Logs inspecionados: `OWNER37B-01..05 PASS`, todos os testes SQL e de concorrência prévios, **24 testes Python — OK**; nenhum erro do job.
+
+**Conclusões estritas:** em duas lojas fictícias, com mesmo telefone de contato em leads comerciais distintos, o papel transitório `prumo_s0_probe_037b` com políticas explícitas de loja A só pôde ler/atualizar registros A; o UPDATE versionado de plano/envio C08 e o encerramento fictício de pendência C07 mais seus registros de auditoria passaram. A loja B permaneceu oculta e sem alterações. **Todos os grants, policies, dados e role desse experimento foram revertidos pelo `ROLLBACK`.**
+
+**Não aprovado:** esta prova não representa a implementação real de `FOR UPDATE` com sessão GoTrue, não verifica HMAC/nonce em cada UPDATE direto, não fornece autorização de gestor, não inclui a decisão C07 `VINCULAR_SINTETICAMENTE` e não resolve a escrita em `prumo_private.auditoria_gateway_s0`. Conceder o mesmo DML diretamente ao gateway real seria um bypass da cadeia de autorização. As duas wrappers comerciais continuam `SECURITY DEFINER postgres`.
+
+**Auth/REST:** este incremento não alterou migrations/runtime/ACL persistentes; o workflow GoTrue/PostgREST local não foi repetido aqui. Última evidência integrada da baseline [#39122948236 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39122948236).
+
+**Decisão técnica:** seguir apenas para elaboração de um modelo autorizado de sessão/escopo/execução que elimine o DML SQL direto, acompanhado por plano de testes completo das duas alternativas C07, de concorrência, de revogação de sessão e de auditoria. Nenhum deploy, merge ou acesso comercial autorizado.
