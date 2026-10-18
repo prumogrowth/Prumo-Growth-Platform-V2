@@ -142,3 +142,18 @@ test('RECOV-24 all states are non-operational and never become S0 COMMITTED/HTTP
   assert.equal(json.includes('commit_state'),false);assert.equal(json.includes('http_status'),false);
   assert.equal(json.includes('ack_allowed":true'),false);assert.equal(json.includes('production_authorized":true'),false);
 });
+
+test('RECOV-25 opaque padded wamid IDs are compatible with Graph adapter',()=>{
+  const j=new FakeS0RecoveryJournal();
+  const padded={...b,events:[{...b.events[0],provider_message_id:'wamid.HBgL+A/BC='}]};
+  assert.equal(j.admit(padded).decision,'LAB_COMMITTED');
+  assert.equal(j.recover(padded).decision,'LAB_FOUND');
+  assert.equal(j.admit({...padded,batch_ref:'BATCH_NEW',events:[{...padded.events[0],provider_message_id:'wamid.bad\n'}]}).decision,'LAB_INVALID');
+});
+test('RECOV-26 noncloneable extra fixture input denies without throwing or partial commit',()=>{
+  const j=new FakeS0RecoveryJournal();
+  const hostile={...b,unsupported:()=>42};
+  assert.doesNotThrow(()=>j.admit(hostile));
+  assert.equal(j.admit(hostile).decision,'LAB_INVALID');
+  assert.equal(j.occurrenceCount,0);
+});
