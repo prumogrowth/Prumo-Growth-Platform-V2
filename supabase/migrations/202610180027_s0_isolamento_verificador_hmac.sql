@@ -146,9 +146,16 @@ end $fn$;
 -- Change ONLY the signature validator owner. This isolated role can read HMAC
 -- material and consume nonces, but cannot access leads, sessions, domain
 -- transitions, key rotation, or key-history audit directly.
-alter function prumo_private.gateway_validar_prova_s0(
- text,uuid,uuid,uuid,uuid,bigint,text,text,uuid,uuid,bigint,uuid,text)
- owner to prumo_s0_signer;
+-- ALTER OWNER also requires the new owner to have CREATE on the schema.
+-- Hold that grant ONLY inside this one atomic DO statement, then revoke.
+do $ownership$
+begin
+ execute 'grant create on schema prumo_private to prumo_s0_signer';
+ execute 'alter function prumo_private.gateway_validar_prova_s0(
+  text,uuid,uuid,uuid,uuid,bigint,text,text,uuid,uuid,bigint,uuid,text)
+  owner to prumo_s0_signer';
+ execute 'revoke create on schema prumo_private from prumo_s0_signer';
+end $ownership$;
 
 revoke all on function prumo_private.gateway_validar_prova_s0(
  text,uuid,uuid,uuid,uuid,bigint,text,text,uuid,uuid,bigint,uuid,text)
