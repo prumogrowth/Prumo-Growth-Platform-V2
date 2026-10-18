@@ -56,8 +56,8 @@ begin
  then raise exception 'PROVA_INVALIDA' using errcode='42501';end if;
  v_agora:=pg_catalog.clock_timestamp();
  -- Permit 5 seconds of clock skew but no token older than 30 seconds.
- if p_emitido>pg_catalog.extract(epoch from v_agora)::bigint+5
- or p_emitido<pg_catalog.extract(epoch from v_agora)::bigint-30
+ if p_emitido>extract(epoch from v_agora)::bigint+5
+ or p_emitido<extract(epoch from v_agora)::bigint-30
  then raise exception 'PROVA_EXPIRADA' using errcode='42501';end if;
  v_emitido:=pg_catalog.to_timestamp(p_emitido::double precision);
  select segredo into v_segredo
