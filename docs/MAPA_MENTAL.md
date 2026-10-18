@@ -84,3 +84,36 @@ flowchart TD
 | S0-037C | Regressão do caminho assinado com HMAC, sessão, nonce, C08 e duas decisões C07 | [CI #39127146330 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39127146330) |
 
 O `MAPA_MENTAL.md` é índice de navegação. As decisões normativas e os registros de aceite versionados têm precedência sobre os nós simplificados deste mapa. Atualizá-lo a cada incremento **depois de verificar** CI e escopo real, sem rotular proposta como entregue.
+
+
+## Acompanhamento vivo — WhatsApp/Meta WA-01 a WA-04 (18/10/2026)
+
+**Convenção:** este mapa é um **índice**, não um aceite técnico. A cada incremento relevante realizado nas frentes, atualizar também a linha do tempo, os bloqueios e a evidência observada; não mover automaticamente um item de [P] para [V], [D] ou **produção**. A atualização ocorrerá durante as próximas atividades de desenvolvimento, **não em segundo plano**. Os documentos e testes de cada PR prevalecem sobre este resumo.
+
+```mermaid
+flowchart TD
+  WA0["WhatsApp Cloud API / Meta — sem ativação real"] --> I["WA-01A–D: HMAC, parser, recibo ACK candidato, IDs técnicos, GET"]
+  I --> O["WA-02A–D: envio texto/template e conciliação — offline"]
+  O --> AU["WA-03A/B: auditorias integradas, correções de isolamento e ocorrência"]
+  AU --> CR["WA-04A: slots distintos GET / HMAC POST / Graph"]
+  CR --> RT["WA-04B: rota confiável + assinatura por App + WABA/canal"]
+  RT --> LC["WA-04C: propostas de revogação/rotação — somente laboratório"]
+  LC --> GATE["Bloqueado: verificação externa do token e gates S0 / DEC-WA-04/06"]
+  GATE --> LIVE["Testes reais e ativação: somente após liberação + autorização específica"]
+  I --> C07["S0/C07: occurrence_ref interno + payload protegido + ACK durável pendentes"]
+  RT --> OWN["DEC-WA-05: App/WABA/emissor por concessionária"]
+```
+
+| Etapa | Situação em 18/10/2026 | Evidência e limite |
+| --- | --- | --- |
+| WA-01A/B/C/D | **[P]** Código candidato versionado no PR #2 | Assinatura do corpo bruto, GET, pistas técnicas **não autoritativas** e estrutura de ACK; nenhum recibo real COMMITTED |
+| WA-02A/B/C/D | **[P/V local]** Construtores, envio Graph fictício e callbacks técnicos | Testes unitários sintéticos; **nenhum** HTTP Graph, retorno comercial ou persistência durável |
+| WA-03A/B | **[P/V local]** Auditorias e reparos publicados | 120 testes na suíte WA-03B; corrigidos isolamento, posições dos arrays, HMAC/buffer e correlações; não é CI de produção |
+| WA-04A/B | **[P/V local]** Roteamento confiável e slots segregados por App/canal | 167/167 testes locais na WA-04B (inclui regressões anteriores selecionadas); sem token real ou conexão Supabase |
+| WA-04C | **[P/V local]** Propostas puras de revogação de App/canal e rotação de slots | 13/13 testes locais específicos; propostas não aplicadas, rotação deixa App **inativo na cópia**; sem ativação |
+| Credenciais Meta definitivas | **[R]** Dependência de **verificação por terceira pessoa** para liberar o token | **Não disponíveis** para esta frente; testes reais WhatsApp adiados; não pedir valores em Git, issue, chat ou arquivo |
+| S0 ↔ Meta real | **[R]** Gate operacional pendente | Ambiente DEC-WA-04, segredos/rotação/ACK/retensão DEC-WA-06, registro App→loja/canal autenticado, payload protegido, `occurrence_ref`, autorização C03/C06/C12 e C07 |
+
+**Fonte de navegação:** [PR #2 — frente WhatsApp/Meta](https://github.com/prumogrowth/Prumo-Growth---Platform/pull/2) e seus documentos `docs/integracoes/whatsapp-meta/wa04a-...`, `wa04b-...`, `wa04c-ciclo-credenciais-sem-token-v0_1.md`. **Coordenação S0:** [PR #1](https://github.com/prumogrowth/Prumo-Growth---Platform/pull/1), onde owners comerciais mínimos, RLS, Gateway e persistência/ocorrências C07 seguem seu próprio gate; não confundir CI PostgreSQL descartável ou Supabase **local** com implantação hospedada.
+
+**Regra operacional preservada:** não usar a POC concessionária de demonstração como ambiente definitivo por inferência; nenhum merge, deploy, migração remota, webhook comercial ou número alterado. Mesmo depois da liberação do token, testes reais exigirão confirmação do projeto Supabase correto, das permissões/segurança e uma autorização específica.
