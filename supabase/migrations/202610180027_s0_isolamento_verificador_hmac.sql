@@ -31,10 +31,9 @@ begin
  if current_user not in ('postgres','supabase_admin') then
   raise exception 'UNEXPECTED_MIGRATION_ROLE' using errcode='42501';
  end if;
+ -- Only postgres needs SET to transfer function ownership. In Supabase
+ -- supabase_admin is reserved: never attempt GRANT or REVOKE against it.
  execute 'grant prumo_s0_signer to postgres with inherit false, set true';
- if exists(select 1 from pg_catalog.pg_roles where rolname='supabase_admin') then
-  execute 'grant prumo_s0_signer to supabase_admin with inherit false, set true';
- end if;
 end $role$;
 
 revoke all on schema prumo_private from prumo_s0_signer;
