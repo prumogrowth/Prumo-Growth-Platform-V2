@@ -223,3 +223,5 @@ flowchart LR
 ```
 
 **[P]** Migration 038, suite S1E-01..07, novo runner e workflow PG17 privados. Não rotular [V] até confirmação CI. Não altera S0, PR #2 ou meta de 8 estados comerciais. Referência: `docs/S1_002_EQUIPE_PRUMO_PORTAO_INICIAL_2026_10_18.md`.
+
+**Evidência posterior do candidato S1-002/I1:** [PG17 CI #39145994842 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39145994842), S1E-01..07 PASS na branch S1 isolada, regressões S0 antes da 038. [V] somente o recorte sintético RLS por equipe; fonte de admissão Prumo, atribuições órfãs e GoTrue/REST pós-038 continuam [R].

@@ -18,3 +18,7 @@ Executar `bash scripts/run-s1-002-local.sh` apenas com `PRUMO_TEST_DATABASE_URL`
 5. **Meta/WhatsApp:** não muda contrato ou código do PR #2. Conservar DEC-WA-01/02/03/05, exclusividade emissor e telefone de cliente isolado por loja. A frente Meta deve saber que suspender agente humano não equivale a revogar canal/APP, nem autoriza ignorar direitos humanos no futuro backend. DEC-WA-04/06 continuam pendentes.
 
 **GO somente para ensaios locais sintéticos após validação; NO-GO** para API pública privilegiada, produção, merge, migração hospedada, autenticação de equipe real, instituição financeira, Meta, OpenAI e n8n.
+
+## Evidência executada
+
+[PostgreSQL 17 #39145994842 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39145994842), commit `bbe123aa18098848d9f9c936f4f0e02be57447af`. Foram conferidos os sete marcadores S1E-01..07, incluindo suspensão A+B e duas atribuições mantidas tecnicamente ativas. A regressão S0 passou no mesmo job **antes da instalação da 038**; não inferir GoTrue/REST integrado nem nova prova das wrappers legadas. 
