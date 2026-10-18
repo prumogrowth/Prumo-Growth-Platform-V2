@@ -22,6 +22,8 @@
 
 - **IA Vendedora:** atendimento comercial C03, linguagem adequada, coleta progressiva, respostas breves e encaminhamento a humano quando cabível; proibição de inventar aprovação bancária, taxas, ofertas ou resultados.
 - **IA Planejadora de Recontatos:** propõe escolhas de quantidade/horário/intervalo e **versões de templates já aprovados**, sem gerar novos textos de template; backend S0 efetua elegibilidade, versão, programação e cancelamento.
+- **Extrator de cadastro pós-atendimento humano [nova orientação funcional, interface P/R]:** analisa somente snapshot autorizado da conversa humana ENCERRADA para produzir campos propostos com fontes e lacunas; cadastro deve ser preenchido automaticamente pelo backend quando validável, sem digitação rotineira do operador. Não conversa com o cliente, não reabre IA Vendedora e não executa gravação direta. Documento OAI-05.
+- **Voz/áudio [requisito funcional, desenho P/R/V]:** transcrever áudios autorizados do cliente e converter resposta textual aprovada em mensagem de áudio da IA, respeitando handoff e entrega exclusivamente pela fronteira Meta. Documento OAI-06.
 - **Handoff definitivo:** após transição para atendimento humano ou cadastro enviado ao operador, IA Vendedora não retoma naquele caso. Revalidar antes da chamada e novamente antes de qualquer publicação. Falhas técnicas não suspendem globalmente handoffs nem reparam software automaticamente.
 - **IA Analista autônoma: fora do escopo [D].** Não adicionar testes, capacidade latente, módulo opcional ou treino autônomo de regras para isso.
 - **MCP:** não é caminho para contornar as regras acima; escritas exigem autenticação, escopo e segunda confirmação inequívoca do responsável.
@@ -34,10 +36,10 @@ A S0 seria responsável por gerar envelope privado com, no mínimo:
 |---|---|
 | contract_version | Valor candidato 's0-openai.v0.1-proposed'; rejeitar versões incompatíveis |
 | request_id / correlation_id | IDs opacos gerados no backend, não telefone/CPF |
-| operation_kind | 'sales_reply' ou 'recontact_plan'; não aceitar ação administrativa/MCP por essa porta |
+| operation_kind | 'sales_reply', 'recontact_plan', 'human_close_extract', 'speech_transcribe' ou 'speech_synthesize' [P]; nunca ação administrativa/MCP, SQL ou comando bancário |
 | concessionaria_id, canal_id, conversa_id, ciclo_id | Referências internas autorizadas, escopo único por concessionária |
-| state_version e handoff_guard | Snapshot versionado do estado; revalidar na S0 ao aplicar resultado; snapshot não concede autorização permanente |
-| authorized_context_ref / context_version | Referência a contexto MÍNIMO da mesma concessionária, fornecido pelo backend; não autoriza buscar outros clientes |
+| state_version e handoff_guard | Snapshot versionado do estado; revalidar na S0 ao aplicar resultado; snapshot não concede autorização permanente. Para 'human_close_extract', handoff humano É pré-condição, mas resposta da IA Vendedora continua proibida; o extrator não envia mensagens |
+| authorized_context_ref / context_version | Referência a contexto MÍNIMO da mesma concessionária, fornecido pelo backend; não autoriza buscar outros clientes. Para extração, S0 fornece fechamento, snapshot/hash/watermark, ficha e catálogo versionados; para voz, mídia/texto aprovado por referência autorizada |
 | knowledge_policy_version / prompt_policy_version | Versões de conhecimento e instruções aprovadas pelo gestor responsável da configuração |
 | provider_policy_ref | Política técnica escolhida por humanos para modelo, limites de tokens, timeout e orçamento |
 | request_deadline | Limite de tempo definido pela execução que usa o contrato |
@@ -52,11 +54,14 @@ O adaptador retorna **proposta sem efeito colateral**, com contract_version, req
 
 - sales_reply: 'proposed_text' minimizado **ou** 'request_human_review' com reason_code. Não publica no WhatsApp; S0 valida estado, segurança, políticas e cria intenção C03 autorizada na outbox que já pertence ao núcleo.
 - recontact_plan: opções estruturadas de template_id + template_version + janela/intervalo sugeridos **somente entre candidatos previamente elegíveis fornecidos pela S0**. Não cria template, não agenda/enfileira diretamente, não abre novo status comercial.
+- human_close_extract (OAI-05): proposta estruturada de campos declarados após encerramento humano, cada um com field_code do catálogo autorizado, fonte em mensagens/transcrições, sinalização de ausências/contradições e versão do snapshot. S0 valida e aplica AUTOMATICAMENTE apenas campos elegíveis e fundamentados em nova versão auditada, sem fazer operador digitar rotineiramente; poder excepcional de corrigir continua. Não autoriza transição comercial, retomada IA Vendedora nem remessa ao banco.
+- speech_transcribe (OAI-06): texto/transcrição propostos a partir de áudio temporário autorizado, com fonte, metadados seguros e indicadores de incerteza; não afirma conteúdo incompreensível.
+- speech_synthesize (OAI-06): áudio temporário ou referência segura derivada do TEXTO EXATO já aprovado pela S0. Não envia WhatsApp; S0 entrega intenção à frente Meta apenas após revalidar permissão, handoff e outbox.
 - error: código seguro e categoria (AUTH_PROVIDER, RATE_LIMIT, QUOTA_OR_BILLING, TIMEOUT_UNKNOWN, TEMPORARY_PROVIDER_FAILURE, INVALID_PROVIDER_RESPONSE, POLICY_DENIED), sem expor token, payload sensível ou texto bruto.
 - usage_metrics: contagens retornadas pelo provedor, quando disponíveis, para observabilidade e controle de custos; nunca inferir cobrança a partir do texto.
 - Não há opção 'mark_sold', 'bank_approved', 'set_lost', 'handoff_override', 'send_graph', 'db_mutation' ou alteração arbitrária de parâmetros.
 
-O backend S0, como única autoridade do ciclo, deverá revalidar versão, caso, loja, handoff, elegibilidade e permissão da ação antes de persistir. Resposta tardia/desatualizada deve ser descartada com motivo e evidência técnica segura.
+O backend S0, como única autoridade do ciclo, deverá revalidar versão, caso, loja, handoff, elegibilidade e permissão da ação antes de persistir. **Distinção de guarda por operação:** sales_reply/recontact_plan/speech_synthesize com intenção de contato exigem IA ainda elegível e bloqueio pós-handoff; human_close_extract é PROCESSAMENTO SILENCIOSO posterior à conversa humana e NÃO deve ser barrado pela trava de comunicação da IA Vendedora. Resposta tardia/desatualizada deve ser descartada com motivo e evidência técnica segura.
 
 ## 5. Conectividade OpenAI e transporte [P/V/R]
 
@@ -82,7 +87,7 @@ O backend S0, como única autoridade do ciclo, deverá revalidar versão, caso, 
 
 - G0 documental: aprovar divisão de responsabilidade e versão candidata por revisão S0/Meta sem interromper PRs #1/#2.
 - G1 credencial humana: responsável decide organização/projeto OpenAI, cria chave apropriada, limita permissão/gasto e providencia seu armazenamento MANUAL no mecanismo secreto do caminho aprovado; se escolhido Supabase Edge Functions, usar Edge Function Secrets do projeto Prumo verificado. Comprovar SOMENTE metadados e presença do nome, nunca valor. **Não presumir que o segredo Supabase, sozinho, atende ao caminho n8n.**
-- G2 técnica offline: fixtures sintéticas para request/response, incompatibilidade de versão, isolamento A/B, injeção, timeout, 401/429, JSON inválido, custo, stale version e handoff; sem custos. Preparar os mesmos cenários para A (direto) e B (n8n) sem reescrever regras S0/Meta.
+- G2 técnica offline: fixtures sintéticas para request/response, incompatibilidade de versão, isolamento A/B, injeção, timeout, 401/429, JSON inválido, custo, stale version e handoff; sem custos. Acrescentar extração automática pós-humano com fontes, lacunas, versões e regressão de guardas distintas, mais STT/TTS e validação de texto/áudio. Preparar os mesmos cenários para A (direto) e B (n8n) sem reescrever regras S0/Meta.
 - G3 laboratório isolado: primeira chamada real apenas com aprovação explícita de custos e dados 100% sintéticos, sem banco comercial nem Meta. Comparar, quando autorizado, sucesso, resposta tardia, latência, falhas, rastreabilidade, manutenção e custo de ambos os caminhos; não contratar n8n antes de demonstrar necessidade.
 - G4 integração futura: revisão cruzada da autenticação S0, auditoria, contratos, consentimentos/transferência e operações; decisão explícita da topologia mediante evidências; autorização separada antes de implantação, dados pessoais ou produção.
 
