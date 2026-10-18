@@ -97,3 +97,10 @@ Revisados WA-01A/B/C/D e contratos residuais da WA-02C/D. Cinco falhas adversari
 Testes locais **120/120 PASS**, TypeScript estrito dos oito módulos **PASS**. Somam 105 testes anteriores de integração/saída e 15 adversariais novos, `preaudit-gaps.test.ts` e `wa01-audit.test.ts`. Os quatro arquivos de testes unitários originais WA-01 não foram reexecutados nesta rodada e os testes Node não foram integralmente typechecked; sem CI remoto. Blobs reparados e testes novos conferidos no GitHub.
 
 Relatório: `docs/integracoes/whatsapp-meta/wa03b-auditoria-pendencias-e-reparos-v0_1.md`. Para C07 real: `position.array_kind` por evento, mais `ingestion_batch_ref`/`occurrence_ref` e payload protegido conferidos pelo ingresso S0. Não conectar a uma operação Meta, Graph, webhook ou Supabase hospedado sem gates.
+
+
+## WA-04A — Seleção de credenciais Meta por App/loja, totalmente offline
+
+`credential-routing.ts` implementa somente o **contrato candidato de roteamento** entre `route_ref` confiável, App titular da concessionária, WABA, número emissor e canal S0. Distingue as referências de **verify token GET, App Secret POST HMAC e Graph access token**. Retorna apenas o nome do slot protegido; nunca lê ou devolve o valor do segredo, usa rede ou fornece autorização comercial. Vigência, revogação, rotação por revisão e duplicidades são negadas por padrão; `production_authorized:false` sempre.
+
+**19/19 testes sintéticos PASS** em Node 22.16 e TypeScript estrito do módulo PASS, hashes conferidos com GitHub. O cadastro definitivo será feito pelo responsável e não foi acessado nesta etapa. Ver `docs/integracoes/whatsapp-meta/wa04a-roteamento-credenciais-meta-offline-v0_1.md`. DEC-WA-04/06 e contratos S0 continuam pendentes; não usar a POC da concessionária de demonstração como ambiente definitivo sem decisão específica.
