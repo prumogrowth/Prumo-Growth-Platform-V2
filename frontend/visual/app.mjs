@@ -2,20 +2,25 @@
  * Não chamar backend, OpenAI, Meta, Banco, storage ou permitir efeito comercial.
  */
 import {
-  ACTORS, COMMERCIAL_STATUSES, getActor, getShop, copyFixtures, visibleConversations,
+  ACTORS, COMMERCIAL_STATUSES, getActor, getShop, visibleConversations,
   canSimulateCompletion, statusTone
 } from './fixtures.mjs';
 import {
   DETAIL_TABS, projectQueue, summaryOf, canWriteNote, canSeeTeamSummary,
   activityFor, modelExtraction
 } from './view-model.mjs';
+import {
+  DEMO_TEMPLATES, copyCFDemoFixtures, isInActiveInbox, projectedMetaWindow,
+  humanCompletion, mayMockFreeText, projectedFollowupActions, projectInbox,
+  projectedFollowupState, applyLocalFollowupRequest, isSyntheticBankProtected
+} from './cf-op-02.mjs';
 
 const $ = id => document.getElementById(id);
 const app = $('visual-app');
 const list = $('conversation-items');
 const state = {
   actorId: 'rafael', shopId: 'aurora', filter: 'all', statusFilter: 'all', detailTab: 'overview', query: '',
-  selectedId: 'A-102', cases: copyFixtures(), processing: {},
+  selectedId: 'A-102', cases: copyCFDemoFixtures(), processing: {}, followupRequests: {}, inboxView: 'active',
   mobileView: 'list'
 };
 
@@ -36,19 +41,19 @@ function accessible() { return visibleConversations(state.cases, state.actorId, 
 function filtered() {
   return projectQueue(state.cases, state.actorId, state.shopId, {
     query: state.query, filter: state.filter, status: state.statusFilter
-  });
+  }).filter(record => state.inboxView === 'history' ? !isInActiveInbox(record) : isInActiveInbox(record));
 }
 
 function canMockMessage(record) {
-  const actor = getActor(state.actorId);
-  return Boolean(actor && record && actor.shops.includes(state.shopId) &&
-    record.shopId === state.shopId && record.assignedTo === actor.id &&
-    record.status !== 'vendido' && record.status !== 'perdido' &&
-    record.status !== 'em atendimento pela IA');
+  return mayMockFreeText(record,state.actorId,state.shopId,Boolean(state.processing[record?.id]));
 }
 function canMockClose(record) {
-  return canSimulateCompletion(record, state.actorId, state.shopId) && !state.processing[record.id];
+  return canSimulateCompletion(record,state.actorId,state.shopId) &&
+    isInActiveInbox(record) && humanCompletion(record) === 'pending' &&
+    record?.allowedActionsProjection?.includes('complete') &&
+    !state.processing[record.id];
 }
+
 function showToast(message) {
   const node = $('toast'); node.textContent = message; node.hidden = false;
   clearTimeout(showToast.timer);
@@ -79,14 +84,20 @@ function updateSelectors() {
 }
 function renderList() {
   const items = filtered();
-  const total = accessible().length;
+  const listProjection = projectInbox(state.cases,state.actorId,state.shopId,state.inboxView);
+  const total = listProjection.length;
   $('list-count').textContent = `${total} ${total === 1 ? 'atendimento' : 'atendimentos'}`;
   $('list-context').textContent = getActor(state.actorId).role === 'gestor' ? 'Visão de supervisão' : 'Atribuídos a mim';
-  const summary=summaryOf(state.cases,state.actorId,state.shopId);
+  const activeRows=projectInbox(state.cases,state.actorId,state.shopId,'active');
+  const summary={total:activeRows.length,unread:activeRows.filter(x=>x.unread>0).length,human:activeRows.filter(x=>x.status==='em atendimento pelo operador').length};
   const tiles=[['Total',summary.total],['Não lidas',summary.unread],['Em atendimento',summary.human]];
   $('queue-summary').replaceChildren(...tiles.map(([label,value])=>{
     const tile=el('div','summary-tile');tile.append(el('strong','',value),el('span','',label));return tile;
   }));
+  document.querySelectorAll('[data-inbox]').forEach(button => {
+    const active=button.dataset.inbox===state.inboxView;
+    button.classList.toggle('selected',active);button.setAttribute('aria-pressed',String(active));
+  });
   const nodes = items.map((item, idx) => {
     const card = el('button', 'conversation-card' + (item.id === state.selectedId ? ' is-selected' : ''));
     card.type = 'button'; card.setAttribute('aria-pressed', String(item.id === state.selectedId));
@@ -96,6 +107,7 @@ function renderList() {
     const row = el('div','item-title-row'); row.append(el('span','item-title',item.name),el('span','item-time',item.updatedAt));
     const preview = item.messages.at(-1)?.body ?? 'Sem mensagens';
     const foot = el('div', 'item-foot'); foot.append(el('span','micro-tag',item.tag));
+    if(projectedMetaWindow(item)==='expired') foot.append(el('span','window-mini','Janela expirada'));
     if (item.unread > 0) foot.append(el('span','unread',item.unread));
     center.append(row, el('div','item-preview',preview),foot);
     card.append(avatar,center);
@@ -119,7 +131,7 @@ function renderList() {
 function renderThread() {
   const item = selectedCase();
   $('thread-title').textContent = item?.name ?? 'Selecione uma conversa';
-  $('thread-meta').textContent = item ? `${getShop(item.shopId).name} · Caso ${item.id} · atendimento fictício` : 'Nenhum atendimento selecionado';
+  $('thread-meta').textContent = item ? `${getShop(item.shopId).name} · Caso ${item.id} · ${isInActiveInbox(item)?'Lista ativa':'Histórico preservado'} · demo` : 'Nenhum atendimento selecionado';
   const body = $('thread-body'); const bar = $('workflow-bar');
   const input = $('message-input'); const button = document.querySelector('.send-button');
   if (!item) {
@@ -143,6 +155,11 @@ function renderThread() {
   const t = el('span', 'tiny-note', 'Estado comercial · não alterado pela interface');
   note.append(s,t);
   bar.replaceChildren(note);
+  const meta=projectedMetaWindow(item);
+  bar.append(el('span','window-indicator '+(meta==='open'?'open':'closed'),meta==='open'?'Janela Meta aberta · projeção':meta==='expired'?'Janela Meta expirada · projeção':'Janela Meta não confirmada'));
+  if(humanCompletion(item,Boolean(state.processing[item.id]))!=='pending') bar.append(el('span','status-indicator','Etapa humana concluída · demo'));
+  if(!isInActiveInbox(item)) bar.append(el('span','status-indicator','Histórico · somente leitura'));
+  if(item.reassignmentProjection==='protected_queue') bar.append(el('span','status-indicator','Fila protegida · sem responsável elegível'));
   if (canMockClose(item)) {
     const close = el('button', 'btn btn-primary', 'Concluir atendimento');
     close.type = 'button'; close.id='request-completion';
@@ -152,10 +169,26 @@ function renderThread() {
     const label = state.processing[item.id].kind === 'accepted' ? 'Solicitação simulada' : 'Resultado fictício';
     bar.append(el('span','status-indicator human',label));
   }
-  const composeAllowed = canMockMessage(item) && !state.processing[item.id];
+  const fActions=projectedFollowupActions(item,state.actorId,state.shopId,Boolean(state.processing[item.id]));
+  const pendingLocal=state.followupRequests[item.id];
+  if(fActions.includes('single_template') && !pendingLocal){
+    const btn=el('button','btn btn-light','Selecionar e solicitar template aprovado');btn.type='button';
+    btn.addEventListener('click',()=>{$('template-dialog').showModal();});
+    bar.append(btn);
+  }
+  if(fActions.includes('request_chain') && !pendingLocal){
+    const btn=el('button','btn btn-light','Solicitar cadeia de tentativas à IA');btn.type='button';
+    btn.addEventListener('click',()=>{
+      try {state.followupRequests[item.id]=applyLocalFollowupRequest(item,state.actorId,state.shopId,'request_chain');
+        state.detailTab='followup';render();showToast('Solicitação fictícia de cadeia. Não há plano persistido nem envio.');}
+      catch(error){showToast('Operação não disponível neste cenário.');}
+    });bar.append(btn);
+  }
+  if(pendingLocal) bar.append(el('span','status-indicator','Pedido simulado · não enviado'));
+  const composeAllowed = canMockMessage(item);
   input.disabled = !composeAllowed;
   button.disabled = !composeAllowed;
-  input.placeholder = composeAllowed ? 'Escrever mensagem de demonstração…' : 'Visualização somente leitura neste contexto';
+  input.placeholder = composeAllowed ? 'Escrever mensagem de demonstração…' : meta==='expired' ? 'Janela de 24h encerrada · somente template aprovado' : 'Texto livre indisponível neste contexto';
 }
 function detailSection(title) {
   const section = el('section','detail-section'); section.append(el('h3','detail-label',title)); return section;
@@ -248,17 +281,20 @@ function renderDetails() {
 function render(){renderList();renderThread();renderDetails();app.dataset.mobileView=state.mobileView;}
 function changeActor(actorId){
   const actor=getActor(actorId);if(!actor)return;
-  state.actorId=actor.id;state.shopId=actor.shops[0];state.selectedId=null;state.detailTab='overview';state.statusFilter='all';
+  state.actorId=actor.id;state.shopId=actor.shops[0];state.selectedId=null;state.detailTab='overview';state.statusFilter='all';state.inboxView='active';
   state.filter='all';state.query='';$('search-input').value='';goto('list');updateSelectors();render();
 }
 $('actor-select').addEventListener('change',event=>changeActor(event.target.value));
 $('shop-select').addEventListener('change',event=>{
   const actor=getActor(state.actorId);
   if(!actor.shops.includes(event.target.value))return;
-  state.shopId=event.target.value;state.selectedId=null;state.detailTab='overview';state.statusFilter='all';$('status-filter').value='all';state.query='';$('search-input').value='';goto('list');render();
+  state.shopId=event.target.value;state.selectedId=null;state.detailTab='overview';state.statusFilter='all';state.inboxView='active';$('status-filter').value='all';state.query='';$('search-input').value='';goto('list');render();
 });
 $('search-input').addEventListener('input',event=>{state.query=event.target.value;renderList();});
 $('status-filter').addEventListener('change',event=>{state.statusFilter=event.target.value;renderList();});
+document.querySelectorAll('[data-inbox]').forEach(button=>button.addEventListener('click',()=>{
+ state.inboxView=button.dataset.inbox;state.selectedId=null;goto('list');render();
+}));
 document.querySelectorAll('[data-filter]').forEach(button=>button.addEventListener('click',()=>{state.filter=button.dataset.filter;renderList();}));
 $('thread-back').addEventListener('click',()=>goto('list'));
 $('detail-back').addEventListener('click',()=>goto('thread'));
@@ -292,11 +328,11 @@ document.addEventListener('keydown',event=>{
   }
 });
 $('reset-app').addEventListener('click',()=>{
-  state.cases=copyFixtures();state.processing={};changeActor('rafael');showToast('Dados de demonstração restaurados.');
+  state.cases=copyCFDemoFixtures();state.processing={};state.followupRequests={};changeActor('rafael');showToast('Dados de demonstração restaurados.');
 });
 $('composer').addEventListener('submit',event=>{
   event.preventDefault();const item=selectedCase();const input=$('message-input');const text=input.value.trim();
-  if(!text || !item || !canMockMessage(item) || state.processing[item.id]) return;
+  if(!text || !item || !canMockMessage(item)) return;
   item.messages.push({id:`demo-${item.messages.length+1}`,side:'out',body:text,time:'Agora · fictício'});
   item.updatedAt='Agora';input.value='';render();showToast('Mensagem adicionada apenas à simulação local.');
 });
@@ -305,6 +341,17 @@ $('completion-dialog').addEventListener('close',()=>{
   const item=selectedCase(); if(!item || !canMockClose(item))return;
   state.processing[item.id]={kind:'accepted'};state.detailTab='extraction';
   render();showToast('Solicitação de conclusão simulada. Nenhuma API foi chamada.');
+});
+$('template-select').replaceChildren(...DEMO_TEMPLATES.map(template=>{
+  const option=el('option','',`${template.title} · ${template.version} (fictício)`);option.value=template.id;return option;
+}));
+$('template-dialog').addEventListener('close',()=>{
+  if($('template-dialog').returnValue!=='confirm')return;
+  const item=selectedCase();if(!item)return;
+  const template=DEMO_TEMPLATES.find(x=>x.id===$('template-select').value);
+  try {state.followupRequests[item.id]=applyLocalFollowupRequest(item,state.actorId,state.shopId,'single_template',template);
+    state.detailTab='followup';render();showToast('Pedido fictício de template recebido. Envio não confirmado.');}
+  catch(error){showToast('Template indisponível neste contexto.');}
 });
 if(window.matchMedia('(max-width:1040px)').matches){app.classList.add('details-hidden');$('detail-toggle').setAttribute('aria-expanded','false');}
 updateSelectors();render();
