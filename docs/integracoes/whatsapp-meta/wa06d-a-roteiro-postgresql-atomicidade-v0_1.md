@@ -4,7 +4,7 @@
 
 ## Entrega
 
-Arquivo: [`integrations/whatsapp-meta/lab/wa06d_pg17_atomicity.sql`](../../../../integrations/whatsapp-meta/lab/wa06d_pg17_atomicity.sql), blob Git `775ad5909a5f269281d7d122c2b8475e7f41d154`.
+Arquivo: [`integrations/whatsapp-meta/lab/wa06d_pg17_atomicity.sql`](../../../integrations/whatsapp-meta/lab/wa06d_pg17_atomicity.sql), blob Git `775ad5909a5f269281d7d122c2b8475e7f41d154`.
 
 O roteiro usa **7 tabelas temporárias**, uma função de teste `pg_temp.wa06d_accept`, um conjunto de **11 verificações candidatas** e `ROLLBACK` no final. Ele não cria tabelas em `public` ou `prumo_private`, nem modifica migrations S0. Integração conceitual revisada com S0-029/032/033: lote, corpo de teste, nonce, ocorrência própria, tarefa e marcador de recibo coexistem na mesma transação. O corpo é **sintético em claro**, não armazenamento protegido de produção.
 
