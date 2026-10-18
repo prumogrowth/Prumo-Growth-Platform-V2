@@ -65,3 +65,9 @@ A **digitação rotina de nome, e-mail e demais informações** deixa de compor 
 **S0 [R]:** aprovar comando de conclusão, status técnico de processamento, projeção UQ03 e versionamento; conciliar caso que está em atendimento humano por exceção e via IA. **OpenAI [R]:** manter contrato OAI-05/E01, mapear retorno sem efeitos colaterais. **Governança [R/V]:** catálogo oficial de campos, política de autopreenchimento por classe, correção excepcional, LGPD/Meta/Banco. **Frontend:** testes e telas com dados sintéticos, sem fingir acesso operacional.
 
 **Situação:** contrato redigido e auditável; revisão interfrentes ainda pendente. Não é aceite de API nem GO para produção.
+
+## Adendo de conciliação CFI-01 — 18/10/2026 [P/R]
+
+Auditoria de compatibilidade realizada em [CFI-01](07_CONCILIACAO_INTERFRENTES_FV_S0_OAI_v0_1.md), com [36 cenários candidatos](08_MATRIZ_ACEITE_CONTRATUAL_FV_S0_OAI_v0_1.md). O conjunto C01–C24/UQ01–UQ09 dos docs 26/40 **não contém contrato físico aprovado** para conclusão humana com extração posterior. Preservar C12 (conversa humana) e C13 (correção excepcional), sem reclassificar o novo fluxo como C13 ou handoff C10. UQ03 continua fonte conceitual de ficha/versionamento, mas precisa de confirmação S0 quanto à projeção de progresso da extração.
+
+**Dono das decisões técnicas ainda [R]:** núcleo S0 para comando de conclusão, idempotência e nova versão; S0 + OpenAI para padronização do envelope interno `human_close_extract`. A E01 atual já usa o nome `human_close_extract` como OAI-05, mas os exemplos de campos, ausências e correlação ainda diferem. Não inventar tradução automática ou API em `frontend/`. Nenhuma alteração nas normas D41/D-ORG ou permissões decorrente desta conciliação.
