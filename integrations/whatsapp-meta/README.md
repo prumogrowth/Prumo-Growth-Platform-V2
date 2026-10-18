@@ -235,3 +235,9 @@ Foi publicado um [roteiro SQL autocontido](lab/wa06d_pg17_atomicity.sql), com 7 
 ## WA-06D/A2 — runner local protegido (18/10/2026)
 
 O roteiro PostgreSQL WA-06D/A deve ser chamado apenas pelo `lab/run-wa06d-local.sh`, com banco descartável `wa06d_test_<sufixo>`, `127.0.0.1:5432`, removendo `PGHOSTADDR/PGSERVICE/PGSERVICEFILE/PGOPTIONS`. O guard não identifica um túnel externo: **nunca usar porta encaminhada a ambiente hospedado**. `lab/test_wa06d_runner.py` executou **5/5 testes Python locais PASS com binário `psql` falso**, `bash -n` PASS, incluindo injeção de `PGHOSTADDR` remoto; blobs coincidem com código testado. Detalhes no [adendo WA-06D/A2](../../docs/integracoes/whatsapp-meta/wa06d-a-roteiro-postgresql-atomicidade-v0_1.md). **Ainda 0/11 testes SQL executados**, nenhum serviço ou Meta comercial alterado.
+
+## WA-06D/A3 — posição integral de evento Meta (18/10/2026)
+
+Revisão pré-execução encontrou um defeito no roteiro PostgreSQL WA-06D/A: `UNIQUE(batch,kind,item_index)` colidia para ocorrências legítimas em `entry[]/changes[]` diferentes. Corrigido no SQL de laboratório para usar a **posição integral** `(batch,entry_index,change_index,kind,item_index)`, igual à semântica WA-05C/06B. A fixture de revogação agora restaura o canal antes dos testes seguintes. Acrescentados WA06D-12/13/14 para multientrada, posição realmente duplicada e dois canais da mesma App/loja. Relatório [WA-06D/A3](../../docs/integracoes/whatsapp-meta/wa06d-a-roteiro-postgresql-atomicidade-v0_1.md), código blob `e011969413332565bc4c3e1e37490f5ad99d5ac8`.
+
+**11 checagens estáticas de conteúdo passaram; 0/14 testes PostgreSQL foram executados.** O runner offline anterior continua com 5/5 testes de proteção; isso NÃO comprova o SQL, identidade operacional, commit pós-transação nem HTTP ACK. Nenhum merge, deploy ou ambiente real alterado.
