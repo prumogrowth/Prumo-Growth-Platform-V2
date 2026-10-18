@@ -164,12 +164,15 @@ set local role prumo_s0_gateway;
 do $gate$
 declare v jsonb;
 begin
- if has_table_privilege(current_user,'auth.sessions','SELECT')
- or has_table_privilege(current_user,'public.planos_recontato_sinteticos','UPDATE')
+ if has_table_privilege(current_user,'public.planos_recontato_sinteticos','UPDATE')
  or has_table_privilege(current_user,'prumo_private.auditoria_gateway_s0','INSERT')
  or has_function_privilege(current_user,
    'prumo_private.gateway_cancelar_plano_s0(uuid,uuid,uuid,uuid,bigint)','EXECUTE')
  then raise exception 'FAIL OWNER37C-01: bypass possible';end if;
+ begin
+  perform 1 from auth.sessions;
+  raise exception 'FAIL OWNER37C-01: session directly readable';
+ exception when insufficient_privilege then null;end;
  begin
   perform prumo_private.gateway_cancelar_plano_assinado_s0(
    'c3900000-0000-4000-8000-000000000001',
