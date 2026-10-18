@@ -236,3 +236,10 @@ Esse gate resolve a pendência de **validação Auth/REST local de C07**; não r
 - As funções comerciais `SECURITY DEFINER` continuam pertencendo a `postgres`. Esta entrega é apenas uma redução incremental de privilégios, não a conclusão do risco de produção.
 
 - **[Regressão PostgreSQL final #39086930417 — PASS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39086930417)**: a migração ajustada concede ao `postgres` gerenciado apenas `SET TRUE, INHERIT FALSE` para a transferência de propriedade. Provas `OWNER-01..03`, `GW-01..07` e `KEY-01..05` mantidas. O teste integrado Auth/REST desta versão deve ser registrado separadamente.
+
+### Fechamento do gate PostgreSQL 027 — 17/10/2026
+
+- [**PostgreSQL 17 #39087193113 — PASS**](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39087193113). OWNER-01..03, GW-01..07, KEY-01..05, **24 testes unitários** e regressões anteriores aprovados na versão final de migração 027.
+- Após detectar no Supabase a necessidade de `SET ROLE` para o papel `postgres` gerenciado e de `CREATE` no esquema para o novo proprietário, a migration passou a conceder `SET TRUE, INHERIT FALSE` **apenas** a `postgres`, sem alterar o reservado `supabase_admin`. A permissão `CREATE` é concedida e revogada **dentro de um único bloco transacional**; o teste OWNER-02 confirma que não fica permanente.
+- **Auth/REST da versão final 027: PENDENTE, não aprovado.** A última tentativa [#39086997963](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39086997963) falhou na alteração de propriedade, antes dos testes Auth; o reparo de `CREATE` foi submetido e aprovado somente no PostgreSQL #39087193113. Não iniciar repetidas suítes Auth caras até uma revisão específica da compatibilidade.
+- As migrações candidatas continuam apenas no GitHub; PR DRAFT, nenhum deploy remoto ou chave operacional. **GO somente engenharia sintética PG; NO-GO homologação Supabase/produção.**
