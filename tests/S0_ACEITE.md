@@ -368,3 +368,21 @@ Auditoria **estática**, sem modificação SQL ou novo teste: `docs/AUDITORIA_PR
 **Limites:** `APPLIED_ATOMIC` é somente aplicação *fictícia* dentro da transação SQL C02, não equivale a `COMMITTED` de POST Meta real ou a confirmação bancária. A regra de prova cobre os eventos com `inbox_c02_fixture_s0`; rotinas sintéticas antigas que não têm essa fixture continuam independentes e não são prova de C02. `IDENTITY_CONFLICT` e `NEEDS_REVIEW` são causas técnicas de quarentena, não novos estados comerciais. Nenhuma credencial real, worker autêntico de menor privilégio, integração Meta/Graph/Banco, payload protegido real, ACK HTTP ou migração hospedada. Auth/REST integrado no Supabase local gerenciado para migrations 028–034 **NÃO EXECUTADO**. Os owners comerciais `SECURITY DEFINER postgres` continuam pendentes de redução de privilégio.
 
 **Gates:** DEC-WA-01/02/03 diretrizes aprovadas; DEC-WA-05 titularidade por concessionária aprovada, sem liberação de implantação; DEC-WA-04/06 pendentes. PR #1 e PR #2 Draft sem merge. **GO** para engenharia sintética; **NO-GO** para webhook real, produção e Supabase hospedado.
+
+
+## S0-034B — auditoria de contrato C07 / WA-01C (18/10/2026 UTC)
+
+**Evidência PostgreSQL 17 descartável:** [GitHub Actions #39119612194 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39119612194), commit de implementação/teste `2ce6ccf0c47b0cb39c1c55165f35f1fe96712c6d`. Logs do job `s0-db-isolation` conferidos: `WA34B-CB-01..04 PASS`, regressões S0 já existentes, inclusive C07-01..05, C07-REC-01..05, WA33 e WA34, e **24 testes unitários Python — OK**. Nenhum erro nos logs do CI.
+
+| Marcador | Evidência e limite |
+|---|---|
+| WA34B-CB-01 | Um ID de mensagem de saída contém vários status/ocorrências, incluindo duas com mesmo status e timestamp; preservadas **somente porque a fixture fornece IDs artificiais de evento distintos**; replay do mesmo ID local idempotente e evento atrasado identificado, sem alterar ciclo |
+| WA34B-CB-02 | Prova negativa: `statuses[].id` **não** é ID exclusivo de ocorrência; se reutilizado em `evento_externo_ficticio`, status seguinte com conteúdo distinto gera `CONFLICT_IDEMPOTENCY_KEY` |
+| WA34B-CB-03 | Status da loja A/canal A1 não é correlacionado por engano no canal A2 da mesma loja ou na loja B; vai a pendência técnica |
+| WA34B-CB-04 | Prova negativa: `inbox` da migration 030 usa `status + timestamp + provider_message_id` como chave; mesmo conjunto com outra fixture causa conflito. **Não certifica dedupe Meta**, nem autorização para ACK, descarte ou conexão C07 |
+
+**Artefatos:** `supabase/tests/s0_wa_034b_c07_contrato.sql`, `docs/S0_034B_AUDITORIA_CONTRATO_C07_WA01C_2026_10_18.md`; incluídos no runner `scripts/run-s0-local.sh`. **Nenhuma migration nova neste marco; funções C07 019–022, S0 028–034 e PR #2 preservados.**
+
+**Contrato e gate:** WA-01C do PR #2 é apenas candidato `safe_to_auto_dedupe:false`. O C07 S0 exige `evento_externo_ficticio` único, enquanto a Meta não garante um ID por observação de status; `statuses[].id` é da mensagem enviada. Falta definição segura de ID interno de ocorrência, tratamento de reentrega, conservação do conteúdo protegido, HMAC por App e mapeamento com vigência App/WABA/emissor→canal antes de qualquer ligação C07. Status de Graph/Meta não altera estado comercial, reenvio automático em resultado incerto continua proibido, e `APPLIED` sintético da inbox não é `COMMITTED` do webhook.
+
+DEC-WA-01/02/03 e titularidade DEC-WA-05 aprovadas como direção; DEC-WA-04/06 permanecem pendentes. **Auth/REST local gerenciado para migrations 028–034 ainda não executado**; Supabase hospedado não recebeu migrations comerciais. PR #1 e #2 Draft, sem merge. **GO** para engenharia de contrato com dados sintéticos; **NO-GO** para inbox→C07 real, Graph, canais comerciais e produção.
