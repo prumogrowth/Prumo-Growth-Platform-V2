@@ -174,7 +174,17 @@ function renderThread() {
   const pendingLocal=state.followupRequests[item.id];
   if(fActions.includes('single_template') && !pendingLocal){
     const btn=el('button','btn btn-light','Selecionar e solicitar template aprovado');btn.type='button';
-    btn.addEventListener('click',()=>{$('template-dialog').showModal();});
+    btn.addEventListener('click',()=>{
+      const current=selectedCase();
+      if(!current || !projectedFollowupActions(current,state.actorId,state.shopId).includes('single_template'))return;
+      const eligible=DEMO_TEMPLATES.filter(t=>current.eligibleTemplatesProjection?.includes(t.id+'@'+t.version));
+      if(!eligible.length){showToast('Nenhum template elegível neste caso fictício.');return;}
+      $('template-select').replaceChildren(...eligible.map(template=>{
+        const option=el('option','',template.title+' · '+template.version+' (fictício)');
+        option.value=template.id;return option;
+      }));
+      $('template-dialog').showModal();
+    });
     bar.append(btn);
   }
   if(fActions.includes('request_chain') && !pendingLocal){
@@ -383,9 +393,6 @@ $('completion-dialog').addEventListener('close',()=>{
   state.processing[item.id]={kind:'accepted'};state.detailTab='extraction';
   render();showToast('Solicitação de conclusão simulada. Nenhuma API foi chamada.');
 });
-$('template-select').replaceChildren(...DEMO_TEMPLATES.map(template=>{
-  const option=el('option','',`${template.title} · ${template.version} (fictício)`);option.value=template.id;return option;
-}));
 $('template-dialog').addEventListener('close',()=>{
   if($('template-dialog').returnValue!=='confirm')return;
   const item=selectedCase();if(!item)return;
