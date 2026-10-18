@@ -81,3 +81,10 @@ Este módulo **não é um serviço backend**, não possui `fetch`, Graph API, HT
 O nome do método `observeAuthenticatedFixture` pressupõe HMAC comprovado e aceite durável **fora** desse módulo; não valida assinatura, não cria inbox nem autoriza C07/Graph. Destino BR 8↔9 não é inferido. O log dos resultados não contém telefones/tokens/texto.
 
 Testes: **24/24 REC PASS** e **88/88 PASS** com regressões WA-02A/B/C locais; TypeScript estrito do módulo PASS. Documentação: `docs/integracoes/whatsapp-meta/wa02d-conciliacao-status-meta-sintetica-v0_1.md`. PR Draft, sem deploy nem chamadas de rede.
+
+
+## WA-03A — Auditoria integrada e correção de isolamento técnico
+
+Foram acrescentados `cross-contract.test.ts` (14 testes entre HMAC/parser → guarda hipotética de ACK → fake Graph → fake callbacks) e `scope-isolation.test.ts` (3 regressões adversariais). Um defeito do **laboratório** foi corrigido em `technical-reconciliation.ts`: agora consultas a projeções e pedidos `ALREADY_LINKED` precisam manter **concessionária e canal originais**, além de App/WABA/Phone/recipient. Antes da correção, os três testes de isolamento falhavam; depois, **105/105 testes PASS** com as 88 regressões anteriores. TypeScript estrito dos seis módulos PASS, sem CI remoto ou typecheck integral dos testes.
+
+O identificador **interno de ocorrência** de callback deve ser criado/guardado pelo ingresso durável S0, não derivado de `statuses[].id` ou de `status+timestamp`. O `occurrence_ref` dos ensaios é só um exemplo gerado em memória; não prova persistência ou idempotência real. Ver `docs/integracoes/whatsapp-meta/wa03a-auditoria-integrada-e-ocorrencias-v0_1.md`. **Nenhum módulo de laboratório emite ACK real ou envia mensagens.**
