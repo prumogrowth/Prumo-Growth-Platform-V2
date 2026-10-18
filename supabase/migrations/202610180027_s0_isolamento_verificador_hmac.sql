@@ -148,6 +148,14 @@ end $fn$;
 -- transitions, key rotation, or key-history audit directly.
 -- ALTER OWNER also requires the new owner to have CREATE on the schema.
 -- Hold that grant ONLY inside this one atomic DO statement, then revoke.
+
+-- Revoke untrusted EXECUTE *while postgres still owns the routine*. Hosted
+-- Supabase runs migrations as managed (non-superuser) postgres, which cannot
+-- revoke on this function after the owner changes.
+revoke all on function prumo_private.gateway_validar_prova_s0(
+ text,uuid,uuid,uuid,uuid,bigint,text,text,uuid,uuid,bigint,uuid,text)
+ from public,anon,authenticated,service_role,prumo_s0_gateway;
+
 do $ownership$
 begin
  execute 'grant create on schema prumo_private to prumo_s0_signer';
@@ -155,11 +163,15 @@ begin
   text,uuid,uuid,uuid,uuid,bigint,text,text,uuid,uuid,bigint,uuid,text)
   owner to prumo_s0_signer';
  execute 'revoke create on schema prumo_private from prumo_s0_signer';
+ -- The backend entrypoints are postgres-owned and must call this private
+ -- verifier. Grant that *after* ownership transfer, explicitly as its new
+ -- owner; do not grant it to the SQL gateway, anon or authenticated.
+ execute 'set local role prumo_s0_signer';
+ execute 'grant execute on function prumo_private.gateway_validar_prova_s0(
+   text,uuid,uuid,uuid,uuid,bigint,text,text,uuid,uuid,bigint,uuid,text)
+   to postgres';
+ execute 'reset role';
 end $ownership$;
-
-revoke all on function prumo_private.gateway_validar_prova_s0(
- text,uuid,uuid,uuid,uuid,bigint,text,text,uuid,uuid,bigint,uuid,text)
- from public,anon,authenticated,service_role,prumo_s0_gateway;
 
 -- None of the pgcrypto/material grants are exposed as domain API operations.
 -- prumo_s0_gateway still executes ONLY the two signed gateway entrypoints.
