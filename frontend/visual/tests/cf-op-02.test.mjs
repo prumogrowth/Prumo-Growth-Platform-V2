@@ -129,3 +129,10 @@ test('deny-by-default: projeções ausentes de janela, lista e conclusão não a
   assert.equal(projectInbox(rows,'rafael','aurora','active').length,0);
   assert.equal(projectInbox(rows,'rafael','aurora','history').length,0);
 });
+
+test('pedido aceito no browser não confirma conclusão humana', () => {
+  const record=byId(cases(),'A-102');
+  assert.equal(humanCompletion(record,true),'requested_demo');
+  assert.equal(mayMockFreeText(record,'rafael','aurora',true),false);
+  assert.deepEqual(projectedFollowupActions(record,'rafael','aurora',true),[]);
+});
