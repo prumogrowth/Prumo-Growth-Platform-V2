@@ -183,8 +183,10 @@ Revisão independente da fronteira fake `transactional-ingress.ts` (WA-05A) e do
 
 ## WA-05D — Gate interno S0 simulado, sem autorização real
 
-Novo \`s0-ingress-gateway.ts\` cria o \`FakePrivilegedS0Ingress\`: entrada candidata WA-05C com HMAC **somente de fixture**, origem de serviço declarada por porta protegida **fictícia**, confirmação de bytes no \`FakeProtectedPayloads\`, digest do corpo/escopo recalculados e revalidação independente App/loja/canal/revisão no momento do **commit em memória**. Rejeita campos inesperados, escopos alterados, getters, falha de escrita, replay divergente e serviço revogado.
+Novo `s0-ingress-gateway.ts` cria o `FakePrivilegedS0Ingress`: entrada candidata WA-05C com HMAC **somente de fixture**, origem de serviço declarada por porta protegida **fictícia**, confirmação de bytes no `FakeProtectedPayloads`, digest do corpo/escopo recalculados e revalidação independente App/loja/canal/revisão no momento do **commit em memória**. Rejeita campos inesperados, escopos alterados, getters, falha de escrita, replay divergente e serviço revogado.
 
-**350/350 testes sintéticos PASS** (20 GATE novos + 330 anteriores), TypeScript estrito PASS (16 módulos/22 testes). Hashes Git dos 2 arquivos conferidos; [relatório WA-05D](../../docs/integracoes/whatsapp-meta/wa05d-porta-interna-s0-simulada-v0_1.md).
+**352/352 testes sintéticos PASS** (22 GATE novos + 330 anteriores), TypeScript estrito PASS (16 módulos/22 testes). Hashes Git dos 2 arquivos conferidos; [relatório WA-05D](../../docs/integracoes/whatsapp-meta/wa05d-porta-interna-s0-simulada-v0_1.md).
 
-A identidade de serviço dos \`ports\` **não é autenticada**, o \`Map\` **não é durável**, a fixture **não contém proteção real LGPD/SQL**, e \`LAB_ACCEPTED\` **nunca** autoriza HTTP 200 ou um recibo \`COMMITTED\`. Nenhum acesso Supabase/Meta/Graph real, CI remoto, merge/deploy ou alteração na POC concessionária de demonstração.
+A identidade de serviço dos `ports` **não é autenticada**, o `Map` **não é durável**, a fixture **não contém proteção real LGPD/SQL**, e `LAB_ACCEPTED` **nunca** autoriza HTTP 200 ou um recibo `COMMITTED`. Nenhum acesso Supabase/Meta/Graph real, CI remoto, merge/deploy ou alteração na POC concessionária de demonstração.
+
+**Auditoria WA-05D concluída:** GATE-21 demonstrou que status/instante do provedor não estavam cobertos por `scope_sha256`; digest da WA-05C e conferência da WA-05D corrigidos. GATE-22 verifica colisão de batch contra payload-ref diferente. **352/352 PASS** e TypeScript estrito PASS; ainda não há identidade de serviço operacional nem ACK.
