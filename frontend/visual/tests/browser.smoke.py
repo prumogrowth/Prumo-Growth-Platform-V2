@@ -10,7 +10,7 @@ html = (base / 'index.html').read_text(encoding='utf-8')
 css = (base / 'styles.css').read_text(encoding='utf-8')
 html = html.replace('<link rel="stylesheet" href="./styles.css">', '<style>'+css+'</style>')
 html = html.replace('<script type="module" src="./app.mjs"></script>', '')
-script = '\n'.join((base / name).read_text(encoding='utf-8') for name in ('fixtures.mjs','view-model.mjs','cf-op-02.mjs','app.mjs'))
+script = '\n'.join((base / name).read_text(encoding='utf-8') for name in ('fixtures.mjs','view-model.mjs','cf-op-02.mjs','registration-view.mjs','app.mjs'))
 script = re.sub(r'(?ms)^import \{.*?\} from ["\']\./[^"\']+["\'];\s*', '', script)
 script = re.sub(r'(?m)^export ', '', script)
 
@@ -57,6 +57,18 @@ with sync_playwright() as p:
     assert page.locator('.conversation-card').count() == 2
     page.locator('#status-filter').select_option('em atendimento pelo operador')
     assert page.locator('.conversation-card').count() == 1
+    # O3: profissional atribuído enxerga apenas dados aplicados na projeção fictícia.
+    page.locator('#actor-select').select_option('rafael')
+    page.get_by_role('button',name='Abrir conversa Cliente Exemplo 09',exact=False).click()
+    page.locator('.detail-tab',has_text='Extração').click()
+    assert 'Valor fictício confirmado' in page.locator('#detail-content').inner_text()
+    assert 'Somente proposta' not in page.locator('#detail-content').inner_text()
+    # Supervisora não autoatribuída vê resumo, mas não D3 nem fontes.
+    page.locator('#actor-select').select_option('marina')
+    page.get_by_role('button',name='Abrir conversa Cliente Exemplo 09',exact=False).click()
+    page.locator('.detail-tab',has_text='Extração').click()
+    assert 'Detalhes restritos ao responsável' in page.locator('#detail-content').inner_text()
+    assert 'Valor fictício confirmado' not in page.locator('#detail-content').inner_text()
     page.locator('#actor-select').select_option('rafael')
     assert page.locator('#team-nav').is_hidden()
     assert page.locator('#team-nav-mobile').is_hidden()
