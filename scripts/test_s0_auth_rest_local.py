@@ -408,6 +408,11 @@ from backend.identity_boundary import PsycopgGatewayDatabase
 run_sql("""
 create role prumo_gateway_ci login password 'Test-Only-Synthetic-Gateway-2026!';
 grant prumo_s0_gateway to prumo_gateway_ci;
+insert into prumo_private.gateway_chaves_assinatura_s0(
+ chave_id,segredo,valido_desde,valido_ate,ativo)
+ values('f1000000-0000-4000-8000-000000000001',
+ decode(repeat('a5',32),'hex'),statement_timestamp()-interval '1 hour',
+ statement_timestamp()+interval '1 hour',true);
 """)
 u = urllib.parse.urlsplit(DB)
 gateway_dsn = ("postgresql://prumo_gateway_ci:"
@@ -427,7 +432,11 @@ with psycopg.connect(DB) as root:
         """)
         if cur.fetchone()[0] != 0:
             fail("AUTH-13: unexpected gateway audit before request")
-restricted_db = PsycopgGatewayDatabase(gateway_dsn)
+restricted_db = PsycopgGatewayDatabase(
+    gateway_dsn,
+    key_id=uuid.UUID("f1000000-0000-4000-8000-000000000001"),
+    signing_key=bytes.fromhex("a5" * 32),
+)
 restricted_gateway = AuthenticatedCommands(verifier, restricted_db)
 with psycopg.connect(gateway_dsn) as conn:
     with conn.cursor() as cur:
@@ -437,6 +446,37 @@ with psycopg.connect(gateway_dsn) as conn:
             fail("AUTH-13: restricted role can read raw leads")
         except psycopg.errors.InsufficientPrivilege:
             pass
+# AUTH-14: a stolen SQL login WITHOUT a separate HMAC key cannot call legacy
+# privileged wrappers or forge a signed operation. No session UUID is a token.
+with psycopg.connect(gateway_dsn) as conn:
+    with conn.cursor() as cur:
+        cur.execute("set local role prumo_s0_gateway")
+        try:
+            cur.execute("""
+              select prumo_private.gateway_conciliar_c07_s0(
+              %s::uuid,%s::uuid,%s::uuid,%s::uuid,1::bigint,
+              'ENCERRAR_SEM_PROVA','Teste de negativa ao legado sem prova',null)
+            """, (B, str(verified_b.session_id), LOJA_B, str(pend_b)))
+            fail("AUTH-14: legacy wrapper still callable by gateway")
+        except psycopg.errors.InsufficientPrivilege:
+            pass
+with psycopg.connect(gateway_dsn) as conn:
+    with conn.cursor() as cur:
+        cur.execute("set local role prumo_s0_gateway")
+        try:
+            cur.execute("""
+              select prumo_private.gateway_conciliar_c07_assinado_s0(
+              %s::uuid,%s::uuid,%s::uuid,%s::uuid,1::bigint,
+              'ENCERRAR_SEM_PROVA','Teste de negativa ao login sem segunda chave',
+              null,%s::uuid,%s::bigint,%s::uuid,%s::text)
+            """, (B, str(verified_b.session_id), LOJA_B, str(pend_b),
+                  "f1000000-0000-4000-8000-000000000001",
+                  int(__import__("time").time()),
+                  str(uuid.uuid4()), "0" * 64))
+            fail("AUTH-14: gateway accepted unsigned SQL caller")
+        except psycopg.errors.InsufficientPrivilege:
+            pass
+print("PASS AUTH-14: senha SQL isolada nao chama wrappers legadas ou sem HMAC")
 # Failed SQL is rolled back on closing connection; no records are affected.
 payload_b = {
     "loja_id": LOJA_B, "pendencia_id": str(pend_b), "expected_version": 1,
@@ -473,6 +513,9 @@ with psycopg.connect(DB) as root:
         """, (LOJA_B,))
         if dict(cur.fetchall()) != {"APPLIED": 1, "ALREADY_APPLIED": 1}:
             fail("AUTH-13: successful and replay audit not atomic")
+        cur.execute("select count(*) from prumo_private.gateway_provas_usadas_s0")
+        if cur.fetchone()[0] != 2:
+            fail("AUTH-14: nonce ledger missing two distinct successful proofs")
 print("PASS AUTH-13: papel SQL restrito, vinculo sessao/gestor, RLS e auditoria atomica")
 
 # Remove local Auth session: the old signed JWT cannot authorize another DB write.
