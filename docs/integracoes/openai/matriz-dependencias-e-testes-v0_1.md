@@ -7,7 +7,7 @@
 | Item | Dono | Esta branch faz | Esta branch NÃO faz |
 |---|---|---|---|
 | Credencial OpenAI | Responsável humano | Orientação e contrato de consumo futuro | Gerar, coletar, persistir ou testar credencial |
-| Secret Supabase da Prumo | Responsável humano | Nome lógico e instrução documental | Consultar plugin de outro projeto, alterar secrets, usar banco remoto |
+| Secret do runtime selecionado para OpenAI | Responsável humano pelo cadastro MANUAL da chave; manutenção do runtime por atores autorizados | Definir contrato de configuração e verificar destino conforme alternativa escolhida | Copiar valor de chave para repositório, logs, frontend ou execução sem autorização |
 | Estado/caso, permissões, RLS, versão, auditoria | S0 / PR #1 | Especificar campo e validação esperados; revisão cruzada | Migrar esquema, alterar funções, abrir API pública ou modificar fluxo |
 | IA Vendedora / intenção C03 | S0 + adaptador OpenAI [P] | Formatar proposta sem efeito | Decidir status ou enviar Meta |
 | IA Planejadora C05 | S0 + adaptador OpenAI [P] | Sugerir itens existentes, sujeito ao domínio | Criar template, publicar/agendar sozinho |
@@ -16,6 +16,8 @@
 | MCP administrativo | Fluxo de governança | Nada nesta fase | Substituir MCP ou retirar segunda confirmação |
 
 ## Testes propostos para a futura porta de OpenAI — NÃO executados
+
+Executar os casos equivalentes sob a topologia direta e, se necessário, a topologia n8n. A confirmação documental de que ambas podem chamar OpenAI NÃO constitui teste da Prumo.
 
 - OAI-T01: cliente na loja A e mesmo telefone na B -> contexto de A não aparece no envelope B, nem pela referência de conhecimento.
 - OAI-T02: estado com handoff já ativo -> nenhuma geração autorizada; se handoff ocorre durante chamada, resultado tardio não vai para outbox.
@@ -29,9 +31,12 @@
 - OAI-T10: logs/resultados nunca contêm API key, JWT, segredo Meta, dados bancários brutos ou mensagens pessoais sem autorização.
 - OAI-T11: status técnico delivered/read ou texto de modelo não altera estado comercial; pós-venda ou pós-remessa continua humano.
 - OAI-T12: idem request_id reenviado -> a política S0 impede criar intenção comercial duplicada, independentemente de repetição de chamada ao provedor.
+- OAI-T13: comparar integração direta e n8n usando mesmo contrato e fixtures, medindo tentativas, retries, latência e custos sem intervenção em S0/Meta.
+- OAI-T14: provar que segredo Supabase só é usado pelo runtime autorizado; caso n8n seja escolhido, auditar armazenamento de suas credenciais e logs, sem copiar segredo para execução ou log.
+- OAI-T15: falha da camada intermediária n8n, se houver, não reabre handoff nem dispara saída Meta, não altera estado e registra diagnóstico seguro.
 
 ## Portões de coordenação
 
-**Abertura da branch:** concluída. **Documentação candidata:** presente, sem aceite normativo. **Revisão cruzada:** PENDENTE da frente S0; a Meta revisa apenas quando a fronteira de saída afeta seu contrato. **Segredo manual:** PENDENTE; **teste pago:** NÃO AUTORIZADO; **dados reais, deploy e merge:** NO-GO.
+**Abertura da branch:** concluída. **Documentação candidata:** presente, sem aceite normativo. **Decisão de topologia direta × n8n:** PENDENTE [R], sem benchmark executado. **Revisão cruzada:** PENDENTE da frente S0; a Meta revisa apenas quando a fronteira de saída afeta seu contrato. **Segredo manual:** PENDENTE; **teste pago:** NÃO AUTORIZADO; **dados reais, deploy e merge:** NO-GO.
 
 Não usar resultados futuros desses testes para elevar o percentual auditado do planejamento sem critérios, execução e evidências conforme controle 19.
