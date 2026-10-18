@@ -145,7 +145,7 @@ export function classifyGraphSendResult(
     const messages = object(payload) ? payload.messages : null;
     const message = Array.isArray(messages) && messages.length === 1 ? messages[0] : null;
     const wamid = object(message) ? message.id : null;
-    if (typeof wamid === 'string' && /^wamid\.[A-Za-z0-9_.:-]{1,250}$/.test(wamid)) {
+    if (typeof wamid === 'string' && /^wamid\.[A-Za-z0-9+/_=:.-]{1,1024}$/.test(wamid)) {
       return { ...output, send_state: 'API_ACCEPTED', api_accepted: true,
         provider_message_id: wamid };
     }
@@ -158,8 +158,8 @@ export function classifyGraphSendResult(
     meta_error_code: err ? metaCode(err.code) : null,
     meta_error_subcode: err ? metaCode(err.error_subcode) : null,
   };
-  // HTTP 429, 5xx, and exceptional statuses may occur after provider acceptance.
-  if (status === 429 || status >= 500 || status < 400) {
+  // Timeouts (408), Too Early (425), 429, 5xx and exceptional statuses may be uncertain.
+  if (status === 408 || status === 425 || status === 429 || status >= 500 || status < 400) {
     return { ...errorDetails, send_state: 'UNCERTAIN_EXTERNAL' };
   }
   // Definitive 4xx HTTP rejection observed. No retry by this adapter.
