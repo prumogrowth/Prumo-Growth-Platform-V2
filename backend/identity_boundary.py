@@ -229,7 +229,7 @@ class PsycopgGatewayDatabase:
         if (
             u.scheme not in ("postgres", "postgresql")
             or u.hostname not in ("127.0.0.1", "localhost", "::1")
-            or u.username in (None, "", "postgres", "supabase_admin", "service_role")
+            or not u.username or not u.username.startswith("prumo_gateway_")
             or u.query or u.fragment
             or not (u.path.strip("/") == "postgres"
                     or u.path.strip("/").startswith("prumo_s0_test_"))
@@ -247,7 +247,10 @@ class PsycopgGatewayDatabase:
         with psycopg.connect(self._dsn, connect_timeout=5) as connection:
             with connection.cursor() as cursor:
                 cursor.execute("SET LOCAL ROLE prumo_s0_gateway")
-                cursor.execute(sql, (principal.actor_id, principal.session_id, *values))
+                try:
+                    cursor.execute(sql, (principal.actor_id, principal.session_id, *values))
+                except psycopg.errors.InsufficientPrivilege:
+                    raise Denied("ACESSO_NEGADO") from None
                 row = cursor.fetchone()
                 if row is None or not isinstance(row[0], dict):
                     raise IdentityUnavailable("DB_RESULTADO_INVALIDO")
