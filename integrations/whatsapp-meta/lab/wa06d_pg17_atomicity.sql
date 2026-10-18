@@ -28,10 +28,12 @@ CREATE TEMP TABLE wa06d_nonce (
 CREATE TEMP TABLE wa06d_occurrence (
  occurrence bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
  batch text NOT NULL REFERENCES pg_temp.wa06d_batch(batch),
+ entry_index integer NOT NULL CHECK(entry_index BETWEEN 0 AND 1000),
+ change_index integer NOT NULL CHECK(change_index BETWEEN 0 AND 1000),
  kind text NOT NULL CHECK(kind IN ('messages','statuses')),
- item_index integer NOT NULL CHECK(item_index>=0),
+ item_index integer NOT NULL CHECK(item_index BETWEEN 0 AND 1000),
  channel text NOT NULL, provider_id text NOT NULL,
- UNIQUE(batch,kind,item_index)
+ UNIQUE(batch,entry_index,change_index,kind,item_index)
 ) ON COMMIT DROP;
 CREATE TEMP TABLE wa06d_task (
  occurrence bigint PRIMARY KEY REFERENCES pg_temp.wa06d_occurrence(occurrence),
@@ -70,9 +72,15 @@ BEGIN
  -- Must check declared scope before allowing even a previously stored replay.
  FOR v_event IN SELECT value FROM jsonb_array_elements(p_events) LOOP
    IF jsonb_typeof(v_event) IS DISTINCT FROM 'object'
-      OR jsonb_typeof(v_event->'index') IS DISTINCT FROM 'number'
-      OR (v_event->>'index') !~ '^[0-9]{1,4}$'
-      OR (v_event->>'index')::integer > 1000
+      OR jsonb_typeof(v_event->'entry_index') IS DISTINCT FROM 'number'
+      OR (v_event->>'entry_index') !~ '^[0-9]{1,4}$'
+      OR (v_event->>'entry_index')::integer > 1000
+      OR jsonb_typeof(v_event->'change_index') IS DISTINCT FROM 'number'
+      OR (v_event->>'change_index') !~ '^[0-9]{1,4}$'
+      OR (v_event->>'change_index')::integer > 1000
+      OR jsonb_typeof(v_event->'item_index') IS DISTINCT FROM 'number'
+      OR (v_event->>'item_index') !~ '^[0-9]{1,4}$'
+      OR (v_event->>'item_index')::integer > 1000
       OR v_event->>'kind' NOT IN ('messages','statuses')
       OR v_event->>'kind' IS NULL
       OR v_event->>'provider_id' IS NULL
@@ -118,8 +126,11 @@ BEGIN
  INSERT INTO pg_temp.wa06d_nonce(principal,epoch,nonce,batch,fingerprint)
  VALUES(p_principal,p_epoch,p_nonce,p_batch,v_fingerprint);
  FOR v_event IN SELECT value FROM jsonb_array_elements(p_events) LOOP
-   INSERT INTO pg_temp.wa06d_occurrence(batch,kind,item_index,channel,provider_id)
-   VALUES(p_batch,v_event->>'kind',(v_event->>'index')::integer,
+   INSERT INTO pg_temp.wa06d_occurrence(
+     batch,entry_index,change_index,kind,item_index,channel,provider_id)
+   VALUES(p_batch,(v_event->>'entry_index')::integer,
+          (v_event->>'change_index')::integer,v_event->>'kind',
+          (v_event->>'item_index')::integer,
           v_event->>'channel',v_event->>'provider_id')
    RETURNING occurrence INTO v_ref;
    IF p_fault='AFTER_ITEM'
@@ -134,7 +145,7 @@ END $fn$;
 DO $test$
 DECLARE
  raw bytea := convert_to('SYNTHETIC_ONLY','UTF8');
- items jsonb := '[{"kind":"statuses","index":0,"app":"app_a","shop":"shop_a","channel":"chan_a","waba":"waba_a","sender":"sender_a","provider_id":"wamid.FAKE"}]';
+ items jsonb := '[{"kind":"statuses","entry_index":0,"change_index":0,"item_index":0,"app":"app_a","shop":"shop_a","channel":"chan_a","waba":"waba_a","sender":"sender_a","provider_id":"wamid.FAKE"}]';
  dup jsonb;
  result text;
 BEGIN
@@ -207,7 +218,7 @@ BEGIN
  RAISE NOTICE 'WA06D-07 PASS';
 
  -- statuses[].id is message reference, not a unique callback occurrence.
- dup:=items || jsonb_build_array(jsonb_set(items->0,'{index}','1'::jsonb));
+ dup:=items || jsonb_build_array(jsonb_set(items->0,'{item_index}','1'::jsonb));
  IF pg_temp.wa06d_accept('fake','req_double','nonce_double',1,'batch_double',
        'app_a','shop_a',raw,dup)<>'LAB_INSERTED_IN_TX'
  OR (SELECT count(*) FROM pg_temp.wa06d_occurrence WHERE batch='batch_double')<>2
@@ -215,7 +226,7 @@ BEGIN
  RAISE NOTICE 'WA06D-08 PASS';
 
  dup:=items || jsonb_build_array(
-       jsonb_set(jsonb_set(items->0,'{index}','1'::jsonb),'{shop}','"shop_b"'::jsonb));
+       jsonb_set(jsonb_set(items->0,'{item_index}','1'::jsonb),'{shop}','"shop_b"'::jsonb));
  BEGIN
    PERFORM pg_temp.wa06d_accept('fake','req_cross','nonce_cross',1,'batch_cross',
             'app_a','shop_a',raw,dup);
@@ -242,6 +253,43 @@ BEGIN
      WHERE b.principal='fake' AND b.request='req_double')<>'IN_TX_ONLY'
  THEN RAISE EXCEPTION 'WA06D_11_FAIL';END IF;
  RAISE NOTICE 'WA06D-11 PASS';
+
+ -- WA06D-12: same item index under separate entry[] indices is valid.
+ dup:=items || jsonb_build_array(jsonb_set(items->0,'{entry_index}','1'::jsonb));
+ IF pg_temp.wa06d_accept('fake','req_multientry','nonce_multientry',1,
+       'batch_multientry','app_a','shop_a',raw,dup)<>'LAB_INSERTED_IN_TX'
+ OR (SELECT count(*) FROM pg_temp.wa06d_occurrence WHERE batch='batch_multientry')<>2
+ OR (SELECT count(*) FROM pg_temp.wa06d_task t
+     JOIN pg_temp.wa06d_occurrence o ON o.occurrence=t.occurrence
+     WHERE o.batch='batch_multientry')<>2
+ THEN RAISE EXCEPTION 'WA06D_12_FAIL';END IF;
+ RAISE NOTICE 'WA06D-12 PASS';
+
+ -- WA06D-13: repeating the exact same full position rolls back the batch.
+ dup:=items || jsonb_build_array(items->0);
+ BEGIN
+   PERFORM pg_temp.wa06d_accept('fake','req_samepos','nonce_samepos',1,
+            'batch_samepos','app_a','shop_a',raw,dup);
+   RAISE EXCEPTION 'EXPECTED_DENIAL';
+ EXCEPTION WHEN unique_violation THEN NULL;
+ END;
+ IF EXISTS(SELECT 1 FROM pg_temp.wa06d_batch WHERE batch='batch_samepos')
+ OR EXISTS(SELECT 1 FROM pg_temp.wa06d_payload WHERE batch='batch_samepos')
+ OR EXISTS(SELECT 1 FROM pg_temp.wa06d_nonce WHERE nonce='nonce_samepos')
+ OR EXISTS(SELECT 1 FROM pg_temp.wa06d_occurrence WHERE batch='batch_samepos')
+ OR EXISTS(SELECT 1 FROM pg_temp.wa06d_receipt WHERE batch='batch_samepos')
+ THEN RAISE EXCEPTION 'WA06D_13_FAIL';END IF;
+ RAISE NOTICE 'WA06D-13 PASS';
+
+ -- WA06D-14: two distinct channels of the same App and dealership accepted.
+ dup:=items || jsonb_build_array(
+       jsonb_set(jsonb_set(jsonb_set(items->0,'{item_index}','1'::jsonb),
+                '{channel}','"chan_b"'::jsonb),'{sender}','"sender_b"'::jsonb));
+ IF pg_temp.wa06d_accept('fake','req_twochan','nonce_twochan',1,
+        'batch_twochan','app_a','shop_a',raw,dup)<>'LAB_INSERTED_IN_TX'
+ OR (SELECT count(*) FROM pg_temp.wa06d_occurrence WHERE batch='batch_twochan')<>2
+ THEN RAISE EXCEPTION 'WA06D_14_FAIL';END IF;
+ RAISE NOTICE 'WA06D-14 PASS';
 END $test$;
 
 ROLLBACK;
