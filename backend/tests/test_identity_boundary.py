@@ -9,7 +9,7 @@ from unittest.mock import patch
 
 from backend.identity_boundary import (
     AuthenticatedCommands, Denied, IdentityUnavailable, InvalidCommand,
-    Principal, PsycopgTrustedDatabase, SupabaseGoTrueVerifier,
+    Principal, PsycopgTrustedDatabase, PsycopgGatewayDatabase, SupabaseGoTrueVerifier,
 )
 
 A = "a1000000-0000-4000-8000-000000000001"
@@ -189,6 +189,64 @@ class IdentityBoundaryTests(unittest.TestCase):
         with self.assertRaises(IdentityUnavailable):
             AuthenticatedCommands(Failing(), db).execute("Bearer x", "cancelar_plano", cancel_payload())
         self.assertEqual(db.calls, [])
+
+
+
+class LeastPrivilegeGatewayTests(unittest.TestCase):
+    def test_13_restricted_gateway_disallows_admin_or_remote_login(self):
+        for url in (
+            "postgresql://postgres:x@localhost:5432/postgres",
+            "postgresql://supabase_admin:x@localhost:5432/postgres",
+            "postgresql://gateway:x@db.example.com/postgres",
+            "postgresql://gateway:x@localhost:5432/production",
+            "postgresql://gateway:x@localhost:5432/postgres?options=-crole=postgres",
+        ):
+            with self.assertRaises(ValueError):
+                PsycopgGatewayDatabase(url)
+
+    def test_14_gateway_queries_only_whitelisted_wrappers_with_session(self):
+        executed = []
+        class Cursor:
+            def __init__(self): self.row = ({"outcome": "APPLIED"},)
+            def __enter__(self): return self
+            def __exit__(self, *_): return None
+            def execute(self, query, values=None): executed.append((query, values))
+            def fetchone(self): return self.row
+        class Conn:
+            def __enter__(self): return self
+            def __exit__(self, *_): return None
+            def cursor(self): return Cursor()
+        with patch.dict(sys.modules, {"psycopg": types.SimpleNamespace(connect=lambda *a, **k: Conn())}):
+            gateway = PsycopgGatewayDatabase("postgresql://gateway_ci:fake@localhost:5432/postgres")
+            result = gateway.invoke(Principal(uuid.UUID(A), uuid.UUID(SESSION)),
+                "cancelar_plano", (uuid.UUID(SHOP_A), uuid.UUID(PLAN_A), 1))
+            self.assertEqual(result["outcome"], "APPLIED")
+            self.assertEqual(executed[0], ("SET LOCAL ROLE prumo_s0_gateway", None))
+            self.assertIn("gateway_cancelar_plano_s0(", executed[1][0])
+            self.assertEqual(executed[1][1], (uuid.UUID(A), uuid.UUID(SESSION),
+                                              uuid.UUID(SHOP_A), uuid.UUID(PLAN_A), 1))
+            self.assertNotIn("cancelar_plano_gestor_sintetico", executed[1][0])
+            with self.assertRaises(InvalidCommand):
+                gateway.invoke(Principal(uuid.UUID(A), uuid.UUID(SESSION)),
+                               "execute_sql", ())
+            self.assertEqual(len(executed), 2)
+
+    def test_15_gateway_fails_if_set_role_is_not_allowed(self):
+        class Cursor:
+            def __enter__(self): return self
+            def __exit__(self, *_): return None
+            def execute(self, query, values=None):
+                raise PermissionError("role not granted")
+            def fetchone(self): raise AssertionError("must not fetch")
+        class Conn:
+            def __enter__(self): return self
+            def __exit__(self, *_): return None
+            def cursor(self): return Cursor()
+        with patch.dict(sys.modules, {"psycopg": types.SimpleNamespace(connect=lambda *a, **k: Conn())}):
+            with self.assertRaises(PermissionError):
+                PsycopgGatewayDatabase("postgresql://gateway_ci:fake@localhost/postgres").invoke(
+                    Principal(uuid.UUID(A), uuid.UUID(SESSION)), "cancelar_plano",
+                    (uuid.UUID(SHOP_A), uuid.UUID(PLAN_A), 1))
 
 
 if __name__ == "__main__":
