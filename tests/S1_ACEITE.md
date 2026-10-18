@@ -59,3 +59,6 @@ A migration `202610180040_s1_concessoes_expiradas_reconciliacao.sql` acrescenta 
 Cenários `S1X-01..07` no PG17 fictício abrangem A preservada, B redistribuída, C em fila protegida, RLS negando lojas com concessão vencida antes da varredura, execução em lotes, idempotência, bloqueio de `authenticated` e rejeição de lote inválido. **Provas/CI ainda pendentes nesta redação; não considerar concluído até conferir os logs.**
 
 A varredura **não acontece automaticamente pela simples passagem do tempo**: futuramente requer executor confiável autorizado (agendamento não decidido). Não altera status de venda, roteamento S0, modelo Meta ou OpenAI. Escala e gestão administrativa, integração Auth/REST, testes de corrida e projeto de scheduler permanecem [R/V].
+
+
+**Evidência executada de I3:** [CI PostgreSQL 17 #39161092070 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39161092070), commit `2a800609acfc3aaf151c29dc0c89a45bfebde9c9`, job `117774376189`; logs auditados: **S1X-01..07 = 7/7 PASS**. O mesmo runner também exercitou S1R-01..09 e S1E-01..07 no seu escopo sintético. Não há cron nem execução automática do reparo pela passagem do tempo; função exige acionamento por executor interno confiável. Sem Auth/REST integrado nem teste intersessões. **NO-GO para produção.**
