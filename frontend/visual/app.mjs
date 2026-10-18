@@ -2,15 +2,19 @@
  * Não chamar backend, OpenAI, Meta, Banco, storage ou permitir efeito comercial.
  */
 import {
-  ACTORS, getActor, getShop, copyFixtures, visibleConversations,
+  ACTORS, COMMERCIAL_STATUSES, getActor, getShop, copyFixtures, visibleConversations,
   canSimulateCompletion, statusTone
 } from './fixtures.mjs';
+import {
+  DETAIL_TABS, projectQueue, summaryOf, canWriteNote, canSeeTeamSummary,
+  activityFor, modelExtraction
+} from './view-model.mjs';
 
 const $ = id => document.getElementById(id);
 const app = $('visual-app');
 const list = $('conversation-items');
 const state = {
-  actorId: 'rafael', shopId: 'aurora', filter: 'all', query: '',
+  actorId: 'rafael', shopId: 'aurora', filter: 'all', statusFilter: 'all', detailTab: 'overview', query: '',
   selectedId: 'A-102', cases: copyFixtures(), processing: {},
   mobileView: 'list'
 };
@@ -30,13 +34,11 @@ function ico(name) {
 function selectedCase() { return accessible().find(x => x.id === state.selectedId) ?? null; }
 function accessible() { return visibleConversations(state.cases, state.actorId, state.shopId); }
 function filtered() {
-  let items = accessible();
-  if (state.filter === 'unread') items = items.filter(x => x.unread > 0);
-  if (state.filter === 'mine') items = items.filter(x => x.assignedTo === state.actorId);
-  const query = state.query.toLocaleLowerCase('pt-BR').trim();
-  if (query) items = items.filter(x => [x.name, x.id, x.tag, x.status].some(v => v.toLocaleLowerCase('pt-BR').includes(query)));
-  return items;
+  return projectQueue(state.cases, state.actorId, state.shopId, {
+    query: state.query, filter: state.filter, status: state.statusFilter
+  });
 }
+
 function canMockMessage(record) {
   const actor = getActor(state.actorId);
   return Boolean(actor && record && actor.shops.includes(state.shopId) &&
@@ -70,12 +72,21 @@ function updateSelectors() {
     const shop = getShop(id); const o = el('option', '', `${shop.name} · fictícia`); o.value = id; return o;
   }));
   shopSelect.value = state.shopId;
+  const statusSelect = $('status-filter');
+  statusSelect.replaceChildren(el('option','', 'Todos os estados comerciais'),
+    ...COMMERCIAL_STATUSES.map(status => { const opt=el('option','',status);opt.value=status;return opt;}));
+  statusSelect.options[0].value='all';statusSelect.value=state.statusFilter;
 }
 function renderList() {
   const items = filtered();
   const total = accessible().length;
   $('list-count').textContent = `${total} ${total === 1 ? 'atendimento' : 'atendimentos'}`;
   $('list-context').textContent = getActor(state.actorId).role === 'gestor' ? 'Visão de supervisão' : 'Atribuídos a mim';
+  const summary=summaryOf(state.cases,state.actorId,state.shopId);
+  const tiles=[['Total',summary.total],['Não lidas',summary.unread],['Em atendimento',summary.human]];
+  $('queue-summary').replaceChildren(...tiles.map(([label,value])=>{
+    const tile=el('div','summary-tile');tile.append(el('strong','',value),el('span','',label));return tile;
+  }));
   const nodes = items.map((item, idx) => {
     const card = el('button', 'conversation-card' + (item.id === state.selectedId ? ' is-selected' : ''));
     card.type = 'button'; card.setAttribute('aria-pressed', String(item.id === state.selectedId));
@@ -89,7 +100,7 @@ function renderList() {
     center.append(row, el('div','item-preview',preview),foot);
     card.append(avatar,center);
     card.addEventListener('click', () => {
-      state.selectedId = item.id; item.unread = 0;
+      state.selectedId = item.id; item.unread = 0;state.detailTab='overview';
       goto('thread'); render();
     });
     return card;
