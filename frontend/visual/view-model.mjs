@@ -35,13 +35,13 @@ export function summaryOf(records, actorId, shopId) {
 
 export function canWriteNote(record, actorId, shopId) {
   const actor = getActor(actorId);
-  return Boolean(actor && record && actor.shops.includes(shopId) &&
+  return Boolean(actor && actor.teamState !== 'suspended' && actor.teamState !== 'removed' && record && actor.shops.includes(shopId) &&
     record.shopId === shopId && record.assignedTo === actorId);
 }
 
 export function canSeeTeamSummary(actorId, shopId) {
   const actor = getActor(actorId);
-  return Boolean(actor?.role === 'gestor' && actor.shops.includes(shopId));
+  return Boolean(actor?.role === 'gestor' && actor.teamState !== 'suspended' && actor.teamState !== 'removed' && actor.shops.includes(shopId));
 }
 
 export function activityFor(record, processing) {
