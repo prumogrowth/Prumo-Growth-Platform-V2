@@ -36,4 +36,10 @@ O modelo ainda carece de proteção contra concorrência entre verificação e r
 
 **Condições de continuidade:** após CI PG17, auditar o protótipo e, somente com desenho compatível de acesso mínimo à sessão e domínio, propor migração nova sob autorização explícita. PRs #1/#2 Draft, sem merge; DEC-WA-04/06 e integração Meta real continuam bloqueados.
 
-**Aceite:** não registrar sucesso sem ver logs do commit final. 
+## Aceite confirmado — 18/10/2026
+
+**[GitHub Actions PostgreSQL 17 #39131575891 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39131575891)**, código executável testado no commit `2d02c55cc6c02ce695d14e03fa4c90a943d41d8a`. Logs verificados: `ISSUERF-01..04 PASS`, testes e concorrência anteriores sem regressão, **24 unitários Python OK**.
+
+**Falha intermediária:** [CI #39131498734 — FAILURE](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39131498734) encontrou apenas uma checagem de `has_table_privilege(..., 'auth.sessions')` sobre relação inexistente no bootstrap do PG17 isolado. O teste passou a consultar o privilégio somente quando `to_regclass('auth.sessions')` não é nulo; não modificou o mock, o verificador HMAC, as migrations ou o banco hospedado.
+
+**Interpretação:** foi demonstrado em laboratório que o proprietário da função experimental pode ser NOLOGIN/NOBYPASSRLS, aplicar prova HMAC assinada via `prumo_s0_signer`, consultar sessão/vínculo fictícios, emitir capacidade na própria transação, gravar estado e auditoria juntos, bloquear loja B e reverter nonce/estado diante de falha na auditoria. **Não** foi demonstrada autorização com `auth.sessions` GoTrue real, locks de revogação, domínio C07/C08 real, nem menor privilégio ponta a ponta das wrappers comerciais legadas. A última rodada integrada GoTrue/PostgREST da baseline real é [#39122948236 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39122948236), não repetida nesta prova sem migration operacional. 

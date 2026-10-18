@@ -509,3 +509,16 @@ Artefatos: `docs/S0_036A_AUDITORIA_ACL_2026_10_18.md`, `supabase/tests/s0_036a_a
 Artefatos: `supabase/tests/s0_037c_execucao_assinada_c07_c08.sql` (ampliado), `docs/S0_037E_FAULT_INJECTION_AUDITORIA_2026_10_18.md` e `docs/MAPA_MENTAL.md` atualizado. **Nenhuma migration nova nem mudança nas functions reais**; todo o teste ficou sob `BEGIN/ROLLBACK` no PostgreSQL local efêmero. A S0-037D (RLS sob capability de laboratório) e S0-037E (atomicidade da cadeia assinada existente) são provas **complementares**, **não** equivalentes a um emissor novo de capacidade sem `postgres`.
 
 **Gate ainda aberto:** proprietários comerciais `SECURITY DEFINER postgres` seguem inalterados; emissor real com sessão, HMAC, gestão de nonce, auditoria, RLS por loja, concorrência e falha/recovery ainda não implementado. Baseline GoTrue/PostgREST local [#39122948236 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39122948236) não repetida por ausência de alterações de runtime. PR #1 e #2 Draft, sem merge, hospedado e produção intocados. **GO somente para próxima prova sintética / desenho da primeira jornada S1; NO-GO operacional.**
+
+
+## S0-037F — executor assinado restrito e capacidade RLS em laboratório (18/10/2026 UTC)
+
+**Evidência do código testado `2d02c55cc6c02ce695d14e03fa4c90a943d41d8a`:** [GitHub Actions PostgreSQL 17 #39131575891 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39131575891). `ISSUERF-01..04 PASS`, regressões anteriores e **24 testes unitários Python OK**. Artefatos: `supabase/tests/s0_037f_emissor_assinado_mock.sql`, `scripts/run-s0-local.sh`, `docs/S0_037F_EMISSOR_ASSINADO_MOCK_2026_10_18.md`, `docs/MAPA_MENTAL.md`.
+
+- ISSUERF-01: `prumo_s0_probe_037f_exec` NOLOGIN/NOBYPASSRLS é proprietário da função experimental SECURITY DEFINER e não tem SELECT de segredos nem DML direto via papel gateway.
+- ISSUERF-02: HMAC falso negado, assinatura real do simulador verificada pelo signer, mock de sessão e vínculo, operação mock rotulada C08 e decisão C07, isolamento entre lojas e capacidade encerrada no mesmo comando.
+- ISSUERF-03: falha forçada na auditoria após UPDATE implica rollback do mock de estado, da capacidade e do nonce HMAC; repetir **a mesma prova** depois do reparo aplica uma vez.
+- ISSUERF-04: desativar sessão **mock** bloqueia nova operação mesmo com assinatura válida; confirma contagem íntegra de três aplicações, auditorias e nonces.
+- A primeira execução [#39131498734 — FAILURE](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39131498734) encontrou somente introspecção de `auth.sessions` ausente no PostgreSQL descartável, corrigida com `to_regclass`. Nenhuma migration, owner comercial, ACL persistente ou rotina de negócio alterada.
+
+**Aceite restrito:** um padrão de função com proprietário NOLOGIN/NOBYPASSRLS **foi demonstrado apenas com tabelas fictícias**. A S0 real ainda depende de wrappers comerciais `SECURITY DEFINER postgres`, `auth.sessions`, transações C07/C08 completas, locks e auditoria operacional. O script é `BEGIN/ROLLBACK` e não cria papel persistente nem expõe RPC no Supabase hospedado. O workflow Auth/REST local não foi repetido, pois não existe mudança de runtime/migration. **GO apenas para aprofundar projeto sintético e protótipo S1; NO-GO para troca de owner, merge, hospedado, Meta real ou produção.**

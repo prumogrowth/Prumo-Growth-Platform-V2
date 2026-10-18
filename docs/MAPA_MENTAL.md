@@ -92,13 +92,13 @@ flowchart TD
 | Auditoria S0-037A/B/C | Sessão e ator distintos, gestor interloja, replay C07 idêntico/divergente | [CI #39128133133 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39128133133) |
 | S0-037D | Capacidade de laboratório por operação/loja/alvo/versão/txid; GUC falsificada não é autorização | [CI #39130042204 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39130042204) — **não é redução do owner comercial** |
 | S0-037E | Falha de auditoria após C08/C07, rollback de domínio/nonce e retry com prova idêntica | [CI #39130947663 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39130947663) — **owners comerciais continuam postgres** |
-| S0-037F | Executor assinado NOLOGIN com HMAC, sessão e escopo de laboratório, RLS, auditoria e rollback | **Experimento em validação, sem migração nem owner comercial alterado** |
+| S0-037F | Executor assinado NOLOGIN/NOBYPASSRLS sobre **tabelas de laboratório**, HMAC real do signer e sessão mock, capacidade RLS, auditoria/rollback | [CI #39131575891 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39131575891) — **não transferiu owners comerciais** |
 
 **S0-037D testada no PostgreSQL 17:** capability de teste emitida pela fixture privilegiada, consumida em política RLS transacional sem confiar em GUC de sessão. Não há emissor autenticado e nem substituição das wrappers comerciais `postgres`. [CI PG17 #39130042204](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39130042204) aprovado; emissão real e auditoria integral continuam pendentes. Ver `docs/S0_037D_CAPACIDADE_TRANSACIONAL_2026_10_18.md`.
 
 **S0-037E aprovada no PG17:** ensaio de fault injection sobre a cadeia HMAC/sessão legada; [CI #39130947663 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39130947663); não é emissor operacional de capacidade nem autorização de deploy. Ver `docs/S0_037E_FAULT_INJECTION_AUDITORIA_2026_10_18.md`.
 
-**S0-037F em validação:** modelo isolado em `prumo_037f_lab` que combina HMAC, sessão e papel restrito **mock**, capacidade transitória RLS e auditoria; não usa `auth.sessions` real, nem substitui wrappers comerciais `postgres`. Ver `docs/S0_037F_EMISSOR_ASSINADO_MOCK_2026_10_18.md`. Atualizar status após CI.
+**S0-037F aprovada no PostgreSQL 17:** modelo isolado em `prumo_037f_lab` que combina HMAC, sessão e papel restrito **mock**, capacidade transitória RLS e auditoria; não usa `auth.sessions` real, nem substitui wrappers comerciais `postgres`. Ver `docs/S0_037F_EMISSOR_ASSINADO_MOCK_2026_10_18.md`. [CI PG17 #39131575891](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39131575891) aprovado; `auth.sessions` real, locks, C07/C08 de domínio e migração comercial continuam pendentes.
 
 O `MAPA_MENTAL.md` é índice de navegação. As decisões normativas e os registros de aceite versionados têm precedência sobre os nós simplificados deste mapa. Atualizá-lo a cada incremento **depois de verificar** CI e escopo real, sem rotular proposta como entregue.
 
