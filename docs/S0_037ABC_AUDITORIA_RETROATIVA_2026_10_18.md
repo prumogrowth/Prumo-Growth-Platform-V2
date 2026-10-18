@@ -36,3 +36,8 @@ Sem mudança de owner das wrappers comerciais, sem `BYPASSRLS`, sem nova role/co
 - AUD37-03: cinco nonces aceitos e cinco registros de gateway, incluindo replay idempotente; tentativas negadas não geram registro nem segunda associação C07. OWNER37C-05 permanece PASS após ajuste da contagem de auditoria.
 
 **Conclusão:** lacunas de cobertura supridas sem alterar migrations, funções comerciais ou proprietários. Não foi reproduzido desvio de autorização nesses cenários. A aprovação é apenas sintética: os proprietários comerciais postgres continuam pendentes de redesenho, assim como DEC-WA-04/06 e a integração Meta/C07 real. A execução Auth/REST local mais recente da baseline é [#39122948236](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39122948236); não foi repetida porque não houve alteração do runtime. MAPA_MENTAL.md sincronizado com o marco de auditoria. 
+
+
+### AUD37-05 — atualização concorrente no PR #2 após checagem do mapa
+
+Durante o fechamento da auditoria, a frente WA publicou o commit `c98f3609b18c93dbd7c4cc8d4a75fd527c2a8be5`, modificando somente `integrations/whatsapp-meta/credential-lifecycle.ts` com fail-closed para entradas inválidas ou não clonáveis. **O resultado WA-04C 13/13 pertence à revisão anterior do módulo**; não pode certificar automaticamente o código recém-publicado. O `MAPA_MENTAL.md` foi corrigido para registrar **[R] rerun de testes da frente Meta**. Nenhuma alteração ou execução dos testes dessa frente foi feita aqui, e a conclusão positiva da S0 no CI #39128133133 permanece independente.
