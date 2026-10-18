@@ -72,7 +72,9 @@ function updateSelectors() {
     o.value = a.id; return o;
   }));
   actorSelect.value = state.actorId;
-  $('team-nav-mobile').hidden = actor.role !== 'gestor' || actor.teamState !== 'active';
+  const showTeam=actor.role==='gestor' && actor.teamState==='active';
+  $('team-nav-mobile').hidden=!showTeam;
+  $('team-nav').hidden=!showTeam;
   const shopSelect = $('shop-select');
   shopSelect.replaceChildren(...actor.shops.map(id => {
     const shop = getShop(id); const o = el('option', '', `${shop.name} · fictícia`); o.value = id; return o;
@@ -368,7 +370,8 @@ function openTeamSummary(){
     const assigned=visibleConversations(state.cases,state.actorId,state.shopId)
       .filter(record=>record.assignedTo===actor.id).length;
     const card=el('div','team-member');
-    card.append(el('strong','',actor.name),el('span','',`${actor.role==='gestor'?'Gestor':'Operador'} da Prumo · ${assigned} caso(s) sintéticos atribuídos`));return card;
+    const memberState=actor.teamState==='active'?'Ativo (fictício)':'Indisponível / suspenso (fictício)';
+    card.append(el('strong','',actor.name),el('span','',`${actor.role==='gestor'?'Gestor':'Operador'} da Prumo · ${memberState} · ${assigned} caso(s) sintéticos atribuídos`));return card;
   }));
   const dialog=$('team-dialog');dialog.returnValue='';dialog.showModal();
 }
