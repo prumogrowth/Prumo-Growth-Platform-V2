@@ -61,7 +61,7 @@ O adaptador retorna **proposta sem efeito colateral**, com contract_version, req
 - usage_metrics: contagens retornadas pelo provedor, quando disponíveis, para observabilidade e controle de custos; nunca inferir cobrança a partir do texto.
 - Não há opção 'mark_sold', 'bank_approved', 'set_lost', 'handoff_override', 'send_graph', 'db_mutation' ou alteração arbitrária de parâmetros.
 
-O backend S0, como única autoridade do ciclo, deverá revalidar versão, caso, loja, handoff, elegibilidade e permissão da ação antes de persistir. **Distinção de guarda por operação:** sales_reply/recontact_plan/speech_synthesize com intenção de contato exigem IA ainda elegível e bloqueio pós-handoff; human_close_extract é PROCESSAMENTO SILENCIOSO posterior à conversa humana e NÃO deve ser barrado pela trava de comunicação da IA Vendedora. Resposta tardia/desatualizada deve ser descartada com motivo e evidência técnica segura.
+O backend S0, como única autoridade do ciclo, deverá revalidar versão, caso, loja, handoff, elegibilidade e permissão da ação antes de persistir. **Guardas SEPARADAS CF-OP-02:** `sales_reply` e `speech_synthesize` COMO FALA DA IA VENDEDORA exigem posse IA vigente e são bloqueados definitivamente após handoff; `human_close_extract` é tarefa INTERNA silenciosa permitida após fechamento humano autenticado; `recontact_plan` também é tarefa INTERNA silenciosa e pode ser pedida pelo S0 para caso humano elegível (novo plano pós-humano), mas NUNCA reativa plano antigo nem fala com cliente. S0 decide plano, templates, destinatário, status e eventual envio Meta. Resposta tardia/desatualizada deve ser descartada com motivo e evidência técnica segura.
 
 ## 5. Conectividade OpenAI e transporte [P/V/R]
 
@@ -82,6 +82,14 @@ O backend S0, como única autoridade do ciclo, deverá revalidar versão, caso, 
 5. **Auditoria:** guardar IDs opacos, versão, decisão e métricas autorizadas; não registrar chaves, prompt bruto contendo PII, conteúdo integral ou segredos em logs. Retenção e papéis de controladoria/subprocessamento exigem validação [V/R].
 6. **Limites comerciais:** IA não presume venda, recusa bancária, confirmação de envio, leitura WhatsApp, preço ou condição não validada. Recusa definitiva após remessa é decisão humana documentada (13A/21). Pós-venda e pós-remessa são tratados por humanos conforme normas.
 7. **Sem autoconserto:** identificar erro não autoriza alterar regras/prompt/infraestrutura autonomamente nem suspender globalmente a operação.
+
+## 6A. Adendo CF-OP-02 / OAI-08, em revisão [P/R]
+
+A F03 agora pode **sugerir necessidade de recontato pós-humano** e compromisso futuro com evidência (OAI-08), sem acionar F02 automaticamente. S0 valida eventual pedido `recontact_plan`; F02 devolve somente templates/versões autorizados, limite de tentativas e final separado, nunca agenda persistida nem texto novo. Pedido de template único pelo operador segue S0→Meta, sem F02. A resposta a uma cadeia após handoff volta ao operador Prumo ATUAL autorizado, não à IA Vendedora. Handoff cancela plano anterior incompatível; plano pós-humano tem novo propósito e ID.
+
+**C09:** somente o S0 poderá futuramente marcar `perdido` por silêncio +24h depois de template final comprovadamente ENVIADO, em ciclo pré-banco elegível após matriz de estados homologada [R]. Janela Meta +24h desde último inbound e clique de conclusão humana são eventos distintos; nenhum desses dois relógios dispara `perdido`. Em `cadastro enviado ao banco`/ `vendido` não se aplica silêncio C09. O catálogo de campos, modelo, autenticação física e `cadastro enviado ao operador` ainda [R/V].
+
+**Assinatura F03:** as nomenclaturas divergentes E01/OAI-05 são mapeadas no [CFI-01](CFI_01_PROPOSTA_CONCILIACAO_ENVELOPE_F03_v0_1.md). O mapeamento é candidato até aceite S0/OpenAI na issue #4. Nenhum endpoint ou estado comercial é aprovado.
 
 ## 7. Gates e aceite [P]
 
