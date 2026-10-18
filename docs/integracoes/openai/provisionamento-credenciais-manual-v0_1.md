@@ -33,6 +33,14 @@
 
 **Jamais pedir que o responsável revele a credencial para validarmos esta fase.**
 
+## C1. Controles de gastos e testes por lote — atualização 18/10/2026
+
+A documentação oficial da OpenAI distingue alertas de orçamento **soft** (não interrompem requisições) e controles de gastos **hard** em projetos/organizações que os disponibilizem. O responsável deve conferir qual controle está efetivamente configurável na sua conta; não presumir que um alerta seja teto. Mesmo limites rígidos podem ter atraso de aplicação e pequeno excedente. Além de alertas/limites, todo lote de testes terá limite técnico interno de chamadas, tokens/duração e retries, preços do momento, estimativa total e **autorização expressa daquele lote**. Como o responsável não fixou um teto global arbitrário, isso não permite uso irrestrito de API.
+
+Ver E03_PREPARACAO_CONTA_CREDENCIAL_GATES_v0_1.md e as fontes oficiais:
+- https://help.openai.com/en/articles/9186755-managing-projects-in-the-api-platform
+- https://help.openai.com/en/articles/6614457-troubleshooting-api-usage-and-spend-limits
+
 ## D. Custo e autorização
 
 Assinatura ChatGPT não inclui automaticamente API OpenAI; cobrança e consumo da API são separados. O plano de pagamentos da API pode envolver créditos e o saldo não substitui limites em tempo real. Modelo, preço, volume e teto devem ser confirmados pela organização antes de qualquer chamada remunerada.
