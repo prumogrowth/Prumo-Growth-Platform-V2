@@ -7,6 +7,10 @@ create role prumo_s0_probe_037d nologin noinherit
  nosuperuser nocreatedb nocreaterole noreplication nobypassrls;
 grant usage on schema public to prumo_s0_probe_037d;
 
+insert into auth.users(id) values
+ ('c4050000-0000-4000-8000-000000000001');
+insert into public.atores(id) values
+ ('c4050000-0000-4000-8000-000000000001');
 insert into public.concessionarias(id,nome_operacional) values
  ('c4000000-0000-4000-8000-000000000001','037D loja A'),
  ('c4000000-0000-4000-8000-000000000002','037D loja B');
@@ -177,7 +181,7 @@ begin
  update public.pendencias_reconciliacao_c07_sinteticas p
  set estado='encerrada',versao=p.versao+1,decisao='ENCERRAR_SEM_PROVA',
   justificativa='Teste 037D de encerramento sem prova',
-  encerrado_em=statement_timestamp()
+  revisado_por='c4050000-0000-4000-8000-000000000001',encerrado_em=statement_timestamp()
  where p.id in (
   select x.alvo_id from pg_temp.issued_scope_037d x
   where x.acao='C07_ENCERRAR'
@@ -188,7 +192,7 @@ begin
   update public.pendencias_reconciliacao_c07_sinteticas p
   set estado='encerrada',versao=p.versao+1,decisao='ENCERRAR_SEM_PROVA',
    justificativa='Wrong action for link',
-   encerrado_em=statement_timestamp()
+   revisado_por='c4050000-0000-4000-8000-000000000001',encerrado_em=statement_timestamp()
   where p.id in (
    select x.alvo_id from pg_temp.issued_scope_037d x
    where x.acao='C07_VINCULAR'
@@ -199,7 +203,7 @@ begin
  update public.pendencias_reconciliacao_c07_sinteticas p
  set estado='encerrada',versao=p.versao+1,decisao='VINCULAR_SINTETICAMENTE',
   justificativa='Teste 037D de vinculo ficticio',
-  encerrado_em=statement_timestamp()
+  revisado_por='c4050000-0000-4000-8000-000000000001',encerrado_em=statement_timestamp()
  where p.id in (
   select x.alvo_id from pg_temp.issued_scope_037d x
   where x.acao='C07_VINCULAR'
