@@ -148,12 +148,28 @@ export async function inspectRoutedMetaPost(
     }
     // Since the clock may cross expiry during a large multi-event batch,
     // require the route to remain current at the very end.
-    const last = selectMetaCredential(registry, {
+    // Read the registry AGAIN after every binding check. Reusing `registry`
+    // here would accept callbacks if revocation occurs during channel checks.
+    // Still not a distributed transaction; the privileged S0 durable handoff
+    // must revalidate the same app/channel revision atomically at commit.
+    const latestRegistry = await ports.currentRegistry();
+    const last = selectMetaCredential(latestRegistry, {
       purpose: 'POST_APP_SECRET', trusted_route_ref: request.route.route_ref,
       expected_revision: request.route.expected_revision, at_ms: ports.nowMs(),
     });
     if (!last.ok || last.app_ref !== before.app_ref ||
         last.secret_slot !== before.secret_slot) return denyPost('ROUTING_CHANGED');
+    for (const item of events) {
+      const latest = resolveSignedMetaChannel(latestRegistry, {
+        trusted_route_ref: request.route.route_ref,
+        authenticated_app_ref: before.app_ref,
+        waba_id: item.event.waba_id, phone_number_id: item.event.phone_number_id,
+        expected_revision: request.route.expected_revision, at_ms: ports.nowMs(),
+      });
+      if (!latest.ok || latest.scope.concessionaria_id !== item.scope.concessionaria_id ||
+          latest.scope.canal_id !== item.scope.canal_id ||
+          latest.scope.app_ref !== item.scope.app_ref) return denyPost('ROUTING_CHANGED');
+    }
     return { ok: true, authenticated_app_ref: before.app_ref, events,
       ack_allowed: false, production_authorized: false };
   } catch {
