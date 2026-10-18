@@ -102,6 +102,12 @@ Estes limites descrevem o gate OFFLINE e podem ser recalibrados ANTES dos ensaio
 
 **Método comparativo:** manter conjunto de casos, versões de schema/prompt e rubrica constantes; usar modelos habilitados no projeto correto e registrar versão real. Candidatos iniciais texto GPT-6 Luna, GPT-6.1 Sol e, se necessário, Astra; transcrição/TTS com opções oficiais atuais. O vencedor é determinado por tarefa, qualidade + custo + latência + risco e não pela mera hierarquia comercial do nome.
 
+## 8A. Novas condições de negócio consolidadas [D-NEGÓCIO/P/R]
+
+OAI-07 acrescenta ao validador: **extrair todo campo elegível identificado**, mas separar marcações de `required_for_bank_submission`, `optional`, `auto_apply_allowed` mantidas S0 (lista oficial ainda [R/V]). Campo opcional ausente nunca gera devolução por si; campo essencial ausente causa proposta de retorno ao humano com aviso curto contendo códigos/nomeados pelo catálogo da S0. Cada handoff IA → humano requer motivo operacional breve, com fallback determinístico se provedor falhar, nunca detalhes D3/D4 ou interpretação jurídica.
+
+O desfecho conversacional pode ser classificado pelo modelo com fonte, mas **não** comprova `vendido` nem recusa definitiva; status oficiais permanecem com registro humano e evidência conforme 13A/21/41. Desistência sem negativa bancária mantém regra de `perdido` em revisão [R]. Áudio é preferência contextual: pedidos expressos e padrões reiterados, sem inferir preferência permanente com um áudio. Sem teto global pré-definido, mas NÃO existe autorização irrestrita de gasto: cada lote de testes pagos deve ter escopo, estimativa e aprovação específica. Ver OAI-07 e NC-01 a NC-14, que ainda NÃO foram executados.
+
 ## 9. Fases de gate e responsabilidades
 
 - E02-DOC: arquivo presente, revisão documental pendente.
