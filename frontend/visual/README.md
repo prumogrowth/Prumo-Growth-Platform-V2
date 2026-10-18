@@ -67,3 +67,7 @@ Teclas adicionais: **Ctrl/Cmd+K** busca, setas direita/esquerda para abas e Esca
 - `cadastro enviado ao banco` e `vendido` nunca passam a `perdido` por silêncio nesta UI. O único exemplo de caso perdido está pré-projetado em fixture histórica de ciclo elegível, jamais calculado.
 
 **Verificação realizada:** 24/24 testes sintéticos executados sobre o conteúdo da branch GitHub por harness de asserções V8; sintaxe dos módulos aprovada; inspeção de HTML/CSS e guardas sem chamada externa. **Ainda pendente:** execução do script Playwright atualizado depois da FV-03, acessibilidade aprofundada e contratos reais. Testes Node da FV-UI-002 de 12/12 permanecem históricos e não comprovam as novas capacidades. Não é aplicação de produção.
+
+## FV-UI-004 — Reforço de interação
+
+O protótipo agora oculta a visão Equipe de operadores e perfis suspensos, distingue equipe indisponível, protege os diálogos contra confirmação residual e relaciona melhor as abas de detalhes ao painel acessível. O roteiro Playwright foi atualizado para também testar equipe móvel e cancelamento de template, **ainda não reexecutado**. Seis novos testes de inspeção de fonte foram criados em `tests/source-contract.test.mjs`, além das 24 provas de lógica sintética já executadas em V8. Ver [registro de qualidade](../docs/13_AUDITORIA_FV_UI_004_USABILIDADE_E_REGRESSOES_2026_10_18.md). Sem integração real.
