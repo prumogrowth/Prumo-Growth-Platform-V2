@@ -115,3 +115,12 @@ A WA-04A também passou a rejeitar globalmente um `phone_number_id` ou `canal_id
 **Evidência local:** 28 cenários novos WA-04B + 19 WA-04A + 120 regressões = **167/167 testes PASS**, `tsc --strict` PASS para os módulos e 10 arquivos de testes selecionados, após pequenos reparos de tipagem em `cross-contract.test.ts` e `graph-template.test.ts`. Não houve CI remoto ou reexecução dos quatro arquivos de teste unitário WA-01 legados. Referência: `docs/integracoes/whatsapp-meta/wa04b-get-post-roteamento-hmac-v0_1.md`.
 
 **Sem Supabase hospedado, env secrets reais, endpoint, Graph API, migrations, ACK durável, merge ou deploy.** O responsável avisará quando finalizar o cadastro de credenciais; não pedir valores no chat.
+
+
+## WA-04C — Propostas de ciclo de vida de credenciais, sem token
+
+`credential-lifecycle.ts` monta **propostas apenas em memória**, sem aplicação, para `REVOKE_APP`, `REVOKE_CHANNEL` e `STAGE_ROTATION`. A rotação proposta exige nomes novos/únicos de slots e deixa **inativo** o App no registro candidato, sem mecanismo de ativação. Ações não autentificadas ou controle operacional não são oferecidos por esta função. `production_authorized:false` permanece em todas as saídas.
+
+**Dependência atualizada:** o token Meta definitivo necessita **verificação de outra pessoa**; testes reais e consulta/configuração de segredos estão **adiados**. Pode-se continuar com revisão e testes exclusivamente sintéticos. Executados localmente: **13/13 LIFE PASS** e TypeScript estrito PASS (somente WA-04C); hashes dos dois arquivos confirmados no GitHub. Documento: `docs/integracoes/whatsapp-meta/wa04c-ciclo-credenciais-sem-token-v0_1.md`.
+
+O índice transversal `docs/MAPA_MENTAL.md` na branch S0 (`feat/s0-fundacao-prumo`) passa a registrar também a frente WA; atualizá-lo nos próximos incrementos significativos, sempre deixando explícitos [P]/[V local]/[R]/[D], sem substituir a fonte normativa dos PRs.
