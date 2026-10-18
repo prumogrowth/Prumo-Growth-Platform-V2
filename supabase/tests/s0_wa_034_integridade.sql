@@ -126,7 +126,21 @@ begin
   update prumo_private.aplicacoes_c02_inbox_s0
   set mensagem_id=v_alt where inbox_id=v_id;
   raise exception 'FAIL WA34-02 cross-channel message';
+ exception when check_violation then
+  if SQLERRM is distinct from 'INVALID_C02_MESSAGE_PROOF'
+  then raise exception 'FAIL WA34-02 wrong proof reason %',SQLERRM;end if;
+ end;
+ -- Isolate the physical composite FK check from the earlier validation
+ -- trigger, only inside this rollback-only fixture transaction.
+ alter table prumo_private.aplicacoes_c02_inbox_s0
+   disable trigger aplicacao_c02_prova_sem_desvio_s0;
+ begin
+  update prumo_private.aplicacoes_c02_inbox_s0
+  set mensagem_id=v_alt where inbox_id=v_id;
+  raise exception 'FAIL WA34-02 composite FK not enforced';
  exception when foreign_key_violation then null;end;
+ alter table prumo_private.aplicacoes_c02_inbox_s0
+   enable trigger aplicacao_c02_prova_sem_desvio_s0;
  -- A different message in the SAME channel also has to match both provider
  -- ID and fixture content (composite FK alone would not catch this).
  v_alt:=(prumo_private.receber_mensagem_sintetica(
