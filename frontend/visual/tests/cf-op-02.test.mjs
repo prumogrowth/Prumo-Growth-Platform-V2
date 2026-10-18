@@ -118,3 +118,14 @@ test('lista de templates é elegível por caso e versão; catálogo global não 
   const changed={...record,eligibleTemplatesProjection:[]};
   assert.deepEqual(projectedFollowupActions(changed,'rafael','aurora'),['request_chain']);
 });
+
+test('deny-by-default: projeções ausentes de janela, lista e conclusão não abrem ações', () => {
+  const record={...byId(cases(),'A-107'), inboxProjection:undefined, humanCompletionProjection:undefined, metaWindowProjection:undefined};
+  assert.equal(isInActiveInbox(record),false);
+  assert.equal(humanCompletion(record),'unknown');
+  assert.deepEqual(projectedFollowupActions(record,'rafael','aurora'),[]);
+  assert.equal(mayMockFreeText(record,'rafael','aurora'),false);
+  const rows=[record];
+  assert.equal(projectInbox(rows,'rafael','aurora','active').length,0);
+  assert.equal(projectInbox(rows,'rafael','aurora','history').length,0);
+});
