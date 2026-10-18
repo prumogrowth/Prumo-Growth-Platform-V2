@@ -145,7 +145,7 @@ export function classifyGraphSendResult(
     const messages = object(payload) ? payload.messages : null;
     const message = Array.isArray(messages) && messages.length === 1 ? messages[0] : null;
     const wamid = object(message) ? message.id : null;
-    if (typeof wamid === 'string' && /^wamid\.[A-Za-z0-9+/_=:.-]{1,1024}$/.test(wamid)) {
+    if (typeof wamid === 'string' && /^wamid\.[A-Za-z0-9+\/_=:.-]{1,1024}$/.test(wamid)) {
       return { ...output, send_state: 'API_ACCEPTED', api_accepted: true,
         provider_message_id: wamid };
     }
