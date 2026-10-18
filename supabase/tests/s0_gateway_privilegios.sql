@@ -201,4 +201,22 @@ begin
  then raise exception 'FAIL GW-06 audit table not private';end if;
 end $acl$;
 \echo 'PASS GW-06: dono e ACL das wrappers conferidos, tabela de auditoria inacessivel'
+do $privacy$
+declare expected text;
+begin
+ expected:=pg_catalog.encode(
+   pg_catalog.sha256(pg_catalog.convert_to(
+     '92000000-0000-4000-8000-000000000001','UTF8')),'hex');
+ if exists(select 1 from information_schema.columns
+   where table_schema='prumo_private'
+     and table_name='auditoria_gateway_s0'
+     and column_name='sessao_id')
+ or (select count(*) from prumo_private.auditoria_gateway_s0)<>3
+ or exists(select 1 from prumo_private.auditoria_gateway_s0
+   where sessao_fingerprint_sha256<>expected)
+ or exists(select 1 from prumo_private.auditoria_gateway_s0 a
+   where a::text like '%92000000-0000-4000-8000-000000000001%')
+ then raise exception 'FAIL GW-07 raw session leaked or hash incorrect';end if;
+end $privacy$;
+\echo 'PASS GW-07: log guarda apenas fingerprint SHA256, sem UUID de sessao em claro'
 rollback;
