@@ -13,10 +13,10 @@ class RunnerGuardTests(unittest.TestCase):
             t = Path(tmp)
             if use_mock:
                 fake = t / 'psql'
-                fake.write_text('#!/bin/sh\nprintf "%s\\n" "$@" > "$WA06D_CAPTURE"\n')
+                fake.write_text('#!/bin/sh\nif [ "${PGHOSTADDR-unset}" != "unset" ]; then exit 42; fi\nprintf "%s\\n" "$@" > "$WA06D_CAPTURE"\n')
                 fake.chmod(0o700)
             capture = t / 'args.txt'
-            env = dict(os.environ, PATH=(str(t) + ':' + os.environ.get('PATH','')) if use_mock else str(t), WA06D_CAPTURE=str(capture))
+            env = dict(os.environ, PATH=(str(t) + ':' + os.environ.get('PATH','')) if use_mock else str(t), WA06D_CAPTURE=str(capture), PGHOSTADDR='192.0.2.88')
             result = subprocess.run(['/bin/bash', str(RUNNER), *args], env=env, capture_output=True, text=True)
             return result, capture.read_text() if capture.exists() else None
 
