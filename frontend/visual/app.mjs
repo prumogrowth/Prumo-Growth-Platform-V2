@@ -379,6 +379,8 @@ $('team-nav').addEventListener('click',openTeamSummary);
 $('team-nav-mobile').addEventListener('click',openTeamSummary);
 $('team-close').addEventListener('click',()=>$('team-dialog').close());
 document.addEventListener('keydown',event=>{
+  // Não deslocar o foco para trás de um diálogo modal nativo.
+  if(document.querySelector('dialog[open]'))return;
   const inField=['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName);
   if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='k'){
     event.preventDefault();goto('list');$('search-input').focus();
