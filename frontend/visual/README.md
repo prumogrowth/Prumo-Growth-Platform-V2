@@ -71,3 +71,7 @@ Teclas adicionais: **Ctrl/Cmd+K** busca, setas direita/esquerda para abas e Esca
 ## FV-UI-004 — Reforço de interação
 
 O protótipo agora oculta a visão Equipe de operadores e perfis suspensos, distingue equipe indisponível, protege os diálogos contra confirmação residual e relaciona melhor as abas de detalhes ao painel acessível. O roteiro Playwright foi atualizado para também testar equipe móvel e cancelamento de template, **ainda não reexecutado**. Seis novos testes de inspeção de fonte foram criados em `tests/source-contract.test.mjs`, além das 24 provas de lógica sintética já executadas em V8. Ver [registro de qualidade](../docs/13_AUDITORIA_FV_UI_004_USABILIDADE_E_REGRESSOES_2026_10_18.md). Sem integração real.
+
+## FV-UI-005 — Ensaios de DOM desktop e mobile
+
+`tests/dom-fixture.mjs` e `tests/app.dom.test.mjs` / `app.mobile.dom.test.mjs` verificam navegação, diálogos, seleção de template elegível, acesso à equipe e suspensão **com DOM simulado**. **36/36 PASS** no V8, incluindo os 24 testes anteriores de regras. O atalho Ctrl/Cmd+K não tira o foco de um modal aberto. [Relatório FV-UI-005](../docs/14_TESTES_INTERACAO_FV_UI_005_2026_10_18.md). Node direto e Chromium real após FV-03 **ainda não executados**.
