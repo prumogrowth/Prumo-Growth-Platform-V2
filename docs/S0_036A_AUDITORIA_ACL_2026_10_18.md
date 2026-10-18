@@ -28,3 +28,13 @@ A função `prumo_private.auditar_rotacao_gateway_s0()` foi criada na migration 
 - Nenhum worker real C02/C07, Meta HMAC/webhook, payload protegido, segredo de produção, ACK 200, Graph, instituição financeira ou OpenAI foi ativado.
 - DEC-WA-01/02/03 aprovadas como direção e DEC-WA-05 aprovada para propriedade de App/WABA/emissor **por concessionária**. DEC-WA-04/06 e política de dedupe de eventos C07 continuam pendentes.
 - O Supabase hospedado não recebeu migrations comerciais; PR #1 e PR #2 permanecem Draft. A compatibilidade PostgreSQL/Supabase **da correção** deve ser registrada apenas após execução efetiva dos dois CIs.
+
+## Fechamento de auditoria — evidência final (18/10/2026 UTC)
+
+**Reparo final:** migration `202610180037_s0_036a_acl_audit_repair.sql` e teste `supabase/tests/s0_036a_auditoria_acl_completa.sql`, no commit de código `af6a21926eb36dc33dc5150c4943f26f3a1e500d`.
+
+- [PG17 #39122872136 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39122872136): `AUD-036A-01..04` PASS, `OWNER-01..06`, `GW-01..07`, demais regressões SQL/concorrência e 24 testes unitários Python OK. Confirmado que somente as duas entradas assinadas são executáveis por `prumo_s0_gateway`; validador/owner técnico têm conjuntos fechados de funções executáveis.
+- [Supabase local GoTrue/PostgREST #39122948236 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39122948236): `AUTH-01..18` PASS, incluindo novo inventário `AUTH-18` de EXECUTE público/gateway e `search_path` nas rotinas `SECURITY DEFINER`. Teardown do Supabase efêmero concluído, nenhum erro nos logs.
+- **Histórico de teste, corrigido:** [PG17 #39122774143 — FAILURE](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39122774143) teve `AUD-036A-01/02` PASS, mas `AUD-036A-03` comparava o `search_path` vazio somente com `search_path=`. O catálogo PostgreSQL representa também como `search_path=""`, embora as cinco rotinas já definissem `SET search_path=''` no SQL. O teste foi ajustado para aceitar ambas as representações, **sem alteração de função comercial**. A execução intermediária #39122866007 foi cancelada pela política de concorrência do CI quando o último commit foi publicado.
+- Etiqueta `run-auth-integration` removida após o sucesso. A correção cobre apenas ACL de um auxiliar de trigger e acrescenta testes; **não** rebaixa o owner das wrappers comerciais legadas nem constitui homologação operacional.
+- A migration recebe timestamp técnico 037 para sequenciamento, mas seu conteúdo é exclusivamente o reparo de auditoria **S0-036A**. O projeto da futura transferência comercial segue pendente de escopo/validação independente.
