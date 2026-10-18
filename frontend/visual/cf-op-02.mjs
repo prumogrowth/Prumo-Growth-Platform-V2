@@ -74,7 +74,7 @@ const SCENARIOS = Object.freeze([
   { id:'A-107', shopId:'aurora', name:'Cliente Exemplo 08', initials:'CE', assignedTo:'rafael',
     status:'em atendimento pelo operador', unread:1, updatedAt:'Ontem', tag:'Janela expirada · pendente',
     inboxProjection:'active', metaWindowProjection:'expired', humanCompletionProjection:'pending',
-    allowedActionsProjection:['single_template','request_chain'],
+    allowedActionsProjection:['single_template','request_chain','complete'],
     messages:[{id:'a107-1',side:'in',body:'Preciso pensar e retorno depois.',time:'Ontem'}] },
   { id:'A-108', shopId:'aurora', name:'Cliente Exemplo 09', initials:'CE', assignedTo:'rafael',
     status:'em atendimento pelo operador', unread:0, updatedAt:'10:50', tag:'Etapa humana concluída',
@@ -125,7 +125,7 @@ export function copyCFDemoFixtures() {
     return {
       ...record, inboxProjection:'active', metaWindowProjection:windowState,
       humanCompletionProjection:'pending',
-      allowedActionsProjection: ['A-102','A-106','B-201'].includes(record.id) ? ['free_text'] : []
+      allowedActionsProjection: ['A-102','A-106','B-201'].includes(record.id) ? ['free_text','complete'] : []
     };
   });
   return [...base,...SCENARIOS.map(record => ({
