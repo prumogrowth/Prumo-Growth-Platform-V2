@@ -7,7 +7,7 @@
 ## 1. Novas orientações funcionais informadas [D-NEGÓCIO]
 
 1. **Fim do atendimento humano:** em QUALQUER handoff válido — solicitação explícita do cliente, assunto jurídico, dificuldade técnica/linguística, atendimento especializado ou falta de dados — o operador conduz a conversa e aciona um botão de **encerrar atendimento** ao terminar. O evento técnico de fechamento, de propriedade S0/UI, dispara análise silenciosa pela OpenAI. A IA Vendedora NÃO recomeça a conversar.
-2. **Análise do desfecho:** nessa ocasião, o modelo deve identificar, COM evidência da conversa, se houve avanço de intenção comercial, conclusão sem avanço, desistência, venda apenas alegada ou resultado incerto, e a razão identificável. O objetivo funcional é dispensar a seleção manual rotineira “ganho/perdido/fechado” pelo operador **na interface do atendimento**. Porém, o modelo NÃO tem autoridade para converter hipóteses de conversa em venda bancária confirmada ou recusa definitiva; as duas operações continuam humanas por normas 13A/21/41 até decisão formal que as substitua.
+2. **Análise do desfecho — esclarecimento do responsável:** nessa ocasião, o modelo identifica, COM evidência da conversa, se a negociação foi **concluída com interesse confirmado e cliente aguardando próximos passos**, se o cliente ainda precisa esclarecer algo, desistiu ou se o resultado é inconclusivo, registrando o motivo. **Negociação concluída e pronta para encaminhar ao Banco NÃO é `vendido`.** O operador não precisa escolher manualmente uma classificação rotineira do desfecho conversacional; a IA a propõe para validação do S0. A confirmação efetiva de venda/pagamento é evento posterior, com prova bancária válida e marcação MANUAL pelo operador autorizado conforme 13A/21/41. Nenhum parecer do modelo pode marcar `vendido` ou recusa definitiva.
 3. **Extração extensiva:** preencher por processo S0 TODO campo do catálogo cujo valor tenha sido identificado de modo explícito, consistente, autorizado e verificável, mesmo se o campo NÃO for necessário à remessa; não limitar extração apenas aos campos exigidos pelo banco. Nenhum campo é inventado. A lista de campos e suas regras ainda não existe como catálogo final aprovado [R/V].
 4. **Obrigatoriedade é distinta de disponibilidade:** S0 fornece versão do catálogo distinguindo `required_for_bank_submission` vs. `optional` e `auto_apply_allowed`. **Ausência de dados essenciais exigidos pelo Banco:** retornar ou manter o caso com humano para complemento, acompanhando aviso curto com nomes/códigos dos campos faltantes. **Ausência apenas de opcionais:** não devolver ao humano por esse motivo; seguir fluxo autorizado. Dados proibidos não são coletados via canal inadequado.
 5. **Rota pós-análise:** se a conversa aponta continuidade e dados essenciais estão válidos, encaminhar para **remessa direta ao banco SOMENTE quando autorização, integração e prova de envio estiverem homologadas** [V/R]; até lá, remeter o caso ao operador responsável para a remessa humana comprovada, como estabelecido em 06/13A/21. A OpenAI jamais transmite ao Banco por conta própria.
@@ -32,8 +32,9 @@ OPERADOR_FECHA_ATENDIMENTO (evento técnico S0 autorizado; não é status comerc
      c) desfecho conversacional sem continuidade / desistência / perda sugerida:
         proposta de encerramento operacional para S0, SEM converter automaticamente em "perdido"
         até existir norma específica para os casos sem negativa bancária
-     d) venda alegada/indicada na conversa:
-        registrar hipótese com fonte; NÃO marcar "vendido" sem confirmação oficial do banco e ato humano
+     d) atendimento comercial concluído com interesse confirmado e cliente aguardando boleto/retorno:
+        classificar como NEGOTIATION_READY_FOR_BANK_HANDOFF; preparar ficha e encaminhar ao operador
+        para remessa quando elegível; NÃO marcar "vendido" e NÃO prometer boleto/pagamento como garantido
      e) caso ambíguo/resultado inconclusivo -> revisão humana justificada
 ```
 
@@ -71,7 +72,7 @@ Adicionar bloco descritivo (campos [P], não JSON Schema homologado):
 
 **Esse JSON é demonstração integralmente fictícia.** O modelo pode SUGERIR `conversation_outcome` e `next_step_proposal`, mas S0 calcula/valida a decisão final segundo estágio do ciclo, remessa comprovada, campos, permissões e normas vigentes. `is_required_for_bank` não pode ser criado ou confiado ao modelo; deve ser conferido contra versão da allowlist mantida pelo S0. O indicador comercial `CONTINUE_TO_BANK_REVIEW` não significa venda comprovada ou aprovação de crédito.
 
-Outcomes candidatos para conversa [P]: `CONTINUE_TO_BANK_REVIEW`, `NO_FURTHER_COMMERCIAL_INTEREST`, `CUSTOMER_WITHDREW`, `SALE_CLAIMED_UNVERIFIED`, `INCONCLUSIVE`. **Não são os oito status comerciais.** Qualquer proposta `SOLD` com ausência de prova do banco é mapeada a hipótese não comprovada; qualquer proposta `LOST` baseada somente na conversa fica sujeita a definição normativa de encerramento sem recusa bancária [R].
+Outcomes candidatos para conversa [P]: `NEGOTIATION_READY_FOR_BANK_HANDOFF` (interesse confirmado, conversa concluída, ficha elegível para preparo/remessa), `CONTINUE_TO_BANK_REVIEW`, `NEEDS_CLARIFICATION`, `NO_FURTHER_COMMERCIAL_INTEREST`, `CUSTOMER_WITHDREW`, `INCONCLUSIVE`. **São rótulos internos de avaliação da conversa e NÃO os oito status comerciais.** `SALE_CLAIMED_UNVERIFIED` deixa de ser o desfecho normal da conversa encerrada com interesse; eventual alegação de pagamento/venda é fato não verificado, encaminhado para conferência bancária humana. Qualquer proposta `SOLD` NÃO promove `vendido`, e `LOST` baseado apenas na conversa não promove automaticamente `perdido`.
 
 ## 4. Contrato de aviso de handoff IA → humano [P]
 
@@ -116,12 +117,15 @@ Critérios/heurísticas de contagem, duração e fallback, inclusive se o client
 - NC-12: conversa indica desistência, sem negativa bancária: retorno conversacional registrado, **nenhuma mudança automática para `perdido`** enquanto regra de encerramento sem recusa está [R].
 - NC-13: teste em lote remoto não executa sem aprovação de estimativa específica, e não ocorre gasto ilimitado por ausência de teto global.
 - NC-14: decisão de voz ou desfecho não muda, sem permissão, dados de outras lojas; prazo/versões e ids auditáveis.
+- NC-15: conversa concluída com interesse confirmado, campos exigidos presentes, menção a boleto futuro e ausência de prova de pagamento -> resultado `NEGOTIATION_READY_FOR_BANK_HANDOFF`, ficha preparada e encaminhamento humano elegível; **NÃO** `vendido`.
+- NC-16: operador autorizado confirma posteriormente pagamento/venda mediante evidência bancária válida -> apenas comando humano de domínio S0 pode marcar `vendido`, preservando remessa e prova, nunca resultado da OpenAI.
+- NC-17: caso originado de atendimento humano em `em atendimento pelo operador`, com ficha completa -> encaminhamento à fila de remessa e eventual status `cadastro enviado ao operador` somente se transição aprovada pelo dono S0; não assumir que fechamento humano sozinho satisfaz o handoff D-23A.
 
 ## 7. Pontos pendentes sem bloquear trabalho offline
 
 [R] Definir lista-mestre real dos campos, quais são essenciais para o banco e quais são captáveis/permissíveis; separar “preencher ficha interna” e “enviar dados ao banco”.
 [R] Definir com S0 o ciclo de “encerrar → analisar → pedir complemento → novo atendimento humano → reencerrar” sem novo status comercial.
-[R] Confirmar se “venda” mencionada pelo responsável quer dizer **venda comprovada pelo Banco** ou **aceite/negociação encerrada no WhatsApp**, para evitar enquadramento incorreto.
+**[D-NEGÓCIO, esclarecido em 18/10/2026]** “Fechado” no contexto da análise do atendimento significa **interesse confirmado e negociação/conversa concluída para seguir à remessa**, NÃO venda confirmada pelo Banco. `vendido` permanece dependente de confirmação efetiva de venda/pagamento, evidência bancária e marcação manual pelo operador. **[R]** A regra exata de transição de `em atendimento pelo operador` para `cadastro enviado ao operador` após fechamento humano precisa ser homologada pelo dono S0, pois D-23A descreve especificamente o handoff de cadastro pronto pela IA Vendedora.
 [R] Deliberar de forma EXPLÍCITA eventual automação de `perdido` quando o cliente desiste sem recusa definitiva, pois a norma 21 cobre apenas negativa definitiva do Banco e não autoriza conclusão genérica automática.
 [R/V] Habilitação de envio direto ao Banco, confirmação bancária, provas e interfaces/contratos.
 [R] Critérios de escolha de canal/modalidade e política de identidade de voz; apoio da frente Meta para formato e canal.
@@ -130,4 +134,6 @@ Critérios/heurísticas de contagem, duração e fallback, inclusive se o client
 
 **Regra de não interferência:** esta branch só documenta as interfaces e o comportamento de modelos. S0 e Meta permanecem livres para desenvolver seu backlog; nenhuma transferência, pausa, merge ou alteração de código e infraestrutura é efetuada por este documento.
 
-**Status:** direção de negócio registrada; contratos candidatos [P] e revisão S0/Meta [R] não concluídos. Nenhum teste, credencial, consumo ou alteração Supabase realizado.
+**Esclarecimento de 18/10/2026:** o termo coloquial “foi vendido/fechado” era usado para **atendimento comercial finalizado, interesse confirmado e material pronto para enviar ao banco**. Isso NÃO é venda bancária consumada. No fluxo-alvo, o caso pode ser encaminhado para `cadastro enviado ao operador` após validação do S0, e somente passa a `cadastro enviado ao banco` após remessa real com evidência. `vendido` exige confirmação bancária efetiva da venda/pagamento e marcação humana com prova (detalhes do controle de pagamento/checkbox ainda [R] no S0).
+
+**Status:** direção de negócio esclarecida [D-NEGÓCIO]; interfaces e revisão S0/Meta [P/R] não concluídas. Nenhum teste, credencial, consumo ou alteração Supabase realizado.
