@@ -39,7 +39,8 @@ const receive=async(opts?:Parameters<typeof setup>[0], reg=registry)=>prepareS0H
 const receipt=(candidate:S0HandoffCandidate,parts:Record<string,unknown>={})=>({
   contract_version:'meta-s0-receipt.v0.1-proposed',batch_ref:candidate.batch_ref,
   app_ref:candidate.app_ref,protected_payload_ref:candidate.protected_payload_ref,
-  payload_sha256:candidate.payload_sha256,total:candidate.event_count,
+  payload_sha256:candidate.payload_sha256,scope_sha256:candidate.scope_sha256,
+  route_ref:candidate.route_ref,route_revision:candidate.route_revision,total:candidate.event_count,
   accepted:candidate.event_count,duplicates:0,quarantined:0,
   outcome:'ACCEPTED_DURABLE',commit_state:'COMMITTED',...parts
 });
@@ -124,7 +125,8 @@ test('S0C-17 partial and contradictory counters fail even with string COMMITTED'
 });
 test('S0C-18 wrong batch, App, payload ref or digest fail receipt binding',async()=>{
   const c=await candidate();for(const patch of [{batch_ref:'FORGED'},{app_ref:'APP_B'},
-    {protected_payload_ref:'OTHER'},{payload_sha256:'b'.repeat(64)}])
+    {protected_payload_ref:'OTHER'},{payload_sha256:'b'.repeat(64)},
+    {scope_sha256:'f'.repeat(64)},{route_ref:'ROUTE_B'},{route_revision:2}])
     assert.equal(reviewS0ReceiptFixture(c,receipt(c,patch)).reason,'ENVELOPE_MISMATCH');
 });
 test('S0C-19 malformed getter/receipt object fails closed without throwing',async()=>{
@@ -146,4 +148,17 @@ test('S0C-22 all candidate failures omit customer IDs and do not leak raw conten
   const r=await receive({appSecret:keyB});const json=JSON.stringify(r);
   for(const value of ['5581900000000','FAKE_SECRET','wamid.IN_A=','PAYLOAD_001'])
     assert.equal(json.includes(value),false);
+});
+
+test('S0C-23 different channel binding must change scoped handoff digest',async()=>{
+  const first=await receive();const revised={...registry,apps:[{...a,channels:[
+    {...a.channels[0],canal_id:'CH_A_CHANGED'},a.channels[1]]},b]};
+  const second=await receive(undefined,revised);assert.equal(first.ok,true);assert.equal(second.ok,true);
+  if(first.ok && second.ok){assert.equal(first.candidate.payload_sha256,second.candidate.payload_sha256);
+    assert.notEqual(first.candidate.scope_sha256,second.candidate.scope_sha256);}
+});
+test('S0C-24 receipt must echo route revision and binding fingerprint, not only body digest',async()=>{
+  const c=await candidate();for(const altered of [{scope_sha256:'f'.repeat(64)},
+    {route_ref:'ANOTHER_ROUTE'},{route_revision:999}])
+    assert.equal(reviewS0ReceiptFixture(c,receipt(c,altered)).reason,'ENVELOPE_MISMATCH');
 });
