@@ -66,3 +66,8 @@ A demonstração não coleta CPF, documentos, valor financiado, provas bancária
 **Gate de transparência:** toda a fixture de outras concessionárias continua no JavaScript da demo; o isolamento ocorre apenas na UI/reducer. Não há confidencialidade real de dados em um protótipo 100% client-side. **Não usar clientes reais nem levar essa técnica de permissão para o backend**.
 
 **Resultado da regressão de auditoria:** [Workflow S1 #39134672559 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39134672559) no SHA `360b1a8d2c5bbfa6ae239344ee5d011583c815a4`, 27 PASS, 0 FAIL. Testes de DOM continuam fictícios; navegador real e acessibilidade pendentes.
+
+
+## Alinhamento organizacional D-ORG-01 — equipe Prumo
+
+**Alinhamento organizacional D-ORG-01 (18/10/2026):** gestores e operadores são profissionais **da Prumo**, inclusive quando dedicados exclusivamente a uma concessionária. Loja é escopo de atendimento, não vínculo empregatício. Uma pessoa pode ter múltiplas lojas por concessão explícita; gestor pode autoatribuir caso segundo D41-04. Ver `docs/D_ORG_01_EQUIPE_PRUMO_2026_10_18.md`. Na S1-001, `shopId` por ator é *uma única concessionária escolhida como cenário*, não empregador ou cardinalidade final. Na S1-002, representar equipe própria Prumo com múltiplos escopos autorizados e opção de dedicação exclusiva, sem acesso irrestrito; manter capacidade do gestor se autoatribuir casos D41-04. “Gestor da loja A” significa gestor da Prumo **com concessão vigente** para A. Não modificar os 27 testes aprovados retroativamente: qualquer nova verificação exigirá CI próprio.

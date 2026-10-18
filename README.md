@@ -1,5 +1,8 @@
 # Prumo — plataforma comercial (nome provisório)
 
+**Alinhamento organizacional D-ORG-01 (18/10/2026):** gestores e operadores são profissionais **da Prumo**, inclusive quando dedicados exclusivamente a uma concessionária. Loja é escopo de atendimento, não vínculo empregatício. Uma pessoa pode ter múltiplas lojas por concessão explícita; gestor pode autoatribuir caso segundo D41-04. Ver `docs/D_ORG_01_EQUIPE_PRUMO_2026_10_18.md`. 
+
+
 Operação comercial do produto **LiberaCred**, da instituição financeira. As ideias iniciais foram superadas: implementar somente normas vigentes dos documentos **00A, 13A, 21–23 e 41**, com os projetos técnicos 25/26/30/38/39/42/43.
 
 **S0 em desenvolvimento, dados exclusivamente sintéticos.** Nenhuma integração Meta, Banco, OpenAI ou n8n está conectada e não há liberação para produção.

@@ -53,3 +53,8 @@ Especificação e evidências em `docs/S1_001_JORNADA_HUMANA_VISUAL_2026_10_18.m
 ## Ressalva de auditoria de atribuição
 
 Na S1-001 sintética, a atribuição humana de um lead ainda em `aguardando primeiro disparo` é **temporariamente bloqueada** porque essa etapa não tinha transição humana válida no demonstrador. Não é decisão normativa para a plataforma final; a S1-002 deverá projetar o handoff inicial humano sem disparo. Qualquer simulação de primeiro disparo também é bloqueada após a suspensão da IA. **Não confundir filtros visuais com segurança**: o navegador carrega todas as fixtures sintéticas e só o backend autenticado poderá garantir confidencialidade.
+
+
+## Quem compõe a equipe (D-ORG-01)
+
+**Alinhamento organizacional D-ORG-01 (18/10/2026):** gestores e operadores são profissionais **da Prumo**, inclusive quando dedicados exclusivamente a uma concessionária. Loja é escopo de atendimento, não vínculo empregatício. Uma pessoa pode ter múltiplas lojas por concessão explícita; gestor pode autoatribuir caso segundo D41-04. Ver `docs/D_ORG_01_EQUIPE_PRUMO_2026_10_18.md`. Os personagens Marina/Rafael/Bianca/Paulo/Lia são profissionais **fictícios da Prumo**. O identificador `shopId` significa apenas contexto fictício de loja, não empregador. O seletor de personagem não autentica; o sistema final terá concessões múltiplas e revogáveis. Testar o vínculo da fixture não equivale a autorização no servidor.
