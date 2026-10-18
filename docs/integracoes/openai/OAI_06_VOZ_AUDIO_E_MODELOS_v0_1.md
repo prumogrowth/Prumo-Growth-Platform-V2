@@ -83,6 +83,10 @@ Preparar corpus **100% fictício**, sem chat real do cliente:
 - VOZ-T09: formato/codec/duração/tamanho alvo Meta conforme contrato PR #2; a frente OpenAI não implementa Graph nem sua validação final.
 - VOZ-T10: saída em áudio com confirmação de que é conteúdo automatizado segundo política aprovada [R/V].
 
+## 7A. Preferência contextual de mídia [D-NEGÓCIO/P]
+
+Em 18/10/2026 o responsável esclareceu que o assistente deve adaptar texto/áudio a pedidos expressos do cliente e ao padrão recente **reiterado**, sem thresholds artificiais antecipados. Uma mensagem de voz isolada NÃO prova preferência habitual. Áudio ocasional pode ser apropriado mesmo para quem escreve mais, sem forçar a interpretação de que o cliente passou a preferi-lo. O modelo propõe modalidade e motivo; S0 valida permissão de falar, eventual solicitação de texto, custo, adequação do conteúdo, handoff e canal. **Pedido explícito para usar texto tem precedência** sobre inferência de áudio. Toda mensagem de voz deve revelar identidade automatizada conforme política aprovada, não simular pessoa real. Depois de handoff humano, nenhum TTS de resposta da IA. Detalhes e casos NC-06/07/08 no OAI-07; heurísticas de frequência e fallback permanecem [R].
+
 ## 8. Fontes e precedência
 
 Internas: documentos 06 (IA, áudio e pendências), 11 (arquitetura), 24 e 26 (conversa e handoff), 28 e 33 (privacidade), PR #1 e PR #2 (fronteiras).
