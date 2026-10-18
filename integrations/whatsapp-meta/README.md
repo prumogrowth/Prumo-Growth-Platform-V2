@@ -135,3 +135,12 @@ Auditoria retroativa executada em **11 módulos e 16 arquivos de testes** da fre
 O **primeiro diagrama** do `docs/MAPA_MENTAL.md` na branch S0 foi ampliado apenas com cinco relações Meta relevantes (App da loja, HMAC, inbox/ACK, token pendente e saída via outbox). Evidências e limitações detalhadas: `docs/integracoes/whatsapp-meta/wa04aud1-auditoria-integrada-235-testes-v0_1.md`.
 
 **Não significa homologação real:** não existe token liberado, autorização de envio, conexão com o Supabase hospedado, inbox durável comprovada, webhook operacional, merge ou deploy. DEC-WA-04 e DEC-WA-06 ainda pendentes.
+
+
+## WA-04D — lifecycle versionado e regressão de revogação durante POST
+
+`lifecycle-simulation.ts` implementa um **FakeVersionedMetaRegistry exclusivamente em memória** para exercitar transições de revogação/rotação da WA-04C, conferindo revisão, loja, `operation_ref` repetido/conflitante e estado inativo até verificação externa. Não é backend, mecanismo operacional de credenciais ou transação no Supabase.
+
+**Defeito corrigido:** `routed-webhook.ts` podia conferir o encerramento de um POST com um snapshot do App anterior à revogação. Agora **reconsulta** a fonte de configuração e **revalida cada vínculo** do lote antes de liberar eventos técnicos; um teste adversarial falhou antes e passou após o reparo. Ainda existe janela de concorrência até um futuro commit transacional da S0; `ack_allowed:false` permanece.
+
+**Testes locais 250/250 PASS** (235 anteriores + 15 LIFE-D) e TypeScript estrito PASS nos 12 módulos/17 suítes, sem CI remoto nem dados reais. Relatório: `docs/integracoes/whatsapp-meta/wa04d-ciclo-credenciais-concorrencia-v0_1.md`. Os tokens permanecem bloqueados por verificação externa.
