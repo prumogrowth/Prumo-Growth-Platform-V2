@@ -37,3 +37,14 @@ Fontes:
 **Dependência do núcleo S0 para integração:** autorização atual e versionada para C06 (opt-in/out, template aprovado por loja, janela, caso/handoff, contrato comercial, bloqueios), registro de tentativa e resposta, segredo e destination vinculados ao App da concessionária, e política de envio incerto/reconciliação. Nenhuma credencial ou canal comercial autorizado por documentação.
 
 **Proteções preservadas:** sem migrations, Supabase hospedado, webhook `whatsapp-webhook-sandbox`, número comercial, Meta Graph real, contratação, merge ou deploy. PRs Draft.
+
+
+## Adendo corretivo pós-auditoria — 18/10/2026
+
+A interface descrita acima foi **endurecida** após auditoria. Substituir, para qualquer implementação futura, a assinatura antiga pela atual:
+
+`prepareGraphTemplateRequest(intent, trustedSnapshot, trustedScope, apiVersion)`
+
+`intent` e `trustedSnapshot` incluem `concessionaria_id`, `canal_id`, `meta_app_ref`, `meta_waba_id`, `phone_number_id`; o quarto parâmetro formal é `apiVersion`, e o terceiro `trustedScope` deve vir do backend S0 autenticado. O módulo verifica correspondência exata desses cinco campos entre três fontes, sem se declarar autorizador do negócio. O catálogo passa a exigir `schema_complete=true` e manifesto `components[]` dos componentes originais, nunca inferidos apenas por contagens. Componentes não suportados ou campos adicionais recusam a construção. Isso **não significa** que haja catálogo Meta real validado nem App comercial habilitado.
+
+A nova evidência de regressão para WA-02A/B é **41/41 PASS local**, incluindo WA-TPL-19..24, e verificação TypeScript estrita dos dois módulos. Ver `wa02-reparos-pos-auditoria-2026-10-18.md` para hashes, limitações e bloqueios remanescentes. Os 18 testes antigos continuam dentro dos 24 WA-TPL. Nenhuma alteração operacional foi autorizada.
