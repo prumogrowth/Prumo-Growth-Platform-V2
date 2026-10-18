@@ -58,7 +58,8 @@ with sync_playwright() as p:
     page.locator('#status-filter').select_option('em atendimento pelo operador')
     assert page.locator('.conversation-card').count() == 1
     page.locator('#actor-select').select_option('rafael')
-    page.locator('#team-nav').click()
+    assert page.locator('#team-nav').is_hidden()
+    assert page.locator('#team-nav-mobile').is_hidden()
     assert not page.locator('#team-dialog').is_visible()
     # FV-03: a janela expirada não permite texto livre, mas mantém o caso pendente.
     page.locator('[data-inbox="active"]').click()
@@ -68,6 +69,11 @@ with sync_playwright() as p:
     assert page.get_by_role('button',name='Solicitar cadeia de tentativas à IA').count()==1
     page.get_by_role('button',name='Selecionar e solicitar template aprovado').click()
     assert page.locator('#template-dialog').is_visible()
+    # Escape cancela sem reutilizar confirmação antiga.
+    page.keyboard.press('Escape')
+    assert not page.locator('#template-dialog').is_visible()
+    assert 'Pedido simulado' not in page.locator('#workflow-bar').inner_text()
+    page.get_by_role('button',name='Selecionar e solicitar template aprovado').click()
     page.locator('#template-form button[value="confirm"]').click()
     assert page.locator('#message-input').is_disabled()
     assert 'Pedido simulado' in page.locator('#workflow-bar').inner_text()
@@ -78,4 +84,23 @@ with sync_playwright() as p:
     assert 'perdido' in page.locator('#workflow-bar').inner_text()
     print('FV-03 janela, template e histórico: PASS')
     print('FV-UI-002 gestor/escopo: PASS')
+    page.close()
+
+    mobile = browser.new_page(viewport={'width':390,'height':844})
+    mobile.set_content(html)
+    mobile.add_script_tag(content=script)
+    assert mobile.locator('#team-nav-mobile').is_hidden()
+    mobile.locator('#actor-select').select_option('marina')
+    assert mobile.locator('#team-nav-mobile').is_visible()
+    mobile.locator('#team-nav-mobile').click()
+    assert mobile.locator('#team-dialog').is_visible()
+    assert mobile.locator('#team-list .team-member').count() == 4
+    mobile.keyboard.press('Escape')
+    assert not mobile.locator('#team-dialog').is_visible()
+    mobile.locator('#actor-select').select_option('otavio')
+    assert mobile.locator('.conversation-card').count() == 0
+    assert mobile.locator('#team-nav-mobile').is_hidden()
+    assert 'Sem acesso demonstrativo' in mobile.locator('#conversation-items').inner_text()
+    print('FV-UI-004 acesso suspenso / equipe no celular: PASS')
+    mobile.close()
     browser.close()
