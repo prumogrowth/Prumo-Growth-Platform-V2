@@ -21,6 +21,7 @@ export type LabRecovery = Readonly<{
   decision: 'LAB_FOUND' | 'LAB_ABSENT' | 'LAB_MISMATCH';
   pending: number; done: number; ack_allowed: false; production_authorized: false;
 }>;
+export type TrustedWorkerScope = Readonly<{app_ref: string; concessionaria_id: string; canal_id: string}>;
 export type LabClaim = Readonly<{
   decision: 'CLAIMED' | 'NO_WORK' | 'INVALID';
   occurrence_ref?: string; lease_ref?: string; production_authorized: false;
@@ -31,7 +32,7 @@ export type LabFinish = Readonly<{
 }>;
 
 type Occurrence = {
-  readonly ref: string; readonly batch: string; done: boolean;
+  readonly ref: string; readonly batch: string; readonly scope: TrustedWorkerScope; done: boolean;
   lease?: { owner: string; token: string; expires_at: number };
 };
 type StoredBatch = { readonly snapshot: SimulatedBatch; readonly fingerprint: string;
@@ -42,6 +43,30 @@ const providerId = (value: unknown): value is string => typeof value === 'string
   !/[\s\u0000-\u001f\u007f]/.test(value) &&
   /^wamid\.[A-Za-z0-9+\/_=:.-]{1,1024}$/.test(value);
 const index = (value: unknown): value is number => Number.isSafeInteger(value) && (value as number) >= 0;
+// Fixture inputs must be inert, JSON-like data objects. Accessor properties
+// and Proxies must not change the version checked versus the version stored.
+const plainData = (value: unknown): value is Record<string, unknown> => {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  const proto = Object.getPrototypeOf(value);
+  if (proto !== Object.prototype && proto !== null) return false;
+  return Object.values(Object.getOwnPropertyDescriptors(value)).every(d => 'value' in d);
+};
+const copyFixture = (input: SimulatedBatch): SimulatedBatch | undefined => {
+  try {
+    if (!plainData(input) || !Array.isArray(input.events) ||
+        !input.events.every(e => plainData(e))) return undefined;
+    return structuredClone(input);
+  } catch { return undefined; }
+};
+const validScope = (scope: unknown): scope is TrustedWorkerScope => {
+  try {
+    if (!plainData(scope)) return false;
+    const s = scope as TrustedWorkerScope;
+    return safe(s.app_ref) && safe(s.concessionaria_id) && safe(s.canal_id);
+  } catch { return false; }
+};
+const sameScope = (a: TrustedWorkerScope, b: TrustedWorkerScope): boolean =>
+  a.app_ref === b.app_ref && a.concessionaria_id === b.concessionaria_id && a.canal_id === b.canal_id;
 const complete = (input: SimulatedBatch): boolean => {
   if (!input || !safe(input.batch_ref) || !safe(input.app_ref) ||
     !safe(input.concessionaria_id) || !safe(input.canal_id) ||
@@ -80,22 +105,22 @@ export class FakeS0RecoveryJournal {
 
   /** Simulate crash before commit or loss of response AFTER atomic in-memory commit. */
   admit(input: SimulatedBatch, fault: 'none' | 'before_commit' | 'after_commit' = 'none'): LabAdmission {
-    if (!complete(input) || !['none','before_commit','after_commit'].includes(fault))
+    const copy = copyFixture(input);
+    if (!copy || !complete(copy) || !['none','before_commit','after_commit'].includes(fault))
       return admitted('LAB_INVALID','INVALID');
-    const f = fingerprint(input);
-    const prior = this.batches.get(input.batch_ref);
+    const f = fingerprint(copy);
+    const prior = this.batches.get(copy.batch_ref);
     if (prior) return prior.fingerprint === f
       ? admitted('LAB_ALREADY_COMMITTED','SAME_BATCH',prior.occurrenceRefs.length)
       : admitted('LAB_CONFLICT','BATCH_COLLISION');
     if (fault === 'before_commit') return admitted('LAB_NOT_COMMITTED','BEFORE_COMMIT');
-    if (this.batches.size >= 100 || this.occurrences.size + input.events.length > 1000)
+    if (this.batches.size >= 100 || this.occurrences.size + copy.events.length > 1000)
       return admitted('LAB_INVALID','INVALID');
     // No await: fake all-or-none in one JS process, NOT a database transaction.
-    let copy: SimulatedBatch;
-    try { copy = structuredClone(input); }
-    catch { return admitted('LAB_INVALID','INVALID'); }
     const refs = copy.events.map((_, n) => 'FAKE_OCC_' + (this.nextOccurrence + n + 1));
-    for (const ref of refs) this.occurrences.set(ref,{ref,batch:copy.batch_ref,done:false});
+    const scope: TrustedWorkerScope = {app_ref:copy.app_ref,
+      concessionaria_id:copy.concessionaria_id,canal_id:copy.canal_id};
+    for (const ref of refs) this.occurrences.set(ref,{ref,batch:copy.batch_ref,scope,done:false});
     this.nextOccurrence += refs.length;
     this.batches.set(copy.batch_ref,{snapshot:copy,fingerprint:f,occurrenceRefs:refs});
     return fault === 'after_commit'
@@ -105,19 +130,22 @@ export class FakeS0RecoveryJournal {
 
   /** A recovery lookup requires all original scope/payload identifiers to match. */
   recover(input: SimulatedBatch): LabRecovery {
-    if (!complete(input)) return recovering('LAB_MISMATCH');
-    const prior = this.batches.get(input.batch_ref);
+    const copy = copyFixture(input);
+    if (!copy || !complete(copy)) return recovering('LAB_MISMATCH');
+    const prior = this.batches.get(copy.batch_ref);
     if (!prior) return recovering('LAB_ABSENT');
-    if (prior.fingerprint !== fingerprint(input)) return recovering('LAB_MISMATCH');
+    if (prior.fingerprint !== fingerprint(copy)) return recovering('LAB_MISMATCH');
     const items = prior.occurrenceRefs.map(ref=>this.occurrences.get(ref));
     return recovering('LAB_FOUND',items.filter(x=>x && !x.done).length,items.filter(x=>x?.done).length);
   }
 
-  claim(owner: string, tick: number, leaseDuration: number): LabClaim {
-    if (!safe(owner) || !index(tick) || !index(leaseDuration) || leaseDuration < 1 ||
+  claim(owner: string, tick: number, leaseDuration: number, scope?: TrustedWorkerScope): LabClaim {
+    // TrustedWorkerScope MUST be supplied by a privileged S0 worker context;
+    // this in-memory check does not authenticate the owner or the scope.
+    if (!safe(owner) || !validScope(scope) || !index(tick) || !index(leaseDuration) || leaseDuration < 1 ||
       !Number.isSafeInteger(tick + leaseDuration)) return {decision:'INVALID',production_authorized:false};
     for (const row of this.occurrences.values()) {
-      if (row.done || (row.lease && row.lease.expires_at > tick)) continue;
+      if (!sameScope(row.scope, scope) || row.done || (row.lease && row.lease.expires_at > tick)) continue;
       const token = 'FAKE_LEASE_' + (++this.nextLease);
       row.lease = {owner,token,expires_at:tick+leaseDuration};
       return {decision:'CLAIMED',occurrence_ref:row.ref,lease_ref:token,production_authorized:false};
@@ -126,13 +154,13 @@ export class FakeS0RecoveryJournal {
   }
   /** Effect + done flag happen together in fake memory. No external side effects. */
   finish(owner: string, occurrenceRef: string, leaseRef: string, tick: number,
-    fault: 'none' | 'after_apply' = 'none'): LabFinish {
+    fault: 'none' | 'after_apply' = 'none', scope?: TrustedWorkerScope): LabFinish {
     const output=(decision: LabFinish['decision']):LabFinish =>
       ({decision,production_authorized:false,retry_external:false});
-    if (!safe(owner) || !safe(occurrenceRef) || !safe(leaseRef) || !index(tick) ||
+    if (!safe(owner) || !safe(occurrenceRef) || !safe(leaseRef) || !validScope(scope) || !index(tick) ||
         !['none','after_apply'].includes(fault)) return output('INVALID');
     const row=this.occurrences.get(occurrenceRef);
-    if (!row) return output('INVALID');
+    if (!row || !sameScope(row.scope, scope)) return output('INVALID');
     if (row.done) return output('ALREADY_DONE');
     if (!row.lease || row.lease.owner !== owner || row.lease.token !== leaseRef ||
         row.lease.expires_at <= tick) return output('STALE_LEASE');
