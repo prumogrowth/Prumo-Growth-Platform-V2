@@ -182,8 +182,10 @@ function renderThread() {
   const meta=projectedMetaWindow(item);
   bar.append(el('span','window-indicator '+(meta==='open'?'open':'closed'),meta==='open'?'Janela Meta aberta · projeção':meta==='expired'?'Janela Meta expirada · projeção':'Janela Meta não confirmada'));
   const completionState = humanCompletion(item,Boolean(state.processing[item.id]));
-  if(completionState==='completed' || completionState==='completed_demo')
-    bar.append(el('span','status-indicator','Etapa humana concluída · demo'));
+  if(completionState==='completed')
+    bar.append(el('span','status-indicator','Etapa humana concluída · projeção fictícia'));
+  else if(completionState==='requested_demo')
+    bar.append(el('span','status-indicator','Conclusão solicitada · simulação'));
   else if(completionState==='unknown')
     bar.append(el('span','status-indicator','Etapa humana não confirmada'));
   if(!isInActiveInbox(item)) bar.append(el('span','status-indicator','Histórico · somente leitura'));
@@ -222,6 +224,7 @@ function renderThread() {
   if(fActions.includes('request_chain') && !pendingLocal){
     const btn=el('button','btn btn-light','Solicitar cadeia de tentativas à IA');btn.type='button';
     btn.addEventListener('click',()=>{
+      if(selectedCase()?.id!==item.id)return;
       try {state.followupRequests[item.id]=applyLocalFollowupRequest(item,state.actorId,state.shopId,'request_chain');
         state.detailTab='followup';render();showToast('Solicitação fictícia de cadeia. Não há plano persistido nem envio.');}
       catch(error){showToast('Operação não disponível neste cenário.');}
@@ -272,7 +275,7 @@ function renderDetails() {
       prop('Profissional atribuído',item.reassignmentProjection==='protected_queue'?'Fila protegida (demonstração)':actor?.name??'Sem atribuição'),
       prop('Estado comercial',item.status),
       prop('Janela Meta (projeção)',projectedMetaWindow(item)==='open'?'Aberta · fictícia':projectedMetaWindow(item)==='expired'?'Expirada · fictícia':'Não confirmada'),
-      prop('Etapa humana',({'pending':'Pendente','completed':'Concluída · cenário fictício','completed_demo':'Concluída · pedido simulado','unknown':'Não confirmada'})[humanCompletion(item,Boolean(state.processing[item.id]))] ?? 'Não confirmada'),
+      prop('Etapa humana',({'pending':'Pendente','completed':'Concluída · cenário fictício','requested_demo':'Conclusão solicitada · ainda não confirmada','unknown':'Não confirmada'})[humanCompletion(item,Boolean(state.processing[item.id]))] ?? 'Não confirmada'),
       prop('Lista',isInActiveInbox(item)?'Ativa / pendente':'Histórico preservado')
     );
     if(item.reassignmentProjection==='protected_queue') group.append(callout('Acesso operacional protegido','A S1-002 decidirá o remanejamento real; não há escolha de operador pelo frontend.','warning'));
@@ -301,7 +304,7 @@ function renderDetails() {
       const add=el('button','btn btn-primary','Adicionar nota');add.type='submit';
       form.append(label,textarea,add);
       form.addEventListener('submit',e=>{e.preventDefault();const text=textarea.value.trim();
-        if(!text||!canWriteNote(selectedCase(),state.actorId,state.shopId))return;
+        if(!text || selectedCase()?.id!==item.id || !canWriteNote(item,state.actorId,state.shopId) || !isInActiveInbox(item))return;
         item.notes??=[];item.notes.push({id:'n-'+(item.notes.length+1),text,actorId:state.actorId,time:'Agora · fictício'});
         renderDetails();showToast('Nota adicionada somente à memória do navegador.');
       });notes.append(form);
@@ -327,6 +330,7 @@ function renderDetails() {
         for(const [kind,label] of [['partial','Retorno parcial'],['failed','Falha técnica'],['stale','Versão obsoleta']]){
           const button=el('button','btn btn-light',label);button.type='button';
           button.addEventListener('click',()=>{if(!canSimulateCompletion(selectedCase(),state.actorId,state.shopId))return;
+            if(selectedCase()?.id!==item.id)return;
             state.processing[item.id]={kind};render();showToast(modelExtraction(kind).title+'. Nenhuma API foi chamada.');});actions.append(button);
         }extract.append(actions);
       }
