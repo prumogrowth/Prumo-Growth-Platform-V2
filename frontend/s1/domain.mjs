@@ -103,8 +103,10 @@ export function canExecute(state, actorId, leadId, type) {
   const manager = actor.role === "gestor";
   const operator = actor.role === "operador" && leadRecord.assignedTo === actor.id;
   switch (type) {
-    case "assign": return manager;
-    case "simulate_first": return manager && leadRecord.status === STATUS[0];
+    // No demonstrador, um lead ainda sem primeiro disparo não possui
+    // transição de handoff humano validada. Evita caso atribuído e travado.
+    case "assign": return manager && leadRecord.status !== STATUS[0];
+    case "simulate_first": return manager && leadRecord.status === STATUS[0] && !leadRecord.aiSuspended;
     case "simulate_ai": return manager && leadRecord.status === STATUS[1] && !leadRecord.aiSuspended;
     case "route_operator": return manager && Boolean(leadRecord.assignedTo) &&
       [STATUS[1], STATUS[2]].includes(leadRecord.status);

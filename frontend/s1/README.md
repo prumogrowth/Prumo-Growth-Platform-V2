@@ -48,3 +48,8 @@ Especificação e evidências em `docs/S1_001_JORNADA_HUMANA_VISUAL_2026_10_18.m
 ## Evidência automatizada S1-001
 
 [CI S1 #39133454184 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39133454184) no SHA `6bd187148da74da6906493b0e2a97d817ffe84ba`: 18 testes de domínio + 6 testes de montagem usando DOM fictício, todos aprovados em Node 22. **Ainda é necessário abrir a interface em um navegador local para avaliação visual e de acessibilidade** antes de evoluir para S1 integrada.
+
+
+## Ressalva de auditoria de atribuição
+
+Na S1-001 sintética, a atribuição humana de um lead ainda em `aguardando primeiro disparo` é **temporariamente bloqueada** porque essa etapa não tinha transição humana válida no demonstrador. Não é decisão normativa para a plataforma final; a S1-002 deverá projetar o handoff inicial humano sem disparo. Qualquer simulação de primeiro disparo também é bloqueada após a suspensão da IA. **Não confundir filtros visuais com segurança**: o navegador carrega todas as fixtures sintéticas e só o backend autenticado poderá garantir confidencialidade.

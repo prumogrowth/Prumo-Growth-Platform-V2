@@ -170,3 +170,36 @@ test("S1-018: fixture é reconstruída em memória, sem mutar estado inicial", (
   assert.notDeepEqual(after,first);
   assert.deepEqual(second,first);
 });
+
+test("AUD-S1-01: não atribuir lead aguardando primeiro disparo sem caminho humano homologado", () => {
+  const s=initialState();
+  assert.equal(canExecute(s,"gestor-aurora","A-104","assign"),false);
+  assert.throws(()=>act(s,"gestor-aurora","A-104","assign",
+    {operatorId:"operador-aurora-1"}),/OPERACAO_NAO_PERMITIDA/);
+  const l=s.leads.find(x=>x.id==="A-104");
+  assert.equal(l.status,STATUS[0]);
+  assert.equal(l.aiSuspended,false);
+  assert.equal(l.assignedTo,null);
+});
+
+test("AUD-S1-02: handoff humano nunca autoriza simular primeiro disparo posterior", () => {
+  const s=initialState();
+  const pre=act(s,"gestor-aurora","A-104","simulate_first");
+  const post=act(pre,"gestor-aurora","A-104","assign",{operatorId:"operador-aurora-1"});
+  assert.equal(post.leads.find(x=>x.id==="A-104").aiSuspended,true);
+  assert.equal(canExecute(post,"gestor-aurora","A-104","simulate_first"),false);
+  assert.equal(canExecute(post,"gestor-aurora","A-104","simulate_ai"),false);
+});
+
+test("AUD-S1-03: entradas de versão e perfil inválidos são negadas, mesmo sem botão", () => {
+  const s=initialState();
+  assert.throws(()=>execute(s,"gestor-horizonte",{
+    leadId:"A-101",type:"assign",operatorId:"operador-horizonte",expectedVersion:1
+  }),/ACESSO_NEGADO/);
+  assert.throws(()=>execute(s,"gestor-aurora",{
+    leadId:"A-101",type:"note",text:"Nota válida",expectedVersion:999
+  }),/VERSAO_DESATUALIZADA/);
+  assert.throws(()=>execute(s,"perfil-falso",{
+    leadId:"A-101",type:"note",text:"Nota válida",expectedVersion:1
+  }),/ACESSO_NEGADO/);
+});

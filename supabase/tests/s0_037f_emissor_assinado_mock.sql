@@ -198,6 +198,23 @@ select set_config('prumo.test037f.revoke',pg_temp.assinar_037f(
  current_setting('prumo.test037f.issue')::bigint,
  'c4140000-0000-4000-8000-000000000005'),true);
 
+-- Adversarial audit: canonical proofs remain insufficient without actor/session
+-- binding and expected-version lock, even under NOLOGIN definer.
+select set_config('prumo.test037f.wrong_session',pg_temp.assinar_037f(
+ 'cancelar_plano','c4100000-0000-4000-8000-000000000001',
+ 'c4110000-0000-4000-8000-000000000002',
+ 'c4120000-0000-4000-8000-000000000001',
+ 'c4130000-0000-4000-8000-000000000001',1,null,
+ current_setting('prumo.test037f.issue')::bigint,
+ 'c4140000-0000-4000-8000-000000000006'),true);
+select set_config('prumo.test037f.stale',pg_temp.assinar_037f(
+ 'cancelar_plano','c4100000-0000-4000-8000-000000000001',
+ 'c4110000-0000-4000-8000-000000000001',
+ 'c4120000-0000-4000-8000-000000000001',
+ 'c4130000-0000-4000-8000-000000000001',1,null,
+ current_setting('prumo.test037f.issue')::bigint,
+ 'c4140000-0000-4000-8000-000000000007'),true);
+
 do $acl$
 begin
  if has_table_privilege('prumo_s0_gateway','prumo_037f_lab.trabalho_mock','UPDATE')
@@ -270,6 +287,43 @@ begin
   if SQLERRM<>'FORBIDDEN_SCOPE' then raise;end if;end;
 end $apply$;
 reset role;
+-- Executed after two successful signed mock transitions.
+set local role prumo_s0_gateway;
+do $issuer_audit$
+begin
+ begin
+  perform prumo_037f_lab.executar_assinado(
+   'cancelar_plano','c4100000-0000-4000-8000-000000000001',
+   'c4110000-0000-4000-8000-000000000002',
+   'c4120000-0000-4000-8000-000000000001',
+   'c4130000-0000-4000-8000-000000000001',1,null,
+   'c4190000-0000-4000-8000-000000000001',
+   current_setting('prumo.test037f.issue')::bigint,
+   'c4140000-0000-4000-8000-000000000006',
+   current_setting('prumo.test037f.wrong_session'));
+  raise exception 'FAIL AUD-ISSUERF-01: actor/session mismatch accepted';
+ exception when insufficient_privilege then
+  if SQLERRM<>'SESSAO_INATIVA' then
+    raise exception 'FAIL AUD-ISSUERF-01: wrong reason %',SQLERRM;end if;
+ end;
+ begin
+  perform prumo_037f_lab.executar_assinado(
+   'cancelar_plano','c4100000-0000-4000-8000-000000000001',
+   'c4110000-0000-4000-8000-000000000001',
+   'c4120000-0000-4000-8000-000000000001',
+   'c4130000-0000-4000-8000-000000000001',1,null,
+   'c4190000-0000-4000-8000-000000000001',
+   current_setting('prumo.test037f.issue')::bigint,
+   'c4140000-0000-4000-8000-000000000007',
+   current_setting('prumo.test037f.stale'));
+  raise exception 'FAIL AUD-ISSUERF-02: stale version accepted';
+ exception when serialization_failure then
+  if SQLERRM<>'CONFLICT_VERSION_OR_SCOPE' then
+    raise exception 'FAIL AUD-ISSUERF-02: wrong reason %',SQLERRM;end if;
+ end;
+end $issuer_audit$;
+reset role;
+\echo 'PASS AUD-ISSUERF-01/02: forged actor/session and stale signed version denied'
 do $check$
 begin
  if (select count(*) from prumo_037f_lab.auditoria_mock)<>2

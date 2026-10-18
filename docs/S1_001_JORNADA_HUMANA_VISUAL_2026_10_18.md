@@ -57,3 +57,12 @@ A demonstração não coleta CPF, documentos, valor financiado, provas bancária
 
 
 **Verificação visual adicional:** os seis smoke tests de interface usam DOM fictício em Node para conferir referências de IDs, montagem inicial, seleção de operador, troca de loja, filtro vazio e reset. Isso **não substitui testes de navegador, mobile, leitores de tela ou auditoria UX**. O workflow é acionado por PR e execução manual, evitando duas rodadas iguais de push + PR na mesma revisão.
+
+
+## Auditoria retroativa — correção de handoff S1 (18/10/2026)
+
+**Achado AUD-S1-01 — trajetória inconsistente na etapa inicial:** antes da revisão, o gestor podia atribuir o caso quando ainda estava em `aguardando primeiro disparo`. A atribuição suspendia a IA, mas `start_human` e `route_operator` não aceitavam essa etapa; o lead ficava sem caminho humano correto. Além disso, `simulate_first` não verificava `aiSuspended` diretamente. **Correção sintética:** bloquear a atribuição nessa etapa inicial, até que exista fluxo humano validado; exigir `!aiSuspended` para toda simulação de primeiro disparo; regressões AUD-S1-01..03. Isso **não** significa proibir atendimento humano antes de contato na plataforma real: a exceção deverá ser explicitamente especificada para S1-002 no backend e respeitar cancelamentos/opt-out.
+
+**Gate de transparência:** toda a fixture de outras concessionárias continua no JavaScript da demo; o isolamento ocorre apenas na UI/reducer. Não há confidencialidade real de dados em um protótipo 100% client-side. **Não usar clientes reais nem levar essa técnica de permissão para o backend**.
+
+**Resultado da regressão de auditoria:** pendente de CI após as correções; atualizar aceites somente com o SHA e os logs aprovados.

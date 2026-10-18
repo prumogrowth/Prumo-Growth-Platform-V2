@@ -1,6 +1,6 @@
 # S0-037E — injeção de falha na auditoria da execução assinada C08/C07
 
-**Data:** 18/10/2026. **Estado:** prova sintética proposta, aceite condicionado ao CI. PR #1 continua Draft. Não há migration nova, nenhuma role persistente, nenhum emissor de token operacional, chave de produção, Graph, Banco ou Supabase hospedado.
+**Data:** 18/10/2026. **Estado:** prova sintética aprovada no PostgreSQL 17; escopo limitado à cadeia assinada legada, conforme evidência do fechamento abaixo. PR #1 continua Draft. Não há migration nova, nenhuma role persistente, nenhum emissor de token operacional, chave de produção, Graph, Banco ou Supabase hospedado.
 
 ## Hipótese, arquitetura vigente e limite
 
@@ -20,7 +20,7 @@ Em `supabase/tests/s0_037c_execucao_assinada_c07_c08.sql`, dentro de `BEGIN ... 
 
 Toda escrita e a própria trigger de teste desaparecem com o `ROLLBACK`, e o runner restringe a execução ao banco descartável `prumo_s0_test_*` em loopback. Nenhuma trigger é instalada em migration nem no Supabase hospedado.
 
-## Evidência a registrar depois da execução
+## Critérios originalmente definidos para a execução
 
 Preencher o SHA/CI final somente com logs confirmados `AUTHATOM-01/02/03`, `OWNER37C-01..05`, `AUD37-01..03`, `OWNER37D-01..04` e regressões do runner.
 
