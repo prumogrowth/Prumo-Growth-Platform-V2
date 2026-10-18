@@ -13,3 +13,8 @@
 **Documentos:** `docs/S1_001_JORNADA_HUMANA_VISUAL_2026_10_18.md`, `docs/MAPA_MENTAL.md`, este arquivo de aceite e `frontend/s1/README.md`.
 
 **Governança:** PR #1/#2 Draft, sem merge. Não houve migrations no Supabase hospedado, instalação de frontend público, chave real, tráfego Meta/Banco ou operação produtiva. **GO para revisar visualmente a demo local e planejar S1-002 com backend autenticado; NO-GO para publicação/uso com clientes reais.**
+
+
+## Auditoria retroativa S1-001 — handoff antes do primeiro disparo
+
+[**GitHub Actions Node 22 #39134672559 — SUCCESS**](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39134672559), SHA `360b1a8d2c5bbfa6ae239344ee5d011583c815a4`: **27 testes PASS, 0 FAIL** (21 domínio, seis DOM simulado). **AUD-S1-01:** a atribuição de caso ainda aguardando primeiro disparo gerava suspensão de IA e um caminho humano inacessível; no protótipo, essa atribuição agora é negada até projeto de handoff inicial real. **AUD-S1-02:** o primeiro disparo não pode ocorrer se a IA estiver suspensa. **AUD-S1-03:** perfil inválido, loja errada e versão obsoleta não alteram estado. A S1 ainda carrega todas as fixtures fictícias no navegador: filtro visual **não é confidencialidade**. Não houve browser/screenshot real, login, RLS ou backend persistente. Ver `docs/AUDITORIA_S0_037EF_S1_001_2026_10_18.md`. **GO para desenho controlado S1-002; NO-GO para uso com clientes reais.**

@@ -39,7 +39,7 @@ A demonstração não coleta CPF, documentos, valor financiado, provas bancária
 
 ## Portões de aceite
 
-**Automação S1:** `node --check` nos módulos, `node --test frontend/s1/tests/domain.test.mjs` (24 cenários (18 de domínio e 6 smoke tests de montagem da interface)) e verificações de arquivos HTML/CSS no workflow específico S1. Cobertura: exatos oito status, telefone repetido A/B, isolamento por loja, operador designado, atribuição e suspensão da IA, transições de status, evidência manual de venda, perda, prevenção de replay por versão, notas, re-atribuição e ausência de rede/armazenamento persistente.
+**Automação S1:** `node --check` nos módulos e `node --test frontend/s1/tests/*.test.mjs` (27 cenários após auditoria: 21 de domínio e 6 smoke tests de DOM simulado), além de verificações de HTML/CSS no workflow S1. Cobertura: exatos oito status, telefone repetido A/B, isolamento por loja, operador designado, atribuição e suspensão da IA, transições de status, evidência manual de venda, perda, prevenção de replay por versão, notas, re-atribuição e ausência de rede/armazenamento persistente.
 
 **Antes de chamar de S1 integrada:** autenticação GoTrue, backend com auditoria persistente, integração de atribuição real com `casos_humanos` e `atribuicoes_humanas`, permissões D2 versus D3/D4, jornada de cadastro conforme normas 00A/13A/21–23/41, testes de acessibilidade e aplicação visual conectada em ambiente *local* de homologação. Isso exigirá revisão explícita de segurança e decisões de produto. A S1-001 não publica interface como portal real.
 
@@ -65,4 +65,4 @@ A demonstração não coleta CPF, documentos, valor financiado, provas bancária
 
 **Gate de transparência:** toda a fixture de outras concessionárias continua no JavaScript da demo; o isolamento ocorre apenas na UI/reducer. Não há confidencialidade real de dados em um protótipo 100% client-side. **Não usar clientes reais nem levar essa técnica de permissão para o backend**.
 
-**Resultado da regressão de auditoria:** pendente de CI após as correções; atualizar aceites somente com o SHA e os logs aprovados.
+**Resultado da regressão de auditoria:** [Workflow S1 #39134672559 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39134672559) no SHA `360b1a8d2c5bbfa6ae239344ee5d011583c815a4`, 27 PASS, 0 FAIL. Testes de DOM continuam fictícios; navegador real e acessibilidade pendentes.
