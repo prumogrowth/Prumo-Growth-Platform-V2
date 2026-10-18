@@ -79,7 +79,10 @@ function validRegistry(reg: TrustedMetaRegistry): boolean {
   if (!reg || reg.contract_version !== 'wa-meta-credential-routing.v0.1-proposed' ||
       !Array.isArray(reg.apps) || reg.apps.length > 100) return false;
   const appRefs = new Set<string>(), routes = new Set<string>();
-  const senders = new Set<string>(), secretNames = new Set<string>();
+  // Globally unique Meta Phone Number ID and S0 channel ID across ALL apps.
+  // A WABA may host several numbers in one App, but never span two Apps.
+  const senderIds = new Set<string>(), channelIds = new Set<string>();
+  const wabaOwner = new Map<string, string>(), secretNames = new Set<string>();
   let totalChannels = 0;
   for (const app of reg.apps) {
     if (!app || !id(app.app_ref) || !id(app.route_ref) ||
@@ -94,14 +97,15 @@ function validRegistry(reg: TrustedMetaRegistry): boolean {
     if (Object.keys(app.secret_slots).length !== 3 ||
         names.some(x => !slot(x) || secretNames.has(x))) return false;
     for (const name of names) secretNames.add(name);
-    const localChannels = new Set<string>();
     for (const channel of app.channels) {
       if (!channel || !id(channel.canal_id) || !id(channel.waba_id) ||
           typeof channel.active !== 'boolean' ||
           !/^\d{5,25}$/.test(channel.phone_number_id)) return false;
-      const sender = JSON.stringify([channel.waba_id, channel.phone_number_id]);
-      if (senders.has(sender) || localChannels.has(channel.canal_id)) return false;
-      senders.add(sender); localChannels.add(channel.canal_id);
+      const owningApp = wabaOwner.get(channel.waba_id);
+      if (senderIds.has(channel.phone_number_id) || channelIds.has(channel.canal_id) ||
+          (owningApp !== undefined && owningApp !== app.app_ref)) return false;
+      senderIds.add(channel.phone_number_id); channelIds.add(channel.canal_id);
+      wabaOwner.set(channel.waba_id, app.app_ref);
       if (++totalChannels > 1000) return false;
     }
   }
