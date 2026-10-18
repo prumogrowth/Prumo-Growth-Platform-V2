@@ -93,3 +93,14 @@ Nova migration sintética `202610180041_s1_prevenir_deadlock_remanejamento.sql` 
 ## I6 — Recuperação de fila após ativação/concessão (18/10/2026)
 
 Migr. `202610180042_s1_recuperacao_fila_protegida.sql` e teste `s1_004_recuperacao_fila_protegida.sql` (S1Q-01..10). A rotina privada retira casos da fila quando **novo profissional elegível da mesma loja** surge por ativação ou novo grant, sem devolver automaticamente ao operador anterior, sem atribuir gestor supervisor, sem tocar status comercial e sem abrir dados de outra loja. Pendência terminal ou já reatribuída recebe auditoria e remoção sem segundo titular. Os triggers são limitados a 25 por evento; lote maior exige executor futuro e alerta gestor [R]. **Proposta de teste, ainda sem CI validado.** Ver [contrato I6](../docs/S1_002_I6_RECUPERACAO_FILA_PROTEGIDA_2026_10_18.md). Não rodar em ambiente real.
+
+
+## S1-002/I6 — Evidência executada e limites (18/10/2026)
+
+**CI funcional PG17:** [GitHub Actions #39167477859 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39167477859), SHA `a438106ecf9e07eecb45a1c7b568d790638854ef`, log do job `117793341159` verificado: **S1Q-01..10, 10/10 PASS** (recuperação em ativação/concessão, ex-operador não reocupa, gerente não autoatribui, ciclo vendido intocado, stale sem duplicação, RLS e executor privado).
+
+**CI concorrência PG17:** [GitHub Actions #39167842391 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39167842391), SHA `2b50344206fff68b30b2a5afc4e5e13c292fe20f`, job `117794451583`; log verificado: **S1QC-01..04, 4/4 PASS** com duas conexões PostgreSQL; uma única atribuição e trilha com dois recuperadores; concorrência com atribuição externa fecha pendência stale; suspenso sem leitura. O mesmo job executou **S1E 7/7, S1R 9/9 duas vezes, S1X 7/7 duas vezes, S1C 5/5, S1D 5/5, S1Q 10/10, S1QC 4/4**.
+
+O ensaio inicial de S1QC [#39167719374](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39167719374) parou após S1QC-02 por comentário Bash incorreto (`--` em lugar de `#`); falha do script corrigida e toda a bateria retestada em #39167842391. **Não** equivale a prova GoTrue/REST, carga, scheduler, integração S0 de fila gerencial ou produção.
+
+**Gates abertos:** alerta/reapresentação da fila ao gestor via projeção S0, processamento de backlog com lote excedente ao gatilho 25, limites de escala/capacidade, identidade real de aprovador RH, grants expirados sem novo evento exigem executor 040, Auth/REST integrado, encerramento/venda/cadastro bancário interfrentes, custo/concorrência de workers, RLS entre equipe/serviço. Sem merge/deploy/Supabase hospedado e sem incremento de percentual global.
