@@ -50,3 +50,7 @@ Hashes Git dos arquivos versionados coincidem com o código testado localmente:
 **GO:** revisão conjunta da especificação \`meta-s0-handoff.v0.1-proposed\` e desenho do **adaptador interno privilegiado S0** (com evidência de origem, proteção do payload e transação única), mantendo código e testes sintéticos. **NO-GO:** emitir \`200\`/ACK, implantar Edge Function, ativar Graph, conectar dados reais ou alterar a POC concessionária de demonstração. Ambos PRs permanecem Draft.
 
 O \`docs/MAPA_MENTAL.md\` da branch S0 deve registrar a WA-05C na tabela/histórico **sem nó redundante no primeiro diagrama**: o fluxo Meta → inbox durável → ACK já está representado.
+
+## Complemento de compatibilidade WA-05D (18/10/2026)
+
+Auditoria adversarial encontrou que `scope_sha256` não incluía `provider_timestamp` nem `provider_kind`. A serialização canônica do contrato candidato foi reforçada: além da rota/revisão, posições/escopos, tipo de evento e `provider_message_id`, passam a integrar o digest também **timestamp e tipo técnico de cada observação**. O simulador interno S0 WA-05D recalcula esse digest de forma independente. GATE-21 falhou antes da correção e passou depois; GATE-22 verifica colisão de `batch_ref` com `protected_payload_ref` divergente. **352/352 testes locais PASS** no conjunto Meta; `scope_sha256` continua mera evidência de integridade de metadados, não autenticador. O algoritmo precisará de versão formal e revisão de compatibilidade antes de qualquer implementação S0 real. Blob atualizado deste módulo: `a9ae647a6cc5e99f79c3fa8a0c0bed21eeac6327`.
