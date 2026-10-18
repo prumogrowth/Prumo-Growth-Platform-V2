@@ -28,3 +28,8 @@
 ## AUD-ORG-01 — equipe Prumo e escopo de concessionária (18/10/2026)
 
 [GitHub Actions S1 #39136909717 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39136909717), SHA `806d6465c1ec28c64cc67cc5154977a49b48f538`: **28 testes PASS, 0 FAIL**, incluindo `AUD-ORG-01` para os cinco atores fictícios de `frontend/s1/domain.mjs`. Cada um tem `organizationId: "prumo"`; `shopId` representa apenas **escopo de concessionária selecionado na demonstração**, nunca vínculo profissional com a loja. UI atualizada para exibir “Gestor/Operador da Prumo · escopo [concessionária]”. Ver norma [D-ORG-01](../docs/D_ORG_01_EQUIPE_PRUMO_2026_10_18.md) e [auditoria documental](../docs/AUDITORIA_EQUIPE_PRUMO_DOCUMENTAL_2026_10_18.md). S1-002 ainda necessita autorizações multi-loja e gestor autoatribuído D41-04, com autenticação/RLS persistentes. **Sem novos grants, migration, merge ou produção.**
+
+
+## S1-002/I1 — Portão de equipe Prumo (candidato 18/10/2026)
+
+**CI ainda não verificado neste registro.** Os testes candidatos `S1E-01..07` cobrem cobertura das políticas RLS existentes, gestor Prumo A+B sem C, operador A+B apenas por caso, concessão sem pertencimento à equipe, tentativa de autoconcessão, suspensão da leitura/escrita via role `authenticated`, histórico SQL e a lacuna explícita de atribuições ainda ativas após desligamento. Runner `scripts/run-s1-002-local.sh` executa S0 antes da 038, sem provar regressão completa S0 após 038 nem Auth/REST pós-038. Fonte de admissão Prumo, política de reativação e remanejamento continuam pendentes. **NO-GO para implantação.** Ver `docs/S1_002_EQUIPE_PRUMO_PORTAO_INICIAL_2026_10_18.md`.

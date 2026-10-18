@@ -207,3 +207,19 @@ Um teste adversarial reproduziu um callback `delivered → read` adulterado acei
 A frente Meta publicou no PR #2 uma **especificação [P] de contrato**, e **não nova fixture executável**, de principal de serviço autenticado fora do body, `purpose/audience`, ACL mínima por App/rota/loja/canal, `nonce_ref` e ledger durável de replay, revogação concorrente no mesmo commit, payload bruto protegido + `batch_ref` + `occurrence_ref` + tarefas atômicas e recibo restrito com recuperação de `COMMIT_UNKNOWN`. [Contrato WA-06A](https://github.com/prumogrowth/Prumo-Growth---Platform/blob/docs/whatsapp-meta-concessionária de demonstração-poc-20261017/docs/integracoes/whatsapp-meta/wa06a-contrato-identidade-servico-replay-s0-v0_1.md).
 
 **[R S0]** revisão cruzada de owner/ACL real, identidade de workload, serialização canônica, nonce/replay, revalidação de vínculo, commit/recibo e compatibilidade com S0-029/033/034B e provas isoladas 037D/F. **[R/DEC-WA-06]** escolher mecanismos/segredos, retenção/backup, HTTP ACK/replay; DEC-WA-04 segue pendente. Os testes `SVC-01..12` são **critérios propostos, não executados**: permanece o marco histórico WA-05D-AUD1 **358/358 testes locais sintéticos**. Sem alterações em SQL S0, desenho inicial Mermaid, POC, Supabase hospedado, Graph, números, plano Free, deploy ou merge. PRs seguem Draft.
+
+
+## S1-002/I1 — Porta de equipe Prumo (candidato em branch isolada)
+
+```mermaid
+flowchart LR
+  A["auth.users + atores (S0)"] --> E["equipe_prumo_s1: estado da equipe Prumo"]
+  E --> R["RLS restritiva: equipe ativa"]
+  V["vinculos_papel_escopo A+B (S0)"] --> R
+  R --> C["gestor D2 por loja / operador por caso"]
+  E --> H["historico SQL de transicoes"]
+  E --> X["Pendente: fonte confiavel de admissao/desligamento"]
+  C --> Y["Pendente: redistribuicao transacional de casos"]
+```
+
+**[P]** Migration 038, suite S1E-01..07, novo runner e workflow PG17 privados. Não rotular [V] até confirmação CI. Não altera S0, PR #2 ou meta de 8 estados comerciais. Referência: `docs/S1_002_EQUIPE_PRUMO_PORTAO_INICIAL_2026_10_18.md`.
