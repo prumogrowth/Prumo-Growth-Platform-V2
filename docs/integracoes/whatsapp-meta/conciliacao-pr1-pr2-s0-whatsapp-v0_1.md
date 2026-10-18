@@ -1,6 +1,6 @@
 # Conciliação entre PR #1 (núcleo S0) e PR #2 (WhatsApp/Meta) | v0.1
 
-**Status:** parecer técnico cruzado registrado como **proposta de alinhamento**, não migração, homologação ou aprovação automática de decisões pendentes.  
+**Status:** **DEC-WA-01, DEC-WA-02 e DEC-WA-03 APROVADAS pelo responsável** como diretrizes arquiteturais. Detalhamento físico permanece proposto [P]; **não há autorização para migrations, implantação, operações de canal comercial ou contratação**. DEC-WA-04 a DEC-WA-06 continuam pendentes.  
 **Contexto:** parecer recebido da frente principal e conferência de leitura de migrations/documentos da branch `feat/s0-fundacao-prumo`, em 17/10/2026.  
 **Fontes de implementação examinadas:** `supabase/migrations/202610170001_s0_foundation.sql`, `202610170003_s0_domain.sql`, `202610170009_s0_c02_inbound_synthetic.sql`, `202610170011_s0_c02_ambiguous_inbox.sql`, `202610170019_c07_callbacks_sinteticos.sql`, `docs/DECISAO_POSTERIOR_EXCLUSIVIDADE_NUMEROS_2026_10_17.md`, `docs/C02_RECEBIMENTO_SIMULADO_S0.md`. Os demais arquivos do PR #1 podem evoluir independentemente; revalidar branch/HEAD na implementação.
 
@@ -30,9 +30,9 @@
 
 **Atenção de naming:** `loja_id` em contratos é **identidade lógica**; o físico S0 usa `concessionaria_id`. No PR #2, `canais_whatsapp` e `aliases_contato_canal` são **nomes candidatos**, não autorização para criar cadastro duplicado.
 
-## 3. Decisões técnicas compartilhadas propostas
+## 3. Decisões técnicas compartilhadas aprovadas (diretriz) — desenho físico em revisão
 
-### DEC-WA-01 — Número canônico e conflito de identidade [P; confirmação conjunta]
+### DEC-WA-01 — Número canônico e conflito de identidade [D arquitetura aprovada; P implementação]
 
 **Regra de produto já decidida [D]:** representações elegíveis `55 + DDD + 9 + oito dígitos` e `55 + DDD + oito dígitos` são o mesmo número lógico para busca e identificação no escopo de cada loja, **sem duplicar leads quando há correspondência única e confiável**.
 
@@ -44,14 +44,14 @@
 
 **Comportamento de mensagem repetida:** primeiro deduplicar pela **identidade externa da mensagem e canal**; depois validar coerência de conteúdo e identidade resolvida. Variação 8↔9 **não deve** causar conflito sozinha. Payload conflitante para o mesmo ID externo **pode** indicar problema real e exige quarentena.
 
-### DEC-WA-02 — Modelo físico sem estruturas paralelas [P; confirmação conjunta]
+### DEC-WA-02 — Modelo físico sem estruturas paralelas [D arquitetura aprovada; P implementação]
 
 - Evoluir `canais_loja` em migrations aditivas com vínculo temporal app/WABA/Phone Number ID, **preservando** `identificador_emissor UNIQUE` global e FKs compostas. `modo='simulado'` é check atual; não cadastrar números comerciais como se o canal real fosse simulado, nem desabilitar restrição sem revisão de domínio e segurança.
 - Preservar as tabelas já criadas `conversas`, `mensagens`, `casos_humanos`, `atribuicoes_humanas`; introduzir autoria técnica distinta do ator humano. Saídas de IA/sistema/template **não ganham `enviada_por` de operador** e passam por autorização final do backend. O predicado atual `saida ⇒ caso_id AND enviada_por` deve evoluir em mudança compatível, sem reescrever migrations S0.
 - Usar E04 para trilha de identidade e E29 para ingressão técnica; alias pode ser uma projeção/index auxiliar, não cadastro comercial alternativo. Não reutilizar `pendencias_inbound_simulado` como se fosse uma fila operacional real.
 - O `id_externo` de `mensagens` é da mensagem; aliases de telefone não participam da sua unicidade. Registrar status e correlação da Graph API separadamente.
 
-### DEC-WA-03 — Inbox/outbox, idempotência e C02/C06/C07 [P; confirmação conjunta]
+### DEC-WA-03 — Inbox/outbox, idempotência e C02/C06/C07 [D arquitetura aprovada; P implementação]
 
 ```text
 Webhook Meta (GET challenge; POST HMAC bytes brutos)
@@ -102,24 +102,24 @@ Webhook Meta (GET challenge; POST HMAC bytes brutos)
 
 **NÃO são evidências executadas:** testes de alias, filas/worker, carga, reconciliação real Meta, permissões com números comerciais e produção. Requer CI em PostgreSQL descartável após implementação autorizada.
 
-## 6. Decisões agrupadas para o responsável — sem aprovação por silêncio
+## 6. Decisões agrupadas — registro formal da aprovação
 
 | Grupo | Proposta | Estado |
 | --- | --- | --- |
-| **DEC-WA-01** Identidade | resolvedor no núcleo; aliases seguros + conflitos e histórico | **Recomendado [P]** |
-| **DEC-WA-02** Modelo físico | evoluir tabelas S0 existentes, sem domínio paralelo | **Recomendado [P]** |
-| **DEC-WA-03** Transações | inbox/outbox num único fluxo transacional, ACK durável, workers e reconciliação | **Recomendado [P]** |
+| **DEC-WA-01** Identidade | resolvedor no núcleo; aliases seguros + conflitos e histórico | **APROVADO [D]** como diretriz; físico [P] |
+| **DEC-WA-02** Modelo físico | evoluir tabelas S0 existentes, sem domínio paralelo | **APROVADO [D]** como diretriz; migrations [P] |
+| **DEC-WA-03** Transações | inbox/outbox num único fluxo transacional, ACK durável, workers e reconciliação | **APROVADO [D]** como diretriz; desenho detalhado [P] |
 | **DEC-WA-04** Ambiente | decidir instância/projeto dedicado e responsáveis antes de migration; não presumir POC | **Pendente [R]** |
 | **DEC-WA-05** Posse Meta | titularidade/mandato dos números/contas/WABAs por loja e modelo onboarding | **Pendente [R/V]** |
 | **DEC-WA-06** Operação | segredos, rotação, retenção, backups, SLA, fallback/quarentena, plano de segurança | **Pendente [R/V]** |
 
-As decisões 01–03 são uma proposta tecnicamente consistente das frentes, **não autorização para executar DDL**. Os grupos 04–06 dependem de provas e aprovações próprias. Não contratar Supabase Pro por esse documento; só informar necessidade objetiva antes da etapa correspondente.
+**O responsável aprovou expressamente as DEC-WA-01/02/03 nesta conversa, após receber o parecer.** Essa aprovação define **direção arquitetural**, sem autorizar DDL/SQL, deploy, reconfiguração da Meta ou publicação de PR; a frente principal deverá aprovar alterações físicas e executar somente em ambiente autorizado. Os grupos 04–06 dependem de provas e aprovações próprias. Não contratar Supabase Pro por esse documento; só informar necessidade objetiva antes da etapa correspondente.
 
 ## 7. Ordem de implementação sugerida e gates
 
 1. Revisão conjunta do presente documento com PR #1 e contrato WhatsApp v0.1, incluindo RLS e redução de privilégios comerciais `postgres` pendentes na S0.
 2. Homologar interface e titularidade dos aliases: `concessionaria_id`/escopo, erro e estado de conflito, mapping Meta e contratos C02/C07/C03/C06/C12.
-3. Obter aprovação agrupada 01–03; autorizar projeto Supabase/ambiente conforme 04; **não** executar migrations por dedução.
+3. **DEC-WA-01/02/03 já aprovadas como diretrizes.** Detalhar interfaces, validar contratos com a outra frente e obter decisão de ambiente conforme 04 **antes** de migrations; não executar por dedução.
 4. Desenvolver migrations candidatas **na branch proprietária do backend**, PostgreSQL descartável, invariantes, RLS/GRANT, constraints, índices e rollback.
 5. Criar Edge Function/worker Meta **versionados** e separados da `whatsapp-webhook-sandbox` sandbox; testes HMAC, ACK, replay, bursts e canal desconhecido.
 6. Validar C02/C07 contra eventos sintéticos e Meta sandbox, depois saída C03/C06/C12 e handoff, sempre com destino de teste autorizado.
@@ -134,3 +134,8 @@ As decisões 01–03 são uma proposta tecnicamente consistente das frentes, **n
 **Frente WhatsApp (PR #2):** [Contrato Meta/Supabase](contrato-webhook-meta-supabase-v0_1.md); [Modelo de ingressão/identidade/idempotência](modelo-tecnico-ingresso-identidade-idempotencia-v0_1.md); [ADR Supabase direto](adr-001-transporte-webhook-supabase-vs-n8n.md); [POC concessionária de demonstração](poc-meta-sandbox-documentacao-publica-2026-10-17.md).
 
 **Regras de proteção:** sem alterar migrations S0, sem merge ou alteração automática do PR #1, sem implantar novo webhook/SQL, sem usar números comerciais; sem confundir sinal de sandbox com prontidão para produção. Alteração atual é exclusivamente documental e solicita coordenação antes de engenharia.
+
+
+## 9. Registro de decisão posterior
+
+**Registro da aprovação do responsável:** resposta explícita **“Aprovado.”** à pergunta conjunta sobre **DEC-WA-01/02/03**. Não confundir com aprovação de DEC-WA-04/05/06 nem com autorização de alteração operacional. A próxima entrega autorizada é o **desenho de interface de implementação compartilhada**, documentado separadamente e revisável pela frente principal. PR permanece Draft. **Os detalhes de campos/DDL, guarda de dados, segurança, posse de WABA, ambiente final, contratos jurídicos e rollout continuam sujeitos aos seus respectivos gates.**
