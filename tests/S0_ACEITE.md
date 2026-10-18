@@ -220,3 +220,10 @@ Esse gate resolve a pendência de **validação Auth/REST local de C07**; não r
 - O módulo `backend/security_events.py` emite apenas categoria controlada de negativa + nome permitido da operação; testes provam que JWT, texto bruto, erros e IDs não saem pelo logger. **Não é ainda coleta central durável, com alertas e retenção.**
 - O teste Auth foi executado uma vez mediante `run-auth-integration` e a etiqueta foi retirada após PASS; o runner mantém timeout máximo de 12 minutos.
 - `docs/SEGURANCA_ROTACAO_CHAVES_LOGS_S0_2026_10_17.md` descreve contratos e riscos. Chaves do banco são `bytea` na tabela privada, **não cofre de segredos**; funções `SECURITY DEFINER` continuam com dono privilegiado. Nenhum dado operacional ou migração remota foi aplicado. **GO apenas S0; NO-GO produção/API/Meta/merge.**
+
+## Privilégio mínimo do verificador HMAC — 17/10/2026
+
+- **[PostgreSQL 17 #39085850000 — PASS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39085850000)**: migrations candidatas até **027**, `OWNER-01..03`, `GW-01..07`, `KEY-01..05`, **24 testes unitários** e regressões/comportamentos concorrentes anteriores. O verificador passa a executar como `prumo_s0_signer` NOLOGIN/NOINHERIT, sem privilégios comerciais, sem acesso às sessões e sem EXECUTE de wrappers comerciais.
+- Alterações oficiais de chave e sua verificação adquirem o mesmo **advisory lock transacional**; isso evita conceder UPDATE no material de HMAC ao verificador. Operações SQL diretas do superusuário **não** são protegidas por esse protocolo de lock.
+- A primeira regressão detectou que `SELECT FOR SHARE` exige UPDATE; o modelo foi ajustado para bloqueio cooperativo. A segunda detectou montagem incorreta do SQL; a terceira detectou fixture sem `auth.sessions` no PostgreSQL mínimo. Todos foram corrigidos antes do PASS final.
+- **Limite:** a camada de domínio ainda usa `SECURITY DEFINER` de proprietário `postgres`. Chaves seguem no mesmo PostgreSQL, e segredo SQL + HMAC no mesmo protótipo; isto **não** é isolamento para produção. Documento: `docs/SEGURANCA_OWNER_HMAC_S0_2026_10_17.md`.
