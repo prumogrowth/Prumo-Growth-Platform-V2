@@ -469,3 +469,16 @@ Artefatos: `docs/S0_036A_AUDITORIA_ACL_2026_10_18.md`, `supabase/tests/s0_036a_a
 **Falhas intermediárias do teste resolvidas antes do aceite:** [#39126937486](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39126937486) (GUC malformada), [#39127006581](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39127006581) (JOIN com `id` ambíguo), [#39127073850](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39127073850) (checagem de `auth.sessions` sem acesso ao esquema). Somente fixture/teste corrigida; nenhuma migration, permissão permanente ou regra comercial alterada.
 
 **Não é homologação de privilégio mínimo ponta a ponta.** As wrappers legadas seguem `SECURITY DEFINER postgres`, dependem de `current_user='postgres'`; a role temporária de RLS da S0-037B não foi promovida. Última compatibilidade Auth/REST local [#39122948236 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39122948236). DEC-WA-04/06 e C07 Meta real pendentes; PRs Draft, sem merge, sem migração hospedada nem tráfego real.
+
+
+## Auditoria S0-037A/B/C — regressões adversariais (18/10/2026)
+
+**Evidência final:** [CI PostgreSQL 17 #39128133133 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39128133133), commit de código/teste `2c2d81311b1bd275fb4364cd4fa422d1efb9e659`. Logs: **AUD37-01..03 PASS**, OWNER37C-01..05 PASS, regressões anteriores e 24 testes Python OK.
+
+**AUD37-01:** ator A com sessão B recebe `SESSAO_INATIVA`; gestor B atuando na loja A, mesmo com assinatura sintética válida, recebe `FORBIDDEN_SCOPE`.
+
+**AUD37-02:** replay da mesma decisão C07 com ator, justificativa e envio iguais, novo nonce, resulta `ALREADY_APPLIED`; decisão C07 divergente na versão encerrada resulta `CONFLICT_VERSION`.
+
+**AUD37-03:** a contabilidade inclui cinco nonces e cinco entradas de auditoria do gateway para operações aceitas, sem duplicar vínculo ou auditoria comercial C07; nenhuma tentativa negada consome nonce persistente no ensaio. O último teste OWNER37C-05 passou com os contadores esperados atualizados.
+
+**Parecer:** duas lacunas de cobertura corrigidas **somente na fixture de teste**, sem alterar migrações, owners, roles reais, RLS permanente ou operações comerciais. `docs/S0_037ABC_AUDITORIA_RETROATIVA_2026_10_18.md` documenta a revisão; `docs/MAPA_MENTAL.md` atualizado. A S0-037B segue prova de DML fictício sob RLS transitória, e S0-037C prova a cadeia assinada **ainda com wrappers comerciais SECURITY DEFINER postgres**. Nenhum owner comercial de privilégio mínimo foi homologado. Último teste Auth/REST local da baseline: [#39122948236](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39122948236), não repetido nesta alteração restrita a testes. PRs Draft, sem merge, sem migrations Supabase hospedadas, Meta real ou deploy. **GO para evolução sintética; NO-GO para produção.**
