@@ -58,3 +58,7 @@ Os contratos originais do pacote auditado continuam fonte de contexto, porém o 
 A frente OpenAI já documentou o contrato **OAI-05 — Extração de cadastro após encerramento do atendimento humano** e **E01 v0.2 — multicaptacidade**, disponíveis na branch `feat/s2-openai-adapter-sintetico`. Sua existência NÃO significa que houve revisão S0, implementação de extração, aceite de payload ou autorização externa.
 
 Nenhum incremento de planejamento/progresso automático e nenhum deploy. A pendência central é conciliação interfrentes para o comando S0 de conclusão e a leitura de status da extração.
+
+## Revisão contratual cruzada CFI-01 (18/10/2026)
+
+Consultar [relatório de conciliação](07_CONCILIACAO_INTERFRENTES_FV_S0_OAI_v0_1.md) e [matriz de 36 cenários candidatos](08_MATRIZ_ACEITE_CONTRATUAL_FV_S0_OAI_v0_1.md). O documento E01 da OpenAI atualmente converge com OAI-05 no nome `human_close_extract`, mas o **schema de entrada/saída não está padronizado**. O comando UI→S0 e a projeção de progresso ainda dependem do proprietário da S0. Não converter este trabalho documental em aceite automático de implementação ou progresso 19F.
