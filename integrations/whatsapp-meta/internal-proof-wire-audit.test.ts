@@ -20,3 +20,19 @@ test('AUD-03: same channel cannot map to multiple senders in one batch',()=>{con
 test('AUD-04: two distinct channels of same App and shop are allowed',()=>{const x=two();x.candidate.occurrences[1].canal_id='canal_b';x.candidate.occurrences[1].phone_number_id='phone_b';assert.ok(wire(x).length>0);});
 test('AUD-05: duplicate callback occurrence, same shop+channel, remains distinct',()=>{const x=two();assert.ok(wire(x).length>0);});
 test('AUD-06: existing canonical base vector remains unchanged',()=>{const x=sample();assert.equal(createHash('sha256').update(wire(x)).digest('hex'),'c94993710cfc4a90d41314c89026385e7cbd446753b2fa7d0ec0cc7f65083209');});
+test('AUD-07: all five previous WA-06C vectors remain byte-identical',()=>{
+ const expected={BASE:[585,'c94993710cfc4a90d41314c89026385e7cbd446753b2fa7d0ec0cc7f65083209'],NONCE_ROTATED:[585,'219aec893fc30e0f96870d1170643033c8b169515c853085dc58baba6ef3e549'],CALLBACK_REPEAT:[736,'577cad6732765d18b4ee62af0feef71d2c62c86023a8ecd406f8ca3e2977f5e5'],TWO_CHANNELS:[736,'444411a4acf020fb799fd3aeb78b85f77ec0b482f0d10fdf1d91508e1b9cb267'],READ_STATUS:[580,'9dc572689a0ec12fdb45b6b21f8ddddad44aa1f10d1ef6acd32a911f1889eb93']} as const;
+ for(const [name,[length,digest]] of Object.entries(expected)){
+  const x=sample();
+  if(name==='NONCE_ROTATED') x.claims.nonce_ref='nonce_2';
+  if(name==='CALLBACK_REPEAT'||name==='TWO_CHANNELS'){
+   const o=structuredClone(x.candidate.occurrences[0]);o.position.item_index=1;
+   if(name==='TWO_CHANNELS'){o.canal_id='canal_b';o.phone_number_id='phone_b';}
+   x.candidate.occurrences.push(o);x.candidate.event_count=2;
+  }
+  if(name==='READ_STATUS') x.candidate.occurrences[0].provider_kind='read';
+  const data=wire(x);
+  assert.equal(data.length,length,name);
+  assert.equal(createHash('sha256').update(data).digest('hex'),digest,name);
+ }
+});
