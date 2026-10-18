@@ -31,3 +31,8 @@ Em conformidade conceitual com os documentos vigentes **09** (catálogo, envios 
 6. Não realizar merge nem implantar migrations comerciais no Supabase hospedado sem revisão humana, teste integrado e gate LGPD/Meta.
 
 **Estado:** válido apenas para continuar programação e testes em sandbox sintético.
+
+
+## Adendo CF-OP-02 — contrato do núcleo (18/10/2026)
+
+Contrato de coordenação formal do núcleo: [CF-OP-02/S0](CF_OP_02_CONTRATO_NUCLEO_RECONTATO_HUMANO_v0_1.md). A decisão de negócio inclui plano NOVO pós-humano, template individual, resposta ao humano após handoff, três marcos separados e C09 estendido a ciclos pré-banco elegíveis, **sem alcançar cadastro enviado ao banco/vendido**. A cláusula C09 original do doc.26 ainda fala em “sob IA”: compatibilização normativa por fase segue [R], não código/teste homologado. PR #7 e issue #6 centralizam revisão.
