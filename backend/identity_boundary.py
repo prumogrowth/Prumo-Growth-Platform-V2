@@ -11,6 +11,7 @@ NEVER deploy a postgres DSN to a public process, client or browser.
 from __future__ import annotations
 
 import base64
+import binascii
 import json
 import re
 import urllib.error
@@ -81,7 +82,7 @@ def _claims_verified_only(token: str) -> tuple[uuid.UUID, uuid.UUID]:
         if not isinstance(claims, dict) or claims.get("role") != "authenticated":
             raise ValueError("invalid role")
         return uuid.UUID(str(claims["sub"])), uuid.UUID(str(claims["session_id"]))
-    except (ValueError, TypeError, KeyError, OverflowError, UnicodeDecodeError):
+    except (ValueError, TypeError, KeyError, OverflowError, UnicodeDecodeError, binascii.Error):
         raise Denied("TOKEN_SESSAO_INVALIDO") from None
 
 
