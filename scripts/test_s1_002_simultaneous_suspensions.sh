@@ -52,7 +52,7 @@ echo 'PASS S1D-01: A com substituto sobrecarregado, B com apenas dois operadores
 # suspende. O candidato mutuo bloqueado deve ser IGNORADO, sem deadlock.
 psql -X -qAt -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" >"$work/A1" 2>&1 <<'SQL' &
 begin;
-select id from public.equipe_prumo_s1
+select ator_id from public.equipe_prumo_s1
  where ator_id='91020000-0000-4000-8000-000000000001' for update;
 select pg_sleep(1);
 update public.equipe_prumo_s1 set estado='suspenso'
@@ -62,7 +62,7 @@ SQL
 a=$!
 psql -X -qAt -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" >"$work/A2" 2>&1 <<'SQL' &
 begin;
-select id from public.equipe_prumo_s1
+select ator_id from public.equipe_prumo_s1
  where ator_id='91020000-0000-4000-8000-000000000002' for update;
 select pg_sleep(1);
 update public.equipe_prumo_s1 set estado='suspenso'
@@ -90,7 +90,7 @@ echo 'PASS S1D-02: suspensoes simultaneas ignoram candidato bloqueado sem deadlo
 # Mesmo evento concorrente, agora NENHUM outro operador B existe.
 psql -X -qAt -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" >"$work/B4" 2>&1 <<'SQL' &
 begin;
-select id from public.equipe_prumo_s1
+select ator_id from public.equipe_prumo_s1
  where ator_id='91020000-0000-4000-8000-000000000004' for update;
 select pg_sleep(1);
 update public.equipe_prumo_s1 set estado='suspenso'
@@ -100,7 +100,7 @@ SQL
 c=$!
 psql -X -qAt -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" >"$work/B5" 2>&1 <<'SQL' &
 begin;
-select id from public.equipe_prumo_s1
+select ator_id from public.equipe_prumo_s1
  where ator_id='91020000-0000-4000-8000-000000000005' for update;
 select pg_sleep(1);
 update public.equipe_prumo_s1 set estado='suspenso'
