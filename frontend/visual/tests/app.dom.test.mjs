@@ -109,3 +109,40 @@ test('atalho de busca não desloca foco para trás de diálogo aberto', () => {
   env.document.fire('keydown',{key:'k',ctrlKey:true});
   assert.equal(env.document.activeElement,get('search-input'));
 });
+
+test('troca de perfil invalida confirmação modal de caso antigo', () => {
+  reset();
+  env.openCase('Exemplo 02');
+  buttons('Concluir atendimento')[0].click();
+  assert.equal(get('completion-dialog').open, true);
+  env.selectActor('marina');
+  assert.equal(get('completion-dialog').open, false);
+  get('completion-dialog').close('confirm'); // resposta atrasada não deve alterar outra sessão
+  env.selectActor('rafael');
+  env.openCase('Exemplo 02');
+  assert.equal(buttons('Concluir atendimento').length, 1);
+});
+
+test('troca de conversa invalida confirmação de template de outro caso', () => {
+  reset();
+  env.openCase('Exemplo 08');
+  buttons('Selecionar e solicitar template')[0].click();
+  assert.equal(get('template-dialog').open, true);
+  env.openCase('Exemplo 02');
+  assert.equal(get('template-dialog').open, false);
+  get('template-dialog').close('confirm');
+  env.openCase('Exemplo 08');
+  assert.equal(buttons('Selecionar e solicitar template').length, 1);
+  assert.equal(get('workflow-bar').textContent.includes('Pedido simulado'), false);
+});
+
+test('projeção desconhecida não aparece como conclusão humana ou extração processada', () => {
+  reset();
+  env.openCase('Exemplo 05');
+  assert.ok(get('workflow-bar').textContent.includes('Etapa humana não confirmada'));
+  get('detail-toggle').click();
+  const tabs=env.descendants(get('detail-content')).filter(x=>x.attrs.role==='tab');
+  tabs.find(x=>x.textContent==='Extração').click();
+  assert.ok(get('detail-content').textContent.includes('Situação não confirmada'));
+  assert.equal(get('detail-content').textContent.includes('Etapa concluída · retorno não disponível'),false);
+});
