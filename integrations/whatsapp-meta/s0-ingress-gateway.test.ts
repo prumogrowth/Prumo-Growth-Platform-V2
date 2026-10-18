@@ -1,11 +1,12 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {prepareS0HandoffFixture,type S0HandoffCandidate} from './s0-handoff-contract.ts';
-import {FakePrivilegedS0Ingress,type FakeS0IngressPorts} from './s0-ingress-gateway.ts';
+import {FakePrivilegedS0Ingress,createFakeS0ServiceProof,type FakeS0IngressPorts} from './s0-ingress-gateway.ts';
 import {FakeProtectedPayloads} from './transactional-ingress.ts';
 import type {TrustedMetaRegistry} from './credential-routing.ts';
 const at=1792320000000;
 const secret='FAKE_APP_HMAC_KEY';
+const internalKey='FAKE_INTERNAL_S0_KEY_NOT_META';
 const app={app_ref:'APP_A',route_ref:'ROUTE_A',concessionaria_id:'SHOP_A',revision:4,active:true,
  valid_from_ms:at-10000,valid_until_ms:at+10000,
  secret_slots:{get_verify_token:'A_VERIFY',post_app_secret:'A_HMAC',graph_access_token:'A_GRAPH'},
@@ -32,11 +33,17 @@ async function fixture(raw=payload(),batch='BATCH_1') {
    currentRegistry:()=>registry,resolveSecret:(n:string)=>n==='A_HMAC'?secret:undefined,nowMs:()=>at});
  assert.equal(inspected.ok,true);
  if(!inspected.ok)throw Error('invalid setup');
- const ports:FakeS0IngressPorts={trustedCaller:()=>auth,trustedRegistry:()=>current,nowMs:()=>at,payloads:store};
+ const ports:FakeS0IngressPorts={trustedCaller:()=>auth,trustedRegistry:()=>current,nowMs:()=>at,payloads:store,
+ trustedInternalSigningKey:(id)=>id===caller.service_ref?internalKey:undefined};
  const gateway=new FakePrivilegedS0Ingress();
  return {candidate:inspected.candidate,raw,ports,gateway,store,setRegistry:(r:TrustedMetaRegistry)=>{current=r;},setCaller:(x:typeof caller)=>{auth=x;}};
 }
-const tryIt=(f:Awaited<ReturnType<typeof fixture>>,candidate=f.candidate,raw=f.raw,opts:Parameters<FakePrivilegedS0Ingress['admit']>[2]={})=>f.gateway.admit({candidate,raw_body:raw},f.ports,opts);
+const tryIt=async(f:Awaited<ReturnType<typeof fixture>>,candidate=f.candidate,raw=f.raw,opts:Parameters<FakePrivilegedS0Ingress['admit']>[2]={})=>{
+ const descriptor=Object.getOwnPropertyDescriptor(candidate,'batch_ref');
+ const signedCandidate=descriptor && 'get' in descriptor ? f.candidate : candidate;
+ const attestation=await createFakeS0ServiceProof(signedCandidate,caller.service_ref,internalKey,at,at+500);
+ return f.gateway.admit({candidate,raw_body:raw,attestation},f.ports,opts);
+};
 test('GATE-01 privileged fake source + stored exact bytes + valid scopes produces LAB only',async()=>{const f=await fixture();const r=await tryIt(f);assert.equal(r.decision,'LAB_ACCEPTED');assert.equal(r.simulated_occurrences,1);assert.equal(r.ack_allowed,false);assert.equal(r.production_authorized,false);});
 test('GATE-02 identical internal batch replays without duplicate occurrence',async()=>{const f=await fixture();await tryIt(f);const r=await tryIt(f);assert.equal(r.decision,'LAB_REPLAY');assert.equal(f.gateway.occurrenceCount,1);});
 test('GATE-03 batch ref conflict rejects divergent identity',async()=>{const f=await fixture();await tryIt(f);const altered={...f.candidate,scope_sha256:'b'.repeat(64)};const r=await tryIt(f,altered);assert.equal(r.decision,'DENIED');assert.equal(f.gateway.batchCount,1);});
@@ -61,3 +68,51 @@ test('GATE-20 batch replay is still denied after service revocation',async()=>{c
 
 test('GATE-21 provider status kind or timestamp must be bound by scoped checksum',async()=>{const f=await fixture(payload([entry('100001','12345678901',true)]));const altered={...f.candidate,occurrences:f.candidate.occurrences.map(x=>({...x,provider_kind:'failed',provider_timestamp:'2026-10-18T00:00:00.000Z'}))};assert.equal((await tryIt(f,altered)).reason,'SCOPE_DIGEST_MISMATCH');});
 test('GATE-22 same batch ref with a different protected reference is LAB_CONFLICT, not replay',async()=>{const f=await fixture();assert.equal((await tryIt(f)).decision,'LAB_ACCEPTED');assert.equal(f.store.putFixture('PRIVATE_PAYLOAD_2',f.raw),true);const second=await prepareS0HandoffFixture({request:{raw_body:f.raw,route:{route_ref:'ROUTE_A',expected_revision:4},signature_header:await sign(f.raw)},batch_ref:'BATCH_1',protected_payload_ref:'PRIVATE_PAYLOAD_2'},{currentRegistry:()=>registry,resolveSecret:(n:string)=>n==='A_HMAC'?secret:undefined,nowMs:()=>at});assert.equal(second.ok,true);if(second.ok){const outcome=await tryIt(f,second.candidate);assert.equal(outcome.decision,'LAB_CONFLICT');assert.equal(outcome.reason,'BATCH_REF_COLLISION');}assert.equal(f.gateway.occurrenceCount,1);});
+
+
+test('GATE-23 edited status with recomputed public scope SHA is denied without a new service MAC',async()=>{
+ const f=await fixture(payload([entry('100001','12345678901',true)]));
+ const proof=await createFakeS0ServiceProof(f.candidate,caller.service_ref,internalKey,at,at+500);
+ const changed={...f.candidate,occurrences:f.candidate.occurrences.map(e=>({...e,provider_kind:'read'}))};
+ const c=changed, canon=JSON.stringify([c.batch_ref,c.route_ref,c.route_revision,c.app_ref,c.occurrences.map(e=>[
+  e.position.entry_index,e.position.change_index,e.position.array_kind,e.position.item_index,
+  e.app_ref,e.concessionaria_id,e.canal_id,e.waba_id,e.phone_number_id,e.event_kind,
+  e.provider_message_id,e.provider_timestamp,e.provider_kind])]);
+ const digest=new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(canon)));
+ const forged={...changed,scope_sha256:Array.from(digest,b=>b.toString(16).padStart(2,'0')).join('')};
+ const result=await f.gateway.admit({candidate:forged,raw_body:f.raw,attestation:proof},f.ports);
+ assert.equal(result.reason,'SERVICE_ATTESTATION_DENIED');assert.equal(f.gateway.occurrenceCount,0);
+});
+test('GATE-24 absent or malformed internal signature denies before lab insert',async()=>{
+ const f=await fixture(); const real=await createFakeS0ServiceProof(f.candidate,caller.service_ref,internalKey,at,at+500);
+ const list=[undefined,{...real,mac_hex:'0'.repeat(64)},{...real,service_ref:'OTHER'}];
+ for(const proof of list){const outcome=await f.gateway.admit({candidate:f.candidate,raw_body:f.raw,
+  attestation:proof as typeof real},f.ports);assert.equal(outcome.reason,'SERVICE_ATTESTATION_DENIED');}
+ assert.equal(f.gateway.batchCount,0);
+});
+test('GATE-25 expired, future, or overly long internal service proof is rejected',async()=>{
+ const f=await fixture(); for(const [from,to] of [[at-1000,at],[at+1,at+500],[at,at+300001]]){
+  const proof=await createFakeS0ServiceProof(f.candidate,caller.service_ref,internalKey,from,to);
+  const outcome=await f.gateway.admit({candidate:f.candidate,raw_body:f.raw,attestation:proof},f.ports);
+  assert.equal(outcome.reason,'SERVICE_ATTESTATION_DENIED');
+ }
+});
+test('GATE-26 internal service key rotated immediately before commit blocks admission',async()=>{
+ const f=await fixture();let activeKey=internalKey;
+ const ports={...f.ports,trustedInternalSigningKey:()=>activeKey};
+ const proof=await createFakeS0ServiceProof(f.candidate,caller.service_ref,internalKey,at,at+500);
+ const outcome=await f.gateway.admit({candidate:f.candidate,raw_body:f.raw,attestation:proof},ports,
+ {beforeCommit:()=>{activeKey='FAKE_ROTATED_DIFFERENT_KEY';}});
+ assert.equal(outcome.reason,'SERVICE_ATTESTATION_DENIED');assert.equal(f.gateway.batchCount,0);
+});
+test('GATE-27 a valid internal MAC still has no receipt, no ACK and no commercial grant',async()=>{
+ const f=await fixture(); const r=await tryIt(f);
+ assert.equal(r.decision,'LAB_ACCEPTED');assert.equal(r.ack_allowed,false);
+ assert.equal(r.production_authorized,false);assert.equal('commit_state' in r,false);
+});
+test('GATE-28 a proof issued by another key cannot impersonate the permitted internal service',async()=>{
+ const f=await fixture(); const proof=await createFakeS0ServiceProof(f.candidate,caller.service_ref,
+  'ATTACKER_OWN_FAKE_SIGNING_KEY',at,at+500);
+ const r=await f.gateway.admit({candidate:f.candidate,raw_body:f.raw,attestation:proof},f.ports);
+ assert.equal(r.reason,'SERVICE_ATTESTATION_DENIED');
+});
