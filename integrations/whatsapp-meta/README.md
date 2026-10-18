@@ -124,3 +124,14 @@ A WA-04A também passou a rejeitar globalmente um `phone_number_id` ou `canal_id
 **Dependência atualizada:** o token Meta definitivo necessita **verificação de outra pessoa**; testes reais e consulta/configuração de segredos estão **adiados**. Pode-se continuar com revisão e testes exclusivamente sintéticos. Executados localmente: **13/13 LIFE PASS** e TypeScript estrito PASS (somente WA-04C); hashes dos dois arquivos confirmados no GitHub. Documento: `docs/integracoes/whatsapp-meta/wa04c-ciclo-credenciais-sem-token-v0_1.md`.
 
 O índice transversal `docs/MAPA_MENTAL.md` na branch S0 (`feat/s0-fundacao-prumo`) passa a registrar também a frente WA; atualizá-lo nos próximos incrementos significativos, sempre deixando explícitos [P]/[V local]/[R]/[D], sem substituir a fonte normativa dos PRs.
+
+
+## Auditoria WA-04-AUD1 — cobertura conjunta e reparo após WA-04C
+
+Auditoria retroativa executada em **11 módulos e 16 arquivos de testes** da frente WhatsApp/Meta, todos com hashes Git conferidos contra o código atualmente publicado. **235/235 testes sintéticos locais PASS** e TypeScript `--strict` dos 27 arquivos PASS, incluindo **45 testes WA-01 originais** agora reexecutados. Não houve CI remoto nem teste operacional.
+
+**Achado reparado:** a WA-04C podia lançar exceção com `registry.apps` não-array ou registro não clonável; agora responde `REGISTRY_OR_APP_DENIED` sem aplicar qualquer mutação. Regressões permanentes em `wa04-audit.test.ts` (10 testes) cobrem ainda o bloqueio simulado GET/POST após revogação, staging de rotação e conservação do escopo por concessionária.
+
+O **primeiro diagrama** do `docs/MAPA_MENTAL.md` na branch S0 foi ampliado apenas com cinco relações Meta relevantes (App da loja, HMAC, inbox/ACK, token pendente e saída via outbox). Evidências e limitações detalhadas: `docs/integracoes/whatsapp-meta/wa04aud1-auditoria-integrada-235-testes-v0_1.md`.
+
+**Não significa homologação real:** não existe token liberado, autorização de envio, conexão com o Supabase hospedado, inbox durável comprovada, webhook operacional, merge ou deploy. DEC-WA-04 e DEC-WA-06 ainda pendentes.
