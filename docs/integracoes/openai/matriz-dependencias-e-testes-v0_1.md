@@ -44,12 +44,20 @@ Executar os casos equivalentes sob a topologia direta e, se necessário, a topol
 - OAI-T19: TTS gera áudio apenas para texto comercial previamente aprovado, com permissão IA vigente; Meta permanece transportador, sem mensagens emitidas nos testes offline.
 - OAI-T20: STT de áudio recebido retorna transcrição e origem, sem tomar como prova definitiva números ou dados financeiros.
 - OAI-T21: comparação de modelos por tarefa em português brasileiro, fidelidade de campos, pronúncia, latência, custo e privacidade com métricas previamente aprovadas.
-- OAI-T16: fechamento humano legítimo → extração silenciosa estruturada, campos com fontes e lacunas; operador não digita ficha como etapa nominal.
-- OAI-T17: número ambíguo, campo inventado, áudio mal transcrito ou conflito entre mensagens → resultado parcial/revisão, sem gravação de valor não fundamentado.
-- OAI-T18: fechamento e mensagem posterior/retificação humana → resposta antiga descartada pela S0, sem sobrescrita/duplicação de ficha.
-- OAI-T19: handoff definitivo bloqueia sales_reply/speech_synthesize, mas permite human_close_extract quando legitimamente autorizada, sem qualquer envio ao cliente.
-- OAI-T20: STT/TTS com áudio fictício → transcrição com fonte e resposta falada do mesmo texto aprovado; nenhuma comunicação direta Meta pelo adaptador.
-- OAI-T21: comparar modelos por função (vendedora, extrator, planejadora, transcrição, síntese) por qualidade, falsas afirmações, proveniência, latência e custo antes de fixar modelo.
+- OAI-T22: fechamento humano legítimo → extração silenciosa estruturada, campos com fontes e lacunas; operador não digita ficha como etapa nominal.
+- OAI-T23: número ambíguo, campo inventado, áudio mal transcrito ou conflito entre mensagens → resultado parcial/revisão, sem gravação de valor não fundamentado.
+- OAI-T24: fechamento e mensagem posterior/retificação humana → resposta antiga descartada pela S0, sem sobrescrita/duplicação de ficha.
+- OAI-T25: handoff definitivo bloqueia sales_reply/speech_synthesize, mas permite human_close_extract quando legitimamente autorizada, sem qualquer envio ao cliente.
+- OAI-T26: STT/TTS com áudio fictício → transcrição com fonte e resposta falada do mesmo texto aprovado; nenhuma comunicação direta Meta pelo adaptador.
+- OAI-T27: comparar modelos por função (vendedora, extrator, planejadora, transcrição, síntese) por qualidade, falsas afirmações, proveniência, latência e custo antes de fixar modelo.
+
+## Rastreabilidade CF-OP-02 / OAI-08 (18/10/2026) [P/R]
+
+**Renumeração A04:** preservados os primeiros `OAI-T16..T21`. Os seis itens repetidos que apareciam depois receberam IDs **`OAI-T22..T27`**, respectivamente. Nenhum teste foi executado, logo não há resultados anteriores a migrar. Reservar essa faixa para não perder rastreabilidade.
+
+**Famílias de casos sem confundir contagem com execução:** `SYN-01..32` (E02), `NC-01..17` (OAI-07), `OAI8-01..10` (OAI-08), `OAI-T01..27` (esta matriz), e `CF2-01..34` (PR #7, interfrentes). Os grupos possuem sobreposição de requisitos; números diferentes NÃO são prova de cobertura independente, testes escritos ou executados. A matriz de ligação de requisitos está no arquivo `E02_RASTREABILIDADE_CF_OP_02_v0_1.md`.
+
+**Invariantes CF-OP-02 na frente OpenAI:** `human_close_extract` pode recomendar `followup_need_advisory` com fonte e data ambígua sem inventar; `recontact_plan` atua somente após autorização S0 e catálogo de templates aprovados, em plano NOVO após handoff humano; cancelamento do plano antigo permanece; template individual pedido ao operador não exige chamada IA; eventual inbound volta ao operador autorizado atual após qualquer handoff; modelos não marcam `perdido` nem calculam os três relógios de domínio. S0 é único validador de C09 após evidência efetiva de envio final e +24h, com elegibilidade por status ainda [R], proibido pós-remessa bancária. Ver [OAI-08](OAI_08_CONTRATO_PLANEJADORA_POS_HUMANA_CF_OP_02_v0_1.md).
 
 ## Portões de coordenação
 
