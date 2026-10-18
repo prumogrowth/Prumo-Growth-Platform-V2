@@ -58,3 +58,10 @@ Os dois arquivos foram incluídos em `scripts/run-s0-local.sh`, cuja proteção 
 - Conservar a POC `whatsapp-webhook-sandbox` intacta e PR #2 Draft; nenhuma conexão direta a 028/029 é operável ainda.
 
 **Gate:** GO exclusivamente para iterar sobre PostgreSQL sintético e CI de baixo custo. **NO-GO** para deploy no Supabase hospedado, Meta/Banco/Marca A, canais comerciais, plano pago ou merge.
+
+
+## Adendo de auditoria 030 — 18/10/2026 (sem alterar evidência anterior)
+
+O documento `docs/AUDITORIA_CORRECOES_WA_S0_030_2026_10_18.md` registra a correção aditiva 030: replay de pendência com comparação de conteúdo, FK composta de alias/lead/loja, ensaio atômico de múltiplos canais e `payload_fixture_s0` fictício recuperável no Postgres descartável. **As migrations 028 e 029 não foram reescritas.** O resultado 030 é `FIXTURE_BATCH_STORED`, **não** recibo `COMMITTED` e **não** autorização para ACK HTTP.
+
+**DEC-WA-05 agora tem decisão posterior aprovada apenas para titularidade por concessionária** (PR #2, documento `decisao-titularidade-meta-por-concessionaria-v1_0.md`); eventual afirmação anterior de pendência integral ou propriedade dos emissores Meta pela gestora está superada. Onboarding, credenciais, plano de mudança de canais e permissões reais seguem sem autorização. DEC-WA-04/06 continuam pendentes. Regras antigas de exclusividade do canal emissor e separação de clientes entre lojas permanecem.
