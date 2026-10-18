@@ -198,3 +198,11 @@ A identidade de serviço dos `ports` **não é autenticada**, o `Map` **não é 
 **358/358 testes locais PASS** (352 anteriores + 6 GATE-23..28), TypeScript estrito PASS em 16 módulos e 22 testes. Blobs auditados: gateway `9f54c91c0c59dec24660b4711df61603305b7f59` e testes `1f44fe6eed8ef199b8077bcfcb90a7e266be451c`. Relatório: `docs/integracoes/whatsapp-meta/wa05d-aud1-atestacao-interna-offline-v0_1.md`.
 
 A chave simulada e o principal injetado **não são autenticação de produção**; ainda faltam cofre/ACL de serviço, nonce e prevenção durável de replay, transação ACID, payload íntegro protegido e recibo/ACK aprovado. Token Meta depende de validação por terceiro. Sem deploy, merge ou serviços reais.
+
+## WA-06B — serialização canônica da prova interna candidata (somente bytes, 18/10/2026)
+
+A [WA-06A](../../docs/integracoes/whatsapp-meta/wa06a-contrato-identidade-servico-replay-s0-v0_1.md) foi desdobrada em **código puro de contrato**, `internal-proof-wire-v1.ts`, com `canonicalizeInternalProofV1`. Produz bytes determinísticos e versionados com domínio e campos prefixados por comprimento para `service_ref`, finalidade/audiência, `request_ref`, `nonce_ref`, versão de chave, lote, rota, payload e todas as posições/status. Não assina, não verifica credenciais, não consome nonce, não autentica S0 e nunca autoriza ACK. **Não** integra o emissor `FakeInternalServiceProof` WA-05D ao serviço real.
+
+`internal-proof-wire-v1.test.ts`: **WIRE-01..15: 15/15 PASS local** em Node 22.16 e TypeScript `--strict` PASS apenas dos arquivos novos, usando declaração local temporária da interface de tipo WA-05C. Blobs Git iguais aos ensaiados: código `1dc5fddd1893d69151043a1a5ea70fcc03a0c34f`, testes `773f1ccc950497ea787d04ab26b789d2403aef54`. A suíte antiga de 358 testes **não foi reexecutada** no incremento WA-06B, e não houve CI remoto. Ver [relatório WA-06B](../../docs/integracoes/whatsapp-meta/wa06b-serializacao-canonica-prova-interna-v0_1.md).
+
+**Gates:** revisão cruzada de formato/interoperabilidade e fonte real da identidade S0; nonce e ACL transacionais, recibo de commit, DEC-WA-04/06, token de terceiro e toda autorização operacional. PR Draft; sem merge, migração, POC concessionária de demonstração, Supabase hospedado, Graph, envio ou plano pago.
