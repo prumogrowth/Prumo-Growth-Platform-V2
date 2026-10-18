@@ -47,7 +47,7 @@ begin
    else raise exception 'KEY_TRANSITION_INVALID' using errcode='22023';end if;
  end if;
  if tg_op='INSERT' then
-   if new.versao<>1 or new.revogado_em is not null
+   if new.versao<>1 or new.revogado_em is not null or new.ativo
    then raise exception 'KEY_REGISTRATION_INVALID' using errcode='22023';end if;
    v_tipo:='REGISTRADA';
  end if;
