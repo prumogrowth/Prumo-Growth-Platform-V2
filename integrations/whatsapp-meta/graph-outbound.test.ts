@@ -127,7 +127,9 @@ test('WA-OUT-16: opaque Meta wamid accepts base64 padding without claiming deliv
   }
 });
 test('WA-OUT-17: malformed wamid with controls, spaces, or overlength is uncertain', () => {
-  for (const id of ['wamid.x\\ny', 'wamid.bad id', 'wamid.' + 'A'.repeat(1025)]) {
+  for (const id of ['wamid.x' + String.fromCharCode(10) + 'y', 'wamid.bad id',
+    'wamid.A' + String.fromCharCode(10), 'wamid.A' + String.fromCharCode(13),
+    'wamid.' + 'A'.repeat(1025)]) {
     const result = observe(200, { messages: [{ id }] });
     assert.equal(result.send_state, 'UNCERTAIN_EXTERNAL');
     assert.equal(result.provider_message_id, null);
