@@ -5,6 +5,7 @@ on:
     paths:
       - 'supabase/**'
       - 'scripts/run-s1-002-local.sh'
+      - 'scripts/test_s1_002_*.sh'
       - '.github/workflows/s1-002-postgres.yml'
   workflow_dispatch:
 permissions:
