@@ -247,16 +247,17 @@ function renderDetails() {
 function render(){renderList();renderThread();renderDetails();app.dataset.mobileView=state.mobileView;}
 function changeActor(actorId){
   const actor=getActor(actorId);if(!actor)return;
-  state.actorId=actor.id;state.shopId=actor.shops[0];state.selectedId=null;
+  state.actorId=actor.id;state.shopId=actor.shops[0];state.selectedId=null;state.detailTab='overview';state.statusFilter='all';
   state.filter='all';state.query='';$('search-input').value='';goto('list');updateSelectors();render();
 }
 $('actor-select').addEventListener('change',event=>changeActor(event.target.value));
 $('shop-select').addEventListener('change',event=>{
   const actor=getActor(state.actorId);
   if(!actor.shops.includes(event.target.value))return;
-  state.shopId=event.target.value;state.selectedId=null;state.query='';$('search-input').value='';goto('list');render();
+  state.shopId=event.target.value;state.selectedId=null;state.detailTab='overview';state.statusFilter='all';$('status-filter').value='all';state.query='';$('search-input').value='';goto('list');render();
 });
 $('search-input').addEventListener('input',event=>{state.query=event.target.value;renderList();});
+$('status-filter').addEventListener('change',event=>{state.statusFilter=event.target.value;renderList();});
 document.querySelectorAll('[data-filter]').forEach(button=>button.addEventListener('click',()=>{state.filter=button.dataset.filter;renderList();}));
 $('thread-back').addEventListener('click',()=>goto('list'));
 $('detail-back').addEventListener('click',()=>goto('thread'));
@@ -265,7 +266,30 @@ $('detail-toggle').addEventListener('click',()=>{
   const hidden=app.classList.toggle('details-hidden');$('detail-toggle').setAttribute('aria-expanded',String(!hidden));
 });
 $('detail-close').addEventListener('click',()=>{app.classList.add('details-hidden');$('detail-toggle').setAttribute('aria-expanded','false');});
-$('team-nav').addEventListener('click',()=>showToast('A visão de equipe será desenhada em uma etapa posterior.'));
+$('team-nav').addEventListener('click',()=>{
+  if(!canSeeTeamSummary(state.actorId,state.shopId)){
+    showToast('A visão da equipe está disponível somente no perfil fictício de gestor.');return;
+  }
+  const team=$('team-list');
+  const rows=ACTORS.filter(actor=>actor.shops.includes(state.shopId));
+  team.replaceChildren(...rows.map(actor=>{
+    const assigned=visibleConversations(state.cases,state.actorId,state.shopId)
+      .filter(record=>record.assignedTo===actor.id).length;
+    const card=el('div','team-member');
+    card.append(el('strong','',actor.name),el('span','',`${actor.role==='gestor'?'Gestor':'Operador'} da Prumo · ${assigned} caso(s) sintéticos atribuídos`));return card;
+  }));
+  $('team-dialog').showModal();
+});
+$('team-close').addEventListener('click',()=>$('team-dialog').close());
+document.addEventListener('keydown',event=>{
+  const inField=['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName);
+  if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='k'){
+    event.preventDefault();goto('list');$('search-input').focus();
+  }
+  if(event.key==='Escape'&&!inField&&!document.querySelector('dialog[open]')&&window.matchMedia('(max-width:760px)').matches){
+    if(state.mobileView==='detail')goto('thread');else if(state.mobileView==='thread')goto('list');
+  }
+});
 $('reset-app').addEventListener('click',()=>{
   state.cases=copyFixtures();state.processing={};changeActor('rafael');showToast('Dados de demonstração restaurados.');
 });
@@ -278,7 +302,7 @@ $('composer').addEventListener('submit',event=>{
 $('completion-dialog').addEventListener('close',()=>{
   if($('completion-dialog').returnValue!=='confirm')return;
   const item=selectedCase(); if(!item || !canMockClose(item))return;
-  state.processing[item.id]={kind:'accepted'};
+  state.processing[item.id]={kind:'accepted'};state.detailTab='extraction';
   render();showToast('Solicitação de conclusão simulada. Nenhuma API foi chamada.');
 });
 if(window.matchMedia('(max-width:1040px)').matches){app.classList.add('details-hidden');$('detail-toggle').setAttribute('aria-expanded','false');}
