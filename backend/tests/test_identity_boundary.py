@@ -199,6 +199,7 @@ class LeastPrivilegeGatewayTests(unittest.TestCase):
             "postgresql://supabase_admin:x@localhost:5432/postgres",
             "postgresql://gateway:x@db.example.com/postgres",
             "postgresql://gateway:x@localhost:5432/production",
+            "postgresql://someone_else:x@localhost:5432/postgres",
             "postgresql://gateway:x@localhost:5432/postgres?options=-crole=postgres",
         ):
             with self.assertRaises(ValueError):
@@ -217,7 +218,7 @@ class LeastPrivilegeGatewayTests(unittest.TestCase):
             def __exit__(self, *_): return None
             def cursor(self): return Cursor()
         with patch.dict(sys.modules, {"psycopg": types.SimpleNamespace(connect=lambda *a, **k: Conn())}):
-            gateway = PsycopgGatewayDatabase("postgresql://gateway_ci:fake@localhost:5432/postgres")
+            gateway = PsycopgGatewayDatabase("postgresql://prumo_gateway_ci:fake@localhost:5432/postgres")
             result = gateway.invoke(Principal(uuid.UUID(A), uuid.UUID(SESSION)),
                 "cancelar_plano", (uuid.UUID(SHOP_A), uuid.UUID(PLAN_A), 1))
             self.assertEqual(result["outcome"], "APPLIED")
@@ -244,7 +245,7 @@ class LeastPrivilegeGatewayTests(unittest.TestCase):
             def cursor(self): return Cursor()
         with patch.dict(sys.modules, {"psycopg": types.SimpleNamespace(connect=lambda *a, **k: Conn())}):
             with self.assertRaises(PermissionError):
-                PsycopgGatewayDatabase("postgresql://gateway_ci:fake@localhost/postgres").invoke(
+                PsycopgGatewayDatabase("postgresql://prumo_gateway_ci:fake@localhost/postgres").invoke(
                     Principal(uuid.UUID(A), uuid.UUID(SESSION)), "cancelar_plano",
                     (uuid.UUID(SHOP_A), uuid.UUID(PLAN_A), 1))
 
