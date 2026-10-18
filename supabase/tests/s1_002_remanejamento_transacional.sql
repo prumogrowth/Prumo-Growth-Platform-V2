@@ -64,7 +64,7 @@ begin
  where operador_id='61020000-0000-4000-8000-000000000002'
  and concessionaria_id='62020000-0000-4000-8000-000000000002' and encerrada_em is null)<>1
  or (select count(*) from prumo_private.s1_remanejamento_historico
- where motivo='ESCOPO_REVOGADO')<>1 then
+ where motivo='ESCOPO_REVOGADO' and caso_id::text like '65020000-%')<>1 then
  raise exception 'S1R-03 B revoke failed: old %, new %, audit %',
  (select count(*) from public.atribuicoes_humanas
   where operador_id='61020000-0000-4000-8000-000000000001' and encerrada_em is null),
@@ -73,7 +73,7 @@ begin
    and concessionaria_id='62020000-0000-4000-8000-000000000002'
    and encerrada_em is null),
  (select count(*) from prumo_private.s1_remanejamento_historico
-  where motivo='ESCOPO_REVOGADO');end if;
+  where motivo='ESCOPO_REVOGADO' and caso_id::text like '65020000-%');end if;
 end $q$;
 \echo 'PASS S1R-03 revogacao B redistribui somente B'
 -- Suspensao O1 distribui 3 A entre O2/O3; C sem substituto; terminal nao revive.
@@ -91,10 +91,12 @@ begin
  if o2+o3<>3 or abs(o2-o3)<>1
  or exists(select 1 from public.atribuicoes_humanas where
  operador_id='61020000-0000-4000-8000-000000000001' and encerrada_em is null)
- or (select count(*) from prumo_private.s1_remanejamento_pendencias)<>1
- or (select count(*) from prumo_private.s1_remanejamento_historico)<>6
+ or (select count(*) from prumo_private.s1_remanejamento_pendencias
+  where caso_id::text like '65020000-%')<>1
  or (select count(*) from prumo_private.s1_remanejamento_historico
- where resultado='ENCERRADO_HISTORICO')<>1
+  where caso_id::text like '65020000-%')<>6
+ or (select count(*) from prumo_private.s1_remanejamento_historico
+ where resultado='ENCERRADO_HISTORICO' and caso_id::text like '65020000-%')<>1
  then raise exception 'S1R-04 load %, %, queue/audit invalid',o2,o3;end if;
  if (select status_comercial from public.ciclos_comerciais
  where id='64020000-0000-4000-8000-000000000006')<>'vendido'
