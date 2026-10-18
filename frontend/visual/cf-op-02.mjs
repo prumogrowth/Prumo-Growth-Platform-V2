@@ -11,7 +11,7 @@ export const FOLLOWUP_ACTIONS = Object.freeze(['single_template', 'request_chain
 
 export function isInActiveInbox(record) {
   // Fonte: projeção do servidor. Não usar expiração calculada no navegador.
-  return record?.inboxProjection !== 'historical';
+  return record?.inboxProjection === 'active';
 }
 
 export function projectedMetaWindow(record) {
@@ -19,12 +19,12 @@ export function projectedMetaWindow(record) {
 }
 
 export function humanCompletion(record, simulatedCompletion = false) {
-  return simulatedCompletion ? 'completed_demo' : (record?.humanCompletionProjection ?? 'pending');
+  return simulatedCompletion ? 'completed_demo' : (record?.humanCompletionProjection ?? 'unknown');
 }
 
 function currentlyAssigned(record, actorId, shopId) {
   const actor = getActor(actorId);
-  return Boolean(record && actor && actor.teamState !== 'suspended' && actor.teamState !== 'removed' &&
+  return Boolean(record && actor && actor.teamState === 'active' &&
     actor.shops.includes(shopId) && record.shopId === shopId && record.assignedTo === actorId);
 }
 
@@ -46,7 +46,7 @@ export function projectedFollowupActions(record, actorId, shopId, simulatedCompl
 
 export function projectInbox(records, actorId, shopId, placement = 'active') {
   const allowed = visibleConversations(records, actorId, shopId);
-  return allowed.filter(record => placement === 'history' ? !isInActiveInbox(record) : isInActiveInbox(record));
+  return allowed.filter(record => placement === 'history' ? record.inboxProjection === 'historical' : record.inboxProjection === 'active');
 }
 
 export function projectedFollowupState(record, localRequest = null) {
