@@ -38,6 +38,9 @@ type StoredBatch = { readonly snapshot: SimulatedBatch; readonly fingerprint: st
   readonly occurrenceRefs: string[] };
 const IDENT = /^[A-Za-z0-9_.:-]{1,128}$/;
 const safe = (value: unknown): value is string => typeof value === 'string' && IDENT.test(value);
+const providerId = (value: unknown): value is string => typeof value === 'string' &&
+  !/[\s\u0000-\u001f\u007f]/.test(value) &&
+  /^wamid\.[A-Za-z0-9+\/_=:.-]{1,1024}$/.test(value);
 const index = (value: unknown): value is number => Number.isSafeInteger(value) && (value as number) >= 0;
 const complete = (input: SimulatedBatch): boolean => {
   if (!input || !safe(input.batch_ref) || !safe(input.app_ref) ||
@@ -49,7 +52,7 @@ const complete = (input: SimulatedBatch): boolean => {
   for (const e of input.events) {
     if (!e || !['messages', 'statuses'].includes(e.array_kind) ||
       !index(e.entry_index) || !index(e.change_index) || !index(e.item_index) ||
-      !safe(e.provider_message_id)) return false;
+      !providerId(e.provider_message_id)) return false;
     const pos = JSON.stringify([e.array_kind, e.entry_index, e.change_index, e.item_index]);
     if (positions.has(pos)) return false;
     positions.add(pos);
@@ -88,7 +91,9 @@ export class FakeS0RecoveryJournal {
     if (this.batches.size >= 100 || this.occurrences.size + input.events.length > 1000)
       return admitted('LAB_INVALID','INVALID');
     // No await: fake all-or-none in one JS process, NOT a database transaction.
-    const copy = structuredClone(input);
+    let copy: SimulatedBatch;
+    try { copy = structuredClone(input); }
+    catch { return admitted('LAB_INVALID','INVALID'); }
     const refs = copy.events.map((_, n) => 'FAKE_OCC_' + (this.nextOccurrence + n + 1));
     for (const ref of refs) this.occurrences.set(ref,{ref,batch:copy.batch_ref,done:false});
     this.nextOccurrence += refs.length;
