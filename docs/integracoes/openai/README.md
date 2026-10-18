@@ -21,7 +21,9 @@ Preparar o acesso da plataforma técnica Prumo à API da OpenAI: entendimento de
 8. **avaliacao-transporte-openai-direto-ou-n8n-v0_1.md** — conexão direta versus n8n ainda em aberto [R].
 9. **AUDITORIA_CONTRATO_OAI_2026_10_18.md** — auditoria da fase de abertura e seus gates.
 10. **MAPA_CAPACIDADES_E_PENDENCIAS_OPENAI_v0_1.md** — inventário que preserva também mídia visual/documentos como pesquisa futura sujeita a autorizações, governança de conhecimento, modelos e dependências, sem ampliar o escopo sem decisão.
-11. **PLANO_EXECUCAO_E_CRITERIOS_DE_CONCLUSAO_v0_1.md** — roteiro fechado E00–E08: E00 concluído, E01 em revisão documental, demais marcos pendentes.
+11. **E02_POLITICAS_SEGURANCA_CRITERIOS_ACEITE_v0_1.md** — E02: segurança, privacidade, autoaplicação de campos com fonte, limites e gates propostos [P/R/V].
+12. **E02_MATRIZ_CASOS_SINTETICOS_E_METRICAS_v0_1.md** — E02: 32 cenários de teste a implementar em E04, métricas, bloqueios críticos e comparação futura [P].
+13. **PLANO_EXECUCAO_E_CRITERIOS_DE_CONCLUSAO_v0_1.md** — roteiro fechado E00–E08: E00 concluído; E01 e E02 documentados em revisão, E03–E08 pendentes. Nenhum teste E02 executado.
 
 ## Princípios de precedência
 
@@ -31,6 +33,7 @@ Preparar o acesso da plataforma técnica Prumo à API da OpenAI: entendimento de
 - IA Vendedora e IA Planejadora estão no escopo; há ainda extrator pós-atendimento humano SILENCIOSO (nova orientação funcional, interface P/R) e capacidade futura de áudio/voz; **IA Analista autônoma está EXCLUÍDA**; ChatGPT/MCP administrativo é fluxo independente sob normas próprias.
 - Concessionárias não compartilham contexto de cliente, histórico ou resultado. Handoff humano encerra definitivamente a IA Vendedora do caso.
 - Somente o núcleo decide elegibilidade, permissões, persistência, status, handoff e intenção de envio; somente a frente Meta responde por transporte/callbacks WhatsApp.
+- E02 reforça que JSON estruturado não prova veracidade: autoaplicação exige evidência explícita rastreável, campo permitido, versão atual e autorização S0. Dados reais e campos D3 permanecem dependentes de decisão e validação externa; requisitos de privacidade/retenção seguem sem homologação.
 
 ## Referências
 
