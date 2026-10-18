@@ -44,6 +44,7 @@
         <div class="actor-control"><label for="actor-select">Visualizar como <span>(perfil fictício)</span></label><div class="select-wrap"><select id="actor-select" aria-label="Selecionar perfil fictício"></select><svg class="icon small"><use href="#i-chevron"/></svg></div></div>
         <div class="shop-control"><label for="shop-select">Concessionária em contexto</label><div class="select-wrap"><select id="shop-select" aria-label="Selecionar concessionária fictícia"></select><svg class="icon small"><use href="#i-chevron"/></svg></div></div>
         <label class="search-box" for="search-input"><svg class="icon"><use href="#i-search"/></svg><input id="search-input" type="search" placeholder="Buscar conversas" autocomplete="off" aria-label="Buscar conversas deste perfil"></label>
+        <div class="inbox-mode" aria-label="Tipo de lista de atendimento"><button type="button" data-inbox="active" class="inbox-tab selected" aria-pressed="true">Ativas / pendentes</button><button type="button" data-inbox="history" class="inbox-tab" aria-pressed="false">Histórico</button></div>
         <div class="filters" aria-label="Filtros de conversas"><button type="button" class="filter-chip selected" data-filter="all" aria-pressed="true">Todas</button><button type="button" class="filter-chip" data-filter="unread" aria-pressed="false">Não lidas</button><button type="button" class="filter-chip" data-filter="mine" aria-pressed="false">Atribuídas a mim</button></div>
         <div class="advanced-filter"><label for="status-filter">Etapa comercial</label><select id="status-filter" aria-label="Filtrar por estado comercial"><option value="all">Todos os estados comerciais</option></select></div>
         <div class="queue-summary" id="queue-summary" aria-label="Indicadores fictícios do escopo"></div>
@@ -79,6 +80,16 @@
   <div class="team-dialog-header"><div><p class="eyebrow">EQUIPE DA PRUMO · DEMONSTRAÇÃO</p><h2 id="team-title">Distribuição de atendimentos</h2></div><button type="button" class="icon-button" id="team-close" aria-label="Fechar visão da equipe"><svg class="icon"><use href="#i-close"/></svg></button></div>
   <p class="team-hint">Somente contagens fictícias da concessionária selecionada. Distribuição e redistribuição reais pertencem à frente S0.</p>
   <div id="team-list" aria-label="Equipe fictícia e casos atribuídos"></div>
+</dialog>
+<dialog id="template-dialog" class="completion-dialog" aria-labelledby="template-title">
+  <form method="dialog" id="template-form">
+    <p class="eyebrow">CF-OP-02 · EXCLUSIVAMENTE DEMONSTRAÇÃO</p>
+    <h2 id="template-title">Selecionar template aprovado</h2>
+    <p>Escolha um modelo fictício elegível neste cenário. A solicitação não envia mensagens nem reabre a janela de texto livre.</p>
+    <label for="template-select" class="field-label">Template e versão fictícios</label>
+    <select id="template-select" required></select>
+    <div class="dialog-actions"><button value="cancel" class="btn btn-light" type="submit">Cancelar</button><button value="confirm" class="btn btn-primary" type="submit">Simular solicitação</button></div>
+  </form>
 </dialog>
 <dialog id="completion-dialog" class="completion-dialog" aria-labelledby="completion-title">
   <form method="dialog" id="completion-form">
