@@ -47,6 +47,7 @@ type SavedObservation = { status: TechnicalStatus; timestamp: string };
 type LinkedSend = {
   readonly intent_id: string;
   readonly attempt_id: string;
+  readonly correlation_id: string;
   readonly recipient: string;
   readonly scope: TrustedTemplateScope;
   observations: SavedObservation[];
@@ -103,6 +104,7 @@ export class FakeMetaStatusReconciler {
     if (present) {
       if (present.intent_id === reference.intent_id &&
           present.attempt_id === outcome.attempt_id &&
+          present.correlation_id === outcome.correlation_id &&
           present.recipient === reference.recipient_verified &&
           sameScope(present.scope, s)) return result('ALREADY_LINKED');
       return result('CONFLICT');
@@ -110,6 +112,7 @@ export class FakeMetaStatusReconciler {
     if (this.sends.size >= MAX_LINKED) return result('CAPACITY_REACHED');
     const linked: LinkedSend = {
       intent_id: reference.intent_id, attempt_id: outcome.attempt_id,
+      correlation_id: outcome.correlation_id,
       recipient: reference.recipient_verified, scope: structuredClone(s),
       observations: [], progress: 'NONE', failure_observed: false,
     };
@@ -177,7 +180,8 @@ export class FakeMetaStatusReconciler {
         s.meta_app_ref !== reference.app_ref) return undefined;
     const linked = this.sends.get(scopeKey(reference.app_ref, s.meta_waba_id,
       s.phone_number_id, providerMessageId));
-    return linked && linked.recipient === reference.recipient_verified &&
+    return linked && linked.intent_id === reference.intent_id &&
+      linked.recipient === reference.recipient_verified &&
       sameScope(linked.scope, s) ? this.project(linked) : undefined;
   }
 
