@@ -39,3 +39,10 @@ O `PsycopgTrustedDatabase` anterior permanece **somente por compatibilidade com 
 - **Proibido merge, migração ao Supabase hospedado, uso de dados reais e integração externa sem autorização específica.**
 
 **Gate técnico:** GO apenas para continuar desenvolvimento e auditoria do sandbox; NO-GO para ambiente operacional.
+
+## Resultado CI auditável
+
+- [PostgreSQL 17 #39082041958 — PASS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39082041958): GW-01..05, 15 testes unitários e regressões S0.
+- [Supabase local GoTrue/PostgREST #39082125663 — PASS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39082125663): AUTH-01..13 e AUTH-13-REVOKE. Papéis de aplicativo criados **somente** no banco efêmero da CI, sem alterações no hospedado. A etiqueta `run-auth-integration` foi retirada após o teste.
+
+**Observação sobre segurança:** a função `SECURITY DEFINER` ainda constitui uma fronteira privilegiada. A senha sintética de teste está no roteiro CI e nunca é uma senha operacional. Não configurar autenticação desse papel em ambiente público sem desenho final de credenciais, revisão de funções e autorização humana.
