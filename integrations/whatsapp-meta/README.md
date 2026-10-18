@@ -153,3 +153,12 @@ O **primeiro diagrama** do `docs/MAPA_MENTAL.md` na branch S0 foi ampliado apena
 **268/268 testes sintéticos locais PASS** (250 anteriores + 18 WA-05A), TypeScript estrito PASS em 13 módulos/18 suítes, hashes dos 2 arquivos novos conferidos. **A fixture não possui cofre real, transação SQL, prova de commit, recibo COMMITTED ou ACK HTTP**: `ack_allowed:false` em todas as respostas. A S0 real deve realizar validação e persistência **atômicas**, com payload protegido e política DEC-WA-06, antes de qualquer ACK.
 
 Ver `docs/integracoes/whatsapp-meta/wa05a-ingresso-transacional-simulado-v0_1.md`. Sem Meta/Graph reais, token, Supabase hospedado, migrações, merge ou deploy.
+
+
+## WA-05B — Recuperação de ingresso e efeito interno, somente laboratório
+
+`recovery-journal.ts` simula um registro técnico de batches/ocorrências **em memória**, falhas antes/depois da gravação, resposta de commit perdida, redelivery por `batch_ref`, consultas após reinício lógico de trabalhador, leases com fencing e prevenção de repetição de efeitos **somente internos ao próprio objeto fake**. Repetições de callbacks em batches distintos são preservadas; `wamid` nunca é usado como ID único de callback.
+
+**292/292 testes locais PASS** (268 anteriores + 24 RECOV), TypeScript estrito PASS dos **14 módulos e 19 arquivos de teste**. Blobs Git do código e testes novos coincidem com os arquivos executados. O módulo **não** verifica HMAC, payload real, autorização S0 ou persistência; criar outra instância do journal **perde todos os dados**. Nenhum recibo `COMMITTED` ou ACK HTTP é emitido, e nenhuma operação externa se torna exactly-once. Documento: `docs/integracoes/whatsapp-meta/wa05b-recuperacao-ingressos-sem-token-v0_1.md`.
+
+DEC-WA-04/06, token Meta e implementação de inbox transacional S0 continuam pendentes. Sem Graph API, Supabase hospedado, merge/deploy ou modificações na POC concessionária de demonstração.
