@@ -190,3 +190,11 @@ Novo `s0-ingress-gateway.ts` cria o `FakePrivilegedS0Ingress`: entrada candidata
 A identidade de serviço dos `ports` **não é autenticada**, o `Map` **não é durável**, a fixture **não contém proteção real LGPD/SQL**, e `LAB_ACCEPTED` **nunca** autoriza HTTP 200 ou um recibo `COMMITTED`. Nenhum acesso Supabase/Meta/Graph real, CI remoto, merge/deploy ou alteração na POC concessionária de demonstração.
 
 **Auditoria WA-05D concluída:** GATE-21 demonstrou que status/instante do provedor não estavam cobertos por `scope_sha256`; digest da WA-05C e conferência da WA-05D corrigidos. GATE-22 verifica colisão de batch contra payload-ref diferente. **352/352 PASS** e TypeScript estrito PASS; ainda não há identidade de serviço operacional nem ACK.
+
+## WA-05D-AUD1 — Auditoria de origem interna e atestação fictícia
+
+**Falha adversarial reproduzida:** `scope_sha256` não era uma assinatura. O digest podia ser recalculado depois de adulterar `provider_kind`, mantendo o HMAC Meta anterior e fazendo o simulador S0 retornar `LAB_ACCEPTED`. Agora `FakePrivilegedS0Ingress.admit` **exige `FakeInternalServiceProof` HMAC**, com chave interna de fixture **distinta do App Secret e do token Graph**, vinculada a serviço, envelope completo e validade. Confere prova e rotação também após `beforeCommit`.
+
+**358/358 testes locais PASS** (352 anteriores + 6 GATE-23..28), TypeScript estrito PASS em 16 módulos e 22 testes. Blobs auditados: gateway `9f54c91c0c59dec24660b4711df61603305b7f59` e testes `1f44fe6eed8ef199b8077bcfcb90a7e266be451c`. Relatório: `docs/integracoes/whatsapp-meta/wa05d-aud1-atestacao-interna-offline-v0_1.md`.
+
+A chave simulada e o principal injetado **não são autenticação de produção**; ainda faltam cofre/ACL de serviço, nonce e prevenção durável de replay, transação ACID, payload íntegro protegido e recibo/ACK aprovado. Token Meta depende de validação por terceiro. Sem deploy, merge ou serviços reais.
