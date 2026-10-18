@@ -34,3 +34,11 @@ Migration **025** adiciona uma barreira **distinta da credencial de conexão SQL
 **Gate 2 — GoTrue/REST integrado:** executar **uma vez**, via etiqueta explícita `run-auth-integration`, após estabilizar migrations e testes; nenhuma execução automática a cada commit. Até esse marco, `AUTH-14` estará apenas escrito, não aprovado.
 
 **Gate de produção: NO-GO**, mesmo após testes locais, até revisão de ameaça de comprometimento combinado, funções privilegiadas, segregação dos segredos, política de rotatividade, logs de negativas, LGPD/retensão e autorização humana específica para homologação e eventual implantação.
+
+## Evidências finais (18/10/2026)
+
+**[PostgreSQL 17 #39083792469 — PASS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39083792469):** GW-01..07, 18 testes unitários e regressões anteriores. Primeira tentativa da migration 025 falhou pela sintaxe SQL de `EXTRACT`; a função foi corrigida antes do PASS.
+
+**[Supabase local GoTrue/PostgREST #39083914275 — PASS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39083914275):** AUTH-01..14, incluindo verificação de credencial SQL sem assinatura e replay autorizado com nonce novo, sessão revogada e isolamento. Teste foi acionado uma única vez por etiqueta, retirada após conclusão. Projeto Supabase hospedado não recebeu tabelas, chaves ou migrations comerciais.
+
+**Limite da conclusão:** dois fatores técnicos na mesma aplicação não fornecem independência se o processo for inteiramente comprometido. O novo desenho contém o cenário de roubo **apenas da credencial SQL**, não certifica proteção contra comprometimento do runtime, contra administrador PostgreSQL, ou operação real.
