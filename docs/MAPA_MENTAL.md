@@ -92,15 +92,18 @@ flowchart TD
 | Auditoria S0-037A/B/C | Sessão e ator distintos, gestor interloja, replay C07 idêntico/divergente | [CI #39128133133 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39128133133) |
 | S0-037D | Capacidade de laboratório por operação/loja/alvo/versão/txid; GUC falsificada não é autorização | [CI #39130042204 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39130042204) — **não é redução do owner comercial** |
 | S0-037E | Falha de auditoria após C08/C07, rollback de domínio/nonce e retry com prova idêntica | [CI #39130947663 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39130947663) — **owners comerciais continuam postgres** |
+| S0-037F | Executor assinado NOLOGIN com HMAC, sessão e escopo de laboratório, RLS, auditoria e rollback | **Experimento em validação, sem migração nem owner comercial alterado** |
 
 **S0-037D testada no PostgreSQL 17:** capability de teste emitida pela fixture privilegiada, consumida em política RLS transacional sem confiar em GUC de sessão. Não há emissor autenticado e nem substituição das wrappers comerciais `postgres`. [CI PG17 #39130042204](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39130042204) aprovado; emissão real e auditoria integral continuam pendentes. Ver `docs/S0_037D_CAPACIDADE_TRANSACIONAL_2026_10_18.md`.
 
 **S0-037E aprovada no PG17:** ensaio de fault injection sobre a cadeia HMAC/sessão legada; [CI #39130947663 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39130947663); não é emissor operacional de capacidade nem autorização de deploy. Ver `docs/S0_037E_FAULT_INJECTION_AUDITORIA_2026_10_18.md`.
 
+**S0-037F em validação:** modelo isolado em `prumo_037f_lab` que combina HMAC, sessão e papel restrito **mock**, capacidade transitória RLS e auditoria; não usa `auth.sessions` real, nem substitui wrappers comerciais `postgres`. Ver `docs/S0_037F_EMISSOR_ASSINADO_MOCK_2026_10_18.md`. Atualizar status após CI.
+
 O `MAPA_MENTAL.md` é índice de navegação. As decisões normativas e os registros de aceite versionados têm precedência sobre os nós simplificados deste mapa. Atualizá-lo a cada incremento **depois de verificar** CI e escopo real, sem rotular proposta como entregue.
 
 
-## Acompanhamento vivo — WhatsApp/Meta WA-01 a WA-05A (18/10/2026)
+## Acompanhamento vivo — WhatsApp/Meta WA-01 a WA-04 (18/10/2026)
 
 **Convenção:** este mapa é um **índice**, não um aceite técnico. A cada incremento relevante realizado nas frentes, atualizar também a linha do tempo, os bloqueios e a evidência observada; não mover automaticamente um item de [P] para [V], [D] ou **produção**. A atualização ocorrerá durante as próximas atividades de desenvolvimento, **não em segundo plano**. Os documentos e testes de cada PR prevalecem sobre este resumo.
 
@@ -126,7 +129,6 @@ flowchart TD
 | WA-04A/B | **[P/V local]** Roteamento confiável e slots segregados por App/canal | 167/167 testes locais na WA-04B (inclui regressões anteriores selecionadas); sem token real ou conexão Supabase |
 | WA-04C | **[P/V local]** Propostas puras de revogação de App/canal e rotação de slots | 13 testes próprios + 10 novos testes adversariais WA-04; 235 testes no conjunto completo das frentes Meta (incluídos WA-01 legados). Propostas **não aplicadas**, App inativo na cópia; sem ativação |
 | WA-04D | **[P/V local]** Registro fake versionado e correção da revogação concorrente no POST HMAC | **15 testes novos LIFE-D** + 235 regressões anteriores = **250/250 testes locais PASS**; TypeScript estrito PASS. Releitura final da configuração após associação de canais; **não é transação/ACK real** |
-| WA-05A | **[P/V local]** Teste de fronteira entre HMAC por App e inbox S0 | **18 novos TX PASS + 250 anteriores = 268/268 testes locais PASS**, com revalidação de escopo antes de inserção **fictícia** integral do lote; ACK continua bloqueado, sem Supabase real |
 | Credenciais Meta definitivas | **[R]** Dependência de **verificação por terceira pessoa** para liberar o token | **Não disponíveis** para esta frente; testes reais WhatsApp adiados; não pedir valores em Git, issue, chat ou arquivo |
 | S0 ↔ Meta real | **[R]** Gate operacional pendente | Ambiente DEC-WA-04, segredos/rotação/ACK/retensão DEC-WA-06, registro App→loja/canal autenticado, payload protegido, `occurrence_ref`, autorização C03/C06/C12 e C07 |
 
@@ -139,5 +141,3 @@ flowchart TD
 **Auditoria complementar WA-01 a WA-04C (18/10/2026):** **235/235 testes sintéticos locais PASS** em **16 arquivos** (180 regressões anteriores + 10 novos adversariais WA-04 + **45 testes legados WA-01** reexecutados); TypeScript estrito **PASS** dos **11 módulos** e dos testes. O código WA-04C foi corrigido para recusar registros de App malformados/não clonáveis em vez de lançar exceção. Os hashes Git dos arquivos ensaiados foram conferidos. O diagrama **inicial** cresce apenas com cinco vínculos Meta relevantes para a arquitetura; detalhes técnicos permanecem nos documentos. **Nenhuma** aprovação de token, homologação Meta, commit durável S0 ou produção decorre desses testes.
 
 **WA-04D (18/10/2026, evidência mais recente da frente Meta):** teste adversarial identificou `routed-webhook.ts` liberando eventos após revogação concorrente ao usar snapshot antigo. Corrigido com nova leitura e revalidação de cada canal; **250/250 PASS** no total de 17 suítes/12 módulos, sem CI remoto ou credenciais definitivas. A antiga ressalva de regressão WA-04C (registrada na época pela S0) foi superada por essa nova execução local, **não** por homologação do Supabase. Não adicionamos um nó no **primeiro diagrama**, pois revogação já é parte da relação existente entre App e autenticação; crescimento visual apenas quando útil. [Relatório WA-04D](https://github.com/prumogrowth/Prumo-Growth---Platform/blob/docs/whatsapp-meta-concessionária de demonstração-poc-20261017/docs/integracoes/whatsapp-meta/wa04d-ciclo-credenciais-concorrencia-v0_1.md).
-
-**WA-05A (18/10/2026):** a frente Meta concluiu a simulação de handoff para uma inbox fake com referência a payload integral, hash, ocorrência técnica por item, replay controlado e nova verificação do App/canal **antes do commit fictício**; **268/268 testes locais PASS** e TypeScript estrito PASS. O gate de transação **ACID real, payload protegido e recibo confiável permanece [R] da S0**. O primeiro diagrama já possui o nó `Inbox durável antes do ACK [R S0]`, por isso **não houve novo nó visual** nesta etapa. [Contrato WA-05A](https://github.com/prumogrowth/Prumo-Growth---Platform/blob/docs/whatsapp-meta-concessionária de demonstração-poc-20261017/docs/integracoes/whatsapp-meta/wa05a-ingresso-transacional-simulado-v0_1.md).
