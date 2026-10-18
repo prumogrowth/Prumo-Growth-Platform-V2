@@ -40,7 +40,8 @@ export function projectedFollowupActions(record, actorId, shopId, simulatedCompl
   if (!currentlyAssigned(record, actorId, shopId) || !isInActiveInbox(record) ||
       humanCompletion(record, simulatedCompletion) !== 'pending' || projectedMetaWindow(record) !== 'expired') return [];
   const allowed = record.allowedActionsProjection ?? [];
-  return FOLLOWUP_ACTIONS.filter(action => allowed.includes(action));
+  return FOLLOWUP_ACTIONS.filter(action => allowed.includes(action) &&
+    (action !== 'single_template' || DEMO_TEMPLATES.some(t => record.eligibleTemplatesProjection?.includes(t.id + '@' + t.version))));
 }
 
 export function projectInbox(records, actorId, shopId, placement = 'active') {
@@ -58,7 +59,8 @@ export function applyLocalFollowupRequest(record, actorId, shopId, kind, templat
   const actions = projectedFollowupActions(record, actorId, shopId);
   if (!actions.includes(kind)) throw new Error('ACAO_INELEGIVEL_NA_DEMONSTRACAO');
   if (kind === 'single_template') {
-    if (!DEMO_TEMPLATES.some(t => t.id === template?.id && t.version === template.version))
+    if (!DEMO_TEMPLATES.some(t => t.id === template?.id && t.version === template.version &&
+      record.eligibleTemplatesProjection?.includes(t.id + '@' + t.version)))
       throw new Error('TEMPLATE_NAO_ELEGIVEL_NA_DEMONSTRACAO');
     return { kind, state: 'requested', template: { id: template.id, version: template.version }, confirmedSent: false };
   }
@@ -75,6 +77,7 @@ const SCENARIOS = Object.freeze([
     status:'em atendimento pelo operador', unread:1, updatedAt:'Ontem', tag:'Janela expirada · pendente',
     inboxProjection:'active', metaWindowProjection:'expired', humanCompletionProjection:'pending',
     allowedActionsProjection:['single_template','request_chain','complete'],
+    eligibleTemplatesProjection:['modelo_continuidade_demo@v1-demo'],
     messages:[{id:'a107-1',side:'in',body:'Preciso pensar e retorno depois.',time:'Ontem'}] },
   { id:'A-108', shopId:'aurora', name:'Cliente Exemplo 09', initials:'CE', assignedTo:'rafael',
     status:'em atendimento pelo operador', unread:0, updatedAt:'10:50', tag:'Etapa humana concluída',
@@ -131,6 +134,7 @@ export function copyCFDemoFixtures() {
   return [...base,...SCENARIOS.map(record => ({
     ...record, notes:[], messages:record.messages.map(m=>({...m})),
     allowedActionsProjection:[...(record.allowedActionsProjection??[])],
+    eligibleTemplatesProjection:[...(record.eligibleTemplatesProjection??[])],
     followupProjection:record.followupProjection ? {
       ...record.followupProjection,attempts:record.followupProjection.attempts.map(a=>({...a}))
     } : undefined
