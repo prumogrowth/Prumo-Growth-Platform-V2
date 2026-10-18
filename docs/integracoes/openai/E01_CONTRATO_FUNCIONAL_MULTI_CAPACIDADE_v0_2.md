@@ -22,6 +22,10 @@ A extração pós-humano NÃO é IA Analista autônoma; não cria regras, não c
 - Doc 41 [D]: permissões de leitura/conferência do operador/gestor e escopo loja/caso seguem vigentes; output da OpenAI não concede acesso novo.
 - Normas bancárias: remessa comprovada e desfecho do Banco continuam atos autorizados e evidenciados, sem status/venda/recusa inferidos pelo modelo.
 
+### Governança dos nomes e referências de interface [P/R]
+
+Os nomes técnicos `human_close_extract`, `speech_synthesize` e `speech_transcribe` são os **mesmos usados nos contratos específicos OAI-05 e OAI-06** já presentes nesta branch. Os termos descritivos “extração pós-humano” e “gerar áudio” não são novos valores de enum; renomear futuramente exige revisão cruzada. A versão ilustrativa `s0-openai.v0.1-proposed` permanece CANDIDATA, não endpoint já implantado. Este arquivo organiza as capacidades; **OAI-05 detalha o contrato de extração e OAI-06 detalha o contrato de voz**. Na eventual divergência de campo técnico entre dois exemplos, não inferir aprovação — registrar [R] e padronizar com S0/Meta antes de implementação.
+
 ## 1. Fronteiras de responsabilidade
 
 | Responsável | Permanece dono de | Esta frente oferece |
@@ -35,9 +39,9 @@ A extração pós-humano NÃO é IA Analista autônoma; não cria regras, não c
 
 ```json
 {
-  "contract_version": "oai.port.v0.2-candidate",
+  "contract_version": "s0-openai.v0.1-proposed",
   "request_id": "req-ficticio-001",
-  "operation_kind": "post_human_extract",
+  "operation_kind": "human_close_extract",
   "scope": {
     "concessionaria_ref": "loja-ficticia-A",
     "caso_ref": "caso-ficticio-7",
@@ -74,9 +78,9 @@ A extração pós-humano NÃO é IA Analista autônoma; não cria regras, não c
 
 ```json
 {
-  "contract_version": "oai.port.v0.2-candidate",
+  "contract_version": "s0-openai.v0.1-proposed",
   "request_id": "req-ficticio-001",
-  "operation_kind": "post_human_extract",
+  "operation_kind": "human_close_extract",
   "trigger_ref": "evt-fim-atendimento-ficticio",
   "context_version": 5,
   "fields_policy_version": "campos-sinteticos-v0",
@@ -117,11 +121,11 @@ A extração pós-humano NÃO é IA Analista autônoma; não cria regras, não c
 
 - `sales_reply` (C03): entrada com case/cycle/knowledge/version/messages refs autorizados; saída texto proposto + campos extraídos com proveniência + possível motivo de handoff. O modelo não envia; S0 valida e cria intenção de envio C03 para a Meta. **Somente se IA Vendedora detém atendimento, jamais depois do handoff**.
 - `recontact_plan` (C05): selecionar janelas/intervalos e somente IDs/versões de templates apresentados como ELEGÍVEIS pela S0, sem criar textos nem enviar. S0 decide agendamento e cancelamento.
-- `post_human_extract` (NOVO F03): permitida após conclusão humana mesmo com flag `aiSuspended=true`, pois se trata de **processamento documental sem mensagens ao cliente**. Separar politicas técnicas `aiSellerCanSpeak` e `internalExtractionAuthorized`, ambas derivadas por S0, sem relaxar a primeira. Não dar ao modelo prerrogativa de reabrir sessão comercial.
+- `human_close_extract` (NOVO F03): permitida após conclusão humana mesmo com flag `aiSuspended=true`, pois se trata de **processamento documental sem mensagens ao cliente**. Separar politicas técnicas `aiSellerCanSpeak` e `internalExtractionAuthorized`, ambas derivadas por S0, sem relaxar a primeira. Não dar ao modelo prerrogativa de reabrir sessão comercial.
 
 ## 5. F04 e F05 — porta de áudio [P]
 
-### Saída de áudio `speech_generate` (F04)
+### Saída de áudio `speech_synthesize` (F04)
 
 S0 autoriza previamente **texto comercial exato** e o propósito do áudio. Entrada candidata: `request_id`, `case_ref`, `approved_text_ref`, `text_hash`, `voice_policy_version`, `locale=pt-BR`, `voice_ref` e `requested_media_profile` sob política aprovada. Adaptador solicita TTS ao provedor, recebe áudio e devolve `asset_ref` seguro, `text_hash`, `mime_type/codec`, `duration_ms` (se disponível) e métricas técnicas. **Não gera textos comerciais alternativos no estágio TTS**, nem envia WhatsApp, nem assume compatibilidade final com formato Meta.
 
@@ -146,7 +150,7 @@ Meta recebe/valida mensagem e disponibiliza referência segura à mídia, respei
 
 ## 7. Testes de aceite de E01 [P], ainda não executados
 
-- E01-T01: distinção `sales_reply`, `recontact_plan`, `post_human_extract`, `speech_generate`, `speech_transcribe`; chamadas não podem ganhar privilégios cruzados.
+- E01-T01: distinção `sales_reply`, `recontact_plan`, `human_close_extract`, `speech_synthesize`, `speech_transcribe`; chamadas não podem ganhar privilégios cruzados.
 - E01-T02: sem conclusão humana autêntica, F03 recusado; conclusão duplicada idempotente.
 - E01-T03: F03 extrai campo de evidência explícita e S0 stub aplica versão com autoria do processo, sem digitação humana.
 - E01-T04: campo ausente -> não preenchido; campo conflitante -> pendência, sem escolha inventada.
@@ -168,6 +172,6 @@ Meta recebe/valida mensagem e disponibiliza referência segura à mídia, respei
 
 **Fronteiras que esta branch NÃO implementa:** interface de operador, botão de concluir, tabela de cadastro, migrações SQL, RLS, remessa bancária, envio WhatsApp, Graph, gestão Meta e lógica comercial S0.
 
-**Fontes internas:** docs 06, 11, 13A, 23, 24, 26, 33, 38, 40 e 41 do pacote documental auditado, e contratos Draft do PR #1 e PR #2.
+**Fontes internas:** docs 06, 11, 13A, 23, 24, 26, 33, 38, 40 e 41 do pacote documental auditado, contratos Draft do PR #1 e PR #2, OAI-05 e OAI-06 desta mesma branch.
 
 **Fontes técnicas atuais:** https://developers.openai.com/api/docs/guides/structured-outputs ; https://developers.openai.com/api/docs/guides/audio ; https://developers.openai.com/api/docs/guides/text-to-speech ; https://developers.openai.com/api/docs/guides/voice-agents . Estas são bases de viabilidade, não teste nem seleção de modelo.
