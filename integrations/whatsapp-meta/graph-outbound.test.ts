@@ -108,3 +108,28 @@ test('WA-OUT-13: bad status or invalid provider error codes fail conservatively'
 test('WA-OUT-14: attempt identifiers are validated without leaking input', () => {
   assert.throws(() => classifyGraphSendResult('ATTEMPT BAD', 'corr', { kind: 'transport_error' }));
 });
+
+
+test('WA-OUT-15: HTTP 408 and 425 remain uncertain, no automatic retry', () => {
+  for (const status of [408, 425]) {
+    const result = observe(status, { error: { code: 131000, message: 'possibly already accepted' } });
+    assert.equal(result.send_state, 'UNCERTAIN_EXTERNAL');
+    assert.equal(result.retry_automatically, false);
+    assert.equal(result.api_accepted, false);
+  }
+});
+test('WA-OUT-16: opaque Meta wamid accepts base64 padding without claiming delivery', () => {
+  for (const id of ['wamid.HBgLMjM0NTY3ODkwPUI=', 'wamid.ABC+/=_-:def']) {
+    const result = observe(200, { messages: [{ id }] });
+    assert.equal(result.provider_message_id, id);
+    assert.equal(result.send_state, 'API_ACCEPTED');
+    assert.equal(result.retry_automatically, false);
+  }
+});
+test('WA-OUT-17: malformed wamid with controls, spaces, or overlength is uncertain', () => {
+  for (const id of ['wamid.x\\ny', 'wamid.bad id', 'wamid.' + 'A'.repeat(1025)]) {
+    const result = observe(200, { messages: [{ id }] });
+    assert.equal(result.send_state, 'UNCERTAIN_EXTERNAL');
+    assert.equal(result.provider_message_id, null);
+  }
+});
