@@ -75,3 +75,9 @@ O protótipo agora oculta a visão Equipe de operadores e perfis suspensos, dist
 ## FV-UI-005 — Ensaios de DOM desktop e mobile
 
 `tests/dom-fixture.mjs` e `tests/app.dom.test.mjs` / `app.mobile.dom.test.mjs` verificam navegação, diálogos, seleção de template elegível, acesso à equipe e suspensão **com DOM simulado**. **36/36 PASS** no V8, incluindo os 24 testes anteriores de regras. O atalho Ctrl/Cmd+K não tira o foco de um modal aberto. [Relatório FV-UI-005](../docs/14_TESTES_INTERACAO_FV_UI_005_2026_10_18.md). Node direto e Chromium real após FV-03 **ainda não executados**.
+
+## FV-UI-006 — Concorrência visual e estados conservadores
+
+Ao solicitar conclusão, o protótipo apresenta **“Conclusão solicitada”**, não “etapa concluída” ou ficha gravada. Sem projeção S0 de conclusão, aparece **não confirmada**. Mudanças de ator, loja, conversa e inbox invalidam diálogos anteriores; callbacks de notas/extração recusam referência a caso antigo. Foi adicionada cobertura de testes para esses cenários.
+
+**Evidência:** 48/48 verificações sintéticas em V8 sobre conteúdos recuperados da branch (25 regras, 17 testes DOM, 6 inspeções de código). **Não** foram executados nesta revisão Node nativo ou Chromium real. [Relatório FV-UI-006](../docs/15_AUDITORIA_FV_UI_006_FIDELIDADE_E_CONCORRENCIA_2026_10_18.md).
