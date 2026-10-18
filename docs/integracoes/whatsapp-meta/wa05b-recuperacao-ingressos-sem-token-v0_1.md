@@ -30,13 +30,13 @@ A janela entre confirmação do commit S0 e resposta HTTP/Meta também necessita
 
 ## 3. Evidência reproduzida
 
-**Node.js v22.16.0**: `node --experimental-strip-types --test *.test.ts` sobre **19 suítes** → **292/292 PASS**, sendo **268 regressões WA-01 a WA-05A** + **24 testes RECOV novos**. Os casos novos cobrem antes/depois de commit, resposta perdida, replay compatível/conflitante, escopo App/loja/canal, recuperação após reinício lógico, callbacks iguais em batches diferentes, leases, fencing, crashes após efeito fictício, validação de entradas e retorno sem ACK.
+**Node.js v22.16.0**: `node --experimental-strip-types --test *.test.ts` sobre **19 suítes** → **294/294 PASS**, sendo **268 regressões WA-01 a WA-05A** + **26 testes RECOV novos**. Os casos novos cobrem antes/depois de commit, resposta perdida, replay compatível/conflitante, escopo App/loja/canal, recuperação após reinício lógico, callbacks iguais em batches diferentes, leases, fencing, crashes após efeito fictício, validação de entradas e retorno sem ACK.
 
 **TypeScript v5.8.3**: `tsc --noEmit --strict --target es2022 --module nodenext --moduleResolution nodenext --allowImportingTsExtensions --skipLibCheck --esModuleInterop --types node *.ts` → **PASS**, contemplando **14 módulos e 19 arquivos de teste**.
 
 **Correspondência dos blobs Git locais versus PR #2**, verificada após publicação:
-- `recovery-journal.ts`: `ff443e871de9d084419d656c5848be36c83fbcf0`
-- `recovery-journal.test.ts`: `1edc27bfa3245aab9b4e0d611458b18bf442d2a4`
+- `recovery-journal.ts`: `45e296be9ea63d971b9853179d57fb9afb1af14b`
+- `recovery-journal.test.ts`: `0d956e0c467179f63704722a3f35bce1fe49310c`
 
 Nenhum CI remoto, dado de cliente, segredo, webhook Meta real, banco Supabase hospedado, migration, Graph API, número comercial, deploy ou merge foi acionado.
 
@@ -45,3 +45,5 @@ Nenhum CI remoto, dado de cliente, segredo, webhook Meta real, banco Supabase ho
 O `docs/MAPA_MENTAL.md` na branch `feat/s0-fundacao-prumo` acompanha a WA-05B como **proposta e teste local**, sem declarar durabilidade real. O diagrama principal **não ganhou um nó novo**, pois `Inbox durável antes do ACK [R S0]` e `Revisão do gestor/versão/justificativa` já contemplam os subsistemas relevantes; detalhes de recuperação pertencem a este documento.
 
 **GO** para auditoria cruzada do contrato simulado e especificação de interfaces S0; **NO-GO** para conectar a WA-05B ao webhook operacional, emitir ACK 200, migrar banco hospedado ou testar Meta real. DEC-WA-04 (ambiente), DEC-WA-06 (segredos/retenção/recovery/ACK), origem autenticada dos registros e verificação externa do token continuam pendentes.
+
+**Auditoria adicional WA-05B:** RECOV-25/26 corrigiram o filtro de ID `wamid` (agora admite caracteres opacos/padding `=` sem whitespace/controles, coerente com a WA-02A) e a exceção por metadado de fixture não clonável (agora `LAB_INVALID` sem inserir lote parcial). Ambas as regressões integram o total **294/294**. Nenhum ID Meta foi recebido de uma API real.
