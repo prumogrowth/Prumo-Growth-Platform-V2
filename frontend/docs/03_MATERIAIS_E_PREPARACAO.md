@@ -49,4 +49,12 @@ O código visual será acrescentado **após** alinhamento com a S1 pré-existent
 4. **Validação:** revisão visual, responsive, teclado, estados de erro/vazio, testes determinísticos com dados artificiais; documentar o que ainda não foi testado.
 5. **Integração futura:** coordenar PR com responsáveis das outras frentes. Sem merge automático na `main`, sem deployments e sem dados reais.
 
-**Fora de foco nesta fase:** contratos jurídicos, contratos externos bancários, escolha de domínio/hospedagem, credenciais, custos de produção e integrações comerciais.
+**Fora de foco nesta fase:** contratos jurídicos, formalização bancária, escolha de domínio/hospedagem, credenciais, custos de produção e integrações comerciais **reais**. **Dentro do escopo:** contratos TÉCNICOS conceituais de frontend ↔ S0, com auditoria sem execução/implantação.
+
+## Atualização documental 18/10/2026 — contratos FV
+
+Os contratos originais do pacote auditado continuam fonte de contexto, porém o fluxo de preenchimento manual habitual em O3/SI03 está superado pela direção atual do responsável. Ler o delta em [FV-01](04_CONTRATO_FV01_UI_BACKEND_v0_1.md), [FV-02](05_CONTRATO_FV02_CONCLUSAO_EXTRAÇÃO_POS_HUMANA_v0_1.md) e no [relatório de auditoria](06_AUDITORIA_CONTRATOS_FV_2026_10_18.md).
+
+A frente OpenAI já documentou o contrato **OAI-05 — Extração de cadastro após encerramento do atendimento humano** e **E01 v0.2 — multicaptacidade**, disponíveis na branch `feat/s2-openai-adapter-sintetico`. Sua existência NÃO significa que houve revisão S0, implementação de extração, aceite de payload ou autorização externa.
+
+Nenhum incremento de planejamento/progresso automático e nenhum deploy. A pendência central é conciliação interfrentes para o comando S0 de conclusão e a leitura de status da extração.
