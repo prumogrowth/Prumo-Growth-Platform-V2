@@ -146,3 +146,27 @@ test('projeção desconhecida não aparece como conclusão humana ou extração 
   assert.ok(get('detail-content').textContent.includes('Situação não confirmada'));
   assert.equal(get('detail-content').textContent.includes('Etapa concluída · retorno não disponível'),false);
 });
+
+test('pedido aceito não mostra falsa conclusão confirmada', () => {
+  reset(); env.openCase('Exemplo 02');
+  buttons('Concluir atendimento')[0].click();
+  get('completion-dialog').close('confirm');
+  assert.ok(get('workflow-bar').textContent.includes('Conclusão solicitada'));
+  assert.equal(get('workflow-bar').textContent.includes('Etapa humana concluída'),false);
+  assert.ok(get('detail-content').textContent.includes('Solicitação registrada'));
+});
+
+test('formulário de nota obsoleto não escreve em outro caso da fila', () => {
+  reset(); env.openCase('Exemplo 02');
+  const tabs = env.descendants(get('detail-content')).filter(n=>n.attrs.role==='tab');
+  tabs.find(x=>x.textContent==='Notas').click();
+  const form=env.descendants(get('detail-content')).find(n=>n.id==='internal-note-form');
+  const editor=env.descendants(form).find(n=>n.id==='note-text');
+  editor.value='Nota obsoleta que deve ser rejeitada';
+  env.openCase('Exemplo 05');
+  form.fire('submit'); // callback tardio sobre formulário que já saiu da tela
+  env.openCase('Exemplo 02');
+  env.descendants(get('detail-content')).filter(n=>n.attrs.role==='tab')
+    .find(x=>x.textContent==='Notas').click();
+  assert.equal(get('detail-content').textContent.includes('Nota obsoleta que deve ser rejeitada'),false);
+});
