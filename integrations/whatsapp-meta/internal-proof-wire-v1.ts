@@ -112,6 +112,9 @@ export function canonicalizeInternalProofV1(claims:unknown, candidate:unknown):U
     ];
     const positions=new Set<string>();
     const occValues:(string|number)[][]=[];
+    let batchShop:string|undefined;
+    const channelToSender=new Map<string,string>();
+    const senderToChannel=new Map<string,string>();
     for (const raw of scope) {
       const o=record(raw,OCCURRENCE),p=record(o.position,POSITION);
       const entry=integer(p.entry_index),change=integer(p.change_index),item=integer(p.item_index);
@@ -124,9 +127,21 @@ export function canonicalizeInternalProofV1(claims:unknown, candidate:unknown):U
       if (o.event_kind!==eventKind)return reject();
       const app=reference(o.app_ref);
       if (app!==c.app_ref) return reject();
+      // DEC-WA-05: a Meta App is exclusively owned by one dealership.
+      // This is only a consistency check; S0 must authorize against its registry.
+      const shop=reference(o.concessionaria_id);
+      const channel=reference(o.canal_id);
+      const waba=reference(o.waba_id);
+      const sender=reference(o.phone_number_id);
+      if (batchShop!==undefined && batchShop!==shop) return reject();
+      batchShop=shop;
+      const senderKey=JSON.stringify([waba,sender]);
+      if ((channelToSender.has(channel) && channelToSender.get(channel)!==senderKey) ||
+          (senderToChannel.has(senderKey) && senderToChannel.get(senderKey)!==channel)) return reject();
+      channelToSender.set(channel,senderKey);
+      senderToChannel.set(senderKey,channel);
       occValues.push([entry,change,kind,item,eventKind,app,
-        reference(o.concessionaria_id),reference(o.canal_id),reference(o.waba_id),
-        reference(o.phone_number_id),wamid(o.provider_message_id),
+        shop,channel,waba,sender,wamid(o.provider_message_id),
         timestamp(o.provider_timestamp),reference(o.provider_kind)]);
     }
     // Format: ASCII domain + NUL, then [4-byte BE UTF-8 length][UTF-8 bytes]
