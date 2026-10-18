@@ -402,6 +402,79 @@ if result.get("outcome") != "APPLIED":
 again = adapter.execute("Bearer " + actors["gestorb"][1], "cancelar_plano", payload)
 if again.get("outcome") != "ALREADY_APPLIED":
     fail("AUTH-12: repeated authorized operation not idempotent")
+# AUTH-13: a separate LOCAL-only SQL login has no SELECT/DDL privilege.
+# The role is provisioned only within this disposable Supabase container.
+from backend.identity_boundary import PsycopgGatewayDatabase
+run_sql("""
+create role prumo_gateway_ci login password 'Test-Only-Synthetic-Gateway-2026!';
+grant prumo_s0_gateway to prumo_gateway_ci;
+""")
+u = urllib.parse.urlsplit(DB)
+gateway_dsn = ("postgresql://prumo_gateway_ci:"
+    + urllib.parse.quote("Test-Only-Synthetic-Gateway-2026!", safe="")
+    + "@" + u.hostname + ":" + str(u.port) + u.path)
+with psycopg.connect(DB) as root:
+    with root.cursor() as cur:
+        cur.execute("""
+          select p.id from public.pendencias_reconciliacao_c07_sinteticas p
+          join public.eventos_callback_sinteticos e
+            on e.concessionaria_id=p.concessionaria_id and e.id=p.evento_id
+          where p.concessionaria_id=%s::uuid and e.evento_externo_ficticio='auth-c07-event-B'
+        """, (LOJA_B,))
+        pend_b = cur.fetchone()[0]
+        cur.execute("""
+          select count(*) from prumo_private.auditoria_gateway_s0
+        """)
+        if cur.fetchone()[0] != 0:
+            fail("AUTH-13: unexpected gateway audit before request")
+restricted_db = PsycopgGatewayDatabase(gateway_dsn)
+restricted_gateway = AuthenticatedCommands(verifier, restricted_db)
+with psycopg.connect(gateway_dsn) as conn:
+    with conn.cursor() as cur:
+        cur.execute("set local role prumo_s0_gateway")
+        try:
+            cur.execute("select count(*) from public.leads_loja")
+            fail("AUTH-13: restricted role can read raw leads")
+        except psycopg.errors.InsufficientPrivilege:
+            pass
+# Failed SQL is rolled back on closing connection; no records are affected.
+payload_b = {
+    "loja_id": LOJA_B, "pendencia_id": str(pend_b), "expected_version": 1,
+    "decisao": "ENCERRAR_SEM_PROVA",
+    "justificativa": "Auditoria ficticia de comando escopado com papel limitado",
+    "envio_id": None,
+}
+try:
+    restricted_gateway.execute("Bearer " + actors["gestorb"][1],
+                               "conciliar_c07", dict(payload_b, actor_id=A))
+    fail("AUTH-13: actor_id injection reached restricted gateway")
+except InvalidCommand:
+    pass
+try:
+    restricted_gateway.execute("Bearer " + actors["gestorb"][1],
+                               "conciliar_c07", dict(payload_b, loja_id=LOJA_A))
+    fail("AUTH-13: B manager reconciled shop A")
+except Denied:
+    pass
+result13 = restricted_gateway.execute("Bearer " + actors["gestorb"][1],
+                                      "conciliar_c07", payload_b)
+if result13.get("outcome") != "APPLIED":
+    fail("AUTH-13: authorized gateway reconciliation denied")
+result13again = restricted_gateway.execute("Bearer " + actors["gestorb"][1],
+                                           "conciliar_c07", payload_b)
+if result13again.get("outcome") != "ALREADY_APPLIED":
+    fail("AUTH-13: replay of gateway reconciliation not idempotent")
+with psycopg.connect(DB) as root:
+    with root.cursor() as cur:
+        cur.execute("""
+          select resultado,count(*) from prumo_private.auditoria_gateway_s0
+          where concessionaria_id=%s::uuid
+          group by resultado order by resultado
+        """, (LOJA_B,))
+        if dict(cur.fetchall()) != {"APPLIED": 1, "ALREADY_APPLIED": 1}:
+            fail("AUTH-13: successful and replay audit not atomic")
+print("PASS AUTH-13: papel SQL restrito, vinculo sessao/gestor, RLS e auditoria atomica")
+
 # Remove local Auth session: the old signed JWT cannot authorize another DB write.
 run_sql(f"delete from auth.sessions where id='{verified_b.session_id}' and user_id='{B}';")
 try:
@@ -409,6 +482,12 @@ try:
     fail("AUTH-12: revoked session still authorized by privileged backend")
 except Denied:
     pass
+try:
+    restricted_gateway.execute("Bearer " + actors["gestorb"][1], "conciliar_c07", payload_b)
+    fail("AUTH-13: gateway accepted revoked session")
+except Denied:
+    pass
+print("PASS AUTH-13-REVOKE: sessao revogada impede uso de role restrito")
 print("PASS AUTH-12: GoTrue->sessao viva->funcao privada, ator autenticado e escopo/expiracao")
 
 
