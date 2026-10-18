@@ -94,3 +94,18 @@ test('botão equipe é uma opção não operacional para operador, sem privilég
   get('team-nav').click(); // O mock chama handler mesmo se oculto: backend NÃO seria dependente disso.
   assert.equal(get('team-dialog')._open, false);
 });
+
+test('atalho de busca não desloca foco para trás de diálogo aberto', () => {
+  reset();
+  env.openCase('Exemplo 08');
+  buttons('Selecionar e solicitar template')[0].click();
+  const select=get('template-select');
+  select.focus();
+  assert.equal(get('template-dialog')._open,true);
+  env.document.fire('keydown',{key:'k',ctrlKey:true});
+  assert.equal(env.document.activeElement,select);
+  assert.equal(get('template-dialog')._open,true);
+  get('template-dialog').close('cancel');
+  env.document.fire('keydown',{key:'k',ctrlKey:true});
+  assert.equal(env.document.activeElement,get('search-input'));
+});
