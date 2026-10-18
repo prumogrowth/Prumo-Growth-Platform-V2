@@ -42,8 +42,15 @@
 - **DORG-S0-05:** revogar apenas B corta acesso B para gestor e operador, preserva acesso A e identidade Prumo; a atribuição B ainda existe para futura rotina de redistribuição.
 - **DORG-S0-06:** identidade autenticada sem concessão não pode acessar dados de loja nem conceder papel a si mesma.
 
-**Status:** validação ainda depende do CI do commit. Não marcar PASS antes de inspecionar os logs.
+**Status: [PostgreSQL 17 #39138178030 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39138178030).** Código/fixture testado no SHA `4fbb436884d7544dd064b3371600fe4ba0d5193c`, todos os marcadores `DORG-S0-01..06 PASS`, regressões S0 anteriores e **24 testes Python OK**; nenhum erro encontrado no job. O mesmo SHA teve [workflow S1 #39138180095 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39138180095), **28/28 testes PASS**. Não houve mutation de migração ou schema hospedado.
 
-## Parecer preliminar
+## Parecer conclusivo (escopo organizacional)
 
 **Sem reconstrução do S0.** Há **mudanças necessárias antes da S1 conectada**: (a) contrato de pertencimento/ciclo de vida da equipe Prumo com emissão e revogação privilegiadas; (b) gestão de escopos múltiplos e escala exclusiva separada de permissões; (c) redistribuição auditável de casos quando profissional perde acesso; (d) prova integrada com GoTrue/RLS e transações reais. Proponho esses itens como requisitos/gates de **S1-002**, não como migrations prematuras S0. O reforço de testes S0 é aditivo, reversível e não altera a semântica comercial existente.
+
+
+## Decisão de continuidade após validação
+
+**GO:** manter migrations e políticas existentes intactas; usar a S0 atual como alicerce multi-concessionária e avançar apenas com o desenho/controlos de equipe Prumo na S1-002. **NO-GO:** ligar a interface a operadores reais sem vínculo Prumo formal e concessões auditáveis, criar escopo a partir de `shopId` ou claims enviados pelo navegador, apagar atribuições em lote sem remanejamento, transferir owners legados, integrar canais/Banco reais, implantar ou mesclar PRs.
+
+**Ordem de implementação recomendada:** (1) definir fonte canônica e responsáveis por admission/desligamento de equipe Prumo; (2) especificar concessões múltiplas e escala exclusiva *separada* de autorização; (3) implementar revogação e remanejamento transacional de carteiras com auditoria; (4) integrar GoTrue/RLS local com cenários A+B e testar desligamento completo. Uma alteração futura de esquema deverá ser **aditiva, versionada e submetida ao gate de homologação**, não uma correção retroativa automática do S0.

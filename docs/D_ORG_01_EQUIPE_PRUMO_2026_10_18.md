@@ -23,3 +23,8 @@ Em S0, `public.atores` é a identidade individual e `public.vinculos_papel_escop
 DEC-WA-05 define a **titularidade de App Meta/WABA/emissor pela concessionária**, independentemente do vínculo dos atendentes. Não confundir titularidade de canal com empregador. Atos de cadastro/fechamento junto à instituição financeira continuam sujeitos às autorizações formais. Esta diretriz não cria contratos trabalhistas, usuários, migrations, grants nem credenciais, e não libera produção.
 
 **Precedência:** decisão organizacional de 18/10/2026 prevalece sobre redações ambíguas dos textos antigos. Mantêm-se D41-01..06, isolamento de dados, oito estados comerciais e demais decisões não conflitantes.
+
+
+## Evidência S0 após D-ORG-01
+
+A [auditoria profunda S0 × D-ORG-01](./AUDITORIA_S0_DORG01_ESTRUTURA_2026_10_18.md) comprovou em [PG17 #39138178030 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39138178030) que **uma identidade única** pode ter concessões A+B e ser revogada só em B, com gestor multiloja, autoatribuição e operador vinculado ao caso. **Não** se deve reestruturar `atores` ou fixar empregado em `concessionaria_id`. Antes de S1-002 conectada, a arquitetura ainda precisa de **registro confiável de vínculo Prumo** (não fornecido pelo navegador) e de redistribuição auditada de casos no desligamento/revogação. Nenhuma migração foi autorizada por esta observação.
