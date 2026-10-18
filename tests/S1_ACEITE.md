@@ -50,3 +50,12 @@
 
 
 **Evidência adicional de guarda de atribuições:** [CI PG17 #39159745461 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39159745461), SHA `47a9dd80b12ee874bd9cc4aeb680196f6acd1dc8`, job `117770353279`, logs conferidos: **S1R-01..09 PASS (9/9)**, S1E-01..07 PASS antes da migração 039, regressão S0 também pré-038/039. S1R-09 é teste NEGATIVO com caso C sem atribuição ativa e suspenso tentando assumi-lo, isolando efetivamente o guard de elegibilidade da simples restrição de unicidade. Permanece NO-GO em produção, GoTrue/REST e prova de concorrência de duas sessões.
+
+
+## S1-002/I3 — Reconciliação de concessões vencidas pelo relógio [ensaio pendente]
+
+A migration `202610180040_s1_concessoes_expiradas_reconciliacao.sql` acrescenta **somente uma função interna de varredura limitada e idempotente**: detecta atribuições que ficaram ativas após expirar, sem UPDATE SQL, o último vínculo permitido por loja ou após falta de pertencimento ativo à Prumo. Reaproveita o mecanismo privado e auditado de I2; **não implementa cron, scheduler, API pública nem alteração no Supabase hospedado**.
+
+Cenários `S1X-01..07` no PG17 fictício abrangem A preservada, B redistribuída, C em fila protegida, RLS negando lojas com concessão vencida antes da varredura, execução em lotes, idempotência, bloqueio de `authenticated` e rejeição de lote inválido. **Provas/CI ainda pendentes nesta redação; não considerar concluído até conferir os logs.**
+
+A varredura **não acontece automaticamente pela simples passagem do tempo**: futuramente requer executor confiável autorizado (agendamento não decidido). Não altera status de venda, roteamento S0, modelo Meta ou OpenAI. Escala e gestão administrativa, integração Auth/REST, testes de corrida e projeto de scheduler permanecem [R/V].

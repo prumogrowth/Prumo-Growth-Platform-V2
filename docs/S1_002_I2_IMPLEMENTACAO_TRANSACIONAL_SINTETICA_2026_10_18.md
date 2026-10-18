@@ -15,3 +15,6 @@
 
 
 **Ampliação auditada:** [GitHub Actions PG17 #39159745461 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39159745461), SHA `47a9dd80b12ee874bd9cc4aeb680196f6acd1dc8`, **9/9 cenários S1R aprovados**. S1R-09 prova que atribuição a operador suspenso é negada mesmo para um caso sem titular ativo na fila protegida. Regressões S0 + testes I1 executados antes das migrations 039 e 038 respectivamente, não são regressão integrada pós-039. Nenhum login real, Supabase hospedado, Meta ou gasto externo.
+
+
+I3 adiciona a função de reconciliacão de concessões vencidas pelo relógio; [descrição I3](S1_002_I3_CONCESSOES_VENCIDAS_2026_10_18.md). Sem rotina agendada nem homologação.
