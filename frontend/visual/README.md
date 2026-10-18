@@ -81,3 +81,9 @@ O protótipo agora oculta a visão Equipe de operadores e perfis suspensos, dist
 Ao solicitar conclusão, o protótipo apresenta **“Conclusão solicitada”**, não “etapa concluída” ou ficha gravada. Sem projeção S0 de conclusão, aparece **não confirmada**. Mudanças de ator, loja, conversa e inbox invalidam diálogos anteriores; callbacks de notas/extração recusam referência a caso antigo. Foi adicionada cobertura de testes para esses cenários.
 
 **Evidência:** 48/48 verificações sintéticas em V8 sobre conteúdos recuperados da branch (25 regras, 17 testes DOM, 6 inspeções de código). **Não** foram executados nesta revisão Node nativo ou Chromium real. [Relatório FV-UI-006](../docs/15_AUDITORIA_FV_UI_006_FIDELIDADE_E_CONCORRENCIA_2026_10_18.md).
+
+## FV-UI-007 — Ficha processada e sigilo de dados
+
+A aba **Extração** possui agora um cenário ilustrativo O3 (`A-108`) com **versão fictícia confirmada, origem, informação aplicada, ausência e contradição**. Informação somente proposta não é exibida como dado salvo. O perfil gestor em mera supervisão vê apenas um resumo; os detalhes de ficha permanecem omitidos. A implementação em `registration-view.mjs` usa **projeções 100% sintéticas**; filtros de JavaScript **não** protegem dados reais — S0 deverá minimizar antes de enviar resposta.
+
+**60/60 verificações sintéticas aprovadas em harness V8** (33 regras, 19 interações DOM, 8 inspeções); Node direto/Chromium pós-FV-UI-007 ainda não executados. [Auditoria O3](../docs/16_AUDITORIA_FV_UI_007_FICHA_PROVENIENCIA_2026_10_18.md).
