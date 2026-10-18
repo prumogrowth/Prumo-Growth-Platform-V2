@@ -168,34 +168,81 @@ function callout(title,text,tone='') {
 }
 function renderDetails() {
   const target=$('detail-content');const item=selectedCase();
-  if(!item){ target.replaceChildren(el('p','detail-placeholder','Selecione uma conversa para ver informações do caso.'));return;}
+  if(!item){target.replaceChildren(el('p','detail-placeholder','Selecione uma conversa para ver informações do caso.'));return;}
   const profile=el('div','profile-detail');const avatar=el('div','avatar',item.initials);
   profile.append(avatar,el('strong','',item.name),el('span','',`Caso ${item.id} · exemplo fictício`));
-  const group=detailSection('CONTEXTO DO ATENDIMENTO');
-  const actor=ACTORS.find(a=>a.id===item.assignedTo);
-  group.append(prop('Concessionária',getShop(item.shopId).name),prop('Profissional atribuído',actor?.name??'Sem atribuição'),prop('Estado comercial',item.status));
-  const extract=detailSection('FICHA E EXTRAÇÃO · FV-02');
-  const proc=state.processing[item.id];
-  if(!proc){
-    extract.append(callout('Ainda não solicitada', 'Após a conclusão humana, a futura S0 poderá solicitar extração à OpenAI. Nenhum dado foi processado aqui.'));
-  } else if(proc.kind==='accepted'){
-    extract.append(callout('Solicitação registrada — simulação', 'Demonstra apenas o estado de interface. Não existe chamada à OpenAI nem gravação de ficha.','warning'));
-    if (canSimulateCompletion(item,state.actorId,state.shopId)) {
-      const box=el('div','detail-actions'); const btn=el('button','btn btn-light','Simular retorno com pendências');btn.type='button';
-      btn.addEventListener('click',()=>{state.processing[item.id]={kind:'partial'};renderDetails();renderThread();showToast('Resultado fictício exibido. Nenhuma informação foi gravada.');});
-      box.append(btn);extract.append(box);
-    }
-  } else {
-    extract.append(callout('Resultado ilustrativo com pendências','Exemplo visual de como o frontend apresentará uma extração parcial. Nenhuma ficha foi gravada.','warning'));
-    const example=el('div','detail-row');example.append(el('strong','','Campo demonstrativo 01'),el('span','','Proposta fictícia · fonte simulada da conversa'));
-    const missing=el('div','detail-row');missing.append(el('strong','','Campo demonstrativo 02'),el('span','','Sem evidência suficiente · revisão pendente'));
-    extract.append(example,missing);
+  const tabs=el('div','detail-tabs');tabs.setAttribute('role','tablist');tabs.setAttribute('aria-label','Detalhes do caso fictício');
+  for(const tab of DETAIL_TABS){
+    const button=el('button','detail-tab'+(state.detailTab===tab.id?' active':''),tab.title);
+    button.type='button';button.setAttribute('role','tab');button.setAttribute('aria-selected',String(state.detailTab===tab.id));
+    button.setAttribute('tabindex',state.detailTab===tab.id?'0':'-1');
+    button.addEventListener('click',()=>{state.detailTab=tab.id;renderDetails();});
+    button.addEventListener('keydown',e=>{if(e.key!=='ArrowLeft'&&e.key!=='ArrowRight')return;
+      e.preventDefault();const i=DETAIL_TABS.findIndex(x=>x.id===tab.id);
+      state.detailTab=DETAIL_TABS[(i+(e.key==='ArrowRight'?1:DETAIL_TABS.length-1))%DETAIL_TABS.length].id;
+      renderDetails();const active=target.querySelector('.detail-tab.active');active?.focus();
+    });tabs.append(button);
   }
-  extract.append(el('p','detail-small','O catálogo real de campos e a persistência dependem da S0 e de validações. Não há formulário de preenchimento manual habitual.'));
-  const conditions=detailSection('REGRAS DA EXPERIÊNCIA');
-  conditions.append(callout('Atendimento humano independente', 'Concluir a conversa não envia cadastro ao banco, não marca vendido ou perdido e não reativa a IA Vendedora.'));
-  conditions.append(el('p','detail-small', 'Gestão acessa conversas D2 no escopo concedido. Campos D3/D4 reais não são carregados neste protótipo.'));
-  target.replaceChildren(profile,group,extract,conditions);
+  const content=el('div','tab-content');content.setAttribute('role','tabpanel');
+  if(state.detailTab==='overview'){
+    const group=detailSection('CONTEXTO DO ATENDIMENTO');
+    const actor=ACTORS.find(a=>a.id===item.assignedTo);
+    group.append(prop('Concessionária',getShop(item.shopId).name),prop('Profissional atribuído',actor?.name??'Sem atribuição'),prop('Estado comercial',item.status));
+    const rule=detailSection('REGRAS DA EXPERIÊNCIA');
+    rule.append(callout('Atendimento humano independente','Concluir a conversa não envia cadastro ao banco, não marca vendido ou perdido e não reativa a IA Vendedora.'));
+    rule.append(el('p','detail-small','Gestores veem conversas fictícias por loja. Dados financeiros protegidos D3/D4 não são disponibilizados na simulação.'));
+    content.append(group,rule);
+  } else if(state.detailTab==='activity'){
+    const activity=detailSection('HISTÓRICO DE EVENTOS FICTÍCIOS');
+    const items=activityFor(item,state.processing[item.id]);
+    for(const entry of items){const card=el('div','activity-item');
+      card.append(el('strong','',entry.label),el('span','',entry.time));activity.append(card);}
+    activity.append(el('p','detail-small','Linha do tempo ilustrativa, sem auditoria ou eventos reais do S0.'));
+    content.append(activity);
+  } else if(state.detailTab==='notes'){
+    const notes=detailSection('NOTAS INTERNAS · SIMULAÇÃO');
+    notes.append(callout('Informação privada de operação','Notas fictícias não são enviadas ao cliente e não persistem fora desta página.'));
+    for(const n of item.notes??[]){const card=el('div','detail-row');
+      card.append(el('strong','',n.text),el('span','',`${ACTORS.find(x=>x.id===n.actorId)?.name??'Profissional fictício'} · ${n.time}`));notes.append(card);}
+    if(canWriteNote(item,state.actorId,state.shopId)){
+      const form=el('form','note-form');form.id='internal-note-form';
+      const label=el('label','field-label','Nova nota fictícia');label.htmlFor='note-text';
+      const textarea=el('textarea','note-textarea');textarea.id='note-text';textarea.maxLength=250;
+      textarea.placeholder='Anotação interna demonstrativa…';textarea.required=true;
+      const add=el('button','btn btn-primary','Adicionar nota');add.type='submit';
+      form.append(label,textarea,add);
+      form.addEventListener('submit',e=>{e.preventDefault();const text=textarea.value.trim();
+        if(!text||!canWriteNote(selectedCase(),state.actorId,state.shopId))return;
+        item.notes??=[];item.notes.push({id:'n-'+(item.notes.length+1),text,actorId:state.actorId,time:'Agora · fictício'});
+        renderDetails();showToast('Nota adicionada somente à memória do navegador.');
+      });notes.append(form);
+    }else notes.append(el('p','detail-small','Adição de nota não disponível neste perfil ou caso de demonstração.'));
+    content.append(notes);
+  } else {
+    const extract=detailSection('FICHA E EXTRAÇÃO · FV-02');const proc=state.processing[item.id];
+    if(!proc){
+      extract.append(callout('Ainda não solicitada','Após a conclusão humana, o S0 poderá solicitar extração. Nenhum dado foi processado neste exemplo.'));
+    }else{
+      const scenario=modelExtraction(proc.kind);
+      extract.append(callout(scenario.title,scenario.explanation,proc.kind==='accepted'||proc.kind==='partial'?'warning':''));
+      if(proc.kind==='partial'){
+        const example=el('div','detail-row');example.append(el('strong','','Campo ilustrativo A'),el('span','','Proposta sintética · não persistida'));
+        const missing=el('div','detail-row');missing.append(el('strong','','Campo ilustrativo B'),el('span','','Sem fonte suficiente · pendente'));
+        extract.append(example,missing);
+      }
+      if(canSimulateCompletion(item,state.actorId,state.shopId)){
+        const actions=el('div','scenario-options');
+        for(const [kind,label] of [['partial','Retorno parcial'],['failed','Falha técnica'],['stale','Versão obsoleta']]){
+          const button=el('button','btn btn-light',label);button.type='button';
+          button.addEventListener('click',()=>{if(!canSimulateCompletion(selectedCase(),state.actorId,state.shopId))return;
+            state.processing[item.id]={kind};render();showToast(modelExtraction(kind).title+'. Nenhuma API foi chamada.');});actions.append(button);
+        }extract.append(actions);
+      }
+    }
+    extract.append(el('p','detail-small','Sem editor cadastral rotineiro. A OpenAI apenas propõe; S0 decidirá autorização, validação e gravação no futuro.'));
+    content.append(extract);
+  }
+  target.replaceChildren(profile,tabs,content);
 }
 function render(){renderList();renderThread();renderDetails();app.dataset.mobileView=state.mobileView;}
 function changeActor(actorId){
