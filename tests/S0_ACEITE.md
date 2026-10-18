@@ -304,3 +304,25 @@ Auditoria **estática**, sem modificação SQL ou novo teste: `docs/AUDITORIA_PR
 **Aceite restrito:** novo C01 é opt-in, privado, `SECURITY INVOKER`, exige `current_user='postgres'`, vínculo gestor/loja, e declaração de prova móvel **exclusivamente fictícia**. Usa o resolvedor 028/030 sem duplicar tabelas comerciais. A importação C01 antiga continua por número textual. Não houve prova real de titularidade, ligação com arquivo externo de clientes, garantia de equivalência Meta, teste Auth/REST gerenciado das migrations 028–031, liberação de worker público ou persistência de mensagens Meta. A outbox continua bloqueada e o Supabase hospedado não recebeu migrations.
 
 **Decisões:** DEC-WA-01/02/03 aprovadas como direção; DEC-WA-05 aprovada quanto à titularidade dos recursos Meta **por concessionária**, sem onboard/credenciais/canais comerciais; DEC-WA-04 e DEC-WA-06 pendentes. PR #1 e PR #2 permanecem Draft e sem merge. **GO** só para continuação de engenharia sintética; **NO-GO** para deploy, operação bancária, Meta real ou envio externo.
+
+
+## S0/032 — ciclo de vida da inbox, fencing e reconciliação sintética (18/10/2026 UTC)
+
+**CI confirmado:** [GitHub Actions PostgreSQL 17 #39095389775 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39095389775), commit de código `0c0f90a3d789f84437c7fe5fc9f7bbd5eefaa2ce`. Logs efetivamente conferidos, sem erros: **WA32-01..06 PASS**, **WA32-CONC-01 PASS**, **WA30-CONC-01 e WA30-CONC-02/03 ajustados PASS**, regressões S0 anteriores e **24 testes Python OK**.
+
+| Evidência nova | O que comprova no PostgreSQL descartável |
+|---|---|
+| WA32-01 | Conclusão por versão/worker/lease, replay da mesma conclusão, auditoria protegida de mutação |
+| WA32-02 | Retry seguro de fixture com agendamento, limite de três reservas e `DEAD_LETTER` |
+| WA32-03 | Resultado incerto enviado para `QUARANTINED` sem auto-retry |
+| WA32-04 | Lease vencido não pode ser reassumido automaticamente; conclusão tardia e revisão com versão errada negadas |
+| WA32-05 | Apenas declaração sintética e explícita de `SEM_EFEITO_FIXTURE` permite reprogramar |
+| WA32-06 | Loja/canal estritos, falha definitiva e ACL privada |
+| WA32-CONC-01 | Duas conexões concorrentes disputando resultado de uma tarefa; só o titular confirma, sem reconciliação obsoleta |
+| WA30-CONC-02/03 | Teste histórico atualizado para nova regra mais restritiva de recuperação com decisão explícita |
+
+**Implementação:** migration `202610180032_s0_ciclo_tarefas_ingresso.sql`; testes `supabase/tests/s0_wa_032_lifecycle.sql` e `scripts/test_s0_wa_032_lifecycle_concurrency.sh`; alteração deliberada de `scripts/test_s0_wa_030_concurrency.sh`; runner `scripts/run-s0-local.sh`. Especificação `docs/S0_032_CICLO_TAREFAS_2026_10_18.md`.
+
+**Limites:** nenhum worker real C02/C07, mensagem efetivamente aplicada, API HTTP, ACK Meta, autenticação de serviço, payload de PII, cofre, credencial operacional, envio de saída ou integração bancária foi testado ou habilitado. `APLICADO_SINTETICO` é apenas declaração fictícia de worker; não certifica efeito comercial exatamente uma vez. `QUARANTINED` e `DEAD_LETTER` são **estados técnicos**, não novos estados comerciais. Três tentativas e atrasos 15/60 segundos são parâmetros de laboratório, sujeitos a DEC-WA-06; transição operacional e privilégios de produção seguem NO-GO. Teste pesado GoTrue/PostgREST local gerenciado das migrations 028–032 **NÃO EXECUTADO**.
+
+**Gates:** DEC-WA-01/02/03 direção aprovada; DEC-WA-05 titularidade Meta por concessionária aprovada, sem liberação de onboarding; DEC-WA-04/06 pendentes. PR #1 e #2 Draft, sem merge, sem migração no Supabase hospedado. **GO** só para engenharia/testes sintéticos; **NO-GO** para Meta real, Banco, OpenAI, API pública, canais comerciais e produção.
