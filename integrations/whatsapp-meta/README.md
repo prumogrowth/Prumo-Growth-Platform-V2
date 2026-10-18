@@ -180,3 +180,11 @@ Revisão independente da fronteira fake `transactional-ingress.ts` (WA-05A) e do
 `reviewS0ReceiptFixture` só confere estrutura, escopo e contagens, recusando campos inesperados, getter hostil e divergências. Mesmo `COMMITTED` aparentemente válido retorna **`STRUCTURE_MATCHES_BUT_UNVERIFIED`** com `ack_allowed:false` e `production_authorized:false`: não existe ponte para HTTP ACK nem para uma transação S0 real.
 
 **330/330 testes sintéticos locais PASS** (24 S0C novos + 306 regressões), TypeScript estrito PASS em 15 módulos/21 suítes; hashes Git dos arquivos novos conferidos. [Documento WA-05C](../../docs/integracoes/whatsapp-meta/wa05c-contrato-handoff-meta-s0-v0_1.md). Token Meta e DEC-WA-04/06 continuam pendentes; sem Supabase hospedado, POC concessionária de demonstração, merge/deploy ou CI remoto.
+
+## WA-05D — Gate interno S0 simulado, sem autorização real
+
+Novo \`s0-ingress-gateway.ts\` cria o \`FakePrivilegedS0Ingress\`: entrada candidata WA-05C com HMAC **somente de fixture**, origem de serviço declarada por porta protegida **fictícia**, confirmação de bytes no \`FakeProtectedPayloads\`, digest do corpo/escopo recalculados e revalidação independente App/loja/canal/revisão no momento do **commit em memória**. Rejeita campos inesperados, escopos alterados, getters, falha de escrita, replay divergente e serviço revogado.
+
+**350/350 testes sintéticos PASS** (20 GATE novos + 330 anteriores), TypeScript estrito PASS (16 módulos/22 testes). Hashes Git dos 2 arquivos conferidos; [relatório WA-05D](../../docs/integracoes/whatsapp-meta/wa05d-porta-interna-s0-simulada-v0_1.md).
+
+A identidade de serviço dos \`ports\` **não é autenticada**, o \`Map\` **não é durável**, a fixture **não contém proteção real LGPD/SQL**, e \`LAB_ACCEPTED\` **nunca** autoriza HTTP 200 ou um recibo \`COMMITTED\`. Nenhum acesso Supabase/Meta/Graph real, CI remoto, merge/deploy ou alteração na POC concessionária de demonstração.
