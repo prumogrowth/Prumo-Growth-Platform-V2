@@ -28,3 +28,10 @@ As regressões existentes `GW-01..07`, `KEY-01..05`, `AUTH-01..14`, idempotênci
 ## Evidência PostgreSQL
 
 [GitHub Actions PostgreSQL 17 #39086116542 — PASS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39086116542): OWNER-01..03, GW-01..07, KEY-01..05, 24 testes unitários e regressões anteriores. Inclui bloqueio de papel não administrativo e assinatura com proprietário restrito. A primeira tentativa Auth/REST revelou uma associação administrativa padrão do Supabase não prevista; a política foi ajustada para permitir somente administradores `postgres`/`supabase_admin`, preservando as negativas para outros membros. O aceite GoTrue/REST da versão ajustada deve ser registrado separadamente.
+
+## Parecer após auditoria cruzada PostgreSQL/Supabase — 17/10/2026
+
+- [**PG 17 #39087193113 — PASS**](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39087193113). O proprietário `prumo_s0_signer` não possui acesso comercial, LOGIN ou CREATE persistente no esquema privado.
+- Em Supabase local, `postgres` pode não ser superusuário. A migration concede somente a esse administrador `SET TRUE, INHERIT FALSE` no novo papel, evitando tocar `supabase_admin` (papel reservado). Para a transferência da função, `CREATE` é concedido ao proprietário apenas durante um bloco SQL atômico e imediatamente revogado.
+- A validação integrada antes dessa última correção [#39086997963](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39086997963) **FALHOU** durante o `ALTER FUNCTION OWNER` por ausência de `CREATE` no esquema. A correção passou no PostgreSQL, mas **ainda não foi repetida em GoTrue/PostgREST local** por controle da franquia GitHub. Não rotular o ambiente Supabase 027 como aprovado.
+- **Risco ainda aberto**: duas wrappers comerciais continuam de propriedade `postgres`; o verificador HMAC usa segredo da mesma instância Postgres, não um cofre de segredos independente. Rotação operacional real, coleta durável de negativas e recuperação não estão implantadas.
