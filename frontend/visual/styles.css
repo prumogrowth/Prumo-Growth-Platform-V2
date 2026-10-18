@@ -62,3 +62,8 @@
   .window-indicator{font-size:9px}
   .workflow-bar .btn{font-size:10px}
 }
+
+.list-header-actions{display:flex;align-items:center;gap:7px}
+.mobile-team-button{display:none;background:#e7f5f1;color:#136d63;border:1px solid #d3eae4;border-radius:8px;padding:7px 10px;font-size:10px;font-weight:800}
+.mobile-team-button[hidden]{display:none}
+@media(max-width:760px){.mobile-team-button:not([hidden]){display:inline-flex}}
