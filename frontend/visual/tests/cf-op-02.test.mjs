@@ -106,3 +106,15 @@ test('permissões são deny-by-default sem janela/allowed_actions projetadas', (
   assert.equal(mayMockFreeText(record,'bianca','aurora'),false);
   assert.deepEqual(projectedFollowupActions(record,'bianca','aurora'),[]);
 });
+
+test('lista de templates é elegível por caso e versão; catálogo global não concede autorização', () => {
+  const record=byId(cases(),'A-107');
+  assert.deepEqual(record.eligibleTemplatesProjection,['modelo_continuidade_demo@v1-demo']);
+  assert.equal(projectedFollowupActions(record,'rafael','aurora').includes('single_template'),true);
+  assert.throws(
+    ()=>applyLocalFollowupRequest(record,'rafael','aurora','single_template',DEMO_TEMPLATES[1]),
+    /TEMPLATE_NAO_ELEGIVEL/
+  );
+  const changed={...record,eligibleTemplatesProjection:[]};
+  assert.deepEqual(projectedFollowupActions(changed,'rafael','aurora'),['request_chain']);
+});
