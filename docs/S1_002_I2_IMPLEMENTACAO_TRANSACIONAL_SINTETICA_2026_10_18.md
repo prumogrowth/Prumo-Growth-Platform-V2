@@ -12,3 +12,6 @@
 ## Evidência real de execução do incremento
 
 [CI GitHub PostgreSQL 17 #39159483920 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39159483920) para o commit `2435264f56f36a572382b7e27d5c773e0e921453`; logs do job `117769573687` foram consultados. **S1R-01..08: 8/8 PASS**, mais S1E-01..07 e regressão S0 executadas antes da 039. Evidência limitada a transação sintética e RLS por role fake, não autenticação Supabase integrada ou race 2 sessões. Nenhuma migration no Supabase hospedado.
+
+
+**Ampliação auditada:** [GitHub Actions PG17 #39159745461 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39159745461), SHA `47a9dd80b12ee874bd9cc4aeb680196f6acd1dc8`, **9/9 cenários S1R aprovados**. S1R-09 prova que atribuição a operador suspenso é negada mesmo para um caso sem titular ativo na fila protegida. Regressões S0 + testes I1 executados antes das migrations 039 e 038 respectivamente, não são regressão integrada pós-039. Nenhum login real, Supabase hospedado, Meta ou gasto externo.
