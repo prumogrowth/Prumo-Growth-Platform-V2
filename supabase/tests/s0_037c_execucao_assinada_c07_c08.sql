@@ -289,6 +289,121 @@ begin
 end $check$;
 \echo 'PASS OWNER37C-04: signed chain commits audit/nonce/domain once; no B effect or state change'
 
+-- AUD-037: adversarial coverage missing from the first 037C acceptance.
+-- Compute test proofs as postgres, NEVER through the restricted SQL role.
+select pg_catalog.set_config('prumo.test037c.sig_wrong_session',pg_temp.assinar_037c(
+ 'cancelar_plano','c3900000-0000-4000-8000-000000000001',
+ 'c3910000-0000-4000-8000-000000000002','c3920000-0000-4000-8000-000000000001',
+ 'c3970000-0000-4000-8000-000000000001',1,null,null,null,
+ current_setting('prumo.test037c.issue')::bigint,
+ 'c39a0000-0000-4000-8000-000000000011'),true);
+select pg_catalog.set_config('prumo.test037c.sig_wrong_actor_scope',pg_temp.assinar_037c(
+ 'cancelar_plano','c3900000-0000-4000-8000-000000000002',
+ 'c3910000-0000-4000-8000-000000000002','c3920000-0000-4000-8000-000000000001',
+ 'c3970000-0000-4000-8000-000000000001',1,null,null,null,
+ current_setting('prumo.test037c.issue')::bigint,
+ 'c39a0000-0000-4000-8000-000000000012'),true);
+select pg_catalog.set_config('prumo.test037c.sig_c07_same',pg_temp.assinar_037c(
+ 'conciliar_c07','c3900000-0000-4000-8000-000000000001',
+ 'c3910000-0000-4000-8000-000000000001','c3920000-0000-4000-8000-000000000001',
+ current_setting('prumo.test037c.pending_link')::uuid,1,
+ 'VINCULAR_SINTETICAMENTE','Associacao ficticia conferida manualmente para teste',
+ 'c3980000-0000-4000-8000-000000000002',
+ current_setting('prumo.test037c.issue')::bigint,
+ 'c39a0000-0000-4000-8000-000000000013'),true);
+select pg_catalog.set_config('prumo.test037c.sig_c07_conflict',pg_temp.assinar_037c(
+ 'conciliar_c07','c3900000-0000-4000-8000-000000000001',
+ 'c3910000-0000-4000-8000-000000000001','c3920000-0000-4000-8000-000000000001',
+ current_setting('prumo.test037c.pending_link')::uuid,1,
+ 'ENCERRAR_SEM_PROVA','Decisao divergente assinada de teste sem prova real',
+ null,current_setting('prumo.test037c.issue')::bigint,
+ 'c39a0000-0000-4000-8000-000000000014'),true);
+
+set local role prumo_s0_gateway;
+do $audit$
+begin
+ begin
+  perform prumo_private.gateway_cancelar_plano_assinado_s0(
+   'c3900000-0000-4000-8000-000000000001',
+   'c3910000-0000-4000-8000-000000000002',
+   'c3920000-0000-4000-8000-000000000001',
+   'c3970000-0000-4000-8000-000000000001',1,
+   'c3990000-0000-4000-8000-000000000001',
+   current_setting('prumo.test037c.issue')::bigint,
+   'c39a0000-0000-4000-8000-000000000011',
+   current_setting('prumo.test037c.sig_wrong_session'));
+  raise exception 'FAIL AUD37-01: accepted session of another actor';
+ exception when insufficient_privilege then
+  if SQLERRM<>'SESSAO_INATIVA' then
+   raise exception 'FAIL AUD37-01 wrong rejection: %',SQLERRM;end if;
+ end;
+ begin
+  perform prumo_private.gateway_cancelar_plano_assinado_s0(
+   'c3900000-0000-4000-8000-000000000002',
+   'c3910000-0000-4000-8000-000000000002',
+   'c3920000-0000-4000-8000-000000000001',
+   'c3970000-0000-4000-8000-000000000001',1,
+   'c3990000-0000-4000-8000-000000000001',
+   current_setting('prumo.test037c.issue')::bigint,
+   'c39a0000-0000-4000-8000-000000000012',
+   current_setting('prumo.test037c.sig_wrong_actor_scope'));
+  raise exception 'FAIL AUD37-01: B manager updated A';
+ exception when insufficient_privilege then
+  if SQLERRM<>'FORBIDDEN_SCOPE' then
+   raise exception 'FAIL AUD37-01 wrong scope denial: %',SQLERRM;end if;
+ end;
+end $audit$;
+\echo 'PASS AUD37-01: valid HMAC not sufficient for mismatched actor/session or cross-store gestor'
+
+do $audit$
+declare v jsonb;
+begin
+ v:=prumo_private.gateway_conciliar_c07_assinado_s0(
+  'c3900000-0000-4000-8000-000000000001',
+  'c3910000-0000-4000-8000-000000000001',
+  'c3920000-0000-4000-8000-000000000001',
+  current_setting('prumo.test037c.pending_link')::uuid,1,
+  'VINCULAR_SINTETICAMENTE','Associacao ficticia conferida manualmente para teste',
+  'c3980000-0000-4000-8000-000000000002',
+  'c3990000-0000-4000-8000-000000000001',
+  current_setting('prumo.test037c.issue')::bigint,
+  'c39a0000-0000-4000-8000-000000000013',
+  current_setting('prumo.test037c.sig_c07_same'));
+ if v->>'outcome'<>'ALREADY_APPLIED'
+ then raise exception 'FAIL AUD37-02 C07 same-request idempotency';end if;
+ begin
+  perform prumo_private.gateway_conciliar_c07_assinado_s0(
+   'c3900000-0000-4000-8000-000000000001',
+   'c3910000-0000-4000-8000-000000000001',
+   'c3920000-0000-4000-8000-000000000001',
+   current_setting('prumo.test037c.pending_link')::uuid,1,
+   'ENCERRAR_SEM_PROVA','Decisao divergente assinada de teste sem prova real',
+   null,'c3990000-0000-4000-8000-000000000001',
+   current_setting('prumo.test037c.issue')::bigint,
+   'c39a0000-0000-4000-8000-000000000014',
+   current_setting('prumo.test037c.sig_c07_conflict'));
+  raise exception 'FAIL AUD37-02 differing C07 replay accepted';
+ exception when serialization_failure then
+  if SQLERRM<>'CONFLICT_VERSION' then
+   raise exception 'FAIL AUD37-02 wrong version rejection: %',SQLERRM;end if;
+ end;
+end $audit$;
+\echo 'PASS AUD37-02: identical C07 decision idempotent; changed decision conflicts on version'
+reset role;
+do $audit$
+begin
+ if (select count(*) from prumo_private.gateway_provas_usadas_s0
+      where chave_id='c3990000-0000-4000-8000-000000000001')<>5
+ or (select count(*) from prumo_private.auditoria_gateway_s0
+      where concessionaria_id='c3920000-0000-4000-8000-000000000001')<>5
+ or (select count(*) from public.auditoria_reconciliacao_c07_sintetica
+      where concessionaria_id='c3920000-0000-4000-8000-000000000001')<>2
+ or (select count(*) from public.associacoes_callback_c07_sinteticas
+      where concessionaria_id='c3920000-0000-4000-8000-000000000001')<>1
+ then raise exception 'FAIL AUD37-03 nonce, private audit, C07 domain audit inconsistent';end if;
+end $audit$;
+\echo 'PASS AUD37-03: failed signed attempts rollback nonce; C07 replay does not duplicate domain events'
+
 -- Revoke session after successful effects. A valid fresh proof must NOT
 -- increment nonce/audit counters, nor revive an already-cancelled plan.
 delete from auth.sessions
@@ -314,9 +429,9 @@ reset role;
 do $final$
 begin
  if (select count(*) from prumo_private.auditoria_gateway_s0
-  where concessionaria_id='c3920000-0000-4000-8000-000000000001')<>4
+  where concessionaria_id='c3920000-0000-4000-8000-000000000001')<>5
  or (select count(*) from prumo_private.gateway_provas_usadas_s0
-  where chave_id='c3990000-0000-4000-8000-000000000001')<>4
+  where chave_id='c3990000-0000-4000-8000-000000000001')<>5
  then raise exception 'FAIL OWNER37C-05 invalid/revoked proof persisted effects';end if;
  if not exists(select 1 from public.planos_recontato_sinteticos
   where id='c3970000-0000-4000-8000-000000000003'
