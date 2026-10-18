@@ -25,16 +25,15 @@ begin
     and member_role.rolname not in ('postgres','supabase_admin')
  )
  then raise exception 'SIGNER_ROLE_GRANTED_TO_UNTRUSTED_MEMBER' using errcode='42501';end if;
- -- In PostgreSQL 17 a CREATEROLE admin is automatically granted a new role
- -- with ADMIN TRUE but SET FALSE. ALTER FUNCTION OWNER requires SET TRUE.
- -- Enable SET for the trusted Supabase migration administrator only; never
- -- for gateway, anon, authenticated, service_role or ordinary logins.
- if current_user='supabase_admin' then
-  execute pg_catalog.format(
-   'grant prumo_s0_signer to %I with inherit false, set true',
-   current_user);
- elsif current_user<>'postgres' then
+ -- Hosted and local Supabase can run migrations as non-superuser
+ -- postgres. Even postgres must have SET TRUE on signer to ALTER OWNER.
+ -- Role administration remains limited to established DB admins.
+ if current_user not in ('postgres','supabase_admin') then
   raise exception 'UNEXPECTED_MIGRATION_ROLE' using errcode='42501';
+ end if;
+ execute 'grant prumo_s0_signer to postgres with inherit false, set true';
+ if exists(select 1 from pg_catalog.pg_roles where rolname='supabase_admin') then
+  execute 'grant prumo_s0_signer to supabase_admin with inherit false, set true';
  end if;
 end $role$;
 
