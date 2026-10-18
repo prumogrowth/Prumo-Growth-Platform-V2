@@ -93,6 +93,19 @@ begin
  then raise exception 'S1R-04 terminal business status changed';end if;
 end $q$;
 \echo 'PASS S1R-04 autoequilibrio A, fila C e ciclo terminal preservado'
+-- Caso C ficou SEM atribuicao ativa; rejeicao aqui nao pode ser
+-- causada pela restricao de unicidade, deve ser a guarda de equipe.
+do $q$
+begin
+ begin
+  insert into public.atribuicoes_humanas(concessionaria_id,caso_id,operador_id)
+  values('62020000-0000-4000-8000-000000000003',
+         '65020000-0000-4000-8000-000000000005',
+         '61020000-0000-4000-8000-000000000001');
+  raise exception 'S1R-09 suspenso recebeu caso de fila';
+ exception when check_violation then null; end;
+end $q$;
+\echo 'PASS S1R-09 fila sem atribuicao rejeita novo operador suspenso'
 set local role authenticated;
 select set_config('request.jwt.claim.sub','61020000-0000-4000-8000-000000000001',true);
 do $q$
