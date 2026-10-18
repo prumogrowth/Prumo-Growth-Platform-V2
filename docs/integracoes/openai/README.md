@@ -17,6 +17,8 @@ Preparar o acesso da plataforma técnica Prumo à API da OpenAI: entendimento de
 4. **avaliacao-transporte-openai-direto-ou-n8n-v0_1.md** — decisão de topologia EM ABERTO [R], caminhos A/B, teste comparativo e critérios de escolha.
 5. **AUDITORIA_CONTRATO_OAI_2026_10_18.md** — resultados da auditoria e pendências separadas de evidências executadas.
 6. **PLANO_EXECUCAO_E_CRITERIOS_DE_CONCLUSAO_v0_1.md** — roteiro fechado E00–E08, responsáveis, gates, evidências de conclusão e limite da entrega laboratorial [P].
+7. **E01_CONTRATO_FUNCIONAL_MULTI_CAPACIDADE_v0_2.md** — contrato funcional [P] para IA Vendedora, Planejadora, preenchimento automático pós-atendimento humano F03 e entrada/saída de áudio F04/F05; revisão S0/Meta [R].
+8. **E01_PLANO_DE_AVALIACAO_MODELOS_E_VOZ_v0_1.md** — shortlist e avaliação por tarefa, sem fixar modelo ou voz antes de benchmark.
 7. **OAI_05_CONTRATO_EXTRAÇÃO_PÓS_ATENDIMENTO_HUMANO_v0_1.md** — cadastro extraído após conversa humana concluída, com fontes e validação S0; interface [P/R].
 8. **OAI_06_VOZ_AUDIO_E_MODELOS_v0_1.md** — áudio recebido/enviado, STT/TTS, modelos por tarefa e critérios de comparação [P/R/V].
 
@@ -35,5 +37,7 @@ Projeto: pacote documental auditado em 17/10/2026 (00A, 06, 13A, 26, 33, 38, 40,
 OpenAI projetos/chaves: https://help.openai.com/en/articles/9186755-managing-projects-in-the-api-platform
 OpenAI segurança de chaves: https://help.openai.com/en/articles/5112595-best-practices-for-api-key-safety
 Supabase secrets para funções autorizadas: https://supabase.com/docs/guides/functions/secrets
+
+**Nova orientação F03 [D-direção/R-interface, 18/10/2026]:** ao encerrar o atendimento humano, uma rotina OpenAI separada da IA Vendedora extrai informações declaradas e propõe preenchimento automático dos campos elegíveis; S0 valida/persiste sem exigir digitação rotineira do operador. A falta de informação permanece pendente, sem preenchimento fictício. Nenhuma tela/SQL/ação Meta foi assumida pela frente OpenAI. Também entram no contrato TTS (áudio de saída), STT (áudio de entrada) e avaliação por tarefa/modelo, sujeitos a provas e autorizações próprias.
 
 **Topologia OpenAI ↔ backend [R]:** chamada direta autenticada pelo runtime servidor/Edge Functions OU orquestração via n8n; nenhum caminho foi testado/selecionado para esta frente. O contrato de domínio deve ser independente da topologia. **Sem GO para operação real.** Mudanças em outra frente dependem da frente proprietária e de revisão cruzada.
