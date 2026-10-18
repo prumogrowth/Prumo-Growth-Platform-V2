@@ -107,17 +107,17 @@ end $sig$;
 select pg_catalog.set_config('prumo.test037c.issue',
  (extract(epoch from clock_timestamp())::bigint)::text,true);
 select pg_catalog.set_config('prumo.test037c.pending_enc',(
- select id::text from public.pendencias_reconciliacao_c07_sinteticas p
+ select p.id::text from public.pendencias_reconciliacao_c07_sinteticas p
  join public.eventos_callback_sinteticos e
   on e.concessionaria_id=p.concessionaria_id and e.id=p.evento_id
  where e.evento_externo_ficticio='037C.EVENT.ENC'),true);
 select pg_catalog.set_config('prumo.test037c.pending_link',(
- select id::text from public.pendencias_reconciliacao_c07_sinteticas p
+ select p.id::text from public.pendencias_reconciliacao_c07_sinteticas p
  join public.eventos_callback_sinteticos e
   on e.concessionaria_id=p.concessionaria_id and e.id=p.evento_id
  where e.evento_externo_ficticio='037C.EVENT.LINK'),true);
 select pg_catalog.set_config('prumo.test037c.pending_b',(
- select id::text from public.pendencias_reconciliacao_c07_sinteticas p
+ select p.id::text from public.pendencias_reconciliacao_c07_sinteticas p
  join public.eventos_callback_sinteticos e
   on e.concessionaria_id=p.concessionaria_id and e.id=p.evento_id
  where e.evento_externo_ficticio='037C.EVENT.B'),true);
