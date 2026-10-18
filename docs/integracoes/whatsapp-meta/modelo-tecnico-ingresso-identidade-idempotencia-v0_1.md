@@ -136,7 +136,7 @@ resolveContact(concessionariaId, canalId, rawFrom, optionalProviderWaId):
 - O mesmo número exato na loja A e B = dois `lead_id`, histórico e casos separados.
 
 
-### 5.5 Chave de comparação e política de normalização — decisão complementar [D/P]
+### 5.4 Chave de comparação e política de normalização — decisão complementar [D/P]
 
 **Exemplo sintético dado pelo responsável:** `5581900000000` ↔ `558100000000`, entendidos como mesmo número de contato para o caso de variante móvel brasileira. O `9` é o primeiro dígito local, **logo após DDI 55 e DDD 81**. Não são números a enviar no piloto.
 
@@ -149,7 +149,7 @@ resolveContact(concessionariaId, canalId, rawFrom, optionalProviderWaId):
 
 **Testes adicionais obrigatórios:** busca por ambas as variantes retorna mesmo lead quando seguras; primeiro 8→9 e 9→8; evento real autenticado duplicado sob formatos alternados; número fixo de oito dígitos não vira celular automaticamente; colisão entre dois leads não une históricos; mesmo telefone em lojas diferentes mantém isolamento; envio apenas para destino autorizado pela Meta.
 
-### 5.4 Seleção de destino de saída
+### 5.5 Seleção de destino de saída
 
 1. Pedido de envio deve trazer `concessionaria_id`, `canal_id`, `lead_id`, finalidade, `recipient_reference`, e decisão de elegibilidade de backend com versão.
 2. Revalidar opt-out, janela/template, contexto de resposta, atribuição humana, estado de ciclo e credencial do canal imediatamente antes de enviar.
