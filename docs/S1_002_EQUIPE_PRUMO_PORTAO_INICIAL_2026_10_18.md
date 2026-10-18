@@ -22,3 +22,8 @@ Executar `bash scripts/run-s1-002-local.sh` apenas com `PRUMO_TEST_DATABASE_URL`
 ## Evidência executada
 
 [PostgreSQL 17 #39145994842 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39145994842), commit `bbe123aa18098848d9f9c936f4f0e02be57447af`. Foram conferidos os sete marcadores S1E-01..07, incluindo suspensão A+B e duas atribuições mantidas tecnicamente ativas. A regressão S0 passou no mesmo job **antes da instalação da 038**; não inferir GoTrue/REST integrado nem nova prova das wrappers legadas. 
+
+
+## Complemento contratual CF-OP-02/I2 — redistribuição automática
+
+A regra de negócio agora exige remanejamento AUTOMÁTICO no instante de suspensão/desligamento/revogação de concessão, bloqueando novas atribuições e mantendo em caso operacional a conversa pendente, concluída com janela ativa e cadeia de templates pós-humana. O I1 atual ainda deixa atribuições antigas; portanto não confundir 7/7 S1E aprovados com contrato I2 implementado. Responsabilidades, casos elegíveis provisórios, regras de não vazamento e testes futuros: [S1-002/I2](S1_002_I2_CONTRATO_REMANEJAMENTO_AUTOMATICO_CF_OP_02_v0_1.md). Coordenação com S0 em PR #7 e issue #6. **Nenhum teste I2 ou migração adicional executados aqui.**
