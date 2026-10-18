@@ -55,6 +55,14 @@ const copyFixture = (input: SimulatedBatch): SimulatedBatch | undefined => {
   try {
     if (!plainData(input) || !Array.isArray(input.events) ||
         !input.events.every(e => plainData(e))) return undefined;
+    // Reject unexpected fixture data before cloning; do not retain raw customer
+    // text, phone numbers, tokens, or arbitrary payload as journal metadata.
+    const batchFields = new Set(['batch_ref','app_ref','concessionaria_id','canal_id',
+      'protected_payload_ref','payload_digest','events']);
+    const eventFields = new Set(['array_kind','entry_index','change_index',
+      'item_index','provider_message_id']);
+    if (Object.keys(input).some(key => !batchFields.has(key)) ||
+        input.events.some(e => Object.keys(e).some(key => !eventFields.has(key)))) return undefined;
     return structuredClone(input);
   } catch { return undefined; }
 };
