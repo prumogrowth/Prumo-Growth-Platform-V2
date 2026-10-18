@@ -15,7 +15,7 @@ export type S0HandoffOccurrence = Readonly<{
 export type S0HandoffCandidate = Readonly<{
   contract_version: 'meta-s0-handoff.v0.1-proposed';
   batch_ref: string; route_ref: string; route_revision: number;
-  app_ref: string; protected_payload_ref: string; payload_sha256: string;
+  app_ref: string; protected_payload_ref: string; payload_sha256: string; scope_sha256: string;
   event_count: number; occurrences: readonly S0HandoffOccurrence[];
   ack_allowed: false; production_authorized: false;
 }>;
@@ -26,6 +26,7 @@ export type S0HandoffResult =
 export type S0ReceiptFixture = Readonly<{
   contract_version: 'meta-s0-receipt.v0.1-proposed';
   batch_ref: string; app_ref: string; protected_payload_ref: string; payload_sha256: string;
+  route_ref: string; route_revision: number; scope_sha256: string;
   total: number; accepted: number; duplicates: number; quarantined: number;
   outcome: 'ACCEPTED_DURABLE' | 'ALREADY_ACCEPTED' | 'QUARANTINED_DURABLE';
   commit_state: 'COMMITTED';
@@ -116,10 +117,16 @@ export async function prepareS0HandoffFixture(input: {
     }
     // This digest alone is NOT proof that a protected replayable body exists.
     const digest=hex(new Uint8Array(await crypto.subtle.digest('SHA-256',request.raw_body)));
+    const scopeData=JSON.stringify([batch_ref,route.route_ref,route.expected_revision,
+      inspected.authenticated_app_ref,occurrences.map(x=>[x.position.entry_index,
+      x.position.change_index,x.position.array_kind,x.position.item_index,
+      x.app_ref,x.concessionaria_id,x.canal_id,x.waba_id,x.phone_number_id,
+      x.event_kind,x.provider_message_id])]);
+    const scope_sha256=hex(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(scopeData))));
     const candidate:S0HandoffCandidate={contract_version:'meta-s0-handoff.v0.1-proposed',
       batch_ref,route_ref:route.route_ref,route_revision:route.expected_revision,
       app_ref:inspected.authenticated_app_ref,protected_payload_ref,
-      payload_sha256:digest,event_count:occurrences.length,occurrences,
+      payload_sha256:digest,scope_sha256,event_count:occurrences.length,occurrences,
       ack_allowed:false,production_authorized:false};
     return {ok:true,candidate,ack_allowed:false,production_authorized:false};
   } catch { return deny('INTEGRITY_UNAVAILABLE'); }
@@ -135,7 +142,7 @@ export function reviewS0ReceiptFixture(
   try {
     if (!candidate || !plainData(allegedReceipt) ||
         !hasOnly(allegedReceipt,['contract_version','batch_ref','app_ref','protected_payload_ref',
-          'payload_sha256','total','accepted','duplicates','quarantined','outcome','commit_state']))
+          'payload_sha256','route_ref','route_revision','scope_sha256','total','accepted','duplicates','quarantined','outcome','commit_state']))
       return noReceipt('INVALID_RECEIPT');
     const r=allegedReceipt;
     if (r.contract_version!=='meta-s0-receipt.v0.1-proposed' ||
@@ -145,7 +152,9 @@ export function reviewS0ReceiptFixture(
       return noReceipt('INVALID_RECEIPT');
     if (r.batch_ref!==candidate.batch_ref || r.app_ref!==candidate.app_ref ||
         r.protected_payload_ref!==candidate.protected_payload_ref ||
-        r.payload_sha256!==candidate.payload_sha256) return noReceipt('ENVELOPE_MISMATCH');
+        r.payload_sha256!==candidate.payload_sha256 ||
+        r.scope_sha256!==candidate.scope_sha256 ||
+        r.route_ref!==candidate.route_ref || r.route_revision!==candidate.route_revision) return noReceipt('ENVELOPE_MISMATCH');
     if (r.total!==candidate.event_count ||
         (r.accepted as number)>r.total || (r.duplicates as number)>r.total ||
         (r.quarantined as number)>r.total ||
