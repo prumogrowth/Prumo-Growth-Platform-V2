@@ -6,7 +6,7 @@ create table prumo_private.aliases_identidade_s0(
  id uuid primary key default gen_random_uuid(),
  concessionaria_id uuid not null,
  lead_id uuid not null,
- numero_sintetico text not null check (numero_sintetico ~ '^\\+[1-9][0-9]{9,14}$'),
+ numero_sintetico text not null check (numero_sintetico ~ '^\+[1-9][0-9]{9,14}$'),
  chave_variante_sintetica text,
  origem text not null check (origem in ('CANAL_SINTETICO','IMPORTACAO_SINTETICA')),
  mobile_confirmado_sintetico boolean not null,
@@ -51,9 +51,9 @@ revoke all on prumo_private.aliases_identidade_s0,
 create function prumo_private.chave_variante_br_s0(p_numero text)
 returns text language sql immutable set search_path='' as $sql$
  select case
-  when p_numero ~ '^\\+55[1-9][0-9]9[0-9]{8}$'
+  when p_numero ~ '^\+55[1-9][0-9]9[0-9]{8}$'
     then pg_catalog.left(p_numero,5)||pg_catalog.right(p_numero,8)
-  when p_numero ~ '^\\+55[1-9][0-9][0-9]{8}$'
+  when p_numero ~ '^\+55[1-9][0-9][0-9]{8}$'
     then pg_catalog.left(p_numero,5)||pg_catalog.right(p_numero,8)
   else null end
 $sql$;
@@ -66,7 +66,7 @@ declare v_chave text; v_lead uuid; v_numero_principal text;v_alias uuid;
 begin
  if current_user<>'postgres' then raise exception 'INTERNAL_ONLY' using errcode='42501';end if;
  if p_loja is null or p_numero is null
-    or p_numero !~ '^\\+[1-9][0-9]{9,14}$'
+    or p_numero !~ '^\+[1-9][0-9]{9,14}$'
     or p_origem not in ('CANAL_SINTETICO','IMPORTACAO_SINTETICA')
     or p_origem is null or p_mobile_confirmado is null
  then raise exception 'IDENTITY_ARGUMENT_INVALID' using errcode='22023';end if;
