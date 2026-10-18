@@ -14,6 +14,8 @@ type EventPosition = {
   entry_index: number;
   change_index: number;
   item_index: number;
+  /** Disambiguates messages[0] from statuses[0] within one change. */
+  array_kind: 'messages' | 'statuses';
 };
 
 export type MetaIngressEvent = {
@@ -141,7 +143,7 @@ function parseAuthenticatedBody(body: Uint8Array, maxEvents: number): Inspection
           provider_timestamp: stamp,
           participant_identifier: item.from,
           provider_kind: item.type,
-          position: { ...position, item_index: i },
+          position: { ...position, array_kind: 'messages', item_index: i },
         });
       }
       for (let i = 0; i < statuses.length; i++) {
@@ -160,7 +162,7 @@ function parseAuthenticatedBody(body: Uint8Array, maxEvents: number): Inspection
           provider_timestamp: stamp,
           participant_identifier: item.recipient_id,
           provider_kind: item.status,
-          position: { ...position, item_index: i },
+          position: { ...position, array_kind: 'statuses', item_index: i },
         });
       }
     }
@@ -188,7 +190,10 @@ export async function inspectMetaWebhook(
       !Number.isSafeInteger(maxEvents) || maxEvents <= 0) {
     throw new RangeError('Invalid trusted ingress limits');
   }
-  if (trustedAppSecret.length === 0) throw new Error('Meta app secret not configured');
+  if (typeof trustedAppSecret !== 'string' || trustedAppSecret.length === 0)
+    throw new Error('Meta app secret not configured');
+  if (!(rawBody instanceof Uint8Array))
+    return { ok: false, failure: { code: 'INVALID_ENVELOPE' } };
   if (rawBody.byteLength > maxBodyBytes) {
     return { ok: false, failure: { code: 'BODY_TOO_LARGE' } };
   }
@@ -199,12 +204,15 @@ export async function inspectMetaWebhook(
   if (!match) {
     return { ok: false, failure: { code: 'INVALID_SIGNATURE_FORMAT' } };
   }
+  const authenticatedBody = Uint8Array.from(rawBody);
   const signature = Uint8Array.from(match[1].match(/../g)!, (pair) => parseInt(pair, 16));
   const key = await crypto.subtle.importKey(
     'raw', encoder.encode(trustedAppSecret), { name: 'HMAC', hash: 'SHA-256' }, false, ['verify'],
   );
   // WebCrypto performs HMAC verification; no value-dependent JS string compare.
-  const valid = await crypto.subtle.verify('HMAC', key, signature, rawBody);
+  // Snapshot already bounded input before awaiting key import/verification.
+  // The caller must not be able to mutate the bytes between verification and JSON parse.
+  const valid = await crypto.subtle.verify('HMAC', key, signature, authenticatedBody);
   if (!valid) return { ok: false, failure: { code: 'INVALID_SIGNATURE' } };
-  return parseAuthenticatedBody(rawBody, maxEvents);
+  return parseAuthenticatedBody(authenticatedBody, maxEvents);
 }
