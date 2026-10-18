@@ -346,3 +346,25 @@ Auditoria **estática**, sem modificação SQL ou novo teste: `docs/AUDITORIA_PR
 **Limites:** somente `inbound_message` e prova **sintética** do C02; o conteúdo criado é fixture, não mensagem Meta durável/criptografada, o indicador móvel é de teste, e o vínculo App/WABA/loja deriva de registro fictício. `APPLIED_ATOMIC` comprova a transação PostgreSQL S0, não um ACK/commit do ingressor Meta real nem envio ou resultado bancário. C07 não foi conectado à fila; status callbacks não possuem identidade de evento única aprovada. Integração Auth/REST local gerenciado das migrations 028–033 **não executada**, assim como deploy Supabase hospedado, serviços externos e operações comerciais. Menor privilégio das wrappers `SECURITY DEFINER postgres` ainda pendente.
 
 **Gates:** DEC-WA-01/02/03 aprovadas como diretriz; DEC-WA-05 titularidade Meta de cada concessionária aprovada, sem onboarding; DEC-WA-04/06 permanecem pendentes. PR #1 e PR #2 Draft e sem merge. **GO para engenharia sintética; NO-GO para API pública, Meta/Bank/Marca A/IA reais, canais comerciais, produção ou migração hospedada.**
+
+
+## S0-034A — reparo dos achados A33-01/02/03 (18/10/2026 UTC)
+
+**Evidência definitiva:** [GitHub Actions PostgreSQL 17 #39118986044 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39118986044), commit testado `cb167166574d353bb692c99acee471e0766ad8f6`. Logs do job `s0-db-isolation` verificados: `WA34-01..05 PASS`, `WA33-01..05 PASS` (com WA33-04 atualizado para preservar a pendência), `WA33-CONC-01 PASS`, demais testes/regressões S0 anteriores e **24 testes Python — OK**. Sem erros no CI final.
+
+**Evidência inicial não aprovada:** [#39118911345 — FAILURE](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39118911345) teve `WA34-01 PASS`, porém no negativo WA34-02 o trigger de prova rejeitou associação cruzada **antes** da validação FK, e o teste esperava apenas `foreign_key_violation`. O teste foi corrigido para verificar separadamente a proteção do trigger e a FK composta, sem alterar a migração. **Falha histórica de teste resolvida** antes do CI definitivo; não a tratar como código ainda quebrado.
+
+| Marcador | Resultado comprovado em PostgreSQL 17 descartável |
+|---|---|
+| WA34-01 | C02 vinculado não pode virar `APPLIED` sem prova via função genérica ou `UPDATE` direto; aplicação legítima preserva `APPLIED_ATOMIC` e replay |
+| WA34-02 | Loja+canal+inbox/mensagem protegidos por FKs compostas; trigger adicional rejeita mensagem de mesmo canal com ID/texto incompatíveis |
+| WA34-03 | `NEEDS_REVIEW` registra pendência, quarentena e motivo na mesma transação; sem mensagem ou prova `APPLIED`; reprocessamento cego recusado |
+| WA34-04 | Colisão de duas identidades conserva o motivo `IDENTITY_CONFLICT`, distinto de resultado externo incerto |
+| WA34-05 | Sem pendência com telefone/texto/escopo correspondentes não é possível forjar quarentena de identidade; permissões de API restritas |
+| WA33-04 | Regressão adaptada ao resultado `QUARANTINED_IDENTITY` seguro em vez de rollback de pendência |
+
+**Arquivos:** `supabase/migrations/202610180034_s0_integridade_c02_e_pendencias.sql`, `supabase/tests/s0_wa_034_integridade.sql`, regressão `supabase/tests/s0_wa_033_aplicacao_c02.sql`, `scripts/run-s0-local.sh`, `docs/S0_034A_REPAROS_INTEGRIDADE_2026_10_18.md`. As migrations históricas 001–033 foram preservadas.
+
+**Limites:** `APPLIED_ATOMIC` é somente aplicação *fictícia* dentro da transação SQL C02, não equivale a `COMMITTED` de POST Meta real ou a confirmação bancária. A regra de prova cobre os eventos com `inbox_c02_fixture_s0`; rotinas sintéticas antigas que não têm essa fixture continuam independentes e não são prova de C02. `IDENTITY_CONFLICT` e `NEEDS_REVIEW` são causas técnicas de quarentena, não novos estados comerciais. Nenhuma credencial real, worker autêntico de menor privilégio, integração Meta/Graph/Banco, payload protegido real, ACK HTTP ou migração hospedada. Auth/REST integrado no Supabase local gerenciado para migrations 028–034 **NÃO EXECUTADO**. Os owners comerciais `SECURITY DEFINER postgres` continuam pendentes de redução de privilégio.
+
+**Gates:** DEC-WA-01/02/03 diretrizes aprovadas; DEC-WA-05 titularidade por concessionária aprovada, sem liberação de implantação; DEC-WA-04/06 pendentes. PR #1 e PR #2 Draft sem merge. **GO** para engenharia sintética; **NO-GO** para webhook real, produção e Supabase hospedado.
