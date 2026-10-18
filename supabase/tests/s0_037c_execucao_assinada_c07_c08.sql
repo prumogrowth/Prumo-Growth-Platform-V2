@@ -404,6 +404,183 @@ begin
 end $audit$;
 \echo 'PASS AUD37-03: failed signed attempts rollback nonce; C07 replay does not duplicate domain events'
 
+-- S0-037E / AUTHATOM: inject a failure AFTER successful domain DML,
+-- exactly when the private gateway audit would be inserted. The signed
+-- command must fail as a unit (including HMAC nonce); retry with the SAME
+-- valid proof after removing the fault must succeed. ALL in outer ROLLBACK.
+insert into public.leads_loja(id,concessionaria_id,telefone_cliente_normalizado)
+values('c39b0000-0000-4000-8000-000000000001',
+       'c3920000-0000-4000-8000-000000000001','+5581999033737');
+insert into public.ciclos_comerciais(id,concessionaria_id,lead_id)
+values('c39b0000-0000-4000-8000-000000000002',
+       'c3920000-0000-4000-8000-000000000001',
+       'c39b0000-0000-4000-8000-000000000001');
+insert into public.planos_recontato_sinteticos(
+ id,concessionaria_id,lead_id,ciclo_id,canal_id,chave_idempotencia,fingerprint)
+values('c39b0000-0000-4000-8000-000000000003',
+       'c3920000-0000-4000-8000-000000000001',
+       'c39b0000-0000-4000-8000-000000000001',
+       'c39b0000-0000-4000-8000-000000000002',
+       'c3930000-0000-4000-8000-000000000001',
+       'AUTHATOM_C08',repeat('d',64));
+insert into public.envios_template_sinteticos(
+ id,concessionaria_id,plano_id,template_id,ordem,agendado_em,
+ estado,chave_idempotencia)
+values('c39b0000-0000-4000-8000-000000000004',
+       'c3920000-0000-4000-8000-000000000001',
+       'c39b0000-0000-4000-8000-000000000003',
+       'c3960000-0000-4000-8000-000000000001',
+       1,statement_timestamp()+interval '1 day',
+       'programado','AUTHATOM_C08_SEND');
+select prumo_private.registrar_callback_c07_sintetico(
+ 'c3930000-0000-4000-8000-000000000001',
+ 'AUTHATOM.UNKNOWN','AUTHATOM.EVENT','INCERTO_SIMULADO',statement_timestamp());
+select pg_catalog.set_config('prumo.test037e.pending',(
+ select p.id::text from public.pendencias_reconciliacao_c07_sinteticas p
+ join public.eventos_callback_sinteticos e
+  on e.concessionaria_id=p.concessionaria_id and e.id=p.evento_id
+ where e.evento_externo_ficticio='AUTHATOM.EVENT'),true);
+
+select pg_catalog.set_config('prumo.test037e.sig_c08',pg_temp.assinar_037c(
+ 'cancelar_plano','c3900000-0000-4000-8000-000000000001',
+ 'c3910000-0000-4000-8000-000000000001',
+ 'c3920000-0000-4000-8000-000000000001',
+ 'c39b0000-0000-4000-8000-000000000003',1,null,null,null,
+ current_setting('prumo.test037c.issue')::bigint,
+ 'c39b0000-0000-4000-8000-000000000005'),true);
+select pg_catalog.set_config('prumo.test037e.sig_c07',pg_temp.assinar_037c(
+ 'conciliar_c07','c3900000-0000-4000-8000-000000000001',
+ 'c3910000-0000-4000-8000-000000000001',
+ 'c3920000-0000-4000-8000-000000000001',
+ current_setting('prumo.test037e.pending')::uuid,1,
+ 'ENCERRAR_SEM_PROVA',
+ 'Auditoria indisponivel durante conciliação ficticia de teste',
+ null,current_setting('prumo.test037c.issue')::bigint,
+ 'c39b0000-0000-4000-8000-000000000006'),true);
+
+create function pg_temp.bloquear_auditoria_037e()
+returns trigger language plpgsql security invoker set search_path='' as $fault$
+begin
+ raise exception 'AUDITORIA_INDISPONIVEL_FIXTURE' using errcode='P0001';
+end $fault$;
+create trigger audit_fault_037e before insert
+on prumo_private.auditoria_gateway_s0 for each row
+execute function pg_temp.bloquear_auditoria_037e();
+
+set local role prumo_s0_gateway;
+do $fault$
+begin
+ begin
+  perform prumo_private.gateway_cancelar_plano_assinado_s0(
+   'c3900000-0000-4000-8000-000000000001',
+   'c3910000-0000-4000-8000-000000000001',
+   'c3920000-0000-4000-8000-000000000001',
+   'c39b0000-0000-4000-8000-000000000003',1,
+   'c3990000-0000-4000-8000-000000000001',
+   current_setting('prumo.test037c.issue')::bigint,
+   'c39b0000-0000-4000-8000-000000000005',
+   current_setting('prumo.test037e.sig_c08'));
+  raise exception 'FAIL AUTHATOM-01: signed C08 accepted without audit';
+ exception when raise_exception then
+  if SQLERRM<>'AUDITORIA_INDISPONIVEL_FIXTURE' then
+   raise exception 'FAIL AUTHATOM-01: unexpected exception %',SQLERRM;end if;
+ end;
+ begin
+  perform prumo_private.gateway_conciliar_c07_assinado_s0(
+   'c3900000-0000-4000-8000-000000000001',
+   'c3910000-0000-4000-8000-000000000001',
+   'c3920000-0000-4000-8000-000000000001',
+   current_setting('prumo.test037e.pending')::uuid,1,
+   'ENCERRAR_SEM_PROVA',
+   'Auditoria indisponivel durante conciliação ficticia de teste',null,
+   'c3990000-0000-4000-8000-000000000001',
+   current_setting('prumo.test037c.issue')::bigint,
+   'c39b0000-0000-4000-8000-000000000006',
+   current_setting('prumo.test037e.sig_c07'));
+  raise exception 'FAIL AUTHATOM-01: signed C07 accepted without audit';
+ exception when raise_exception then
+  if SQLERRM<>'AUDITORIA_INDISPONIVEL_FIXTURE' then
+   raise exception 'FAIL AUTHATOM-01: unexpected exception %',SQLERRM;end if;
+ end;
+end $fault$;
+reset role;
+
+do $assert$
+begin
+ if not exists(select 1 from public.planos_recontato_sinteticos
+   where id='c39b0000-0000-4000-8000-000000000003'
+   and estado='ativo' and versao=1)
+ or not exists(select 1 from public.envios_template_sinteticos
+   where id='c39b0000-0000-4000-8000-000000000004' and estado='programado')
+ or not exists(select 1 from public.pendencias_reconciliacao_c07_sinteticas
+   where id=current_setting('prumo.test037e.pending')::uuid
+   and estado='pendente' and versao=1)
+ or (select count(*) from public.eventos_envio_template_sinteticos
+   where envio_id='c39b0000-0000-4000-8000-000000000004')<>0
+ or (select count(*) from public.auditoria_reconciliacao_c07_sintetica
+   where pendencia_id=current_setting('prumo.test037e.pending')::uuid)<>0
+ or (select count(*) from prumo_private.gateway_provas_usadas_s0
+   where nonce in ('c39b0000-0000-4000-8000-000000000005',
+                   'c39b0000-0000-4000-8000-000000000006'))<>0
+ or (select count(*) from prumo_private.auditoria_gateway_s0
+   where alvo_id in ('c39b0000-0000-4000-8000-000000000003',
+    current_setting('prumo.test037e.pending')::uuid))<>0
+ then raise exception 'FAIL AUTHATOM-02: failure did not rollback domain/audit/nonce';end if;
+end $assert$;
+\echo 'PASS AUTHATOM-01/02: audit injection refused C08/C07; domain and HMAC nonce rolled back'
+
+drop trigger audit_fault_037e on prumo_private.auditoria_gateway_s0;
+set local role prumo_s0_gateway;
+do $retry$
+declare v jsonb;
+begin
+ v:=prumo_private.gateway_cancelar_plano_assinado_s0(
+   'c3900000-0000-4000-8000-000000000001',
+   'c3910000-0000-4000-8000-000000000001',
+   'c3920000-0000-4000-8000-000000000001',
+   'c39b0000-0000-4000-8000-000000000003',1,
+   'c3990000-0000-4000-8000-000000000001',
+   current_setting('prumo.test037c.issue')::bigint,
+   'c39b0000-0000-4000-8000-000000000005',
+   current_setting('prumo.test037e.sig_c08'));
+ if v->>'outcome'<>'APPLIED' then
+  raise exception 'FAIL AUTHATOM-03: C08 retry not applied';end if;
+ v:=prumo_private.gateway_conciliar_c07_assinado_s0(
+   'c3900000-0000-4000-8000-000000000001',
+   'c3910000-0000-4000-8000-000000000001',
+   'c3920000-0000-4000-8000-000000000001',
+   current_setting('prumo.test037e.pending')::uuid,1,
+   'ENCERRAR_SEM_PROVA',
+   'Auditoria indisponivel durante conciliação ficticia de teste',null,
+   'c3990000-0000-4000-8000-000000000001',
+   current_setting('prumo.test037c.issue')::bigint,
+   'c39b0000-0000-4000-8000-000000000006',
+   current_setting('prumo.test037e.sig_c07'));
+ if v->>'outcome'<>'APPLIED' then
+  raise exception 'FAIL AUTHATOM-03: C07 retry not applied';end if;
+end $retry$;
+reset role;
+do $done$
+begin
+ if (select count(*) from prumo_private.gateway_provas_usadas_s0
+   where nonce in ('c39b0000-0000-4000-8000-000000000005',
+                   'c39b0000-0000-4000-8000-000000000006'))<>2
+ or (select count(*) from prumo_private.auditoria_gateway_s0
+   where alvo_id in ('c39b0000-0000-4000-8000-000000000003',
+      current_setting('prumo.test037e.pending')::uuid))<>2
+ or (select count(*) from public.eventos_envio_template_sinteticos
+   where envio_id='c39b0000-0000-4000-8000-000000000004'
+   and motivo='cancelamento_gestor')<>1
+ or (select count(*) from public.auditoria_reconciliacao_c07_sintetica
+   where pendencia_id=current_setting('prumo.test037e.pending')::uuid)<>1
+ or (select count(*) from public.pendencias_reconciliacao_c07_sinteticas
+   where id=current_setting('prumo.test037e.pending')::uuid and estado='encerrada')<>1
+ or (select count(*) from public.planos_recontato_sinteticos
+   where id='c39b0000-0000-4000-8000-000000000003' and estado='cancelado')<>1
+ then raise exception 'FAIL AUTHATOM-03: after repair, atomic results or counts differ';end if;
+end $done$;
+\echo 'PASS AUTHATOM-03: original proof reusable after audit outage; C08 and C07 each commit once'
+
 -- Revoke session after successful effects. A valid fresh proof must NOT
 -- increment nonce/audit counters, nor revive an already-cancelled plan.
 delete from auth.sessions
@@ -429,9 +606,9 @@ reset role;
 do $final$
 begin
  if (select count(*) from prumo_private.auditoria_gateway_s0
-  where concessionaria_id='c3920000-0000-4000-8000-000000000001')<>5
+  where concessionaria_id='c3920000-0000-4000-8000-000000000001')<>7
  or (select count(*) from prumo_private.gateway_provas_usadas_s0
-  where chave_id='c3990000-0000-4000-8000-000000000001')<>5
+  where chave_id='c3990000-0000-4000-8000-000000000001')<>7
  then raise exception 'FAIL OWNER37C-05 invalid/revoked proof persisted effects';end if;
  if not exists(select 1 from public.planos_recontato_sinteticos
   where id='c3970000-0000-4000-8000-000000000003'

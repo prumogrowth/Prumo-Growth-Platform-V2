@@ -62,7 +62,8 @@ flowchart TD
   A --> B["037B: RLS e DML por loja somente em rollback"]
   B --> C["037C: cadeia assinada C08/C07 comprovada no PG17 — owners comerciais legados"]
   C --> AUD["Auditoria 037A–C: sessão/ator e replay divergente — PG17 PASS"]
-  AUD --> FUT["Futuro: projetar owners comerciais sem postgres e revalidar no Supabase local"]
+  AUD --> E["037E: falha de auditoria injeta rollback de domínio+nonce (teste em validação)"]
+  E --> FUT["Futuro: emissor confiável e owners comerciais sem postgres, validar em Supabase local"]
   CB --> WAIT["C07 Meta real bloqueado: ocorrência/dedupe e armazenamento protegido"]
 ```
 
@@ -90,8 +91,11 @@ flowchart TD
 | S0-037C | Regressão do caminho assinado com HMAC, sessão, nonce, C08 e duas decisões C07 | [CI #39127146330 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39127146330) |
 | Auditoria S0-037A/B/C | Sessão e ator distintos, gestor interloja, replay C07 idêntico/divergente | [CI #39128133133 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39128133133) |
 | S0-037D | Capacidade de laboratório por operação/loja/alvo/versão/txid; GUC falsificada não é autorização | [CI #39130042204 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39130042204) — **não é redução do owner comercial** |
+| S0-037E | Falha de gravação de auditoria injetada após C08/C07 assinados, rollback completo e retry com mesmo nonce | **Em validação PG17; sem redução de owner** |
 
 **S0-037D testada no PostgreSQL 17:** capability de teste emitida pela fixture privilegiada, consumida em política RLS transacional sem confiar em GUC de sessão. Não há emissor autenticado e nem substituição das wrappers comerciais `postgres`. [CI PG17 #39130042204](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39130042204) aprovado; emissão real e auditoria integral continuam pendentes. Ver `docs/S0_037D_CAPACIDADE_TRANSACIONAL_2026_10_18.md`.
+
+**S0-037E em validação:** ensaio de fault injection sobre a cadeia HMAC/sessão legada; não é emissor operacional de capacidade nem autorização de deploy. Ver `docs/S0_037E_FAULT_INJECTION_AUDITORIA_2026_10_18.md`.
 
 O `MAPA_MENTAL.md` é índice de navegação. As decisões normativas e os registros de aceite versionados têm precedência sobre os nós simplificados deste mapa. Atualizá-lo a cada incremento **depois de verificar** CI e escopo real, sem rotular proposta como entregue.
 
