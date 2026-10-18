@@ -64,3 +64,8 @@ A versão **navegável e independente da lógica S0**, com composição inspirad
 ## FV-UI-002 — Evolução sem dependências externas
 
 Continuação realizada na pasta [`frontend/visual/`](visual/README.md): indicadores de fila e filtros, visão sintética de equipe para gestor, abas de caso com histórico e notas internas, modelos de erro/pendência/versão para extração pós-humana e navegação desktop/mobile. **12 testes Node PASS**, mais ensaio Chromium sintético nos quatro tamanhos; ver [auditoria](docs/10_AUDITORIA_FRONTEND_FV_UI_002_2026_10_18.md). Só a branch frontend foi modificada. O responsável poderá avaliar a experiência visual quando estiver madura, sem antecipar homologação funcional das integrações.
+
+
+## CF-OP-02 — extensão de jornada para templates e janelas
+
+Esta frente também deve prever concluído humano **sem retirar de imediato o chat**, expiração Meta diferente do encerramento humano, seleção de um template ou solicitação de cadeia pós-humana quando janela expirada e caso não concluído, e perda só se S0 confirmar C09 aplicável. Responsável atual do caso é fornecido pelo backend e pode mudar por S1-002; histórico não é apagado. [FV-03](docs/09_CF_OP_02_CONTRATO_VISUAL_JANELA_CADEIAS_v0_1.md) estabelece a fronteira: interface não cria agenda, não escolhe templates sem S0, não conversa com OpenAI/Meta diretamente. Integração não executada; revisar issue #4/#6 e PR #7.

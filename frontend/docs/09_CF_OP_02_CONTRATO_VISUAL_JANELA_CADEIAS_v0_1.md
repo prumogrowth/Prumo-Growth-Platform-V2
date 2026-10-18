@@ -1,0 +1,32 @@
+# FV-03 — Interface de janela, conclusão e recontato contextual | CF-OP-02 v0.1
+
+Data: 18/10/2026. **[D-negócio] fluxo aprovado pelo responsável; [P/R] telas, comandos e nomenclaturas; [V] Meta.** Proprietária: frente visual. Complementa FV-01/FV-02, [S0 contrato CF-OP-02](https://github.com/prumogrowth/Prumo-Growth---Platform/blob/feat/s0-fundacao-prumo/docs/CF_OP_02_CONTRATO_NUCLEO_RECONTATO_HUMANO_v0_1.md), [OAI-08](https://github.com/prumogrowth/Prumo-Growth---Platform/blob/feat/s2-openai-adapter-sintetico/docs/integracoes/openai/OAI_08_CONTRATO_PLANEJADORA_POS_HUMANA_CF_OP_02_v0_1.md), [PR #7](https://github.com/prumogrowth/Prumo-Growth---Platform/pull/7), issue #4/#6. Nenhum endpoint ou componente aprovado/implementado por esta redação.
+
+## Jornada sob responsabilidade exclusiva da interface
+
+**Caso 1 — atendimento humano NÃO concluído; janela Meta aberta.** Operador Prumo autorizado conversa normalmente; pode concluir, ver mensagens e status do caso conforme S0. Relógio de janela livre é calculado/projetado pelo S0 com último inbound, não pelo navegador como fonte autoritativa. Conclusão de um atendimento humano **não** é venda/perda/remessa.
+
+**Caso 2 — humano NÃO concluiu; expiraram 24h do último inbound.** **Manter caso na lista pendente e histórico acessível**. Não eliminar conversa nem marcar perdido. Exibir janela Meta expirada (mensagem livre indisponível), ação **“Selecionar e enviar template aprovado”** e ação distinta **“Solicitar cadeia de tentativas à IA”**. O primeiro permite escolher ID/versão de template que S0 tenha retornado como elegível; o segundo pede planejamento contextual e nunca envia livremente. Enquanto S0 não confirma envio, UI mostra SOLICITADO/PROCESSANDO, nunca ENVIADO. Um template outbound sozinho NÃO reabre campo de texto livre; aguardar inbound novo do cliente.
+
+**Caso 3 — operador concluiu; janela Meta ainda aberta.** O clique dispara somente pedido S0 de conclusão técnica e extração/análise OpenAI via backend. **Conversa não desaparece**: janela ativa persiste enquanto última mensagem do cliente +24h ainda vale e acesso humano continua válido. Exibir indicação “etapa humana concluída” e andamento da extração sem implicar cadastro completo; eventual novo inbound pode exigir esclarecimento/revisão e reinicia relógio Meta. O rótulo final da ação segue [R] (não misturar “encerrar venda”).
+ 
+**Caso 4 — concluído e expira janela Meta.** Retirar da **janela/lista de conversas ativas**, mantendo histórico e consulta autorizada; plano de recontatos, se válido, pode continuar sem fingir que operador está em chat ativo. Uma nova mensagem segue decisão de roteamento do S0. Nenhuma exclusão de mensagens.
+
+**Caso 5 — S0 propõe/autoriza cadeia contextual.** Mostrar plano somente após S0 persistir, com modelos aprovados, tentativas agendadas/realizadas/canceladas, template FINAL destacado e ausência de contato; permitir ação operacional de cancelar/solicitar revisão se S0 autorizar, sem alteração local de agenda. Quando final realmente ENVIADO e 24h de silêncio verificadas por S0, ciclo elegível pode passar a perdido; remover da lista ATIVA após confirmação no backend, preservar histórico. **Não** mostrar perda com base em relógio browser ou retorno do modelo, e **nunca** confundir perda por silêncio com negativa bancária.
+
+**Caso 6 — operador suspenso/desligado, ou loja revogada.** Ao perder acesso, tirar imediatamente conversas/ações de tela; S1-002 redistribui automaticamente no servidor para humano Prumo ativo autorizado da mesma loja. A interface apenas reflete novo responsável ou fila protegida. Não deixar botão disponível por cache nem enviar evento em nome do antigo profissional. Gestor pode supervisionar D2 conforme D41; só age como operador após autoatribuição ativa.
+
+## Comandos/projeções candidatos, SEM rota física
+
+1. **FV.completeHumanConversation**: case_ref, expected_case_version e idempotency_key; S0 deriva ator, loja e mensagem de corte. Resposta ACCEPTED não afirma que ficha foi preenchida ou conversa arquivada.
+2. **FV.selectApprovedTemplateOnce**: case_ref, expected_version, template_id/version selecionados dentre opções fornecidas por S0, idempotency_key; o navegador NÃO prova consentimento, canal, janela, categoria nem envio Meta.
+3. **FV.requestFollowupChain**: case_ref, expected_version, idempotency_key; S0 decide finalidade/handoff e invoca Planejadora. Browser **NÃO** envia prompt nem chama OpenAI diretamente.
+4. **Projeções consultadas em S0**: janela_meta_until, human_completion_state, conversation_visible_in_active_inbox, responsible_actor_masked, reassignment_state, form_processing_state, followup_plan_state, sent_evidence_status, silence_resolution_state, allowed_actions e reason_code seguros. Nomes/shape [P/R], não API implantada; clocks exibidos são informativos e backend é autoridade.
+
+## Autorização e não invasão
+
+**Frontend** desenha ações, estados/aviso e consulta apenas dados permitidos. **S0** decide se botão é elegível, status e versão e persiste todos os eventos; **S1-002** redistribui e corta acesso; **OpenAI** extrai/planeja sem chamada direta pelo browser; **Meta** oferece provas de mensagem/canal e janela para S0. Não implementar RLS, armazenamento de chave/credencial, envio Meta, processamento de prompts ou marcação SQL de perdido dentro do frontend.
+
+## Critérios de aceite visuais futuros (NÃO EXECUTADOS)
+
+FV3-01 não concluído após 24h -> permanece na lista, composer livre bloqueado e duas ações distintas; FV3-02 template individual -> nenhuma chamada OpenAI obrigatória; FV3-03 cadeia -> feedback SOLICITADA separado de agendada; FV3-04 template outbound não libera composer; FV3-05 inbound novo reabre janela por 24h e rota humana; FV3-06 após Concluir continua visível se janela aberta; FV3-07 concluído+janela vencida sai apenas da lista ativa; FV3-08 final comprovado e +24h sem resposta -> só apresenta perdido com confirmação S0 e fase elegível; FV3-09 banco enviado/vendido nunca perdido por silêncio; FV3-10 gestor sem autoatribuição não envia nem conclui; FV3-11 profissional revogado deixa de ver caso; FV3-12 histórico nunca apagado, duas lojas isoladas; FV3-13 tablet/mobile/teclado/feedback acessível; FV3-14 erro/retry/atraso sem falso sucesso. Alinhamento de contratos S0/OAI/Meta [R], nenhum teste FV3 executado.
