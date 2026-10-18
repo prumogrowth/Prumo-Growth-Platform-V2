@@ -723,7 +723,10 @@ begin
  into v_procs from pg_catalog.pg_proc p
  join pg_catalog.pg_namespace n on n.oid=p.pronamespace
  where n.nspname='prumo_private' and p.prosecdef
- and not ('search_path='=any(coalesce(p.proconfig,array[]::text[])));
+ and not exists (
+  select 1 from pg_catalog.unnest(coalesce(p.proconfig,array[]::text[])) as cfg(item)
+  where cfg.item in ('search_path=', 'search_path=""')
+ );
  if v_procs is not null then
   raise exception 'AUTH-18: unsafe definer search_path: %',v_procs;end if;
 end $auth18$;
