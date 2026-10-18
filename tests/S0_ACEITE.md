@@ -270,3 +270,26 @@ Auditoria **estática**, sem modificação SQL ou novo teste: `docs/AUDITORIA_PR
 - `scripts/run-s0-local.sh` inclui as duas migrations e os dois testes novos; não mudou o gatilho Auth/REST pesado. Documentação: `docs/DEC_WA_01_03_INCREMENTOS_S0_2026_10_17.md`.
 
 **Limites:** a POC Meta hospedada permanece isolada; o banco Supabase hospedado não recebeu migrações, números comerciais ou novas tabelas. Sem prova Meta real da equivalência celular, sem segredo de lookup/rotatividade, sem integração de aliases no C01, sem autorização operacional dos trabalhadores/saídas, sem log externo ou retenção LGPD final. DEC-WA-04/05/06 continuam pendentes. PR #1 e PR #2 **Draft e sem merge**. **GO** somente para mais engenharia local sintética; **NO-GO** para implantação, Meta/Banco/IA real ou produção. Teste Auth/REST das migrações 028/029 permanece **NÃO EXECUTADO**.
+
+
+## Marco corretivo S0/030 — DEC-WA-01/02/03 e precedência DEC-WA-05 (18/10/2026 UTC)
+
+**Evidência verificada:** [GitHub Actions PostgreSQL 17 #39094224312 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39094224312), commit testado `096997891b376db5c069dc4e644a12af8123650e`. Logs do job `s0-db-isolation` conferidos, incluindo **24 testes Python — OK**, regressões S0 antigas, WA-ID-01..05, WA-IN-01..03, WA-OUT-01, WA-SEC-01 e os novos:
+
+| Caso | Resultado confirmado em PG 17 descartável |
+|---|---|
+| WA30-ID-01 | PASS — pendência repetida idêntica; texto ou número divergente rejeitados (sem sobrescrever prova) |
+| WA30-ID-02 | PASS — FK composta alias/lead/loja e evidência de variante |
+| WA30-IN-01 | PASS — lote único com 2 lojas, 2 mensagens e 2 status; replay e conflito de payload |
+| WA30-IN-02 | PASS — spoof de loja/app negado; nenhum commit parcial |
+| WA30-SEC-01 | PASS — fixture privada não acessível a papéis de API/gateway |
+| WA30-CONC-01 | PASS — **duas sessões concorrentes** de variantes 8↔9 → um lead/ciclo e duas mensagens |
+| WA30-CONC-02/03 | PASS — disputa entre duas sessões de worker por uma tarefa; retomada após lease artificialmente expirada |
+
+**Histórico CI:** [#39094102278 — FAILURE](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39094102278) ocorreu **após os testes SQL novos passarem**, porque um UUID de fixture no script de concorrência colidiu com fixture de outro teste existente; corrigido com IDs exclusivos no commit `0969978` antes do CI final aprovado. Não tratar a falha histórica como pendência ainda aberta. Execuções intermediárias foram canceladas automaticamente pelo `cancel-in-progress`.
+
+**Implementação:** `supabase/migrations/202610180030_s0_replay_multicanal_fixture.sql`, `supabase/tests/s0_wa_030_auditoria.sql`, `scripts/test_s0_wa_030_concurrency.sh` integrados ao runner de banco descartável. Documentação detalhada: `docs/AUDITORIA_CORRECOES_WA_S0_030_2026_10_18.md`.
+
+**Limitações do aceite:** é prova **exclusivamente de PostgreSQL sintético**, não GoTrue/PostgREST local gerenciado, Meta Graph, sandbox POC ou Supabase hospedado. A referência `payload_fixture_s0` é marcador sintético privado, **não** conteúdo pessoal criptografado, cofre ou recibo de entrega. A função retorna `FIXTURE_BATCH_STORED`, não `commit_state='COMMITTED'`, e **não justifica ACK HTTP**. C01 legado ainda não resolve aliases 8↔9, e operações C02/C07 reais, worker, retry, quarentena operacional e autorização de saída permanecem pendentes. As funções comerciais `SECURITY DEFINER postgres` ainda não passaram pela redução de ownership.
+
+**Decisões:** DEC-WA-05 **aprovada apenas para titularidade dos Apps/WABAs/números por concessionária**; onboarding/mandato efetivo/permissões/produção dependem de validação. DEC-WA-04 e DEC-WA-06 **pendentes**. Nenhum merge, serviço externo, operação comercial, custo pago ou migration hospedada. **GO** somente para mais engenharia e integração sintética sob gates; **NO-GO** para API pública, webhook real, canal comercial ou produção.
