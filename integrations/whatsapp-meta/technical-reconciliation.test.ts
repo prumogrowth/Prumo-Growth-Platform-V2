@@ -24,7 +24,7 @@ const callback = (provider_kind: string, at = '2026-10-18T13:00:01.000Z',
   waba_id: 'FIXTURE_WABA_A', phone_number_id: '123456789012',
   provider_message_id: 'wamid.FIXTURE_A=', participant_identifier: '5581900000000',
   provider_timestamp: at, provider_kind,
-  position: { entry_index: 0, change_index: 0, item_index: 0 }, ...changes,
+  position: { entry_index: 0, change_index: 0, array_kind: 'statuses', item_index: 0 }, ...changes,
 });
 const newLinked = () => {
   const x = new FakeMetaStatusReconciler();
