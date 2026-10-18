@@ -12,6 +12,12 @@ begin
    where am.roleid='prumo_s0_signer'::regrole
      and member_role.rolname not in ('postgres','supabase_admin'))
  then raise exception 'FAIL OWNER-01: non-admin role inherits signer privileges';end if;
+ if not exists(select 1 from pg_catalog.pg_auth_members am
+  join pg_catalog.pg_roles member_role on member_role.oid=am.member
+  where am.roleid='prumo_s0_signer'::regrole
+    and member_role.rolname='postgres'
+    and am.set_option and not am.inherit_option)
+ then raise exception 'FAIL OWNER-01: postgres admin cannot SET ROLE with noninherited grant';end if;
  v_proc:='prumo_private.gateway_validar_prova_s0(
  text,uuid,uuid,uuid,uuid,bigint,text,text,uuid,uuid,bigint,uuid,text)'::regprocedure::oid;
  if not exists(select 1 from pg_catalog.pg_proc
