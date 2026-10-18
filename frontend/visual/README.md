@@ -53,3 +53,17 @@ Teclas adicionais: **Ctrl/Cmd+K** busca, setas direita/esquerda para abas e Esca
 **Teste Node executado:** `node --test frontend/visual/tests/*.test.mjs` → **12/12 PASS**. **Teste Chromium headless executado:** quatro larguras (1440, 900, 390, 320) e fluxo de gestor/duas lojas, sem erro JS nem overflow. O ensaio Chromium foi feito por injeção local de HTML/CSS/JS pois o ambiente bloqueia HTTP loopback; ele não valida serviço HTTP ou autenticação. Roteiro opcional reproduzível (com Playwright + Chromium já instalados): `python frontend/visual/tests/browser.smoke.py`.
 
 [Auditoria FV-UI-002](../docs/10_AUDITORIA_FRONTEND_FV_UI_002_2026_10_18.md). Falta aprovação visual futura, acessibilidade aprofundada e homologação de integração; **não é aplicação de produção**.
+
+## FV-03 — revisão após CF-OP-02 (18/10/2026)
+
+**Diretriz vigente:** [FV-03](../docs/09_CF_OP_02_CONTRATO_VISUAL_JANELA_CADEIAS_v0_1.md), com [auditoria e reparos registrados](../docs/12_AUDITORIA_CONFORMIDADE_FV03_CF_OP_02_2026_10_18.md).
+
+- A lista de **Ativas / pendentes** só inclui projeções explícitas `inboxProjection=active`; **Histórico** permite consultar, sem apagar mensagens, projeções `historical`. Um caso sem projeção não fica visível por inferência.
+- `metaWindowProjection=open/expired/unknown` é fornecida pela fixture (futura S0). **Não existe relógio JavaScript que autorize mensagem livre ou que marque perdido**.
+- Profissional Prumo ativo, com loja e atribuição válidas na projeção de demonstração, só tem compositor livre quando o S0 fictício sinaliza `allowedActionsProjection.free_text`. A janela vencida mantém a conversa humana **não concluída** na lista e exibe, se elegíveis, ações distintas para **template único** e **solicitação de cadeia**.
+- Modelos do modal são **fictícios, pré-listados por caso e versão**. O retorno do clique é `requested`, jamais prova `sent`. Cadeia ilustrativa mostra tentativas agendadas/pendentes e template final separado, sem criar plano real.
+- Atendimento humano concluído pode continuar na lista ativa se a janela fictícia ainda está aberta. Concluído+janela expirada aparece no histórico, sem exclusão. A aba de extração não afirma resultado quando apenas a conclusão está projetada.
+- Perfil suspenso fica sem carteira no simulador; gestora pode enxergar caso em **fila protegida**, sem escolher novo atendente. A operação verdadeira cabe à S1-002/S0.
+- `cadastro enviado ao banco` e `vendido` nunca passam a `perdido` por silêncio nesta UI. O único exemplo de caso perdido está pré-projetado em fixture histórica de ciclo elegível, jamais calculado.
+
+**Verificação realizada:** 24/24 testes sintéticos executados sobre o conteúdo da branch GitHub por harness de asserções V8; sintaxe dos módulos aprovada; inspeção de HTML/CSS e guardas sem chamada externa. **Ainda pendente:** execução do script Playwright atualizado depois da FV-03, acessibilidade aprofundada e contratos reais. Testes Node da FV-UI-002 de 12/12 permanecem históricos e não comprovam as novas capacidades. Não é aplicação de produção.
