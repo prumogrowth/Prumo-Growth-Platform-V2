@@ -170,4 +170,35 @@ begin
  then raise exception 'FAIL GW-05 denied operation added success audit';end if;
 end $test$;
 \echo 'PASS GW-05: sessao revogada rejeitada antes de escrita e auditoria'
+do $acl$
+declare f_name text;f_oid oid;v_proc record;
+begin
+ if not exists(select 1 from pg_roles where rolname='prumo_s0_gateway'
+  and not rolcanlogin and not rolinherit)
+ then raise exception 'FAIL GW-06 gateway role unexpectedly login/inherits';end if;
+ for f_name in select unnest(array[
+ 'prumo_private.gateway_cancelar_plano_s0(uuid,uuid,uuid,uuid,bigint)',
+ 'prumo_private.gateway_conciliar_c07_s0(uuid,uuid,uuid,uuid,bigint,text,text,uuid)'
+ ]) loop
+  f_oid:=f_name::regprocedure::oid;
+  select p.prosecdef,pg_get_userbyid(p.proowner) as owner_role into v_proc
+  from pg_proc p where p.oid=f_oid;
+  if not v_proc.prosecdef or v_proc.owner_role<>'postgres'
+   or not has_function_privilege('prumo_s0_gateway',f_oid,'EXECUTE')
+   or has_function_privilege('anon',f_oid,'EXECUTE')
+   or has_function_privilege('authenticated',f_oid,'EXECUTE')
+   or has_function_privilege('service_role',f_oid,'EXECUTE')
+  then raise exception 'FAIL GW-06 function ACL/owner %',f_name;end if;
+ end loop;
+ if has_table_privilege('prumo_s0_gateway',
+   'prumo_private.auditoria_gateway_s0','SELECT')
+ or has_table_privilege('prumo_s0_gateway',
+   'prumo_private.auditoria_gateway_s0','INSERT')
+ or has_table_privilege('prumo_s0_gateway',
+   'prumo_private.auditoria_gateway_s0','UPDATE')
+ or has_table_privilege('prumo_s0_gateway',
+   'prumo_private.auditoria_gateway_s0','DELETE')
+ then raise exception 'FAIL GW-06 audit table not private';end if;
+end $acl$;
+\echo 'PASS GW-06: dono e ACL das wrappers conferidos, tabela de auditoria inacessivel'
 rollback;
