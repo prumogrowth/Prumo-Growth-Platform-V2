@@ -12,7 +12,7 @@
 ## 1. Regras inegociáveis [D] e fronteiras [P]
 
 1. **Uma identidade comercial por concessionária.** O telefone identifica comercialmente o lead apenas **dentro da loja**; o mesmo número pode ter atendimentos distintos em lojas A e B. CPF não é chave global. Telefone reciclado ou compartilhado exige revisão humana, não fusão automática (docs 11, 25, 26 e 33).
-2. **Canal dedicado e escopado.** Identidade externa `waba_id` + `phone_number_id` deve resolver **um canal_id e uma loja_id** por cadastro de vínculos com vigência. Não aceitar `loja_id` fornecido por texto/IA/cliente como autoridade. Os números definitivos serão da gestora, dedicados à loja conforme decisão [D]; a POC em app/concessionária não decide propriedade/mandato [R/V].
+2. **Canal dedicado e escopado.** Identidade externa `waba_id` + `phone_number_id` deve resolver **um canal_id e uma loja_id** por cadastro de vínculos com vigência. Não aceitar `loja_id` fornecido por texto/IA/cliente como autoridade. **Decisão posterior [D]: os ativos definitivos Meta (conta empresarial, App, WABA e números) pertencem à respectiva concessionária**, com App distinto por concessionária e acesso delegado à Prumo; permissões/vínculo de produção ainda exigem validação [V]. Consultar [DEC-WA-05](decisao-titularidade-meta-por-concessionaria-v1_0.md).
 3. **Fonte de verdade.** `MENSAGENS` = uma linha por mensagem individual; `ENVIOS_TEMPLATE` e eventos técnicos para templates; `CICLO_COMERCIAL` e eventos comerciais para oito status exclusivos; `CASO_HUMANO` para handoff. Metadados da Meta `sent/delivered/read/failed` **não** são status comerciais (docs 25/26).
 4. **Sem automação bancária implícita.** A IA não envia cadastro ao banco nem registra venda/recusa definitiva. Regras bancárias e opt-in/opt-out exigem aprovações [V]. Entrada espontânea não equivale a opt-in para campanha.
 5. **Handoff permanente no caso.** Mensagens recebidas após atendimento humano, cadastro enviado ao banco ou vendido seguem rota humana apropriada e preservam histórico (docs 21/22/26).
@@ -183,7 +183,7 @@ g) Reprocessamento/reimportação só acrescenta evento de descoberta; não dupl
 - Dados pessoais persistidos apenas com finalidade/retencão aprovadas; usar referências protegidas e redigir informações sensíveis em logs e métricas. Criptografia/segredos para tokens Meta por app/WABA conforme mandato futuro; evitar uma variável de ambiente por cada cliente quando atingir limite de secrets do projeto.
 - Proibir acesso direto de `anon`/browser às tabelas de webhooks, outbox, aliases ou logs internos. Serviços internos autenticados e escopados; verificar `GRANTs`, RLS, autorização contextual no backend e testes multiloja (doc 41).
 - Contratos de IA recebem dados permitidos somente da própria loja e caso, sem credenciais, documentos brutos, nome civil presumido ou consultas por CPF cruzando lojas.
-- Mensagem do cliente após opt-out pode ser roteada conforme doc 33; **não** reabre permissão genérica de marketing. Opt-out entre diferentes números da gestora permanece [R/V].
+- Mensagem do cliente após opt-out pode ser roteada conforme doc 33; **não** reabre permissão genérica de marketing. Opt-out e compartilhamento de informação entre canais de concessionárias distintas exigem regras de finalidade/consentimento e isolamento LGPD [R/V].
 - Segurança das URLs do callback, tokens de verificação e histórico dos logs deve ser revisada antes de qualquer homologação.
 - Políticas Meta para conteúdo financeiro, contratação, templates, automação, consentimento, opt-out e relação com instituição financeira continuam [V] (doc 34).
 
@@ -239,7 +239,7 @@ g) Reprocessamento/reimportação só acrescenta evento de descoberta; não dupl
 | Supabase direto em lugar de n8n no fluxo crítico inicial | **Decisão de direção [D]; desenho físico [P]** |
 | Reconhecimento de formatos BR com/sem nono dígito como mesmo número lógico | **APROVADO [D]** quando variante válida, correspondência única e origem confiável; colisões seguem revisão humana |
 | Critério formal de confirmação dos aliases e resolver conflito | [R], precisa da frente de identidade/negócio |
-| Posse definitiva WABA/app/número por loja, app e mandato | [R/V], conforme docs 11/34 |
+| Titularidade WABA/App/número | **[D] Por concessionária, com seu próprio App empresarial; [R/V] vínculo real, mandato/permissões, onboarding e homologação**. Ver [DEC-WA-05](decisao-titularidade-meta-por-concessionaria-v1_0.md). |
 | Política Meta financeira, templates, janela, opt-in/out, dados | [V], não resolvida na POC |
 | Migração Supabase Free→Pro | **Ainda não necessária para este documento; revisão por gatilho** |
 | Contrato de fila/RPC/DDL, regiões, SLA, thresholds | [P/R], dependem de implementação/benchmarks |
