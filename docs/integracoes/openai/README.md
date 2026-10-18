@@ -21,6 +21,7 @@ Preparar o acesso da plataforma técnica Prumo à API da OpenAI: entendimento de
 8. **E01_PLANO_DE_AVALIACAO_MODELOS_E_VOZ_v0_1.md** — shortlist e avaliação por tarefa, sem fixar modelo ou voz antes de benchmark.
 7. **OAI_05_CONTRATO_EXTRAÇÃO_PÓS_ATENDIMENTO_HUMANO_v0_1.md** — cadastro extraído após conversa humana concluída, com fontes e validação S0; interface [P/R].
 8. **OAI_06_VOZ_AUDIO_E_MODELOS_v0_1.md** — áudio recebido/enviado, STT/TTS, modelos por tarefa e critérios de comparação [P/R/V].
+9. **MAPA_CAPACIDADES_E_PENDENCIAS_OPENAI_v0_1.md** — inventário de todos os usos de IA atuais/históricos, fonte normativa, separação de escopos e lacunas.
 
 ## Princípios de precedência
 
