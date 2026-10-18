@@ -244,6 +244,7 @@ function renderDetails() {
   }
   target.replaceChildren(profile,tabs,content);
 }
+
 function render(){renderList();renderThread();renderDetails();app.dataset.mobileView=state.mobileView;}
 function changeActor(actorId){
   const actor=getActor(actorId);if(!actor)return;
