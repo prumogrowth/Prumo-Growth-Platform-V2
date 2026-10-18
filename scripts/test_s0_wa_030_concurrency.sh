@@ -92,17 +92,32 @@ end $check$;
 update prumo_private.tarefas_ingresso_s0 set lease_ate=clock_timestamp()-interval '1 second'
  where concessionaria_id='f8a03030-0000-4000-8000-000000000001';
 do $recovery$
-declare r jsonb;
+declare r jsonb;v_inbox uuid;
 begin
+ select inbox_id into v_inbox from prumo_private.tarefas_ingresso_s0
+ where concessionaria_id='f8a03030-0000-4000-8000-000000000001';
  r:=prumo_private.reservar_ingresso_s0(
  'f8a03030-0000-4000-8000-000000000001',
  'f8a03031-0000-4000-8000-000000000001',
  'f8a03032-0000-4000-8000-000000000003');
- if r->>'outcome'<>'LEASED' or (r->>'versao')::integer<>3
+ if r->>'outcome'<>'EMPTY' then raise exception 'FAIL WA30-CONC-03: auto-reclaim expired lease';end if;
+ r:=prumo_private.reconciliar_lease_expirado_s0(
+ 'f8a03030-0000-4000-8000-000000000001',
+ 'f8a03031-0000-4000-8000-000000000001',
+ v_inbox,2,'f8a03033-0000-4000-8000-000000000001','SEM_EFEITO_FIXTURE');
+ if r->>'estado'<>'RETRY_PENDING' then raise exception 'FAIL WA30-CONC-03 reviewed recovery';end if;
+ update prumo_private.tarefas_ingresso_s0
+ set proxima_tentativa_em=clock_timestamp()-interval '1 second'
+ where inbox_id=v_inbox;
+ r:=prumo_private.reservar_ingresso_s0(
+ 'f8a03030-0000-4000-8000-000000000001',
+ 'f8a03031-0000-4000-8000-000000000001',
+ 'f8a03032-0000-4000-8000-000000000003');
+ if r->>'outcome'<>'LEASED' or (r->>'versao')::integer<>4
  or (select count(*) from prumo_private.tarefas_ingresso_s0
-  where tentativas=2 and versao=3
+  where tentativas=2 and versao=4
     and concessionaria_id='f8a03030-0000-4000-8000-000000000001')<>1
  then raise exception 'FAIL WA30-CONC-03 lease not recovered';end if;
 end $recovery$;
 SQL
-echo 'PASS WA30-CONC-02/03: simultaneous claim + lease recovery without duplicate work'
+echo 'PASS WA30-CONC-02/03: simultaneous claim + explicitly reviewed recovery, no blind retry'
