@@ -11,17 +11,16 @@ Preparar o acesso da plataforma técnica Prumo à API da OpenAI: entendimento de
 
 ## Documentos nesta branch
 
-1. **contrato-s0-openai-v0_1.md** — fronteira entre adaptador OpenAI, núcleo S0, regras comerciais e Meta; contrato C03/C05 conceitual.
-2. **provisionamento-credenciais-manual-v0_1.md** — roteiro de emissão e armazenamento MANUAL da chave OpenAI pelo responsável, no destino técnico confirmado, sem impedir outras operações autorizadas no Supabase da Prumo.
-3. **matriz-dependencias-e-testes-v0_1.md** — donos, condicionantes e aceite incremental sem interromper outras frentes.
-4. **avaliacao-transporte-openai-direto-ou-n8n-v0_1.md** — decisão de topologia EM ABERTO [R], caminhos A/B, teste comparativo e critérios de escolha.
-5. **AUDITORIA_CONTRATO_OAI_2026_10_18.md** — resultados da auditoria e pendências separadas de evidências executadas.
-6. **PLANO_EXECUCAO_E_CRITERIOS_DE_CONCLUSAO_v0_1.md** — roteiro fechado E00–E08, responsáveis, gates, evidências de conclusão e limite da entrega laboratorial [P].
-7. **E01_CONTRATO_FUNCIONAL_MULTI_CAPACIDADE_v0_2.md** — contrato funcional [P] para IA Vendedora, Planejadora, preenchimento automático pós-atendimento humano F03 e entrada/saída de áudio F04/F05; revisão S0/Meta [R].
-8. **E01_PLANO_DE_AVALIACAO_MODELOS_E_VOZ_v0_1.md** — shortlist e avaliação por tarefa, sem fixar modelo ou voz antes de benchmark.
-7. **OAI_05_CONTRATO_EXTRAÇÃO_PÓS_ATENDIMENTO_HUMANO_v0_1.md** — cadastro extraído após conversa humana concluída, com fontes e validação S0; interface [P/R].
-8. **OAI_06_VOZ_AUDIO_E_MODELOS_v0_1.md** — áudio recebido/enviado, STT/TTS, modelos por tarefa e critérios de comparação [P/R/V].
-9. **MAPA_CAPACIDADES_E_PENDENCIAS_OPENAI_v0_1.md** — inventário de todos os usos de IA atuais/históricos, fonte normativa, separação de escopos e lacunas.
+1. **contrato-s0-openai-v0_1.md** — porta e fronteiras entre S0, OpenAI e Meta; v0.1 candidata, atualizada com as operações novas.
+2. **OAI_05_CONTRATO_EXTRAÇÃO_PÓS_ATENDIMENTO_HUMANO_v0_1.md** — contrato específico `human_close_extract`, campos com evidência e persistência automática sob validação S0 [P/R].
+3. **OAI_06_VOZ_AUDIO_E_MODELOS_v0_1.md** — contrato específico `speech_transcribe` / `speech_synthesize`, texto aprovado, voz e limites Meta [P/R/V].
+4. **E01_CONTRATO_FUNCIONAL_MULTI_CAPACIDADE_v0_2.md** — visão integrada de F01–F05, segurança e autoria, com exemplos e semântica harmonizados com OAI-05/06.
+5. **E01_PLANO_DE_AVALIACAO_MODELOS_E_VOZ_v0_1.md** — plano de benchmark dos modelos de texto, extração, transcrição e TTS sem escolha antecipada [P].
+6. **provisionamento-credenciais-manual-v0_1.md** — emissão e armazenamento MANUAL da chave pelo responsável, destino seguro conforme runtime.
+7. **matriz-dependencias-e-testes-v0_1.md** — titularidade preservada e cenários de teste.
+8. **avaliacao-transporte-openai-direto-ou-n8n-v0_1.md** — conexão direta versus n8n ainda em aberto [R].
+9. **AUDITORIA_CONTRATO_OAI_2026_10_18.md** — auditoria da fase de abertura e seus gates.
+10. **PLANO_EXECUCAO_E_CRITERIOS_DE_CONCLUSAO_v0_1.md** — roteiro fechado E00–E08: E00 concluído, E01 em revisão documental, demais marcos pendentes.
 
 ## Princípios de precedência
 
