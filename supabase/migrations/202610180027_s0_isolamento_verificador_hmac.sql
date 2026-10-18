@@ -52,9 +52,9 @@ begin
   'grant execute on function %I.hmac(bytea,bytea,text) to prumo_s0_signer',v_schema);
 end $ext$;
 
--- PostgreSQL row-lock SELECT FOR SHARE would require UPDATE privilege,
--- so serialize validator and official rotation on the same advisory key.
--- Signer is still SELECT-only on key material. Locks persist until COMMIT.
+-- PostgreSQL row-lock SELECT FOR SHARE requires UPDATE privilege,
+-- so official revocation and verification serialize using the same advisory
+-- transaction lock, without granting UPDATE on key material to the signer.
 create or replace function prumo_private.gateway_validar_prova_s0(
  p_operacao text,p_ator uuid,p_sessao uuid,p_loja uuid,p_alvo uuid,
  p_versao bigint,p_decisao text,p_justificativa text,p_envio uuid,
@@ -67,20 +67,7 @@ begin
  p_ator is null or p_sessao is null or p_loja is null or p_alvo is null
  or p_versao is null or p_versao<1 or p_chave is null
  or p_emitido is null or p_nonce is null or p_assinatura is null
- or p_assinatura !~ '^[0-9a-f]{64} This isolated role can read HMAC
--- material and consume nonces, but cannot access leads, sessions, domain
--- transitions, key rotation, or key-history audit directly.
-alter function prumo_private.gateway_validar_prova_s0(
- text,uuid,uuid,uuid,uuid,bigint,text,text,uuid,uuid,bigint,uuid,text)
- owner to prumo_s0_signer;
-
-revoke all on function prumo_private.gateway_validar_prova_s0(
- text,uuid,uuid,uuid,uuid,bigint,text,text,uuid,uuid,bigint,uuid,text)
- from public,anon,authenticated,service_role,prumo_s0_gateway;
-
--- None of the pgcrypto/material grants are exposed as domain API operations.
--- prumo_s0_gateway still executes ONLY the two signed gateway entrypoints.
-
+ or p_assinatura !~ '^[0-9a-f]{64}$'
  then raise exception 'PROVA_INVALIDA' using errcode='42501';end if;
  v_agora:=pg_catalog.clock_timestamp();
  -- Permit 5 seconds of clock skew but no token older than 30 seconds.
