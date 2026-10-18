@@ -118,7 +118,7 @@ O núcleo conserva outcomes **APPLIED, ALREADY_APPLIED, ACCEPTED_FOR_PROCESSING,
 
 ## 5. Identidade telefônica BR: oito e nove dígitos [D + nova especificação P]
 
-**Requisito confirmado pelo responsável:** aceitar **números brasileiros com oito OU nove dígitos de assinante após o DDD**. Não exigir nono dígito para conseguir receber, localizar histórico ou cadastrar um contato. É requisito de compatibilidade, **não autorização para mesclar pessoas ou testar envios em números diferentes**.
+**Decisão complementar do responsável [D]:** as representações brasileiras `55 + DDD + 9 + oito dígitos` e `55 + DDD + oito dígitos` **devem ser reconhecidas como o mesmo número lógico de WhatsApp quando constituírem variantes válidas e não ambíguas dentro da mesma concessionária**. A busca e o vínculo devem ser automáticos nos casos seguros, e o destino operacional de saída deve respeitar o identificador verificado/utilizado com sucesso pela Meta. Preservar ambos os valores originais e a trilha de normalização; **não inferir equivalência segura entre pessoas distintas, canais/lojas diferentes, telefone fixo ou número reciclado**.
 
 ### 5.1 Entradas que o adaptador deve aceitar [P]
 
@@ -139,8 +139,8 @@ Manter separados:
 
 a) Validar assinatura e canal/loja antes de qualquer consulta de identidade.  
 b) Tentar identificador externo/alias **exatamente igual** e previamente associado à **mesma loja/canal**, com evidência e vigência.  
-c) Quando `from` e `wa_id` divergirem ou aparecer uma variante com/sem `9`, gerar **candidato** de equivalência somente se DDI/DDD e padrão forem compatíveis. **Nunca** remover/adicionar o `9` indiscriminadamente nem compartilhar candidatos entre lojas.  
-d) Vincular automaticamente os aliases **somente com prova suficiente e política aprovada** (por exemplo associação confirmada no mesmo evento autenticado do fornecedor e sem colisão, ou validação explícita por processo humano). O valor exato de prova [R/V]. `wa_id` e `from` são identificadores técnicos e não comprovam titularidade civil.  
+c) Para celulares brasileiros elegíveis, construir **chave de comparação de variantes** com DDI/DDD e oito dígitos finais; se a representação tiver 9 dígitos locais, remover **somente o primeiro `9` depois do DDD na chave de comparação**, não no valor original e não no destino de envio. Oito dígitos sem evidência de WhatsApp móvel gera candidato, nunca prova de titularidade.  
+d) **Associar automaticamente a mesma identidade lógica da loja** quando a correspondência 8↔9 for única, válida e não conflitante e a origem for confiável (por exemplo, inbound de Meta autenticado, identificador Meta já relacionado ou outro vínculo verificado). Armazenar variante alternativa e evento de decisão. Se não houver prova operacional suficiente, ou houver colisão, marcar candidato/conflito e solicitar revisão humana, sem fusão destrutiva. `wa_id`/`from` não provam titularidade civil.  
 e) Em colisão (números podem ser de pessoas distintas, aparelho compartilhado, reciclado), marcar `IDENTITY_CONFLICT`, conservar mensagens autenticadas em escopo correto e bloquear fusão/contato proativo até solução humana.  
 f) Se não houver alias conhecido, criar identidade local provisória do contato recebido, com origem e referência; **não inventar telefone com nove dígitos** nem importar histórico de outra loja.  
 g) Reprocessamento/reimportação só acrescenta evento de descoberta; não duplica lead confirmado nem sobrescreve cadastro declarado em conversa. A regra de unicidade final fica para migração aprovada do doc 30.
@@ -149,6 +149,17 @@ g) Reprocessamento/reimportação só acrescenta evento de descoberta; não dupl
 - Priorizar destino que esteja **verificado e autorizado** para o canal/caso, após avaliação de opt-in/out e janela/template; considerar `wa_id` do fornecedor quando aplicável e a identidade de envio bem-sucedida confirmada.
 - Se uma variante não funcionar, registrar código/meta correlation. **Não tentar enviar cegamente às duas variantes** e não solicitar confirmação de contato através de mensagens sem elegibilidade. Para `131030` (sandbox) conferir lista autorizada; para `190`, credencial/permissões.
 - O teste 17/10 demonstrou que `from` recebido e destinatário autorizado podem exigir representação diferente; **não comprovou regra universal de equivalência** com/sem nono dígito.
+
+
+### 5.4 Política de equivalência 8↔9 aprovada pelo responsável [D] — complemento
+
+**Exemplo sintético fornecido pelo responsável:** `5581900000000` e `558100000000` representam, no requisito funcional, **o mesmo contato lógico**, variando apenas o `9` inserido depois do DDD. São valores ilustrativos, **não números para chamadas reais**.
+
+**Aplicação padrão:** (1) aceitar os dois formatos no inbound, importação ou pesquisa; (2) comparar a chave lógica candidata `55 + DDD + oito últimos dígitos` quando a semântica móvel brasileira permitir; (3) resolver automaticamente para o mesmo `lead_id` **dentro da mesma concessionária** quando houver uma única correspondência e nenhum indício de conflito, com origem de canal confiável; (4) manter o número recebido, o formato operacional da Meta e as variantes em aliases auditáveis; (5) selecionar para **saída** somente o destino que estiver efetivamente autorizado/confirmado pelo provedor no contexto do canal, sem tentativas cegas nas duas representações.
+
+**Exceções não podem ser ignoradas:** número fixo, entrada importada com país/tipo ambíguo, identificador compartilhado/reciclado, colisões entre leads distintos, vínculo duvidoso ou não confirmado pela Meta: **não unificar registros de pessoas diferentes só pela fórmula numérica**; manter histórico e evento de conflito até confirmação. O padrão adotado pela Meta pode variar conforme o identificador; **não existe comprovação na POC de que a Meta sempre usa uma das duas representações**. A resolução de formato deve ser automática para variantes seguras, mas o envio deve respeitar destino operacional verificado.
+
+**Casos de aceite adicionados:** A) primeiro chega `5581900000000` e depois `558100000000` em inbound autenticado da mesma loja sem colisão → **um lead/uma conversa pertinente, aliases distintos preservados**; B) ordem inversa → mesmo resultado; C) busca por qualquer variante → mesmo contato; D) envio ao formato Meta validado → um único destino; E) conflito/fixo/outro tenant → revisão humana, sem fusão e sem envio alternativo.
 
 ### 5.3 Casos mínimos de teste [P, não executados]
 
@@ -224,7 +235,7 @@ g) Reprocessamento/reimportação só acrescenta evento de descoberta; não dupl
 | --- | --- |
 | Requisito suportar oito/nove dígitos locais BR | **Decisão do responsável nesta conversa [D]** |
 | Supabase direto em lugar de n8n no fluxo crítico inicial | **Decisão de direção [D]; desenho físico [P]** |
-| Equivalência automática de aliases sem nono dígito | **NÃO aprovada; exigência de evidência [R/V]** |
+| Reconhecimento de formatos BR com/sem nono dígito como mesmo número lógico | **APROVADO [D]** quando variante válida, correspondência única e origem confiável; colisões seguem revisão humana |
 | Critério formal de confirmação dos aliases e resolver conflito | [R], precisa da frente de identidade/negócio |
 | Posse definitiva WABA/app/número por loja, app e mandato | [R/V], conforme docs 11/34 |
 | Política Meta financeira, templates, janela, opt-in/out, dados | [V], não resolvida na POC |
@@ -238,7 +249,7 @@ g) Reprocessamento/reimportação só acrescenta evento de descoberta; não dupl
 
 **POC fonte:** `poc-meta-sandbox-documentacao-publica-2026-10-17.md` e `adr-001-transporte-webhook-supabase-vs-n8n.md` nesta branch. Webhook atual POC somente recebeu e respondeu comando; **este contrato é planejamento para a integração principal**, não refatoração já implantada.
 
-**Mudanças desta versão 0.1:** definida fronteira Meta/Supabase, funções conceituais C02/C06/C07 e riscos; suporte explícito 8/9 dígitos com aliases protegidos e sem fusão automática; critérios para sugerir Pro somente quando houver necessidade; referência explícita à decisão de usar Supabase diretamente.
+**Mudanças desta versão 0.1:** definida fronteira Meta/Supabase, funções conceituais C02/C06/C07 e riscos; suporte 8/9 dígitos com associação automática segura no mesmo número lógico por loja, sem fusão em colisões; critérios para sugerir Pro somente quando houver necessidade; referência à decisão de usar Supabase diretamente.
 
 
 ## 12. Especificação técnica derivada
