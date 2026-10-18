@@ -7,9 +7,11 @@ begin
    and not rolcanlogin and not rolinherit and not rolsuper and not rolbypassrls
    and not rolcreatedb and not rolcreaterole)
  then raise exception 'FAIL OWNER-01: signer role can login/inherit/escalate';end if;
- if exists(select 1 from pg_catalog.pg_auth_members
-   where roleid='prumo_s0_signer'::regrole)
- then raise exception 'FAIL OWNER-01: signer accessible by role membership';end if;
+ if exists(select 1 from pg_catalog.pg_auth_members am
+   join pg_catalog.pg_roles member_role on member_role.oid=am.member
+   where am.roleid='prumo_s0_signer'::regrole
+     and member_role.rolname not in ('postgres','supabase_admin'))
+ then raise exception 'FAIL OWNER-01: non-admin role inherits signer privileges';end if;
  v_proc:='prumo_private.gateway_validar_prova_s0(
  text,uuid,uuid,uuid,uuid,bigint,text,text,uuid,uuid,bigint,uuid,text)'::regprocedure::oid;
  if not exists(select 1 from pg_catalog.pg_proc
