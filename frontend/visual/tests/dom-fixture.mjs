@@ -49,6 +49,7 @@ export function installMockDOM({ mobile = false } = {}) {
     blur() { if (document.activeElement === this) document.activeElement = null; }
     showModal() { this._open = true; }
     close(value) { if (value !== undefined) this.returnValue = value; this._open = false; this.fire('close'); }
+    get open() { return this._open; }
     get options() { return this.children; }
     querySelector(selector) {
       if (selector === '.detail-tab.active') return descendants(this).find(n =>
