@@ -172,3 +172,11 @@ Revisão independente da fronteira fake `transactional-ingress.ts` (WA-05A) e do
 `TrustedWorkerScope` é agora obrigatório **em runtime** nas operações de worker da fixture; ele **não é autenticação**, somente validação simulada de contexto. Os 26 testes RECOV foram adaptados e o novo `recovery-audit.test.ts` acrescenta 12 cenários adversariais.
 
 **306/306 testes locais PASS**, TypeScript estrito PASS sobre 14 módulos e 20 arquivos de testes. Hashes publicados conferidos; não há CI remoto, credenciais, transação real ou ACK. Documento: `docs/integracoes/whatsapp-meta/wa05aud1-auditoria-retroativa-ingresso-recuperacao-v0_1.md`.
+
+## WA-05C — Contrato Meta → S0, sem recibo confiável/ACK
+
+`s0-handoff-contract.ts` reúne o POST Meta inspecionado **com credenciais fictícias** em um envelope mínimo candidato para a S0: batch/rota e revisão, App, referência do corpo protegido, `payload_sha256`, `scope_sha256`, contagem e posição/escopo por ocorrência. Não inclui corpo, PII do participante, token, segredo, `occurrence_ref` definitivo nem persistência. O `scope_sha256` vincula revisão/canal/loja/posição, mas **não é autenticação**.
+
+`reviewS0ReceiptFixture` só confere estrutura, escopo e contagens, recusando campos inesperados, getter hostil e divergências. Mesmo `COMMITTED` aparentemente válido retorna **`STRUCTURE_MATCHES_BUT_UNVERIFIED`** com `ack_allowed:false` e `production_authorized:false`: não existe ponte para HTTP ACK nem para uma transação S0 real.
+
+**330/330 testes sintéticos locais PASS** (24 S0C novos + 306 regressões), TypeScript estrito PASS em 15 módulos/21 suítes; hashes Git dos arquivos novos conferidos. [Documento WA-05C](../../docs/integracoes/whatsapp-meta/wa05c-contrato-handoff-meta-s0-v0_1.md). Token Meta e DEC-WA-04/06 continuam pendentes; sem Supabase hospedado, POC concessionária de demonstração, merge/deploy ou CI remoto.
