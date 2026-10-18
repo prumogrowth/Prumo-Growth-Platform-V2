@@ -12,6 +12,9 @@ from __future__ import annotations
 
 import base64
 import binascii
+import hashlib
+import hmac
+import time
 import json
 import re
 import urllib.error
@@ -207,25 +210,48 @@ class PsycopgTrustedDatabase:
                 return result[0]
 
 
-# This is the ONLY database adapter intended for a future dedicated SQL login.
-# The login must be provisioned out of band with membership in the NOLOGIN
-# prumo_s0_gateway role. Never grant it direct table or domain-function access.
+# LOCAL S0 demonstration only. Signing key and DB login must be separately
+# provisioned out-of-band; never include either in the repository or browser.
+# This is NOT a final production security design or a public HTTP endpoint.
 _GATEWAY_STATEMENTS = {
     "cancelar_plano": (
-        "select prumo_private.gateway_cancelar_plano_s0("
-        "%s::uuid,%s::uuid,%s::uuid,%s::uuid,%s::bigint)"
+        "select prumo_private.gateway_cancelar_plano_assinado_s0("
+        "%s::uuid,%s::uuid,%s::uuid,%s::uuid,%s::bigint,"
+        "%s::uuid,%s::bigint,%s::uuid,%s::text)"
     ),
     "conciliar_c07": (
-        "select prumo_private.gateway_conciliar_c07_s0("
-        "%s::uuid,%s::uuid,%s::uuid,%s::uuid,%s::bigint,%s::text,%s::text,%s::uuid)"
+        "select prumo_private.gateway_conciliar_c07_assinado_s0("
+        "%s::uuid,%s::uuid,%s::uuid,%s::uuid,%s::bigint,%s::text,"
+        "%s::text,%s::uuid,%s::uuid,%s::bigint,%s::uuid,%s::text)"
     ),
 }
 
 
-class PsycopgGatewayDatabase:
-    """LOCAL-ONLY restricted-role candidate; no admin user and no remote DSN."""
+def _gateway_signature_material(
+    principal: Principal, command: str, values: tuple[Any, ...],
+    issued_at: int, nonce: uuid.UUID,
+) -> bytes:
+    if command not in _GATEWAY_STATEMENTS:
+        raise InvalidCommand("COMANDO_NAO_PERMITIDO")
+    if command == "cancelar_plano":
+        shop, target, version = values
+        decision, reason, related = "-", "", "-"
+    else:
+        shop, target, version, decision, reason, related_uuid = values
+        related = str(related_uuid) if related_uuid is not None else "-"
+    reason_hash = hashlib.sha256(reason.encode("utf-8")).hexdigest()
+    material = "|".join([
+        "prumo-gw-v1", command, str(principal.actor_id),
+        str(principal.session_id), str(shop), str(target), str(version),
+        decision, reason_hash, related, str(issued_at), str(nonce),
+    ])
+    return material.encode("utf-8")
 
-    def __init__(self, dsn: str):
+
+class PsycopgGatewayDatabase:
+    """LOCAL-only restricted SQL login plus separate HMAC proof. No remote DSN."""
+
+    def __init__(self, dsn: str, *, key_id: uuid.UUID, signing_key: bytes):
         u = urllib.parse.urlsplit(dsn)
         if (
             u.scheme not in ("postgres", "postgresql")
@@ -236,20 +262,35 @@ class PsycopgGatewayDatabase:
                     or u.path.strip("/").startswith("prumo_s0_test_"))
         ):
             raise ValueError("GATEWAY_LOCAL_LEAST_PRIVILEGE_DSN_REQUIRED")
+        if not isinstance(key_id, uuid.UUID) or not isinstance(signing_key, bytes) or len(signing_key) < 32:
+            raise ValueError("GATEWAY_SECOND_FACTOR_REQUIRED")
         self._dsn = dsn
+        self._key_id = key_id
+        self._signing_key = signing_key
 
     def invoke(self, principal: Principal, command: str, values: tuple[Any, ...]) -> dict[str, Any]:
         import psycopg
         sql = _GATEWAY_STATEMENTS.get(command)
         if sql is None:
             raise InvalidCommand("COMANDO_NAO_PERMITIDO")
-        # The DB login has NO ordinary data grants; SET ROLE must succeed through
-        # provisioned membership, and wrappers check live session again.
+        # Only after GoTrue verification in AuthenticatedCommands.
+        # A nonce is unique per invocation; a duplicate HTTP request receives
+        # a FRESH proof and domain idempotency handles ALREADY_APPLIED.
+        issued_at = int(time.time())
+        nonce = uuid.uuid4()
+        signature = hmac.new(
+            self._signing_key,
+            _gateway_signature_material(principal, command, values, issued_at, nonce),
+            hashlib.sha256,
+        ).hexdigest()
         with psycopg.connect(self._dsn, connect_timeout=5) as connection:
             with connection.cursor() as cursor:
                 cursor.execute("SET LOCAL ROLE prumo_s0_gateway")
                 try:
-                    cursor.execute(sql, (principal.actor_id, principal.session_id, *values))
+                    cursor.execute(
+                        sql, (principal.actor_id, principal.session_id, *values,
+                              self._key_id, issued_at, nonce, signature)
+                    )
                 except psycopg.errors.InsufficientPrivilege:
                     raise Denied("ACESSO_NEGADO") from None
                 row = cursor.fetchone()
