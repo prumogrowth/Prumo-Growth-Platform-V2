@@ -72,3 +72,12 @@ Executados localmente: **41/41 testes PASS** para `graph-outbound.test.ts` + `gr
 Este módulo **não é um serviço backend**, não possui `fetch`, Graph API, HTTP, segredo, banco ou autorização comercial. A ficha `allowed_now` é exclusivamente fictícia, não comprova elegibilidade e não pode ser usada como porta de produção.
 
 **Testes reexecutados localmente:** 23 SIM novos + 17 WA-OUT + 24 WA-TPL = **64/64 PASS**, TypeScript estrito dos três módulos PASS. Sem CI GitHub e sem typecheck completo de `*.test.ts`. Documento: `docs/integracoes/whatsapp-meta/wa02c-simulacao-despacho-s0-meta-v0_1.md`.
+
+
+## WA-02D — conciliação de callbacks técnicos Meta (somente fixture)
+
+`technical-reconciliation.ts` oferece `FakeMetaStatusReconciler` **somente em memória**. Correlaciona um `wamid` previamente aceito pela Graph API com callbacks `sent/delivered/read/failed` por **App confiável + WABA + Phone Number ID + destinatário exato**; eventos fora de ordem não diminuem progresso técnico, e callbacks repetidos são preservados, sem dedupe automático por `statuses[].id`. Callback antes de envio registrado fica pendente, com limites sintéticos explícitos, sem HTTP 200 ou efeito comercial.
+
+O nome do método `observeAuthenticatedFixture` pressupõe HMAC comprovado e aceite durável **fora** desse módulo; não valida assinatura, não cria inbox nem autoriza C07/Graph. Destino BR 8↔9 não é inferido. O log dos resultados não contém telefones/tokens/texto.
+
+Testes: **24/24 REC PASS** e **88/88 PASS** com regressões WA-02A/B/C locais; TypeScript estrito do módulo PASS. Documentação: `docs/integracoes/whatsapp-meta/wa02d-conciliacao-status-meta-sintetica-v0_1.md`. PR Draft, sem deploy nem chamadas de rede.
