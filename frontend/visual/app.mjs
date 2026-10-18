@@ -21,7 +21,7 @@ const list = $('conversation-items');
 const state = {
   actorId: 'rafael', shopId: 'aurora', filter: 'all', statusFilter: 'all', detailTab: 'overview', query: '',
   selectedId: 'A-102', cases: copyCFDemoFixtures(), processing: {}, followupRequests: {}, inboxView: 'active',
-  mobileView: 'list'
+  mobileView: 'list', dialogContext: { completion: null, template: null }
 };
 
 function el(tag, className='', text=null) {
@@ -54,6 +54,25 @@ function canMockClose(record) {
     !state.processing[record.id] && !state.followupRequests[record.id];
 }
 
+function captureDialogContext(kind) {
+  state.dialogContext[kind] = {
+    actorId: state.actorId, shopId: state.shopId, caseId: state.selectedId
+  };
+}
+function consumeDialogContext(kind) {
+  const saved = state.dialogContext[kind];
+  state.dialogContext[kind] = null;
+  return Boolean(saved && saved.actorId === state.actorId &&
+    saved.shopId === state.shopId && saved.caseId === state.selectedId);
+}
+function closeTransientDialogs() {
+  for (const [kind,id] of [['completion','completion-dialog'],['template','template-dialog']]) {
+    state.dialogContext[kind] = null;
+    const dialog = $(id);
+    dialog.returnValue = '';
+    if (dialog.open) dialog.close();
+  }
+}
 function showToast(message) {
   const node = $('toast'); node.textContent = message; node.hidden = false;
   clearTimeout(showToast.timer);
@@ -116,7 +135,7 @@ function renderList() {
     center.append(row, el('div','item-preview',preview),foot);
     card.append(avatar,center);
     card.addEventListener('click', () => {
-      state.selectedId = item.id; item.unread = 0;state.detailTab='overview';
+      closeTransientDialogs();state.selectedId = item.id; item.unread = 0;state.detailTab='overview';
       goto('thread'); render();
     });
     return card;
@@ -162,13 +181,21 @@ function renderThread() {
   bar.replaceChildren(note);
   const meta=projectedMetaWindow(item);
   bar.append(el('span','window-indicator '+(meta==='open'?'open':'closed'),meta==='open'?'Janela Meta aberta · projeção':meta==='expired'?'Janela Meta expirada · projeção':'Janela Meta não confirmada'));
-  if(humanCompletion(item,Boolean(state.processing[item.id]))!=='pending') bar.append(el('span','status-indicator','Etapa humana concluída · demo'));
+  const completionState = humanCompletion(item,Boolean(state.processing[item.id]));
+  if(completionState==='completed' || completionState==='completed_demo')
+    bar.append(el('span','status-indicator','Etapa humana concluída · demo'));
+  else if(completionState==='unknown')
+    bar.append(el('span','status-indicator','Etapa humana não confirmada'));
   if(!isInActiveInbox(item)) bar.append(el('span','status-indicator','Histórico · somente leitura'));
   if(item.reassignmentProjection==='protected_queue') bar.append(el('span','status-indicator','Fila protegida · sem responsável elegível'));
   if (canMockClose(item)) {
     const close = el('button', 'btn btn-primary', 'Concluir atendimento');
     close.type = 'button'; close.id='request-completion';
-    close.addEventListener('click', () => { const dialog=$('completion-dialog');dialog.returnValue='';dialog.showModal(); });
+    close.addEventListener('click', () => {
+      if(!canMockClose(selectedCase()))return;
+      captureDialogContext('completion');
+      const dialog=$('completion-dialog');dialog.returnValue='';dialog.showModal();
+    });
     bar.append(close);
   } else if (state.processing[item.id]) {
     const label = state.processing[item.id].kind === 'accepted' ? 'Solicitação simulada' : 'Resultado fictício';
@@ -187,6 +214,7 @@ function renderThread() {
         const option=el('option','',template.title+' · '+template.version+' (fictício)');
         option.value=template.id;return option;
       }));
+      captureDialogContext('template');
       const dialog=$('template-dialog');dialog.returnValue='';dialog.showModal();
     });
     bar.append(btn);
@@ -244,7 +272,7 @@ function renderDetails() {
       prop('Profissional atribuído',item.reassignmentProjection==='protected_queue'?'Fila protegida (demonstração)':actor?.name??'Sem atribuição'),
       prop('Estado comercial',item.status),
       prop('Janela Meta (projeção)',projectedMetaWindow(item)==='open'?'Aberta · fictícia':projectedMetaWindow(item)==='expired'?'Expirada · fictícia':'Não confirmada'),
-      prop('Etapa humana',humanCompletion(item,Boolean(state.processing[item.id]))==='pending'?'Pendente':'Concluída · cenário fictício'),
+      prop('Etapa humana',({'pending':'Pendente','completed':'Concluída · cenário fictício','completed_demo':'Concluída · pedido simulado','unknown':'Não confirmada'})[humanCompletion(item,Boolean(state.processing[item.id]))] ?? 'Não confirmada'),
       prop('Lista',isInActiveInbox(item)?'Ativa / pendente':'Histórico preservado')
     );
     if(item.reassignmentProjection==='protected_queue') group.append(callout('Acesso operacional protegido','A S1-002 decidirá o remanejamento real; não há escolha de operador pelo frontend.','warning'));
@@ -282,8 +310,10 @@ function renderDetails() {
   } else if(state.detailTab==='extraction') {
     const extract=detailSection('FICHA E EXTRAÇÃO · FV-02');const proc=state.processing[item.id];
     if(!proc){
-      const completed=humanCompletion(item)!=='pending';
-      extract.append(completed ? callout('Etapa concluída · retorno não disponível','A fixture informa conclusão humana, mas não informa resultado de extração. Não afirmar que ela foi solicitada, gravada ou concluída.','warning') : callout('Ainda não solicitada','Após a conclusão humana, o S0 poderá solicitar extração. Nenhum dado foi processado neste exemplo.'));
+      const phase=humanCompletion(item);
+      extract.append(phase==='completed' ? callout('Etapa concluída · retorno não disponível','A fixture informa conclusão humana, mas não informa resultado de extração. Não afirmar que ela foi solicitada, gravada ou concluída.','warning') :
+        phase==='pending' ? callout('Ainda não solicitada','Após a conclusão humana, o S0 poderá solicitar extração. Nenhum dado foi processado neste exemplo.') :
+        callout('Situação não confirmada','Não é possível afirmar que a etapa humana terminou ou que houve extração. Aguarde uma projeção confiável da S0.','warning'));
     }else{
       const scenario=modelExtraction(proc.kind);
       extract.append(callout(scenario.title,scenario.explanation,proc.kind==='accepted'||proc.kind==='partial'?'warning':''));
@@ -292,7 +322,7 @@ function renderDetails() {
         const missing=el('div','detail-row');missing.append(el('strong','','Campo ilustrativo B'),el('span','','Sem fonte suficiente · pendente'));
         extract.append(example,missing);
       }
-      if(canSimulateCompletion(item,state.actorId,state.shopId) && humanCompletion(item)==='pending'){
+      if(canSimulateCompletion(item,state.actorId,state.shopId) && state.processing[item.id] && humanCompletion(item)==='pending'){
         const actions=el('div','scenario-options');
         for(const [kind,label] of [['partial','Retorno parcial'],['failed','Falha técnica'],['stale','Versão obsoleta']]){
           const button=el('button','btn btn-light',label);button.type='button';
@@ -338,6 +368,7 @@ function renderDetails() {
 function render(){renderList();renderThread();renderDetails();app.dataset.mobileView=state.mobileView;}
 function changeActor(actorId){
   const actor=getActor(actorId);if(!actor)return;
+  closeTransientDialogs();
   state.actorId=actor.id;state.shopId=actor.shops[0];state.selectedId=null;state.detailTab='overview';state.statusFilter='all';state.inboxView='active';
   state.filter='all';state.query='';$('search-input').value='';goto('list');updateSelectors();render();
 }
@@ -345,12 +376,13 @@ $('actor-select').addEventListener('change',event=>changeActor(event.target.valu
 $('shop-select').addEventListener('change',event=>{
   const actor=getActor(state.actorId);
   if(!actor.shops.includes(event.target.value))return;
+  closeTransientDialogs();
   state.shopId=event.target.value;state.selectedId=null;state.detailTab='overview';state.statusFilter='all';state.inboxView='active';$('status-filter').value='all';state.query='';$('search-input').value='';goto('list');render();
 });
 $('search-input').addEventListener('input',event=>{state.query=event.target.value;renderList();});
 $('status-filter').addEventListener('change',event=>{state.statusFilter=event.target.value;renderList();});
 document.querySelectorAll('[data-inbox]').forEach(button=>button.addEventListener('click',()=>{
- state.inboxView=button.dataset.inbox;state.selectedId=null;goto('list');render();
+ closeTransientDialogs();state.inboxView=button.dataset.inbox;state.selectedId=null;goto('list');render();
 }));
 document.querySelectorAll('[data-filter]').forEach(button=>button.addEventListener('click',()=>{state.filter=button.dataset.filter;renderList();}));
 $('thread-back').addEventListener('click',()=>goto('list'));
@@ -399,15 +431,19 @@ $('composer').addEventListener('submit',event=>{
   item.updatedAt='Agora';input.value='';render();showToast('Mensagem adicionada apenas à simulação local.');
 });
 $('completion-dialog').addEventListener('close',()=>{
-  if($('completion-dialog').returnValue!=='confirm')return;
+  const isConfirm=$('completion-dialog').returnValue==='confirm';
   $('completion-dialog').returnValue='';
+  const sameContext=consumeDialogContext('completion');
+  if(!isConfirm || !sameContext)return;
   const item=selectedCase(); if(!item || !canMockClose(item))return;
   state.processing[item.id]={kind:'accepted'};state.detailTab='extraction';
   render();showToast('Solicitação de conclusão simulada. Nenhuma API foi chamada.');
 });
 $('template-dialog').addEventListener('close',()=>{
-  if($('template-dialog').returnValue!=='confirm')return;
+  const isConfirm=$('template-dialog').returnValue==='confirm';
   $('template-dialog').returnValue='';
+  const sameContext=consumeDialogContext('template');
+  if(!isConfirm || !sameContext)return;
   const item=selectedCase();if(!item)return;
   const template=DEMO_TEMPLATES.find(x=>x.id===$('template-select').value);
   try {state.followupRequests[item.id]=applyLocalFollowupRequest(item,state.actorId,state.shopId,'single_template',template);
