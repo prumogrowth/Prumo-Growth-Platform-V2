@@ -425,3 +425,19 @@ A label `run-auth-integration` foi aplicada deliberadamente uma vez e **removida
 - **Histórico transparente:** [#39122774143 — FAILURE](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39122774143) por comparação incompleta do campo `search_path` no teste AUD-036A-03 (o catálogo serializa string vazia em formas equivalentes). Corrigimos **apenas o teste**; os demais AUD-036A-01/02 já passaram nessa rodada e a execução definitiva passou integralmente. CI intermediário #39122866007 cancelado por commit mais recente.
 
 Artefatos: `docs/S0_036A_AUDITORIA_ACL_2026_10_18.md`, `supabase/tests/s0_036a_auditoria_acl_completa.sql`, `scripts/test_s0_auth_rest_local.py`, `scripts/run-s0-local.sh`. O reparo não torna as wrappers comerciais `SECURITY DEFINER postgres` privilégio mínimo ponta a ponta. Não certifica worker operacional, segredo real, Meta/Graph, instituição financeira, C07 real, retenção/restore, ACK HTTP ou produção. DEC-WA-04/06 e contrato WA-01C continuam pendentes; DEC-WA-05 mantém propriedade Meta por concessionária. PRs permanecem Draft sem merge; nenhuma migration no Supabase hospedado. **GO** para engenharia sintética posterior à auditoria; **NO-GO** para produção ou infraestrutura real.
+
+
+## S0-037A — gate negativo de transferência do owner comercial (18/10/2026 UTC)
+
+**Sem migration nova, sem mudança de owner, sem DML comercial persistente.** A migration `202610180037_s0_036a_acl_audit_repair.sql` segue exclusiva ao reparo anterior S0-036A; este marco S0-037A apenas amplia a validação executável de dependências das wrappers legadas `SECURITY DEFINER postgres` em `supabase/tests/s0_037a_gate_owner_comercial.sql`, incluído em `scripts/run-s0-local.sh`.
+
+**Evidência de execução:** [GitHub Actions PG17 #39123912355 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39123912355), commit de código `5e99ba5761d54cfdf4d7ab77cabf2977e1d2724f`. Logs conferidos: **OWNER37-01..05 PASS**, AUD-036A-01..04 PASS, regressões anteriores S0 incluindo GW, OWNER, C01/C02/C07, concorrência e **24 testes Python OK**.
+- OWNER37-01: proprietário `postgres` e `SECURITY DEFINER` nas duas wrappers legadas, e guard `current_user='postgres'` nas funções comerciais `SECURITY INVOKER`.
+- OWNER37-02: executor assinado não recebe DML comercial nem acesso à sessão e mantém apenas delegação às wrappers legadas.
+- OWNER37-03: papel temporário `NOLOGIN NOBYPASSRLS` com EXECUTE explicitamente concedido às funções invoker recebe **`INTERNAL_ONLY`**, logo ALTER OWNER isolado não é mudança segura.
+- OWNER37-04: papel temporário com SELECT de `leads_loja` não enxerga linha fictícia existente sem uma política RLS apropriada; não é prova de autorização operacional completa.
+- OWNER37-05: não há mudança no owner do domínio, contas ou associação de privilégios; objetos de teste são revertidos por ROLLBACK.
+
+**Interpretação:** o requisito de reduzir privilégios efetivos das wrappers comerciais segue pendente; trocar diretamente o proprietário hoje quebraria a aplicação. Precisamos projetar a autorização, RLS específica e privilégios transacionais, mantendo HMAC, nonce, sessão GoTrue, gestor, loja, versão, auditoria, isolamento e sem novos meios de execução pública. **Não usar BYPASSRLS, privilégios amplos nem novos helpers `SECURITY DEFINER postgres` como atalho.**
+
+**Supabase Auth/REST local gerenciado:** não repetido neste marco que não altera migrations/runtime; última evidência homologada para baseline S0-036A é [#39122948236 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39122948236). Registros de análise em `docs/S0_037A_GATE_OWNER_COMERCIAL_2026_10_18.md`. DEC-WA-04/06, política de observações C07 e demais gates operacionais ainda pendentes. PRs Draft, sem merge, sem envio real, Supabase hospedado ou produção. **GO somente para projeto/testes sintéticos de privilégio mínimo; NO-GO para transferir as wrappers hoje.**
