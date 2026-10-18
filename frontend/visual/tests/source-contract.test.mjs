@@ -8,6 +8,8 @@ const app = get('app.mjs');
 const markup = get('index.html');
 const styles = get('styles.css');
 const contract = get('cf-op-02.mjs');
+const registration = get('registration-view.mjs');
+const browserSmoke = get('tests/browser.smoke.py');
 
 test('três áreas adaptativas e controle de histórico existem', () => {
   for (const fragment of ['id="conversation-items"', 'id="thread-pane"', 'id="detail-pane"',
@@ -50,4 +52,19 @@ test('frontend não executa redes, persiste segredo ou mede prazos de domínio',
   assert.doesNotMatch(code, /\blocalStorage\b|\bsessionStorage\b/);
   assert.doesNotMatch(code, /\bDate\.now\s*\(|\bnew\s+Date\s*\(/);
   assert.doesNotMatch(code, /\.innerHTML\s*=/);
+});
+
+test('O3 depende de confirmação S0 e não oferece formulário cadastral habitual', () => {
+  assert.match(app, /registrationProjectionFor\(item,state\.actorId,state\.shopId\)/);
+  assert.match(app, /Detalhes restritos ao responsável do caso/);
+  assert.match(registration, /mayViewMockRegistrationDetail/);
+  assert.match(registration, /confirmedPersisted/);
+  assert.match(registration, /field\.validationState === 'applied'/);
+  assert.doesNotMatch(registration, /\bfetch\s*\(|\bXMLHttpRequest\b|\bWebSocket\b/);
+});
+
+test('roteiro de Chromium carrega visualizador O3 para ensaios futuros', () => {
+  assert.match(browserSmoke, /registration-view\.mjs/);
+  assert.match(browserSmoke, /Valor fictício confirmado/);
+  assert.match(browserSmoke, /Detalhes restritos ao responsável/);
 });
