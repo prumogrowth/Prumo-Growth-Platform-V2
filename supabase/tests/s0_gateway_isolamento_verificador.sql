@@ -33,7 +33,7 @@ begin
  or has_column_privilege('prumo_s0_signer',
     'prumo_private.gateway_chaves_assinatura_s0','motivo_revogacao','SELECT')
  or has_table_privilege('prumo_s0_signer','public.leads_loja','SELECT')
- or has_table_privilege('prumo_s0_signer','auth.sessions','SELECT')
+
  or has_table_privilege('prumo_s0_signer',
     'prumo_private.gateway_eventos_chave_s0','INSERT')
  or has_function_privilege('prumo_s0_signer',
@@ -43,6 +43,10 @@ begin
     'prumo_private.alterar_estado_chave_gateway_s0(uuid,bigint,boolean,text)',
     'EXECUTE')
  then raise exception 'FAIL OWNER-02: verifier has commercial or administrative privileges';end if;
+ if pg_catalog.to_regclass('auth.sessions') is not null then
+  if has_table_privilege('prumo_s0_signer','auth.sessions','SELECT')
+  then raise exception 'FAIL OWNER-02: signer can read Supabase sessions';end if;
+ end if;
 end $priv$;
 \echo 'PASS OWNER-02: dono do validador tem somente grants tecnicos e nao acessa dados comerciais'
 
