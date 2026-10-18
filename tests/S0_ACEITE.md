@@ -254,3 +254,8 @@ Esse gate resolve a pendência de **validação Auth/REST local de C07**; não r
 - **Gate:** GO exclusivamente para continuar engenharia sintética local. Continuam pendentes desenho de cofre/isolamento de segredos, proprietário restrito das wrappers comerciais (ainda `postgres`), logs duráveis de negativas, retenção/backup/restore, LGPD e aceite para operação real. **NO-GO** para merge, SQL hospedado, cliente real, Meta/Banco e produção.
 
 Esta atualização substitui a indicação anterior de que o teste Auth/REST da versão final 027 ainda estava pendente; mantém os erros antigos como histórico auditável.
+
+
+## Incremento documental — dependências de privilégio comercial (17/10/2026)
+
+Auditoria **estática**, sem modificação SQL ou novo teste: `docs/AUDITORIA_PRIVILEGIOS_COMERCIAIS_S0_2026_10_17.md`. Confirmadas no código as cadeias `gateway_assinado` → verificador HMAC / wrapper legada → `auth.sessions` / função de domínio / auditoria. Migração 023 declara explicitamente dependência de `current_user='postgres'` em código de domínio. **Nenhuma transferência de owner das funções comerciais aprovada ou executada.** Os CI #39088775699 (PG) e #39088838150 (Auth/REST) permanecem somente evidências da 027, não deste incremento documental. Próximo gate: inventário de grants e funções no PostgreSQL efêmero, implementação mínima e testes negativos antes de Auth/REST deliberado. Supabase hospedado: somente leitura, 0 tabelas `public`, 0 migrações, advisor de segurança sem alertas.
