@@ -63,3 +63,12 @@ Os construtores Graph continuam **inertes** e não concedem direito de envio. Ap
 **Assinatura atual [P]:** `prepareGraphTemplateRequest(intent, trustedSnapshot, trustedScope, apiVersion)` — quatro argumentos. Os três objetos coincidentes não comprovam autorização; `trustedScope` e `trustedSnapshot` devem vir de backend interno confiável, que revalida C06 no instante do envio.
 
 Executados localmente: **41/41 testes PASS** para `graph-outbound.test.ts` + `graph-template.test.ts` e TypeScript estrito PASS dos dois módulos. Os arquivos de teste não passaram typecheck completo por ausência de tipos Node; sem CI remoto. Relatório: `docs/integracoes/whatsapp-meta/wa02-reparos-pos-auditoria-2026-10-18.md`.
+
+
+## WA-02C — Despacho S0 → Meta inteiramente simulado
+
+`offline-dispatch.ts` conecta **somente em memória** o classificador WA-02A e o construtor de template WA-02B a `FakeS0Outbox` e `ScriptedFakeGraph`. Verifica escopo e versão atuais da fixture antes de reservar uma única tentativa. Revogação, divergência entre concessionárias, destinatário alterado, template suspenso e erro de preparação bloqueiam sem chamada fake; timeout e falha de registro permanecem incertos, sempre `retry_automatically=false`.
+
+Este módulo **não é um serviço backend**, não possui `fetch`, Graph API, HTTP, segredo, banco ou autorização comercial. A ficha `allowed_now` é exclusivamente fictícia, não comprova elegibilidade e não pode ser usada como porta de produção.
+
+**Testes reexecutados localmente:** 23 SIM novos + 17 WA-OUT + 24 WA-TPL = **64/64 PASS**, TypeScript estrito dos três módulos PASS. Sem CI GitHub e sem typecheck completo de `*.test.ts`. Documento: `docs/integracoes/whatsapp-meta/wa02c-simulacao-despacho-s0-meta-v0_1.md`.
