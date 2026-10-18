@@ -37,6 +37,11 @@ flowchart TD
   P --> DB[Supabase: dados, RLS e auditoria]
   P --> INT[Integrações futuras]
   INT --> WA[Meta WhatsApp via Supabase direto]
+  WA --> WABIND["App/WABA/número exclusivos por loja [D]"]
+  WABIND --> WAHMAC["GET verify e POST HMAC por App [P offline]"]
+  WAHMAC --> WAINBOX["Inbox durável antes do ACK [R S0]"]
+  WABIND --> WATOKEN["Token: verificação por terceiro [R]"]
+  WA --> WASEND["C03/C06/C12: outbox e envio Graph [P offline]"]
   INT --> OAI[OpenAI API]
   INT --> N[n8n opcional, fora do caminho critico Meta]
 ```
@@ -112,7 +117,7 @@ flowchart TD
 | WA-02A/B/C/D | **[P/V local]** Construtores, envio Graph fictício e callbacks técnicos | Testes unitários sintéticos; **nenhum** HTTP Graph, retorno comercial ou persistência durável |
 | WA-03A/B | **[P/V local]** Auditorias e reparos publicados | 120 testes na suíte WA-03B; corrigidos isolamento, posições dos arrays, HMAC/buffer e correlações; não é CI de produção |
 | WA-04A/B | **[P/V local]** Roteamento confiável e slots segregados por App/canal | 167/167 testes locais na WA-04B (inclui regressões anteriores selecionadas); sem token real ou conexão Supabase |
-| WA-04C | **[P/V local]** Propostas puras de revogação de App/canal e rotação de slots | 13/13 testes locais específicos; propostas não aplicadas, rotação deixa App **inativo na cópia**; sem ativação |
+| WA-04C | **[P/V local]** Propostas puras de revogação de App/canal e rotação de slots | 13 testes próprios e 10 testes adicionais de auditoria WA-04A/B/C; corrigida negativa controlada para registro malformado ou não clonável. Propostas **não aplicadas**, App inativo na cópia; sem ativação |
 | Credenciais Meta definitivas | **[R]** Dependência de **verificação por terceira pessoa** para liberar o token | **Não disponíveis** para esta frente; testes reais WhatsApp adiados; não pedir valores em Git, issue, chat ou arquivo |
 | S0 ↔ Meta real | **[R]** Gate operacional pendente | Ambiente DEC-WA-04, segredos/rotação/ACK/retensão DEC-WA-06, registro App→loja/canal autenticado, payload protegido, `occurrence_ref`, autorização C03/C06/C12 e C07 |
 
@@ -121,3 +126,5 @@ flowchart TD
 **Fonte de navegação:** [PR #2 — frente WhatsApp/Meta](https://github.com/prumogrowth/Prumo-Growth---Platform/pull/2) e seus documentos `docs/integracoes/whatsapp-meta/wa04a-...`, `wa04b-...`, `wa04c-ciclo-credenciais-sem-token-v0_1.md`. **Coordenação S0:** [PR #1](https://github.com/prumogrowth/Prumo-Growth---Platform/pull/1), onde owners comerciais mínimos, RLS, Gateway e persistência/ocorrências C07 seguem seu próprio gate; não confundir CI PostgreSQL descartável ou Supabase **local** com implantação hospedada.
 
 **Regra operacional preservada:** não usar a POC concessionária de demonstração como ambiente definitivo por inferência; nenhum merge, deploy, migração remota, webhook comercial ou número alterado. Mesmo depois da liberação do token, testes reais exigirão confirmação do projeto Supabase correto, das permissões/segurança e uma autorização específica.
+
+**Auditoria WA-04A/B/C (18/10/2026):** **190/190 testes sintéticos locais PASS** nas suítes selecionadas (180 pré-existentes + 10 adversariais novos); compilação TypeScript estrita de módulos e testes selecionados PASS. Encontrada e corrigida na WA-04C uma exceção com registro de Apps malformado/não clonável; resultado agora nega a proposta. O diagrama **inicial** mostra só os cinco vínculos Meta que alteram a compreensão da arquitetura; detalhes continuam nos documentos. Os quatro arquivos unitários WA-01 legados não integram esta reexecução; não declarar homologação geral ou teste de token/Meta.
