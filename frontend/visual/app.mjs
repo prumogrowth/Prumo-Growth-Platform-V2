@@ -41,7 +41,7 @@ function accessible() { return visibleConversations(state.cases, state.actorId, 
 function filtered() {
   return projectQueue(state.cases, state.actorId, state.shopId, {
     query: state.query, filter: state.filter, status: state.statusFilter
-  }).filter(record => state.inboxView === 'history' ? !isInActiveInbox(record) : isInActiveInbox(record));
+  }).filter(record => state.inboxView === 'history' ? record.inboxProjection === 'historical' : isInActiveInbox(record));
 }
 
 function canMockMessage(record) {
@@ -72,7 +72,7 @@ function updateSelectors() {
     o.value = a.id; return o;
   }));
   actorSelect.value = state.actorId;
-  $('team-nav-mobile').hidden = actor.role !== 'gestor' || actor.teamState === 'suspended' || actor.teamState === 'removed';
+  $('team-nav-mobile').hidden = actor.role !== 'gestor' || actor.teamState !== 'active';
   const shopSelect = $('shop-select');
   shopSelect.replaceChildren(...actor.shops.map(id => {
     const shop = getShop(id); const o = el('option', '', `${shop.name} · fictícia`); o.value = id; return o;
