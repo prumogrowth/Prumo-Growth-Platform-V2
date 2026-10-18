@@ -6,7 +6,8 @@ const b: SimulatedBatch = {batch_ref:'BATCH_A',app_ref:'APP_A',concessionaria_id
   events:[{array_kind:'messages',entry_index:0,change_index:0,item_index:0,provider_message_id:'wamid.IN_A'}]};
 const several: SimulatedBatch = {...b,events:[b.events[0],
   {array_kind:'statuses',entry_index:0,change_index:0,item_index:0,provider_message_id:'wamid.OUT_A'}]};
-const claim = (j: FakeS0RecoveryJournal,owner='WORKER_A',tick=10) => j.claim(owner,tick,10);
+const scope={app_ref:'APP_A',concessionaria_id:'STORE_A',canal_id:'CANAL_A'};
+const claim = (j: FakeS0RecoveryJournal,owner='WORKER_A',tick=10) => j.claim(owner,tick,10,scope);
 
 test('RECOV-01 metadata journal commit remains lab-only and never authorizes Meta ACK',()=>{
   const j=new FakeS0RecoveryJournal(), r=j.admit(b);
@@ -76,7 +77,7 @@ test('RECOV-13 restarting the worker with SAME fake journal can resume pending w
   const j=new FakeS0RecoveryJournal();j.admit(b,'after_commit');
   const restarted=new FakeS0RecoveryJournal(); // a NEW JOURNAL is empty: not durable!
   assert.equal(restarted.recover(b).decision,'LAB_ABSENT');
-  assert.equal(j.claim('RESTARTED',10,20).decision,'CLAIMED');
+  assert.equal(j.claim('RESTARTED',10,20,scope).decision,'CLAIMED');
 });
 test('RECOV-14 active lease prevents second worker from processing same occurrence',()=>{
   const j=new FakeS0RecoveryJournal();j.admit(b);assert.equal(claim(j).decision,'CLAIMED');
@@ -86,48 +87,48 @@ test('RECOV-15 expired lease can be reclaimed but its stale token cannot finish'
   const j=new FakeS0RecoveryJournal();j.admit(b);
   const old=claim(j);const next=claim(j,'WORKER_B',20);
   assert.equal(next.decision,'CLAIMED');assert.notEqual(old.lease_ref,next.lease_ref);
-  assert.equal(j.finish('WORKER_A',old.occurrence_ref!,old.lease_ref!,20).decision,'STALE_LEASE');
-  assert.equal(j.finish('WORKER_B',next.occurrence_ref!,next.lease_ref!,20).decision,'APPLIED_IN_LAB');
+  assert.equal(j.finish('WORKER_A',old.occurrence_ref!,old.lease_ref!,20,'none',scope).decision,'STALE_LEASE');
+  assert.equal(j.finish('WORKER_B',next.occurrence_ref!,next.lease_ref!,20,'none',scope).decision,'APPLIED_IN_LAB');
 });
 test('RECOV-16 wrong worker or forged lease cannot apply a technical effect',()=>{
   const j=new FakeS0RecoveryJournal();j.admit(b);const c=claim(j);
-  assert.equal(j.finish('WORKER_B',c.occurrence_ref!,c.lease_ref!,11).decision,'STALE_LEASE');
-  assert.equal(j.finish('WORKER_A',c.occurrence_ref!,'FAKE_LEASE_FORGED',11).decision,'STALE_LEASE');
+  assert.equal(j.finish('WORKER_B',c.occurrence_ref!,c.lease_ref!,11,'none',scope).decision,'STALE_LEASE');
+  assert.equal(j.finish('WORKER_A',c.occurrence_ref!,'FAKE_LEASE_FORGED',11,'none',scope).decision,'STALE_LEASE');
   assert.equal(j.appliedEffects,0);
 });
 test('RECOV-17 expired lease cannot finish without being reclaimed',()=>{
   const j=new FakeS0RecoveryJournal();j.admit(b);const c=claim(j);
-  assert.equal(j.finish('WORKER_A',c.occurrence_ref!,c.lease_ref!,20).decision,'STALE_LEASE');
+  assert.equal(j.finish('WORKER_A',c.occurrence_ref!,c.lease_ref!,20,'none',scope).decision,'STALE_LEASE');
 });
 test('RECOV-18 crash after internal effect loses response but cannot repeat that effect',()=>{
   const j=new FakeS0RecoveryJournal();j.admit(b);
-  const c=claim(j);assert.equal(j.finish('WORKER_A',c.occurrence_ref!,c.lease_ref!,11,'after_apply').decision,'LAB_RESULT_UNKNOWN');
-  assert.equal(j.appliedEffects,1);assert.equal(j.claim('RESTARTED',20,10).decision,'NO_WORK');
-  assert.equal(j.finish('WORKER_A',c.occurrence_ref!,c.lease_ref!,12).decision,'ALREADY_DONE');
+  const c=claim(j);assert.equal(j.finish('WORKER_A',c.occurrence_ref!,c.lease_ref!,11,'after_apply',scope).decision,'LAB_RESULT_UNKNOWN');
+  assert.equal(j.appliedEffects,1);assert.equal(j.claim('RESTARTED',20,10,scope).decision,'NO_WORK');
+  assert.equal(j.finish('WORKER_A',c.occurrence_ref!,c.lease_ref!,12,'none',scope).decision,'ALREADY_DONE');
   assert.equal(j.appliedEffects,1);
 });
 test('RECOV-19 journal recovery reports pending vs already applied technical effects',()=>{
   const j=new FakeS0RecoveryJournal();j.admit(several);const c=claim(j);
-  j.finish('WORKER_A',c.occurrence_ref!,c.lease_ref!,11);
+  j.finish('WORKER_A',c.occurrence_ref!,c.lease_ref!,11,'none',scope);
   assert.deepEqual(j.recover(several),{decision:'LAB_FOUND',pending:1,done:1,ack_allowed:false,production_authorized:false});
 });
 test('RECOV-20 two statuses sharing wamid may each be processed independently',()=>{
   const j=new FakeS0RecoveryJournal();const status:SimulatedBatch={...b,events:[
     {array_kind:'statuses',entry_index:0,change_index:0,item_index:0,provider_message_id:'wamid.SAME'},
     {array_kind:'statuses',entry_index:0,change_index:0,item_index:1,provider_message_id:'wamid.SAME'}]};
-  j.admit(status);const a=claim(j);j.finish('WORKER_A',a.occurrence_ref!,a.lease_ref!,11);
+  j.admit(status);const a=claim(j);j.finish('WORKER_A',a.occurrence_ref!,a.lease_ref!,11,'none',scope);
   const c=claim(j);assert.notEqual(c.occurrence_ref,a.occurrence_ref);
-  j.finish('WORKER_A',c.occurrence_ref!,c.lease_ref!,11);
+  j.finish('WORKER_A',c.occurrence_ref!,c.lease_ref!,11,'none',scope);
   assert.equal(j.appliedEffects,2);
 });
 test('RECOV-21 bad logical clock or duration never grants a lease',()=>{
   const j=new FakeS0RecoveryJournal();j.admit(b);
-  for(const time of [NaN,-1,Number.MAX_SAFE_INTEGER])assert.equal(j.claim('WORKER_A',time,10).decision,'INVALID');
-  assert.equal(j.claim('WORKER_A',10,0).decision,'INVALID');
+  for(const time of [NaN,-1,Number.MAX_SAFE_INTEGER])assert.equal(j.claim('WORKER_A',time,10,scope).decision,'INVALID');
+  assert.equal(j.claim('WORKER_A',10,0,scope).decision,'INVALID');
 });
 test('RECOV-22 invalid finish never increments effects or exposes raw payload',()=>{
   const j=new FakeS0RecoveryJournal();j.admit(b);
-  const r=j.finish('WORKER_A','..BAD','..BAD',-1);
+  const r=j.finish('WORKER_A','..BAD','..BAD',-1,'none',scope);
   assert.equal(r.decision,'INVALID');assert.equal(j.appliedEffects,0);
   assert.equal(JSON.stringify(r).includes('PROTECTED_A'),false);
 });
