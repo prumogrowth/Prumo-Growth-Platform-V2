@@ -227,3 +227,10 @@ Esse gate resolve a pendência de **validação Auth/REST local de C07**; não r
 - Alterações oficiais de chave e sua verificação adquirem o mesmo **advisory lock transacional**; isso evita conceder UPDATE no material de HMAC ao verificador. Operações SQL diretas do superusuário **não** são protegidas por esse protocolo de lock.
 - A primeira regressão detectou que `SELECT FOR SHARE` exige UPDATE; o modelo foi ajustado para bloqueio cooperativo. A segunda detectou montagem incorreta do SQL; a terceira detectou fixture sem `auth.sessions` no PostgreSQL mínimo. Todos foram corrigidos antes do PASS final.
 - **Limite:** a camada de domínio ainda usa `SECURITY DEFINER` de proprietário `postgres`. Chaves seguem no mesmo PostgreSQL, e segredo SQL + HMAC no mesmo protótipo; isto **não** é isolamento para produção. Documento: `docs/SEGURANCA_OWNER_HMAC_S0_2026_10_17.md`.
+
+### Complemento de compatibilidade PostgreSQL/Supabase — migração 027 (17/10/2026)
+
+- [**PostgreSQL 17 #39086358857 — PASS**](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39086358857): OWNER-01..03 e todas as regressões SQL/Python. A migração cria `prumo_s0_signer` sem login e sem privilégios comerciais e transfere somente o verificador HMAC para esse proprietário.
+- No PostgreSQL 17, `SELECT FOR SHARE` exigiria um privilégio adicional de UPDATE. O fluxo oficial de verificação e ativação/revogação usa agora advisory lock transacional compartilhado, sem conceder UPDATE no segredo ao verificador.
+- A execução local Supabase anterior #39085941430 detectou associação administrativa padrão de papel (SET FALSE); a #39086175162 detectou que a troca de proprietário exige SET TRUE. A política foi corrigida para permitir `SET ROLE` somente ao migrador `supabase_admin`, mantendo membros não administrativos proibidos. Essas tentativas **falharam antes de passar todos os testes Auth** e não podem ser citadas como aprovação.
+- As funções comerciais `SECURITY DEFINER` continuam pertencendo a `postgres`. Esta entrega é apenas uma redução incremental de privilégios, não a conclusão do risco de produção.
