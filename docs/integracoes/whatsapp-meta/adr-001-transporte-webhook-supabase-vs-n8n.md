@@ -1,7 +1,7 @@
 # ADR-001 — Transporte WhatsApp/Meta: Supabase direto versus n8n
 
 **Data:** 17/10/2026 (revisão técnica após POC, logs em 18/10 UTC)  
-**Status:** **PROPOSTA PARA REVISÃO — não aprovada, não implementada**  
+**Status:** **DIREÇÃO SUPABASE DIRETO ESCOLHIDA PELO RESPONSÁVEL** (planejamento, sem implementação de produção). Avaliação de filas, SLA e detalhes técnicos ainda [P/R].  
 **Contexto:** frente WhatsApp/Meta — concessionária de demonstração / plataforma de atendimento LiberaCred.  
 **Escopo:** arquitetura de recepção/entrega de eventos Meta e comunicação com núcleo transacional; não define a arquitetura total de IA, campanha, CRM ou instituição financeira.
 
@@ -9,7 +9,7 @@
 
 É necessário colocar n8n no caminho crítico entre a Meta WhatsApp Cloud API e o Supabase, ou Edge Functions + Postgres + filas no Supabase atendem com latência, confiabilidade e custo aceitáveis?
 
-**Diretriz proposta:** **Supabase direto como adaptador e gateway padrão da Meta**, preservando a possibilidade de n8n **fora do caminho crítico** para automações visuais, integrações heterogêneas, rotinas agendadas ou workflows operacionais quando houver benefício demonstrável. Não contratar nem instalar n8n por premissa de performance.
+**Diretriz escolhida pelo responsável para a fase inicial:** **Supabase direto como adaptador e gateway padrão da Meta**, preservando a possibilidade de n8n **fora do caminho crítico** para automações visuais, integrações heterogêneas, rotinas agendadas ou workflows operacionais quando houver benefício demonstrável. Não contratar nem instalar n8n por premissa de performance.
 
 ## 2. Evidência efetivamente medida versus hipótese
 
@@ -107,3 +107,9 @@ Comparar em ambientes isolados com mesmos eventos **sintéticos**, configuraçã
 5. **SEM DECISÃO DE COMPRA:** n8n permanece opcional e não contratado; reavaliar apenas por fluxo que demonstre ganho de tempo de desenvolvimento, integração ou operação.
 
 **Referências internas:** pacote de documentação do projeto, especialmente `11_Arquitetura_Geral_Consolidada_v4_8.md`, `26_Contratos_Conceituais_Eventos_APIs_v0_1.md`, `28_Especificacao_Confiabilidade_Privacidade_Recuperacao_v0_1.md`, `34_Roteiro_Homologacoes_Meta_Banco_LGPD_Decisoes_Agrupadas_v0_1.md`, `40_Contratos_Interfaces_Campos_Operacionais_Rastreabilidade_v0_1.md`, `43_Playbook_Inicio_Tecnico_GitHub_Supabase_Custos_n8n_v0_1.md`. O pacote é fonte de planejamento, não prova de implementação.
+
+## 7. Deliberação posterior e documento derivado
+
+**Decisão expressa do responsável:** prosseguir com Supabase diretamente; Supabase Free durante desenvolvimento enquanto suficiente; comunicar ANTES de qualquer etapa que objetivamente exija plano pago. n8n não integra o caminho crítico inicial, podendo ser reconsiderado por comparação medida e ganhos reais.
+
+**Novo requisito de identidade:** suportar telefones brasileiros com oito ou nove dígitos locais (após DDD), com variantes/aliases por loja e sem fusão automática sem evidência. Regras propostas no [Contrato de integração Meta ↔ Supabase v0.1](contrato-webhook-meta-supabase-v0_1.md). A especificação do contrato é proposta; não implementa componentes.
