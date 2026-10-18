@@ -14,6 +14,7 @@ import {
   humanCompletion, mayMockFreeText, projectedFollowupActions, projectInbox,
   projectedFollowupState, applyLocalFollowupRequest, isSyntheticBankProtected
 } from './cf-op-02.mjs';
+import { registrationProjectionFor, registrationStateCopy } from './registration-view.mjs';
 
 const $ = id => document.getElementById(id);
 const app = $('visual-app');
@@ -312,7 +313,36 @@ function renderDetails() {
     content.append(notes);
   } else if(state.detailTab==='extraction') {
     const extract=detailSection('FICHA E EXTRAÇÃO · FV-02');const proc=state.processing[item.id];
-    if(!proc){
+    if(item.registrationProjection){
+      // A tela demonstra leitura de uma projeção do S0; não aceita saída bruta da IA.
+      const registration=registrationProjectionFor(item,state.actorId,state.shopId);
+      const description=registrationStateCopy(registration);
+      extract.append(callout(description.title,description.note,registration.confirmedPersisted?'success':'warning'));
+      if(registration.visibility!=='detail'){
+        extract.append(callout('Detalhes restritos ao responsável do caso',
+          'A visualização de supervisão não concede leitura de ficha D3/D4. Nenhum valor, fonte ou pendência individual é exibido neste modo.','warning'));
+      }else{
+        if(registration.confirmedPersisted && registration.formVersionRef)
+          extract.append(prop('Versão confirmada no cenário',registration.formVersionRef));
+        const applied=detailSection('DADOS CONFIRMADOS NA FICHA FICTÍCIA');
+        if(!registration.fields.length) applied.append(el('p','detail-small','Sem campo com valor, fonte e gravação confirmados.'));
+        for(const field of registration.fields){
+          const card=el('div','detail-row');
+          card.append(el('strong','',field.label),el('div','',field.safeDisplayValue),
+            el('span','',`Origem: ${field.sourceLabel} · referência ${field.sourceRef} · aplicado na versão ilustrativa`));
+          applied.append(card);
+        }
+        extract.append(applied);
+        const missing=detailSection('INFORMAÇÕES AUSENTES');
+        if(!registration.missing.length) missing.append(el('p','detail-small','Nenhuma ausência informada nesta projeção.'));
+        for(const label of registration.missing) missing.append(el('div','detail-row',label));
+        extract.append(missing);
+        const conflicts=detailSection('CONTRADIÇÕES / CONFERÊNCIA');
+        if(!registration.conflicts.length) conflicts.append(el('p','detail-small','Nenhum conflito informado nesta projeção.'));
+        for(const label of registration.conflicts) conflicts.append(el('div','detail-row',label));
+        extract.append(conflicts);
+      }
+    } else if(!proc){
       const phase=humanCompletion(item);
       extract.append(phase==='completed' ? callout('Etapa concluída · retorno não disponível','A fixture informa conclusão humana, mas não informa resultado de extração. Não afirmar que ela foi solicitada, gravada ou concluída.','warning') :
         phase==='pending' ? callout('Ainda não solicitada','Após a conclusão humana, o S0 poderá solicitar extração. Nenhum dado foi processado neste exemplo.') :
