@@ -57,3 +57,11 @@ A jornada O2 → O3 precisa mostrar dois momentos separados: **pedido de conclus
 A diretriz mais recente do responsável **substitui a premissa anterior de que o gestor gerencia uma concessionária**: cada gestor administra um conjunto de operadores da Prumo (por exemplo, cinco versus três), e não todos os trabalhadores/leads de A ou B. A **distribuição das concessões por loja aos operadores é exclusiva do responsável**. O gestor pode solicitar **pausa temporária de recebimento de novos leads por operador** em todas as lojas autorizadas para aquele profissional; não pode ativar/pausar individualmente a loja A ou B nem adicionar C. O backend redistribui os casos operacionais elegíveis segundo as concessões vigentes e preserva os históricos, sem prometer reativação automática ao fim de uma ausência. 
 
 A versão **FV-UI-010** já demonstra equipes por operadores, gestão G2 e pedido de pausa global com dados fictícios, mas **não está homologada para autorização, distribuição ou pausa reais**. Contrato candidato da frente visual: [FV-G2-01](21_FV_G2_01_GESTAO_POR_OPERADORES_E_PAUSA_GLOBAL_2026_10_19.md). Incompatibilidade com S1-002/I10 e necessidade de alinhamento com S0: [issue #9](https://github.com/prumogrowth/Prumo-Growth---Platform/issues/9). Não alterar autonomia de outras equipes nem inventar endpoint.
+
+## Incrementos G3/G4 sintéticos concluídos (19/10/2026)
+
+**G3 FV-UI-011:** monitoramento por equipes gerenciais com sinais/esperas **projetados ficticiamente**, mantendo os oito status comerciais separados e sem inferir SLA, relógio Meta ou decisão bancária. Duas implementações concorrentes foram conciliadas no mesmo painel: [auditoria G3](23_AUDITORIA_G3_MONITORAMENTO_UNIFICADO_FV_UI_011_2026_10_19.md).
+
+**G4 FV-UI-012:** consulta de lotes por equipe/loja **apenas de demonstração**, com contagens e versão só quando confirmadas na fixture, sem importação real nem seleção de concessionárias pelo gestor. [Auditoria G4](24_AUDITORIA_G4_LOTES_EQUIPE_FV_UI_012_2026_10_19.md).
+
+Ambos permanecem dependentes das concessões S0/S1-002, da [issue #9](https://github.com/prumogrowth/Prumo-Growth---Platform/issues/9) e dos testes Node/Chromium reais antes de qualquer homologação.
