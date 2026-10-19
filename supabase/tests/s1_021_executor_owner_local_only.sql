@@ -47,6 +47,10 @@ end $pgcrypto$;
 -- em tabela de terceiros ou BYPASSRLS. A role é NOLOGIN e o login SQL
 -- NÃO pode SET ROLE para ela; ownership de tabela será auditado no teste.
 -- Não herdar este desenho sem revisão operacional de custódia de chaves.
+-- Preserva manutenção e inspeção por postgres APENAS no sandbox.
+-- Role postgres tinha posse original; grants explícitos não alcançam login CI.
+grant select,insert,update,delete on prumo_s1_signed_i20.chaves,
+ prumo_s1_signed_i20.nonces to postgres;
 grant create on schema prumo_s1_signed_i20 to prumo_s1_i21_executor;
 alter table prumo_s1_signed_i20.chaves owner to prumo_s1_i21_executor;
 alter table prumo_s1_signed_i20.nonces owner to prumo_s1_i21_executor;
