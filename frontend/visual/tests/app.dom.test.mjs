@@ -335,3 +335,60 @@ test('G2: pedido local de retomada de Bianca mantém pausa confirmada na fixture
   assert.equal(get('team-list').textContent.includes('SOLICITADO LOCALMENTE'),false);
   get('team-dialog').close();
 });
+
+test('G3: Marina visualiza indicadores da própria equipe e etapas comerciais separadas',()=>{
+  reset();env.selectActor('marina');get('team-nav').click();
+  const dashboard=get('team-monitor');
+  assert.ok(dashboard.textContent.includes('Monitoramento operacional da equipe'));
+  assert.ok(dashboard.textContent.includes('Janela Meta expirada com etapa humana pendente'));
+  assert.ok(dashboard.textContent.includes('fila protegida'));
+  assert.ok(dashboard.textContent.includes('Etapas comerciais canônicas'));
+  assert.ok(dashboard.textContent.includes('Rafael Lima'));
+  assert.ok(dashboard.textContent.includes('Lia Martins'));
+  assert.equal(dashboard.textContent.includes('Bianca Rocha'),false);
+  assert.equal(dashboard.textContent.includes('Cliente Exemplo'),false);
+  assert.equal(dashboard.textContent.includes('bank-demo-v1'),false);
+  assert.ok(dashboard.textContent.includes('NÃO VERIFICADOS'));
+  get('team-dialog').close();
+});
+
+test('G3: Daniel não enxerga indicadores nem operadores de Marina',()=>{
+  reset();env.selectActor('daniel');get('team-nav').click();
+  const dashboard=get('team-monitor');
+  assert.ok(dashboard.textContent.includes('Bianca Rocha'));
+  assert.ok(dashboard.textContent.includes('Otávio'));
+  assert.equal(dashboard.textContent.includes('Rafael Lima'),false);
+  assert.equal(dashboard.textContent.includes('Lia Martins'),false);
+  assert.ok(dashboard.textContent.includes('Entrada de leads pausada: 1'));
+  assert.ok(dashboard.textContent.includes('Conta indisponível: 1'));
+  get('team-dialog').close();
+});
+
+test('G3: troca de filtro de loja não muda abrangência da equipe monitorada',()=>{
+  reset();env.selectActor('marina');get('team-nav').click();
+  const initial=get('team-monitor').textContent;
+  get('team-dialog').close();
+  env.selectShop('horizonte');get('team-nav').click();
+  assert.equal(get('team-monitor').textContent,initial);
+  get('team-dialog').close();
+});
+
+test('G3: pausa solicitada localmente não vira disponibilidade aplicada nos indicadores',()=>{
+  reset();env.selectActor('marina');get('team-nav').click();
+  const before=get('team-monitor').textContent;
+  const pause=env.descendants(get('team-list')).find(x=>x.tagName==='BUTTON' &&
+    x.textContent.includes('Solicitar pausa'));
+  assert.ok(pause);pause.click();
+  assert.equal(get('team-monitor').textContent,before);
+  assert.ok(get('team-list').textContent.includes('NÃO aplicado'));
+  get('team-dialog').close();
+});
+
+test('G3: operador e perfil suspenso não abrem painel de indicadores',()=>{
+  reset();
+  get('team-nav').click();
+  assert.equal(get('team-dialog').open,false);
+  env.selectActor('otavio');get('team-nav').click();
+  assert.equal(get('team-dialog').open,false);
+  assert.equal(get('team-monitor').textContent,'');
+});
