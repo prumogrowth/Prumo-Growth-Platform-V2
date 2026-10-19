@@ -71,3 +71,13 @@ A **digitação rotina de nome, e-mail e demais informações** deixa de compor 
 Auditoria de compatibilidade realizada em [CFI-01](07_CONCILIACAO_INTERFRENTES_FV_S0_OAI_v0_1.md), com [36 cenários candidatos](08_MATRIZ_ACEITE_CONTRATUAL_FV_S0_OAI_v0_1.md). O conjunto C01–C24/UQ01–UQ09 dos docs 26/40 **não contém contrato físico aprovado** para conclusão humana com extração posterior. Preservar C12 (conversa humana) e C13 (correção excepcional), sem reclassificar o novo fluxo como C13 ou handoff C10. UQ03 continua fonte conceitual de ficha/versionamento, mas precisa de confirmação S0 quanto à projeção de progresso da extração.
 
 **Dono das decisões técnicas ainda [R]:** núcleo S0 para comando de conclusão, idempotência e nova versão; S0 + OpenAI para padronização do envelope interno `human_close_extract`. A E01 atual já usa o nome `human_close_extract` como OAI-05, mas os exemplos de campos, ausências e correlação ainda diferem. Não inventar tradução automática ou API em `frontend/`. Nenhuma alteração nas normas D41/D-ORG ou permissões decorrente desta conciliação.
+
+## Adendo FV-G2-01 — direção nova do responsável (19/10/2026)
+
+**Supersessão de premissa gestorial:** as expressões anteriores deste FV-01 “gestor lê D2 completo em lojas concedidas” e “G1/G2 fila por concessionária” **não estabelecem mais leitura de todos os operadores de uma loja**. A decisão mais recente define **gestor vinculado a operadores específicos da Prumo**; o responsável decide a composição dessas equipes e as concessionárias concedidas aos operadores.
+
+O gestor pode **solicitar pausa temporária de novos leads para o operador inteiro**, em todas as lojas previamente concedidas, mas **não pode** pausar somente A/B, conceder C, remover definitivamente profissionais ou escolher destinatários sem elegibilidade aprovada. A pausa de novos leads é distinta de suspensão de conta/revogação de concessão. A redistribuição mantém loja, autoria e histórico, sob S0/S1-002; destino e fila protegida exigem regras backend.
+
+**A UI FV-UI-010 é 100% sintética**: já exibe equipes por gestores e botões de solicitação local de pausa/retomada; nenhuma operação é aplicada. Para APIs reais, a S0/S1 deve reconciliar a nova matriz com as restrições atuais por loja/tenant e o contrato antigo S1-002/I10 antes de autorização; não usar filtros no navegador para simular segurança.
+
+Referências: [FV-G2-01](21_FV_G2_01_GESTAO_POR_OPERADORES_E_PAUSA_GLOBAL_2026_10_19.md), [auditoria FV-UI-010](22_AUDITORIA_G2_EQUIPE_POR_OPERADORES_PAUSA_GLOBAL_2026_10_19.md), [issue #9](https://github.com/prumogrowth/Prumo-Growth---Platform/issues/9). Esta emenda ajusta o **entendimento do frontend**, não altera contratos aprovados de outras equipes automaticamente.
