@@ -4,7 +4,7 @@ import { copyCFDemoFixtures, mayMockFreeText } from '../cf-op-02.mjs';
 import { postmarkViewFor, postmarkCopy, isValidContinuationProjection } from '../postmark-view.mjs';
 
 const postmarkCases=()=>copyCFDemoFixtures();
-const postmarkFind=(id,records=postmarkCases())=>records.postmarkFind(x=>x.id===id);
+const postmarkFind=(id,records=postmarkCases())=>records.find(x=>x.id===id);
 
 test('O5-01: marco banco fica intacto e outro ciclo humano tem ID e status próprios',()=>{
   const rows=postmarkCases(),original=postmarkFind('A-105',rows),fresh=postmarkFind('A-114',rows);
@@ -61,14 +61,14 @@ test('O5-06: se o vínculo da outra ponta não existe/está fora do escopo, ocul
 });
 
 test('O5-07: versão divergente não cria relação entre casos',()=>{
-  const rows=postmarkCases();rows.postmarkFind(x=>x.id==='A-114').postmarkProjection.linkVersionRef='outra-versao';
+  const rows=postmarkCases();rows.find(x=>x.id==='A-114').postmarkProjection.linkVersionRef='outra-versao';
   const result=postmarkViewFor(postmarkFind('A-105',rows),rows,'rafael','aurora');
   assert.equal(result.linked,false);
   assert.equal(result.relatedCaseId,null);
 });
 
 test('O5-08: origem com status que não corresponde ao evento não autoriza vínculo',()=>{
-  const rows=postmarkCases();rows.postmarkFind(x=>x.id==='A-115').status='em atendimento pela IA';
+  const rows=postmarkCases();rows.find(x=>x.id==='A-115').status='em atendimento pela IA';
   const result=postmarkViewFor(postmarkFind('A-116',rows),rows,'rafael','aurora');
   assert.equal(result.linked,false);
 });
@@ -85,7 +85,7 @@ test('O5-09: nova etapa não pode reviver IA e depende da prova projetada',()=>{
 });
 
 test('O5-10: vínculo não autoriza cruzar lojas mesmo com identificadores coincidentes',()=>{
-  const rows=postmarkCases();rows.postmarkFind(x=>x.id==='A-114').shopId='horizonte';
+  const rows=postmarkCases();rows.find(x=>x.id==='A-114').shopId='horizonte';
   const result=postmarkViewFor(postmarkFind('A-105',rows),rows,'marina','aurora');
   assert.equal(result.linked,false);
   assert.equal(result.relatedCaseId,null);
