@@ -124,7 +124,7 @@ begin
   p_solicitante,p_loja,'mover_atendimento',v_origem) then
   raise exception 'ORIGEM_SAIU_DA_EQUIPE' using errcode='42501';end if;
  update public.atribuicoes_humanas
- set encerrada_em=pg_catalog.greatest(v_data,pg_catalog.statement_timestamp())
+ set encerrada_em=greatest(v_data,pg_catalog.statement_timestamp())
  where id=v_achado and encerrada_em is null;
  insert into public.atribuicoes_humanas(concessionaria_id,caso_id,operador_id)
  values(p_loja,p_caso,p_destino) returning id into v_nova;
