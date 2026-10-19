@@ -1,21 +1,34 @@
-"""FV-UI-002. Ensaio opcional com Chromium/Playwright, sem acesso HTTP ou APIs.
-Requer Python, playwright e Chromium instalados; não é CI ou aceite de produção.
+"""FV-UI-013. Ensaio opcional REAL com Playwright/Chromium em checkout completo.
+Sem rede/API de negócio: HTML/CSS/JS locais são injetados no navegador real.
+O roteiro não prova autenticação, backend ou execução quando apenas versionado.
 """
 from playwright.sync_api import sync_playwright
 from pathlib import Path
+import os
 import re
 
 base = Path(__file__).resolve().parents[1]
 html = (base / 'index.html').read_text(encoding='utf-8')
 css = (base / 'styles.css').read_text(encoding='utf-8')
-html = html.replace('<link rel="stylesheet" href="./styles.css">', '<style>'+css+'</style>')
-html = html.replace('<script type="module" src="./app.mjs"></script>', '')
+css_link = '<link rel="stylesheet" href="./styles.css">'
+module_tag = '<script type="module" src="./app.mjs"></script>'
+assert html.count(css_link) == 1, 'Link CSS duplicado ou inexistente'
+assert html.count(module_tag) == 1, 'Script de entrada duplicado ou inexistente'
+html = html.replace(css_link, '<style>'+css+'</style>')
+html = html.replace(module_tag, '')
 script = '\n'.join((base / name).read_text(encoding='utf-8') for name in ('fixtures.mjs','view-model.mjs','cf-op-02.mjs','registration-view.mjs','bank-view.mjs','postmark-view.mjs','team-operations.mjs','team-monitor.mjs','team-monitoring.mjs','batch-monitor.mjs','app.mjs'))
 script = re.sub(r'(?ms)^import \{.*?\} from ["\']\./[^"\']+["\'];\s*', '', script)
 script = re.sub(r'(?m)^export ', '', script)
+assert 'import {' not in script and 'export ' not in script, 'Módulo não concatenado com segurança'
+assert html.count('id="team-monitor"') == 1
+assert html.count('id="team-batches"') == 1
 
 with sync_playwright() as p:
-    browser = p.chromium.launch(headless=True, executable_path='/usr/bin/chromium', args=['--no-sandbox'])
+    exe = os.getenv('CHROMIUM_EXECUTABLE', '').strip()
+    if not exe and Path('/usr/bin/chromium').is_file(): exe='/usr/bin/chromium'
+    browser_kwargs = {'headless': True, 'args': ['--no-sandbox']}
+    if exe: browser_kwargs['executable_path'] = exe
+    browser = p.chromium.launch(**browser_kwargs)
     for width, height in ((1440,900),(900,780),(390,844),(320,640)):
         page = browser.new_page(viewport={'width':width,'height':height})
         page.set_default_timeout(4500)
@@ -44,10 +57,15 @@ with sync_playwright() as p:
         page.get_by_role('button',name='Retorno parcial').click()
         page.locator('.detail-tab',has_text='Histórico').click()
         assert 'extração' in page.locator('.activity-item').first.inner_text().lower()
+        assert not errors, 'Erros JavaScript durante jornada: '+repr(errors)
+        assert not page.evaluate('document.documentElement.scrollWidth > innerWidth'), 'Overflow horizontal após interação'
         print(f'FV-UI-002 {width}x{height}: PASS')
         page.close()
     page = browser.new_page(viewport={'width':1366,'height':768})
+    errors_main = []
+    page.on('pageerror', lambda error: errors_main.append(str(error)))
     page.set_content(html); page.add_script_tag(content=script)
+    assert not errors_main, 'Erro JavaScript no bootstrap da gestão'
     page.locator('#actor-select').select_option('marina')
     assert page.locator('.conversation-card').count() == 11
     page.locator('#team-nav').click()
@@ -154,10 +172,14 @@ with sync_playwright() as p:
     assert page.locator('#message-input').is_enabled()
     print('FV-UI-009 O5 pós-marco banco e venda: PASS')
     print('FV-03 janela, template e histórico: PASS')
+    assert not errors_main, 'Erros JavaScript na gestão: '+repr(errors_main)
+    assert not page.evaluate('document.documentElement.scrollWidth > innerWidth'), 'Overflow horizontal na gestão'
     print('FV-UI-002 gestor/escopo: PASS')
     page.close()
 
     mobile = browser.new_page(viewport={'width':390,'height':844})
+    errors_mobile = []
+    mobile.on('pageerror', lambda error: errors_mobile.append(str(error)))
     mobile.set_content(html)
     mobile.add_script_tag(content=script)
     assert mobile.locator('#team-nav-mobile').is_hidden()
@@ -172,6 +194,8 @@ with sync_playwright() as p:
     assert mobile.locator('.conversation-card').count() == 0
     assert mobile.locator('#team-nav-mobile').is_hidden()
     assert 'Sem acesso demonstrativo' in mobile.locator('#conversation-items').inner_text()
+    assert not errors_mobile, 'Erros JavaScript em gestão mobile: '+repr(errors_mobile)
+    assert not mobile.evaluate('document.documentElement.scrollWidth > innerWidth'), 'Overflow mobile'
     print('FV-UI-004 acesso suspenso / equipe no celular: PASS')
     mobile.close()
     browser.close()
