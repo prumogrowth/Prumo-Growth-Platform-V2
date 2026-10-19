@@ -32,7 +32,7 @@ CREATE TABLE wa06d_postcommit.task (
 CREATE TABLE wa06d_postcommit.receipt (
  batch_ref text PRIMARY KEY REFERENCES wa06d_postcommit.batch(batch_ref),
  fingerprint bytea NOT NULL, occurrence_count integer NOT NULL,
- state text NOT NULL CHECK(state='IN_TX_ONLY')
+ state text NOT NULL CHECK(state='FIXTURE_COMMITTED_NOT_ACK')
 );
 INSERT INTO wa06d_postcommit.batch(batch_ref,principal_ref,request_ref,app_ref,shop_ref,fingerprint)
  VALUES('batch_proof','fake_principal','request_proof','app_a','shop_a',sha256(convert_to('synthetic_fingerprint','UTF8')));
@@ -46,5 +46,5 @@ INSERT INTO wa06d_postcommit.occurrence(batch_ref,entry_index,change_index,array
 INSERT INTO wa06d_postcommit.task(occurrence_id,state)
  SELECT occurrence_id,'READY' FROM wa06d_postcommit.occurrence WHERE batch_ref='batch_proof';
 INSERT INTO wa06d_postcommit.receipt(batch_ref,fingerprint,occurrence_count,state)
- SELECT batch_ref,fingerprint,2,'IN_TX_ONLY' FROM wa06d_postcommit.batch WHERE batch_ref='batch_proof';
+ SELECT batch_ref,fingerprint,2,'FIXTURE_COMMITTED_NOT_ACK' FROM wa06d_postcommit.batch WHERE batch_ref='batch_proof';
 COMMIT;
