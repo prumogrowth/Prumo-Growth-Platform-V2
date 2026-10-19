@@ -64,7 +64,8 @@ export function installMockDOM({ mobile = false } = {}) {
     'thread-meta', 'thread-body', 'workflow-bar', 'message-input', 'detail-toggle',
     'detail-content', 'detail-pane', 'thread-pane', 'completion-dialog',
     'completion-form', 'template-dialog', 'template-select', 'team-dialog',
-    'team-list', 'toast', 'team-nav', 'team-nav-mobile', 'team-close',
+    'team-list', 'team-monitor', 'team-show-members', 'team-show-monitor',
+    'toast', 'team-nav', 'team-nav-mobile', 'team-close',
     'reset-app', 'composer', 'thread-back', 'detail-back', 'detail-close'
   ];
   const nodes = new Map(ids.map(id => [id, new MockNode(id.endsWith('dialog') ? 'dialog' : id.includes('select') || id === 'status-filter' ? 'select' : 'div')]));
