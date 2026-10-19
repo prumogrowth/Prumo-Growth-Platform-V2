@@ -64,6 +64,17 @@ const statusFromRank: TechnicalProgress[] = ['NONE', 'SENT', 'DELIVERED', 'READ'
 const id = (s: unknown, max = 256): s is string =>
   typeof s === 'string' && s.length > 0 && s.length <= max &&
   !/[\u0000-\u001f\u007f]/.test(s);
+// Never correlate an arbitrary external string as a Meta message identity.
+const wamid = (s: unknown): s is string =>
+  typeof s === 'string' && /^wamid\.[A-Za-z0-9+\/_=:.-]{1,1024}$/.test(s);
+const safeIndex = (n: unknown): n is number =>
+  Number.isSafeInteger(n) && (n as number) >= 0;
+const callbackPosition = (v: unknown): boolean => {
+  if (!v || typeof v !== 'object' || Array.isArray(v)) return false;
+  const p = v as {entry_index?:unknown;change_index?:unknown;item_index?:unknown;array_kind?:unknown};
+  return safeIndex(p.entry_index) && safeIndex(p.change_index) &&
+    safeIndex(p.item_index) && p.array_kind === 'statuses';
+};
 const recipient = (s: unknown): s is string =>
   typeof s === 'string' && /^\d{8,15}$/.test(s);
 const isoUTC = (s: unknown): s is string =>
@@ -89,13 +100,17 @@ export class FakeMetaStatusReconciler {
     const s = reference?.scope;
     if (!reference || !s || !id(reference.app_ref) || !id(reference.intent_id) ||
         !id(s.concessionaria_id) || !id(s.canal_id) || !id(s.meta_app_ref) ||
-        !id(s.meta_waba_id) || !id(s.phone_number_id) ||
+        !id(s.meta_waba_id) || !/^\d{5,25}$/.test(s.phone_number_id) ||
         s.meta_app_ref !== reference.app_ref || !recipient(reference.recipient_verified) ||
         !outcome || !id(outcome.attempt_id) ||
-        !id(outcome.provider_message_id) || !id(outcome.correlation_id)) {
+        !wamid(outcome.provider_message_id) || !id(outcome.correlation_id) ||
+        outcome.retry_automatically !== false ||
+        (outcome.meta_error_code !== null || outcome.meta_error_subcode !== null)) {
       return result('INVALID_REFERENCE');
     }
-    if (outcome.send_state !== 'API_ACCEPTED' || outcome.api_accepted !== true) {
+    if (outcome.send_state !== 'API_ACCEPTED' || outcome.api_accepted !== true ||
+        !Number.isSafeInteger(outcome.http_status) ||
+        outcome.http_status! < 200 || outcome.http_status! >= 300) {
       return result('NOT_ACCEPTED');
     }
     const key = scopeKey(reference.app_ref, s.meta_waba_id,
@@ -145,7 +160,7 @@ export class FakeMetaStatusReconciler {
     if (!callback || callback.source !== 'meta_whatsapp' ||
         callback.event_kind !== 'status_callback' || !id(trustedAppRef) ||
         !id(callback.waba_id) || !id(callback.phone_number_id) ||
-        !id(callback.provider_message_id, 1100) ||
+        !wamid(callback.provider_message_id) || !callbackPosition(callback.position) ||
         !recipient(callback.participant_identifier) || !isoUTC(callback.provider_timestamp)) {
       return result('REJECTED_EVENT', 'INVALID_EVENT');
     }
@@ -176,7 +191,7 @@ export class FakeMetaStatusReconciler {
 
   projectionFor(reference: CorrelationReference, providerMessageId: string): TechnicalProjection | undefined {
     const s = reference?.scope;
-    if (!s || !id(reference.app_ref) || !id(providerMessageId, 1100) ||
+    if (!s || !id(reference.app_ref) || !wamid(providerMessageId) ||
         s.meta_app_ref !== reference.app_ref) return undefined;
     const linked = this.sends.get(scopeKey(reference.app_ref, s.meta_waba_id,
       s.phone_number_id, providerMessageId));
