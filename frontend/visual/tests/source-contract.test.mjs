@@ -95,7 +95,7 @@ test('O5 abre ciclo projetado separado; não cria caso, muda estado ou reativa I
   assert.match(postmark, /sellerAiSilenced===true/);
   assert.match(postmark, /a\.linkedByS0===true && b\.linkedByS0===true/);
   assert.doesNotMatch(postmark, /\bfetch\s*\(|\bXMLHttpRequest\b|\bWebSocket\b/);
-  assert.doesNotMatch(postmark, /\.status\s*=/);
+  assert.doesNotMatch(postmark, /\.status\s*=(?!=)/);
 });
 
 test('roteiro de Chromium contém navegação entre casos O5 no mesmo escopo', () => {
