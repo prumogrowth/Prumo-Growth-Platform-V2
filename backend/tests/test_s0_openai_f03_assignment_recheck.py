@@ -85,3 +85,28 @@ class LateApplyTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+class LateApplyStrictTypeRegression(unittest.TestCase):
+    def setUp(self):
+        self.start, self.current = baseline()
+
+    def test_22_text_false_session_denied(self):
+        self.assertEqual(recheck_before_apply(self.start, replace(self.current, authenticated_session="false")), ReviewDecision.DENY)
+
+    def test_23_text_false_operator_state_denied(self):
+        self.assertEqual(recheck_before_apply(self.start, replace(self.current, operator_active="false")), ReviewDecision.DENY)
+
+    def test_24_text_false_grant_denied(self):
+        self.assertEqual(recheck_before_apply(self.start, replace(self.current, store_grant="false")), ReviewDecision.DENY)
+
+    def test_25_text_false_case_human_denied(self):
+        self.assertEqual(recheck_before_apply(self.start, replace(self.current, case_human="false")), ReviewDecision.DENY)
+
+    def test_26_text_false_opt_out_denied(self):
+        self.assertEqual(recheck_before_apply(self.start, replace(self.current, opted_out="false")), ReviewDecision.DENY)
+
+    def test_27_text_false_validated_field_denied(self):
+        self.assertEqual(recheck_before_apply(self.start, replace(self.current, result_has_validated_fields="false")), ReviewDecision.DENY)
+
+    def test_28_invalid_snapshot_type_denied(self):
+        self.assertEqual(recheck_before_apply({}, self.current), ReviewDecision.DENY)
