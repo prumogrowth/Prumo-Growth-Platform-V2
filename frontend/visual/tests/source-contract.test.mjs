@@ -110,10 +110,17 @@ test('auditoria: recontatos negados se a continuidade pós-marco não tiver vín
   assert.match(app, /current\.id!==item\.id \|\| !postmarkContextValid\(current\)/);
   assert.match(app, /selectedCase\(\)\?\.id!==item\.id \|\| !postmarkContextValid\(item\)/);
   assert.match(app, /if\(!item \|\| !postmarkContextValid\(item\)\)return;/);
-  assert.match(app, /projection\.linked===true/);
+  assert.match(app, /mayMockOperateContinuation\(record,state\.cases,state\.actorId,state\.shopId\)/);
 });
 
 test('auditoria: leituras D3/D4 negadas a operador não atribuído', () => {
   assert.match(registration, /actor\.role !== 'gestor' && record\.assignedTo !== actorId/);
   assert.match(bank, /actor\.role !== 'gestor' && record\.assignedTo !== actorId/);
+});
+
+test('auditoria: operação independente da autorização de leitura do caso anterior',()=>{
+  assert.match(postmark, /export function mayMockOperateContinuation/);
+  assert.match(postmark, /record\.assignedTo!==actorId/);
+  assert.match(postmark, /relation\.kind!=='restricted'/);
+  assert.match(postmark, /origin\.shopId!==record\.shopId/);
 });
