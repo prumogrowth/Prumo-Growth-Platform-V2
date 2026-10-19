@@ -10,6 +10,7 @@ const styles = get('styles.css');
 const contract = get('cf-op-02.mjs');
 const registration = get('registration-view.mjs');
 const bank = get('bank-view.mjs');
+const postmark = get('postmark-view.mjs');
 const browserSmoke = get('tests/browser.smoke.py');
 
 test('três áreas adaptativas e controle de histórico existem', () => {
@@ -85,4 +86,21 @@ test('roteiro Chromium inclui O4 e separação de prova bancária D4', () => {
   assert.match(browserSmoke, /bank-demo-v1/);
   assert.match(browserSmoke, /Acompanhamento bancário · resumo/);
   assert.match(browserSmoke, /Decisão bancária não confirmada/);
+});
+
+test('O5 abre ciclo projetado separado; não cria caso, muda estado ou reativa IA', () => {
+  assert.match(app, /postmarkViewFor\(item,state\.cases,state\.actorId,state\.shopId\)/);
+  assert.match(app, /Novo atendimento humano independente/);
+  assert.match(app, /closeTransientDialogs\(\)/);
+  assert.match(postmark, /sellerAiSilenced===true/);
+  assert.match(postmark, /a\.linkedByS0===true && b\.linkedByS0===true/);
+  assert.doesNotMatch(postmark, /\bfetch\s*\(|\bXMLHttpRequest\b|\bWebSocket\b/);
+  assert.doesNotMatch(postmark, /\.status\s*=/);
+});
+
+test('roteiro de Chromium contém navegação entre casos O5 no mesmo escopo', () => {
+  assert.match(browserSmoke, /postmark-view\.mjs/);
+  assert.match(browserSmoke, /Caso A-114/);
+  assert.match(browserSmoke, /Caso A-105/);
+  assert.match(browserSmoke, /Caso A-116/);
 });
