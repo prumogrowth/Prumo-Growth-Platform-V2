@@ -50,6 +50,7 @@ BEGIN
  RAISE NOTICE 'WA06D-B05 PASS: injected failure rolled back its subtransaction';
 
  IF (SELECT r.occurrence_count FROM wa06d_postcommit.receipt r WHERE r.batch_ref='batch_proof')<>2
+ OR (SELECT r.state FROM wa06d_postcommit.receipt r WHERE r.batch_ref='batch_proof') IS DISTINCT FROM 'FIXTURE_COMMITTED_NOT_ACK'
  THEN RAISE EXCEPTION 'WA06D_B06_RECEIPT_MISMATCH'; END IF;
  RAISE NOTICE 'WA06D-B06 PASS: receipt survives but is NOT HTTP ACK authority';
 END $verify$;
