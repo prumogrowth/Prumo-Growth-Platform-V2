@@ -37,3 +37,10 @@ Os cenários S1P-01..10 devem provar inclusão e desligamento restritos, supervi
 3. Integrar Auth/GoTrue/PostgREST/gateway, registrar solicitante validado no histórico e testar cenários de privilégios e competição entre gestores.
 4. Operação de ingresso de profissional existente no Auth versus convite/criação de credencial deve ser contratada entre núcleo e S1; o gestor nunca pode fazê-lo.
 5. Sem merge, SQL hospedado, dados reais ou habilitação pública nesta atualização. Percentual global não é alterado por documentação ou teste de matriz.
+
+
+## Evidência de validação I10 — PostgreSQL 17 sintético
+
+[CI #39233937724 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39233937724), SHA `da9560d7859bdf51d771b1f996356e840fc346d6`, job `117998333814`: **S1P-01..10, 10/10 PASS**, incluindo responsável como único autorizador de inclusão e desligamento, gestor para redistribuir/mover/suspender temporariamente apenas operador previamente vinculado da própria loja, negação a gestor inativo, operador, casos de papel misto e concessão em outra loja, além do predicado não exposto a `authenticated`. Regressões históricas no mesmo job também passaram (S1A 9/9, S1H 8/8, AUD1 7/7 e AUD2 5/5, entre outras).
+
+**Atenção:** o predicado é apenas prova interna de matriz [D] em SQL sintético. Não habilita operação administrativa real, JWT válido, REST, suspensão per-store, operação de inclusão/desligamento nem adoção em produção. O bloqueio I9 de DML direto continua correto. Teste de login real e execução de comandos autenticados ainda pendentes [R/V].

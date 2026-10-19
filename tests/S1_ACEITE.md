@@ -151,3 +151,10 @@ Migração `046` e teste `s1_009_fronteira_administrativa_local.sql` com S1A-01.
 
 
 **I10 [D]:** somente responsáveis adicionam gestores/operadores e efetuam desligamento definitivo; gestor administra operador existente, inclusive mudança temporária, movimentação e distribuição no próprio escopo. S1P-01..10 no PG17 verificam matriz apenas; sem comandos REST/GoTrue, ver [I10](../docs/S1_002_I10_AUTORIDADES_RESPONSAVEL_GESTOR_2026_10_19.md).
+
+
+## Evidência de validação I10 — PostgreSQL 17 sintético
+
+[CI #39233937724 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39233937724), SHA `da9560d7859bdf51d771b1f996356e840fc346d6`, job `117998333814`: **S1P-01..10, 10/10 PASS**, incluindo responsável como único autorizador de inclusão e desligamento, gestor para redistribuir/mover/suspender temporariamente apenas operador previamente vinculado da própria loja, negação a gestor inativo, operador, casos de papel misto e concessão em outra loja, além do predicado não exposto a `authenticated`. Regressões históricas no mesmo job também passaram (S1A 9/9, S1H 8/8, AUD1 7/7 e AUD2 5/5, entre outras).
+
+**Atenção:** o predicado é apenas prova interna de matriz [D] em SQL sintético. Não habilita operação administrativa real, JWT válido, REST, suspensão per-store, operação de inclusão/desligamento nem adoção em produção. O bloqueio I9 de DML direto continua correto. Teste de login real e execução de comandos autenticados ainda pendentes [R/V].
