@@ -35,7 +35,7 @@
 1. **Operador humano ainda não concluiu e janela Meta expirou:** pode pedir template aprovado INDIVIDUAL (sem F02) ou pedir NOVA cadeia contextual C05/F02. Só S0 valida concessão, caso, fase, allowlist, versão, opt-out/custos e decisão de concorrência.
 2. **Candidata guard determinística [R]:** para mesmo caso/ciclo/finalidade, não autorizar simultaneamente template individual e cadeia incompatível. Identificar pedido opaco e versão para detectar corrida; conflito gera decisão segura `CONFLICT/PENDING_REVIEW`, **não dois envios**. Escolher política transacional, cancelamento e precedência com donos S0/Meta.
 3. **Após handoff:** planos da IA Vendedora antes de handoff cancelados C08/C10 não são reativados. F02 pós-humana cria novo identificador e só por solicitação S0 autenticada. Resposta do cliente segue operador atual autorizado, eventualmente redistribuído pela S1.
-4. **Fila protegida/operador revogado:** não gerar intenção de resposta humana, plano, disparo nem retorno à IA Vendedora enquanto titularidade não for revalidada; a S1 administra redistribuição segura.
+4. **Fila protegida/operador revogado/pausado globalmente [I11 D]:** não gerar intenção de resposta humana, plano, disparo nem retorno à IA Vendedora enquanto titularidade não for revalidada; a S1 administra redistribuição segura. **Gestor coordena operadores da equipe**, sem grant obrigatório da loja e sem poder alterar grants individuais. **Somente responsáveis da plataforma** atribuem lojas e fazem desligamento; pausa pelo gestor suspende a pessoa em TODAS as suas lojas (A+B), preservando grants mas não a titularidade de casos realocados. S0 revalida estado global ativo + grant loja + operador atualmente atribuído; não confundir indisponibilidade por equipe com perda de grant da concessionária.
 5. **Pós-venda:** caso novo de suporte humano nunca usa `vendido` histórico como gatilho de recontato comercial. Novo ciclo/objetivo e elegibilidade requerem decisão S0 expressa.
 
 ## 4. Propostas de ensaios S0 offline — zero executados neste trabalho
@@ -53,7 +53,14 @@
 | **S0O-09** | histórico `vendido` recebe retorno de suporte | novo caso humano, `vendido` anterior inalterado, nenhuma F02 comercial automática |
 | **S0O-10** | tentativa de usar evento `sent` de outra concessionária/número emissor/caso | `DENY`; proveniência/identidade Meta é fornecida e autenticada pela própria integração responsável, não IA/frontend |
 
-**Não são fixtures, implementações, testes PASS ou homologação.** Resultados positivos C09 pós-humano intencionalmente ausentes até matriz ratificada. Regras de execução devem ser revistas antes de escrever SQL/workers.
+**S0O-01..10 são somente descrições; não são testes executados nem homologação.** Resultados positivos C09 pós-humano intencionalmente ausentes até matriz ratificada. Regras físicas ainda exigem revisão antes de SQL/workers.
+
+### Prova adicional offline, completamente isolada do S0 operacional
+
+- Artefatos: [avaliador de evidência](../backend/s0_openai_bridge/c09_offline_gate.py) e [27 testes unittest](../backend/tests/test_s0_openai_c09_offline.py). Executados **localmente no contêiner temporário da auditoria**, 27/27 PASS e compilação Python PASS em 19/10/2026; **a CI GitHub ainda não confirmou esta branch**. Não declarar teste de banco, HTTP, OpenAI ou Meta.
+- Reproduzir localmente na raiz do projeto com `python -m unittest discover -s backend/tests -p 'test_s0_openai_c09_offline.py' -v`. Nenhum pacote externo, rede, banco, credencial ou projeto Supabase é exigido.
+- A função candidata `evaluate_c09` **NUNCA retorna ALLOW**: devolve somente `DENY`, `NOT_READY` ou `POLICY_PENDING` em observações fictícias. Tipos de status devem corresponder aos **oito valores atuais da S0**; status desconhecido DENY. `sent` marcado por booleano no laboratório **NÃO prova callback real** e não pode ser aceito de browser/modelo como autenticação. Não está ligado à camada real de comandos, não atualiza status, não programa envio nem tem capacidade de ativação comercial.
+- A prova é útil apenas para antecipar regressões negativas; **não verifica funcionamento da integração real nem fecha aceites #4/#6**.
 
 ## 5. Fronteiras e próximos aceites
 
