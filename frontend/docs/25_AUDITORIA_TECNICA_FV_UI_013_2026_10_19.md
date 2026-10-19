@@ -113,3 +113,27 @@ Reproduzido localmente um **clone literal do arquivo de runner**, confirmado pel
 **Roteiro Chromium examinado:** ordem de 11 módulos consistente; em larguras de até 1040 px o bootstrap oculta o painel de detalhes e o roteiro o abre com `#detail-toggle`; os elementos `#internal-note-form`, `#note-text` e `#request-completion` são criados dinamicamente pelo `app.mjs`. Esses pressupostos foram conferidos em fonte e simulação, **não em navegador real**.
 
 **Veredito atualizado:** regressão sintética integral de **180/180 confirmada nesta rodada** para o HEAD declarado. FV-UI-013 **continua sem homologação nativa Node/Chromium da aplicação completa**. Próximo gate é a execução integral do runner em checkout privado autenticado, na branch e SHA conferidos. Manter 19F em **69/100**; sem merge/deploy/alteração externa ao frontend.
+
+
+## Continuidade — execução Node nativa PARCIAL, blobs autenticados (19/10/2026)
+
+Além dos **180/180 ensaios V8 adaptados** desta rodada, pela primeira vez foi possível executar testes **Node nativos sobre arquivos reais da branch**, sem substituir a fonte de código por mocks.
+
+### Reconstrução de subconjunto verificável
+
+Como o container não resolve `github.com`, foram recuperados os arquivos individualmente pela integração GitHub autenticada, escritos em diretório temporário e confrontados com o SHA calculado por `git hash-object`. Todos os **6 hashes corresponderam exatamente aos blobs remotos**, conferidos inclusive no HEAD remoto `833705260609119b4dba8bbbb0566f5f3dc2b0f0`:
+
+| Arquivo | SHA Git do blob |
+| --- | --- |
+| `frontend/visual/fixtures.mjs` | `22264f84947c5f8ea4a1a52adf038dcd1ac27d4b` |
+| `frontend/visual/view-model.mjs` | `dca44b9dbdcf944c75e98760955bed48b46dab3e` |
+| `frontend/visual/batch-monitor.mjs` | `9ba7b1e0d1e6e141681059de33ef07adb7e99302` |
+| `frontend/visual/tests/fixtures.test.mjs` | `743a10fa4279045e8fcebfc146e34d687f1b9297` |
+| `frontend/visual/tests/view-model.test.mjs` | `78fbb626fffc81ccd1be59c8e08123eae52959e0` |
+| `frontend/visual/tests/batch-monitor.test.mjs` | `ca61ff3031662fcfdb7f07fafd9a251b131ee358` |
+
+**Comando executado de verdade:** `node --test --test-reporter=tap tests/fixtures.test.mjs tests/view-model.test.mjs tests/batch-monitor.test.mjs` no diretório parcial `frontend/visual/` reconstruído. Resultado **23 testes, 23 PASS, 0 FAIL, 0 SKIP** em **Node v22.16.0**. Retorno do processo 0. Registro TAP completo e manifesto JSON de seis SHA Git foram gravados no ambiente de execução local desta conversa.
+
+**O que comprova:** o import ESM real e asserções do `node:test` dessas três suítes e três módulos, com lógica de escopo da equipe, oito estados, projeções de fila, histórico e lotes G4. **O que não comprova:** o checkout Git completo, a execução das outras 11 suítes Node, o teste de grafo integrado, Chromium/Playwright, responsividade CSS, autenticação, integração ou produção. O `run_acceptance.py` **não foi usado como aceite integral**, pois seu inventário exige todos os arquivos e revisão Git checada. Não comparar 23 testes Node nativos com 180 verificações V8 como se fossem uma mesma suíte.
+
+**Veredito:** progresso técnico real; FV-UI-013 segue **PARCIAL e NÃO HOMOLOGADA**, com **23 testes Node nativos comprovados em subconjunto de bytes idênticos** e **180/180 ensaios sintéticos adaptados**. Progresso 19F permanece **69/100** e escopo permanece somente `frontend/`.
