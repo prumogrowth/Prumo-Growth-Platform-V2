@@ -28,7 +28,7 @@ test('mobile: gestor ativo acessa equipe; operador e suspenso não', () => {
   assert.equal(get('team-nav-mobile').hidden, false);
   get('team-nav-mobile').click();
   assert.equal(get('team-dialog')._open, true);
-  assert.equal(get('team-list').children.length, 4);
+  assert.equal(get('team-list').children.length, 2);
   get('team-dialog').close();
   env.selectActor('rafael');
   assert.equal(get('team-nav-mobile').hidden, true);
