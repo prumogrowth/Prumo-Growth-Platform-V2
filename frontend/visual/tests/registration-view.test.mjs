@@ -105,3 +105,14 @@ test('falha, obsolescência e processamento não expõem pendências não confir
     assert.deepEqual(result.fields,[]);
   }
 });
+
+test('estado rotulado como persistido sem prova não exibe mensagem de sucesso', () => {
+  for (const state of ['persisted','partial']) {
+    const record=sample();
+    record.registrationProjection={...record.registrationProjection,state,formVersionRef:'',confirmedPersisted:true};
+    const view=registrationProjectionFor(record,'rafael','aurora');
+    assert.equal(view.confirmedPersisted,false);
+    assert.match(registrationStateCopy(view).title,/não confirmada/i);
+    assert.doesNotMatch(registrationStateCopy(view).title,/versão persistida/i);
+  }
+});
