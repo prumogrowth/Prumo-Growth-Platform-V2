@@ -16,6 +16,7 @@ import {
 } from './cf-op-02.mjs';
 import { registrationProjectionFor, registrationStateCopy } from './registration-view.mjs';
 import { bankProjectionFor, bankPhaseCopy } from './bank-view.mjs';
+import { postmarkViewFor, postmarkCopy } from './postmark-view.mjs';
 
 const $ = id => document.getElementById(id);
 const app = $('visual-app');
@@ -46,11 +47,16 @@ function filtered() {
   }).filter(record => state.inboxView === 'history' ? record.inboxProjection === 'historical' : isInActiveInbox(record));
 }
 
+function postmarkContextValid(record) {
+  return !record?.postmarkProjection || record.postmarkProjection.direction!=='continuation' ||
+    postmarkViewFor(record,state.cases,state.actorId,state.shopId).kind==='continuation';
+}
 function canMockMessage(record) {
-  return mayMockFreeText(record,state.actorId,state.shopId,Boolean(state.processing[record?.id]));
+  return postmarkContextValid(record) &&
+    mayMockFreeText(record,state.actorId,state.shopId,Boolean(state.processing[record?.id]));
 }
 function canMockClose(record) {
-  return canSimulateCompletion(record,state.actorId,state.shopId) &&
+  return postmarkContextValid(record) && canSimulateCompletion(record,state.actorId,state.shopId) &&
     isInActiveInbox(record) && humanCompletion(record) === 'pending' &&
     record?.allowedActionsProjection?.includes('complete') &&
     !state.processing[record.id] && !state.followupRequests[record.id];
@@ -298,7 +304,7 @@ function renderDetails() {
     notes.append(callout('Informação privada de operação','Notas fictícias não são enviadas ao cliente e não persistem fora desta página.'));
     for(const n of item.notes??[]){const card=el('div','detail-row');
       card.append(el('strong','',n.text),el('span','',`${ACTORS.find(x=>x.id===n.actorId)?.name??'Profissional fictício'} · ${n.time}`));notes.append(card);}
-    if(canWriteNote(item,state.actorId,state.shopId) && isInActiveInbox(item)){
+    if(postmarkContextValid(item) && canWriteNote(item,state.actorId,state.shopId) && isInActiveInbox(item)){
       const form=el('form','note-form');form.id='internal-note-form';
       const label=el('label','field-label','Nova nota fictícia');label.htmlFor='note-text';
       const textarea=el('textarea','note-textarea');textarea.id='note-text';textarea.maxLength=250;
@@ -306,7 +312,7 @@ function renderDetails() {
       const add=el('button','btn btn-primary','Adicionar nota');add.type='submit';
       form.append(label,textarea,add);
       form.addEventListener('submit',e=>{e.preventDefault();const text=textarea.value.trim();
-        if(!text || selectedCase()?.id!==item.id || !canWriteNote(item,state.actorId,state.shopId) || !isInActiveInbox(item))return;
+        if(!text || selectedCase()?.id!==item.id || !postmarkContextValid(item) || !canWriteNote(item,state.actorId,state.shopId) || !isInActiveInbox(item))return;
         item.notes??=[];item.notes.push({id:'n-'+(item.notes.length+1),text,actorId:state.actorId,time:'Agora · fictício'});
         renderDetails();showToast('Nota adicionada somente à memória do navegador.');
       });notes.append(form);
@@ -394,6 +400,42 @@ function renderDetails() {
     bank.append(el('p','detail-small',
       'Somente leitura. Registros C15–C18 exigem profissional autorizado, prova verificada e confirmação S0. Sem formulário de prova real, envio, venda ou negativa neste protótipo.'));
     content.append(bank);
+  } else if(state.detailTab==='postmark'){
+    const contact=detailSection('NOVO CONTATO APÓS MARCO · O5');
+    const projection=postmarkViewFor(item,state.cases,state.actorId,state.shopId);
+    const copy=postmarkCopy(projection);
+    contact.append(callout(copy.title,copy.description,projection.linked?'':'warning'));
+    if(projection.linked){
+      contact.append(prop('Marco original preservado',projection.sourceStatus));
+      contact.append(prop('IA Vendedora', 'Silenciada definitivamente para o ciclo de origem'));
+      contact.append(prop('Natureza do contato','Novo atendimento humano independente · cenário fictício'));
+      const linked=state.cases.find(record=>record.id===projection.relatedCaseId);
+      if(linked){
+        contact.append(prop('Caso relacionado autorizado',linked.id));
+        const open=el('button','btn btn-primary',
+          projection.kind==='origin'?'Abrir novo atendimento humano':'Consultar atendimento de origem');
+        open.type='button';
+        open.addEventListener('click',()=>{
+          // Revalidar escopo, reciprocidade e vínculo no clique; não criar caso.
+          if(selectedCase()?.id!==item.id)return;
+          const now=postmarkViewFor(item,state.cases,state.actorId,state.shopId);
+          const target=state.cases.find(row=>row.id===now.relatedCaseId);
+          if(!now.linked || !target)return;
+          closeTransientDialogs();
+          state.inboxView=target.inboxProjection==='historical'?'history':'active';
+          state.filter='all';state.statusFilter='all';state.query='';
+          $('search-input').value='';state.selectedId=target.id;state.detailTab='postmark';
+          goto('thread');updateSelectors();render();
+        });
+        contact.append(open);
+      }
+    }else{
+      contact.append(el('p','detail-small',
+        'Nenhum ciclo é criado por esta tela. Vínculo ausente, divergente ou fora do escopo não concede acesso nem revela outro atendimento.'));
+    }
+    contact.append(el('p','detail-small',
+      'Somente navegação sobre casos fictícios já projetados. A S0 decide criação, roteamento, versão, permissão e histórico. Não existe comando C14 nem reativação da IA Vendedora neste browser.'));
+    content.append(contact);
   } else {
     const followup=detailSection('RECONTATOS CONTEXTUAIS · CF-OP-02');
     const local=state.followupRequests[item.id]??null;
