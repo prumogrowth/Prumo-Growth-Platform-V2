@@ -306,3 +306,46 @@ test('REC-35: uncertain classified Graph result cannot create status correlation
   assert.equal(x.registerAcceptedSend(reference, uncertain).decision, 'INVALID_REFERENCE');
   assert.equal(x.linkedCount, 0);
 });
+
+test('REC-36: one S0 attempt cannot be linked to a second provider wamid', () => {
+  const x = newLinked();
+  const second = { ...accepted, provider_message_id: 'wamid.SECOND=' };
+  assert.equal(x.registerAcceptedSend(reference, second).decision, 'CONFLICT');
+  assert.equal(x.linkedCount, 1);
+  assert.equal(x.projectionFor(reference, second.provider_message_id), undefined);
+});
+test('REC-37: one accepted attempt cannot silently switch sender or destination', () => {
+  const x = newLinked();
+  const moved = {
+    ...reference,
+    scope: { ...reference.scope, meta_waba_id:'WABA_CHANGED', phone_number_id:'98765432101' },
+    recipient_verified:'5581999999999'
+  };
+  assert.equal(x.registerAcceptedSend(moved, {
+    ...accepted, provider_message_id:'wamid.MOVED='
+  }).decision, 'CONFLICT');
+  assert.equal(x.linkedCount, 1);
+});
+test('REC-38: a separate explicitly identified attempt can receive its own wamid', () => {
+  const x = newLinked();
+  const newer = { ...accepted, attempt_id:'FIXTURE_ATTEMPT_OTHER',
+    correlation_id:'FIXTURE_CORR_OTHER', provider_message_id:'wamid.OTHER=' };
+  assert.equal(x.registerAcceptedSend(reference, newer).decision, 'LINKED');
+  assert.equal(x.linkedCount, 2);
+  assert.equal(x.projectionFor(reference, newer.provider_message_id)?.progress, 'NONE');
+});
+test('REC-39: identical attempt labels from independently scoped Apps remain isolated', () => {
+  const x = newLinked();
+  const second: CorrelationReference = {
+    ...reference, app_ref:'FIXTURE_APP_OTHER',
+    scope:{ ...reference.scope,meta_app_ref:'FIXTURE_APP_OTHER',
+      concessionaria_id:'FIXTURE_SHOP_OTHER',
+      canal_id:'FIXTURE_CHANNEL_OTHER',meta_waba_id:'FIXTURE_WABA_OTHER',
+      phone_number_id:'98765432101' },
+  };
+  assert.equal(x.registerAcceptedSend(second, {
+    ...accepted, provider_message_id:'wamid.SHOP_OTHER='
+  }).decision, 'LINKED');
+  assert.equal(x.linkedCount, 2);
+  assert.equal(x.projectionFor(reference, accepted.provider_message_id!)?.progress, 'NONE');
+});
