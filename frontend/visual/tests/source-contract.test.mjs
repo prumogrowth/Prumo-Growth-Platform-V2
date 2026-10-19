@@ -12,6 +12,7 @@ const registration = get('registration-view.mjs');
 const bank = get('bank-view.mjs');
 const postmark = get('postmark-view.mjs');
 const teamOps = get('team-operations.mjs');
+const teamMonitoring = get('team-monitoring.mjs');
 const fixtureTeam = get('fixtures.mjs');
 const browserSmoke = get('tests/browser.smoke.py');
 
@@ -150,4 +151,21 @@ test('G2 exige pertencimento à equipe e pausa global só é solicitada, nunca a
 test('Chromium smoke inclui a implementação visual G2', () => {
   assert.match(browserSmoke, /team-operations\.mjs/);
   assert.match(browserSmoke, /Solicitar pausa de novos leads/);
+});
+
+test('G3 projeta monitoramento da equipe sem relógio, D3, D4 ou acesso de loja inteira', () => {
+  assert.match(app, /projectTeamMonitoring\(state\.actorId,state\.cases\)/);
+  assert.match(app, /Prazos de espera e atrasos reais: NÃO VERIFICADOS/);
+  assert.match(teamMonitoring, /visibleConversations\(records,managerId,shop\)/);
+  assert.match(teamMonitoring, /record\.metaWindowProjection==='expired'/);
+  assert.match(teamMonitoring, /record\.reassignmentProjection==='protected_queue'/);
+  assert.match(teamMonitoring, /COMMERCIAL_STATUSES\.map\(status/);
+  assert.doesNotMatch(teamMonitoring, /\bDate\.now\s*\(|\bnew Date\s*\(|\bfetch\s*\(/);
+  assert.doesNotMatch(teamMonitoring, /\.registrationProjection\?\.fields|\.bankProjection\?\.submissionVersionRef/);
+  assert.match(markup, /id="team-monitor"/);
+});
+
+test('G3 tem roteiro visual integrado em Chromium para Desktop',()=>{
+  assert.match(browserSmoke, /team-monitoring\.mjs/);
+  assert.match(browserSmoke, /Monitoramento operacional da equipe/);
 });
