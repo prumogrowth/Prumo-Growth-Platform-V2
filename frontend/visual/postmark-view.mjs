@@ -55,7 +55,7 @@ export function postmarkViewFor(record, records, actorId, shopId) {
   return {
     visibility:'available',kind:direction,linked:true,relatedCaseId:related.id,
     source:p.source,sourceStatus:POSTMARK_SOURCES[p.source],
-    sellerAiSilenced:true,canOperateCurrentCase:actor.role==='operador' || actor.id===record.assignedTo
+    sellerAiSilenced:true,canOperateCurrentCase:actor.id===record.assignedTo
   };
 }
 
