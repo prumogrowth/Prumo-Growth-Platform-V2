@@ -101,6 +101,16 @@ Reproduzir localmente, sem bibliotecas extras, no diretório raiz do repo: `pyth
 - **Não coberto:** não há credenciais, Auth real, provas bancárias, NLP de modelo, catálogo real de dados, integração S1 I12, transação/lock real ou código de aplicação no banco. A revalidação por flags fictícias NÃO pode ser exposta como endpoint ou tornar-se fonte de autoridade. Assinatura F03 e política de correção seguem [R].
 - **Concorrência real:** no futuro S0 deve refazer a verificação na MESMA transação que aplicar campos, sob bloqueio/versionamento efetivo, obtendo identidade e atribuição da S1 e não de payload cliente/modelo. `REVIEW_ONLY` é somente sinal para essa etapa, não permissão de escrita.
 
+### Saneamento adicional de tipos — 19/10/2026
+
+**Problema identificado:** a versão anterior dos stubs Python aceitava potencialmente uma string como `"false"` nos indicadores de autorização F03, por usar truthiness; em Python `bool` também é subclass de `int`, podendo contaminar comparações de versão. No laboratório isso poderia apresentar `PROPOSAL_ONLY` ou `REVIEW_ONLY` com evidência malformada.
+
+**Correção executada nos módulos isolados:** `f03_offline_gate.py` agora exige dataclasses corretas, **booleanos reais** para autorização/snapshot/closure e evidência, **versões inteiras positivas não booleanas**, IDs string não vazios e valores anotados no gabarito como texto. `f03_assignment_recheck.py` valida estritamente sessão, operador ativo, grant, finalidade e indicadores de revisão. Dados malformados retornam `BLOCKED`/`DENY`, sem SQL, Meta, modelo ou exceção de autorização.
+
+**Prova local após a correção:** `python -m unittest discover -s backend/tests -p 'test_s0_openai_f03*.py' -q` → **78/78 PASS** (**50** validação de campos, **28** atribuição); `python -m compileall -q backend` → PASS. Códigos/testes nesta branch foram confrontados por conteúdo e checksum FNV-1a com o laboratório local. **Sem CI de GitHub verificado; não é validação do modelo ou de integração S1/S0.**
+
+**Compatibilidade verificada:** S0 PR #1 evoluiu 7 commits desde o ponto de origem desta branch, alterando docs S0-040/runner, sem modificar os 9 caminhos originais deste PR; Meta PR #2 alterou somente `integrations/whatsapp-meta/` e docs próprias nesse intervalo. **Sem colisão de caminhos**, mas PR #8 permanece atrás do HEAD S0 e precisa revisão de base antes de merge; especialmente a prova técnica Meta `API_ACCEPTED` não equivale a callback autenticado `sent`. Sem adotar arquivos ou resultados Meta como autorização comercial.
+
 ## 4. Máquina técnica S0 candidata e prova necessária
 
 `ACCEPTED_FOR_PROCESSING` (pedido idempotente e evento humano S0 registrado) → `EXTRACTION_PENDING` → `VALIDATING_RESULT` → `APPLIED | PARTIAL_REVIEW | FAILED_SAFE | STALE_RESULT`.
