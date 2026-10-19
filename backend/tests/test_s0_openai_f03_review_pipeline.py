@@ -48,9 +48,9 @@ class CompositionTests(unittest.TestCase):
         self.assertEqual((res.status, res.candidate_field_codes, f, a),
                          (PipelineStatus.REVIEW_ONLY, ("X",), 1, 1))
 
-    def test_02_store_mismatch_between_guards_denies_without_evaluators(self):
+    def test_02_store_mismatch_denies_before_field_evaluator(self):
         res, f, a = self.run_review(close={"store": "B"})
-        self.assertEqual((res.status, f, a), (PipelineStatus.DENIED, 0, 0))
+        self.assertEqual((res.status, f, a), (PipelineStatus.DENIED, 0, 1))
 
     def test_03_case_mismatch_between_guards_denies(self):
         self.assertEqual(self.run_review(close={"case": "C2"})[0].status, PipelineStatus.DENIED)
@@ -69,11 +69,11 @@ class CompositionTests(unittest.TestCase):
 
     def test_08_f03_denies_even_if_authority_would_pass(self):
         res, _, n = self.run_review(f03=Review(Result.BLOCKED))
-        self.assertEqual((res.status, n), (PipelineStatus.DENIED, 0))
+        self.assertEqual((res.status, n), (PipelineStatus.DENIED, 1))
 
-    def test_09_f03_stale_precedes_assignment(self):
+    def test_09_f03_stale_after_current_authority_preflight(self):
         res, _, n = self.run_review(f03=Review(Result.STALE))
-        self.assertEqual((res.status, n), (PipelineStatus.STALE, 0))
+        self.assertEqual((res.status, n), (PipelineStatus.STALE, 1))
 
     def test_10_assignment_denied_blocks_valid_fields(self):
         self.assertEqual(self.run_review(authority=ReviewDecision.DENY)[0].status, PipelineStatus.DENIED)
@@ -86,7 +86,7 @@ class CompositionTests(unittest.TestCase):
 
     def test_13_field_presence_flag_cannot_claim_unvalidated_fields(self):
         res, _, n = self.run_review(f03=Review(Result.REVIEW), current={"result_has_validated_fields": True})
-        self.assertEqual((res.status, n), (PipelineStatus.NOT_READY, 0))
+        self.assertEqual((res.status, n), (PipelineStatus.NOT_READY, 1))
 
     def test_14_string_false_flag_denied(self):
         self.assertEqual(self.run_review(current={"result_has_validated_fields": "false"})[0].status, PipelineStatus.DENIED)
