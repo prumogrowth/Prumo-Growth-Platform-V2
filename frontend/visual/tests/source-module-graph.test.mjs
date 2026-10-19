@@ -63,7 +63,7 @@ test('bundle de ensaio Chromium compila integralmente sem imports, exports ou co
   const combined=order.map(name=>src[name]).join('\n');
   // Mesmo contrato de transformação usado pelo roteiro Python browser.smoke.py.
   const bundled=combined
-    .replace(/^import \{.*?\} from ["']\\.\\/[^"']+["'];\\s*/gms,'')
+    .replace(/^import \{.*?\} from ["']\.\/[^"']+["'];\s*/gms,'')
     .replace(/^export /gm,'');
   assert.doesNotMatch(bundled,/^import /m,'Import residual no bundle injetado');
   assert.doesNotMatch(bundled,/^export /m,'Export residual no bundle injetado');
