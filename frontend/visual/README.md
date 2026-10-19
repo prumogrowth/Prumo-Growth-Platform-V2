@@ -99,3 +99,7 @@ Na aba **Banco**, o caso A-105 ilustra remessa humana verificada no cenário e *
 A aba **Novo contato** consulta vínculos sintéticos recíprocos de casos após remessa bancária ou venda: A-105 → A-114 e A-115 → A-116. Um botão abre o caso novo **já presente na fixture**, com retorno ao original preservado. **Não** cria ciclo, altera `vendido`, registra remessa, reabre a IA ou envia WhatsApp. Alteração de loja, perfil, vínculo ou versão impede navegação para caso fora do escopo. O compositor do novo caso só simula a operação do profissional atribuído, com janela e permissão projetadas. Ver [auditoria FV-UI-009](../docs/19_AUDITORIA_O5_NOVO_CONTATO_FV_UI_009_2026_10_19.md).
 
 **Validação:** 96/96 ensaios sintéticos PASS (59 domínio, 25 DOM, 12 fonte). Checkout Node direto/Chromium real, segurança S0, mensagens Meta e criação C14 seguem pendentes.
+
+## FV-AUD-05 — Correções antes de continuar G2–G4
+
+Os projetores de ficha/banco negam qualquer resumo a operador não designado; O5 permite operação no **novo** caso autorizado sem conceder leitura do histórico anterior; `copyCFDemoFixtures` isola objetos de projeção entre resets. Regressão **105/105 PASS** apenas com harness V8, sem execução nativa do Node nem Chromium atual. [Auditoria e limites](../docs/20_AUDITORIA_RETROSPECTIVA_FV_UI_004_009_2026_10_19.md).
