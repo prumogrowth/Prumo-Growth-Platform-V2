@@ -91,3 +91,7 @@ Implementada em [`frontend/visual/`](visual/README.md) a visualização de ficha
 ## FV-UI-008 — Tela O4 bancária (19/10/2026)
 
 A interface agora possui a aba **Banco** com acompanhamento sintético de remessa, prova e retorno, **sem registrar decisão, remeter cadastro, alterar estado ou criar ações bancárias**. Operadores designados veem projeções minimizadas; gestores não herdam evidências D4. **77/77 verificações sintéticas aprovadas em V8**, sem execução literal de Node/Chromium da branch. Ver [auditoria O4](docs/18_AUDITORIA_O4_BANCO_FV_UI_008_2026_10_19.md). Sem homologação real.
+
+## FV-UI-009 — Novo contato após marcos (19/10/2026)
+
+Implementada em `frontend/visual/` a jornada O5 **somente com fixtures**, conectando o atendimento original ao **novo ciclo humano independente** após `cadastro enviado ao banco` ou `vendido`, sem modificar estado original ou reativar a IA Vendedora. Navegação no mesmo escopo e com vínculo verificado; **96/96 verificações sintéticas PASS** no harness V8 sobre o GitHub. Node/Chromium da versão atual **não executados**. [Auditoria O5](docs/19_AUDITORIA_O5_NOVO_CONTATO_FV_UI_009_2026_10_19.md).
