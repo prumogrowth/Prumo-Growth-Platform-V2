@@ -58,3 +58,39 @@ Os **180/180** testes G2–G4 citados na auditoria FV-UI-012 constituem evidênc
 5. Só preparar avaliação visual do responsável após gates funcionais e técnicos documentados; **não** usar esta auditoria como liberação de UX final.
 
 **Veredito da FV-UI-013 nesta data: PARCIAL / NÃO HOMOLOGADA.** Corrigida uma falha real do mecanismo de aceite e validado o comportamento de bloqueio; ausência de checkout completo impede comprovar a execução nativa da aplicação.
+
+
+---
+
+## Continuidade FV-UI-013 — nova execução e proteção por revisão Git (19/10/2026, segunda rodada)
+
+**Contexto e limite:** o checkout privado integral continua inacessível por Git local. Confirmado novamente em container: `git ls-remote https://github.com/prumogrowth/Prumo-Growth---Platform.git HEAD` falhou por resolução DNS. A conexão GitHub autenticada continuou funcionando para leitura/escrita. Node v22.16.0, Python 3.13.5 e Chromium instalado foram observados, **mas nenhuma jornada da aplicação real foi executada nativamente**.
+
+### Incrementos versionados na mesma branch
+
+- [`2f893387`](https://github.com/prumogrowth/Prumo-Growth---Platform/commit/2f893387b3025d5996329302426a24e9f1421b71) e [`7e77608c`](https://github.com/prumogrowth/Prumo-Growth---Platform/commit/7e77608cb99041a5b25c62e46aebb506ad9264ca): acrescentada e corrigida verificação **Node nativa futura** em `source-module-graph.test.mjs`. O teste passa a montar a concatenação real do smoke, remover import/export pelo mesmo padrão Python e compilar o bundle inteiro com `node:vm.Script` para detectar declarações léxicas duplicadas e sintaxe que falharia apenas ao unir módulos. Em **ensaio V8 neste atendimento**, 11 módulos concatenados compilaram sem colisões (98.536 caracteres após transformação). **Isso não é `node --test` nativo.**
+- [`132e56ca`](https://github.com/prumogrowth/Prumo-Growth---Platform/commit/132e56cad1e23ca9d79008173ca54adbb367b034) e [`4a05a039`](https://github.com/prumogrowth/Prumo-Growth---Platform/commit/4a05a0397fbf5c08f35749eaed112e26ae56f4a0): runner de aceite exige argumento `--expected-head` (40 caracteres hexadecimais), compara com `git rev-parse HEAD`, exige a branch `feat/frontend-plataforma-visual` e detecta alterações locais em `frontend/visual`. Se a revisão não bate, impede executar tanto Node quanto Chromium e sinaliza falta de prova no JSON. Blob remoto pós-correção: `7c7f21ceb05a7a71b771b6b45ed7673db5629a2d`.
+
+### Ensaios realmente executados sobre o runner, sem aplicação real
+
+Reproduzido localmente um **clone literal do arquivo de runner**, confirmado pelo mesmo SHA Git blob `7c7f21ceb05a7a71b771b6b45ed7673db5629a2d`. Para provar a lógica de orquestração, criou-se um **repositório Git local artificial**, na branch autorizada, com arquivos-sentinela que levam o inventário a passar, 14 testes Node deliberadamente triviais e um script Python que representa o passo do browser **sem abrir Chromium**. Seis cenários de controle foram executados:
+
+| Cenário artificial | Resultado processual | Prova de controle |
+| --- | --- | --- |
+| SHA/branch corretos, árvore limpa, sentinelas Node/browser com saída zero | exit 0; `full_acceptance=true` | Somente a lógica de orquestração do executor |
+| SHA antigo | exit 1; Node/browser não executados | Negação por revisão inválida |
+| Arquivo não rastreado sob `frontend/visual` | exit 1; Node/browser não executados | Negação por árvore suja |
+| Outra branch com mesmo commit | exit 1; Node/browser não executados | Negação por branch |
+| Script Python-sentinela do browser falha | exit 1; Node aprovado no ensaio artificial, browser reprovado | Propagação de falha do passo browser |
+| Teste Node-sentinela falha | exit 1; Node reprovado, passo Python-sentinela aprovado | Propagação de falha Node |
+
+**Interpretação indispensável:** o resultado exit 0 do primeiro cenário **não significa Chromium PASS**, porque ele executa propositalmente apenas uma sentinela Python. Não significa O1–O5/G1–G4 PASS, nem comprova testes de acessibilidade, API, segurança ou produção. A matriz de jornadas nativas permanece **pendente**. O objetivo desses seis ensaios é comprovar que o **executor** aceita/rejeita condições de teste de forma coerente, não validar a aplicação.
+
+### Procedimento reprodutível quando o checkout autorizado estiver disponível
+
+1. Confirmar no GitHub o HEAD atual da branch; fornecer esse SHA **exato** ao runner por `--expected-head`.
+2. Certificar-se de que `frontend/visual` não contém alterações locais/untracked antes da execução e que a branch está selecionada, sem checkout detached.
+3. No checkout integral atualizado, executar `python3 frontend/visual/tests/run_acceptance.py --expected-head SHA_COMPLETO --json-report /tmp/fv-ui-013-evidencia.json`. Definir `CHROMIUM_EXECUTABLE` se necessário.
+4. Registrar saídas `node --test` e Chromium verdadeiras, observações por viewport e revisões corretivas; **somente então** reconsiderar o gate FV-UI-013.
+
+**Veredito após continuidade:** o mecanismo de aceite está mais rigoroso e seus cenários de controle foram executados; **o frontend completo ainda não tem aceite Node/Chromium nativo**. Não houve integração, deploy, merge ou alteração fora de `frontend/`. O índice formal **19F permanece em 69/100**.
