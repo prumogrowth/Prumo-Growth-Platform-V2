@@ -64,7 +64,8 @@ export function installMockDOM({ mobile = false } = {}) {
     'thread-meta', 'thread-body', 'workflow-bar', 'message-input', 'detail-toggle',
     'detail-content', 'detail-pane', 'thread-pane', 'completion-dialog',
     'completion-form', 'template-dialog', 'template-select', 'team-dialog',
-    'team-list', 'team-monitor', 'team-show-members', 'team-show-monitor',
+    'team-list', 'team-monitor', 'team-batches',
+    'team-show-members', 'team-show-monitor', 'team-show-batches',
     'toast', 'team-nav', 'team-nav-mobile', 'team-close',
     'reset-app', 'composer', 'thread-back', 'detail-back', 'detail-close'
   ];
