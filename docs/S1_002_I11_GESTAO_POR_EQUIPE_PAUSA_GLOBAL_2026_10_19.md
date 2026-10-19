@@ -1,0 +1,26 @@
+# S1-002/I11 — Gestores por equipe, grants pelos responsáveis e pausa global
+
+**[D] Correção expressa de negócio — 19/10/2026.** Substitui a interpretação por concessionária de I10. Dono desta frente: S1-002. Aplica-se ao produto Prumo/LiberaCred, mantendo os contratos de casos comerciais no núcleo S0.
+
+## 1. Três relações que não podem ser confundidas
+
+- **Pessoa → equipe (gestor):** cada gestor é responsável por um conjunto de operadores da Prumo, sem carregar concessões de loja. Um gestor pode ter cinco operadores e outro três. Alterar as lojas autorizadas para um operador **não** altera sua chefia nem quem gere suas férias/afastamentos ou fila.
+- **Operador → concessionárias (recebimento):** **responsáveis da plataforma** configuram quais concessionárias a IA/sistema podem direcionar leads a cada operador; A+B hoje, C amanhã. **Gestor não concede, não suspende e não revoga uma concessionária individual para esse operador.** O fluxo de caso sempre respeita loja de origem e credenciais de recebimento.
+- **Operador → disponibilidade global:** o gestor que coordena aquele operador pode colocá-lo temporariamente **fora da distribuição em todas as concessionárias**, por exemplo ausência de uma semana. Isso impede novos leads e redistribui atendimentos ativos do operador conforme as alçadas/lojas dos substitutos. A pausa é da **pessoa**, não do vínculo com A ou B. Os grants continuam guardados; ao retorno, o operador volta a estar elegível para novos casos, sem recuperar automaticamente os que já foram transferidos.
+
+Responsáveis são os únicos que **adicionam** operadores/gestores, fazem desligamento definitivo e configuram grants de lojas. Gestor administra equipe preexistente (pausa, volta, distribuição, movimento de casos, supervisão), sem ingressos/desligamentos definitivos. O operador não administra os colegas. O gestor não precisa possuir concessão da loja A para liderar alguém que recebe casos de A.
+
+## 2. Implementação sintética segura na S1-002
+
+A migration `202610190048_s1_gestao_equipe_pausa_global.sql` introduz duas relações PRIVADAS separadas: `s1_responsaveis_plataforma` (responsáveis independentes de concessionária) e `s1_gestor_operadores` (gestor → operadores). **Um gestor para muitos operadores**. A restrição de **um gestor ativo por operador é hipótese técnica [P]**, não decisão explícita do usuário; precisa de validação de política RH antes da produção. A função de autorização de I10 é **substituída**: deixa de verificar grants do gestor a lojas, exige pertencer à equipe para administrar, exige escopo de concessionária apenas quando a operação move/redistribui um atendimento concreto e continua negando a alteração de grants pelo gestor.
+
+As funções internas `s1_pausar_operador_da_equipe` e `s1_reativar_operador_da_equipe` (SQL de teste, EXECUTE revogado para API) usam o estado já existente `equipe_prumo_s1.estado`. Na pausa `ativo → suspenso`, o gatilho I2 encerra/redistribui **em todas as lojas** e restringe as leituras por RLS. Ao retorno `suspenso → ativo`, o operador volta ao conjunto elegível para novos casos; não reconquista casos antigos que tenham outro titular. Auditoria append-only contém **código mínimo de indisponibilidade, nunca diagnóstico médico**; não armazenar imagem do atestado neste fluxo.
+
+**Contratos preservados:** único titular ativo, concessionária original do atendimento, autorização do novo receptor por concessionária, histórico de atribuição e das pausas. O gestor ainda só pode executar atendimento como operador se se autoatribuir conforme D41. Não altera os oito estados comerciais, nada Meta/OpenAI, nenhuma configuração de concessionária feita por gestor, e nenhuma credencial real.
+
+## 3. Critérios e limites
+
+- Provas propostas `S1T-01..13` em PG17 fictício: gestões de equipes diferentes, responsáveis concedendo C em matriz, gestor sem grant de nenhuma loja supervisionando operador A+B, pausa global redistribui dois casos A+B e deixa terceiro C intacto, grants A+B permanecem, leitura do afastado é bloqueada, retorno não recupera carteira antiga, operações indevidas e metadados livres rejeitados, função privada inacessível a `authenticated`.
+- **Não há comando real de login/REST/GoTrue**; a função recebe solicitante por argumento exclusivamente no sandbox sob `postgres`. Isso seria vulnerável se aberta a usuários; não expor. Ainda falta endpoint seguro que amarre `auth.uid` confiável à chefia, autorização dos responsáveis para editar as tabelas privadas, e alocação manual verificando tanto origem quanto destino na equipe do gestor.
+- Ainda não é regra aprovada que a redistribuição **automática** de um afastado só possa enviar para a mesma equipe. Por enquanto o destino é qualquer operador Prumo ativo com grant válido da loja, conforme I2; o gestor só pode comandar manualmente nos próprios supervisionados. A restrição de destinatário à mesma equipe deve ser fechada antes de produção, sem presumir decisão.
+- A migração 047 antiga continua no histórico e os testes legados S1P-01..10 rodam **ANTES** da migration 048; jamais atribuir sua hipótese de gestor por loja ao estado vigente do produto. **Todos os resultados S1T exigem CI antes de aprovação.** Não houve merge/deploy.

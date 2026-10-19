@@ -34,4 +34,6 @@ psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$ROOT/supabase/migrati
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$ROOT/supabase/tests/s1_009_fronteira_administrativa_local.sql"
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$ROOT/supabase/migrations/202610190047_s1_matriz_autoridades_responsavel_gestor.sql"
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$ROOT/supabase/tests/s1_010_permissoes_responsavel_gestor.sql"
-echo 'S1-002/I1–I10: matriz de permissões simulada, nenhum Auth/REST real.'
+psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$ROOT/supabase/migrations/202610190048_s1_gestao_equipe_pausa_global.sql"
+psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$ROOT/supabase/tests/s1_011_gestores_equipe_pausa_global.sql"
+echo 'S1-002/I1–I11: chefia por equipe e pausa GLOBAL, só PG17 local.'
