@@ -27,7 +27,9 @@ test('escrever nota fictícia exige atribuição e escopo, inclusive gestora', (
 test('painel da equipe é apenas gestorial na loja concedida', () => {
   assert.equal(canSeeTeamSummary('marina','horizonte'),true);
   assert.equal(canSeeTeamSummary('rafael','aurora'),false);
-  assert.equal(canSeeTeamSummary('marina','inexistente'),false);
+  assert.equal(canSeeTeamSummary('marina','inexistente'),true); // equipe independe do filtro de concessionária
+  assert.equal(canSeeTeamSummary('daniel','aurora'),true);
+  assert.equal(canSeeTeamSummary('otavio','aurora'),false);
 });
 
 test('histórico sintético preserva autoria e notas, sem nova transição', () => {
