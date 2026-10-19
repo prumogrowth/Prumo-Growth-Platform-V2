@@ -3,6 +3,8 @@
 **Data:** 18/10/2026. **Branch:** feat/s2-openai-adapter-sintetico. **Estado:** planejamento contratual [P], sem integração operacional. Branch derivada de main; não contém código das branches S0 ou Meta.
 **Regra de convivência:** NÃO transferir, cancelar, bloquear, reescrever ou assumir demandas dos PRs #1 (S0) e #2 (WhatsApp/Meta). Se uma dessas frentes já implementa algo relacionado a IA, a titularidade permanece com ela até decisão expressa posterior.
 
+**Exceção de escopo concedida pelo responsável em 19/10/2026:** as frentes OpenAI e WhatsApp/Meta receberam autorização para propor/ajustar **partes específicas** da S0 que bloqueiem suas integrações, sem tomar posse do backend inteiro ou invadir arquivos da outra frente. A frente OpenAI abriu [PR S0 #8 Draft](https://github.com/prumogrowth/Prumo-Growth---Platform/pull/8) numa branch **separada**, com base na branch S0 e somente dois adendos documentais para F03/CFI-01 e C09. **PRs #1/#2 não foram editados**, sem SQL, APIs, deploy ou merge. A cláusula anterior de não interferência continua válida para mudanças não autorizadas ou para a propriedade Meta de canais/callbacks. O contrato canônico ainda espera ratificação #4/#6.
+
 ## Objetivo particular desta frente
 
 Preparar o acesso da plataforma técnica Prumo à API da OpenAI: entendimento de projetos e credenciais, contrato de chamada/retorno do provedor, configuração de segredo via ação MANUAL do responsável, limites, evidências e integração futura com o núcleo S0.
