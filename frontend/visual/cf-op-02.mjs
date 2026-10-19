@@ -153,7 +153,7 @@ const SCENARIOS = Object.freeze([
   { id:'A-112', shopId:'aurora', name:'Cliente Exemplo 13', initials:'CE', assignedTo:null,
     status:'em atendimento pelo operador', unread:0, updatedAt:'Ontem', tag:'Fila protegida',
     inboxProjection:'active', metaWindowProjection:'unknown', humanCompletionProjection:'pending',
-    reassignmentProjection:'protected_queue',allowedActionsProjection:[],
+    reassignmentProjection:'protected_queue',teamManagerId:'marina',allowedActionsProjection:[],
     messages:[{id:'a112-1',side:'system',body:'Responsável fictício perdeu acesso; remanejamento cabe ao S1-002.',time:'Ontem'}] },
   { id:'A-113', shopId:'aurora', name:'Cliente Exemplo 14', initials:'CE', assignedTo:'rafael',
     status:'em atendimento pelo operador', unread:0, updatedAt:'Ontem', tag:'Envio final não confirmado',
