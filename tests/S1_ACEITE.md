@@ -162,3 +162,10 @@ Migração `046` e teste `s1_009_fronteira_administrativa_local.sql` com S1A-01.
 ## I11 — Correção da hipótese "gestor por loja" [D], provas PG17 [P]
 
 Contrato corrigido: vínculo gestor→equipe, operador→lojas por responsável e pausa temporária de operador global. A migration 048 **substitui** 047 e os testes S1T-01..13 verificam grants intactos, atribuições A+B redistribuídas e C inalterada, gestão por chefe mesmo sem grant A/B, bloqueio a gerência de outra equipe e execução não exposta a authenticated. A migration 047/testes S1P são **prova histórica de hipótese superada**, executados antes da nova migração. A nova regra normativa está em [I11](../docs/S1_002_I11_GESTAO_POR_EQUIPE_PAUSA_GLOBAL_2026_10_19.md). Não houve GoTrue/REST nem decisão final sobre multi-chefia ou destinatário automático de outra equipe.
+
+
+## Resultado executado e limites — 19/10/2026
+
+[**GitHub Actions PostgreSQL 17 #39242471186 — SUCCESS**](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39242471186), commit ensaiado `4700a0b6f10ab0142a00de7948ab90733afaca57`, job `118026344950`. Logs inspecionados: **S1T-01..14 — 14/14 PASS**, incluindo concessão adicional da **loja C** ao mesmo operador sem alterar o vínculo com seu gestor; pausa global do operador A+B, redistribuição das duas lojas sem revogar concessões, equipe C separada, retorno sem retomada indevida e negações de autoridade entre gestores. Os testes legados S1P-01..10 passaram **antes da migration 048, como prova histórica de hipótese superada**, não como regra vigente. As regressões S1A, S1R, S1X, S1H e AUD1/AUD2 também passaram.
+
+**Veredito restrito:** contrato I11 corrigido e mecanismo físico de pausa/retorno ensaiado somente em PostgreSQL sintético. As tabelas de autoridade/gestão foram preenchidas por executor `postgres` fictício; não existe integração Auth/GoTrue/REST, API de responsável para grants, comando gerencial seguro com `auth.uid()`, nem controle de distribuição por equipe ponta a ponta. Nenhum merge, deploy ou dado real.

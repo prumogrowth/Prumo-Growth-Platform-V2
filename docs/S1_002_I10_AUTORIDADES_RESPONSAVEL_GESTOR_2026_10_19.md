@@ -1,3 +1,5 @@
+> **HISTÓRICO SUPERADO POR DECISÃO I11 (19/10/2026):** as seções originais abaixo descrevem hipótese antiga de "gestor por concessionária" e não são mais a regra do produto. A norma vigente está em [I11 — gestores por equipe e pausa global](S1_002_I11_GESTAO_POR_EQUIPE_PAUSA_GLOBAL_2026_10_19.md). Testes S1P provam apenas a antiga hipótese antes da migration 048; provas atuais S1T 14/14 em [CI #39242471186](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39242471186).
+
 # S1-002/I10 — Matriz de autoridade: responsável, gestor e operador
 
 **Decisão de negócio [D] explicitamente confirmada em 19/10/2026.** Proprietária: S1-002. Referências: D-ORG-01, D41, CF-OP-02 e I9. Esta decisão prevalece sobre qualquer indicação anterior de que um gestor não pode administrar operadores.
