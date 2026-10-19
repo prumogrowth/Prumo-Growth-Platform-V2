@@ -140,7 +140,8 @@ test('G2 exige pertencimento à equipe e pausa global só é solicitada, nunca a
   assert.match(teamOps, /operator\.managerId!==manager\.id/);
   assert.match(teamOps, /scope:'all_granted_shops'/);
   assert.match(teamOps, /state:'requested_demo'/);
-  assert.match(app, /Nenhuma pausa ou redistribuição efetivada/);
+  assert.match(teamOps, /Nenhuma pausa ou redistribuição efetivada/);
+  assert.match(app, /SOLICITADO LOCALMENTE/);
   assert.doesNotMatch(teamOps, /\bfetch\s*\(|\bXMLHttpRequest\b|\bWebSocket\b/);
   assert.doesNotMatch(teamOps, /operator\.shops\s*=/);
   assert.doesNotMatch(teamOps, /record\.assignedTo\s*=/);
