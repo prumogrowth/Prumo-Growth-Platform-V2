@@ -10,7 +10,7 @@ html = (base / 'index.html').read_text(encoding='utf-8')
 css = (base / 'styles.css').read_text(encoding='utf-8')
 html = html.replace('<link rel="stylesheet" href="./styles.css">', '<style>'+css+'</style>')
 html = html.replace('<script type="module" src="./app.mjs"></script>', '')
-script = '\n'.join((base / name).read_text(encoding='utf-8') for name in ('fixtures.mjs','view-model.mjs','cf-op-02.mjs','registration-view.mjs','bank-view.mjs','postmark-view.mjs','app.mjs'))
+script = '\n'.join((base / name).read_text(encoding='utf-8') for name in ('fixtures.mjs','view-model.mjs','cf-op-02.mjs','registration-view.mjs','bank-view.mjs','postmark-view.mjs','team-operations.mjs','app.mjs'))
 script = re.sub(r'(?ms)^import \{.*?\} from ["\']\./[^"\']+["\'];\s*', '', script)
 script = re.sub(r'(?m)^export ', '', script)
 
@@ -49,9 +49,9 @@ with sync_playwright() as p:
     page = browser.new_page(viewport={'width':1366,'height':768})
     page.set_content(html); page.add_script_tag(content=script)
     page.locator('#actor-select').select_option('marina')
-    assert page.locator('.conversation-card').count() == 12
+    assert page.locator('.conversation-card').count() == 11
     page.locator('#team-nav').click()
-    assert page.locator('#team-list .team-member').count() == 4
+    assert page.locator('#team-list .team-member').count() == 2
     page.locator('#team-close').click()
     page.locator('#shop-select').select_option('horizonte')
     assert page.locator('.conversation-card').count() == 2
@@ -134,7 +134,7 @@ with sync_playwright() as p:
     assert mobile.locator('#team-nav-mobile').is_visible()
     mobile.locator('#team-nav-mobile').click()
     assert mobile.locator('#team-dialog').is_visible()
-    assert mobile.locator('#team-list .team-member').count() == 4
+    assert mobile.locator('#team-list .team-member').count() == 2
     mobile.keyboard.press('Escape')
     assert not mobile.locator('#team-dialog').is_visible()
     mobile.locator('#actor-select').select_option('otavio')
