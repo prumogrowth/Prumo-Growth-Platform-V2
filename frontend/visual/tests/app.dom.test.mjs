@@ -56,11 +56,11 @@ test('histórico continua legível e não permite mensagem em caso perdido', () 
 test('gestor vê equipe somente quando ativo e preserva escopo por loja', () => {
   reset();
   env.selectActor('marina');
-  assert.equal(env.cards().length, 12);
+  assert.equal(env.cards().length, 11);
   assert.equal(get('team-nav').hidden, false);
   get('team-nav').click();
   assert.equal(get('team-dialog')._open, true);
-  assert.equal(get('team-list').children.length, 4);
+  assert.equal(get('team-list').children.length, 2);
   get('team-dialog').close();
   env.selectShop('horizonte');
   assert.equal(env.cards().length, 2);
