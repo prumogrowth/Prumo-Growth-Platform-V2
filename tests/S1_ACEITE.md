@@ -130,3 +130,10 @@ A execução inicial [#39168641246](https://github.com/prumogrowth/Prumo-Growth-
 ## Incremento I8 — trilhas imutáveis e corridas com status [testes pendentes]
 
 Migration `202610190045_s1_historicos_append_only.sql`, teste `s1_008_historicos_append_only.sql` (S1H-01..08) e duas sessões SQL `scripts/test_s1_002_status_race.sh` (S1SC-01..04). O objetivo é impedir edição/apagamento/truncamento acidental de três históricos S1 mesmo em operações privilegiadas comuns, sem bloquear inserções legítimas, e verificar sincronização com transição comercial S0 **simulada por SQL**. Não altera workflow Meta/OpenAI/FV. **Nenhum PASS antes do log do job.** [Documento I8](../docs/S1_002_I8_AUDITORIA_IMUTAVEL_E_RACE_2026_10_19.md).
+
+
+## Resultado verificado do incremento I8 — 19/10/2026
+
+[**GitHub Actions PostgreSQL 17 #39229666792 — SUCCESS**](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39229666792), commit ensaiado `51025c6e578dc67031c23bf7233d9866da017440`, job `117984297521`: logs consultados e marcadores conferidos: **S1H-01..08 = 8/8 PASS**, **S1SC-01..04 = 4/4 PASS**; também passaram regressões S1E 7/7, S1R 9/9 em 3 passagens, S1X 7/7 em 2 passagens, S1C 5/5, S1D 5/5, S1Q 10/10 em 2 passagens, S1QC 4/4, S1B 10/10 em 2 passagens, AUD1 7/7 e AUD2 5/5. Ausência de erros SQL inesperados nos marcadores; corridas no script representam UPDATE comercial sintético e não API bancária real.
+
+**Conclusão estrita:** proteção append-only aplicada e testada nas três trilhas S1, permitindo inserts legítimos; simultaneidade demonstrada somente nas duas ordenações construídas. **Não certifica isolamento contra superuser que desabilite triggers, tráfego distribuído, serviço GoTrue/REST de verdade, segredo de produção ou autorização de RH.** Status comercial do ciclo permanece S0. Sem merge, deploy, Supabase hospedado ou dados reais.

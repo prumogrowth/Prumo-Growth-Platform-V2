@@ -22,3 +22,10 @@ S1SC-01..04: duas conexões independentes, uma delas simulando uma atualização
 ## Gates de produção ainda abertos
 
 Autenticação efetiva Supabase GoTrue/REST, ator autorizado a suspender, equipe por turno/capacidade, fila visível com autorização de gestor, recuperação agendada, revisão jurídica da retenção de eventos, teste de conciliação com workers S0 e mudanças bancárias reais. Não fazer merge/deploy sem essas provas e aceite dos responsáveis.
+
+
+## Resultado verificado do incremento I8 — 19/10/2026
+
+[**GitHub Actions PostgreSQL 17 #39229666792 — SUCCESS**](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39229666792), commit ensaiado `51025c6e578dc67031c23bf7233d9866da017440`, job `117984297521`: logs consultados e marcadores conferidos: **S1H-01..08 = 8/8 PASS**, **S1SC-01..04 = 4/4 PASS**; também passaram regressões S1E 7/7, S1R 9/9 em 3 passagens, S1X 7/7 em 2 passagens, S1C 5/5, S1D 5/5, S1Q 10/10 em 2 passagens, S1QC 4/4, S1B 10/10 em 2 passagens, AUD1 7/7 e AUD2 5/5. Ausência de erros SQL inesperados nos marcadores; corridas no script representam UPDATE comercial sintético e não API bancária real.
+
+**Conclusão estrita:** proteção append-only aplicada e testada nas três trilhas S1, permitindo inserts legítimos; simultaneidade demonstrada somente nas duas ordenações construídas. **Não certifica isolamento contra superuser que desabilite triggers, tráfego distribuído, serviço GoTrue/REST de verdade, segredo de produção ou autorização de RH.** Status comercial do ciclo permanece S0. Sem merge, deploy, Supabase hospedado ou dados reais.
