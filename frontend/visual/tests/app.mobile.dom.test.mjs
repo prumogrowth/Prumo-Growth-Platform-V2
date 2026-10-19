@@ -122,3 +122,31 @@ test('mobile G4: lotes por equipe só leitura e sem importação',()=>{
   assert.equal(get('team-batches').hidden,true);
   get('team-dialog').close();
 });
+
+
+test('mobile G3/G4: alternância entre gestores apaga painel anterior antes de mostrar a outra equipe',()=>{
+  reset();env.selectActor('marina');get('team-nav-mobile').click();
+  get('team-show-batches').click();
+  assert.ok(get('team-batches').textContent.includes('L-G4-01'));
+  assert.equal(get('team-batches').textContent.includes('L-G4-03'),false);
+  env.selectActor('daniel');
+  assert.equal(get('team-dialog').open,false);
+  assert.equal(get('team-batches').textContent,'');
+  assert.equal(get('team-monitor').textContent,'');
+  get('team-nav-mobile').click();
+  get('team-show-monitor').click();
+  const monitor=get('team-monitor').textContent;
+  assert.ok(monitor.includes('Bianca Rocha'));
+  assert.ok(monitor.includes('Caso A-103'));
+  assert.equal(monitor.includes('Rafael Lima'),false);
+  assert.equal(monitor.includes('Caso A-112'),false);
+  get('team-show-batches').click();
+  const batches=get('team-batches').textContent;
+  assert.ok(batches.includes('L-G4-03'));
+  assert.equal(batches.includes('L-G4-01'),false);
+  env.selectActor('otavio');
+  assert.equal(get('team-dialog').open,false);
+  assert.equal(get('team-monitor').textContent,'');
+  assert.equal(get('team-batches').textContent,'');
+  assert.equal(get('team-nav-mobile').hidden,true);
+});
