@@ -51,23 +51,31 @@ select pg_catalog.set_config('s1.test.prev_b', :'prev_b',true);
 
 do $t$ begin
  if not pg_catalog.has_function_privilege(
-  'authenticated','prumo_private.s1_mover_atendimento_sessao(uuid,uuid,uuid,uuid)','EXECUTE')
+  'authenticated','prumo_s1_interface.s1_mover_atendimento_sessao(uuid,uuid,uuid,uuid)','EXECUTE')
  or not pg_catalog.has_function_privilege(
-  'authenticated','prumo_private.s1_pausar_operador_sessao(uuid,text)','EXECUTE')
+  'authenticated','prumo_s1_interface.s1_pausar_operador_sessao(uuid,text)','EXECUTE')
  or not pg_catalog.has_function_privilege(
-  'authenticated','prumo_private.s1_reativar_operador_sessao(uuid)','EXECUTE')
+  'authenticated','prumo_s1_interface.s1_reativar_operador_sessao(uuid)','EXECUTE')
  or pg_catalog.has_function_privilege(
-  'anon','prumo_private.s1_mover_atendimento_sessao(uuid,uuid,uuid,uuid)','EXECUTE')
+  'anon','prumo_s1_interface.s1_mover_atendimento_sessao(uuid,uuid,uuid,uuid)','EXECUTE')
  or pg_catalog.has_function_privilege(
-  'service_role','prumo_private.s1_pausar_operador_sessao(uuid,text)','EXECUTE')
+  'service_role','prumo_s1_interface.s1_pausar_operador_sessao(uuid,text)','EXECUTE')
  then raise exception 'S1S-02 grants errados';end if;
 end $t$;
-\echo 'PASS S1S-02: somente authenticated pode chamar as 3 fachadas privadas'
+\echo 'PASS S1S-02: somente authenticated pode chamar 3 interfaces no schema dedicado'
+do $t$ begin
+ if pg_catalog.has_schema_privilege('authenticated','prumo_private','USAGE')
+ or not pg_catalog.has_schema_privilege('authenticated','prumo_s1_interface','USAGE')
+ or pg_catalog.has_schema_privilege('anon','prumo_s1_interface','USAGE')
+ or pg_catalog.has_schema_privilege('service_role','prumo_s1_interface','USAGE')
+ then raise exception 'S1S-02B acesso demasiado ao schema interno';end if;
+end $t$;
+\echo 'PASS S1S-02B: sem USAGE no prumo_private, interface isolada'
 
 set local role authenticated;
 do $t$ begin
  begin
-  perform prumo_private.s1_pausar_operador_sessao(
+  perform prumo_s1_interface.s1_pausar_operador_sessao(
     'e1120000-0000-4000-8000-000000000003','AUSENCIA_TEMPORARIA');
   raise exception 'S1S-03 sem JWT role aceito';
  exception when insufficient_privilege then null;end;
@@ -77,7 +85,7 @@ end $t$;
 select pg_catalog.set_config('request.jwt.claim.role','authenticated',true);
 do $t$ begin
  begin
-  perform prumo_private.s1_pausar_operador_sessao(
+  perform prumo_s1_interface.s1_pausar_operador_sessao(
     'e1120000-0000-4000-8000-000000000003','AUSENCIA_TEMPORARIA');
   raise exception 'S1S-04 sessao sem sub aceita';
  exception when insufficient_privilege then null;end;
@@ -88,7 +96,7 @@ select pg_catalog.set_config('request.jwt.claim.sub',
  'e1120000-0000-4000-8000-000000000005',true);
 do $t$ begin
  begin
-  perform prumo_private.s1_pausar_operador_sessao(
+  perform prumo_s1_interface.s1_pausar_operador_sessao(
     'e1120000-0000-4000-8000-000000000003','AUSENCIA_TEMPORARIA');
   raise exception 'S1S-05 operador alheio pausou O3';
  exception when insufficient_privilege then null;end;
@@ -97,7 +105,7 @@ end $t$;
 
 select pg_catalog.set_config('request.jwt.claim.sub',
  'e1120000-0000-4000-8000-000000000001',true);
-select prumo_private.s1_mover_atendimento_sessao(
+select prumo_s1_interface.s1_mover_atendimento_sessao(
  'e2120000-0000-4000-8000-000000000001',
  'e5120000-0000-4000-8000-000000000001',
  :'prev_a'::uuid,'e1120000-0000-4000-8000-000000000004');
@@ -119,7 +127,7 @@ select pg_catalog.set_config('request.jwt.claim.sub',
  'e1120000-0000-4000-8000-000000000002',true);
 do $t$ begin
  begin
-  perform prumo_private.s1_mover_atendimento_sessao(
+  perform prumo_s1_interface.s1_mover_atendimento_sessao(
    'e2120000-0000-4000-8000-000000000002',
    'e5120000-0000-4000-8000-000000000002',
    pg_catalog.current_setting('s1.test.prev_b')::uuid,'e1120000-0000-4000-8000-000000000005');
@@ -131,7 +139,7 @@ select pg_catalog.set_config('request.jwt.claims',
  '{"user_metadata":{"papel":"responsavel","can_admin":true},"app_metadata":{"papel":"responsavel"}}',true);
 do $t$ begin
  begin
-  perform prumo_private.s1_pausar_operador_sessao(
+  perform prumo_s1_interface.s1_pausar_operador_sessao(
    'e1120000-0000-4000-8000-000000000003','AUSENCIA_TEMPORARIA');
   raise exception 'S1S-08 metadados deram permissao de gestor';
  exception when insufficient_privilege then null;end;
@@ -140,7 +148,7 @@ end $t$;
 
 select pg_catalog.set_config('request.jwt.claim.sub',
  'e1120000-0000-4000-8000-000000000001',true);
-select prumo_private.s1_pausar_operador_sessao(
+select prumo_s1_interface.s1_pausar_operador_sessao(
  'e1120000-0000-4000-8000-000000000003','AUSENCIA_TEMPORARIA');
 reset role;
 do $t$ begin
@@ -162,7 +170,7 @@ select pg_catalog.set_config('request.jwt.claim.sub',
  'e1120000-0000-4000-8000-000000000002',true);
 do $t$ begin
  begin
-  perform prumo_private.s1_reativar_operador_sessao(
+  perform prumo_s1_interface.s1_reativar_operador_sessao(
    'e1120000-0000-4000-8000-000000000003');
   raise exception 'S1S-10 outro gestor reativou O3';
  exception when insufficient_privilege then null;end;
@@ -171,7 +179,7 @@ end $t$;
 
 select pg_catalog.set_config('request.jwt.claim.sub',
  'e1120000-0000-4000-8000-000000000001',true);
-select prumo_private.s1_reativar_operador_sessao(
+select prumo_s1_interface.s1_reativar_operador_sessao(
  'e1120000-0000-4000-8000-000000000003');
 reset role;
 do $t$ begin
@@ -190,7 +198,7 @@ end $t$;
 set local role anon;
 do $t$ begin
  begin
-  perform prumo_private.s1_pausar_operador_sessao(
+  perform prumo_s1_interface.s1_pausar_operador_sessao(
    'e1120000-0000-4000-8000-000000000003','AUSENCIA_TEMPORARIA');
   raise exception 'S1S-12 anon invocou definer';
  exception when insufficient_privilege then null;end;
@@ -199,7 +207,7 @@ reset role;
 set local role service_role;
 do $t$ begin
  begin
-  perform prumo_private.s1_mover_atendimento_sessao(
+  perform prumo_s1_interface.s1_mover_atendimento_sessao(
    'e2120000-0000-4000-8000-000000000001',
    'e5120000-0000-4000-8000-000000000001',
    pg_catalog.current_setting('s1.test.prev_a')::uuid,'e1120000-0000-4000-8000-000000000003');
@@ -232,7 +240,7 @@ do $t$ begin
     's1_mover_atendimento_sessao','s1_pausar_operador_sessao',
     's1_reativar_operador_sessao'))
  or exists(select 1 from pg_catalog.pg_proc p
-  where p.pronamespace='prumo_private'::regnamespace
+  where p.pronamespace='prumo_s1_interface'::regnamespace
    and p.proname in (
     's1_mover_atendimento_sessao','s1_pausar_operador_sessao',
     's1_reativar_operador_sessao')

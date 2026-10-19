@@ -1,10 +1,13 @@
--- S1-002/I14: contrato de identidade derivada da sessao, em schema NAO EXPOSTO.
+-- S1-002/I14: contrato de identidade derivada da sessao, em schema DEDICADO NAO EXPOSTO.
 -- APENAS sandbox PostgreSQL. Antes de producao exige GoTrue/PostgREST
 -- validando JWT, sessao e configuracao de schemas expostos.
 -- NAO acrescenta identidade do solicitante nos argumentos do cliente.
 -- A função definer transita para postgres APENAS apos autenticação fake
 -- do caller 'authenticated', e chama as funções transacionais I11/I13.
 -- Public e service_role continuam sem EXECUTE nas tres funções.
+create schema if not exists prumo_s1_interface authorization postgres;
+revoke all on schema prumo_s1_interface from public,anon,authenticated,service_role;
+
 create function prumo_private.s1_exigir_identidade_sessao()
 returns uuid language plpgsql security invoker set search_path='' as $auth$
 declare v_ator uuid;
@@ -24,7 +27,7 @@ begin
  return v_ator;
 end $auth$;
 
-create function prumo_private.s1_mover_atendimento_sessao(
+create function prumo_s1_interface.s1_mover_atendimento_sessao(
  p_loja uuid,p_caso uuid,p_atribuicao_esperada uuid,p_destino uuid)
 returns jsonb language plpgsql security definer set search_path='' as $rpc$
 declare v_ator uuid;
@@ -34,7 +37,7 @@ begin
    v_ator,p_loja,p_caso,p_atribuicao_esperada,p_destino);
 end $rpc$;
 
-create function prumo_private.s1_pausar_operador_sessao(
+create function prumo_s1_interface.s1_pausar_operador_sessao(
  p_operador uuid,p_motivo_codigo text)
 returns jsonb language plpgsql security definer set search_path='' as $rpc$
 declare v_ator uuid;
@@ -44,7 +47,7 @@ begin
   v_ator,p_operador,p_motivo_codigo);
 end $rpc$;
 
-create function prumo_private.s1_reativar_operador_sessao(p_operador uuid)
+create function prumo_s1_interface.s1_reativar_operador_sessao(p_operador uuid)
 returns jsonb language plpgsql security definer set search_path='' as $rpc$
 declare v_ator uuid;
 begin
@@ -57,19 +60,21 @@ end $rpc$;
 -- à role authenticated. prumo_private nao e Data API schema exposto.
 revoke all on function prumo_private.s1_exigir_identidade_sessao()
  from public,anon,authenticated,service_role;
-revoke all on function prumo_private.s1_mover_atendimento_sessao(
+revoke all on function prumo_s1_interface.s1_mover_atendimento_sessao(
  uuid,uuid,uuid,uuid) from public,anon,authenticated,service_role;
-revoke all on function prumo_private.s1_pausar_operador_sessao(
+revoke all on function prumo_s1_interface.s1_pausar_operador_sessao(
  uuid,text) from public,anon,authenticated,service_role;
-revoke all on function prumo_private.s1_reativar_operador_sessao(
+revoke all on function prumo_s1_interface.s1_reativar_operador_sessao(
  uuid) from public,anon,authenticated,service_role;
 
--- IMPORTANTE: somente schema privado; nao criar RPC em public nem expor
--- 'prumo_private' em Supabase Data API. GRANT USAGE nao e EXPOSED SCHEMA.
-grant usage on schema prumo_private to authenticated;
-grant execute on function prumo_private.s1_mover_atendimento_sessao(
+-- IMPORTANTE: schema DEDICADO, nao criar RPC em public nem expor
+-- 'prumo_s1_interface' em Supabase Data API. Jamais conceder USAGE
+-- sobre prumo_private ao papel authenticated: outras funções privadas
+-- poderiam ter EXECUTE implícito de PUBLIC.
+grant usage on schema prumo_s1_interface to authenticated;
+grant execute on function prumo_s1_interface.s1_mover_atendimento_sessao(
  uuid,uuid,uuid,uuid) to authenticated;
-grant execute on function prumo_private.s1_pausar_operador_sessao(
+grant execute on function prumo_s1_interface.s1_pausar_operador_sessao(
  uuid,text) to authenticated;
-grant execute on function prumo_private.s1_reativar_operador_sessao(
+grant execute on function prumo_s1_interface.s1_reativar_operador_sessao(
  uuid) to authenticated;

@@ -23,3 +23,6 @@ O controle de JWT é **provisório e não criptográfico** neste sandbox. O fake
 - Sem merge, deploy, dados reais, Supabase hospedado, credenciais ou alteração no percentual global.
 
 **Nenhuma mudança foi feita nas branches S0, OAI, Meta ou frontend.**
+
+
+**Reforço de privilégio I14 [segurança]:** após revisão, as três interfaces foram colocadas no novo schema `prumo_s1_interface`, nunca em `prumo_private`. Essa separação evita conceder USAGE em toda a área que contém funções privadas legadas, algumas das quais podem herdar permissões padrão. Teste `S1S-02B` verifica USAGE apenas do schema de interface para authenticated e ausência de USAGE para anon/service_role. O schema de interface continua **não exposto** na Data API; nenhum teste de token real foi executado.
