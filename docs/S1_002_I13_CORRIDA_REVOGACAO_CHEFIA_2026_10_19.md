@@ -19,3 +19,12 @@ O comando continua restrito ao executor `postgres` do sandbox, não é endpoint 
 ## Limites e bloqueios
 
 Não é prova de Auth/GoTrue/PostgREST ou identidade de sessão validada. Uma função `current_user='postgres'` com ID do solicitante passado por parâmetro não pode ser exposta como RPC. Política de mudança de gestão, múltiplos gestores simultâneos, trabalhadores fora do turno, transferência ENTRE equipes, estado final de conclusão humana e capacidade de distribuição ainda precisam de contratos futuros. Nenhum deploy, merge, dado real ou percentual global novo.
+
+
+## Evidência PG17 executada — I13
+
+**[GitHub Actions #39289009575 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39289009575)**, SHA `cdd0503ede66e28833e830e7103a0e47fb6d138d`, job `118184439201`. Log conferido: **S1AG-01..05, 5/5 PASS**, envolvendo revogação da chefia do destino, suspensão global do gestor, posterior transferência legítima da equipe a outro gestor, grants intactos e histórico/titular único. No mesmo job **S1M-01..12 passou duas vezes (24 marcadores), S1MR-01..04 passou (4/4)** após a migration 050, com regressões de I1–I11 e AUD1/AUD2 aprovadas. Não foram encontrados erros SQL inesperados nem deadlocks nos testes exercitados.
+
+**Histórico de correção da suíte:** [#39283273263 — FAILURE](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39283273263) terminou por executar duas vezes o mesmo script de corrida, que usa fixtures persistentes com IDs fixos (`users_pkey` duplicada); corrigimos o runner para executá-lo uma vez, depois de 050. Também ajustamos o filtro do workflow para detectar alterações nesse runner, permitindo o novo CI #39289009575. Trata-se de defeito do roteiro de teste, não evidência de que um gesto de movimentação duplicou um caso.
+
+**Veredito delimitado:** controle transacional e regressões demonstrados somente em PostgreSQL fictício local. **Ainda não** é autenticação assinada GoTrue/REST, política RH de responsáveis reais, tráfego distribuído ou comprovação de integração com sessões/estado de conclusão S0. Não fazer merge/deploy nem elevar progresso global por esse ensaio.
