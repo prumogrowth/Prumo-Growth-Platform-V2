@@ -53,7 +53,8 @@ function snapshotAcceptedEvidence(raw: unknown): Record<string,unknown> | undefi
  * services; this fixture only checks their coherence and simulates failures.
  */
 export class FakeAttemptCommitBoundary {
-  private readonly store = new FakeAttemptBindingLedger();
+  private readonly store: FakeAttemptBindingLedger;
+  constructor(store: FakeAttemptBindingLedger = new FakeAttemptBindingLedger()) { this.store = store; }
   get bindingCount(): number { return this.store.size; }
 
   recordAcceptedFixture(identity: unknown, graphEvidence: unknown,
