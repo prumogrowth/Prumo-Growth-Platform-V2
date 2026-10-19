@@ -27,7 +27,8 @@ export function registrationProjectionFor(record, actorId, shopId) {
 
   const projection = record.registrationProjection;
   const state = REGISTRATION_OUTCOMES.includes(projection?.state) ? projection.state : 'unavailable';
-  const version = typeof projection?.formVersionRef === 'string' ? projection.formVersionRef : null;
+  const version = typeof projection?.formVersionRef === 'string' && projection.formVersionRef.trim()
+    ? projection.formVersionRef.trim() : null;
   const confirmedPersisted = Boolean(projection?.confirmedPersisted === true &&
     version && (state === 'persisted' || state === 'partial'));
 
@@ -59,8 +60,11 @@ export function registrationProjectionFor(record, actorId, shopId) {
     visibility: 'detail', state, confirmedPersisted,
     formVersionRef: confirmedPersisted ? version : null,
     fields,
-    missing: Array.isArray(projection?.missing) ? projection.missing.filter(x => typeof x === 'string') : EMPTY,
-    conflicts: Array.isArray(projection?.conflicts) ? projection.conflicts.filter(x => typeof x === 'string') : EMPTY
+    // Pendências de um processamento falho/obsoleto não são afirmações atuais.
+    missing: confirmedPersisted && Array.isArray(projection?.missing)
+      ? projection.missing.filter(x => typeof x === 'string' && x.trim()) : EMPTY,
+    conflicts: confirmedPersisted && Array.isArray(projection?.conflicts)
+      ? projection.conflicts.filter(x => typeof x === 'string' && x.trim()) : EMPTY
   });
 }
 
