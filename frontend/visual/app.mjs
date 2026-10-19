@@ -17,6 +17,7 @@ import {
 import { registrationProjectionFor, registrationStateCopy } from './registration-view.mjs';
 import { bankProjectionFor, bankPhaseCopy } from './bank-view.mjs';
 import { postmarkViewFor, postmarkCopy, mayMockOperateContinuation } from './postmark-view.mjs';
+import { projectManagedTeam, requestMockIntake } from './team-operations.mjs';
 
 const $ = id => document.getElementById(id);
 const app = $('visual-app');
@@ -24,7 +25,7 @@ const list = $('conversation-items');
 const state = {
   actorId: 'rafael', shopId: 'aurora', filter: 'all', statusFilter: 'all', detailTab: 'overview', query: '',
   selectedId: 'A-102', cases: copyCFDemoFixtures(), processing: {}, followupRequests: {}, inboxView: 'active',
-  mobileView: 'list', dialogContext: { completion: null, template: null }
+  mobileView: 'list', dialogContext: { completion: null, template: null }, teamRequests:{}
 };
 
 function el(tag, className='', text=null) {
@@ -476,6 +477,8 @@ function render(){renderList();renderThread();renderDetails();app.dataset.mobile
 function changeActor(actorId){
   const actor=getActor(actorId);if(!actor)return;
   closeTransientDialogs();
+  if($('team-dialog').open)$('team-dialog').close();
+  state.teamRequests={};
   state.actorId=actor.id;state.shopId=actor.shops[0];state.selectedId=null;state.detailTab='overview';state.statusFilter='all';state.inboxView='active';
   state.filter='all';state.query='';$('search-input').value='';goto('list');updateSelectors();render();
 }
@@ -499,19 +502,46 @@ $('detail-toggle').addEventListener('click',()=>{
   const hidden=app.classList.toggle('details-hidden');$('detail-toggle').setAttribute('aria-expanded',String(!hidden));
 });
 $('detail-close').addEventListener('click',()=>{app.classList.add('details-hidden');$('detail-toggle').setAttribute('aria-expanded','false');});
+function renderTeamSummary(){
+  const team=$('team-list');
+  if(!canSeeTeamSummary(state.actorId,state.shopId)){
+    team.replaceChildren(el('p','detail-small','Equipe não disponível neste perfil fictício.'));
+    return;
+  }
+  const rows=projectManagedTeam(state.actorId,state.cases);
+  team.replaceChildren(...rows.map(member=>{
+    const card=el('div','team-member');
+    card.append(el('strong','',member.name));
+    const staffState=member.teamState==='active'?'Conta ativa (fictícia)':'Conta suspensa (fictícia)';
+    const leadState=member.intake==='paused_confirmed'?'Novos leads pausados (projeção fictícia)':
+      member.intake==='receiving'?'Apto a receber novos leads (projeção fictícia)':'Indisponível para receber';
+    card.append(el('span','',`${staffState} · ${leadState} · ${member.cases} caso(s) na equipe`));
+    card.append(el('span','',`Concessionárias concedidas pelo responsável (somente leitura): ${member.shops.map(id=>getShop(id)?.name??id).join(', ')}`));
+    const requested=state.teamRequests[member.id];
+    if(requested){
+      card.append(el('span','',`SOLICITADO LOCALMENTE: ${requested.action==='pause'?'pausar novos leads':'retomar novos leads'} em todas as lojas concedidas. NÃO aplicado; redistribuição NÃO executada.`));
+    }else if(member.teamState==='active' && ['receiving','paused_confirmed'].includes(member.intake)){
+      const action=member.intake==='receiving'?'pause':'resume';
+      const button=el('button','btn btn-light',action==='pause'?'Solicitar pausa de novos leads':'Solicitar retomada de novos leads');
+      button.type='button';button.setAttribute('aria-label',`${action==='pause'?'Solicitar pausa':'Solicitar retomada'} de novos leads para ${member.name}, todas as concessionárias concedidas`);
+      button.addEventListener('click',()=>{
+        if(state.teamRequests[member.id])return;
+        try{
+          const requestedNow=requestMockIntake(state.actorId,member.id,action);
+          state.teamRequests[member.id]=requestedNow;renderTeamSummary();
+          showToast('Pedido fictício registrado somente no navegador. Nenhum lead foi redistribuído.');
+        }catch{showToast('Ação indisponível para este gestor e operador.');}
+      });
+      card.append(button);
+    }
+    return card;
+  }));
+}
 function openTeamSummary(){
   if(!canSeeTeamSummary(state.actorId,state.shopId)){
     showToast('A visão da equipe está disponível somente no perfil fictício de gestor.');return;
   }
-  const team=$('team-list');
-  const rows=ACTORS.filter(actor=>actor.shops.includes(state.shopId));
-  team.replaceChildren(...rows.map(actor=>{
-    const assigned=visibleConversations(state.cases,state.actorId,state.shopId)
-      .filter(record=>record.assignedTo===actor.id).length;
-    const card=el('div','team-member');
-    const memberState=actor.teamState==='active'?'Ativo (fictício)':'Indisponível / suspenso (fictício)';
-    card.append(el('strong','',actor.name),el('span','',`${actor.role==='gestor'?'Gestor':'Operador'} da Prumo · ${memberState} · ${assigned} caso(s) sintéticos atribuídos`));return card;
-  }));
+  renderTeamSummary();
   const dialog=$('team-dialog');dialog.returnValue='';dialog.showModal();
 }
 $('team-nav').addEventListener('click',openTeamSummary);
