@@ -95,3 +95,7 @@ A interface agora possui a aba **Banco** com acompanhamento sintético de remess
 ## FV-UI-009 — Novo contato após marcos (19/10/2026)
 
 Implementada em `frontend/visual/` a jornada O5 **somente com fixtures**, conectando o atendimento original ao **novo ciclo humano independente** após `cadastro enviado ao banco` ou `vendido`, sem modificar estado original ou reativar a IA Vendedora. Navegação no mesmo escopo e com vínculo verificado; **96/96 verificações sintéticas PASS** no harness V8 sobre o GitHub. Node/Chromium da versão atual **não executados**. [Auditoria O5](docs/19_AUDITORIA_O5_NOVO_CONTATO_FV_UI_009_2026_10_19.md).
+
+## FV-AUD-05 — Auditoria retrospectiva (19/10/2026)
+
+Revisados FV-UI-004–009 contra FV-01/02/03 e as jornadas O1–O5. Corrigidos: resumo O3/O4 exposto a operador não designado; novo ciclo O5 indevidamente bloqueado pela falta de acesso ao caso anterior; cópias superficiais de fixtures O3/O5 contaminando reinicializações. **105/105 verificações sintéticas aprovadas em harness V8** (65 regras, 25 DOM, 15 fonte). Não houve execução Node direta, Chromium real ou homologação S0/Meta/Banco. [Auditoria FV-AUD-05](docs/20_AUDITORIA_RETROSPECTIVA_FV_UI_004_009_2026_10_19.md).
