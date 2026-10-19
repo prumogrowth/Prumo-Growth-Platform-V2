@@ -8,6 +8,11 @@ export function isSafeEvidenceRef(value: unknown): value is string {
   return typeof value === 'string' && /^[A-Za-z0-9_.:-]{1,128}$/.test(value);
 }
 
+/** Technical sender ID from trusted App/WABA/channel scope, not a recipient. */
+export function isMetaPhoneNumberId(value: unknown): value is string {
+  return typeof value === 'string' && /^\d{5,25}$/.test(value);
+}
+
 export function isMetaWamid(value: unknown): value is string {
   return typeof value === 'string' && /^wamid\.[A-Za-z0-9+\/_=:.-]{1,1024}$/.test(value);
 }
