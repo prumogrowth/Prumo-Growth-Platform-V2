@@ -103,3 +103,9 @@ Revisados FV-UI-004–009 contra FV-01/02/03 e as jornadas O1–O5. Corrigidos: 
 ## FV-UI-010 — Equipes por operadores e pausa global de leads (19/10/2026)
 
 Gestão fictícia G2 refeita para **equipes por operador**: Marina gerencia Rafael/Lia; Daniel gerencia Bianca/Otávio, inclusive quando concessionárias coincidem. Lojas dos operadores são **somente leitura** e pertencem à alçada do responsável. Pedido local de **pausa/retomada dos novos leads do operador inteiro** não efetiva redistribuição, suspensão, alteração de permissão nem fluxo Meta. **123/123 verificações sintéticas passaram em V8** (75 regras, 30 DOM, 18 estáticas); Node/Chromium real ainda pendente. [Auditoria FV-UI-010](docs/22_AUDITORIA_G2_EQUIPE_POR_OPERADORES_PAUSA_GLOBAL_2026_10_19.md); [divergência S0/S1-002 #9](https://github.com/prumogrowth/Prumo-Growth---Platform/issues/9).
+
+## FV-UI-011/012 — G3 Monitoramento e G4 Lotes (19/10/2026)
+
+O diálogo de gestão por operadores possui **Operadores**, **Monitoramento** e **Lotes**, preservando equipes e concessionárias concedidas pelo responsável. G3 apresenta indicadores agregados e sinais projetados (espera ilustrativa, fila protegida, banco pendente, recontato), **sem relógio Meta/C09 nem SLA presumido**. G4 exibe lotes sintéticos por equipe e qualidade/versionamento, **sem upload, ingestão, edição de concessões ou distribuição**.
+
+**G3 após conciliação:** [auditoria](docs/23_AUDITORIA_G3_MONITORAMENTO_UNIFICADO_FV_UI_011_2026_10_19.md). **G4:** [auditoria](docs/24_AUDITORIA_G4_LOTES_EQUIPE_FV_UI_012_2026_10_19.md). **180/180 verificações sintéticas de regressão G2/G3/G4 aprovadas no harness V8** (110 regras, 45 DOM, 25 fonte). Não foram executados Node/Chromium da revisão atual nem integração S0/S1.
