@@ -11,4 +11,9 @@ bash scripts/test_s1_002_manual_race.sh
 bash scripts/test_s1_002_authority_race.sh
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/migrations/202610190051_s1_sessao_autorizacao_privada.sql
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_014_sessao_privada_fake_auth.sql
-echo 'S1-002/I14: interface privada de sessão fake-auth, sem GoTrue/REST.'
+# auth.sessions local é uma fixture sintética, NÃO a tabela gerenciada pelo GoTrue.
+# Isolamento: só após a suíte I14, que comprova o contrato anterior.
+psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_015_fake_gotrue_bootstrap.sql
+psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/migrations/202610190052_s1_verificacao_sessao_gotrue.sql
+psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_015_verificacao_sessao.sql
+echo 'S1-002/I15: sessao fake ativa/revogada conferida; sem GoTrue/REST real.'
