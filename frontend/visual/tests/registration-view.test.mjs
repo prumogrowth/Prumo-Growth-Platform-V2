@@ -84,3 +84,24 @@ test('processamento e falha não equivalem a ficha preenchida',()=>{
     assert.ok(registrationStateCopy(result).title.length>0);
   }
 });
+
+test('versão vazia ou com espaços não confirma preenchimento de ficha', () => {
+  const record=sample();
+  record.registrationProjection={...record.registrationProjection,formVersionRef:'  '};
+  const result=registrationProjectionFor(record,'rafael','aurora');
+  assert.equal(result.confirmedPersisted,false);
+  assert.deepEqual(result.fields,[]);
+  assert.deepEqual(result.missing,[]);
+  assert.deepEqual(result.conflicts,[]);
+});
+
+test('falha, obsolescência e processamento não expõem pendências não confirmadas', () => {
+  for (const state of ['processing','failed','stale','unavailable']){
+    const record=sample();
+    record.registrationProjection={...record.registrationProjection,state,confirmedPersisted:false};
+    const result=registrationProjectionFor(record,'rafael','aurora');
+    assert.deepEqual(result.missing,[]);
+    assert.deepEqual(result.conflicts,[]);
+    assert.deepEqual(result.fields,[]);
+  }
+});
