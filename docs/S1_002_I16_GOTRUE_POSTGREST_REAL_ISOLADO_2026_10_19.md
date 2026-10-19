@@ -38,4 +38,6 @@ Este ensaio **não executa movimentação ou pausa por HTTP**: a interface priva
 
 ## Resultado da execução
 
-**Pendente de registro após conferir o log específico do GitHub Actions.** Não marcar PASS antecipadamente.
+**[GitHub Actions #39327934437 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39327934437)**, commit de código testado `11c82085068d0ab6825927960508d39b6efee87b`, job `118318490278`. Logs inspecionados: **S1HTTP-01..13 = 13/13 PASS**, sem erros inesperados nos marcadores e com teardown da stack concluído. GoTrue assinou JWT real; PostgREST chamou o helper privado **real** da migration 052 através de RPC canário criada apenas na fixture; assinatura e claims forjados bloqueados; `anon` e `service_role` sem acesso; `prumo_s1_interface` não exposto; logout removeu a linha de `auth.sessions` e impediu o uso do JWT ainda não expirado; novo login foi aceito.
+
+**Limitação técnica explícita:** não foi exercitada uma pausa/reativação/movimentação verdadeira por HTTP, pois as três fachadas I14 permanecem não expostas; as dependências internas dessas fachadas são **stubs** nessa suíte. Não houve prova de `exp` com relógio, tokens assimétricos/JWKS, refresh, MFA, carga ou integração S0 real. As regressões da lógica de equipe continuam em CI PG17 separado. Nenhum serviço Supabase hospedado foi alterado.
