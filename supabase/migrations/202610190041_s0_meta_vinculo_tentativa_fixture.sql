@@ -22,7 +22,8 @@ create table prumo_private.meta_vinculos_tentativa_fixture_s0 (
   correlation_ref text not null check(correlation_ref ~ '^[A-Za-z0-9_.:-]{1,128}$'),
   recipient_verified text not null check(recipient_verified ~ '^[0-9]{8,15}$'),
   provider_message_id text not null
-    check(provider_message_id ~ '^wamid\.[A-Za-z0-9+/_=:.-]{1,1024}$'),
+    check(provider_message_id ~ '^wamid\.[A-Za-z0-9+/_=:.-]+$'
+      and length(provider_message_id) between 7 and 1030),
   graph_http_status integer not null check(graph_http_status between 200 and 299),
   registrado_em timestamptz not null default clock_timestamp(),
   constraint meta_vinculo_scope_fk_s0 foreign key
@@ -60,7 +61,8 @@ begin
     or p_attempt is null or p_attempt !~ '^[A-Za-z0-9_.:-]{1,128}$'
     or p_correlation is null or p_correlation !~ '^[A-Za-z0-9_.:-]{1,128}$'
     or p_recipient is null or p_recipient !~ '^[0-9]{8,15}$'
-    or p_wamid is null or p_wamid !~ '^wamid\.[A-Za-z0-9+/_=:.-]{1,1024}$'
+    or p_wamid is null or p_wamid !~ '^wamid\.[A-Za-z0-9+/_=:.-]+$'
+    or length(p_wamid) not between 7 and 1030
     or p_http_status is null or p_http_status not between 200 and 299
   then raise exception 'INVALID_TECHNICAL_EVIDENCE' using errcode='22023';end if;
 
@@ -131,7 +133,8 @@ begin
     or p_attempt is null or p_attempt !~ '^[A-Za-z0-9_.:-]{1,128}$'
     or p_correlation is null or p_correlation !~ '^[A-Za-z0-9_.:-]{1,128}$'
     or p_recipient is null or p_recipient !~ '^[0-9]{8,15}$'
-    or p_wamid is null or p_wamid !~ '^wamid\.[A-Za-z0-9+/_=:.-]{1,1024}$'
+    or p_wamid is null or p_wamid !~ '^wamid\.[A-Za-z0-9+/_=:.-]+$'
+    or length(p_wamid) not between 7 and 1030
   then raise exception 'INVALID_TECHNICAL_QUERY' using errcode='22023';end if;
 
   select m.app_ref,m.concessionaria_id,m.canal_id,m.waba_ref,m.phone_number_ref
