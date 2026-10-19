@@ -85,3 +85,12 @@ test('roteiro Chromium cobre G3 e G4 em viewport mobile e nega dados de outra eq
     "'Overflow mobile em G3/G4'"
   ]) assert.ok(mobile[0].includes(marker),'Cobertura mobile ausente: '+marker);
 });
+
+
+test('G2/G3/G4 no smoke mobile usam duas larguras mínimas reais',()=>{
+  assert.match(smoke,/for mobile_width,mobile_height in \(\(390,844\),\(320,640\)\):/);
+  assert.match(smoke,/mobile = browser\.new_page\(viewport=\{'width':mobile_width,'height':mobile_height\}\)/);
+  assert.match(smoke,/mobile\.locator\('#team-show-monitor'\)\.click\(\)/);
+  assert.match(smoke,/mobile\.locator\('#team-show-batches'\)\.click\(\)/);
+  assert.match(smoke,/assert not mobile\.evaluate\('document\.documentElement\.scrollWidth > innerWidth'\)/);
+});
