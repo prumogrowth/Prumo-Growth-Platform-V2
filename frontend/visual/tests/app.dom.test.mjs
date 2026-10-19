@@ -268,3 +268,70 @@ test('O5: supervisora vê vínculo D2 mas não ganha ação humana por supervis�
   assert.ok(get('detail-content').textContent.includes('Continuidade humana em novo ciclo'));
   assert.equal(get('message-input').disabled,true);
 });
+
+test('G2: Marina vê Rafael e Lia, não Bianca ou Otávio, independente do filtro de loja',()=>{
+  reset();env.selectActor('marina');
+  get('team-nav').click();
+  const panel=()=>get('team-list').textContent;
+  assert.equal(get('team-list').children.length,2);
+  assert.ok(panel().includes('Rafael Lima'));
+  assert.ok(panel().includes('Lia Martins'));
+  assert.equal(panel().includes('Bianca Rocha'),false);
+  assert.equal(panel().includes('Otávio'),false);
+  get('team-dialog').close();
+  env.selectShop('horizonte');
+  get('team-nav').click();
+  assert.equal(get('team-list').children.length,2);
+  assert.ok(panel().includes('Rafael Lima'));
+  assert.ok(panel().includes('Lia Martins'));
+  get('team-dialog').close();
+});
+
+test('G2: Daniel só gerencia Bianca e Otávio, mesmo compartilhando as lojas',()=>{
+  reset();env.selectActor('daniel');
+  assert.equal(env.cards().length,1);
+  get('team-nav').click();
+  const text=get('team-list').textContent;
+  assert.ok(text.includes('Bianca Rocha')&&text.includes('Otávio'));
+  assert.equal(text.includes('Rafael Lima'),false);
+  assert.equal(text.includes('Lia Martins'),false);
+  assert.ok(text.includes('Aurora Motos, Horizonte Motos'));
+  get('team-dialog').close();
+  env.selectShop('horizonte');
+  assert.equal(env.cards().length,1);
+  env.openCase('Exemplo 18');
+  assert.equal(get('message-input').disabled,true); // Bianca tem o caso, Daniel só supervisiona
+});
+
+test('G2: solicitação de pausa não concede lojas nem altera atribuição/estado comercial',()=>{
+  reset();env.selectActor('marina');
+  get('team-nav').click();
+  const team=get('team-list');
+  const button=env.descendants(team).find(n=>n.tagName==='BUTTON' &&
+    n.textContent.includes('Solicitar pausa'));
+  assert.ok(button);
+  button.click();
+  assert.ok(team.textContent.includes('SOLICITADO LOCALMENTE'));
+  assert.ok(team.textContent.includes('todas as lojas concedidas'));
+  assert.ok(team.textContent.includes('NÃO aplicado'));
+  assert.equal(env.descendants(team).filter(n=>n.tagName==='SELECT').length,0);
+  get('team-dialog').close();
+  env.openCase('Exemplo 02');
+  assert.ok(get('workflow-bar').textContent.includes('em atendimento pelo operador'));
+  assert.ok(get('thread-meta').textContent.includes('Caso A-102'));
+});
+
+test('G2: pedido local de retomada de Bianca mantém pausa confirmada na fixture',()=>{
+  reset();env.selectActor('daniel');get('team-nav').click();
+  const team=get('team-list'),button=env.descendants(team).find(n=>n.tagName==='BUTTON' &&
+    n.textContent.includes('Solicitar retomada'));
+  assert.ok(button);button.click();
+  assert.ok(team.textContent.includes('Novos leads pausados (projeção fictícia)'));
+  assert.ok(team.textContent.includes('SOLICITADO LOCALMENTE'));
+  assert.equal(env.descendants(team).filter(n=>n.tagName==='BUTTON').length,0);
+  get('team-dialog').close();
+  env.selectActor('rafael');env.selectActor('daniel');
+  get('team-nav').click();
+  assert.equal(get('team-list').textContent.includes('SOLICITADO LOCALMENTE'),false);
+  get('team-dialog').close();
+});
