@@ -165,11 +165,29 @@ const SCENARIOS = Object.freeze([
     messages:[{id:'a113-1',side:'in',body:'Vou verificar e responder.',time:'Ontem'}] },
 ]);
 
+// G3: sinais operacionais explicitamente fornecidos pela fixture, sem Date.now,
+ // sem extrapolar janelas Meta/C09 e sem criar status comerciais.
+const G3_MONITOR_SCENARIOS = Object.freeze({
+  'A-102':{code:'waiting_human',observedWaitMinutes:18},
+  'A-103':{code:'waiting_human',observedWaitMinutes:27},
+  'B-201':{code:'waiting_human',observedWaitMinutes:9},
+  'B-203':{code:'waiting_human',observedWaitMinutes:12},
+  'A-105':{code:'bank_pending'},
+  'A-110':{code:'followup_scheduled'},
+  'A-112':{code:'protected_queue'},
+  'A-113':{code:'delivery_unverified'}
+});
+function demoMonitorProjection(id) {
+  const signal=G3_MONITOR_SCENARIOS[id];
+  return signal ? {...signal,origin:'s0_fixture',observedAt:'Corte fictício T0'} : undefined;
+}
+
 export function copyCFDemoFixtures() {
   const base = copyFixtures().map(record => {
     const windowState = { 'A-102':'open','A-105':'unknown','A-106':'open','B-201':'open' }[record.id] ?? 'unknown';
     return {
       ...record, inboxProjection:'active', metaWindowProjection:windowState,
+      monitorProjection:demoMonitorProjection(record.id),
       humanCompletionProjection: ['A-102','A-106','B-201'].includes(record.id) ? 'pending' : 'unknown',
       postmarkProjection: record.id === 'A-105' ? {
         direction:'origin',source:'bank_submitted',continuationCaseRef:'A-114',
@@ -186,6 +204,7 @@ export function copyCFDemoFixtures() {
   });
   return [...base,...SCENARIOS.map(record => ({
     ...record, notes:[], messages:record.messages.map(m=>({...m})),
+    monitorProjection:demoMonitorProjection(record.id),
     allowedActionsProjection:[...(record.allowedActionsProjection??[])],
     eligibleTemplatesProjection:[...(record.eligibleTemplatesProjection??[])],
     postmarkProjection:record.postmarkProjection ? {...record.postmarkProjection} : undefined,
