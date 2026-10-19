@@ -87,6 +87,19 @@ def evaluate_f03(snapshot: Snapshot, proposal: Proposal) -> Review:
     it as an instruction to persist or evidence of verified model quality.
     """
     s, p = snapshot, proposal
+    # Strings such as "false" are truthy in Python and MUST NOT grant authority.
+    # Versions also reject bool because bool is a subclass of int.
+    if not isinstance(s, Snapshot) or not isinstance(p, Proposal):
+        return Review(Result.BLOCKED)
+    if (any(type(flag) is not bool for flag in
+            (s.actor_authorized_now, s.closure_authorized, s.original_snapshot_current))
+            or any(type(v) is not int or v < 1 for v in
+                   (s.case_version, s.form_version, p.case_version, p.form_version))
+            or any(not isinstance(v, str) or not v for v in
+                   (s.store, s.case, s.closure_event_id, s.snapshot_hash,
+                    s.catalogue_version, p.store, p.case, p.closure_event_id,
+                    p.snapshot_hash, p.catalogue_version))):
+        return Review(Result.BLOCKED)
     if (not s.store or not s.case or not s.closure_event_id or not s.snapshot_hash
             or not s.catalogue_version or not s.actor_authorized_now
             or not s.closure_authorized or s.purpose != "human_bank_collection"):
@@ -105,7 +118,12 @@ def evaluate_f03(snapshot: Snapshot, proposal: Proposal) -> Review:
                    or not r.code or type(r.required) is not bool
                    or type(r.auto_apply_allowed) is not bool for r in s.rules)
             or any(not isinstance(m, Evidence) or not isinstance(m.ref, str)
-                   or not m.ref or not isinstance(m.asserted_fields, Mapping)
+                   or not m.ref or not isinstance(m.store, str)
+                   or not isinstance(m.case, str) or not isinstance(m.actor, str)
+                   or type(m.authorized) is not bool
+                   or not isinstance(m.asserted_fields, Mapping)
+                   or any(not isinstance(key, str) or not isinstance(value, str)
+                          for key, value in m.asserted_fields.items())
                    for m in s.messages)
             or any(not isinstance(f, Candidate) for f in p.fields)):
         return Review(Result.BLOCKED)
