@@ -142,3 +142,70 @@ class F03OfflineTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class F03ContradictionRegressions(unittest.TestCase):
+    def setUp(self):
+        self.snapshot, self.proposal = fixtures()
+
+    def test_31_same_customer_conflicting_value_rejects_only_field(self):
+        correction = Evidence("m3", "LOJA_A", "CASO_A", "customer", {"A": "ALFA_CORRIGIDO"})
+        snapshot = replace(self.snapshot, messages=SOURCES + (correction,))
+        result = evaluate_f03(snapshot, self.proposal)
+        self.assertEqual(result.status, Result.PARTIAL_REVIEW)
+        self.assertEqual([f.field_code for f in result.accepted], ["C"])
+        self.assertEqual(result.rejected_fields, ("A",))
+        self.assertEqual(result.needs_human_fields, ("A",))
+
+    def test_32_latest_correction_not_auto_applied_without_policy(self):
+        correction = Evidence("m3", "LOJA_A", "CASO_A", "customer", {"A": "NOVO"})
+        candidate = Candidate("A", "NOVO", ("m3",))
+        snapshot = replace(self.snapshot, messages=SOURCES + (correction,))
+        result = evaluate_f03(snapshot, replace(self.proposal, fields=(candidate, self.proposal.fields[1])))
+        self.assertEqual(result.status, Result.PARTIAL_REVIEW)
+        self.assertEqual(result.rejected_fields, ("A",))
+
+    def test_33_same_value_repeated_is_not_conflict(self):
+        echo = Evidence("m3", "LOJA_A", "CASO_A", "customer", {"A": "ALFA"})
+        snapshot = replace(self.snapshot, messages=SOURCES + (echo,))
+        result = evaluate_f03(snapshot, self.proposal)
+        self.assertEqual(result.status, Result.PROPOSAL_ONLY)
+
+    def test_34_operator_hypothesis_not_customer_conflict(self):
+        note = Evidence("m3", "LOJA_A", "CASO_A", "operator", {"A": "OUTRA"})
+        snapshot = replace(self.snapshot, messages=SOURCES + (note,))
+        self.assertEqual(evaluate_f03(snapshot, self.proposal).status, Result.PROPOSAL_ONLY)
+
+    def test_35_untrusted_customer_assertion_not_authoritative(self):
+        note = Evidence("m3", "LOJA_A", "CASO_A", "customer", {"A": "OUTRA"}, False)
+        snapshot = replace(self.snapshot, messages=SOURCES + (note,))
+        self.assertEqual(evaluate_f03(snapshot, self.proposal).status, Result.PROPOSAL_ONLY)
+
+    def test_36_conflicting_optional_field_not_auto_applied(self):
+        note = Evidence("m3", "LOJA_A", "CASO_A", "customer", {"B": "BETA_2"})
+        snapshot = replace(self.snapshot, messages=SOURCES + (note,))
+        fields = self.proposal.fields + (Candidate("B", "BETA", ("m1",)),)
+        result = evaluate_f03(snapshot, replace(self.proposal, fields=fields))
+        self.assertEqual(result.status, Result.PARTIAL_REVIEW)
+        self.assertEqual(result.needs_human_fields, ())
+        self.assertEqual(result.rejected_fields, ("B",))
+
+    def test_37_list_shape_malformed_denied_not_crash(self):
+        result = evaluate_f03(self.snapshot, replace(self.proposal, fields=list(self.proposal.fields)))
+        self.assertEqual(result.status, Result.BLOCKED)
+
+    def test_38_nonhashable_source_denied_not_crash(self):
+        bad = Candidate("A", "ALFA", (["unexpected"],))
+        result = evaluate_f03(self.snapshot, replace(self.proposal, fields=(bad,)))
+        self.assertEqual(result.status, Result.REVIEW)
+
+    def test_39_bad_catalogue_type_denied(self):
+        bad = FieldRule("A", "false", True)
+        snapshot = replace(self.snapshot, rules=(bad, RULES[1], RULES[2]))
+        self.assertEqual(evaluate_f03(snapshot, self.proposal).status, Result.BLOCKED)
+
+    def test_40_empty_optional_input_does_not_create_data(self):
+        snapshot = replace(self.snapshot, rules=(FieldRule("B", False, True),))
+        result = evaluate_f03(snapshot, replace(self.proposal, fields=()))
+        self.assertEqual(result.status, Result.PROPOSAL_ONLY)
+        self.assertEqual(result.accepted, ())
