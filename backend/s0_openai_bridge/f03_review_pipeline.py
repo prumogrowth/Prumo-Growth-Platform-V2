@@ -29,6 +29,9 @@ class PipelineReview:
     candidate_field_codes: tuple[str, ...] = ()
     missing_required_codes: tuple[str, ...] = ()
     rejected_field_codes: tuple[str, ...] = ()
+    # Synthetic-only advisory: optional catalogue fields informed by an
+    # authorized customer but absent from the proposal; never invent values.
+    omitted_informed_optional_codes: tuple[str, ...] = ()
 
 
 def review_f03_offline(
@@ -79,6 +82,19 @@ def review_f03_offline(
         return PipelineReview(PipelineStatus.DENIED)
 
     candidates = tuple(item.field_code for item in field_review.accepted)
+    # A missing optional field is NOT a missing mandatory field. Still, an
+    # optional field explicitly stated by the authorized customer must not be
+    # silently lost if the model omitted it. Only validated synthetic snapshot
+    # annotations count; an operator note is never customer testimony.
+    proposed_codes = {item.field_code for item in proposal.fields}
+    omitted_optional = tuple(sorted(
+        rule.code for rule in snapshot.rules
+        if not rule.required and rule.code not in proposed_codes
+        and any(message.actor == "customer" and message.authorized
+                and isinstance(message.asserted_fields.get(rule.code), str)
+                and message.asserted_fields[rule.code].strip()
+                for message in snapshot.messages)
+    ))
     # This is a consistency check only: the flag itself is not trusted as
     # proof of field correctness, actor identity or permission to persist.
     if type(current.result_has_validated_fields) is not bool:
@@ -91,23 +107,27 @@ def review_f03_offline(
         # Still surface evidenced essential gaps to a human once its OTHER
         # session/grant/version guards have succeeded.
         if (not candidates and
-                (field_review.needs_human_fields or field_review.rejected_fields)):
+                (field_review.needs_human_fields or field_review.rejected_fields
+                 or omitted_optional)):
             return PipelineReview(
                 PipelineStatus.REVIEW_REQUIRED, (),
                 tuple(field_review.needs_human_fields),
                 tuple(field_review.rejected_fields),
+                omitted_optional,
             )
         return PipelineReview(PipelineStatus.NOT_READY)
     if authority != ReviewDecision.REVIEW_ONLY:
         return PipelineReview(PipelineStatus.DENIED)
 
-    if not candidates and not field_review.needs_human_fields and not field_review.rejected_fields:
+    if (not candidates and not field_review.needs_human_fields
+            and not field_review.rejected_fields and not omitted_optional):
         return PipelineReview(PipelineStatus.NOT_READY)
-    if field_review.status != Result.PROPOSAL_ONLY or not candidates:
+    if field_review.status != Result.PROPOSAL_ONLY or not candidates or omitted_optional:
         return PipelineReview(
             PipelineStatus.REVIEW_REQUIRED,
             candidates,
             tuple(field_review.needs_human_fields),
             tuple(field_review.rejected_fields),
+            omitted_optional,
         )
     return PipelineReview(PipelineStatus.REVIEW_ONLY, candidates)
