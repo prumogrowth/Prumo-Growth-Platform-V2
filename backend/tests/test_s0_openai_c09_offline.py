@@ -93,13 +93,13 @@ class ConservativeC09Tests(unittest.TestCase):
         self.check(Decision.NOT_READY, final_template_is_separate=False)
 
     def test_23_ia_without_handoff_not_automatically_approved(self):
-        self.check(Decision.POLICY_PENDING, human_handoff=False, commercial_status="sob IA")
+        self.check(Decision.POLICY_PENDING, human_handoff=False, commercial_status="em atendimento pela IA")
 
     def test_24_missing_identifiers(self):
         self.check(Decision.DENY, case_id="")
 
     def test_25_unknown_status_never_approved(self):
-        self.check(Decision.POLICY_PENDING, commercial_status="desconhecido")
+        self.check(Decision.DENY, commercial_status="desconhecido")
 
     def test_26_inbound_in_future(self):
         self.check(Decision.NOT_READY, latest_customer_inbound_at=NOW + timedelta(minutes=1))
