@@ -4,6 +4,8 @@
 **Aplicação:** terceira frente independente, sem modificar escopo, backlog, código, PRs ou ritmo das frentes S0 e WhatsApp/Meta.
 **Natureza:** desenho de interfaces, NÃO endpoint criado, schema aprovado, API conectada, prova de autenticação, autorização de dados reais ou liberação comercial.
 
+**Exceção expressa de 19/10/2026 [D-escopo]:** o responsável autorizou **ajustes específicos na S0 que estejam bloqueando OpenAI**, também outorgando direito equivalente à frente WhatsApp/Meta no seu domínio. Isso NÃO transfere propriedade global da S0, não autoriza alterar arbitrariamente RLS/status/banco, nem torna a assinatura candidata automaticamente aprovada. Para evitar colisão, as propostas CFI-01 e C09 da frente OpenAI foram isoladas em [PR #8 Draft](https://github.com/prumogrowth/Prumo-Growth---Platform/pull/8), base S0, sem editar PR #1/#2 ou os contratos físicos Meta. A tabela abaixo continua como limite padrão, **ressalvada intervenção limitada e explicitamente autorizada em branch própria com revisão cruzada**.
+
 ## 1. Escopo e donos — cláusula de não interferência
 
 | Responsabilidade | Dono preservado | Limite da frente OpenAI |
