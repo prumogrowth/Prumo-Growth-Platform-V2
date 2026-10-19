@@ -48,8 +48,11 @@ function filtered() {
 }
 
 function postmarkContextValid(record) {
-  return !record?.postmarkProjection || record.postmarkProjection.direction!=='continuation' ||
-    postmarkViewFor(record,state.cases,state.actorId,state.shopId).kind==='continuation';
+  if(!record?.postmarkProjection)return true;
+  // Todo ciclo com vínculo projetado deve ser recíproco e acessível. Negação por padrão.
+  const projection=postmarkViewFor(record,state.cases,state.actorId,state.shopId);
+  return projection.linked===true &&
+    (projection.kind==='origin' || projection.kind==='continuation');
 }
 function canMockMessage(record) {
   return postmarkContextValid(record) &&
@@ -211,13 +214,14 @@ function renderThread() {
     const label = state.processing[item.id].kind === 'accepted' ? 'Solicitação simulada' : 'Resultado fictício';
     bar.append(el('span','status-indicator human',label));
   }
-  const fActions=projectedFollowupActions(item,state.actorId,state.shopId,Boolean(state.processing[item.id]));
+  const fActions=postmarkContextValid(item) ? projectedFollowupActions(item,state.actorId,state.shopId,Boolean(state.processing[item.id])) : [];
   const pendingLocal=state.followupRequests[item.id];
   if(fActions.includes('single_template') && !pendingLocal){
     const btn=el('button','btn btn-light','Selecionar e solicitar template aprovado');btn.type='button';
     btn.addEventListener('click',()=>{
       const current=selectedCase();
-      if(!current || !projectedFollowupActions(current,state.actorId,state.shopId).includes('single_template'))return;
+      if(!current || current.id!==item.id || !postmarkContextValid(current) ||
+        !projectedFollowupActions(current,state.actorId,state.shopId).includes('single_template'))return;
       const eligible=DEMO_TEMPLATES.filter(t=>current.eligibleTemplatesProjection?.includes(t.id+'@'+t.version));
       if(!eligible.length){showToast('Nenhum template elegível neste caso fictício.');return;}
       $('template-select').replaceChildren(...eligible.map(template=>{
@@ -232,7 +236,7 @@ function renderThread() {
   if(fActions.includes('request_chain') && !pendingLocal){
     const btn=el('button','btn btn-light','Solicitar cadeia de tentativas à IA');btn.type='button';
     btn.addEventListener('click',()=>{
-      if(selectedCase()?.id!==item.id)return;
+      if(selectedCase()?.id!==item.id || !postmarkContextValid(item))return;
       try {state.followupRequests[item.id]=applyLocalFollowupRequest(item,state.actorId,state.shopId,'request_chain');
         state.detailTab='followup';render();showToast('Solicitação fictícia de cadeia. Não há plano persistido nem envio.');}
       catch(error){showToast('Operação não disponível neste cenário.');}
@@ -547,7 +551,7 @@ $('template-dialog').addEventListener('close',()=>{
   $('template-dialog').returnValue='';
   const sameContext=consumeDialogContext('template');
   if(!isConfirm || !sameContext)return;
-  const item=selectedCase();if(!item)return;
+  const item=selectedCase();if(!item || !postmarkContextValid(item))return;
   const template=DEMO_TEMPLATES.find(x=>x.id===$('template-select').value);
   try {state.followupRequests[item.id]=applyLocalFollowupRequest(item,state.actorId,state.shopId,'single_template',template);
     state.detailTab='followup';render();showToast('Pedido fictício de template recebido. Envio não confirmado.');}
