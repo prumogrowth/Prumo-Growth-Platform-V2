@@ -1,12 +1,14 @@
 # E03 — Projeto API, credencial e gates para laboratório | v0.1
 
-**Data:** 18/10/2026 | **Estado:** [P] checklist preparado; [R] ações humanas e decisão de runtime pendentes; [V] confirmação de projeto e permissões. **E03 NÃO CONCLUÍDO. Nenhuma credencial, conta, cobrança, secret, API call ou ambiente foram criados/modificados por esta frente.**
+**Data:** 18/10/2026; **decisão de sequenciamento em 19/10/2026 [D-tempo]** | **Estado:** checklist [P] preservado, execução manual E03 **deliberadamente adiada** até estrutura/testes offline autorizados estarem preparados para ensaios E05; [R] runtime/ação humana; [V] projeto/conta. **E03 NÃO CONCLUÍDO.** Nenhuma credencial, conta, cobrança, secret, API call ou ambiente foram criados/modificados por esta frente.
 
 ## Objetivo e distinção de ambientes
 
 Preparar acesso da Prumo Growth à **API OpenAI**, exclusivamente para futuros testes controlados com dados fictícios. O projeto técnico Supabase **Prumo Growth - Platform** já foi identificado com ref **projeto-supabase-omitido**. Isso NÃO demonstra projeto OpenAI criado, nem cobrança habilitada. O GitHub PR #3 não deve receber credenciais. A emissão e cadastro da chave OpenAI permanecem ações **MANUAIS pelo responsável**, conforme OAI-02.
 
 ## E03 — Lista de tarefas e aceites
+
+**Orientação operacional vigente [D-tempo]:** não iniciar agora nenhum item E03-A a E03-H nem pedir ao responsável chave, conta, faturamento ou cartão. A sequência é: consolidar contratos/estrutura → obter liberação própria de implementação e concluir testes OFFLINE conforme E04 → **só então** fazer checklist manual E03 antes de E05 (chamada real), com nova autorização expressa e sem compartilhar segredo. A documentação E03 fica disponível como preparação, não como exigência imediata.
 
 | Etapa | Nosso trabalho | Evidência segura (sem credenciais) | Estado |
 |---|---|---|---|
