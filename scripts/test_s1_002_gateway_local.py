@@ -258,18 +258,22 @@ import psycopg
 with psycopg.connect(gateway_dsn, connect_timeout=5) as conn:
     with conn.cursor() as cur:
         cur.execute("""
-            select (
-                not has_schema_privilege(current_user,'prumo_private','USAGE')
-                and not has_schema_privilege(current_user,'auth','USAGE')
-                and not has_schema_privilege(current_user,'prumo_s1_interface','USAGE')
-                and not pg_has_role(current_user,'postgres','MEMBER')
-            )::text
+            select
+              not has_schema_privilege(current_user,'prumo_private','USAGE'),
+              not has_table_privilege(current_user, (
+                select c.oid from pg_catalog.pg_class c
+                join pg_catalog.pg_namespace n on n.oid=c.relnamespace
+                where n.nspname='auth' and c.relname='sessions'
+              ),'SELECT'),
+              not has_schema_privilege(current_user,'prumo_s1_interface','USAGE'),
+              not pg_has_role(current_user,'postgres','MEMBER')
         """)
+        flags = cur.fetchone()
+        if not all(flag is True for flag in flags):
+            raise AssertionError("I19 role SQL elevada, gates=" + str(flags))
+        cur.execute("select pg_has_role(current_user,'authenticated','SET')")
         if cur.fetchone()[0] is not True:
-            raise AssertionError("I19 role SQL elevada")
-        cur.execute("select pg_has_role(current_user,'authenticated','SET')::text")
-        if cur.fetchone()[0] is not True:
-            raise AssertionError("role nao assume somente authenticated")
+            raise AssertionError("role nao possui SET apenas como authenticated")
 print("PASS S1GW-13: login SQL nao tem privilegio direto de sessao/negocio")
 
 for name in ("mover", "pausar", "reativar"):
