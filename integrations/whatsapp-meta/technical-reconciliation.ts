@@ -10,7 +10,7 @@
 import type { MetaIngressEvent } from './inbound.ts';
 import type { GraphSendOutcome } from './graph-outbound.ts';
 import type { TrustedTemplateScope } from './graph-template.ts';
-import { isMetaWamid, isStatusPosition, isAcceptedGraphEvidence } from './status-evidence.ts';
+import { isMetaWamid, isStatusPosition, isAcceptedGraphEvidence, isMetaPhoneNumberId } from './status-evidence.ts';
 
 export type TechnicalProgress = 'NONE' | 'SENT' | 'DELIVERED' | 'READ';
 export type TechnicalStatus = 'sent' | 'delivered' | 'read' | 'failed';
@@ -90,7 +90,7 @@ export class FakeMetaStatusReconciler {
     const s = reference?.scope;
     if (!reference || !s || !id(reference.app_ref) || !id(reference.intent_id) ||
         !id(s.concessionaria_id) || !id(s.canal_id) || !id(s.meta_app_ref) ||
-        !id(s.meta_waba_id) || !/^\d{5,25}$/.test(s.phone_number_id) ||
+        !id(s.meta_waba_id) || !isMetaPhoneNumberId(s.phone_number_id) ||
         s.meta_app_ref !== reference.app_ref || !recipient(reference.recipient_verified) ||
         !outcome || !id(outcome.attempt_id) ||
         !isMetaWamid(outcome.provider_message_id) || !id(outcome.correlation_id) ||
@@ -147,7 +147,7 @@ export class FakeMetaStatusReconciler {
       ({ decision, reason, ...projection, possible_repeat, retry_automatically: false });
     if (!callback || callback.source !== 'meta_whatsapp' ||
         callback.event_kind !== 'status_callback' || !id(trustedAppRef) ||
-        !id(callback.waba_id) || !id(callback.phone_number_id) ||
+        !id(callback.waba_id) || !isMetaPhoneNumberId(callback.phone_number_id) ||
         !isMetaWamid(callback.provider_message_id) || !isStatusPosition(callback.position) ||
         !recipient(callback.participant_identifier) || !isoUTC(callback.provider_timestamp)) {
       return result('REJECTED_EVENT', 'INVALID_EVENT');
