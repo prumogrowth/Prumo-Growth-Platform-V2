@@ -226,12 +226,6 @@ def sign_test_claims(base_token, changed):
 
 # Controle de testemunha: sem chave correspondente, todos os ensaios de
 # expiração/revogação poderiam passar por assinatura inválida.
-if not hmac.compare_digest(
-    sign_test_claims(token2, claims2).split(".")[2],
-    base64.urlsafe_b64encode(hmac.new(
-        secret.encode(), ".".join(token2.split(".")[:2]).encode(),
-        hashlib.sha256).digest()).decode().rstrip("=")):
-    raise AssertionError("I17 teste de integridade HMAC local inconsistente")
 expected_sig = base64.urlsafe_b64encode(hmac.new(
     secret.encode(), ".".join(token2.split(".")[:2]).encode(),
     hashlib.sha256).digest()).decode().rstrip("=")
