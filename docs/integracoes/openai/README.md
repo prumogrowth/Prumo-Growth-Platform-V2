@@ -44,6 +44,8 @@ Preparar o acesso da plataforma técnica Prumo à API da OpenAI: entendimento de
 - Somente o núcleo decide elegibilidade, permissões, persistência, status, handoff e intenção de envio; somente a frente Meta responde por transporte/callbacks WhatsApp.
 - E02 reforça que JSON estruturado não prova veracidade: autoaplicação exige evidência explícita rastreável, campo permitido, versão atual e autorização S0. Dados reais e campos D3 permanecem dependentes de decisão e validação externa; requisitos de privacidade/retenção seguem sem homologação.
 
+**Compatibilização com retorno pós-venda (19/10/2026):** doc.22 e novidades S1-002 exigem novo caso humano próprio quando cliente com venda histórica retorna, mantendo `vendido` e IA Vendedora bloqueada. OAI-08/E01 e matriz E02 agora incluem essa fronteira e fila protegida: F03 somente com conclusão válida do novo caso, F02 sem cadeia por inferência de venda passada. Regras físicas e testes permanecem [R/V], não implementados nesta branch. API OpenAI continua intencionalmente adiada.
+
 ## Referências
 
 Projeto: pacote documental auditado em 17/10/2026 (00A, 06, 13A, 26, 33, 38, 40, 41) e branches PR #1 / PR #2 consultadas em 18/10/2026.
