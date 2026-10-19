@@ -87,3 +87,9 @@ Ao solicitar conclusão, o protótipo apresenta **“Conclusão solicitada”**,
 A aba **Extração** possui agora um cenário ilustrativo O3 (`A-108`) com **versão fictícia confirmada, origem, informação aplicada, ausência e contradição**. Informação somente proposta não é exibida como dado salvo. O perfil gestor em mera supervisão vê apenas um resumo; os detalhes de ficha permanecem omitidos. A implementação em `registration-view.mjs` usa **projeções 100% sintéticas**; filtros de JavaScript **não** protegem dados reais — S0 deverá minimizar antes de enviar resposta.
 
 **60/60 verificações sintéticas aprovadas em harness V8** (33 regras, 19 interações DOM, 8 inspeções); Node direto/Chromium pós-FV-UI-007 ainda não executados. [Auditoria O3](../docs/16_AUDITORIA_FV_UI_007_FICHA_PROVENIENCIA_2026_10_18.md).
+
+## FV-UI-008 — Banco (O4) somente leitura e dados fictícios
+
+Na aba **Banco**, o caso A-105 ilustra remessa humana verificada no cenário e **retorno não comprovado**. O navegador não processa prova, marca vendido/perdido ou comunica a instituição financeira. Gestores de mera supervisão recebem apenas resumo, sem conteúdo D4; o perfil sem atribuição não recebe detalhes. Novo módulo `bank-view.mjs`, teste `tests/bank-view.test.mjs` e roteiro Chromium atualizado.
+
+**Evidência:** 77/77 verificações sintéticas em V8 (46 regras, 21 interações, 10 estáticas), com [auditoria completa](../docs/18_AUDITORIA_O4_BANCO_FV_UI_008_2026_10_19.md). **Ainda pendente** executar checkout atual com Node e Chromium real, além da homologação S0/Banco.
