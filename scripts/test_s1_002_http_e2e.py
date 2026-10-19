@@ -85,7 +85,7 @@ source_runners = [
 paths = []
 for runner in source_runners:
     code = Path(runner).read_text(encoding="utf-8")
-    paths.extend(re.findall(r"supabase/migrations/[A-Za-z0-9_.-]+\\.sql", code))
+    paths.extend(re.findall(r"supabase/migrations/[A-Za-z0-9_.-]+\.sql", code))
 paths.append("supabase/migrations/202610190052_s1_verificacao_sessao_gotrue.sql")
 paths = sorted(set(paths))
 if len(paths) < 45 or not paths[0].endswith("202610170001_s0_foundation.sql"):
