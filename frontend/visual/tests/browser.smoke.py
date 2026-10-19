@@ -52,7 +52,20 @@ with sync_playwright() as p:
     assert page.locator('.conversation-card').count() == 11
     page.locator('#team-nav').click()
     assert page.locator('#team-list .team-member').count() == 2
+    assert 'Rafael Lima' in page.locator('#team-list').inner_text()
+    assert 'Bianca Rocha' not in page.locator('#team-list').inner_text()
+    page.get_by_role('button',name='Solicitar pausa de novos leads para Rafael Lima',exact=False).click()
+    assert 'SOLICITADO LOCALMENTE' in page.locator('#team-list').inner_text()
     page.locator('#team-close').click()
+    page.locator('#actor-select').select_option('daniel')
+    assert page.locator('.conversation-card').count() == 1
+    page.locator('#team-nav').click()
+    assert 'Bianca Rocha' in page.locator('#team-list').inner_text()
+    assert 'Rafael Lima' not in page.locator('#team-list').inner_text()
+    page.get_by_role('button',name='Solicitar retomada de novos leads para Bianca Rocha',exact=False).click()
+    assert 'SOLICITADO LOCALMENTE' in page.locator('#team-list').inner_text()
+    page.locator('#team-close').click()
+    page.locator('#actor-select').select_option('marina')
     page.locator('#shop-select').select_option('horizonte')
     assert page.locator('.conversation-card').count() == 2
     page.locator('#status-filter').select_option('em atendimento pelo operador')
