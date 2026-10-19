@@ -260,9 +260,8 @@ with psycopg.connect(gateway_dsn, connect_timeout=5) as conn:
         cur.execute("""
             select (
                 not has_schema_privilege(current_user,'prumo_private','USAGE')
-                and not has_table_privilege(current_user,'auth.sessions','SELECT')
-                and not has_function_privilege(current_user,
-                    'prumo_s1_interface.s1_pausar_operador_sessao(uuid,text)','EXECUTE')
+                and not has_schema_privilege(current_user,'auth','USAGE')
+                and not has_schema_privilege(current_user,'prumo_s1_interface','USAGE')
                 and not pg_has_role(current_user,'postgres','MEMBER')
             )::text
         """)
