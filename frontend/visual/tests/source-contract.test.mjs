@@ -104,3 +104,16 @@ test('roteiro de Chromium contém navegação entre casos O5 no mesmo escopo', (
   assert.match(browserSmoke, /Caso A-105/);
   assert.match(browserSmoke, /Caso A-116/);
 });
+
+test('auditoria: recontatos negados se a continuidade pós-marco não tiver vínculo válido', () => {
+  assert.match(app, /const fActions=postmarkContextValid\(item\) \? projectedFollowupActions/);
+  assert.match(app, /current\.id!==item\.id \|\| !postmarkContextValid\(current\)/);
+  assert.match(app, /selectedCase\(\)\?\.id!==item\.id \|\| !postmarkContextValid\(item\)/);
+  assert.match(app, /if\(!item \|\| !postmarkContextValid\(item\)\)return;/);
+  assert.match(app, /projection\.linked===true/);
+});
+
+test('auditoria: leituras D3/D4 negadas a operador não atribuído', () => {
+  assert.match(registration, /actor\.role !== 'gestor' && record\.assignedTo !== actorId/);
+  assert.match(bank, /actor\.role !== 'gestor' && record\.assignedTo !== actorId/);
+});
