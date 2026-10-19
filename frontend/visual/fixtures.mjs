@@ -1,5 +1,9 @@
 /** Fixtures exclusivamente sintéticas para a experiência visual FV-UI-001.
  * Não são regras S0, catálogo de dados, autenticação ou fonte real de autorização.
+ * ATENÇÃO 19/10: gestores aqui ainda são exibidos por LOJA (modelo antigo).
+ * Nova regra de negócio: gestão por OPERADORES sob supervisão; permissões de lojas
+ * definidas somente pelo responsável. Não reaproveitar este filtro para G1/G2 real.
+ * Ver frontend/docs/21_FV_G2_01_GESTAO_POR_OPERADORES_E_PAUSA_GLOBAL_2026_10_19.md.
  */
 export const COMMERCIAL_STATUSES = Object.freeze([
   'aguardando primeiro disparo',
