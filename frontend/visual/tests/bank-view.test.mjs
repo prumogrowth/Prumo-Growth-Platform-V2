@@ -94,3 +94,11 @@ test('O4-09: caso sem projeção não afirma remessa ou retorno',()=>{
   assert.equal(p.replyConfirmed,false);
   assert.match(bankPhaseCopy(p).title,/não confirmada/i);
 });
+
+test('operador não designado não recebe nem resumo operacional de banco',()=>{
+  const p=bankProjectionFor(record(),'bianca','aurora');
+  assert.equal(p.visibility,'forbidden');
+  assert.equal(p.submissionConfirmed,false);
+  assert.equal(p.submissionSummary,null);
+  assert.equal(p.replySummary,null);
+});
