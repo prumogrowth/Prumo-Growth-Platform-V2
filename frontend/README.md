@@ -99,3 +99,7 @@ Implementada em `frontend/visual/` a jornada O5 **somente com fixtures**, conect
 ## FV-AUD-05 — Auditoria retrospectiva (19/10/2026)
 
 Revisados FV-UI-004–009 contra FV-01/02/03 e as jornadas O1–O5. Corrigidos: resumo O3/O4 exposto a operador não designado; novo ciclo O5 indevidamente bloqueado pela falta de acesso ao caso anterior; cópias superficiais de fixtures O3/O5 contaminando reinicializações. **105/105 verificações sintéticas aprovadas em harness V8** (65 regras, 25 DOM, 15 fonte). Não houve execução Node direta, Chromium real ou homologação S0/Meta/Banco. [Auditoria FV-AUD-05](docs/20_AUDITORIA_RETROSPECTIVA_FV_UI_004_009_2026_10_19.md).
+
+## FV-UI-010 — Equipes por operadores e pausa global de leads (19/10/2026)
+
+Gestão fictícia G2 refeita para **equipes por operador**: Marina gerencia Rafael/Lia; Daniel gerencia Bianca/Otávio, inclusive quando concessionárias coincidem. Lojas dos operadores são **somente leitura** e pertencem à alçada do responsável. Pedido local de **pausa/retomada dos novos leads do operador inteiro** não efetiva redistribuição, suspensão, alteração de permissão nem fluxo Meta. **123/123 verificações sintéticas passaram em V8** (75 regras, 30 DOM, 18 estáticas); Node/Chromium real ainda pendente. [Auditoria FV-UI-010](docs/22_AUDITORIA_G2_EQUIPE_POR_OPERADORES_PAUSA_GLOBAL_2026_10_19.md); [divergência S0/S1-002 #9](https://github.com/prumogrowth/Prumo-Growth---Platform/issues/9).
