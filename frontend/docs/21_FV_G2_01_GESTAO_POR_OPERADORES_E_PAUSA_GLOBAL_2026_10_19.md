@@ -48,4 +48,4 @@ Devem ser revisados por S1-002/S0 antes de criar fluxo real: entidade de equipe,
 - Gestor não faz inclusão/desligamento definitivo nem habilitação unilateral de C, e não ganha permissão D3/D4 por gerenciar a pessoa.
 - Duas gestões concorrentes sobre a mesma pessoa, revogação de gerente, fim de ausência e mudança A/B/C exigem controle de versão e resposta explícita da S0.
 
-**Estado:** preparação documental da experiência. Nenhum endpoint, SQL, schema, RLS, comando de pausa, concessão ou interface funcional de gestão foi aprovado/implantado por este arquivo. A issue #9 acompanha a conciliação, sem suspender o desenvolvimento das demais partes independentes.
+**Estado do contrato:** orientação de negócio registrada, com **interface sintética G2 implementada na FV-UI-010**. Nenhum endpoint, SQL, schema, RLS, comando real de pausa, concessão ou interface funcional conectada ao S0 foi aprovado/implantado por este arquivo. A [auditoria FV-UI-010](22_AUDITORIA_G2_EQUIPE_POR_OPERADORES_PAUSA_GLOBAL_2026_10_19.md) registra 123 verificações sintéticas; a issue #9 acompanha a conciliação S0/S1-002.
