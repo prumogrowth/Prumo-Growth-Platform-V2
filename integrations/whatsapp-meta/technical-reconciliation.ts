@@ -11,6 +11,7 @@ import type { MetaIngressEvent } from './inbound.ts';
 import type { GraphSendOutcome } from './graph-outbound.ts';
 import type { TrustedTemplateScope } from './graph-template.ts';
 import { isMetaWamid, isStatusPosition, isAcceptedGraphEvidence, isMetaPhoneNumberId } from './status-evidence.ts';
+import { FakeAttemptBindingLedger } from './attempt-binding.ts';
 
 export type TechnicalProgress = 'NONE' | 'SENT' | 'DELIVERED' | 'READ';
 export type TechnicalStatus = 'sent' | 'delivered' | 'read' | 'failed';
@@ -81,6 +82,7 @@ const defaultProjection = (): TechnicalProjection =>
 
 export class FakeMetaStatusReconciler {
   private readonly sends = new Map<string, LinkedSend>();
+  private readonly attempts = new FakeAttemptBindingLedger();
   private readonly pending: Pending[] = [];
 
   /** Graph API accepted + wamid is not proof of delivery. */
@@ -113,12 +115,29 @@ export class FakeMetaStatusReconciler {
       return result('CONFLICT');
     }
     if (this.sends.size >= MAX_LINKED) return result('CAPACITY_REACHED');
-    const linked: LinkedSend = {
+    let linked: LinkedSend;
+    try {
+      linked = {
+        intent_id: reference.intent_id, attempt_id: outcome.attempt_id,
+        correlation_id: outcome.correlation_id,
+        recipient: reference.recipient_verified, scope: structuredClone(s),
+        observations: [], progress: 'NONE', failure_observed: false,
+      };
+    } catch { return result('INVALID_REFERENCE'); }
+    // Inverse uniqueness: one approved attempt cannot silently point to two
+    // different provider wamids even when each scoped wamid is distinct.
+    // Memory-only gate; S0 must enforce this in its durable attempt ledger.
+    const attempt = this.attempts.claim({
+      app_ref: reference.app_ref, concessionaria_id: s.concessionaria_id,
+      canal_id: s.canal_id, waba_id: s.meta_waba_id,
+      phone_number_id: s.phone_number_id,
       intent_id: reference.intent_id, attempt_id: outcome.attempt_id,
       correlation_id: outcome.correlation_id,
-      recipient: reference.recipient_verified, scope: structuredClone(s),
-      observations: [], progress: 'NONE', failure_observed: false,
-    };
+      recipient_verified: reference.recipient_verified,
+      provider_message_id: outcome.provider_message_id,
+    });
+    if (attempt === 'INVALID') return result('INVALID_REFERENCE');
+    if (attempt !== 'NEW') return result('CONFLICT');
     this.sends.set(key, linked);
     let pending_correlated = 0;
     // Reconcile only exact app/WABA/phone/message AND recipient. Unmatched
