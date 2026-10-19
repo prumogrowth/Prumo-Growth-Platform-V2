@@ -187,3 +187,8 @@ Contrato corrigido: vínculo gestor→equipe, operador→lojas por responsável 
 **Histórico de correção da suíte:** [#39283273263 — FAILURE](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39283273263) terminou por executar duas vezes o mesmo script de corrida, que usa fixtures persistentes com IDs fixos (`users_pkey` duplicada); corrigimos o runner para executá-lo uma vez, depois de 050. Também ajustamos o filtro do workflow para detectar alterações nesse runner, permitindo o novo CI #39289009575. Trata-se de defeito do roteiro de teste, não evidência de que um gesto de movimentação duplicou um caso.
 
 **Veredito delimitado:** controle transacional e regressões demonstrados somente em PostgreSQL fictício local. **Ainda não** é autenticação assinada GoTrue/REST, política RH de responsáveis reais, tráfego distribuído ou comprovação de integração com sessões/estado de conclusão S0. Não fazer merge/deploy nem elevar progresso global por esse ensaio.
+
+
+## I14 — identidade da sessão em comandos privados [P até validação]
+
+Migration 051: três fachadas `s1_*_sessao` em `prumo_private` derivam autor de `auth.uid()`, sem aceitar UUID de solicitante como parâmetro; wrappers SECURITY DEFINER com `search_path=''`, EXECUTE apenas a role autenticada no esquema privado NÃO EXPOSTO. Testes `S1S-01..14` simulam contextos de sessão, gestor alheio, metadata forjada, movimento legítimo, pausa global e retorno, negando anon/service_role e chamadas transacionais internas. **Não representa JWT real assinado, GoTrue ou PostgREST/REST.** [Documento I14](../docs/S1_002_I14_IDENTIDADE_SESSAO_PRIVADA_2026_10_19.md).

@@ -9,4 +9,6 @@ psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/migrations/202
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_012_movimento_manual_equipe.sql
 bash scripts/test_s1_002_manual_race.sh
 bash scripts/test_s1_002_authority_race.sh
-echo 'S1-002/I13: chefia vigente travada e verificada sob concorrencia PG17.'
+psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/migrations/202610190051_s1_sessao_autorizacao_privada.sql
+psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_014_sessao_privada_fake_auth.sql
+echo 'S1-002/I14: interface privada de sessão fake-auth, sem GoTrue/REST.'
