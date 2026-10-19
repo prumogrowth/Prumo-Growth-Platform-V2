@@ -80,6 +80,16 @@ def review_f03_offline(
     if authority == ReviewDecision.STALE:
         return PipelineReview(PipelineStatus.STALE)
     if authority == ReviewDecision.NOT_READY:
+        # Recheck can return NOT_READY simply because no field was validated.
+        # Still surface evidenced essential gaps to a human once its OTHER
+        # session/grant/version guards have succeeded.
+        if (not candidates and
+                (field_review.needs_human_fields or field_review.rejected_fields)):
+            return PipelineReview(
+                PipelineStatus.REVIEW_REQUIRED, (),
+                tuple(field_review.needs_human_fields),
+                tuple(field_review.rejected_fields),
+            )
         return PipelineReview(PipelineStatus.NOT_READY)
     if authority != ReviewDecision.REVIEW_ONLY:
         return PipelineReview(PipelineStatus.DENIED)
