@@ -94,3 +94,22 @@ Reproduzido localmente um **clone literal do arquivo de runner**, confirmado pel
 4. Registrar saídas `node --test` e Chromium verdadeiras, observações por viewport e revisões corretivas; **somente então** reconsiderar o gate FV-UI-013.
 
 **Veredito após continuidade:** o mecanismo de aceite está mais rigoroso e seus cenários de controle foram executados; **o frontend completo ainda não tem aceite Node/Chromium nativo**. Não houve integração, deploy, merge ou alteração fora de `frontend/`. O índice formal **19F permanece em 69/100**.
+
+
+## FV-UI-013 — Nova rodada de regressão sobre o HEAD `517fc1ab` (19/10/2026)
+
+**Origem de prova:** fontes completas recuperadas via integração autenticada GitHub do commit `517fc1ab0f835ea07daa4fb7f6d2912681e90c5a`. Sem checkout Git integral local: `github.com` permanece indisponível por DNS no container de execução. Os testes a seguir foram **executados em V8 por adaptação dos módulos ESM e asserts Node**, e não em `node --test` ou Chromium.
+
+| Grupo de verificações | Resultado V8 | Escopo |
+| --- | ---: | --- |
+| Regras/projeções: fixtures, view-model, CF-OP-02, registration, bank | 49/49 | Cinco suítes originais |
+| Regras/projeções: postmark, team-operations, team-monitor, team-monitoring, batch-monitor | 61/61 | Cinco suítes originais |
+| Interação: app.dom + app.mobile.dom com `dom-fixture.mjs` | 45/45 | DOM sintético, desktop/mobile |
+| Contratos estáticos: `source-contract.test.mjs` | 25/25 | Arquivos reais e roteiro Playwright, leitura de texto |
+| **Total desta execução** | **180/180 PASS em V8 adaptado** | **Não é aceite nativo** |
+
+**Nota de método:** as importações ESM foram removidas mantendo as declarações de módulos em escopo lexical compartilhado; os métodos de asserção utilizados foram reimplementados no harness V8. Nos testes DOM, o mock original foi instalado antes do aplicativo, reproduzindo os cenários de `app.dom.test.mjs` e `app.mobile.dom.test.mjs`. Isso fornece evidência atual de regressão sintética, mas não garante paridade com `node:test`, navegador, CSS, acessibilidade ou isolamento do servidor. Nenhum envio Meta, remessa bancária, acesso real D3/D4 ou integração ocorreu.
+
+**Roteiro Chromium examinado:** ordem de 11 módulos consistente; em larguras de até 1040 px o bootstrap oculta o painel de detalhes e o roteiro o abre com `#detail-toggle`; os elementos `#internal-note-form`, `#note-text` e `#request-completion` são criados dinamicamente pelo `app.mjs`. Esses pressupostos foram conferidos em fonte e simulação, **não em navegador real**.
+
+**Veredito atualizado:** regressão sintética integral de **180/180 confirmada nesta rodada** para o HEAD declarado. FV-UI-013 **continua sem homologação nativa Node/Chromium da aplicação completa**. Próximo gate é a execução integral do runner em checkout privado autenticado, na branch e SHA conferidos. Manter 19F em **69/100**; sem merge/deploy/alteração externa ao frontend.
