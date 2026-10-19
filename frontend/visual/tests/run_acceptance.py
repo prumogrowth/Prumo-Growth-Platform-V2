@@ -1,7 +1,7 @@
 """FV-UI-013: execute acceptance natively from an authorized checkout.
 
 Usage:
-    python3 frontend/visual/tests/run_acceptance.py
+    python3 frontend/visual/tests/run_acceptance.py --expected-head <SHA_COMPLETO_DA_BRANCH>
     CHROMIUM_EXECUTABLE=/path/to/chromium python3 frontend/visual/tests/run_acceptance.py
     python3 frontend/visual/tests/run_acceptance.py --skip-browser
 
@@ -10,6 +10,7 @@ No network, database or production actions are performed by this runner.
 """
 import argparse
 import json
+import re
 import os
 from pathlib import Path
 import shutil
@@ -42,17 +43,66 @@ def run_step(label, command, timeout):
                 "error": str(error)}
 
 
+def check_git_revision(expected_head):
+    """Confirma que o checkout é o commit auditado e está na branch autorizada."""
+    result = {"name": "Git checkout revision", "passed": False, "executed": False}
+    if not expected_head or not re.fullmatch(r"[0-9a-f]{40}", expected_head.lower()):
+        result["error"] = "provide full 40-character --expected-head from GitHub"
+        return result
+    git = shutil.which("git")
+    if not git:
+        result["error"] = "git unavailable"
+        return result
+    try:
+        def git_cmd(*parts):
+            return subprocess.run([git, "-C", str(ROOT), *parts],
+                                  check=False, capture_output=True, text=True, timeout=10)
+        root_result = git_cmd("rev-parse", "--show-toplevel")
+        commit_result = git_cmd("rev-parse", "HEAD")
+        branch_result = git_cmd("branch", "--show-current")
+        if any(r.returncode != 0 for r in (root_result, commit_result, branch_result)):
+            result["error"] = "not an accessible Git checkout"
+            return result
+        repo_root = Path(root_result.stdout.strip()).resolve()
+        changes = subprocess.run(
+            [git, "-C", str(repo_root), "status", "--porcelain",
+             "--untracked-files=all", "--", "frontend/visual"],
+            check=False, capture_output=True, text=True, timeout=10,
+        )
+        actual_head = commit_result.stdout.strip().lower()
+        actual_branch = branch_result.stdout.strip()
+        result.update({"executed": True, "commit": actual_head,
+                       "branch": actual_branch,
+                       "clean_frontend_visual": changes.returncode == 0
+                       and not changes.stdout.strip()})
+        result["passed"] = (
+            actual_head == expected_head.lower()
+            and actual_branch == "feat/frontend-plataforma-visual"
+            and result["clean_frontend_visual"]
+        )
+        if not result["passed"]:
+            result["error"] = "revision, branch or clean working tree mismatch"
+        return result
+    except (OSError, subprocess.TimeoutExpired) as error:
+        result["error"] = str(error)
+        return result
+
+
+
 def main():
     parser = argparse.ArgumentParser(description="Validação local Node + Chromium")
     parser.add_argument("--skip-browser", action="store_true",
                         help="Apenas diagnóstico; nunca equivale a homologação Chromium")
     parser.add_argument("--json-report", type=Path,
                         help="Escrever resultado local JSON (nenhum dado de cliente)")
+    parser.add_argument("--expected-head",
+                        help="SHA completo do HEAD autorizado (obrigatório para aceite integral)")
     args = parser.parse_args()
     report = {"kind": "FV-UI-013-local-validation",
               "generated_utc": datetime.now(timezone.utc).isoformat(),
               "checkout_root": str(ROOT), "steps": [],
               "browser_executed": False, "full_acceptance": False}
+    report["steps"].append(check_git_revision(args.expected_head))
     # Uma suíte truncada pode passar no Node e não constitui aceite integral.
     expected_tests = {
         "app.dom.test.mjs", "app.mobile.dom.test.mjs", "bank-view.test.mjs",
