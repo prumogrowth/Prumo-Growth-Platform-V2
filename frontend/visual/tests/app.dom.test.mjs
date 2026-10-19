@@ -198,3 +198,26 @@ test('O3: gestora supervisora não recebe campos, valores, fontes e pendências 
     assert.equal(text.includes(forbidden),false);
   }
 });
+
+test('O4: operador atribuído vê só remessa sintética comprovada e retorno pendente',()=>{
+  reset();env.openCase('Exemplo 05');
+  env.descendants(get('detail-content')).filter(n=>n.attrs.role==='tab')
+    .find(n=>n.textContent==='Banco').click();
+  const text=get('detail-content').textContent;
+  assert.ok(text.includes('bank-demo-v1'));
+  assert.ok(text.includes('Remessa confirmada apenas na fixture'));
+  assert.ok(text.includes('Decisão bancária não confirmada'));
+  assert.equal(text.includes('Retorno do banco confirmado'),false);
+  assert.ok(text.includes('cadastro enviado ao banco'));
+});
+
+test('O4: gestora sem atribuição vê só marco bancário, sem prova D4',()=>{
+  reset();env.selectActor('marina');env.openCase('Exemplo 05');
+  env.descendants(get('detail-content')).filter(n=>n.attrs.role==='tab')
+    .find(n=>n.textContent==='Banco').click();
+  const text=get('detail-content').textContent;
+  assert.ok(text.includes('Acompanhamento bancário · resumo'));
+  assert.ok(text.includes('sem documento'));
+  assert.equal(text.includes('bank-demo-v1'),false);
+  assert.equal(text.includes('Remessa confirmada apenas na fixture'),false);
+});
