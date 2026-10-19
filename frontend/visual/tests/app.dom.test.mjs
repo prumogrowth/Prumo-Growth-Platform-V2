@@ -392,3 +392,61 @@ test('G3: operador e perfil suspenso não abrem painel de indicadores',()=>{
   assert.equal(get('team-dialog').open,false);
   assert.equal(get('team-monitor').textContent,'');
 });
+
+test('G3: monitoramento de Marina não revela casos de Bianca ou de Daniel',()=>{
+  reset();env.selectActor('marina');get('team-nav').click();
+  get('team-show-monitor').click();
+  assert.equal(get('team-list').hidden,true);
+  assert.equal(get('team-monitor').hidden,false);
+  assert.equal(get('team-show-monitor').attrs['aria-pressed'],'true');
+  const text=get('team-monitor').textContent;
+  for(const allowed of ['G3 · MONITORAMENTO','Rafael Lima','Lia Martins','Caso A-102','Caso A-112','Caso B-201','Fila protegida'])
+    assert.ok(text.includes(allowed),'Esperado: '+allowed);
+  for(const denied of ['Bianca Rocha','Otávio','Caso A-103','Caso B-203'])
+    assert.equal(text.includes(denied),false);
+  assert.ok(text.includes('Espera observada: 18 min (fictícia, não SLA).'));
+  assert.ok(text.includes('Tempo de espera não informado'));
+  get('team-show-members').click();
+  assert.equal(get('team-monitor').hidden,true);
+  assert.equal(get('team-list').hidden,false);
+  get('team-dialog').close();
+});
+
+test('G3: Daniel só enxerga equipe própria, mesmo na mesma concessionária',()=>{
+  reset();env.selectActor('daniel');get('team-nav').click();
+  get('team-show-monitor').click();
+  const text=get('team-monitor').textContent;
+  assert.ok(text.includes('Bianca Rocha')&&text.includes('Otávio'));
+  assert.ok(text.includes('Caso A-103')&&text.includes('Caso B-203'));
+  for(const forbidden of ['Rafael Lima','Lia Martins','Caso A-102','Caso B-201','Caso A-112']){
+    assert.equal(text.includes(forbidden),false);
+  }
+  get('team-dialog').close();
+});
+
+test('G3: pedido local de pausa não muda pausa confirmada nem estado comercial',()=>{
+  reset();env.selectActor('marina');get('team-nav').click();
+  const btn=env.descendants(get('team-list')).find(x=>x.tagName==='BUTTON' && x.textContent.includes('Solicitar pausa'));
+  assert.ok(btn);btn.click();
+  get('team-show-monitor').click();
+  const tiles=env.descendants(get('team-monitor')).filter(x=>x.classList.contains('team-monitor-metric'));
+  const pending=tiles.find(x=>x.textContent.includes('Pedidos locais pendentes'));
+  const paused=tiles.find(x=>x.textContent.includes('Novos leads pausados'));
+  assert.ok(pending&&pending.textContent.startsWith('1'));
+  assert.ok(paused&&paused.textContent.startsWith('0'));
+  assert.ok(get('team-monitor').textContent.includes('Estado comercial preservado'));
+  get('team-dialog').close();
+});
+
+test('G3: troca de perfil encerra monitoramento e apaga conteúdo do gestor anterior',()=>{
+  reset();env.selectActor('marina');get('team-nav').click();get('team-show-monitor').click();
+  assert.ok(get('team-monitor').textContent.includes('Rafael Lima'));
+  env.selectActor('daniel');
+  assert.equal(get('team-dialog').open,false);
+  assert.equal(get('team-monitor').textContent,'');
+  assert.equal(get('team-list').textContent,'');
+  get('team-nav').click();get('team-show-monitor').click();
+  assert.equal(get('team-monitor').textContent.includes('Rafael Lima'),false);
+  assert.ok(get('team-monitor').textContent.includes('Bianca Rocha'));
+  get('team-dialog').close();
+});
