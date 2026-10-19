@@ -20,7 +20,8 @@ export function mayViewMockRegistrationDetail(record, actorId, shopId) {
 export function registrationProjectionFor(record, actorId, shopId) {
   const actor = getActor(actorId);
   if (!record || !actor || actor.teamState !== 'active' ||
-      !actor.shops.includes(shopId) || record.shopId !== shopId) {
+      !actor.shops.includes(shopId) || record.shopId !== shopId ||
+      (actor.role !== 'gestor' && record.assignedTo !== actorId)) {
     return Object.freeze({ visibility: 'forbidden', state: 'unavailable', confirmedPersisted: false,
       fields: EMPTY, missing: EMPTY, conflicts: EMPTY });
   }
