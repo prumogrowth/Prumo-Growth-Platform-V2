@@ -13,7 +13,8 @@ export const POSTMARK_SOURCES = Object.freeze({
 export function isValidContinuationProjection(record) {
   const p=record?.postmarkProjection;
   return Boolean(p && p.direction === 'continuation' && p.confirmedCreated === true &&
-    p.sellerAiSilenced === true && typeof p.linkVersionRef === 'string' &&
+    p.sellerAiSilenced === true && p.linkedByS0 === true &&
+    typeof p.linkVersionRef === 'string' &&
     p.linkVersionRef.trim() && typeof p.originCaseRef === 'string' && p.originCaseRef.trim() &&
     Object.hasOwn(POSTMARK_SOURCES,p.source) &&
     record.status === 'em atendimento pelo operador' && isInActiveInbox(record));
@@ -57,6 +58,30 @@ export function postmarkViewFor(record, records, actorId, shopId) {
     source:p.source,sourceStatus:POSTMARK_SOURCES[p.source],
     sellerAiSilenced:true,canOperateCurrentCase:actor.id===record.assignedTo
   };
+}
+
+/** A operação de um novo caso não exige acesso D2 ao histórico de OUTRO operador.
+ * Somente a navegação para o caso relacionado requer permissão sobre AMBOS os casos.
+ * Demonstração client-side: S0 terá que fazer esse controle no servidor.
+ */
+export function mayMockOperateContinuation(record, records, actorId, shopId) {
+  const actor=getActor(actorId);
+  if(!actor || actor.teamState!=='active' || !actor.shops.includes(shopId) ||
+     record?.shopId!==shopId || record.assignedTo!==actorId ||
+     !visibleConversations(records,actorId,shopId).some(x=>x===record) ||
+     !isValidContinuationProjection(record)) return false;
+  const relation=postmarkViewFor(record,records,actorId,shopId);
+  // Vínculo incoerente VÍSIVEL é rejeitado; histórico sem acesso não impede
+  // atendimento no novo caso se a própria projeção de S0 está confirmada.
+  if(relation.kind==='continuation' && relation.linked===true)return true;
+  if(relation.kind!=='restricted')return false;
+  const origin=records.find(x=>x.id===record.postmarkProjection.originCaseRef);
+  if(origin && (origin.shopId!==record.shopId ||
+    origin.status!==POSTMARK_SOURCES[record.postmarkProjection.source] ||
+    origin.postmarkProjection?.continuationCaseRef!==record.id ||
+    origin.postmarkProjection?.linkVersionRef!==record.postmarkProjection.linkVersionRef ||
+    origin.postmarkProjection?.linkedByS0!==true)) return false;
+  return true;
 }
 
 export function postmarkCopy(view) {
