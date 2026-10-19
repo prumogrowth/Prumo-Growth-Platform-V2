@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { isMetaWamid, isStatusPosition, isAcceptedGraphEvidence, isSafeEvidenceRef } from './status-evidence.ts';
+import { isMetaWamid, isStatusPosition, isAcceptedGraphEvidence, isSafeEvidenceRef, isMetaPhoneNumberId } from './status-evidence.ts';
 
 const accepted = () => ({attempt_id:'FAKE_ATTEMPT', correlation_id:'FAKE_CORR',
   send_state:'API_ACCEPTED', api_accepted:true, http_status:200,
@@ -72,4 +72,10 @@ test('WA09-10: pure correlation ref does not accept phone-bearing or control cha
   for(const malformed of ['',' x','BATCH\n42','id/1', 'a'.repeat(129),null,{}]) {
     assert.equal(isSafeEvidenceRef(malformed),false);
   }
+});
+test('WA09-11: sender ID follows numeric Meta registry form, not recipient normalization', () => {
+  for (const good of ['12345','12345678901','1'.repeat(25)])
+    assert.equal(isMetaPhoneNumberId(good),true);
+  for (const bad of ['1234','1'.repeat(26),'PHONE_A','+5581999999999',null,0,'1 2'])
+    assert.equal(isMetaPhoneNumberId(bad),false);
 });
