@@ -58,6 +58,10 @@
 .team-monitor-tile strong{font-size:22px;line-height:1;color:#206b63}
 .team-monitor-tile span{font-size:10px;line-height:1.45;color:#617b82}
 .team-monitor-states{font-size:10px;color:#607982;line-height:1.55}
+.team-monitor-subheading{font-size:11px;margin:17px 0 7px;color:#4e7471}
+.team-monitor-stages{display:flex;flex-direction:column;gap:5px}
+.team-monitor-stage{display:flex;gap:12px;justify-content:space-between;align-items:center;border-bottom:1px solid #edf1f0;padding:5px 0;font-size:10px;color:#6b8589}
+.team-monitor-stage strong{color:#296e66;font-variant-numeric:tabular-nums}
 .team-monitor-operator{border-bottom:1px solid #e8eeef;padding:8px 0;display:flex;flex-direction:column;gap:4px}
 .team-monitor-operator strong{font-size:11px;color:#435c63}
 .team-monitor-operator span{font-size:10px;color:#7b9298;line-height:1.5}
