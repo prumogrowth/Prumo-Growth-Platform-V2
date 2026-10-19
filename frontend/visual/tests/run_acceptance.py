@@ -53,11 +53,39 @@ def main():
               "generated_utc": datetime.now(timezone.utc).isoformat(),
               "checkout_root": str(ROOT), "steps": [],
               "browser_executed": False, "full_acceptance": False}
+    # Uma suíte truncada pode passar no Node e não constitui aceite integral.
+    expected_tests = {
+        "app.dom.test.mjs", "app.mobile.dom.test.mjs", "bank-view.test.mjs",
+        "batch-monitor.test.mjs", "cf-op-02.test.mjs", "fixtures.test.mjs",
+        "postmark-view.test.mjs", "registration-view.test.mjs",
+        "source-contract.test.mjs", "source-module-graph.test.mjs",
+        "team-monitor.test.mjs", "team-monitoring.test.mjs",
+        "team-operations.test.mjs", "view-model.test.mjs",
+    }
+    required_sources = {
+        "index.html", "styles.css", "app.mjs", "fixtures.mjs",
+        "view-model.mjs", "cf-op-02.mjs", "registration-view.mjs",
+        "bank-view.mjs", "postmark-view.mjs", "team-operations.mjs",
+        "team-monitor.mjs", "team-monitoring.mjs", "batch-monitor.mjs",
+    }
+    missing = sorted(
+        [f"tests/{name}" for name in expected_tests if not (TESTS / name).is_file()]
+        + [name for name in required_sources if not (ROOT / name).is_file()]
+        + (["tests/browser.smoke.py"] if not (TESTS / "browser.smoke.py").is_file() else [])
+        + (["tests/dom-fixture.mjs"] if not (TESTS / "dom-fixture.mjs").is_file() else [])
+    )
+    inventory_ok = not missing
+    report["steps"].append({
+        "name": "FV-UI-013 checkout inventory", "passed": inventory_ok,
+        "executed": True, "missing": missing,
+        "expected_node_tests": len(expected_tests),
+    })
     node = shutil.which("node")
     suite = sorted(str(file) for file in TESTS.glob("*.test.mjs"))
-    if not node or not suite:
+    if not inventory_ok or not node:
         report["steps"].append({"name": "Node ESM regression", "passed": False,
-                                "executed": False, "error": "node or *.test.mjs unavailable"})
+                                "executed": False,
+                                "error": "incomplete checkout" if not inventory_ok else "node unavailable"})
     else:
         report["steps"].append(run_step("Node ESM regression",
                                          [node, "--test", *suite], timeout=180))
@@ -66,6 +94,11 @@ def main():
                                 "executed": False, "passed": False,
                                 "error": "explicitly skipped"})
         print("Chromium SKIPPED — diagnóstico parcial, não homologação.", flush=True)
+    elif not inventory_ok:
+        report["steps"].append({"name": "Chromium Playwright smoke",
+                                "executed": False, "passed": False,
+                                "error": "incomplete checkout"})
+        print("Chromium BLOCKED — checkout incompleto.", flush=True)
     else:
         browser_step = run_step("Chromium Playwright smoke",
                                 [sys.executable, str(TESTS / "browser.smoke.py")], timeout=180)
