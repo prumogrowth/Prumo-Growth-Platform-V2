@@ -66,3 +66,10 @@ test('WA10-10: responses contain no message IDs, customer identifiers, or creden
  for (const s of [a.recipient_verified,a.provider_message_id,a.app_ref,'Bearer'])
    assert.equal(res.includes(s),false);
 });
+test('WA10-11: RegExp coercion cannot turn numeric references into accepted identity',()=>{
+ const j=new FakeAttemptBindingLedger();
+ for(const bad of [{...a,attempt_id:1234},{...a,phone_number_id:12345678901},
+   {...a,recipient_verified:5581900000000},{...a,intent_id:123}])
+   assert.equal(j.claim(bad),'INVALID');
+ assert.equal(j.size,0);
+});
