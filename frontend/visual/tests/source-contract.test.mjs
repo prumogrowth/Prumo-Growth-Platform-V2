@@ -11,6 +11,8 @@ const contract = get('cf-op-02.mjs');
 const registration = get('registration-view.mjs');
 const bank = get('bank-view.mjs');
 const postmark = get('postmark-view.mjs');
+const teamOps = get('team-operations.mjs');
+const fixtureTeam = get('fixtures.mjs');
 const browserSmoke = get('tests/browser.smoke.py');
 
 test('três áreas adaptativas e controle de histórico existem', () => {
@@ -114,8 +116,8 @@ test('auditoria: recontatos negados se a continuidade pós-marco não tiver vín
 });
 
 test('auditoria: leituras D3/D4 negadas a operador não atribuído', () => {
-  assert.match(registration, /actor\.role !== 'gestor' && record\.assignedTo !== actorId/);
-  assert.match(bank, /actor\.role !== 'gestor' && record\.assignedTo !== actorId/);
+  assert.match(registration, /visibleConversations\(\[record\],actorId,shopId\)\.includes\(record\)/);
+  assert.match(bank, /visibleConversations\(\[record\],actorId,shopId\)\.includes\(record\)/);
 });
 
 test('auditoria: operação independente da autorização de leitura do caso anterior',()=>{
@@ -123,4 +125,28 @@ test('auditoria: operação independente da autorização de leitura do caso ant
   assert.match(postmark, /record\.assignedTo!==actorId/);
   assert.match(postmark, /relation\.kind!=='restricted'/);
   assert.match(postmark, /origin\.shopId!==record\.shopId/);
+});
+
+test('G2 tem equipes de operadores e a loja do gestor é somente filtro', () => {
+  assert.match(fixtureTeam, /export function managedOperators/);
+  assert.match(fixtureTeam, /operator\.managerId===managerId/);
+  assert.match(fixtureTeam, /record\.teamManagerId===actorId/);
+  assert.match(app, /projectManagedTeam\(state\.actorId,state\.cases\)/);
+  assert.match(markup, /Concessionária \(filtro de conversas, não altera concessões\)/);
+  assert.match(markup, /Solicitar pausa ou retomada de novos leads alcança TODAS as lojas/);
+});
+
+test('G2 exige pertencimento à equipe e pausa global só é solicitada, nunca aplicada no navegador', () => {
+  assert.match(teamOps, /operator\.managerId!==manager\.id/);
+  assert.match(teamOps, /scope:'all_granted_shops'/);
+  assert.match(teamOps, /state:'requested_demo'/);
+  assert.match(app, /Nenhuma pausa ou redistribuição efetivada/);
+  assert.doesNotMatch(teamOps, /\bfetch\s*\(|\bXMLHttpRequest\b|\bWebSocket\b/);
+  assert.doesNotMatch(teamOps, /operator\.shops\s*=/);
+  assert.doesNotMatch(teamOps, /record\.assignedTo\s*=/);
+});
+
+test('Chromium smoke inclui a implementação visual G2', () => {
+  assert.match(browserSmoke, /team-operations\.mjs/);
+  assert.match(browserSmoke, /Solicitar pausa de novos leads/);
 });
