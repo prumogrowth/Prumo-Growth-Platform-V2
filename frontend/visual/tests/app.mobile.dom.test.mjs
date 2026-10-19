@@ -57,3 +57,18 @@ test('mobile: operador pendente com janela expirada vê ações sem compositor l
   assert.ok(actions.some(x=>x.textContent.includes('Solicitar cadeia')));
   assert.equal(get('visual-app').dataset.mobileView, 'thread');
 });
+
+test('mobile O5: novo ciclo após venda volta à conversa sem reabrir a IA',()=>{
+  reset();env.inbox[1].click();env.openCase('Exemplo 16');
+  assert.equal(get('visual-app').dataset.mobileView,'thread');
+  get('detail-toggle').click();
+  assert.equal(get('visual-app').dataset.mobileView,'detail');
+  env.descendants(get('detail-content')).filter(n=>n.attrs.role==='tab')
+    .find(n=>n.textContent==='Novo contato').click();
+  const link=env.descendants(get('detail-content')).find(n=>n.tagName==='BUTTON' &&
+    n.textContent.includes('Abrir novo atendimento humano'));
+  assert.ok(link);link.click();
+  assert.equal(get('visual-app').dataset.mobileView,'thread');
+  assert.ok(get('thread-meta').textContent.includes('Caso A-116'));
+  assert.ok(get('workflow-bar').textContent.includes('em atendimento pelo operador'));
+});
