@@ -276,8 +276,8 @@ with psycopg.connect(gateway_dsn, connect_timeout=5) as conn:
         if not all(flag is True for flag in flags):
             raise AssertionError("I19 role SQL elevada, gates=" + str(flags))
         cur.execute("select pg_has_role(current_user,'authenticated','SET')")
-        if cur.fetchone()[0] is not True:
-            raise AssertionError("role nao possui SET apenas como authenticated")
+        if cur.fetchone()[0] is not False:
+            raise AssertionError("role SQL I20 pode assumir authenticated indevidamente")
 print("PASS S1SIG-13: login SQL isolado sem authenticated, postgres e acesso direto")
 
 for name in ("mover", "pausar", "reativar"):
