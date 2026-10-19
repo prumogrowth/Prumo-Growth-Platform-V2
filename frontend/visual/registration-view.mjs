@@ -69,6 +69,11 @@ export function registrationProjectionFor(record, actorId, shopId) {
 }
 
 export function registrationStateCopy(result) {
+  // "persisted/partial" isolado não é prova de commit: exige versão + confirmação.
+  if ((result?.state === 'persisted' || result?.state === 'partial') &&
+      result?.confirmedPersisted !== true) {
+    return { title: 'Persistência não confirmada', note: 'Sem confirmação de nova versão válida, nenhum cadastro pode ser considerado gravado.' };
+  }
   switch(result?.state) {
     case 'processing': return { title: 'Processamento em andamento', note: 'Nenhum campo novo pode ser considerado salvo.' };
     case 'persisted': return { title: 'Versão persistida (demonstração)', note: 'Somente campos com fonte e confirmação de gravação são mostrados.' };
