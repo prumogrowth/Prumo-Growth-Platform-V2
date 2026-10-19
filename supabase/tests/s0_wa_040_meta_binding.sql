@@ -7,7 +7,9 @@ insert into public.concessionarias(id,nome_operacional) values
 insert into public.canais_loja(id,concessionaria_id,identificador_emissor) values
  ('e3000000-0000-4000-8000-000000000001','e2000000-0000-4000-8000-000000000001','WA40_EMISSOR_A1'),
  ('e3000000-0000-4000-8000-000000000002','e2000000-0000-4000-8000-000000000001','WA40_EMISSOR_A2'),
- ('e3000000-0000-4000-8000-000000000003','e2000000-0000-4000-8000-000000000002','WA40_EMISSOR_B1');
+ ('e3000000-0000-4000-8000-000000000003','e2000000-0000-4000-8000-000000000002','WA40_EMISSOR_B1'),
+ ('e3000000-0000-4000-8000-000000000004','e2000000-0000-4000-8000-000000000001','WA40_EMISSOR_A3'),
+ ('e3000000-0000-4000-8000-000000000005','e2000000-0000-4000-8000-000000000002','WA40_EMISSOR_B2');
 insert into prumo_private.meta_apps_fixture_s0(app_ref,concessionaria_id) values
  ('FIXTURE_WA40_APP_A','e2000000-0000-4000-8000-000000000001'),
  ('FIXTURE_WA40_APP_B','e2000000-0000-4000-8000-000000000002');
@@ -45,7 +47,7 @@ begin
   insert into prumo_private.meta_canais_fixture_s0(
     app_ref,concessionaria_id,canal_id,waba_ref,phone_number_ref)
   values('FIXTURE_WA40_APP_A','e2000000-0000-4000-8000-000000000001',
-    'e3000000-0000-4000-8000-000000000002',
+    'e3000000-0000-4000-8000-000000000004',
     'FIXTURE_WA40_WABA_A','FIXTURE_WA40_PHONE_A1');
   raise exception 'FAIL WA40-02: same sender assigned to second channel';
  exception when unique_violation then null;
@@ -60,7 +62,7 @@ begin
   insert into prumo_private.meta_canais_fixture_s0(
     app_ref,concessionaria_id,canal_id,waba_ref,phone_number_ref)
   values('FIXTURE_WA40_APP_A','e2000000-0000-4000-8000-000000000002',
-    'e3000000-0000-4000-8000-000000000003',
+    'e3000000-0000-4000-8000-000000000005',
     'FIXTURE_WA40_WABA_FAKE','FIXTURE_WA40_PHONE_CROSS');
   raise exception 'FAIL WA40-03: cross-shop app binding accepted';
  exception when foreign_key_violation then null;
