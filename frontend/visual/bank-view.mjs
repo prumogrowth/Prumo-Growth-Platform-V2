@@ -17,7 +17,8 @@ const EMPTY_VIEW = Object.freeze({
 export function bankProjectionFor(record, actorId, shopId) {
   const actor = getActor(actorId);
   if (!record || !actor || actor.teamState !== 'active' ||
-      !actor.shops.includes(shopId) || record.shopId !== shopId) {
+      !actor.shops.includes(shopId) || record.shopId !== shopId ||
+      (actor.role !== 'gestor' && record.assignedTo !== actorId)) {
     return Object.freeze({ ...EMPTY_VIEW, visibility:'forbidden', phase:'unavailable' });
   }
 
