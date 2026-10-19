@@ -98,15 +98,37 @@ def evaluate_f03(snapshot: Snapshot, proposal: Proposal) -> Review:
             or p.case_version != s.case_version or p.form_version != s.form_version):
         return Review(Result.STALE)
 
+    # The model-facing envelope is untrusted: malformed arrays must fail closed.
+    if (not isinstance(s.rules, tuple) or not isinstance(s.messages, tuple)
+            or not isinstance(p.fields, tuple)
+            or any(not isinstance(r, FieldRule) or not isinstance(r.code, str)
+                   or not r.code or type(r.required) is not bool
+                   or type(r.auto_apply_allowed) is not bool for r in s.rules)
+            or any(not isinstance(m, Evidence) or not isinstance(m.ref, str)
+                   or not m.ref or not isinstance(m.asserted_fields, Mapping)
+                   for m in s.messages)
+            or any(not isinstance(f, Candidate) for f in p.fields)):
+        return Review(Result.BLOCKED)
     rules = {r.code: r for r in s.rules}
     messages = {m.ref: m for m in s.messages}
-    if (not rules or len(rules) != len(s.rules) or len(messages) != len(s.messages)
-            or any(not r.code for r in s.rules)):
+    if not rules or len(rules) != len(s.rules) or len(messages) != len(s.messages):
         return Review(Result.BLOCKED)
 
     # Any cross-store/case provenance is a protocol boundary violation.
     if any(m.store != s.store or m.case != s.case for m in s.messages):
         return Review(Result.BLOCKED)
+
+    # A cited assertion is NOT sufficient if another authorized CUSTOMER
+    # statement in the same snapshot disagrees. Ordering/correction precedence
+    # belongs to S0 and is still unratified; never pick a winner here.
+    customer_values: dict[str, set[str]] = {}
+    for msg in s.messages:
+        if msg.actor == "customer" and msg.authorized:
+            for code, value in msg.asserted_fields.items():
+                if (isinstance(code, str) and code in rules and
+                        isinstance(value, str) and value.strip()):
+                    customer_values.setdefault(code, set()).add(value)
+    conflicts = {code for code, values in customer_values.items() if len(values) > 1}
 
     accepted: list[Candidate] = []
     rejected: list[str] = []
@@ -120,12 +142,15 @@ def evaluate_f03(snapshot: Snapshot, proposal: Proposal) -> Review:
             accepted = [x for x in accepted if x.field_code != code]
             continue
         used.add(code)
-        if (not rules[code].auto_apply_allowed or not isinstance(field.proposed_value, str)
+        if (code in conflicts or not rules[code].auto_apply_allowed
+                or not isinstance(field.proposed_value, str)
                 or not field.proposed_value.strip() or not field.source_message_refs):
             rejected.append(code)
             continue
         refs = field.source_message_refs
-        if len(set(refs)) != len(refs):
+        if (not isinstance(refs, tuple) or
+                any(not isinstance(ref, str) or not ref for ref in refs) or
+                len(set(refs)) != len(refs)):
             rejected.append(code)
             continue
         valid = True
