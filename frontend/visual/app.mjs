@@ -480,6 +480,8 @@ function changeActor(actorId){
   const actor=getActor(actorId);if(!actor)return;
   closeTransientDialogs();
   if($('team-dialog').open)$('team-dialog').close();
+  // Não deixar carteira do gestor anterior, nem mesmo oculta no DOM da demo.
+  $('team-list').replaceChildren();$('team-monitor').replaceChildren();
   state.teamRequests={};state.teamPanel='members';
   state.actorId=actor.id;state.shopId=actor.shops[0];state.selectedId=null;state.detailTab='overview';state.statusFilter='all';state.inboxView='active';
   state.filter='all';state.query='';$('search-input').value='';goto('list');updateSelectors();render();
