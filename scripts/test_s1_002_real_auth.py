@@ -3,6 +3,8 @@
 Nunca apontar para Supabase hospedado; sem dados comerciais ou env de produção.
 """
 import base64
+import hashlib
+import hmac
 import json
 import os
 import subprocess
@@ -73,7 +75,7 @@ def login():
         body={"email": "s1-i16@example.test", "password": "SyntheticOnlyPassword_2026!"})
     if status != 200 or not data.get("access_token"):
         raise AssertionError("GoTrue login negado: HTTP " + str(status) + " " + str(data)[:250])
-    return data["access_token"], data["user"]["id"]
+    return data["access_token"], data["user"]["id"], data["refresh_token"]
 
 def jwt_payload(token):
     encoded = token.split(".")[1]
@@ -84,7 +86,7 @@ status, signup = http(
     body={"email": "s1-i16@example.test", "password": "SyntheticOnlyPassword_2026!"})
 if status not in (200, 201) or not signup.get("user"):
     raise AssertionError("GoTrue signup local negado: HTTP " + str(status) + " " + str(signup)[:250])
-token, user_id = login()
+token, user_id, _refresh1 = login()
 user_uuid = str(uuid.UUID(user_id))
 claims = jwt_payload(token)
 session_id = str(uuid.UUID(claims["session_id"]))
@@ -185,7 +187,7 @@ status, _ = probe(token)
 assert_blocked(status, "JWT assinado anteriormente apos logout")
 print("PASS S1HTTP-12: JWT assinado ainda nao expirado bloqueado apos logout")
 
-token2, user2 = login()
+token2, user2, refresh2 = login()
 if user2 != user_uuid or jwt_payload(token2)["session_id"] == session_id:
     raise AssertionError("novo login nao criou sessao diferente")
 status, data = probe(token2)
@@ -193,3 +195,107 @@ if status != 200 or data.get("ator_id") != user_uuid:
     raise AssertionError("nova sessao legitima nao pode autenticar")
 print("PASS S1HTTP-13: novo login autentico restaura acesso sem restaurar sessao revogada")
 print("S1-002/I16: 13/13 provas HTTP reais, APENAS ambiente descartavel.")
+
+
+# S1-002/I17 — apenas testes adicionais: expiração real via PostgREST,
+# vinculação de sessão mesmo com JWT assinado e refresh GoTrue verdadeiro.
+# Chave JWT obtida APENAS do supabase status -o env na stack temporária.
+# Nunca imprimir JWT_SECRET, tokens ou refresh_token.
+secret = os.environ.get("JWT_SECRET", "")
+if len(secret) < 32:
+    raise AssertionError("JWT_SECRET efemero ausente da CLI local")
+
+def jwt_parts(value):
+    a, b, c = value.split(".")
+    def decode(piece):
+        return base64.urlsafe_b64decode(piece + "=" * (-len(piece) % 4))
+    return json.loads(decode(a)), json.loads(decode(b)), decode(c)
+
+header2, claims2, signature2 = jwt_parts(token2)
+if header2.get("alg") != "HS256":
+    raise AssertionError("I17 requer stack local JWT HS256; alg inesperado")
+def sign_test_claims(base_token, changed):
+    encoded_header = base_token.split(".")[0]
+    encoded_payload = base64.urlsafe_b64encode(
+        json.dumps(changed, separators=(",", ":"), sort_keys=True).encode()
+    ).decode().rstrip("=")
+    signed = (encoded_header + "." + encoded_payload).encode()
+    digest = hmac.new(secret.encode(), signed, hashlib.sha256).digest()
+    encoded_sig = base64.urlsafe_b64encode(digest).decode().rstrip("=")
+    return signed.decode() + "." + encoded_sig
+
+# Controle de testemunha: sem chave correspondente, todos os ensaios de
+# expiração/revogação poderiam passar por assinatura inválida.
+if not hmac.compare_digest(
+    sign_test_claims(token2, claims2).split(".")[2],
+    base64.urlsafe_b64encode(hmac.new(
+        secret.encode(), ".".join(token2.split(".")[:2]).encode(),
+        hashlib.sha256).digest()).decode().rstrip("=")):
+    raise AssertionError("I17 teste de integridade HMAC local inconsistente")
+expected_sig = base64.urlsafe_b64encode(hmac.new(
+    secret.encode(), ".".join(token2.split(".")[:2]).encode(),
+    hashlib.sha256).digest()).decode().rstrip("=")
+if not hmac.compare_digest(token2.split(".")[2], expected_sig):
+    raise AssertionError("I17 JWT GoTrue nao foi assinado pela chave local esperada")
+print("PASS S1JWT-01: JWT real GoTrue validado com chave HS256 efemera")
+
+expired = dict(claims2)
+expired["iat"] = int(time.time()) - 1200
+expired["exp"] = int(time.time()) - 600
+status, _ = probe(sign_test_claims(token2, expired))
+if status != 401:
+    raise AssertionError("JWT expirado com assinatura valida deveria ser HTTP 401: " + str(status))
+print("PASS S1JWT-02: PostgREST recusa JWT corretamente assinado mas expirado")
+
+unbound = dict(claims2)
+unbound["session_id"] = str(uuid.uuid4())
+status, _ = probe(sign_test_claims(token2, unbound))
+assert_blocked(status, "JWT assinado com session_id sem registro GoTrue")
+print("PASS S1JWT-03: assinatura valida nao substitui sessao cadastrada")
+
+other_actor = str(uuid.uuid4())
+psql("INSERT INTO public.atores(id) VALUES ('" + other_actor + "'::uuid)")
+impersonated = dict(claims2)
+impersonated["sub"] = other_actor
+status, _ = probe(sign_test_claims(token2, impersonated))
+assert_blocked(status, "JWT assinado com sessao de outro ator")
+print("PASS S1JWT-04: sub de outro ator nao herda session_id autentico")
+
+status, refreshed = http(
+    "POST", "/auth/v1/token?grant_type=refresh_token",
+    body={"refresh_token": refresh2})
+if status != 200 or not refreshed.get("access_token") or not refreshed.get("refresh_token"):
+    raise AssertionError("GoTrue nao renovou o refresh token; HTTP " + str(status))
+token3 = refreshed["access_token"]
+claims3 = jwt_payload(token3)
+if claims3.get("sub") != user_uuid or claims3.get("session_id") != claims2.get("session_id"):
+    raise AssertionError("refresh nao preservou a sessao do usuario")
+print("PASS S1JWT-05: refresh token GoTrue gera novo JWT na mesma sessao")
+
+status, refreshed_probe = probe(token3)
+if status != 200 or refreshed_probe.get("ator_id") != user_uuid:
+    raise AssertionError("PostgREST nao autorizou novo token de mesma sessao")
+print("PASS S1JWT-06: refresh legitimo preserva identidade e autorizacao")
+
+status, _ = http("POST", "/auth/v1/logout", token=token3)
+if status not in (200, 204):
+    raise AssertionError("logout apos refresh falhou HTTP " + str(status))
+if psql("SELECT count(*) FROM auth.sessions WHERE id='" + claims3["session_id"] + "'::uuid") != "0":
+    raise AssertionError("sessao nao removida apos logout com token renovado")
+for expired_session_token in (token2, token3):
+    status, _ = probe(expired_session_token)
+    assert_blocked(status, "JWT anterior ou renovado apos logout")
+print("PASS S1JWT-07: logout revoga tanto JWT antigo quanto renovado")
+
+checks17 = psql("""
+select (
+  not has_schema_privilege('authenticated','prumo_private','USAGE')
+  and not has_table_privilege('authenticated','auth.sessions','SELECT')
+  and not has_function_privilege('anon','public.s1_i16_prova_sessao()','EXECUTE')
+  and not has_function_privilege('service_role','public.s1_i16_prova_sessao()','EXECUTE')
+)::text
+""")
+if checks17 != "true":
+    raise AssertionError("regressao ACL no I17")
+print("PASS S1JWT-08: testes nao alteraram fronteira privada nem ACL")
+print("S1-002/I17: 8/8 provas reais adicionais somente em stack efemera.")
