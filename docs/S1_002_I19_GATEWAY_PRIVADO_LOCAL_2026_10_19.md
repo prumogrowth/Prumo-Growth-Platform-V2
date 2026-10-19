@@ -25,3 +25,11 @@ A evolução obrigatória, à semelhança da segurança S0/025, é introduzir um
 - Sem merge, deploy, tráfego de terceiros ou ampliação do progresso global.
 
 **CI e marcadores:** pendentes de inspeção antes do registro de aceite.
+
+## Evidência executada — CI aprovado
+
+**[GitHub Actions #39335386477 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39335386477)**, código ensaiado no SHA `4ce59a2c875bc496b5552d8d463620f68cd9093a`, job `118343479075`. Logs inspecionados: **S1GW-01..14 = 14/14 PASS**. Aplicadas **50 migrations reais** S0/S1 em Supabase local descartável, criadas cinco contas GoTrue e a role SQL efêmera `prumo_s1_gateway_ci`. Os três comandos I14/051 e helper I15/052 foram executados através do gateway loopback com `SET LOCAL ROLE authenticated` e SQL parametrizado, sem qualquer RPC `s1_i18_*` ou `s1_*_sessao` publicada em `public`. Comprovados: outra equipe negada, atribuição obsoleta negada, movimento A autorizado sem grant próprio de gestor, pausa redistribuindo B sem revogar grants A/B, retorno sem recuperar carteira, JWT revogado negado, `actor_id` adicional e `service_role` negados, usuário SQL sem SELECT em `auth.sessions`, sem USAGE no schema de negócio privado e sem papel `postgres`. Teardown do Supabase local concluído.
+
+**Correções de roteiro anteriores, não falhas de regra de negócio:** #39334354743 falhou por `PYTHONPATH`; #39334661237 pela resolução sem `USAGE` do nome `auth.sessions`; #39335033812 por converter `boolean` do PostgreSQL em `text` no teste de ACL. Esses três jobs anteriores não são evidência de aceitação, foram corrigidos antes do CI final. Sem deploy.
+
+**Parecer técnico:** GO para continuar desenvolvimento de uma prova de assinatura/nonce independente de credencial SQL; **NO-GO para produção** até segundo fator S1 validado no próprio banco, auditoria completa do gateway de rede e política de operação.
