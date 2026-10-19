@@ -119,6 +119,22 @@ class CompositionTests(unittest.TestCase):
         b = self.run_review()[0]
         self.assertEqual(a, b)
 
+    def test_21_missing_essential_without_any_field_goes_to_human(self):
+        r = Review(Result.REVIEW, (), ("X",), ())
+        result = self.run_review(f03=r,
+                                 current={"result_has_validated_fields": False},
+                                 authority=ReviewDecision.NOT_READY)[0]
+        self.assertEqual(result.status, PipelineStatus.REVIEW_REQUIRED)
+        self.assertEqual(result.missing_required_codes, ("X",))
+
+    def test_22_unknown_nonapproved_assignment_cannot_surface_private_gaps(self):
+        r = Review(Result.REVIEW, (), ("X",), ())
+        result = self.run_review(f03=r,
+                                 current={"result_has_validated_fields": False},
+                                 authority=ReviewDecision.DENY)[0]
+        self.assertEqual(result.status, PipelineStatus.DENIED)
+        self.assertEqual(result.missing_required_codes, ())
+
 
 if __name__ == "__main__":
     unittest.main()
