@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { copyCFDemoFixtures, mayMockFreeText } from '../cf-op-02.mjs';
-import { postmarkViewFor, postmarkCopy, isValidContinuationProjection } from '../postmark-view.mjs';
+import { postmarkViewFor, postmarkCopy, isValidContinuationProjection, mayMockOperateContinuation } from '../postmark-view.mjs';
 
 const postmarkCases=()=>copyCFDemoFixtures();
 const postmarkFind=(id,records=postmarkCases())=>records.find(x=>x.id===id);
@@ -112,4 +112,36 @@ test('O5-13: sem vínculo confirmado, não inventar abertura de contato',()=>{
   assert.equal(result.kind,'none');
   assert.equal(result.relatedCaseId,null);
   assert.match(postmarkCopy(result).title,/Nenhum novo ciclo confirmado/);
+});
+
+test('auditoria O5: operadora do novo caso atende mesmo sem acesso ao caso de origem',()=>{
+  const rows=postmarkCases();
+  rows.find(x=>x.id==='A-114').assignedTo='bianca';
+  const current=postmarkFind('A-114',rows);
+  const origin=postmarkFind('A-105',rows);
+  assert.equal(postmarkViewFor(current,rows,'bianca','aurora').kind,'restricted');
+  assert.equal(postmarkViewFor(origin,rows,'bianca','aurora').visibility,'forbidden');
+  assert.equal(mayMockOperateContinuation(current,rows,'bianca','aurora'),true);
+  assert.equal(mayMockFreeText(current,'bianca','aurora'),true);
+});
+
+test('auditoria O5: vínculo fora da loja ou incoerente não autoriza operação',()=>{
+  for(const mutation of [
+    row=>{row.postmarkProjection.linkedByS0=false;},
+    row=>{row.postmarkProjection.sellerAiSilenced=false;},
+    (row,rows)=>{rows.find(x=>x.id==='A-105').shopId='horizonte';},
+    (row,rows)=>{rows.find(x=>x.id==='A-105').postmarkProjection.linkVersionRef='version-errada';}
+  ]){
+    const rows=postmarkCases(),current=postmarkFind('A-114',rows);
+    current.assignedTo='bianca';
+    mutation(current,rows);
+    assert.equal(mayMockOperateContinuation(current,rows,'bianca','aurora'),false);
+  }
+});
+
+test('auditoria O5: operador antigo não opera novo caso agora atribuído a colega',()=>{
+  const rows=postmarkCases(),current=postmarkFind('A-114',rows);
+  current.assignedTo='bianca';
+  assert.equal(mayMockOperateContinuation(current,rows,'rafael','aurora'),false);
+  assert.equal(mayMockOperateContinuation(current,rows,'otavio','aurora'),false);
 });
