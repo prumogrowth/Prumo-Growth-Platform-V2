@@ -2,6 +2,8 @@
 # Offline-only, zero-install TypeScript regression runner for the Meta adapter.
 # This script does not start servers, send messages or connect external APIs.
 set -euo pipefail
+# Block inherited runtime preloads before the first Node invocation.
+export NODE_OPTIONS='' NODE_PATH=''
 LAB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MODE="${1:---all}"
 if [[ $# -gt 1 ]]; then
@@ -46,7 +48,5 @@ for file in "${files[@]}"; do
   fi
 done
 # The test files are fixtures; no npm install, API calls, secrets or CI run.
-# Erase Node runtime overrides that might load arbitrary external preload code.
-export NODE_OPTIONS='' NODE_PATH=''
 cd "$LAB_DIR/../.."
 node --experimental-strip-types --test --test-concurrency=1 "${files[@]}"
