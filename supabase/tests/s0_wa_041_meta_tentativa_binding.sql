@@ -220,4 +220,42 @@ begin
   then raise exception 'FAIL WA14-15: privacy / RLS / ACL';end if;
   raise notice 'PASS WA14-15: private-only S0 fixture with no public entrypoint';
 end $wa14$;
+
+-- WA14-16: PostgreSQL-safe wamid length gate at exact 1024-character edge.
+-- This catches the old invalid regex {1,1024} (PG bound max is 255).
+do $wa14_limit$
+declare v_exact text; v_too_long text; result jsonb;
+begin
+  v_exact:='wamid.'||repeat('A',1024);
+  v_too_long:='wamid.'||repeat('A',1025);
+  result:=prumo_private.registrar_vinculo_meta_fixture_s0(
+    'FIXTURE_WA14_APP_A','f3100000-0000-4000-8000-000000000002',
+    'f4100000-0000-4000-8000-000000000003','ATTEMPT_MAX','CORR_MAX',
+    '5581900000000',v_exact,200);
+  if result->>'outcome'<>'LAB_BOUND'
+    or (prumo_private.consultar_vinculo_meta_fixture_s0(
+      'FIXTURE_WA14_APP_A','f3100000-0000-4000-8000-000000000002',
+      'f4100000-0000-4000-8000-000000000003','ATTEMPT_MAX','CORR_MAX',
+      '5581900000000',v_exact))->>'outcome'<>'LAB_FOUND_EXACT'
+  then raise exception 'FAIL WA14-16: 1024-digit base wamid edge';end if;
+  begin
+    perform prumo_private.registrar_vinculo_meta_fixture_s0(
+      'FIXTURE_WA14_APP_A','f3100000-0000-4000-8000-000000000002',
+      'f4100000-0000-4000-8000-000000000003','ATTEMPT_TOO_LONG','CORR_TOO_LONG',
+      '5581900000000',v_too_long,200);
+    raise exception 'FAIL WA14-16: 1025 payload accepted';
+  exception when invalid_parameter_value then null;end;
+  begin
+    perform prumo_private.consultar_vinculo_meta_fixture_s0(
+      'FIXTURE_WA14_APP_A','f3100000-0000-4000-8000-000000000002',
+      'f4100000-0000-4000-8000-000000000003','ATTEMPT_TOO_LONG','CORR_TOO_LONG',
+      '5581900000000','wamid.');
+    raise exception 'FAIL WA14-16: empty payload accepted';
+  exception when invalid_parameter_value then null;end;
+  if (select count(*) from prumo_private.meta_vinculos_tentativa_fixture_s0
+      where attempt_ref in ('ATTEMPT_MAX','ATTEMPT_TOO_LONG'))<>1
+  then raise exception 'FAIL WA14-16: length validation changed row counts';end if;
+  raise notice 'PASS WA14-16: 1024 accepted, 1025 and empty rejected';
+end $wa14_limit$;
+
 rollback;
