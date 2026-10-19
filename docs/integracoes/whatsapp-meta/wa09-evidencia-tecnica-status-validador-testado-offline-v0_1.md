@@ -44,3 +44,18 @@ Fonte do conciliador após integração: blob `c98bb25575c302e659b8a5781e33cacf1
 **Escopo de evidência:** a alteração em `technical-reconciliation.ts` foi publicada, porém a **regressão integrada REC-01..35 ainda não foi executada** nesta etapa (não havia um checkout completo do repositório privado no ambiente local). Não declarar integração testada end-to-end por causa dos 11 testes do helper. Tampouco foram rodados os cenários PostgreSQL WA-06D (última evidência 0/20) ou S0-040 (0/5). Esses testes internos **não exigem API externa**, mas exigem árvore de código, Node/TS e PG17 adequados. A preferência pelo uso das APIs reais somente na fase final permanece preservada.
 
 **Sem alteração em:** Graph real, Supabase hospedado, S0/S1 SQL, regras comerciais, estado vendido/perdido, opt-out, janela 24h, envio ou recibo HTTP. PRs Draft, sem merge/deploy.
+
+## WA-09C — executor offline reproduzível e correção de segurança (19/10/2026)
+
+Foi acrescentado `integrations/whatsapp-meta/run-offline-tests.sh` para facilitar o **checkout integral e zero-install** com Node 22+; nenhum comando instala dependências, inicia HTTP, Graph, Supabase ou dispara CI. Modos `--unit` (somente WA-09), `--focus` (WA-09 + `technical-reconciliation` + `graph-outbound`) e `--all` (todos os `*.test.ts` da pasta Meta). **A opção --all recusa checkout incompleto:** exige ao menos **26 suítes atualmente publicadas** e presença dos arquivos essenciais, não informa PASS silencioso quando só uma fixture está presente. `--focus` também falha se módulos estiverem ausentes. O script normaliza `NODE_OPTIONS`/`NODE_PATH` **antes do primeiro comando Node**; não é sandbox de rede e deve rodar somente em ambiente de desenvolvimento confiável.
+
+**Execução local realizada no snapshot parcial WA-09:**
+
+- `bash -n run-offline-tests.sh`: PASS.
+- `bash run-offline-tests.sh --unit`: **11/11 testes PASS**.
+- `NODE_OPTIONS='--require ./missing.js' bash run-offline-tests.sh --unit`: **11/11 PASS**, provando que o script limpa preload herdado antes de consultar a versão do Node.
+- `bash run-offline-tests.sh --all`: **saída 66**, correta por faltar a árvore de 26 suítes; `--focus` igualmente retorna 66 no snapshot parcial. **Não representa teste completo executado**.
+- Arquivos executados (blobs Git conferidos): `status-evidence.ts` = `50095d75216f13686782476e8f6143d64933f42d`, `status-evidence.test.ts` = `bde56f1245b0ee635bc2874950599fc1bd941dd4`, `run-offline-tests.sh` = `75e8ac50a671a8d5e3cd6974b3470f48964b4a31`.
+- Código conciliador integrando `isMetaPhoneNumberId` e `isSafeEvidenceRef` por intermédio dos predicados permanece **sem regressão REC-01..35 executada**, por falta de checkout integral, e **não se pode afirmar que todas as 26 suítes passaram**. A verificação estrita `tsc --noEmit` do helper passou, não equivale ao typecheck do repositório inteiro.
+
+**Próximo gate [R]:** em checkout completo privado, `bash integrations/whatsapp-meta/run-offline-tests.sh --focus` e `--all`; depois PostgreSQL 17 descartável para WA-06D e S0-040, e integração autenticada Meta→S0. Sem API real, secrets, deploy, custo deliberado ou merge. As métricas de progresso documental não são alteradas por essa entrega.
