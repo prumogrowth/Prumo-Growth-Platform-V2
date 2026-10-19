@@ -102,7 +102,9 @@ def main():
               "generated_utc": datetime.now(timezone.utc).isoformat(),
               "checkout_root": str(ROOT), "steps": [],
               "browser_executed": False, "full_acceptance": False}
-    report["steps"].append(check_git_revision(args.expected_head))
+    revision_step = check_git_revision(args.expected_head)
+    report["steps"].append(revision_step)
+    revision_ok = revision_step["passed"]
     # Uma suíte truncada pode passar no Node e não constitui aceite integral.
     expected_tests = {
         "app.dom.test.mjs", "app.mobile.dom.test.mjs", "bank-view.test.mjs",
@@ -132,10 +134,11 @@ def main():
     })
     node = shutil.which("node")
     suite = sorted(str(file) for file in TESTS.glob("*.test.mjs"))
-    if not inventory_ok or not node:
+    if not inventory_ok or not node or not revision_ok:
+        error = ("incomplete checkout" if not inventory_ok else
+                 "unverified checkout revision" if not revision_ok else "node unavailable")
         report["steps"].append({"name": "Node ESM regression", "passed": False,
-                                "executed": False,
-                                "error": "incomplete checkout" if not inventory_ok else "node unavailable"})
+                                "executed": False, "error": error})
     else:
         report["steps"].append(run_step("Node ESM regression",
                                          [node, "--test", *suite], timeout=180))
@@ -144,11 +147,11 @@ def main():
                                 "executed": False, "passed": False,
                                 "error": "explicitly skipped"})
         print("Chromium SKIPPED — diagnóstico parcial, não homologação.", flush=True)
-    elif not inventory_ok:
+    elif not inventory_ok or not revision_ok:
+        error = "incomplete checkout" if not inventory_ok else "unverified checkout revision"
         report["steps"].append({"name": "Chromium Playwright smoke",
-                                "executed": False, "passed": False,
-                                "error": "incomplete checkout"})
-        print("Chromium BLOCKED — checkout incompleto.", flush=True)
+                                "executed": False, "passed": False, "error": error})
+        print("Chromium BLOCKED — " + error, flush=True)
     else:
         browser_step = run_step("Chromium Playwright smoke",
                                 [sys.executable, str(TESTS / "browser.smoke.py")], timeout=180)
