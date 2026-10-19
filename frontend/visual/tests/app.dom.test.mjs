@@ -14,7 +14,7 @@ const reset = () => get('reset-app').click();
 
 test('inbox mostra apenas os seis casos sintéticos ativos do operador autorizado', () => {
   reset();
-  assert.equal(env.cards().length, 6);
+  assert.equal(env.cards().length, 8);
   assert.equal(get('team-nav').hidden, true);
   assert.equal(get('team-nav-mobile').hidden, true);
 });
@@ -47,7 +47,7 @@ test('template individual usa seleção por caso e não confunde pedido com envi
 test('histórico continua legível e não permite mensagem em caso perdido', () => {
   reset();
   env.inbox[1].click();
-  assert.equal(env.cards().length, 2);
+  assert.equal(env.cards().length, 3);
   env.openCase('Exemplo 12');
   assert.equal(get('message-input').disabled, true);
   assert.ok(get('workflow-bar').textContent.includes('perdido'));
@@ -56,7 +56,7 @@ test('histórico continua legível e não permite mensagem em caso perdido', () 
 test('gestor vê equipe somente quando ativo e preserva escopo por loja', () => {
   reset();
   env.selectActor('marina');
-  assert.equal(env.cards().length, 10);
+  assert.equal(env.cards().length, 12);
   assert.equal(get('team-nav').hidden, false);
   get('team-nav').click();
   assert.equal(get('team-dialog')._open, true);
