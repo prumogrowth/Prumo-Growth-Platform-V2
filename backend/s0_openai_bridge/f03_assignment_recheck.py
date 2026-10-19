@@ -61,6 +61,13 @@ def recheck_before_apply(start: ClosingSnapshot, current: CurrentAuthority) -> R
     the same person later gets a new assignment for the case.
     """
     s, c = start, current
+    if not isinstance(s, ClosingSnapshot) or not isinstance(c, CurrentAuthority):
+        return ReviewDecision.DENY
+    # A string "false" or number 1 cannot impersonate a verified S0/S1 flag.
+    if any(type(flag) is not bool for flag in
+           (c.authenticated_session, c.operator_active, c.store_grant,
+            c.case_human, c.opted_out, c.result_has_validated_fields)):
+        return ReviewDecision.DENY
     ids = (s.store, s.case, s.closure_event, s.operator, s.assignment,
            s.watermark, s.snapshot_hash, s.catalogue_version,
            c.store, c.case, c.closure_event, c.operator, c.assignment,
