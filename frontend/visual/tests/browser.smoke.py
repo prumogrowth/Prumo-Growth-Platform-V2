@@ -178,44 +178,45 @@ with sync_playwright() as p:
     print('FV-UI-002 gestor/escopo: PASS')
     page.close()
 
-    mobile = browser.new_page(viewport={'width':390,'height':844})
-    errors_mobile = []
-    mobile.on('pageerror', lambda error: errors_mobile.append(str(error)))
-    mobile.set_content(html)
-    mobile.add_script_tag(content=script)
-    assert mobile.locator('#team-nav-mobile').is_hidden()
-    mobile.locator('#actor-select').select_option('marina')
-    assert mobile.locator('#team-nav-mobile').is_visible()
-    mobile.locator('#team-nav-mobile').click()
-    assert mobile.locator('#team-dialog').is_visible()
-    assert mobile.locator('#team-list .team-member').count() == 2
-    # FV-UI-013: exercitar G3 e G4 também com navegação real no celular.
-    mobile.locator('#team-show-monitor').click()
-    assert mobile.locator('#team-monitor').is_visible()
-    monitor_mobile = mobile.locator('#team-monitor').inner_text()
-    assert 'G3 · MONITORAMENTO DA PRÓPRIA EQUIPE' in monitor_mobile
-    assert 'Monitoramento operacional da equipe' in monitor_mobile
-    assert 'Caso A-112' in monitor_mobile
-    assert 'Caso A-103' not in monitor_mobile
-    assert 'Bianca Rocha' not in monitor_mobile
-    mobile.locator('#team-show-batches').click()
-    assert mobile.locator('#team-batches').is_visible()
-    batches_mobile = mobile.locator('#team-batches').inner_text()
-    assert 'L-G4-01' in batches_mobile
-    assert 'L-G4-03' not in batches_mobile
-    mobile.locator('#team-show-members').click()
-    assert mobile.locator('#team-list').is_visible()
-    assert 'Rafael Lima' in mobile.locator('#team-list').inner_text()
-    assert 'Bianca Rocha' not in mobile.locator('#team-list').inner_text()
-    assert not mobile.evaluate('document.documentElement.scrollWidth > innerWidth'), 'Overflow mobile em G3/G4'
-    mobile.keyboard.press('Escape')
-    assert not mobile.locator('#team-dialog').is_visible()
-    mobile.locator('#actor-select').select_option('otavio')
-    assert mobile.locator('.conversation-card').count() == 0
-    assert mobile.locator('#team-nav-mobile').is_hidden()
-    assert 'Sem acesso demonstrativo' in mobile.locator('#conversation-items').inner_text()
-    assert not errors_mobile, 'Erros JavaScript em gestão mobile: '+repr(errors_mobile)
-    assert not mobile.evaluate('document.documentElement.scrollWidth > innerWidth'), 'Overflow mobile'
-    print('FV-UI-004 acesso suspenso / equipe no celular: PASS')
-    mobile.close()
+    for mobile_width,mobile_height in ((390,844),(320,640)):
+        mobile = browser.new_page(viewport={'width':mobile_width,'height':mobile_height})
+        errors_mobile = []
+        mobile.on('pageerror', lambda error: errors_mobile.append(str(error)))
+        mobile.set_content(html)
+        mobile.add_script_tag(content=script)
+        assert mobile.locator('#team-nav-mobile').is_hidden()
+        mobile.locator('#actor-select').select_option('marina')
+        assert mobile.locator('#team-nav-mobile').is_visible()
+        mobile.locator('#team-nav-mobile').click()
+        assert mobile.locator('#team-dialog').is_visible()
+        assert mobile.locator('#team-list .team-member').count() == 2
+        # FV-UI-013: exercitar G3 e G4 também com navegação real no celular.
+        mobile.locator('#team-show-monitor').click()
+        assert mobile.locator('#team-monitor').is_visible()
+        monitor_mobile = mobile.locator('#team-monitor').inner_text()
+        assert 'G3 · MONITORAMENTO DA PRÓPRIA EQUIPE' in monitor_mobile
+        assert 'Monitoramento operacional da equipe' in monitor_mobile
+        assert 'Caso A-112' in monitor_mobile
+        assert 'Caso A-103' not in monitor_mobile
+        assert 'Bianca Rocha' not in monitor_mobile
+        mobile.locator('#team-show-batches').click()
+        assert mobile.locator('#team-batches').is_visible()
+        batches_mobile = mobile.locator('#team-batches').inner_text()
+        assert 'L-G4-01' in batches_mobile
+        assert 'L-G4-03' not in batches_mobile
+        mobile.locator('#team-show-members').click()
+        assert mobile.locator('#team-list').is_visible()
+        assert 'Rafael Lima' in mobile.locator('#team-list').inner_text()
+        assert 'Bianca Rocha' not in mobile.locator('#team-list').inner_text()
+        assert not mobile.evaluate('document.documentElement.scrollWidth > innerWidth'), 'Overflow mobile em G3/G4'
+        mobile.keyboard.press('Escape')
+        assert not mobile.locator('#team-dialog').is_visible()
+        mobile.locator('#actor-select').select_option('otavio')
+        assert mobile.locator('.conversation-card').count() == 0
+        assert mobile.locator('#team-nav-mobile').is_hidden()
+        assert 'Sem acesso demonstrativo' in mobile.locator('#conversation-items').inner_text()
+        assert not errors_mobile, 'Erros JavaScript em gestão mobile: '+repr(errors_mobile)
+        assert not mobile.evaluate('document.documentElement.scrollWidth > innerWidth'), 'Overflow mobile'
+        print('FV-UI-004 acesso suspenso / equipe no celular: PASS')
+        mobile.close()
     browser.close()
