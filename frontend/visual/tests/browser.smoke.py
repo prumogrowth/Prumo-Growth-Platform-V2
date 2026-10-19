@@ -189,6 +189,25 @@ with sync_playwright() as p:
     mobile.locator('#team-nav-mobile').click()
     assert mobile.locator('#team-dialog').is_visible()
     assert mobile.locator('#team-list .team-member').count() == 2
+    # FV-UI-013: exercitar G3 e G4 também com navegação real no celular.
+    mobile.locator('#team-show-monitor').click()
+    assert mobile.locator('#team-monitor').is_visible()
+    monitor_mobile = mobile.locator('#team-monitor').inner_text()
+    assert 'G3 · MONITORAMENTO DA PRÓPRIA EQUIPE' in monitor_mobile
+    assert 'Monitoramento operacional da equipe' in monitor_mobile
+    assert 'Caso A-112' in monitor_mobile
+    assert 'Caso A-103' not in monitor_mobile
+    assert 'Bianca Rocha' not in monitor_mobile
+    mobile.locator('#team-show-batches').click()
+    assert mobile.locator('#team-batches').is_visible()
+    batches_mobile = mobile.locator('#team-batches').inner_text()
+    assert 'L-G4-01' in batches_mobile
+    assert 'L-G4-03' not in batches_mobile
+    mobile.locator('#team-show-members').click()
+    assert mobile.locator('#team-list').is_visible()
+    assert 'Rafael Lima' in mobile.locator('#team-list').inner_text()
+    assert 'Bianca Rocha' not in mobile.locator('#team-list').inner_text()
+    assert not mobile.evaluate('document.documentElement.scrollWidth > innerWidth'), 'Overflow mobile em G3/G4'
     mobile.keyboard.press('Escape')
     assert not mobile.locator('#team-dialog').is_visible()
     mobile.locator('#actor-select').select_option('otavio')
