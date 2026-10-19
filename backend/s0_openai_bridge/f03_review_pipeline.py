@@ -47,6 +47,18 @@ def review_f03_offline(
             or not isinstance(current, CurrentAuthority)):
         return PipelineReview(PipelineStatus.DENIED)
 
+    # Recheck current authority before inspecting or exposing extraction state.
+    # A revoked session/store grant must outrank a malformed/stale model result,
+    # and stale operator/assignment versions must outrank readiness flags.
+    # NOT_READY only means no validated fields yet; other S0/S1 guards passed.
+    authority = recheck_before_apply(closure, current)
+    if authority == ReviewDecision.DENY:
+        return PipelineReview(PipelineStatus.DENIED)
+    if authority == ReviewDecision.STALE:
+        return PipelineReview(PipelineStatus.STALE)
+    if authority not in (ReviewDecision.NOT_READY, ReviewDecision.REVIEW_ONLY):
+        return PipelineReview(PipelineStatus.DENIED)
+
     # The two guards cannot be fed unrelated snapshots or events, even when
     # each would individually be approved by its own fixture.
     if (snapshot.store != closure.store or snapshot.case != closure.case
@@ -74,11 +86,6 @@ def review_f03_offline(
     if current.result_has_validated_fields != bool(candidates):
         return PipelineReview(PipelineStatus.NOT_READY)
 
-    authority = recheck_before_apply(closure, current)
-    if authority == ReviewDecision.DENY:
-        return PipelineReview(PipelineStatus.DENIED)
-    if authority == ReviewDecision.STALE:
-        return PipelineReview(PipelineStatus.STALE)
     if authority == ReviewDecision.NOT_READY:
         # Recheck can return NOT_READY simply because no field was validated.
         # Still surface evidenced essential gaps to a human once its OTHER
