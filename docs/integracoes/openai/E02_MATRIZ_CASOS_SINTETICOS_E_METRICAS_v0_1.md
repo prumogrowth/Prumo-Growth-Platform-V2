@@ -59,6 +59,12 @@ Os **17 testes candidatos NC-01 a NC-17**, incluindo a distinção entre negocia
 
 Além de SYN-01..32 e NC-01..17, existem OAI8-01..10, OAI-T01..27 (IDs antes duplicados OAI-T16..21 foram renumerados para OAI-T22..27) e CF2-01..34 em outra frente, com sobreposição de objetivos. A matriz de responsabilidade e links de regressão está em `E02_RASTREABILIDADE_CF_OP_02_v0_1.md`. Os **três relógios**, o plano NOVO após handoff, a escolha template único versus cadeia, prova efetiva de template final enviado, caso pré-banco elegível e opt-out devem ser cobertos por stubs/revisão cruzada. Nenhum total aritmético é quantidade de fixtures executadas. **C09 em casos humanos ainda depende de matriz de estados ratificada S0**.
 
+## 2C. Lacunas de cobertura ATD-01B descobertas pela auditoria [P/R]
+
+- **FT-01, somente proposta documental:** simular duas falhas consecutivas de envio Meta **qualificadas** e comprovar que S0 cancela as tentativas posteriores, mantendo histórico. Controle negativo obrigatório: `accepted`, `queued` e `uncertain` NÃO equivalem automaticamente a `failed`; a classificação detalhada é [R/V] do dono S0/Meta. Este cenário NÃO é um dos 32 SYN e NÃO foi implementado.
+- **FT-02, somente proposta documental:** num ciclo já atendido e silencioso, testar final **separado** previsto aproximadamente 24h depois da última tentativa regular sem resposta e, em relógio distinto, avaliar C09 somente após prova efetiva de `sent` final +24h sem inbound e elegibilidade de fase/status aceita. Sem essa ratificação, bloquear `ALLOW` pós-humano; não inferir perdido. Este cenário NÃO é um dos 32 SYN e NÃO foi implementado.
+- SYN-19/20 já cobrem template inválido e opt-out, **mas não FT-01/02**. Não atribuir cobertura de regressão apenas por citar normas. FT-01/02 são duas lacunas candidatas e não incrementam os 32 testes descritos nem o total de testes executados (zero).
+
 ## 3. Métricas e definições auditáveis [P]
 
 - false_autofill_rate = número de campos AUTOAPLICADOS sem prova/permitidos / total de campos autoaplicados. **Objetivo P0: zero em corpus crítico sintético; meta de laboratório, não garantia para produção.**
