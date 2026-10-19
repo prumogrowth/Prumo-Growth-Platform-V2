@@ -19,6 +19,7 @@ import { bankProjectionFor, bankPhaseCopy } from './bank-view.mjs';
 import { postmarkViewFor, postmarkCopy, mayMockOperateContinuation } from './postmark-view.mjs';
 import { projectManagedTeam, requestMockIntake } from './team-operations.mjs';
 import { projectManagerMonitor } from './team-monitor.mjs';
+import { projectManagerBatches } from './batch-monitor.mjs';
 import { projectTeamMonitoring, describeMonitoring } from './team-monitoring.mjs';
 
 const $ = id => document.getElementById(id);
@@ -481,7 +482,7 @@ function changeActor(actorId){
   closeTransientDialogs();
   if($('team-dialog').open)$('team-dialog').close();
   // Não deixar carteira do gestor anterior, nem mesmo oculta no DOM da demo.
-  $('team-list').replaceChildren();$('team-monitor').replaceChildren();
+  $('team-list').replaceChildren();$('team-monitor').replaceChildren();$('team-batches').replaceChildren();
   state.teamRequests={};state.teamPanel='members';
   state.actorId=actor.id;state.shopId=actor.shops[0];state.selectedId=null;state.detailTab='overview';state.statusFilter='all';state.inboxView='active';
   state.filter='all';state.query='';$('search-input').value='';goto('list');updateSelectors();render();
@@ -642,19 +643,51 @@ function renderTeamMonitor(){
     el('p','team-hint','Sinais técnicos não são estados comerciais novos. '+
       'A S0 define prazos, prioridades, distribuição, permissões e confirmação de eventos.'));
 }
+function renderTeamBatches(){
+  const target=$('team-batches'),projection=projectManagerBatches(state.actorId);
+  if(projection.visibility!=='ready'){
+    target.replaceChildren(el('p','detail-small','Lotes indisponíveis para este perfil fictício.'));
+    return;
+  }
+  const title=el('h3','detail-label','G4 · LOTES AUTORIZADOS DA PRÓPRIA EQUIPE');
+  const note=el('p','team-hint',
+    'Projeções fictícias por equipe e concessionária concedida. Não há importação, distribuição ou alteração de permissões. Operadores e lojas elegíveis são definidos pelo responsável.');
+  const totals=projection.totals,summary=el('div','team-batch-summary');
+  summary.append(el('span','',totals.visibleBatches+' lote(s) visíveis'),
+    el('span','',totals.confirmedBatches+' com contagem validada na fixture'),
+    el('span','',totals.distributionBlocked+' distribuição(ões) bloqueada(s)'));
+  const list=el('div','team-batch-list');
+  if(!projection.batches.length)list.append(el('p','detail-small','Sem lote autorizado na equipe nesta demonstração.'));
+  for(const batch of projection.batches){
+    const card=el('div','team-batch-card');
+    card.append(el('strong','',batch.id+' · '+batch.shopName),
+      el('span','',batch.label));
+    if(batch.countsConfirmed){
+      card.append(el('span','',`Versão fictícia: ${batch.versionRef} · ${batch.received} recebido(s) · ${batch.eligible} elegível(is) na projeção · ${batch.quarantined} em conferência`));
+    }else card.append(el('span','', 'Contagens não confirmadas pelo processamento fictício.'));
+    card.append(el('span','',batch.qualityNote));
+    list.append(card);
+  }
+  target.replaceChildren(title,note,summary,list,
+    el('p','team-hint','Somente leitura. Upload, aceitação de linhas, roteamento, pausa e concessões de concessionárias pertencem aos comandos futuros S0/S1-002.'));
+}
 function switchTeamPanel(panel){
   if(!canSeeTeamSummary(state.actorId,state.shopId))return;
-  state.teamPanel=panel==='monitor'?'monitor':'members';
-  const monitoring=state.teamPanel==='monitor';
-  $('team-list').hidden=monitoring;
+  state.teamPanel=['monitor','batches'].includes(panel)?panel:'members';
+  const monitoring=state.teamPanel==='monitor',batches=state.teamPanel==='batches';
+  $('team-list').hidden=monitoring||batches;
   $('team-monitor').hidden=!monitoring;
-  $('team-show-members').setAttribute('aria-pressed',String(!monitoring));
+  $('team-batches').hidden=!batches;
+  $('team-show-members').setAttribute('aria-pressed',String(!monitoring&&!batches));
   $('team-show-monitor').setAttribute('aria-pressed',String(monitoring));
-  if(monitoring)renderTeamMonitor();
+  $('team-show-batches').setAttribute('aria-pressed',String(batches));
+  if(batches)renderTeamBatches();
+  else if(monitoring)renderTeamMonitor();
   else renderTeamSummary();
 }
 $('team-show-members').addEventListener('click',()=>switchTeamPanel('members'));
 $('team-show-monitor').addEventListener('click',()=>switchTeamPanel('monitor'));
+$('team-show-batches').addEventListener('click',()=>switchTeamPanel('batches'));
 
 function openTeamSummary(){
   if(!canSeeTeamSummary(state.actorId,state.shopId)){
