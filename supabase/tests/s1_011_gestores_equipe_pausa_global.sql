@@ -209,4 +209,24 @@ do $t$ begin
 end $t$;
 \echo 'PASS S1T-13: função de pausa não exposta ao cliente autenticado'
 reset role;
+-- Um responsável autoriza a concessionária C para o MESMO operador.
+-- A equipe do gestor e sua gestão não precisam ser modificadas.
+insert into public.vinculos_papel_escopo(ator_id,concessionaria_id,papel)
+ values('a1120000-0000-4000-8000-000000000004',
+        'a2120000-0000-4000-8000-000000000003','operador');
+do $t$ begin
+ if (select count(*) from prumo_private.s1_gestor_operadores
+  where gestor_id='a1120000-0000-4000-8000-000000000002'
+   and operador_id='a1120000-0000-4000-8000-000000000004'
+   and encerrado_em is null)<>1
+ or not prumo_private.s1_pode_administrar_operador(
+  'a1120000-0000-4000-8000-000000000002',
+  'a2120000-0000-4000-8000-000000000003',
+  'redistribuir_carteira','a1120000-0000-4000-8000-000000000004')
+ or exists(select 1 from public.vinculos_papel_escopo
+  where ator_id='a1120000-0000-4000-8000-000000000002'
+    and concessionaria_id='a2120000-0000-4000-8000-000000000003')
+ then raise exception 'S1T-14 novo grant C alterou gestao da equipe';end if;
+end $t$;
+\echo 'PASS S1T-14: adicionar loja C não altera chefia nem exige grant C do gestor'
 rollback;
