@@ -209,3 +209,51 @@ class F03ContradictionRegressions(unittest.TestCase):
         result = evaluate_f03(snapshot, replace(self.proposal, fields=()))
         self.assertEqual(result.status, Result.PROPOSAL_ONLY)
         self.assertEqual(result.accepted, ())
+
+class F03StrictTypeRegression(unittest.TestCase):
+    """Reject malformed authority metadata before inspecting proposed data."""
+    def setUp(self):
+        self.snapshot, self.proposal = fixtures()
+
+    def test_41_operator_permission_string_is_not_authority(self):
+        s = replace(self.snapshot, actor_authorized_now="false")
+        self.assertEqual(evaluate_f03(s, self.proposal).status, Result.BLOCKED)
+
+    def test_42_closure_string_is_not_authentication(self):
+        s = replace(self.snapshot, closure_authorized="false")
+        self.assertEqual(evaluate_f03(s, self.proposal).status, Result.BLOCKED)
+
+    def test_43_current_snapshot_string_is_not_truth(self):
+        s = replace(self.snapshot, original_snapshot_current="false")
+        self.assertEqual(evaluate_f03(s, self.proposal).status, Result.BLOCKED)
+
+    def test_44_boolean_case_version_rejected(self):
+        s = replace(self.snapshot, case_version=True)
+        p = replace(self.proposal, case_version=True)
+        self.assertEqual(evaluate_f03(s, p).status, Result.BLOCKED)
+
+    def test_45_string_form_version_rejected(self):
+        s = replace(self.snapshot, form_version="2")
+        p = replace(self.proposal, form_version="2")
+        self.assertEqual(evaluate_f03(s, p).status, Result.BLOCKED)
+
+    def test_46_source_authorized_string_rejected(self):
+        m = replace(SOURCES[0], authorized="false")
+        s = replace(self.snapshot, messages=(m, SOURCES[1]))
+        self.assertEqual(evaluate_f03(s, self.proposal).status, Result.BLOCKED)
+
+    def test_47_source_provenance_invalid_value_type_rejected(self):
+        m = replace(SOURCES[0], asserted_fields={"A": 123})
+        s = replace(self.snapshot, messages=(m, SOURCES[1]))
+        self.assertEqual(evaluate_f03(s, self.proposal).status, Result.BLOCKED)
+
+    def test_48_empty_result_type_rejected(self):
+        self.assertEqual(evaluate_f03(self.snapshot, {}).status, Result.BLOCKED)
+
+    def test_49_invalid_scope_type_rejected(self):
+        s = replace(self.snapshot, store=True)
+        p = replace(self.proposal, store=True)
+        self.assertEqual(evaluate_f03(s, p).status, Result.BLOCKED)
+
+    def test_50_explicit_real_booleans_still_review_only(self):
+        self.assertEqual(evaluate_f03(self.snapshot, self.proposal).status, Result.PROPOSAL_ONLY)
