@@ -1,8 +1,9 @@
 /**
- * WA-10: An in-memory, technical inverse index for an already accepted Graph
- * observation. Reject one S0 attempt being associated with two provider wamids.
- * No network, credentials, HTTP ACK, commercial state, DB or persistence.
- * This is NOT authorization to send, nor proof of message delivery.
+ * WA-10/11: Memory-only, bi-directional attempt <-> scoped wamid uniqueness
+ * for ALREADY accepted Graph observations. Both indexes change together.
+ * No network, credentials, ACK, commercial state, database or durability.
+ * Not permission to send or evidence of delivery. Real S0 must enforce this
+ * transactionally, under the trusted App/WABA/sender mapping at commit.
  */
 export type AttemptIdentity = Readonly<{
   app_ref: string;
@@ -25,36 +26,58 @@ const fields: readonly (keyof AttemptIdentity)[] = [
   'app_ref','concessionaria_id','canal_id','waba_id','phone_number_id',
   'intent_id','attempt_id','correlation_id','recipient_verified','provider_message_id',
 ];
-const valid = (v: unknown): v is AttemptIdentity => {
+
+/** Read own DATA descriptors once. Never re-read a caller's mutable/proxied keys. */
+const snapshot = (value: unknown): AttemptIdentity | undefined => {
   try {
-    if (!v || typeof v !== 'object' || Array.isArray(v)) return false;
-    const proto = Object.getPrototypeOf(v);
-    if (proto !== Object.prototype && proto !== null) return false;
-    const d = Object.getOwnPropertyDescriptors(v);
-    if (Reflect.ownKeys(v).length !== fields.length || Object.keys(d).length !== fields.length ||
-        !fields.every(k => Object.hasOwn(d,k) && Object.hasOwn(d[k],'value'))) return false;
-    const x = v as AttemptIdentity;
-    // RegExp.test coerces numbers to strings; reject runtime types explicitly.
-    if (!fields.every(k => typeof x[k] === 'string')) return false;
-    return REF.test(x.app_ref) && REF.test(x.concessionaria_id) &&
-      REF.test(x.canal_id) && REF.test(x.waba_id) && SENDER.test(x.phone_number_id) &&
-      REF.test(x.intent_id) && REF.test(x.attempt_id) && REF.test(x.correlation_id) &&
-      RECIPIENT.test(x.recipient_verified) && WAMID.test(x.provider_message_id);
-  } catch { return false; }
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return;
+    const proto = Object.getPrototypeOf(value);
+    if (proto !== Object.prototype && proto !== null) return;
+    const descriptors = Object.getOwnPropertyDescriptors(value);
+    if (Reflect.ownKeys(value).length !== fields.length ||
+        Object.keys(descriptors).length !== fields.length) return;
+    const result = Object.create(null) as Record<keyof AttemptIdentity, string>;
+    for (const field of fields) {
+      if (!Object.hasOwn(descriptors, field)) return;
+      const d = descriptors[field];
+      if (!d || !Object.hasOwn(d, 'value') || typeof d.value !== 'string') return;
+      result[field] = d.value;
+    }
+    if (!REF.test(result.app_ref) || !REF.test(result.concessionaria_id) ||
+        !REF.test(result.canal_id) || !REF.test(result.waba_id) ||
+        !SENDER.test(result.phone_number_id) || !REF.test(result.intent_id) ||
+        !REF.test(result.attempt_id) || !REF.test(result.correlation_id) ||
+        !RECIPIENT.test(result.recipient_verified) ||
+        !WAMID.test(result.provider_message_id)) return;
+    return result;
+  } catch { return; }
 };
 
 export class FakeAttemptBindingLedger {
   private readonly attempts = new Map<string,string>();
+  private readonly scopedMessages = new Map<string,string>();
   get size(): number { return this.attempts.size; }
-  /** One attempt per App/dealership, even if channel or recipient changes. */
+  /** One attempt per App/dealership; one wamid per App/WABA/emitter. */
   claim(value: unknown): AttemptClaim {
-    if (!valid(value)) return 'INVALID';
-    const key=JSON.stringify([value.app_ref,value.concessionaria_id,value.attempt_id]);
-    const binding=JSON.stringify(fields.map(field => value[field]));
-    const existing=this.attempts.get(key);
-    if (existing !== undefined) return existing === binding ? 'SAME' : 'CONFLICT';
+    const stable = snapshot(value);
+    if (!stable) return 'INVALID';
+    const attemptKey = JSON.stringify([
+      stable.app_ref, stable.concessionaria_id, stable.attempt_id,
+    ]);
+    const messageKey = JSON.stringify([
+      stable.app_ref, stable.waba_id, stable.phone_number_id, stable.provider_message_id,
+    ]);
+    const binding = JSON.stringify(fields.map(field => stable[field]));
+    const priorAttempt = this.attempts.get(attemptKey);
+    const priorMessage = this.scopedMessages.get(messageKey);
+    // Every exact replay must agree in BOTH directions; conflicting claims
+    // must not reserve either side of the mapping.
+    if (priorAttempt !== undefined || priorMessage !== undefined)
+      return priorAttempt === binding && priorMessage === binding ? 'SAME' : 'CONFLICT';
     if (this.attempts.size >= 100) return 'INVALID';
-    this.attempts.set(key,binding);
+    // Synchronous fixture mutation, NOT a real transaction or durable commit.
+    this.attempts.set(attemptKey, binding);
+    this.scopedMessages.set(messageKey, binding);
     return 'NEW';
   }
 }
