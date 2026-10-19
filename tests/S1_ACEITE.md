@@ -141,3 +141,10 @@ Migration `202610190045_s1_historicos_append_only.sql`, teste `s1_008_historicos
 ## S1-002/I9 — bloqueio administrativo local [P; pendente de CI]
 
 Migração `046` e teste `s1_009_fronteira_administrativa_local.sql` com S1A-01..09. Nenhum gestor de concessionária, operador, `authenticated`, `anon` ou `service_role` tem autoridade de modificar `equipe_prumo_s1`. Mesmo diante de GRANT acidental/BYPASSRLS simulado, trigger de escrita exige executor local `postgres`; histórico RH não aceita INSERT do cliente. O papel de aprovador administrativo **não foi escolhido**, conforme contrato. Não confundir esse mock PostgreSQL com GoTrue, token JWT assinado ou REST. [Documento I9](../docs/S1_002_I9_FRONTEIRA_ADMINISTRATIVA_2026_10_19.md).
+
+
+## Resultado executado I9 — PostgreSQL 17 descartável (19/10/2026)
+
+[**CI #39230800805 — SUCCESS**](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39230800805); commit ensaiado `4a83f82b71d2dd72e8640cfc0b4e8851e1690019`; job `117987994582`. Logs auditados: **S1A-01..09, 9/9 PASS**. Confirmados leitura RLS apenas do próprio estado, proibição de mutação de equipe por gestor/operador, metadados de teste sem elevação, acesso `service_role` recusado **mesmo quando recebe artificialmente GRANT e BYPASSRLS**, eventos RH inalterados e inserções legítimas pelo executor interno do banco. Regressões PG17: S1H 8/8, S1SC 4/4, S1E 7/7, S1R 9/9 em três passagens, S1X 7/7 em duas passagens, S1C 5/5, S1D 5/5, S1Q 10/10 em duas passagens, S1QC 4/4, S1B 10/10 em duas passagens, AUD1 7/7 e AUD2 5/5. A exceção esperada `PROFISSIONAL_PRUMO_INELEGIVEL` nos ensaios negativos não constitui falha do job.
+
+**Limitação explícita:** esse teste é role/PostgreSQL local com `auth.uid()` simulado por `request.jwt.claim.sub`. Não houve JWT criptograficamente validado, login GoTrue, chamada PostgREST, revogação efetiva de sessão nem homologação da autoridade administrativa. O administrador definitivo de RH segue [R] para decisão humana futura; não foi assumido por gestor de concessionária. Nenhum dado real, merge ou implantação.

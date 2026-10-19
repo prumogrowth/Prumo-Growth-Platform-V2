@@ -25,3 +25,10 @@ Fixtures fictícias com gestor, operador e pendente. Verificam `anon/authenticat
 - O `service_role` real normalmente contorna RLS; trigger SQL protegido é defesa adicional **neste sandbox**, não controle completo de superusuário ou de rotinas `SECURITY DEFINER`.
 - Integrações S0, visual, Meta e Banco, expediente/capacidade, rotina de backlog e auditoria LGPD exigem homologações próprias.
 - Sem merge, deploy, Supabase hospedado, dados reais, assinatura real de RH nem aumento artificial do percentual global.
+
+
+## Resultado executado I9 — PostgreSQL 17 descartável (19/10/2026)
+
+[**CI #39230800805 — SUCCESS**](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39230800805); commit ensaiado `4a83f82b71d2dd72e8640cfc0b4e8851e1690019`; job `117987994582`. Logs auditados: **S1A-01..09, 9/9 PASS**. Confirmados leitura RLS apenas do próprio estado, proibição de mutação de equipe por gestor/operador, metadados de teste sem elevação, acesso `service_role` recusado **mesmo quando recebe artificialmente GRANT e BYPASSRLS**, eventos RH inalterados e inserções legítimas pelo executor interno do banco. Regressões PG17: S1H 8/8, S1SC 4/4, S1E 7/7, S1R 9/9 em três passagens, S1X 7/7 em duas passagens, S1C 5/5, S1D 5/5, S1Q 10/10 em duas passagens, S1QC 4/4, S1B 10/10 em duas passagens, AUD1 7/7 e AUD2 5/5. A exceção esperada `PROFISSIONAL_PRUMO_INELEGIVEL` nos ensaios negativos não constitui falha do job.
+
+**Limitação explícita:** esse teste é role/PostgreSQL local com `auth.uid()` simulado por `request.jwt.claim.sub`. Não houve JWT criptograficamente validado, login GoTrue, chamada PostgREST, revogação efetiva de sessão nem homologação da autoridade administrativa. O administrador definitivo de RH segue [R] para decisão humana futura; não foi assumido por gestor de concessionária. Nenhum dado real, merge ou implantação.
