@@ -10,7 +10,7 @@ html = (base / 'index.html').read_text(encoding='utf-8')
 css = (base / 'styles.css').read_text(encoding='utf-8')
 html = html.replace('<link rel="stylesheet" href="./styles.css">', '<style>'+css+'</style>')
 html = html.replace('<script type="module" src="./app.mjs"></script>', '')
-script = '\n'.join((base / name).read_text(encoding='utf-8') for name in ('fixtures.mjs','view-model.mjs','cf-op-02.mjs','registration-view.mjs','bank-view.mjs','app.mjs'))
+script = '\n'.join((base / name).read_text(encoding='utf-8') for name in ('fixtures.mjs','view-model.mjs','cf-op-02.mjs','registration-view.mjs','bank-view.mjs','postmark-view.mjs','app.mjs'))
 script = re.sub(r'(?ms)^import \{.*?\} from ["\']\./[^"\']+["\'];\s*', '', script)
 script = re.sub(r'(?m)^export ', '', script)
 
@@ -23,7 +23,7 @@ with sync_playwright() as p:
         page.on('pageerror', lambda error: errors.append(str(error)))
         page.set_content(html)
         page.add_script_tag(content=script)
-        assert page.locator('.conversation-card').count() == 6
+        assert page.locator('.conversation-card').count() == 8
         assert not errors
         assert not page.evaluate('document.documentElement.scrollWidth > innerWidth')
         page.locator('.conversation-card').first.click()
@@ -49,7 +49,7 @@ with sync_playwright() as p:
     page = browser.new_page(viewport={'width':1366,'height':768})
     page.set_content(html); page.add_script_tag(content=script)
     page.locator('#actor-select').select_option('marina')
-    assert page.locator('.conversation-card').count() == 10
+    assert page.locator('.conversation-card').count() == 12
     page.locator('#team-nav').click()
     assert page.locator('#team-list .team-member').count() == 4
     page.locator('#team-close').click()
@@ -101,7 +101,7 @@ with sync_playwright() as p:
     assert page.locator('#message-input').is_disabled()
     assert 'Pedido simulado' in page.locator('#workflow-bar').inner_text()
     page.locator('[data-inbox="history"]').click()
-    assert page.locator('.conversation-card').count()==2
+    assert page.locator('.conversation-card').count()==3
     page.get_by_role('button',name='Abrir conversa Cliente Exemplo 12',exact=False).click()
     assert page.locator('#message-input').is_disabled()
     assert 'perdido' in page.locator('#workflow-bar').inner_text()
