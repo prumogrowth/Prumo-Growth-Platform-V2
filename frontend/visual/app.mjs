@@ -15,6 +15,7 @@ import {
   projectedFollowupState, applyLocalFollowupRequest, isSyntheticBankProtected
 } from './cf-op-02.mjs';
 import { registrationProjectionFor, registrationStateCopy } from './registration-view.mjs';
+import { bankProjectionFor, bankPhaseCopy } from './bank-view.mjs';
 
 const $ = id => document.getElementById(id);
 const app = $('visual-app');
@@ -367,6 +368,32 @@ function renderDetails() {
     }
     extract.append(el('p','detail-small','Sem editor cadastral rotineiro. A OpenAI apenas propõe; S0 decidirá autorização, validação e gravação no futuro.'));
     content.append(extract);
+  } else if(state.detailTab==='bank'){
+    const bank=detailSection('REMESSA E RETORNO BANCÁRIO · O4');
+    const projection=bankProjectionFor(item,state.actorId,state.shopId);
+    const copy=bankPhaseCopy(projection);
+    bank.append(callout(copy.title,copy.description,
+      projection.submissionConfirmed?'':'warning'));
+    bank.append(prop('Estado comercial (somente leitura)',item.status));
+    if(projection.visibility==='summary'){
+      bank.append(el('p','detail-small','Supervisão da Prumo: sem acesso a documentos, provas bancárias, referências ou campos D4 nesta visualização.'));
+    }else if(projection.visibility==='detail'){
+      bank.append(prop('Situação operacional fictícia',projection.phase));
+      if(projection.submissionSummary){
+        bank.append(prop('Remessa na projeção',projection.submissionSummary.label));
+        bank.append(prop('Versão técnica fictícia',projection.submissionSummary.versionRef));
+        bank.append(prop('Comprovação',projection.submissionSummary.proofLabel));
+        bank.append(prop('Responsabilidade',projection.submissionSummary.operatorLabel));
+      }else bank.append(el('p','detail-small','Nenhuma remessa confirmada por versão e prova S0 neste cenário.'));
+      if(projection.replySummary){
+        bank.append(prop('Retorno na projeção',projection.replySummary.label));
+        bank.append(prop('Versão do retorno fictício',projection.replySummary.versionRef));
+      }else bank.append(callout('Decisão bancária não confirmada',
+        'Não há aprovação, recusa ou venda inferida. A espera do banco não determina o desfecho comercial.','warning'));
+    }
+    bank.append(el('p','detail-small',
+      'Somente leitura. Registros C15–C18 exigem profissional autorizado, prova verificada e confirmação S0. Sem formulário de prova real, envio, venda ou negativa neste protótipo.'));
+    content.append(bank);
   } else {
     const followup=detailSection('RECONTATOS CONTEXTUAIS · CF-OP-02');
     const local=state.followupRequests[item.id]??null;
