@@ -117,6 +117,12 @@ Os nomes técnicos `human_close_extract`, `speech_synthesize` e `speech_transcri
 - Venda/recusa informada pelo cliente ou pelo modelo → NÃO criar `vendido` ou `perdido`; prova e comando humano continuam exigidos.
 - Provedor atrasado e operador corrige manualmente antes do retorno → rejeitar resultado obsoleto; não sobrescrever a correção.
 
+### Delimitação adicional: novo caso humano após `vendido` [D/P/R]
+
+A decisão ATD-VENDIDO-RET-01 do doc.22 [D] determina que retorno espontâneo do cliente após `vendido` histórico abra/vincule **atendimento humano novo** e preserve a venda anterior. **F03 só deve processar o novo atendimento quando houver conclusão autenticada e snapshot próprio do novo caso; não usar automaticamente valores do ciclo vendido ou classificar atendimento de suporte como nova negociação.** `conversational_assessment` pode identificar falta de finalidade comercial, mas enum físico depende de aceite [R]. Um resultado F03 nunca cria novo ciclo bancário.
+
+A existência de `vendido` histórico não autoriza F02 para prospecção de novo contrato. Uma cadeia eventual depende de novo objeto/finalidade e autorização S0 expressas, ainda [R/V]. Caso em fila protegida ou com operador revogado não devolve fala à IA Vendedora nem autoriza envio; S0/S1 são donos de atribuição e revalidação. Ver OAI-08 adendo e [E02 rastreabilidade](E02_RASTREABILIDADE_CF_OP_02_v0_1.md), PV-01..05 (textuais, não executados). Nenhum nono status ou interface física é proposto.
+
 ## 4. F01 e F02 — contratos existentes mantidos
 
 - `sales_reply` (C03): entrada com case/cycle/knowledge/version/messages refs autorizados; saída texto proposto + campos extraídos com proveniência + possível motivo de handoff. O modelo não envia; S0 valida e cria intenção de envio C03 para a Meta. **Somente se IA Vendedora detém atendimento, jamais depois do handoff**.
