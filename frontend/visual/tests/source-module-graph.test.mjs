@@ -69,3 +69,19 @@ test('bundle de ensaio Chromium compila integralmente sem imports, exports ou co
   assert.doesNotMatch(bundled,/^export /m,'Export residual no bundle injetado');
   assert.doesNotThrow(()=>new Script(bundled,{filename:'fv-ui-013-chromium-bundle.js'}));
 });
+
+
+test('roteiro Chromium cobre G3 e G4 em viewport mobile e nega dados de outra equipe',()=>{
+  const mobile=smoke.match(/mobile = browser\.new_page\([\s\S]*?browser\.close\(\)/);
+  assert.ok(mobile,'Bloco de gestão mobile não encontrado');
+  for(const marker of [
+    "mobile.locator('#team-show-monitor').click()",
+    "mobile.locator('#team-monitor').is_visible()",
+    "mobile.locator('#team-show-batches').click()",
+    "mobile.locator('#team-batches').is_visible()",
+    "'L-G4-03' not in batches_mobile",
+    "'Bianca Rocha' not in monitor_mobile",
+    "'Bianca Rocha' not in mobile.locator('#team-list').inner_text()",
+    "'Overflow mobile em G3/G4'"
+  ]) assert.ok(mobile[0].includes(marker),'Cobertura mobile ausente: '+marker);
+});
