@@ -221,3 +221,50 @@ test('O4: gestora sem atribuição vê só marco bancário, sem prova D4',()=>{
   assert.equal(text.includes('bank-demo-v1'),false);
   assert.equal(text.includes('Remessa confirmada apenas na fixture'),false);
 });
+
+test('O5: remessa bancária mantém caso original e navega para atendimento humano independente',()=>{
+  reset();env.openCase('Exemplo 05');
+  env.descendants(get('detail-content')).filter(n=>n.attrs.role==='tab')
+    .find(n=>n.textContent==='Novo contato').click();
+  const detail=get('detail-content').textContent;
+  assert.ok(detail.includes('Novo atendimento humano confirmado'));
+  assert.ok(detail.includes('cadastro enviado ao banco'));
+  const open=env.descendants(get('detail-content')).find(n=>n.tagName==='BUTTON' &&
+    n.textContent.includes('Abrir novo atendimento humano'));
+  assert.ok(open);
+  open.click();
+  assert.ok(get('thread-meta').textContent.includes('Caso A-114'));
+  assert.ok(get('workflow-bar').textContent.includes('em atendimento pelo operador'));
+  assert.equal(get('message-input').disabled,false);
+  const back=env.descendants(get('detail-content')).find(n=>n.tagName==='BUTTON' &&
+    n.textContent.includes('Consultar atendimento de origem'));
+  assert.ok(back);
+  back.click();
+  assert.ok(get('thread-meta').textContent.includes('Caso A-105'));
+  assert.ok(get('workflow-bar').textContent.includes('cadastro enviado ao banco'));
+  assert.equal(get('message-input').disabled,true);
+});
+
+test('O5: histórico de vendido é preservado em separado do novo contato',()=>{
+  reset();env.inbox[1].click();
+  env.openCase('Exemplo 16');
+  assert.ok(get('workflow-bar').textContent.includes('vendido'));
+  env.descendants(get('detail-content')).filter(n=>n.attrs.role==='tab')
+    .find(n=>n.textContent==='Novo contato').click();
+  const navigate=env.descendants(get('detail-content')).find(n=>n.tagName==='BUTTON' &&
+    n.textContent.includes('Abrir novo atendimento humano'));
+  assert.ok(navigate);navigate.click();
+  assert.equal(env.inbox[0].attrs['aria-pressed'],'true');
+  assert.ok(get('thread-meta').textContent.includes('Caso A-116'));
+  assert.ok(get('workflow-bar').textContent.includes('em atendimento pelo operador'));
+  assert.equal(get('message-input').disabled,false);
+});
+
+test('O5: supervisora vê vínculo D2 mas não ganha ação humana por supervisão',()=>{
+  reset();env.selectActor('marina');env.openCase('Exemplo 15');
+  assert.equal(get('message-input').disabled,true);
+  env.descendants(get('detail-content')).filter(n=>n.attrs.role==='tab')
+    .find(n=>n.textContent==='Novo contato').click();
+  assert.ok(get('detail-content').textContent.includes('Continuidade humana em novo ciclo'));
+  assert.equal(get('message-input').disabled,true);
+});
