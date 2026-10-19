@@ -111,6 +111,16 @@ Reproduzir localmente, sem bibliotecas extras, no diretório raiz do repo: `pyth
 
 **Compatibilidade verificada:** S0 PR #1 evoluiu 7 commits desde o ponto de origem desta branch, alterando docs S0-040/runner, sem modificar os 9 caminhos originais deste PR; Meta PR #2 alterou somente `integrations/whatsapp-meta/` e docs próprias nesse intervalo. **Sem colisão de caminhos**, mas PR #8 permanece atrás do HEAD S0 e precisa revisão de base antes de merge; especialmente a prova técnica Meta `API_ACCEPTED` não equivale a callback autenticado `sent`. Sem adotar arquivos ou resultados Meta como autorização comercial.
 
+### F03-COMP — composição de revisão e titularidade, sem escrita (19/10/2026)
+
+Novo módulo [`f03_review_pipeline.py`](../backend/s0_openai_bridge/f03_review_pipeline.py) na branch isolada do PR #8 **une a revisão de campos do F03 sintético e a revalidação S0/S1 do operador**. A decisão fica sempre em `DENIED | STALE | NOT_READY | REVIEW_REQUIRED | REVIEW_ONLY`; jamais concede `APPLIED`, envio Meta, cadastro bancário ou efeito de persistência.
+
+**Regra adicional de segurança:** os contratos de ambas as revisões têm de corresponder ao MESMO `store`, `case`, `closure_event`, `snapshot_hash`, versões de caso/ficha e catálogo. O resumo da composição inclui somente códigos de campos (nunca valores), preserva indicação de ausência essencial para o humano autorizado e recusa campos/atribuição obsoletos. Se não existem campos válidos mas há campo essencial pendente, a resposta candidata é `REVIEW_REQUIRED`, não mero `NOT_READY`. Nenhum detalhe de pendências é divulgado se o segundo gate devolver `DENY`.
+
+**Prova local verificável e delimitação:** [22 testes novos](../backend/tests/test_s0_openai_f03_review_pipeline.py) executados por `unittest` local: **22/22 PASS**, e compilação Python PASS. A suíte isola a orquestração com **mocks dos dois validadores dependentes**; portanto comprova fluxo, correspondência de envelopes, precedência de resultados e ausência de valores no resumo, **mas NÃO é teste ponta a ponta do F03 real, Auth, S1 I13, banco, Meta ou API OpenAI**. A fonte `asserted_fields` continua ficcional. Comandos locais: `python -m unittest discover -s backend/tests -p 'test_s0_openai_f03_review_pipeline.py' -v`. O código publicado foi comparado ao executado por tamanho e hash de conteúdo, não substitui CI.
+
+**I13 S1-002:** gerente/coordenador ativo e vínculos gestor→operadores são validados sob trava na transação pela S1 na migração sintética 050; nenhum desses locks foi implementado neste módulo. A S0 real deve obter a autorização S1, revalidá-la **dentro da mesma transação** do futuro preenchimento e rejeitar mudanças de supervisão/atribuição após o snapshot. A composição `REVIEW_ONLY` é um **parecer não executivo**, nunca substitui essa barreira.
+
 ## 4. Máquina técnica S0 candidata e prova necessária
 
 `ACCEPTED_FOR_PROCESSING` (pedido idempotente e evento humano S0 registrado) → `EXTRACTION_PENDING` → `VALIDATING_RESULT` → `APPLIED | PARTIAL_REVIEW | FAILED_SAFE | STALE_RESULT`.
