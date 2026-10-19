@@ -38,7 +38,12 @@ class Observation:
 
 
 HARD_DENY = frozenset({"cadastro enviado ao banco", "vendido", "perdido"})
-HUMAN_REVIEW = frozenset({"em atendimento pelo operador", "cadastro enviado ao operador"})
+KNOWN_STATUS = frozenset({
+    "aguardando primeiro disparo", "primeiro disparo enviado",
+    "em atendimento pela IA", "em atendimento pelo operador",
+    "cadastro enviado ao operador", "cadastro enviado ao banco",
+    "vendido", "perdido",
+})
 
 
 def _aware(dt: datetime | None) -> bool:
@@ -54,6 +59,7 @@ def evaluate_c09(observation: Observation) -> Decision:
     """
     o = observation
     if (not o.case_store or not o.case_id or not isinstance(o.commercial_status, str)
+            or o.commercial_status not in KNOWN_STATUS
             or o.commercial_status in HARD_DENY or o.opt_out):
         return Decision.DENY
     if not o.plan_active or not o.final_template_is_separate:
