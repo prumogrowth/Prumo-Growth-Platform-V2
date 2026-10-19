@@ -72,3 +72,16 @@ test('mobile O5: novo ciclo após venda volta à conversa sem reabrir a IA',()=>
   assert.ok(get('thread-meta').textContent.includes('Caso A-116'));
   assert.ok(get('workflow-bar').textContent.includes('em atendimento pelo operador'));
 });
+
+test('mobile G2: painel mostra operadores supervisionados e pausa global fictícia',()=>{
+  reset();env.selectActor('marina');
+  get('team-nav-mobile').click();
+  assert.equal(get('team-dialog').open,true);
+  assert.equal(get('team-list').children.length,2);
+  const pause=env.descendants(get('team-list')).find(x=>x.tagName==='BUTTON' &&
+    x.textContent.includes('Solicitar pausa'));
+  assert.ok(pause);pause.click();
+  assert.ok(get('team-list').textContent.includes('NÃO aplicado'));
+  get('team-dialog').close();
+  assert.equal(get('team-dialog').open,false);
+});
