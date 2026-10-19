@@ -3,6 +3,11 @@
  * No network, database, HTTP ACK, business status, credentials, or retry.
  * These predicates do NOT authenticate Meta or attest durable persistence.
  */
+/** Internal correlation identifiers never carry recipient, token or raw Meta payload. */
+export function isSafeEvidenceRef(value: unknown): value is string {
+  return typeof value === 'string' && /^[A-Za-z0-9_.:-]{1,128}$/.test(value);
+}
+
 export function isMetaWamid(value: unknown): value is string {
   return typeof value === 'string' && /^wamid\.[A-Za-z0-9+\/_=:.-]{1,1024}$/.test(value);
 }
@@ -43,7 +48,8 @@ export function isAcceptedGraphEvidence(value: unknown): boolean {
         !keys.every(key => Object.prototype.hasOwnProperty.call(fields, key) &&
           Object.prototype.hasOwnProperty.call(fields[key], 'value'))) return false;
     const o = value as Record<string, unknown>;
-    return o.send_state === 'API_ACCEPTED' && o.api_accepted === true &&
+    return isSafeEvidenceRef(o.attempt_id) && isSafeEvidenceRef(o.correlation_id) &&
+      o.send_state === 'API_ACCEPTED' && o.api_accepted === true &&
       typeof o.http_status === 'number' && Number.isSafeInteger(o.http_status) &&
       o.http_status >= 200 && o.http_status < 300 &&
       isMetaWamid(o.provider_message_id) &&
