@@ -61,9 +61,11 @@ class RealF03IntegrationTests(unittest.TestCase):
         self.assertEqual(result.candidate_field_codes, ("required", "optional"))
         self.assertFalse(hasattr(result, "applied"))
 
-    def test_02_missing_optional_is_not_essential_gap(self):
+    def test_02_informed_optional_omission_requires_review_without_essential_gap(self):
         result = self.review(p={"fields": (Candidate("required", "value-X", ("m1",)),)})
-        self.assertEqual((result.status, result.missing_required_codes), (PipelineStatus.REVIEW_ONLY, ()))
+        self.assertEqual((result.status, result.missing_required_codes,
+                          result.omitted_informed_optional_codes),
+                         (PipelineStatus.REVIEW_REQUIRED, (), ("optional",)))
 
     def test_03_missing_required_without_candidate_goes_to_human(self):
         result = self.review(p={"fields": ()}, a={"result_has_validated_fields": False})
