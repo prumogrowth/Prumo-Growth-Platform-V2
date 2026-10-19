@@ -39,7 +39,8 @@ with sync_playwright() as p:
         assert page.locator('.conversation-card').count() == 8
         assert not errors
         assert not page.evaluate('document.documentElement.scrollWidth > innerWidth')
-        page.locator('.conversation-card').first.click()
+        # Selecionar caso estável, não depender de ordenação de conversas.
+        page.get_by_role('button', name='Abrir conversa Cliente Exemplo 02', exact=False).click()
         if width<=1040: page.locator('#detail-toggle').click()
         if width<=760: assert page.locator('#visual-app').get_attribute('data-mobile-view') == 'detail'
         page.locator('.detail-tab', has_text='Notas').click()
