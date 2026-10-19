@@ -10,7 +10,7 @@ Componente de referência: stub S0 implementa AUTORIZAÇÃO, allowlist sintétic
 
 O JSON de resposta OpenAI terá estrutura/campos tipados estritos conforme OAI-05; o stub S0 deve validar conteúdo SEMÂNTICO, não apenas formato. As operações oficiais candidatas são sales_reply, recontact_plan, human_close_extract, speech_transcribe e speech_synthesize. A escolha de n8n ou direto não altera o contrato do domínio.
 
-## 2. 32 fixtures propostas, critérios esperados
+## 2. 32 cenários descritivos propostos (ainda NÃO são fixtures executáveis)
 
 | ID | Operação/cenário sintético | Resultado esperado na fronteira S0 | Prioridade |
 |---|---|---|---|
@@ -47,7 +47,7 @@ O JSON de resposta OpenAI terá estrutura/campos tipados estritos conforme OAI-0
 | SYN-31 | Rota: mesmo caso/versões em porta direta e em mock de n8n | Semântica e autorizações idênticas; comparar passos, latência/erro | P1 |
 | SYN-32 | Privacidade: transcrição e contexto longos fora da finalidade | Minimizar/rejeitar payload, sem log bruto e sem cross-tenant | P0 |
 
-**Critério de amostragem:** estas 32 descrições são PLANO, não 32 testes completos, nem casos executados. Antes de iniciar E04, cada linha precisa virar fixture concreta, com entradas e expectativas e versão; ampliar casos de números, dialetos, conflitos e concorrência. Evitar uso de DNI/CPF válido ou de clientes reais.
+**Critério de amostragem:** estas 32 descrições são PLANO e gabaritos textuais de revisão, não 32 fixtures executáveis, testes completos ou casos executados. Antes de iniciar E04, cada linha precisa virar fixture concreta, com entradas e expectativas e versão; ampliar casos de números, dialetos, conflitos e concorrência. Evitar uso de DNI/CPF válido ou de clientes reais.
 
 **Gabarito expandido para revisão [P]:** os 32 IDs SYN foram detalhados em `E02_GABARITO_DOCUMENTAL_SYN_01_32_v0_1.md`, com falas/eventos inteiramente fictícios e EXPECTED sem ACTUAL. Nenhum novo teste, fixture executável, schema nem aceite foi produzido; os IDs/criticidades desta matriz continuam primários.
 
