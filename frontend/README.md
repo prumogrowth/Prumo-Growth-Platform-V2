@@ -87,3 +87,7 @@ Atualização em `frontend/visual/`: conclusão solicitada não é conclusão co
 ## FV-UI-007 — Ficha e proveniência fictícias (O3)
 
 Implementada em [`frontend/visual/`](visual/README.md) a visualização de ficha parcial projetada, com origem, versão, pendências e conflitos; acesso de supervisão restringido a resumo **sem detalhes D3/D4**. **60/60 verificações sintéticas PASS** no harness V8 sobre os arquivos do GitHub, sem testes Node ou Chromium real desta versão. [Auditoria FV-UI-007](docs/16_AUDITORIA_FV_UI_007_FICHA_PROVENIENCIA_2026_10_18.md). Contratos físicos e integrações continuam pendentes.
+
+## FV-UI-008 — Tela O4 bancária (19/10/2026)
+
+A interface agora possui a aba **Banco** com acompanhamento sintético de remessa, prova e retorno, **sem registrar decisão, remeter cadastro, alterar estado ou criar ações bancárias**. Operadores designados veem projeções minimizadas; gestores não herdam evidências D4. **77/77 verificações sintéticas aprovadas em V8**, sem execução literal de Node/Chromium da branch. Ver [auditoria O4](docs/18_AUDITORIA_O4_BANCO_FV_UI_008_2026_10_19.md). Sem homologação real.
