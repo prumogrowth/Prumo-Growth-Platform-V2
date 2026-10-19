@@ -12,7 +12,8 @@ import uuid
 from pathlib import Path
 from urllib.error import HTTPError
 from urllib.parse import urlparse, urlsplit, urlunsplit
-from backend.s1_gateway_local import serve_local, _SQL\nfrom backend.s1_gateway_signed_local import LocalSignedTeamGateway, _SQL_SIGNED
+from backend.s1_gateway_local import serve_local, _SQL
+from backend.s1_gateway_signed_local import LocalSignedTeamGateway, _SQL_SIGNED
 from backend.identity_boundary import SupabaseGoTrueVerifier, Principal
 from urllib.request import Request, urlopen
 
