@@ -116,3 +116,11 @@ test('estado rotulado como persistido sem prova não exibe mensagem de sucesso',
     assert.doesNotMatch(registrationStateCopy(view).title,/versão persistida/i);
   }
 });
+
+test('operador de mesma loja sem atribuição não recebe nem resumo da ficha', () => {
+  const result=registrationProjectionFor(sample(),'bianca','aurora');
+  assert.equal(result.visibility,'forbidden');
+  assert.equal(result.confirmedPersisted,false);
+  assert.deepEqual(result.fields,[]);
+  assert.deepEqual(result.missing,[]);
+});
