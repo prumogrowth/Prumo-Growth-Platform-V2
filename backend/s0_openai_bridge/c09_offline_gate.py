@@ -47,7 +47,7 @@ KNOWN_STATUS = frozenset({
 
 
 def _aware(dt: datetime | None) -> bool:
-    return dt is not None and dt.tzinfo is not None and dt.utcoffset() is not None
+    return isinstance(dt, datetime) and dt.tzinfo is not None and dt.utcoffset() is not None
 
 
 def evaluate_c09(observation: Observation) -> Decision:
@@ -58,6 +58,16 @@ def evaluate_c09(observation: Observation) -> Decision:
     domain policy; never accept this dataclass directly from a web client.
     """
     o = observation
+    if not isinstance(o, Observation):
+        return Decision.DENY
+    # Do not let Python truthiness promote e.g. "false" to provider evidence.
+    if (any(type(flag) is not bool for flag in
+            (o.human_handoff, o.plan_active, o.opt_out,
+             o.final_template_is_separate, o.final_event_authenticated))
+            or any(not isinstance(value, str) or not value for value in
+                   (o.case_store, o.case_id, o.commercial_status,
+                    o.final_event_store, o.final_event_case, o.final_event_kind))):
+        return Decision.DENY
     if (not o.case_store or not o.case_id or not isinstance(o.commercial_status, str)
             or o.commercial_status not in KNOWN_STATUS
             or o.commercial_status in HARD_DENY or o.opt_out):
