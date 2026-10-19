@@ -47,4 +47,4 @@ start_attempted=true
 for file in wa06d_pg17_atomicity.sql wa06d_pg17_postcommit_setup.sql wa06d_pg17_postcommit_verify.sql; do
   "$pg_bin/psql" -X -v ON_ERROR_STOP=1 -h "$sock" -p 54339 -U wa06d_owner -d wa06d_test_ephemeral -f "$script_dir/$file"
 done
-printf '%s\n' 'WA06D: all PostgreSQL 17 scripts returned exit code 0; ephemeral cluster will be deleted'
+printf '%s\n' 'WA06D: SQL scripts returned 0; cluster shutdown verification follows'
