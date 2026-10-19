@@ -1,8 +1,8 @@
 /** Fixtures exclusivamente sintéticas para a experiência visual FV-UI-001.
  * Não são regras S0, catálogo de dados, autenticação ou fonte real de autorização.
- * ATENÇÃO 19/10: gestores aqui ainda são exibidos por LOJA (modelo antigo).
- * Nova regra de negócio: gestão por OPERADORES sob supervisão; permissões de lojas
- * definidas somente pelo responsável. Não reaproveitar este filtro para G1/G2 real.
+ * Gestores fictícios supervisionam OPERADORES, não lojas. Lojas são concessões
+ * somente leitura conferidas pelo RESPONSÁVEL na fixture, não editadas pelo gestor.
+ * O S0 deve prover a projeção autorizada; filtros do browser NÃO são autenticação.
  * Ver frontend/docs/21_FV_G2_01_GESTAO_POR_OPERADORES_E_PAUSA_GLOBAL_2026_10_19.md.
  */
 export const COMMERCIAL_STATUSES = Object.freeze([
@@ -22,11 +22,12 @@ export const SHOPS = Object.freeze([
 ]);
 
 export const ACTORS = Object.freeze([
-  { id: 'rafael', name: 'Rafael Lima', role: 'operador', shops: ['aurora'], organization: 'Prumo', teamState: 'active' },
-  { id: 'bianca', name: 'Bianca Rocha', role: 'operador', shops: ['aurora'], organization: 'Prumo', teamState: 'active' },
+  { id: 'rafael', name: 'Rafael Lima', role: 'operador', managerId:'marina', shops: ['aurora'], organization: 'Prumo', teamState: 'active',leadIntakeProjection:'receiving' },
+  { id: 'bianca', name: 'Bianca Rocha', role: 'operador', managerId:'daniel', shops: ['aurora','horizonte'], organization: 'Prumo', teamState: 'active',leadIntakeProjection:'paused_confirmed' },
   { id: 'marina', name: 'Marina Costa', role: 'gestor', shops: ['aurora', 'horizonte'], organization: 'Prumo', teamState: 'active' },
-  { id: 'lia', name: 'Lia Martins', role: 'operador', shops: ['horizonte'], organization: 'Prumo', teamState: 'active' },
-  { id: 'otavio', name: 'Otávio (suspenso)', role: 'operador', shops: ['aurora'], organization: 'Prumo', teamState: 'suspended' }
+  { id: 'daniel', name: 'Daniel Freitas', role: 'gestor', shops: ['aurora','horizonte'], organization: 'Prumo', teamState: 'active' },
+  { id: 'lia', name: 'Lia Martins', role: 'operador', managerId:'marina', shops: ['horizonte'], organization: 'Prumo', teamState: 'active',leadIntakeProjection:'receiving' },
+  { id: 'otavio', name: 'Otávio (suspenso)', role: 'operador', managerId:'daniel', shops: ['aurora'], organization: 'Prumo', teamState: 'suspended',leadIntakeProjection:'unknown' }
 ]);
 
 const msg = (id, side, body, time, type='text') => ({ id, side, body, time, type });
@@ -63,7 +64,7 @@ export const INITIAL_CONVERSATIONS = Object.freeze([
   },
   {
     id: 'A-101', shopId: 'aurora', name: 'Cliente Exemplo 01', initials: 'CE',
-    status: 'em atendimento pela IA', assignedTo: null, unread: 0,
+    status: 'em atendimento pela IA', assignedTo: null, teamManagerId:'marina', unread: 0,
     updatedAt: 'Ontem', tag: 'Atendimento IA',
     messages: [
       msg('a101-1', 'in', 'Quero entender como funciona o processo.', 'Ontem'),
@@ -88,8 +89,14 @@ export const INITIAL_CONVERSATIONS = Object.freeze([
     ]
   },
   {
+    id: 'B-203', shopId: 'horizonte', name:'Cliente Exemplo 18', initials:'CE',
+    status:'em atendimento pelo operador', assignedTo:'bianca', unread:0,
+    updatedAt:'Hoje · fictício', tag:'Equipe Daniel · loja B',
+    messages:[msg('b203-1','in','Falo com Bianca em outra concessionária fictícia.', 'Hoje')]
+  },
+  {
     id: 'B-202', shopId: 'horizonte', name: 'Cliente Exemplo 07', initials: 'CE',
-    status: 'primeiro disparo enviado', assignedTo: null, unread: 0,
+    status: 'primeiro disparo enviado', assignedTo: null, teamManagerId:'marina', unread: 0,
     updatedAt: 'Ontem', tag: 'Primeiro contato',
     messages: [msg('b202-1', 'system', 'Primeiro disparo apenas ilustrativo.', 'Ontem')]
   }
@@ -101,11 +108,25 @@ export function getActor(actorId) {
 export function getShop(shopId) {
   return SHOPS.find(shop => shop.id === shopId) ?? null;
 }
+/** Relação de equipe definida pelo responsável na fixture, NÃO pelo gestor. */
+export function managedOperators(managerId) {
+  const manager=getActor(managerId);
+  if(manager?.role!=='gestor' || manager.teamState!=='active')return [];
+  return ACTORS.filter(operator=>operator.role==='operador' &&
+    operator.managerId===managerId);
+}
 export function visibleConversations(records, actorId, shopId) {
-  const actor = getActor(actorId);
-  if (!actor || actor.teamState !== 'active' || !actor.shops.includes(shopId)) return [];
-  return records.filter(record => record.shopId === shopId &&
-    (actor.role === 'gestor' || record.assignedTo === actorId));
+  const actor=getActor(actorId);
+  if(!actor || actor.teamState!=='active' || !actor.shops.includes(shopId))return [];
+  const team=actor.role==='gestor' ? managedOperators(actorId) : [];
+  return records.filter(record=>{
+    if(record.shopId!==shopId)return false;
+    if(actor.role!=='gestor')return record.assignedTo===actorId;
+    if(record.assignedTo===actorId)return true; // gestor autoatribuído
+    if(record.assignedTo==null)return record.teamManagerId===actorId;
+    return team.some(operator=>operator.id===record.assignedTo &&
+      operator.shops.includes(record.shopId));
+  });
 }
 export function canSimulateCompletion(record, actorId, shopId) {
   const actor = getActor(actorId);
