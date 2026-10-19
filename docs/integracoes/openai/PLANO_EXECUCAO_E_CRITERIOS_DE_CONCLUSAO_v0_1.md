@@ -67,6 +67,8 @@ O laboratório pode avançar com stub/mock de S0 enquanto PR #1 evolui. O acopla
 Acompanhamento na descrição do PR #3 e neste roteiro: **PENDENTE → EM EXECUÇÃO → VALIDADO COM EVIDÊNCIA** ou **BLOQUEADO**, com data, responsável, link de commit/teste, critérios e decisão.
 A preparação documental E00 está validada. Os outros oito marcos não estão concluídos. **Não converter automaticamente essa contagem em percentual de planejamento global**: o controle auditado do projeto pertence ao documento 19. Qualquer barra local OAI deve registrar pesos/critérios próprios previamente acordados, sem contaminar indicadores da plataforma.
 
+**Desbloqueio S0 autorizado e isolado (19/10/2026):** [PR #8 Draft](https://github.com/prumogrowth/Prumo-Growth---Platform/pull/8), **base `feat/s0-fundacao-prumo`**: propostas S0 de reconciliação F03 e matriz C09 conservadora, sem alterar arquivos da frente Meta, migrations ou branch S0 existente. É atualização de planejamento interfrentes em razão de autorização específica do responsável, **não** aceitação unilateral de norma, liberação de E04, criação de API ou renúncia à revisão bilateral na issue #4 e à decisão C09 da issue #6. A outra frente autorizada para alterações limitadas S0 é a WhatsApp/Meta; event sourcing e prova `sent` permanecem com ela.
+
 ## Dependências para fechar o planejamento antes da API [R/V]
 
 - **CFI-01 / issue #4:** S0 + OpenAI precisam conciliar a assinatura F03 e F02, snapshot, fontes, versão, ausência/erro e fronteira de autoaplicação. Proposta CFI-01 não é aceite canônico.
