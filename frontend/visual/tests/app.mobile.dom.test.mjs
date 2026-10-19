@@ -112,3 +112,13 @@ test('mobile G3: alternar Operadores e Monitoramento mantém isolamento e privac
   assert.equal(get('team-dialog').open,false);
   assert.equal(get('team-monitor').textContent,'');
 });
+
+test('mobile G4: lotes por equipe só leitura e sem importação',()=>{
+  reset();env.selectActor('marina');get('team-nav-mobile').click();get('team-show-batches').click();
+  assert.equal(get('team-batches').hidden,false);
+  assert.ok(get('team-batches').textContent.includes('L-G4-01'));
+  assert.equal(get('team-batches').textContent.includes('L-G4-03'),false);
+  get('team-show-monitor').click();
+  assert.equal(get('team-batches').hidden,true);
+  get('team-dialog').close();
+});
