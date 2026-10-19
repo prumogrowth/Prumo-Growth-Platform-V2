@@ -2,7 +2,7 @@
  * Não há relógio Meta/SLA, agregação de D3/D4, consulta direta de dados, mutação
  * de status, redistribuição ou autorização real. S0 deve entregar projeção minimizada.
  */
-import { getActor, managedOperators, visibleConversations } from './fixtures.mjs';
+import { COMMERCIAL_STATUSES, getActor, managedOperators, visibleConversations } from './fixtures.mjs';
 import { isInActiveInbox } from './cf-op-02.mjs';
 
 export function projectTeamMonitoring(managerId, records) {
@@ -55,6 +55,10 @@ export function projectTeamMonitoring(managerId, records) {
   });
   return Object.freeze({
     visibility:'team_summary',summary,
+    // Status comerciais canônicos em quadro SEPARADO dos eventos técnicos G3.
+    commercialStages:Object.freeze(COMMERCIAL_STATUSES.map(status=>Object.freeze({
+      status,count:active.filter(record=>record.status===status).length
+    }))),
     operators:Object.freeze(perOperator),
     timing:'unverified', // sem SLA, hora atual ou vencimento estimado pelo browser
     source:'synthetic_fixture'
