@@ -1,5 +1,5 @@
 /**
- * WA-10/11: Memory-only, bi-directional attempt <-> scoped wamid uniqueness
+ * WA-10/11/12: Memory-only, bi-directional attempt <-> scoped wamid uniqueness
  * for ALREADY accepted Graph observations. Both indexes change together.
  * No network, credentials, ACK, commercial state, database or durability.
  * Not permission to send or evidence of delivery. Real S0 must enforce this
@@ -18,6 +18,7 @@ export type AttemptIdentity = Readonly<{
   provider_message_id: string;
 }>;
 export type AttemptClaim = 'NEW' | 'SAME' | 'CONFLICT' | 'INVALID';
+export type AttemptLookup = 'SAME' | 'CONFLICT' | 'ABSENT' | 'INVALID';
 const REF = /^[A-Za-z0-9_.:-]{1,128}$/;
 const WAMID = /^wamid\.[A-Za-z0-9+\/_=:.-]{1,1024}$/;
 const SENDER = /^\d{5,25}$/;
@@ -27,8 +28,8 @@ const fields: readonly (keyof AttemptIdentity)[] = [
   'intent_id','attempt_id','correlation_id','recipient_verified','provider_message_id',
 ];
 
-/** Read own DATA descriptors once. Never re-read a caller's mutable/proxied keys. */
-const snapshot = (value: unknown): AttemptIdentity | undefined => {
+/** Read own DATA descriptors once. Never re-read caller's mutable/proxied keys. */
+export const snapshotAttemptIdentity = (value: unknown): AttemptIdentity | undefined => {
   try {
     if (!value || typeof value !== 'object' || Array.isArray(value)) return;
     const proto = Object.getPrototypeOf(value);
@@ -49,7 +50,7 @@ const snapshot = (value: unknown): AttemptIdentity | undefined => {
         !REF.test(result.attempt_id) || !REF.test(result.correlation_id) ||
         !RECIPIENT.test(result.recipient_verified) ||
         !WAMID.test(result.provider_message_id)) return;
-    return result;
+    return Object.freeze(result);
   } catch { return; }
 };
 
@@ -57,24 +58,33 @@ export class FakeAttemptBindingLedger {
   private readonly attempts = new Map<string,string>();
   private readonly scopedMessages = new Map<string,string>();
   get size(): number { return this.attempts.size; }
+  private keys(stable: AttemptIdentity): readonly [string,string,string] {
+    return [
+      JSON.stringify([stable.app_ref, stable.concessionaria_id, stable.attempt_id]),
+      JSON.stringify([stable.app_ref, stable.waba_id, stable.phone_number_id, stable.provider_message_id]),
+      JSON.stringify(fields.map(field => stable[field])),
+    ];
+  }
+  private inspect(stable: AttemptIdentity): Exclude<AttemptLookup,'INVALID'> {
+    const [attemptKey, messageKey, binding] = this.keys(stable);
+    const byAttempt = this.attempts.get(attemptKey);
+    const byMessage = this.scopedMessages.get(messageKey);
+    if (byAttempt === undefined && byMessage === undefined) return 'ABSENT';
+    return byAttempt === binding && byMessage === binding ? 'SAME' : 'CONFLICT';
+  }
+  /** Read-only fake recovery query; never creates a missing binding. */
+  lookup(value: unknown): AttemptLookup {
+    const stable = snapshotAttemptIdentity(value);
+    return stable ? this.inspect(stable) : 'INVALID';
+  }
   /** One attempt per App/dealership; one wamid per App/WABA/emitter. */
   claim(value: unknown): AttemptClaim {
-    const stable = snapshot(value);
+    const stable = snapshotAttemptIdentity(value);
     if (!stable) return 'INVALID';
-    const attemptKey = JSON.stringify([
-      stable.app_ref, stable.concessionaria_id, stable.attempt_id,
-    ]);
-    const messageKey = JSON.stringify([
-      stable.app_ref, stable.waba_id, stable.phone_number_id, stable.provider_message_id,
-    ]);
-    const binding = JSON.stringify(fields.map(field => stable[field]));
-    const priorAttempt = this.attempts.get(attemptKey);
-    const priorMessage = this.scopedMessages.get(messageKey);
-    // Every exact replay must agree in BOTH directions; conflicting claims
-    // must not reserve either side of the mapping.
-    if (priorAttempt !== undefined || priorMessage !== undefined)
-      return priorAttempt === binding && priorMessage === binding ? 'SAME' : 'CONFLICT';
+    const existing = this.inspect(stable);
+    if (existing === 'SAME' || existing === 'CONFLICT') return existing;
     if (this.attempts.size >= 100) return 'INVALID';
+    const [attemptKey, messageKey, binding] = this.keys(stable);
     // Synchronous fixture mutation, NOT a real transaction or durable commit.
     this.attempts.set(attemptKey, binding);
     this.scopedMessages.set(messageKey, binding);
