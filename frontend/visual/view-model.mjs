@@ -41,9 +41,11 @@ export function canWriteNote(record, actorId, shopId) {
     record.shopId === shopId && record.assignedTo === actorId);
 }
 
-export function canSeeTeamSummary(actorId, shopId) {
+export function canSeeTeamSummary(actorId, _shopId) {
+  // G2: gestor supervisiona PESSOAS, não concessionárias. O filtro de loja
+  // restringe a lista de atendimentos, mas nunca define a equipe do gestor.
   const actor = getActor(actorId);
-  return Boolean(actor?.role === 'gestor' && actor.teamState === 'active' && actor.shops.includes(shopId));
+  return Boolean(actor?.role === 'gestor' && actor.teamState === 'active');
 }
 
 export function activityFor(record, processing) {
