@@ -30,4 +30,6 @@ psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$ROOT/supabase/tests/s
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$ROOT/supabase/migrations/202610190045_s1_historicos_append_only.sql"
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$ROOT/supabase/tests/s1_008_historicos_append_only.sql"
 bash "$ROOT/scripts/test_s1_002_status_race.sh"
-echo 'S1-002/I1–I8 e corridas status x remanejamento em PG17 descartavel.'
+psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$ROOT/supabase/migrations/202610190046_s1_admin_negacao_por_padrao.sql"
+psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$ROOT/supabase/tests/s1_009_fronteira_administrativa_local.sql"
+echo 'S1-002/I1–I9: PG17 descarte local, limites de Admin/GoTrue nao homologados.'
