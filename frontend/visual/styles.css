@@ -43,6 +43,11 @@
 .team-monitor-card{border:1px solid #e6edef;border-radius:10px;background:#fbfcfc;padding:11px}
 .team-monitor-card strong{display:block;color:#49626b;font-size:12px}
 .team-monitor-card span{display:block;color:#718994;line-height:1.6;font-size:11px}
+.team-batch-list{display:flex;flex-direction:column;gap:10px;margin:14px 0}
+.team-batch-card{border:1px solid #e1eaea;background:#fbfcfc;border-radius:11px;padding:13px}
+.team-batch-card strong{display:block;color:#49626b;font-size:12px;margin-bottom:6px}
+.team-batch-card span{display:block;color:#728792;font-size:11px;line-height:1.6}
+.team-batch-summary{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;background:#f2f8f6;border:1px solid #e2eeea;padding:10px;border-radius:8px}
 @media(max-width:400px){.team-monitor-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .team-member button{align-self:flex-start;margin-top:6px}
 .team-dialog::backdrop{background:#0c2936a8}
