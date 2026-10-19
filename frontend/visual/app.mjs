@@ -18,6 +18,7 @@ import { registrationProjectionFor, registrationStateCopy } from './registration
 import { bankProjectionFor, bankPhaseCopy } from './bank-view.mjs';
 import { postmarkViewFor, postmarkCopy, mayMockOperateContinuation } from './postmark-view.mjs';
 import { projectManagedTeam, requestMockIntake } from './team-operations.mjs';
+import { projectTeamMonitoring, describeMonitoring } from './team-monitoring.mjs';
 
 const $ = id => document.getElementById(id);
 const app = $('visual-app');
@@ -502,11 +503,45 @@ $('detail-toggle').addEventListener('click',()=>{
   const hidden=app.classList.toggle('details-hidden');$('detail-toggle').setAttribute('aria-expanded',String(!hidden));
 });
 $('detail-close').addEventListener('click',()=>{app.classList.add('details-hidden');$('detail-toggle').setAttribute('aria-expanded','false');});
+function renderTeamMonitoring(){
+  const target=$('team-monitor');
+  const view=projectTeamMonitoring(state.actorId,state.cases);
+  if(view.visibility!=='team_summary'){
+    target.replaceChildren();return;
+  }
+  const section=el('section','team-monitor-section');
+  section.append(el('h3','team-monitor-heading','Monitoramento operacional da equipe · G3'));
+  section.append(el('p','detail-small',
+    'Contagens somente sobre casos projetados e autorizados da equipe em todas as lojas concedidas. Não são métricas de SLA, produtividade ou tempo real.'));
+  const tiles=el('div','team-monitor-grid');
+  const keys=['activeCases','unreadCases','windowAttentionCases','protectedQueueCases','unassignedTeamCases','bankReplyPendingCases'];
+  for(const key of keys){
+    const tile=el('div','team-monitor-tile');
+    tile.append(el('strong','',String(view.summary[key])),
+      el('span','',describeMonitoring(key)));
+    tiles.append(tile);
+  }
+  section.append(tiles);
+  const states=el('p','team-monitor-states',
+    `Operadores supervisionados: ${view.summary.operatorCount} · Entrada de leads pausada: ${view.summary.intakePausedCount} · Conta indisponível: ${view.summary.intakeUnavailableCount} · Casos no histórico: ${view.summary.historicalCases} · Casos ativos autoatribuídos ao gestor: ${view.summary.managerOwnedCases}`);
+  section.append(states);
+  const detail=el('div','team-monitor-operator-list');
+  for(const member of view.operators){
+    const line=el('div','team-monitor-operator');
+    line.append(el('strong','',member.name),
+      el('span','',`Ativos: ${member.activeCount} · Não lidos: ${member.unreadCount} · Janela vencida projetada: ${member.windowAttentionCount} · Histórico: ${member.historicalCount}`));
+    detail.append(line);
+  }
+  section.append(detail);
+  section.append(el('p','detail-small',
+    'Prazos de espera e atrasos reais: NÃO VERIFICADOS. Nenhum relógio, dado cadastral ou prova bancária foi consultado. Um retorno pendente não é aprovação, recusa ou venda.'));
+  target.replaceChildren(section);
+}
 function renderTeamSummary(){
   const team=$('team-list');
   if(!canSeeTeamSummary(state.actorId,state.shopId)){
     team.replaceChildren(el('p','detail-small','Equipe não disponível neste perfil fictício.'));
-    return;
+    renderTeamMonitoring();return;
   }
   const rows=projectManagedTeam(state.actorId,state.cases);
   team.replaceChildren(...rows.map(member=>{
@@ -536,6 +571,7 @@ function renderTeamSummary(){
     }
     return card;
   }));
+  renderTeamMonitoring();
 }
 function openTeamSummary(){
   if(!canSeeTeamSummary(state.actorId,state.shopId)){
