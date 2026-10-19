@@ -188,6 +188,14 @@ export function copyCFDemoFixtures() {
     ...record, notes:[], messages:record.messages.map(m=>({...m})),
     allowedActionsProjection:[...(record.allowedActionsProjection??[])],
     eligibleTemplatesProjection:[...(record.eligibleTemplatesProjection??[])],
+    postmarkProjection:record.postmarkProjection ? {...record.postmarkProjection} : undefined,
+    bankProjection:record.bankProjection ? {...record.bankProjection} : undefined,
+    registrationProjection:record.registrationProjection ? {
+      ...record.registrationProjection,
+      fields:(record.registrationProjection.fields??[]).map(field=>({...field})),
+      missing:[...(record.registrationProjection.missing??[])],
+      conflicts:[...(record.registrationProjection.conflicts??[])]
+    } : undefined,
     followupProjection:record.followupProjection ? {
       ...record.followupProjection,attempts:record.followupProjection.attempts.map(a=>({...a}))
     } : undefined
