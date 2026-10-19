@@ -32,4 +32,6 @@ psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$ROOT/supabase/tests/s
 bash "$ROOT/scripts/test_s1_002_status_race.sh"
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$ROOT/supabase/migrations/202610190046_s1_admin_negacao_por_padrao.sql"
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$ROOT/supabase/tests/s1_009_fronteira_administrativa_local.sql"
-echo 'S1-002/I1–I9: PG17 descarte local, limites de Admin/GoTrue nao homologados.'
+psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$ROOT/supabase/migrations/202610190047_s1_matriz_autoridades_responsavel_gestor.sql"
+psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$ROOT/supabase/tests/s1_010_permissoes_responsavel_gestor.sql"
+echo 'S1-002/I1–I10: matriz de permissões simulada, nenhum Auth/REST real.'
