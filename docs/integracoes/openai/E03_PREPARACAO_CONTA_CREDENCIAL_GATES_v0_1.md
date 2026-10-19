@@ -35,7 +35,7 @@ O responsável declarou que aceita custo proporcional à utilidade, mas quer ava
 
 ## Preparação paralela E04 — ainda sem implementar
 
-Enquanto E03 aguarda a criação manual da chave, é possível revisar offline as fixtures sintéticas propostas em E02 (32 cenários SYN e 17 cenários NC do OAI-07), além de elaborar o validador stub com campo de origem, tratamento de ausência, conflito, idempotência, versionamento e handoff. **Execução/implementação só após delimitação e aceite do gate E04/E02; esta publicação não configura testes executados.**
+Enquanto E03 aguarda a criação manual da chave, é possível revisar offline as **descrições de cenários** sintéticos propostas em E02 (32 SYN e 17 NC do OAI-07), ainda sem fixtures executáveis, além de elaborar o validador stub com campo de origem, tratamento de ausência, conflito, idempotência, versionamento e handoff. **Execução/implementação só após delimitação e aceite do gate E04/E02; esta publicação não configura testes executados.**
 
 ## Dependências inalteradas
 
