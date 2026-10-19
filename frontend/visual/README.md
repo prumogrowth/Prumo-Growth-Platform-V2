@@ -117,3 +117,16 @@ A gestão G2 opera exclusivamente com dados demonstrativos e mantém **disponibi
 O gestor fictício acessa **Operadores**, **Monitoramento** e **Lotes**. G3 concilia os oito status comerciais num quadro separado dos indicadores técnicos e mostra alertas somente quando há projeção fictícia S0. G4 utiliza projeções de lotes versionadas e minimizadas por gestor/equipe/loja; não contém upload, aceite de arquivo, seleção de destinatário nem concessões novas. Ao trocar gestor, os dados renderizados das três abas são apagados.
 
 **180/180 verificações sintéticas G2–G4 aprovadas** (110 regras, 45 interações DOM, 25 inspeções). **Node direto/Chromium real ainda pendentes.** Auditorias: [G3](../docs/23_AUDITORIA_G3_MONITORAMENTO_UNIFICADO_FV_UI_011_2026_10_19.md) e [G4](../docs/24_AUDITORIA_G4_LOTES_EQUIPE_FV_UI_012_2026_10_19.md).
+
+
+### FV-UI-013 — Execução nativa com revisão rastreada (19/10/2026)
+
+A validação integral só pode ser declarada se houver um checkout Git completo, limpo e situado na branch `feat/frontend-plataforma-visual`, com o SHA **idêntico** ao HEAD da branch consultado no GitHub. Após conferir o SHA atualizado, executar a partir da raiz do repositório:
+
+```bash
+python3 frontend/visual/tests/run_acceptance.py \
+  --expected-head SHA_COMPLETO_DE_40_CARACTERES \
+  --json-report /tmp/fv-ui-013-evidencia.json
+```
+
+Se Chromium não estiver no caminho usual, definir `CHROMIUM_EXECUTABLE` antes do comando. O runner recusa checkout truncado, branch/revisão diferentes ou alterações locais em `frontend/visual`; `--skip-browser` nunca é aceite completo. A suíte possui verificação que compila o bundle de teste Chromium como script único. A verificação da revisão, o bloqueio em checkout incompleto e seis cenários artificiais de orquestração do executor foram exercitados em ambiente local; **não houve execução Node/Chromium do frontend privado completo nesta etapa**. Consulte [auditoria FV-UI-013](../docs/25_AUDITORIA_TECNICA_FV_UI_013_2026_10_19.md). Não declarar homologação ou alterar a régua 19F em razão destes ensaios.
