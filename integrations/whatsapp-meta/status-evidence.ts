@@ -3,7 +3,7 @@
  * No network, database, HTTP ACK, business status, credentials, or retry.
  * These predicates do NOT authenticate Meta or attest durable persistence.
  */
-/** Internal correlation identifiers never carry recipient, token or raw Meta payload. */
+/** Syntax-only reference check; cannot prove the identifier contains no PII. */
 export function isSafeEvidenceRef(value: unknown): value is string {
   return typeof value === 'string' && /^[A-Za-z0-9_.:-]{1,128}$/.test(value);
 }
