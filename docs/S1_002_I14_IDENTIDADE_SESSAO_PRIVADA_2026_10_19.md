@@ -26,3 +26,10 @@ O controle de JWT é **provisório e não criptográfico** neste sandbox. O fake
 
 
 **Reforço de privilégio I14 [segurança]:** após revisão, as três interfaces foram colocadas no novo schema `prumo_s1_interface`, nunca em `prumo_private`. Essa separação evita conceder USAGE em toda a área que contém funções privadas legadas, algumas das quais podem herdar permissões padrão. Teste `S1S-02B` verifica USAGE apenas do schema de interface para authenticated e ausência de USAGE para anon/service_role. O schema de interface continua **não exposto** na Data API; nenhum teste de token real foi executado.
+
+
+## Resultado CI verificado — identidade simulada, não Auth real
+
+**[GitHub Actions #39301242451 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39301242451)**, commit testado `3ebb0af704ec677aeca00a6a5c363507d0d530cc`, job `118226683757`, logs inspecionados: **S1S-01..14 + S1S-02B = 15/15 PASS**. Provas: sessão ausente/sem usuário negada; gestor de outra equipe e metadados forjados negados; autoria extraída de `auth.uid()` em movimento e pausa/retorno; grants de A/B preservados; `anon`/`service_role` não executam; `authenticated` não obtém EXECUTE dos comandos internos; schema `prumo_s1_interface` recebe USAGE sem conceder USAGE a `prumo_private`; nenhum RPC de gestão foi criado em `public`. Regresso PG17: S1AG 5/5, S1MR 4/4, S1M 12/12 duas vezes, S1T 14/14, S1A 9/9, S1H 8/8, S1R 9/9 em três passagens, AUD1 7/7 e AUD2 5/5, além dos testes I1–I7 do runner.
+
+O primeiro ensaio [#39300916154 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39300916154) havia passado 14/14 mas concedia USAGE amplo em `prumo_private`; **foi corrigido antes do aceite** com a criação do schema dedicado, conforme #39301242451. O teste é **fake-auth** em PostgreSQL local descartável: os GUC `request.jwt.claim.*` são controláveis pelo fixture e NÃO há assinatura de JWT, GoTrue, PostgREST, teste HTTP ou revogação de sessão. As fachadas ainda NÃO podem ser expostas na Data API. Sem merge, deploy, dados reais, chamadas de terceiros ou alteração no percentual global.
