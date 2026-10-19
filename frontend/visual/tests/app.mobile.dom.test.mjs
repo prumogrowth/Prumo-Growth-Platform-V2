@@ -85,3 +85,14 @@ test('mobile G2: painel mostra operadores supervisionados e pausa global fictíc
   get('team-dialog').close();
   assert.equal(get('team-dialog').open,false);
 });
+
+test('mobile G3: indicadores por operadores aparecem sem dados de clientes',()=>{
+  reset();env.selectActor('marina');
+  get('team-nav-mobile').click();
+  const dashboard=get('team-monitor');
+  assert.ok(dashboard.textContent.includes('Monitoramento operacional da equipe'));
+  assert.ok(dashboard.textContent.includes('Etapas comerciais canônicas'));
+  assert.equal(dashboard.textContent.includes('Bianca Rocha'),false);
+  assert.equal(dashboard.textContent.includes('Cliente Exemplo'),false);
+  get('team-dialog').close();
+});
