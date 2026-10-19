@@ -27,4 +27,12 @@ Aprovação dos testes não valida comprometimento conjunto do servidor assinado
 
 A política automática de destinatário entre equipes, escalas, credenciais RH/responsáveis, UI real e integração completa do encerramento humano S0 ainda aguardam seus gates. I20 não altera essa governança nem incrementa percentual global.
 
-**Resultados:** preencher após inspeção de CI; não marcar GO antes dos logs.
+## Evidência de CI verificada
+
+**[GitHub Actions #39343219148 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39343219148)**, código no SHA `be7b135aa5c064f6e8603379f137ae6ac0e6fa8e`, job `118369532649`. Logs examinados: **S1SIG-01..21 = 21/21 PASS**. Foram aplicadas **50 migrations reais S0/S1** num Supabase local com autenticação GoTrue e PostgreSQL reais. Nenhuma migration S1 produtiva nova, RPC pública ou alteração no hosted Supabase.
+
+Casos incluíram controle de equipe G1/G2, operador A/B, replay de atribuição, pausa global/retorno e logout. A role SQL local não consegue `SET ROLE authenticated`, ler a chave HMAC nem executar diretamente as fachadas I14. A tentativa com par ator/sessão sem HMAC válida foi negada; a alteração de ator ou alvo invalidou a assinatura; provas antigas/futuras foram rejeitadas; o mesmo nonce foi aceito uma vez só para um comando válido; uma HMAC correta com `session_id` de sessão encerrada falhou; ao desativar a chave, novas operações não tiveram efeito de negócio.
+
+O primeiro ensaio [#39342396231](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39342396231) foi bloqueado por literal de quebra de linha no import; [#39342675718](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39342675718) por import ausente de biblioteca padrão; [#39342944771](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39342944771) após 12 cenários aprovados por asserção legada que ainda exigia `SET ROLE authenticated`. Todos foram problemas de roteiro corrigidos, não resultado de aceite. O CI final é o único aceito.
+
+**Parecer:** GO apenas para continuar o desenho de gateway e provas em sandbox. **NO-GO para produção**, devido ao proprietário `postgres` do `SECURITY DEFINER` de teste, ausência de serviço HTTP com hardening operacional e falta de proteção contra comprometimento simultâneo de assinador e login SQL. `prumo_s1_signed_i20` é schema **somente de teste**, não uma arquitetura aprovada para deploy.
