@@ -136,3 +136,16 @@ test('pedido aceito no browser não confirma conclusão humana', () => {
   assert.equal(mayMockFreeText(record,'rafael','aurora',true),false);
   assert.deepEqual(projectedFollowupActions(record,'rafael','aurora',true),[]);
 });
+
+test('marcos banco, venda e perda não reabrem o mesmo ciclo por permissão de chat residual', () => {
+  const base=byId(cases(),'A-102');
+  for (const status of ['cadastro enviado ao banco','vendido','perdido']) {
+    const forged={...base,status,inboxProjection:'active',
+      metaWindowProjection:'open',humanCompletionProjection:'pending',
+      allowedActionsProjection:['free_text','single_template','request_chain'],
+      eligibleTemplatesProjection:['modelo_continuidade_demo@v1-demo']};
+    assert.equal(mayMockFreeText(forged,'rafael','aurora'),false);
+    const expired={...forged,metaWindowProjection:'expired'};
+    assert.deepEqual(projectedFollowupActions(expired,'rafael','aurora'),[]);
+  }
+});
