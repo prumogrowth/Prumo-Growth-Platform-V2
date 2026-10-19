@@ -145,6 +145,11 @@ export function copyCFDemoFixtures() {
     return {
       ...record, inboxProjection:'active', metaWindowProjection:windowState,
       humanCompletionProjection: ['A-102','A-106','B-201'].includes(record.id) ? 'pending' : 'unknown',
+      bankProjection: record.id === 'A-105' ? {
+        phase:'reply_pending', submissionProofState:'verified',
+        submittedByAuthorizedHuman:true, submissionVersionRef:'bank-demo-v1',
+        replyProofState:'not_received', replyRecordedByHuman:false
+      } : undefined,
       allowedActionsProjection: ['A-102','A-106','B-201'].includes(record.id) ? ['free_text','complete'] : []
     };
   });
