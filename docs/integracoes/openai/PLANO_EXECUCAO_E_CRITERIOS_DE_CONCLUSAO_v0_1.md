@@ -21,7 +21,7 @@ O laboratório pode avançar com stub/mock de S0 enquanto PR #1 evolui. O acopla
 - **Meta / PR #2:** continua dona de WhatsApp, Graph, webhooks, templates como canal/transporte, correlação e callbacks; só entra na revisão se a interface interferir em sua fronteira.
 - **Supabase:** qualquer conta com acesso legítimo ao projeto Prumo pode realizar solicitações autorizadas conforme permissões específicas; nenhuma restrição universal de plugin ou de sessão deve constar na documentação normativa. O registro da chave OpenAI, entretanto, permanece MANUAL por decisão do responsável. Conferir organização e project-ref antes de cada operação.
 
-## O roteiro fechado OAI-E00 a OAI-E08
+## Roteiro local candidato e ajustável OAI-E00 a OAI-E08
 
 | Marco | Trabalho conjunto | Condição verificável para dar como concluído | Situação inicial |
 |---|---|---|---|
@@ -53,6 +53,7 @@ O laboratório pode avançar com stub/mock de S0 enquanto PR #1 evolui. O acopla
 
 ## Gates de autorização
 
+- **G-FASE-DO-PROJETO:** o objetivo vigente é consolidar o planejamento integral da plataforma antes de iniciar implementação desta frente. E04 (mocks/código), E05 (API real) e E06–E08 (integração/execução) são etapas FUTURAS, não liberadas por “prossiga” genérico, conclusão editorial de E02 ou simples aceite bilateral técnico. Exigem liberação expressa de implementação no momento oportuno, além de seus gates próprios. Até lá, apenas contratos, avaliação de requisitos e cenários textuais.
 - **G-CUSTO:** consulta/preparação de billing e segredos não é autorização para chamadas pagas. E05/E06 n8n com consumo real exigem decisão expressa de valor/limite, responsável e ambiente.
 - **G-SEGREDO:** o usuário faz pessoalmente emissão e registro da chave; nome sugerido `OPENAI_API_KEY`. Se runtime Edge Functions, secret Supabase Prumo; para n8n, cofre apropriado e autorização separados. Um secret Supabase não é automaticamente visível no runtime n8n ou num backend Python externo.
 - **G-PRIVACIDADE:** E05 em diante somente conteúdo fictício; dados reais/produção dependem de gate próprio e outras frentes.
@@ -68,5 +69,7 @@ A preparação documental E00 está validada. Os outros oito marcos não estão 
 ## Riscos e decisões que ainda precisam de aprovação
 
 [R] Escolha de runtime/linguagem do adaptador, política de autenticação S0 ↔ adaptador, modelos e formato de saída, contrato versionado final, thresholds A/B, orçamento e tratamento/retenção de dados. [V] Primeira chamada real, verificação de segredo e acesso em runtime, fluxos de falha, ensaios comparativos e revisão de segurança. Nenhum desses itens é considerado resolvido apenas por documentação do fornecedor.
+
+**Prioridade após auditoria dos últimos trabalhos (18/10/2026):** não multiplicar novos cadernos E02 nem declarar que os 32 SYN e 16 EX são testes implementados. Fazer revisão das correções semânticas do gabarito e buscar resposta/aceite CFI-01 na issue #4 e C09 na issue #6; levar ao responsável apenas decisões de negócio que realmente dependam dele, primeiro na mensagem. Após consolidação do planejamento global e autorização expressa, converter cenários em fixtures/código na própria fase E04. O roteiro local permanece flexível e subordinado ao objetivo final da plataforma.
 
 **O marco E08 encerra a frente OpenAI de laboratório; operações comerciais reais requerem integração posterior e liberação global da plataforma.**
