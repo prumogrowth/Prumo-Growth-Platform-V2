@@ -32,7 +32,7 @@ insert into prumo_private.outbox_intencoes_s0(
   'f3100000-0000-4000-8000-000000000003','C03','WA14_INTENT_B',1);
 
 do $wa14$
-declare r record; q jsonb; baseline int;
+declare r jsonb; v_change record; q jsonb; baseline int;
 begin
   -- WA14-01: authoritative S0 mapping + blocked intent + synthetic accepted HTTP.
   r:=prumo_private.registrar_vinculo_meta_fixture_s0(
@@ -80,7 +80,7 @@ begin
   raise notice 'PASS WA14-04: forward scoped wamid uniqueness';
 
   -- WA14-05: same keys, changed correlation/recipient/status are NOT replay.
-  for r in select value from pg_catalog.jsonb_array_elements(pg_catalog.jsonb_build_array(
+  for v_change in select value from pg_catalog.jsonb_array_elements(pg_catalog.jsonb_build_array(
     pg_catalog.jsonb_build_object('correlation','CORR_CHANGED','recipient','5581900000000','http',200),
     pg_catalog.jsonb_build_object('correlation','CORR_A','recipient','5581999999999','http',200),
     pg_catalog.jsonb_build_object('correlation','CORR_A','recipient','5581900000000','http',202))) as t(value)
@@ -89,7 +89,7 @@ begin
       perform prumo_private.registrar_vinculo_meta_fixture_s0(
         'FIXTURE_WA14_APP_A','f3100000-0000-4000-8000-000000000001',
         'f4100000-0000-4000-8000-000000000001','ATTEMPT_A',
-        r.value->>'correlation',r.value->>'recipient','wamid.WA14.SAME',(r.value->>'http')::integer);
+        v_change.value->>'correlation',v_change.value->>'recipient','wamid.WA14.SAME',(v_change.value->>'http')::integer);
       raise exception 'FAIL WA14-05: altered binding accepted';
     exception when unique_violation then null;end;
   end loop;
