@@ -635,7 +635,10 @@ function renderTeamMonitor(){
       el('span','', 'Estado comercial preservado: '+signal.commercialStatus));
     signals.append(row);
   }
-  target.replaceChildren(title,note,indicators,workload,signals,
+  // Conciliação: preservar o quadro de oito etapas comerciais e indicadores
+  // agregado G3, acrescentando sinais técnicos explícitos do S0 fictício.
+  renderTeamMonitoring();
+  target.append(title,note,indicators,workload,signals,
     el('p','team-hint','Sinais técnicos não são estados comerciais novos. '+
       'A S0 define prazos, prioridades, distribuição, permissões e confirmação de eventos.'));
 }
