@@ -34,6 +34,8 @@ const valid = (v: unknown): v is AttemptIdentity => {
     if (Reflect.ownKeys(v).length !== fields.length || Object.keys(d).length !== fields.length ||
         !fields.every(k => Object.hasOwn(d,k) && Object.hasOwn(d[k],'value'))) return false;
     const x = v as AttemptIdentity;
+    // RegExp.test coerces numbers to strings; reject runtime types explicitly.
+    if (!fields.every(k => typeof x[k] === 'string')) return false;
     return REF.test(x.app_ref) && REF.test(x.concessionaria_id) &&
       REF.test(x.canal_id) && REF.test(x.waba_id) && SENDER.test(x.phone_number_id) &&
       REF.test(x.intent_id) && REF.test(x.attempt_id) && REF.test(x.correlation_id) &&
