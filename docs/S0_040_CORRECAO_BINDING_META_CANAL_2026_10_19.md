@@ -22,3 +22,9 @@ A migration sintética S0-030 criava `prumo_private.meta_canais_fixture_s0` com 
 **Gates ainda abertos:** identidade de serviço autenticada fora do corpo Meta, vínculo App/WABA/phone com vigência e autorização verificadas, prova HMAC, nonce transacional, payload integral protegido, ocorrências posicionais, ACK só após COMMIT durável, `COMMIT_UNKNOWN` e normas DEC-WA-04/06. Não reutilizar `aceitar_lote_multicanal_fixture_s0` como ingresso operacional: aceita mistura de lojas no mesmo lote de fixture, diferente do enquadramento autenticado por App do contrato real.
 
 **Decisão de escopo:** GO para desenvolvimento limitado da S0 em apoio à Meta; **NO-GO** para afirmar integração real, autenticação, aceite HTTP, migrar banco comercial, alterar POC concessionária de demonstração, gerar custos ou mesclar PR sem gates.
+
+## S0-040/AUD1 — revisão de segurança e testes (19/10/2026)
+
+[Auditoria independente e limites](S0_040_AUDITORIA_REGRESSAO_SEGURANCA_2026_10_19.md). Após a publicação original, corrigidos dois problemas na **qualidade da prova** e **segurança do runner**: WA40-01/02/03 agora exigem os nomes EXATOS das constraints que falharam (não basta classe `23505` ou `23503`) e WA40-04 confirma explicitamente que os eventos da App A permaneceram na loja A. `scripts/run-s0-local.sh` agora recusa queries `hostaddr/service` ou fragmentos, valida **nome inteiro** do banco descartável e limpa overrides libpq para evitar conexões remotas por ambiente. `scripts/test_s0_040_runner_guard.py` registra oito cenários offline.
+
+**Evidência desta auditoria:** 8/8 testes locais do validador **reproduzido em fixture**, com arquivo de teste versionado conferido pelo hash Git; 0/5 SQL WA40 e 0/20 WA06D PostgreSQL executados. **Não declarar homologação PostgreSQL, S1 combinada, Auth/REST ou ingresso Meta real.** Migrações S1 038–047 em PR #5 permanecem apartadas; falta teste conjunto. Sem produção, merge, API Meta ou custo.
