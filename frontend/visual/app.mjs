@@ -526,6 +526,16 @@ function renderTeamMonitoring(){
   const states=el('p','team-monitor-states',
     `Operadores supervisionados: ${view.summary.operatorCount} · Entrada de leads pausada: ${view.summary.intakePausedCount} · Conta indisponível: ${view.summary.intakeUnavailableCount} · Casos no histórico: ${view.summary.historicalCases} · Casos ativos autoatribuídos ao gestor: ${view.summary.managerOwnedCases}`);
   section.append(states);
+  const stageHeader=el('h4','team-monitor-subheading','Etapas comerciais canônicas — casos ativos');
+  section.append(stageHeader);
+  const stageList=el('div','team-monitor-stages');
+  for(const entry of view.commercialStages.filter(entry=>entry.count>0)){
+    const line=el('div','team-monitor-stage');
+    line.append(el('span','',entry.status),el('strong','',String(entry.count)));
+    stageList.append(line);
+  }
+  if(!stageList.children.length)stageList.append(el('span','detail-small','Nenhum caso ativo nesta projeção.'));
+  section.append(stageList);
   const detail=el('div','team-monitor-operator-list');
   for(const member of view.operators){
     const line=el('div','team-monitor-operator');
