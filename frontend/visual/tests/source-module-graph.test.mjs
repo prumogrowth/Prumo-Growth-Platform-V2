@@ -2,6 +2,7 @@
 // Este teste roda nativamente em Node. Não é prova de execução no navegador.
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {Script} from 'node:vm';
 import {readFileSync, existsSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 import {dirname, join} from 'node:path';
@@ -54,4 +55,17 @@ test('ensaio real verifica erros no JS após interações e overflow em múltipl
   assert.match(smoke,/errors_mobile/);
   assert.match(smoke,/scrollWidth > innerWidth/);
   assert.match(smoke,/CHROMIUM_EXECUTABLE/);
+});
+
+// browser.smoke.py injeta módulos concatenados como um único script clássico.
+// Dependências e sintaxe individuais não detectam colisões léxicas entre módulos.
+test('bundle de ensaio Chromium compila integralmente sem imports, exports ou colisões',()=>{
+  const combined=order.map(name=>src[name]).join('\n');
+  // Mesmo contrato de transformação usado pelo roteiro Python browser.smoke.py.
+  const bundled=combined
+    .replace(/^import \{.*?\} from ["']\\.\\/[^"']+["'];\\s*/gms,'')
+    .replace(/^export /gm,'');
+  assert.doesNotMatch(bundled,/^import /m,'Import residual no bundle injetado');
+  assert.doesNotMatch(bundled,/^export /m,'Export residual no bundle injetado');
+  assert.doesNotThrow(()=>new Script(bundled,{filename:'fv-ui-013-chromium-bundle.js'}));
 });
