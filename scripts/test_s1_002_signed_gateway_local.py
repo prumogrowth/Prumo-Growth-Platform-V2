@@ -3,6 +3,8 @@
 Test-only public bridges; NEVER use against hosted Supabase or production.
 """
 import json
+import secrets
+import base64
 import os
 import re
 import subprocess
