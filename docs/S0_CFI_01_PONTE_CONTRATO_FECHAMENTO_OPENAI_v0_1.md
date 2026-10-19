@@ -79,6 +79,18 @@ Resposta **candidata**, que S0 nunca aplica cegamente:
 
 **Nomes/valores de enum ilustrativos.** Nem schema físico nem campos reais do Banco aprovados; o exemplo não prova validação algorítmica ou integração.
 
+### Ensaios offline de fronteira F03 — 19/10/2026 (execução efetiva, escopo restrito)
+
+Foi implementado um **avaliador de proposta sintética SEM efeitos comerciais**, [`backend/s0_openai_bridge/f03_offline_gate.py`](../backend/s0_openai_bridge/f03_offline_gate.py), com a suíte [`backend/tests/test_s0_openai_f03_offline.py`](../backend/tests/test_s0_openai_f03_offline.py). Em ambiente descartável isolado, **30/30 testes unitários PASS**, compilação Python sem erro, e hashes do conteúdo Python conferidos com a publicação na branch.
+
+**Prova somente de laboratório:** catálogo fictício A/C obrigatórios e B opcional (somente no stub); mensagens do cliente têm `asserted_fields` anotados previamente no gabarito fictício, usados para conferir igualdade de valores e origem. **Em produção, citar uma mensagem não comprova a verdade de uma extração.** A anotação sintética não é algoritmo de NLP nem substitui checagem S0/operador sobre texto real ou homologação de dados do Banco. `PROPOSAL_ONLY` e `PARTIAL_REVIEW` não executam `UPDATE`, não remetem cadastro, não registram ato bancário, não acionam F02 nem significam autorização para autoaplicar. O próprio código não possui caminho para SQL, rede ou WhatsApp.
+
+**Grupos testados:** separação obrigatório/opcional; campos explicitamente presentes; negação de campo fora do catálogo; isolamento A/B e caso diferente; fontes de operador/untrusted; valor inventado mesmo com referência; duplo campo/fonte; corte e versão obsoletos; ausência de conclusão autenticada; revogação/pausa do operador (representada por booleano S0 fictício); finalidade pós-venda não comercial; no-op de persistência. O retorno F03 real, assinatura física, modelos, sessão real e autorização de responsável/gestor S1 **não foram testados**.
+
+Reproduzir localmente, sem bibliotecas extras, no diretório raiz do repo: `python -m unittest discover -s backend/tests -p 'test_s0_openai_f03_offline.py' -v`. O repositório PR #8 ainda não tem **CI da branch** confirmada para este incremento; não atribuir PASS de CI.
+
+**I12 da S1-002 (19/10):** movimentação manual entre operadores da equipe exige origem/destino autorizados, grant da mesma loja no destino e `atribuicao_esperada` para recusar replay; pausa global pode concorrer com transferências. F03 precisa comparar a **atribuição ATUAL verificada por S0/S1 no instante de aplicar**, não confiar só no ator que iniciou conclusão. Política entre equipes ainda [R]. A flag fictícia `actor_authorized_now` NÃO implementa esse contrato nem autoriza exposição de SQL/REST.
+
 ## 4. Máquina técnica S0 candidata e prova necessária
 
 `ACCEPTED_FOR_PROCESSING` (pedido idempotente e evento humano S0 registrado) → `EXTRACTION_PENDING` → `VALIDATING_RESULT` → `APPLIED | PARTIAL_REVIEW | FAILED_SAFE | STALE_RESULT`.
