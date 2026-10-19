@@ -40,7 +40,7 @@ test('mobile: gestor ativo acessa equipe; operador e suspenso não', () => {
 test('mobile: histórico é aberto somente leitura e pode voltar à lista', () => {
   reset();
   env.inbox[1].click();
-  assert.equal(env.cards().length, 2);
+  assert.equal(env.cards().length, 3);
   env.openCase('Exemplo 12');
   assert.equal(get('visual-app').dataset.mobileView, 'thread');
   assert.equal(get('message-input').disabled, true);
