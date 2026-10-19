@@ -149,3 +149,23 @@ test('marcos banco, venda e perda não reabrem o mesmo ciclo por permissão de c
     assert.deepEqual(projectedFollowupActions(expired,'rafael','aurora'),[]);
   }
 });
+
+test('auditoria: reset de fixtures não compartilha projeções O3/O4/O5',()=>{
+  const first=copyCFDemoFixtures();
+  const second=copyCFDemoFixtures();
+  const firstById=id=>first.find(x=>x.id===id);
+  const secondById=id=>second.find(x=>x.id===id);
+  firstById('A-108').registrationProjection.fields[0].safeDisplayValue='ALTERADO';
+  firstById('A-108').registrationProjection.missing.push('ALTERADO');
+  firstById('A-114').postmarkProjection.linkVersionRef='ALTERADO';
+  firstById('A-110').followupProjection.attempts[0].state='ALTERADO';
+  firstById('A-105').bankProjection.submissionVersionRef='ALTERADO';
+  assert.notEqual(secondById('A-108').registrationProjection.fields[0].safeDisplayValue,'ALTERADO');
+  assert.ok(!secondById('A-108').registrationProjection.missing.includes('ALTERADO'));
+  assert.notEqual(secondById('A-114').postmarkProjection.linkVersionRef,'ALTERADO');
+  assert.notEqual(secondById('A-110').followupProjection.attempts[0].state,'ALTERADO');
+  assert.notEqual(secondById('A-105').bankProjection.submissionVersionRef,'ALTERADO');
+  const third=copyCFDemoFixtures();
+  assert.equal(third.find(x=>x.id==='A-114').postmarkProjection.linkVersionRef,
+    secondById('A-114').postmarkProjection.linkVersionRef);
+});
