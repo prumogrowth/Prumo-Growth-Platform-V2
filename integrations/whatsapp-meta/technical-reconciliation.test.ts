@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { FakeMetaStatusReconciler, type CorrelationReference } from './technical-reconciliation.ts';
 import type { MetaIngressEvent } from './inbound.ts';
 import type { GraphSendOutcome } from './graph-outbound.ts';
+import { classifyGraphSendResult } from './graph-outbound.ts';
 
 const reference: CorrelationReference = {
   app_ref: 'FIXTURE_APP_A', intent_id: 'FIXTURE_INTENT_A',
@@ -274,4 +275,34 @@ test('REC-32: a valid scoped Graph acceptance still links and status progresses 
   assert.equal(r.retry_automatically, false);
   assert.equal('commercial_status' in r, false);
   assert.equal('http_status' in r, false);
+});
+
+test('REC-33: actual Graph response classifier can link but never assert delivery', () => {
+  const x = new FakeMetaStatusReconciler();
+  const classified = classifyGraphSendResult('FIXTURE_ATTEMPT_A', 'FIXTURE_CORR_A', {
+    kind: 'http_response', http_status: 200,
+    response_json: { messages: [{ id: 'wamid.FIXTURE_A=' }] },
+  });
+  assert.equal(classified.send_state, 'API_ACCEPTED');
+  assert.equal(x.registerAcceptedSend(reference, classified).decision, 'LINKED');
+  assert.equal(x.projectionFor(reference, classified.provider_message_id!)?.progress, 'NONE');
+});
+test('REC-34: status occurrences at distinct positions remain distinct even when status and time match', () => {
+  const x = newLinked();
+  const first = callback('sent');
+  const second = { ...first, position: { ...first.position, item_index: 1 } };
+  assert.equal(observe(x, first).decision, 'CORRELATED');
+  const r = observe(x, second);
+  assert.equal(r.decision, 'CORRELATED');
+  assert.equal(r.possible_repeat, true); // heuristic; NOT dedupe evidence
+  assert.equal(r.observation_count, 2);
+});
+test('REC-35: uncertain classified Graph result cannot create status correlation', () => {
+  const x = new FakeMetaStatusReconciler();
+  const uncertain = classifyGraphSendResult('FIXTURE_ATTEMPT_A', 'FIXTURE_CORR_A', {
+    kind: 'http_response', http_status: 200, response_json: { messages: [] },
+  });
+  assert.equal(uncertain.send_state, 'UNCERTAIN_EXTERNAL');
+  assert.equal(x.registerAcceptedSend(reference, uncertain).decision, 'INVALID_REFERENCE');
+  assert.equal(x.linkedCount, 0);
 });
