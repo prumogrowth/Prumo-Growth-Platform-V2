@@ -79,6 +79,32 @@ export function isSyntheticBankProtected(record) {
 
 /** Cenários visuais pré-projetados como se fossem vindos de S0; não são regras de S0. */
 const SCENARIOS = Object.freeze([
+  { id:'A-114', shopId:'aurora', name:'Cliente Exemplo 15', initials:'CE', assignedTo:'rafael',
+    status:'em atendimento pelo operador', unread:0, updatedAt:'Hoje · fictício',
+    tag:'Novo ciclo pós-remessa',inboxProjection:'active',metaWindowProjection:'open',
+    humanCompletionProjection:'pending',allowedActionsProjection:['free_text','complete'],
+    postmarkProjection:{direction:'continuation',source:'bank_submitted',originCaseRef:'A-105',
+      confirmedCreated:true,linkedByS0:true,linkVersionRef:'cycle-bank-demo-v1',
+      sellerAiSilenced:true},
+    messages:[{id:'a114-1',side:'system',body:'Novo ciclo humano fictício aberto pelo S0 após marco bancário, sem alterar o caso anterior.',time:'Hoje'},
+      {id:'a114-2',side:'in',body:'Quero falar com a equipe sobre o andamento depois do envio ao banco.',time:'Hoje'}] },
+  { id:'A-115', shopId:'aurora', name:'Cliente Exemplo 16', initials:'CE', assignedTo:'rafael',
+    status:'vendido',unread:0,updatedAt:'Arquivo',
+    tag:'Venda registrada · histórico',inboxProjection:'historical',metaWindowProjection:'expired',
+    humanCompletionProjection:'completed',allowedActionsProjection:[],
+    postmarkProjection:{direction:'origin',source:'sold',continuationCaseRef:'A-116',
+      confirmedCreated:true,linkedByS0:true,linkVersionRef:'cycle-sold-demo-v1',
+      sellerAiSilenced:true},
+    messages:[{id:'a115-1',side:'system',body:'Venda humana confirmada somente neste cenário histórico fictício.',time:'Arquivo'}] },
+  { id:'A-116', shopId:'aurora', name:'Cliente Exemplo 17',initials:'CE',assignedTo:'rafael',
+    status:'em atendimento pelo operador',unread:0,updatedAt:'Hoje · fictício',
+    tag:'Novo ciclo pós-venda',inboxProjection:'active',metaWindowProjection:'open',
+    humanCompletionProjection:'pending',allowedActionsProjection:['free_text','complete'],
+    postmarkProjection:{direction:'continuation',source:'sold',originCaseRef:'A-115',
+      confirmedCreated:true,linkedByS0:true,linkVersionRef:'cycle-sold-demo-v1',
+      sellerAiSilenced:true},
+    messages:[{id:'a116-1',side:'system',body:'Atendimento humano fictício pós-venda em OUTRO ciclo. Não há nova IA Vendedora.',time:'Hoje'},
+      {id:'a116-2',side:'in',body:'Gostaria de conversar com um profissional depois da compra.',time:'Hoje'}] },
   { id:'A-107', shopId:'aurora', name:'Cliente Exemplo 08', initials:'CE', assignedTo:'rafael',
     status:'em atendimento pelo operador', unread:1, updatedAt:'Ontem', tag:'Janela expirada · pendente',
     inboxProjection:'active', metaWindowProjection:'expired', humanCompletionProjection:'pending',
@@ -145,6 +171,11 @@ export function copyCFDemoFixtures() {
     return {
       ...record, inboxProjection:'active', metaWindowProjection:windowState,
       humanCompletionProjection: ['A-102','A-106','B-201'].includes(record.id) ? 'pending' : 'unknown',
+      postmarkProjection: record.id === 'A-105' ? {
+        direction:'origin',source:'bank_submitted',continuationCaseRef:'A-114',
+        confirmedCreated:true,linkedByS0:true,linkVersionRef:'cycle-bank-demo-v1',
+        sellerAiSilenced:true
+      } : undefined,
       bankProjection: record.id === 'A-105' ? {
         phase:'reply_pending', submissionProofState:'verified',
         submittedByAuthorizedHuman:true, submissionVersionRef:'bank-demo-v1',
