@@ -121,5 +121,38 @@ class OptionalCoverage(unittest.TestCase):
         self.assertEqual(r.omitted_informed_optional_codes, ())
 
 
+    def test_13_only_optional_informed_and_no_model_fields_still_requires_review(self):
+        s = fixture()[0]
+        msg = replace(s.messages[0], asserted_fields={'optional': 'B'})
+        r = self.result(s={'rules': (FieldRule('optional', False, True),),
+                           'messages': (msg,)},
+                        p={'fields': ()}, a={'result_has_validated_fields': False})
+        self.assertEqual(r.status, PipelineStatus.REVIEW_REQUIRED)
+        self.assertEqual(r.missing_required_codes, ())
+        self.assertEqual(r.omitted_informed_optional_codes, ('optional',))
+
+    def test_14_no_fields_preserves_required_and_optional_gaps_separately(self):
+        r = self.result(p={'fields': ()}, a={'result_has_validated_fields': False})
+        self.assertEqual(r.status, PipelineStatus.REVIEW_REQUIRED)
+        self.assertEqual(r.missing_required_codes, ('required',))
+        self.assertEqual(r.omitted_informed_optional_codes, ('optional',))
+
+    def test_15_no_informed_fields_means_not_ready_not_invented(self):
+        s = fixture()[0]
+        empty = replace(s.messages[0], asserted_fields={})
+        r = self.result(s={'rules': (FieldRule('optional', False, True),),
+                           'messages': (empty,)},
+                        p={'fields': ()}, a={'result_has_validated_fields': False})
+        self.assertEqual(r.status, PipelineStatus.NOT_READY)
+        self.assertEqual(r.omitted_informed_optional_codes, ())
+
+    def test_16_informed_optional_without_autoapply_is_still_flagged_not_applied(self):
+        s = fixture()[0]
+        r = self.result(s={'rules': (s.rules[0], FieldRule('optional', False, False))})
+        self.assertEqual(r.status, PipelineStatus.REVIEW_REQUIRED)
+        self.assertEqual(r.omitted_informed_optional_codes, ('optional',))
+        self.assertFalse(hasattr(r, 'applied'))
+
+
 if __name__ == '__main__':
     unittest.main()
