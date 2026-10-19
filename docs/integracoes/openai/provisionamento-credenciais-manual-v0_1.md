@@ -1,6 +1,6 @@
 # OAI-02 — Provisionamento MANUAL de credenciais OpenAI | v0.1
 
-**Estado:** procedimento [P], a executar exclusivamente pelo responsável humano; **NÃO executado** em 18/10/2026. Nenhuma credencial criada, lida, armazenada, testada ou copiada pela frente OpenAI.
+**Estado:** procedimento [P], a executar exclusivamente pelo responsável humano; **NÃO executado** em 18/10/2026. **Atualização de 19/10/2026 [D-tempo]: toda configuração operacional E03 — projeto OpenAI, billing, chave e secret — fica intencionalmente ADIADA até arquitetura e ensaios offline autorizados estarem prontos para E05.** Os passos abaixo são um roteiro futuro, NÃO tarefas a iniciar agora. Nenhuma credencial criada, lida, armazenada, testada ou copiada pela frente OpenAI.
 **Governança do ambiente:** antes de qualquer operação, conferir identidade, organização, `project-ref`, permissões disponíveis para a conta executora e autorização explícita no projeto Supabase exclusivo da Prumo. Conectores, CLI e interfaces são meios admissíveis conforme permissões e autorização de cada conta; nenhum documento presume acesso universal nem limita outros responsáveis autorizados.
 
 ## A. Criar e configurar o projeto da OpenAI (responsável)
