@@ -7,7 +7,7 @@ export NODE_OPTIONS='' NODE_PATH=''
 LAB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MODE="${1:---all}"
 if [[ $# -gt 1 ]]; then
-  echo 'Usage: run-offline-tests.sh [--unit|--binding|--focus|--all]' >&2
+  echo 'Usage: run-offline-tests.sh [--unit|--binding|--commit|--focus|--all]' >&2
   exit 64
 fi
 if ! command -v node >/dev/null 2>&1; then
@@ -22,18 +22,20 @@ fi
 case "$MODE" in
   --unit) files=("$LAB_DIR/status-evidence.test.ts") ;;
   --binding) files=("$LAB_DIR/attempt-binding.test.ts") ;;
+  --commit) files=("$LAB_DIR/attempt-commit-simulation.test.ts") ;;
   --focus) files=("$LAB_DIR/attempt-binding.test.ts"
+                   "$LAB_DIR/attempt-commit-simulation.test.ts"
                    "$LAB_DIR/status-evidence.test.ts"
                    "$LAB_DIR/technical-reconciliation.test.ts"
                    "$LAB_DIR/graph-outbound.test.ts") ;;
   --all)
     files=("$LAB_DIR"/*.test.ts)
     # A partial checkout must not masquerade as a full Meta regression.
-    if (( ${#files[@]} < 27 )); then
-      echo 'Incomplete Meta test checkout: expected at least 27 suites' >&2
+    if (( ${#files[@]} < 28 )); then
+      echo 'Incomplete Meta test checkout: expected at least 28 suites' >&2
       exit 66
     fi
-    for mandatory in attempt-binding status-evidence technical-reconciliation inbound graph-outbound \
+    for mandatory in attempt-binding attempt-commit-simulation status-evidence technical-reconciliation inbound graph-outbound \
         routed-webhook s0-ingress-gateway; do
       if [[ ! -f "$LAB_DIR/$mandatory.test.ts" ]]; then
         echo "Missing mandatory Meta suite: $mandatory.test.ts" >&2
@@ -41,7 +43,7 @@ case "$MODE" in
       fi
     done
     ;;
-  *) echo 'Usage: run-offline-tests.sh [--unit|--binding|--focus|--all]' >&2; exit 64 ;;
+  *) echo 'Usage: run-offline-tests.sh [--unit|--binding|--commit|--focus|--all]' >&2; exit 64 ;;
 esac
 for file in "${files[@]}"; do
   if [[ ! -f "$file" ]]; then
