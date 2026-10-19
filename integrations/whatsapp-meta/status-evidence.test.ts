@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { isMetaWamid, isStatusPosition, isAcceptedGraphEvidence } from './status-evidence.ts';
+import { isMetaWamid, isStatusPosition, isAcceptedGraphEvidence, isSafeEvidenceRef } from './status-evidence.ts';
 
 const accepted = () => ({attempt_id:'FAKE_ATTEMPT', correlation_id:'FAKE_CORR',
   send_state:'API_ACCEPTED', api_accepted:true, http_status:200,
@@ -57,4 +57,19 @@ test('WA09-07: evidence requires full data-only fields and no added data', () =>
 test('WA09-08: no body, tokens, phone or scope is emitted by predicate', () => {
   for(const result of [isMetaWamid('wamid.A'),isStatusPosition(position()),isAcceptedGraphEvidence(accepted())])
     assert.equal(typeof result,'boolean');
+});
+
+test('WA09-09: a 2xx Graph record without safe attempt/correlation IDs fails closed', () => {
+  for (const field of ['attempt_id','correlation_id'] as const) {
+    for (const malformed of [null,undefined,42,'','../leak','BAD ID','x'.repeat(129),'bad\nID']) {
+      assert.equal(isAcceptedGraphEvidence({...accepted(),[field]:malformed}),false);
+    }
+  }
+  assert.equal(isAcceptedGraphEvidence(accepted()),true);
+});
+test('WA09-10: pure correlation ref does not accept phone-bearing or control characters', () => {
+  assert.equal(isSafeEvidenceRef('BATCH_42'),true);
+  for(const malformed of ['',' x','BATCH\n42','id/1', 'a'.repeat(129),null,{}]) {
+    assert.equal(isSafeEvidenceRef(malformed),false);
+  }
 });
