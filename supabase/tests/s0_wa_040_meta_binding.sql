@@ -24,6 +24,7 @@ insert into prumo_private.meta_canais_fixture_s0(
 
 -- WA40-01: same channel may not be associated with a second sender.
 do $wa40$
+declare v_constraint text;
 begin
  begin
   insert into prumo_private.meta_canais_fixture_s0(
@@ -32,7 +33,10 @@ begin
     'e3000000-0000-4000-8000-000000000001',
     'FIXTURE_WA40_WABA_ALT','FIXTURE_WA40_PHONE_ALT');
   raise exception 'FAIL WA40-01: a channel acquired a second sender';
- exception when unique_violation then null;
+ exception when unique_violation then
+  get stacked diagnostics v_constraint = constraint_name;
+  if v_constraint is distinct from 'meta_canais_fixture_canal_emissor_unico_s0'
+   then raise exception 'FAIL WA40-01: unexpected unique constraint %',v_constraint;end if;
  end;
  if (select count(*) from prumo_private.meta_canais_fixture_s0
       where canal_id='e3000000-0000-4000-8000-000000000001')<>1
@@ -42,6 +46,7 @@ end $wa40$;
 
 -- WA40-02: the reverse binding is exclusive even across channel IDs.
 do $wa40$
+declare v_constraint text;
 begin
  begin
   insert into prumo_private.meta_canais_fixture_s0(
@@ -50,13 +55,17 @@ begin
     'e3000000-0000-4000-8000-000000000004',
     'FIXTURE_WA40_WABA_A','FIXTURE_WA40_PHONE_A1');
   raise exception 'FAIL WA40-02: same sender assigned to second channel';
- exception when unique_violation then null;
+ exception when unique_violation then
+  get stacked diagnostics v_constraint = constraint_name;
+  if v_constraint is distinct from 'meta_canais_fixture_s0_phone_number_ref_key'
+   then raise exception 'FAIL WA40-02: unexpected unique constraint %',v_constraint;end if;
  end;
 end $wa40$;
 \echo 'PASS WA40-02: one channel per WABA/phone binding'
 
 -- WA40-03: a Meta App cannot be rebound to another dealership.
 do $wa40$
+declare v_constraint text;
 begin
  begin
   insert into prumo_private.meta_canais_fixture_s0(
@@ -65,7 +74,10 @@ begin
     'e3000000-0000-4000-8000-000000000005',
     'FIXTURE_WA40_WABA_FAKE','FIXTURE_WA40_PHONE_CROSS');
   raise exception 'FAIL WA40-03: cross-shop app binding accepted';
- exception when foreign_key_violation then null;
+ exception when foreign_key_violation then
+  get stacked diagnostics v_constraint = constraint_name;
+  if v_constraint is distinct from 'meta_canais_fixture_s0_app_ref_concessionaria_id_fkey'
+   then raise exception 'FAIL WA40-03: unexpected FK %',v_constraint;end if;
  end;
 end $wa40$;
 \echo 'PASS WA40-03: Meta App dealership ownership enforced'
@@ -98,6 +110,9 @@ begin
      where i.provider_message_id_s0 like 'wamid.WA40.%')<>2
  or (select count(distinct canal_id) from prumo_private.inbox_eventos_s0
      where provider_message_id_s0 like 'wamid.WA40.%')<>2
+ or exists(select 1 from prumo_private.inbox_eventos_s0
+     where provider_message_id_s0 like 'wamid.WA40.%'
+       and concessionaria_id <> 'e2000000-0000-4000-8000-000000000001')
  then raise exception 'FAIL WA40-04: same-shop, two-sender ingress';end if;
 end $wa40$;
 \echo 'PASS WA40-04: two senders, same dealership, unique inbox+task+replay'
