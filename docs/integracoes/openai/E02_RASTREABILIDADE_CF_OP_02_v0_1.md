@@ -34,6 +34,20 @@ Total meramente aritmético **120 referências**, com sobreposição e responsab
 
 A referência aos intervalos CF2 é indicativa (cobre mais de uma disciplina), não atesta que um teste externo esteja dentro da propriedade OpenAI. **Não contar teste externo como resultado desta frente**.
 
+## 2A. Retorno pós-venda e fila protegida — casos adicionais de REVISÃO, sem execução
+
+**Fontes:** doc.22 [D], doc.26 C02/C14 [P], evolução S1-002/I6–I8 na issue #6, e [adendo OAI-08](OAI_08_CONTRATO_PLANEJADORA_POS_HUMANA_CF_OP_02_v0_1.md). Estes são **cenários candidatos**, não novas transições nem fixture física.
+
+| Candidato | Oráculo OpenAI / responsabilidade S0 | Estado |
+|---|---|---|
+| **PV-01** — inbound espontâneo de caso histórico `vendido` | Novo caso exclusivamente humano da mesma loja; nenhuma fala IA Vendedora nem alteração do `vendido` anterior. F03 apenas com fechamento válido do NOVO caso. | [D/P/R], NÃO EXECUTADO |
+| **PV-02** — F03 avalia reclamação/suporte depois de venda anterior | Pode indicar `NOT_APPLICABLE`/revisão de finalidade (enum só lógico [P]); não preencher campos de remessa por analogia nem concluir nova venda. | [P/R], NÃO EXECUTADO |
+| **PV-03** — F02 recebe retorno pós-venda sem ciclo comercial novo e elegível | Nenhum recontato comercial executável. Novo ciclo e elegibilidade futura pertencem ao S0; ausência de autorização é bloqueio, não convite à IA. | [R/V], NÃO EXECUTADO |
+| **PV-04** — caso humanizado sem operador elegível entra em fila protegida | Resultado F03/F02 não cria atribuição ou outbound. S0/S1 deixam pendente, revalidam após atribuição legítima; nenhum fallback para Vendedora. | [P/R], NÃO EXECUTADO |
+| **PV-05** — novo operador atribuído, resposta chega junto com proposta obsoleta | S0 descarta proposta desatualizada/revalida versão e autorização; resposta permanece com humano atual. | [P/R], NÃO EXECUTADO |
+
+**Atenção:** fontes S1 relatam testes em SUA branch, mas **nenhuma validação OpenAI**. Estes 5 nomes `PV` não integram automaticamente os 32 SYN, 16 EX ou 34 CF2 e não são quantidades de testes executados.
+
 ## 3. Critérios de qualidade antes de converter em testes físicos
 
 1. Escolher uma assinatura **canônica homologada** F03 entre S0/OpenAI, a partir da **proposta** CFI_01_PROPOSTA_CONCILIACAO_ENVELOPE_F03_v0_1.md; somente após aceite gerar fixtures de contrato como se fossem schema executável.
