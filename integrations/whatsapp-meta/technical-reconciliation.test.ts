@@ -199,3 +199,79 @@ test('REC-24: fixture is not a durable receipt, an ACK, or a commercial update',
   assert.equal('commercial_status' in status, false);
   assert.equal('http_status' in status, false);
 });
+
+ 
+// REC-25..32: strengthen the seam between an observed Graph response and an
+// already authenticated, persistently accepted status. All tests are OFFLINE.
+test('REC-25: forged Graph accepted flag with non-2xx HTTP cannot link', () => {
+  const x = new FakeMetaStatusReconciler();
+  for (const status of [null, 199, 302, 400, 500, Number.NaN]) {
+    const result = x.registerAcceptedSend(reference, { ...accepted, http_status: status });
+    assert.equal(result.decision, 'NOT_ACCEPTED');
+  }
+  assert.equal(x.linkedCount, 0);
+});
+test('REC-26: accepted Graph record requires canonical wamid, not arbitrary key', () => {
+  const x = new FakeMetaStatusReconciler();
+  for (const provider_message_id of ['OTHER', 'wamid.', 'wamid.A B', 'wamid.A\nB', 'wamid.A'.repeat(300)]) {
+    assert.equal(x.registerAcceptedSend(reference, { ...accepted, provider_message_id }).decision,
+      'INVALID_REFERENCE');
+  }
+  assert.equal(x.linkedCount, 0);
+});
+test('REC-27: technical link rejects forged automatic-retry or provider error flags', () => {
+  const x = new FakeMetaStatusReconciler();
+  const bads: GraphSendOutcome[] = [
+    { ...accepted, retry_automatically: true as false },
+    { ...accepted, meta_error_code: 100 },
+    { ...accepted, meta_error_subcode: 33 },
+  ];
+  for (const bad of bads)
+    assert.equal(x.registerAcceptedSend(reference, bad).decision, 'INVALID_REFERENCE');
+  assert.equal(x.linkedCount, 0);
+});
+test('REC-28: status must include a statuses-array position with safe indices', () => {
+  const x = newLinked();
+  const base = callback('sent');
+  for (const position of [
+    { ...base.position, array_kind: 'messages' as const },
+    { ...base.position, item_index: -1 },
+    { ...base.position, entry_index: 1.5 },
+    { ...base.position, change_index: Number.NaN },
+    null,
+  ]) {
+    const r = observe(x, { ...base, position } as MetaIngressEvent);
+    assert.equal(r.reason, 'INVALID_EVENT');
+  }
+  assert.equal(x.projectionFor(reference, accepted.provider_message_id!)?.observation_count, 0);
+});
+test('REC-29: malformed callback wamid cannot create pending or alter linked state', () => {
+  const x = newLinked();
+  for (const provider_message_id of ['OTHER', 'wamid.', 'wamid.A B', 'wamid.\n', 'wamid.A'.repeat(300)]) {
+    const r = observe(x, callback('sent', undefined, { provider_message_id }));
+    assert.equal(r.decision, 'REJECTED_EVENT');
+    assert.equal(r.reason, 'INVALID_EVENT');
+  }
+  assert.equal(x.pendingCount, 0);
+  assert.equal(x.projectionFor(reference, accepted.provider_message_id!)?.observation_count, 0);
+});
+test('REC-30: projection lookup refuses non-wamid keys even in trusted scope', () => {
+  const x = newLinked();
+  assert.equal(x.projectionFor(reference, 'FAKE_INTERNAL_KEY'), undefined);
+});
+test('REC-31: reject recipient scope with malformed numeric sender when linking', () => {
+  const x = new FakeMetaStatusReconciler();
+  const invalid = { ...reference, scope: { ...reference.scope, phone_number_id: 'CANAL_A' } };
+  assert.equal(x.registerAcceptedSend(invalid, accepted).decision, 'INVALID_REFERENCE');
+  assert.equal(x.linkedCount, 0);
+});
+test('REC-32: a valid scoped Graph acceptance still links and status progresses only technically', () => {
+  const x = new FakeMetaStatusReconciler();
+  assert.equal(x.registerAcceptedSend(reference, accepted).decision, 'LINKED');
+  const r = observe(x, callback('sent'));
+  assert.equal(r.decision, 'CORRELATED');
+  assert.equal(r.progress, 'SENT');
+  assert.equal(r.retry_automatically, false);
+  assert.equal('commercial_status' in r, false);
+  assert.equal('http_status' in r, false);
+});
