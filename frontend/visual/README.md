@@ -93,3 +93,9 @@ A aba **Extração** possui agora um cenário ilustrativo O3 (`A-108`) com **ver
 Na aba **Banco**, o caso A-105 ilustra remessa humana verificada no cenário e **retorno não comprovado**. O navegador não processa prova, marca vendido/perdido ou comunica a instituição financeira. Gestores de mera supervisão recebem apenas resumo, sem conteúdo D4; o perfil sem atribuição não recebe detalhes. Novo módulo `bank-view.mjs`, teste `tests/bank-view.test.mjs` e roteiro Chromium atualizado.
 
 **Evidência:** 77/77 verificações sintéticas em V8 (46 regras, 21 interações, 10 estáticas), com [auditoria completa](../docs/18_AUDITORIA_O4_BANCO_FV_UI_008_2026_10_19.md). **Ainda pendente** executar checkout atual com Node e Chromium real, além da homologação S0/Banco.
+
+## FV-UI-009 — Navegação O5 de novo ciclo humano
+
+A aba **Novo contato** consulta vínculos sintéticos recíprocos de casos após remessa bancária ou venda: A-105 → A-114 e A-115 → A-116. Um botão abre o caso novo **já presente na fixture**, com retorno ao original preservado. **Não** cria ciclo, altera `vendido`, registra remessa, reabre a IA ou envia WhatsApp. Alteração de loja, perfil, vínculo ou versão impede navegação para caso fora do escopo. O compositor do novo caso só simula a operação do profissional atribuído, com janela e permissão projetadas. Ver [auditoria FV-UI-009](../docs/19_AUDITORIA_O5_NOVO_CONTATO_FV_UI_009_2026_10_19.md).
+
+**Validação:** 96/96 ensaios sintéticos PASS (59 domínio, 25 DOM, 12 fonte). Checkout Node direto/Chromium real, segurança S0, mensagens Meta e criação C14 seguem pendentes.
