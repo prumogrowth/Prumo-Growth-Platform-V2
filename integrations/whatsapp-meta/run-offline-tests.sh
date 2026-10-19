@@ -22,7 +22,21 @@ case "$MODE" in
   --focus) files=("$LAB_DIR/status-evidence.test.ts"
                    "$LAB_DIR/technical-reconciliation.test.ts"
                    "$LAB_DIR/graph-outbound.test.ts") ;;
-  --all) files=("$LAB_DIR"/*.test.ts) ;;
+  --all)
+    files=("$LAB_DIR"/*.test.ts)
+    # A partial checkout must not masquerade as a full Meta regression.
+    if (( ${#files[@]} < 26 )); then
+      echo 'Incomplete Meta test checkout: expected at least 26 suites' >&2
+      exit 66
+    fi
+    for mandatory in status-evidence technical-reconciliation inbound graph-outbound \
+        routed-webhook s0-ingress-gateway; do
+      if [[ ! -f "$LAB_DIR/$mandatory.test.ts" ]]; then
+        echo "Missing mandatory Meta suite: $mandatory.test.ts" >&2
+        exit 66
+      fi
+    done
+    ;;
   *) echo 'Usage: run-offline-tests.sh [--unit|--focus|--all]' >&2; exit 64 ;;
 esac
 for file in "${files[@]}"; do
