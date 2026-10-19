@@ -51,7 +51,7 @@ jobs:
           set -a
           source "$RUNNER_TEMP/prumo-s1-i19-env"
           set +a
-          python3 scripts/test_s1_002_gateway_local.py
+          PYTHONPATH=. python3 scripts/test_s1_002_gateway_local.py
       - name: Desligar stack local
         if: always()
         shell: bash
