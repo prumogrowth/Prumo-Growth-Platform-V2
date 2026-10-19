@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""S1-002/I18: E2E somente local CI (GoTrue, PostgREST e migrations REAIS).
+"""S1-002/I19: E2E somente local CI (GoTrue, PostgREST e migrations REAIS).
 Test-only public bridges; NEVER use against hosted Supabase or production.
 """
 import json
@@ -19,8 +19,8 @@ from urllib.request import Request, urlopen
 api = os.environ["API_URL"].rstrip("/")
 db = os.environ["DB_URL"]
 anon = os.environ["ANON_KEY"]
-if os.environ.get("CI") != "true" or os.environ.get("PRUMO_S1_I18_EPHEMERAL") != "YES":
-    raise SystemExit("RECUSADO: exige CI e PRUMO_S1_I18_EPHEMERAL=YES")
+if os.environ.get("CI") != "true" or os.environ.get("PRUMO_S1_I19_EPHEMERAL") != "YES":
+    raise SystemExit("RECUSADO: exige CI e PRUMO_S1_I19_EPHEMERAL=YES")
 for url in (api, db):
     if urlparse(url).hostname not in ("localhost", "127.0.0.1", "::1"):
         raise SystemExit("RECUSADO: somente loopback")
