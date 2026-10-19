@@ -82,7 +82,8 @@ const defaultProjection = (): TechnicalProjection =>
 
 export class FakeMetaStatusReconciler {
   private readonly sends = new Map<string, LinkedSend>();
-  private readonly attempts = new FakeAttemptBindingLedger();
+  private readonly attempts: FakeAttemptBindingLedger;
+  constructor(attempts: FakeAttemptBindingLedger = new FakeAttemptBindingLedger()) { this.attempts = attempts; }
   private readonly pending: Pending[] = [];
 
   /** Graph API accepted + wamid is not proof of delivery. */
@@ -137,7 +138,9 @@ export class FakeMetaStatusReconciler {
       provider_message_id: outcome.provider_message_id,
     });
     if (attempt === 'INVALID') return result('INVALID_REFERENCE');
-    if (attempt !== 'NEW') return result('CONFLICT');
+    // WA-13: an exact SAME binding may already have been committed by the
+    // shared WA-12 fixture; conflicting and malformed claims remain denied.
+    if (attempt !== 'NEW' && attempt !== 'SAME') return result('CONFLICT');
     this.sends.set(key, linked);
     let pending_correlated = 0;
     // Reconcile only exact app/WABA/phone/message AND recipient. Unmatched
