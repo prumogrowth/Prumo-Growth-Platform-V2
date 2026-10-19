@@ -8,6 +8,7 @@ export const DETAIL_TABS = Object.freeze([
   { id: 'activity', title: 'Histórico' },
   { id: 'notes', title: 'Notas' },
   { id: 'extraction', title: 'Extração' },
+  { id: 'bank', title: 'Banco' },
   { id: 'followup', title: 'Recontatos' }
 ]);
 export const EXTRACTION_SCENARIOS = Object.freeze(['accepted', 'partial', 'failed', 'stale']);
