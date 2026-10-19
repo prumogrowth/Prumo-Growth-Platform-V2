@@ -58,3 +58,38 @@
 **Próximo passo controlado:** obter aceite bilateral da assinatura CFI-01 (issue #4), decisão S0 sobre elegibilidade C09 (issue #6) e aprovação dos critérios E02 pelo responsável quando as decisões de negócio forem realmente necessárias. Não abrir novos cadernos apenas para prolongar a etapa; nenhuma programação antes do gate de fase.
 
 
+
+
+---
+
+## Terceira auditoria — 19/10/2026 | revisão completa pré-continuidade
+
+**Escopo examinado:** todos os **23 arquivos Markdown** no diff do PR #3 (22 listados no índice + o próprio README); fontes normativas consolidadas no pacote de 55 arquivos de 17/10/2026, especialmente 00A, 03/ATD-01B, 06, 13A, 19F, 21–23, 26 C05/C08/C09 e 40–41; OpenAI E01/F01–F05, OAI-05/07/08, PRs S0 #1 e coordenação #7, issues #4 e #6 e evolução S1-002/I6–I9. Documentação oficial OpenAI foi consultada para verificar a existência dos **modelos candidatos**; não se provou acesso no projeto de API nem sua adequação funcional.
+
+### Resultado do confronto com a finalidade da plataforma
+
+- **Alinhado:** operação multiconcessionária com canais/identidades isolados; produto LiberaCred pertence à instituição financeira; nova empresa gestora é titular da operação; nome comercial da plataforma não deve ser inferido; IA Analista autônoma retirada do escopo atual. Handoff à equipe humana é definitivo para IA Vendedora. F03 é extração/análise silenciosa com aplicação somente pela validação S0; F02 propõe templates/versões/hora, sem mensagem nem escrita. Resultados bancários dependem de prova real e ação humana autorizada.
+- **Correto, mas ainda [R/V]:** CFI-01 F03 (issue #4) sem aceite bilateral; C09 humano e fase `cadastro enviado ao operador` (issue #6) sem matriz S0 ratificada; prova Meta de `sent`, opt-out, cláusulas LGPD e autorização Banco pendentes. Nunca perder por silêncio um ciclo já `cadastro enviado ao banco`, `vendido` ou `perdido` histórico.
+- **Retorno pós-venda:** doc.22 manda novo atendimento exclusivamente humano; separação física de casos/ciclos é [P/R]. OAI-08 e E01 não autorizam F02 comercial apenas porque existe venda histórica. Fila protegida/remanejamento pertencem ao S1-002/S0 e não reativam IA Vendedora.
+- **Fase presente:** planejamento; configuração de projeto/chave/billing API OpenAI adiada por escolha expressa do responsável até estrutura e testes offline autorizados estarem preparados. Programação E04 também precisa de liberação própria. **69/100 mede prontidão documental global**, não implementação.
+
+### Reparos executados nesta terceira auditoria, apenas na branch OpenAI
+
+| Achado | Reparação e limite |
+|---|---|
+| R3-01 — OAI-08 omitira uma guarda de ATD-01B | Acrescentadas **duas falhas consecutivas qualificadas** → S0 cancela tentativas futuras e mantém trilha. Não inferir `failed` de `queued`/`accepted`/`uncertain`; mapeamento Meta é [R/V]. |
+| R3-02 — dois intervalos de 24h confundíveis ou incompletos | Documentado final separado, previsto **aproximadamente +24h após última tentativa sem resposta**, e relógio C09 **+24h após `sent` efetivo** do final, com verificação de inexistência de inbound e elegibilidade S0. Janela Meta do último inbound é ainda outro marco; conclusão humana não reinicia nenhum timer. |
+| R3-03 — rastreabilidade exagerava cobertura existente | SYN-19/20 (catálogo e opt-out) não provam duas falhas qualificadas nem relógio final. Matriz E02 e rastreabilidade agora mostram **FT-01 e FT-02 como lacunas candidatas não implementadas**; não renumerar SYN e não atribuir testes PASS por referências. |
+| R3-04 — guia antigo de credenciais poderia sugerir ação imediata | O procedimento de provisionamento também foi sincronizado com a decisão de **adiar E03 operacional**; não há chave, projeto API, faturamento ou destino de secret a configurar nesta etapa. |
+
+### Checagens estáticas efetivamente realizadas nesta revisão
+
+- **Escopo do PR:** comparação de `main` com branch OpenAI retornou somente caminhos `docs/integracoes/openai/*.md`; PR #3 segue Draft, não mesclado. Nenhum arquivo das branches S0/S1/Meta/Frontend foi alterado pela auditoria.
+- **Integridade documental:** 23 arquivos no escopo; README lista 22 documentos associados; nenhuma referência Markdown **relativa** inválida nos arquivos auditados, nenhuma cerca de código Markdown desequilibrada encontrada. **7 blocos JSON ilustrativos** lidos pelo parser JSON sem erro sintático.
+- **IDs:** 27 linhas de casos OAI-T com 27 IDs únicos; 32 SYN na matriz e 32 SYN no gabarito, sem duplicações; 16 EX únicos; cinco PV únicos. FT-01/02 foram identificados como lacunas documentais **adicionais**, ainda sem fixture. As **120 referências antigas** possuem sobreposição e não são 120 testes executados.
+- **Não verificável nesta etapa:** comportamento real da IA, confiabilidade da extração, qualidade de áudio/transcrição, APIs S0↔OpenAI/Meta, RLS de produção, integração, escala, latência, custo ou homologação bancária. Não existe adaptador OpenAI implementado no diff, nem testes E04/E05 da frente executados. **Não alegar que “está funcionando” em ambiente real por passar checagens documentais.**
+- **Distinção interfrentes:** provas de CI anunciadas por S0/S1/Meta pertencem a essas frentes e seus próprios cenários; não certificam os contratos ou a qualidade da OpenAI.
+
+### Veredito e gates
+
+**APTO A CONTINUAR PLANEJAMENTO DOCUMENTAL. NÃO APTO A DECLARAR SOFTWARE OPENAI FUNCIONANDO, HOMOLOGAR CONTRATO CFI-01/C09, INICIAR E04 POR `prossiga` GENÉRICO OU LIGAR API.** Os defeitos controláveis na documentação foram reparados; bloqueios externos/técnicos permanecem informados com donos específicos. Próxima etapa objetiva: revisão bilateral issue #4 e matriz de estados/C09 issue #6, sem novos cadernos de E02 apenas para inflar volume. O progresso global 19F **permanece 69/100**.
