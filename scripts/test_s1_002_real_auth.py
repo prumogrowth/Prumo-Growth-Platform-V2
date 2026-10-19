@@ -211,11 +211,15 @@ def jwt_parts(value):
         return base64.urlsafe_b64decode(piece + "=" * (-len(piece) % 4))
     return json.loads(decode(a)), json.loads(decode(b)), decode(c)
 
-header2, claims2, signature2 = jwt_parts(token2)
-if header2.get("alg") != "HS256":
-    raise AssertionError("I17 requer stack local JWT HS256; alg inesperado")
-def sign_test_claims(base_token, changed):
-    encoded_header = base_token.split(".")[0]
+header2, claims2, _signature2 = jwt_parts(token2)
+# GoTrue pode emitir JWT assimétrico (ex.: ES256); não tentar reassiná-lo
+# com a chave HS256 legada. Para provar expiração, o canário usa uma
+# assinatura HS256 do ambiente LOCAL, que PostgREST também deve aceitar
+# quando a stack possui compatibilidade com chaves JWT legadas.
+def sign_test_claims(changed):
+    encoded_header = base64.urlsafe_b64encode(
+        json.dumps({"alg": "HS256", "typ": "JWT"}, separators=(",", ":")).encode()
+    ).decode().rstrip("=")
     encoded_payload = base64.urlsafe_b64encode(
         json.dumps(changed, separators=(",", ":"), sort_keys=True).encode()
     ).decode().rstrip("=")
@@ -224,26 +228,27 @@ def sign_test_claims(base_token, changed):
     encoded_sig = base64.urlsafe_b64encode(digest).decode().rstrip("=")
     return signed.decode() + "." + encoded_sig
 
-# Controle de testemunha: sem chave correspondente, todos os ensaios de
-# expiração/revogação poderiam passar por assinatura inválida.
-expected_sig = base64.urlsafe_b64encode(hmac.new(
-    secret.encode(), ".".join(token2.split(".")[:2]).encode(),
-    hashlib.sha256).digest()).decode().rstrip("=")
-if not hmac.compare_digest(token2.split(".")[2], expected_sig):
-    raise AssertionError("I17 JWT GoTrue nao foi assinado pela chave local esperada")
-print("PASS S1JWT-01: JWT real GoTrue validado com chave HS256 efemera")
+# Sem uma assinatura válida que realmente atravesse o PostgREST, o teste
+# 'expirado' seria falso positivo (rejeição por HMAC errado).
+control_token = sign_test_claims(claims2)
+control_status, control_data = probe(control_token)
+if control_status != 200 or control_data.get("ator_id") != user_uuid:
+    raise AssertionError(
+        "assinatura HS256 local de testemunha nao foi aceita pelo PostgREST "
+        + str(control_status) + " " + str(control_data)[:200])
+print("PASS S1JWT-01: JWT HS256 assinado no CI local passou como testemunha")
 
 expired = dict(claims2)
 expired["iat"] = int(time.time()) - 1200
 expired["exp"] = int(time.time()) - 600
-status, _ = probe(sign_test_claims(token2, expired))
+status, _ = probe(sign_test_claims(expired))
 if status != 401:
     raise AssertionError("JWT expirado com assinatura valida deveria ser HTTP 401: " + str(status))
 print("PASS S1JWT-02: PostgREST recusa JWT corretamente assinado mas expirado")
 
 unbound = dict(claims2)
 unbound["session_id"] = str(uuid.uuid4())
-status, _ = probe(sign_test_claims(token2, unbound))
+status, _ = probe(sign_test_claims(unbound))
 assert_blocked(status, "JWT assinado com session_id sem registro GoTrue")
 print("PASS S1JWT-03: assinatura valida nao substitui sessao cadastrada")
 
@@ -251,7 +256,7 @@ other_actor = str(uuid.uuid4())
 psql("INSERT INTO public.atores(id) VALUES ('" + other_actor + "'::uuid)")
 impersonated = dict(claims2)
 impersonated["sub"] = other_actor
-status, _ = probe(sign_test_claims(token2, impersonated))
+status, _ = probe(sign_test_claims(impersonated))
 assert_blocked(status, "JWT assinado com sessao de outro ator")
 print("PASS S1JWT-04: sub de outro ator nao herda session_id autentico")
 
