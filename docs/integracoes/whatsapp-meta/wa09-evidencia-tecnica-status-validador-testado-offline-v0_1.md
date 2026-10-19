@@ -32,3 +32,15 @@ Fonte do conciliador após integração: blob `c98bb25575c302e659b8a5781e33cacf1
 3. Só depois construir/admitir porta autenticada e recibo comprovado após COMMIT/COMMIT_UNKNOWN, vínculos App/WABA/número→loja vigentes e proteção integral do payload. API Meta externa, segredos reais, templates aprovados, callbacks reais e prova operacional de `sent` são **etapas posteriores e dependem de autorização específica**.
 
 **GO:** continuar estrutura e testes offline. **NO-GO:** anunciar produção, ACK HTTP, Graph real, regra de negócio S0/C07/C09, custos, Supabase hospedado ou merges. PRs continuam Draft.
+
+## Continuação WA-09B — coerência de correlação e identificação de emissor (19/10/2026)
+
+**Mudança implementada, não limitada a documentação:** `status-evidence.ts` recebeu `isSafeEvidenceRef` para validar a sintaxe e o limite (1–128) dos identificadores internos de `attempt_id` e `correlation_id` em `isAcceptedGraphEvidence`; antes, a função verificava apenas a presença desses campos. Também recebeu `isMetaPhoneNumberId` (somente dígitos, 5–25) e `technical-reconciliation.ts` passou a usar esse validador para o emissor técnico tanto no vínculo `registerAcceptedSend` quanto em `observeAuthenticatedFixture`. **Não se trata da normalização de telefone de destinatário brasileiro, titularidade civil ou validação bancária.**
+
+**Auditoria corretiva:** documentação e nome do caso WA09-10 foram ajustados para deixar claro que formato de referência **não prova ausência de PII**. Não houve coleta de dados reais.
+
+**Teste local efetivamente executado:** `node --experimental-strip-types --test status-evidence.test.ts` em Node v22.16.0 → **11/11 PASS**; `tsc --noEmit --strict --skipLibCheck --target ES2022 --module NodeNext --moduleResolution NodeNext status-evidence.ts` → **PASS**. Verificados Git blob SHA dos arquivos de **código e teste efetivamente executados**: biblioteca `50095d75216f13686782476e8f6143d64933f42d`, testes `bde56f1245b0ee635bc2874950599fc1bd941dd4`. Casos adicionais WA09-09, 10 e 11 validam referências internas malformadas, ausência de caracteres proibidos e o formato técnico do emissor.
+
+**Escopo de evidência:** a alteração em `technical-reconciliation.ts` foi publicada, porém a **regressão integrada REC-01..35 ainda não foi executada** nesta etapa (não havia um checkout completo do repositório privado no ambiente local). Não declarar integração testada end-to-end por causa dos 11 testes do helper. Tampouco foram rodados os cenários PostgreSQL WA-06D (última evidência 0/20) ou S0-040 (0/5). Esses testes internos **não exigem API externa**, mas exigem árvore de código, Node/TS e PG17 adequados. A preferência pelo uso das APIs reais somente na fase final permanece preservada.
+
+**Sem alteração em:** Graph real, Supabase hospedado, S0/S1 SQL, regras comerciais, estado vendido/perdido, opt-out, janela 24h, envio ou recibo HTTP. PRs Draft, sem merge/deploy.
