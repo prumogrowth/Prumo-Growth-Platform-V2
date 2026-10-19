@@ -21,18 +21,28 @@ sandbox="$(mktemp -d /tmp/wa06d_pg17_XXXXXXXX)"
 cluster="$sandbox/cluster"
 sock="$sandbox/socket"
 mkdir -m 700 "$sock"
-started=false
+start_attempted=false
 cleanup() {
-  if [[ "$started" == true ]]; then
+  original_status=$?
+  trap - EXIT
+  if [[ "$start_attempted" == true ]]; then
+    # A failed pg_ctl start may still have spawned postgres: ALWAYS attempt stop.
     "$pg_bin/pg_ctl" -D "$cluster" -m fast -w stop >/dev/null 2>&1 || :
+    if "$pg_bin/pg_ctl" -D "$cluster" status >/dev/null 2>&1; then
+      echo "WA06D CRITICAL: cluster may still be running; preserving $sandbox for safe manual inspection" >&2
+      exit 70
+    fi
   fi
-  if [[ -n "${sandbox:-}" && "$sandbox" == /tmp/wa06d_pg17_* ]]; then rm -rf -- "$sandbox"; fi
+  if [[ -n "${sandbox:-}" && "$sandbox" == /tmp/wa06d_pg17_* && -d "$sandbox" ]]; then
+    rm -rf -- "$sandbox"
+  fi
+  exit "$original_status"
 }
 trap cleanup EXIT
 "$pg_bin/initdb" -D "$cluster" -A trust -U wa06d_owner --no-instructions >"$sandbox/initdb.log" 2>&1
+start_attempted=true
 "$pg_bin/pg_ctl" -D "$cluster" -o "-c listen_addresses='' -c unix_socket_directories='$sock' -c port=54339" \
   -l "$sandbox/postgres.log" -w start >/dev/null
-started=true
 "$pg_bin/createdb" -h "$sock" -p 54339 -U wa06d_owner wa06d_test_ephemeral
 for file in wa06d_pg17_atomicity.sql wa06d_pg17_postcommit_setup.sql wa06d_pg17_postcommit_verify.sql; do
   "$pg_bin/psql" -X -v ON_ERROR_STOP=1 -h "$sock" -p 54339 -U wa06d_owner -d wa06d_test_ephemeral -f "$script_dir/$file"
