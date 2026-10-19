@@ -33,3 +33,28 @@
 - **GO limitado:** continuar desenho sintético e revisão contratual. **NO-GO:** interfaces como canônicas, C09 pós-humano físico, dados reais, consumo sem lote aprovado, mudança S0/Meta, deploy, merge ou progresso global automático.
 
 **Conclusão:** saneamento editorial e rastreabilidade feitos. Bloqueios de homologação técnica, privacidade e elegibilidade por status continuam explícitos e pertencem aos donos correspondentes.
+
+## Segunda auditoria dos últimos trabalhos — 18/10/2026, revisão anterior à continuidade
+
+**Fontes confrontadas:** documentação OpenAI PR #3, OAI-05/07/08, CF-OP-02 PR #7, contratos S0/Meta em revisão, pacote normativo 17/10 (00A, 03 ATD-01B, 13A, 21, 23, 26 C05/C08/C09, 19F, 40/41) e objetivo de negócio do projeto. Consulta pontual à documentação oficial de modelos OpenAI confirma os modelos textuais candidatos e `gpt-transcribe` para áudio gravado; isso NÃO atesta acesso da conta nem precisão real. Sem análise de dados de clientes.
+
+| Achado | Reparo realizado somente no PR #3 |
+|---|---|
+| **R2-01 — Evidência ambígua de preferência** | SYN-01 passou a conter preferência explícita, e não só manifestação de interesse; SYN-03 passou a demonstrar duas afirmações efetivamente incompatíveis, não mera abertura a um segundo modelo. Evita criar falso conflito em conversa real. |
+| **R2-02 — Fonte de operador confundida com conflito de cliente** | SYN-05 passou a preservar proposta de valor explicitamente escolhido pelo cliente; nota especulativa do operador, sozinha, não anula essa evidência. Política específica S0 continua superior. |
+| **R2-03 — Quantidade candidata F02 imprecisa** | EX-11 agora exige **2–5 tentativas regulares para cliente já atendido e silencioso**, acrescidas de template final separado, conforme 03/ATD-01B e OAI-08. Sem enviar ou agendar nada. |
+| **R2-04 — Descrições chamadas de `fixtures`** | E02 matriz e E03 checklist agora distinguem explicitamente cenário textual/gabarito de fixture física executável. 32 SYN e 16 EX continuam sem `ACTUAL`, `PASS/FAIL` nem relatório de execução. |
+| **R2-05 — Risco de antecipar programação e roteiro tratado como fechado** | Plano OAI-E00–E08 virou **roteiro local candidato e ajustável**; gate `G-FASE-DO-PROJETO` explicita que a meta é concluir o planejamento integral antes de implementar e que um `prossiga` genérico não libera E04/E05, infraestrutura ou gasto. README reforçado. |
+
+### Itens que permaneceram corretos
+
+- Somente oito status canônicos; `vendido` continua confirmado por Banco e registrado manualmente; perda por recusa bancária exige prova e operador humano.
+- C09 pós-humano permanece orientação funcional recente [D-negócio], **não** implementação aprovada; escopo por status [R] na S0, proibido por silêncio após remessa bancária/venda.
+- F03 extrai campos permitidos com evidência e sinaliza desfecho/seguimento; F02 propõe nova cadeia de templates quando S0 autorizar. Handoff definitivo preservado, sem IA Analista autônoma nesta frente.
+- Projeto comercial final é **operação terceirizada LiberaCred da instituição financeira**, multiconcessionária e com dados isolados; Prumo Growth identifica a empresa/projeto técnico e **não atribui nome comercial à plataforma**.
+- OAI API project, cobrança, credenciais, modelos habilitados, n8n versus direto, catálogo bancário, privacidade de dados reais e gates interfrentes **ainda não comprovados/homologados**. A documentação nunca pode contar como teste real.
+- Documentação da branch PR #3 sem código, infraestrutura, banco, credencial, merge ou envio. Os controles G1–G5 continuam no 19F, posição **69/100** sem pontos adicionais por reparos.
+
+**Próximo passo controlado:** obter aceite bilateral da assinatura CFI-01 (issue #4), decisão S0 sobre elegibilidade C09 (issue #6) e aprovação dos critérios E02 pelo responsável quando as decisões de negócio forem realmente necessárias. Não abrir novos cadernos apenas para prolongar a etapa; nenhuma programação antes do gate de fase.
+
+
