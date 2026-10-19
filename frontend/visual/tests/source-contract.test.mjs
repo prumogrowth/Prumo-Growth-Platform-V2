@@ -14,6 +14,7 @@ const postmark = get('postmark-view.mjs');
 const teamOps = get('team-operations.mjs');
 const teamMonitoring = get('team-monitoring.mjs');
 const teamMonitor = get('team-monitor.mjs');
+const batchMonitor = get('batch-monitor.mjs');
 const fixtureTeam = get('fixtures.mjs');
 const browserSmoke = get('tests/browser.smoke.py');
 
@@ -193,4 +194,22 @@ test('Chromium smoke usa ambos módulos G3 e só lê painel depois de ativá-lo'
   assert.match(browserSmoke, /'team-monitor\.mjs','team-monitoring\.mjs','app\.mjs'/);
   assert.match(browserSmoke, /page\.locator\('#team-show-monitor'\)\.click\(\)/);
   assert.match(browserSmoke, /page\.locator\('#team-show-members'\)\.click\(\)/);
+});
+
+test('G4 mostra somente lotes fictícios autorizados por equipe e loja',()=>{
+  assert.match(app, /projectManagerBatches\(state\.actorId\)/);
+  assert.match(app, /switchTeamPanel\('batches'\)/);
+  assert.match(batchMonitor, /row\.managerId!==managerId/);
+  assert.match(batchMonitor, /operators\.some\(operator=>operator\.shops\.includes\(row\.shopId\)\)/);
+  assert.match(batchMonitor, /countsConfirmed===true/);
+  assert.match(batchMonitor, /eligible\+batch\.quarantined===batch\.received/);
+  assert.equal((markup.match(/id="team-batches"/g)||[]).length,1);
+});
+
+test('G4 não executa uploads, edição de concessão ou mudança de status comercial',()=>{
+  assert.doesNotMatch(batchMonitor, /\bfetch\s*\(|\bXMLHttpRequest\b|\bWebSocket\b|\bFileReader\b/);
+  assert.doesNotMatch(batchMonitor, /\.assignedTo\s*=(?!=)|\.shops\s*=(?!=)|\.status\s*=(?!=)/);
+  assert.match(app, /Somente leitura\. Upload, aceitação de linhas, roteamento/);
+  assert.match(browserSmoke, /'batch-monitor\.mjs','app\.mjs'/);
+  assert.match(browserSmoke, /page\.locator\('#team-show-batches'\)\.click\(\)/);
 });
