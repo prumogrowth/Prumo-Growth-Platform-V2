@@ -96,3 +96,19 @@ test('mobile G3: indicadores por operadores aparecem sem dados de clientes',()=>
   assert.equal(dashboard.textContent.includes('Cliente Exemplo'),false);
   get('team-dialog').close();
 });
+
+test('mobile G3: alternar Operadores e Monitoramento mantém isolamento e privacidade',()=>{
+  reset();env.selectActor('marina');get('team-nav-mobile').click();
+  get('team-show-monitor').click();
+  assert.equal(get('team-monitor').hidden,false);
+  assert.ok(get('team-monitor').textContent.includes('Caso A-112'));
+  assert.ok(get('team-monitor').textContent.includes('Etapas comerciais canônicas'));
+  assert.equal(get('team-monitor').textContent.includes('Caso A-103'),false);
+  get('team-show-members').click();
+  assert.equal(get('team-monitor').hidden,true);
+  get('team-dialog').close();
+  env.selectActor('rafael');
+  get('team-nav-mobile').click();
+  assert.equal(get('team-dialog').open,false);
+  assert.equal(get('team-monitor').textContent,'');
+});
