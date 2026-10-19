@@ -9,6 +9,7 @@ const markup = get('index.html');
 const styles = get('styles.css');
 const contract = get('cf-op-02.mjs');
 const registration = get('registration-view.mjs');
+const bank = get('bank-view.mjs');
 const browserSmoke = get('tests/browser.smoke.py');
 
 test('três áreas adaptativas e controle de histórico existem', () => {
@@ -67,4 +68,21 @@ test('roteiro de Chromium carrega visualizador O3 para ensaios futuros', () => {
   assert.match(browserSmoke, /registration-view\.mjs/);
   assert.match(browserSmoke, /Valor fictício confirmado/);
   assert.match(browserSmoke, /Detalhes restritos ao responsável/);
+});
+
+test('O4 não contém edição, chamada bancária nem mutação de estado comercial', () => {
+  assert.match(app, /bankProjectionFor\(item,state\.actorId,state\.shopId\)/);
+  assert.match(app, /Registros C15–C18 exigem profissional autorizado/);
+  assert.match(bank, /bankCanMockWrite/);
+  assert.match(bank, /submittedByAuthorizedHuman === true/);
+  assert.match(bank, /replyRecordedByHuman === true/);
+  assert.doesNotMatch(bank, /\bfetch\s*\(|\bXMLHttpRequest\b|\bWebSocket\b/);
+  assert.doesNotMatch(bank, /record\.status\s*=/);
+});
+
+test('roteiro Chromium inclui O4 e separação de prova bancária D4', () => {
+  assert.match(browserSmoke, /bank-view\.mjs/);
+  assert.match(browserSmoke, /bank-demo-v1/);
+  assert.match(browserSmoke, /Acompanhamento bancário · resumo/);
+  assert.match(browserSmoke, /Decisão bancária não confirmada/);
 });
