@@ -62,6 +62,12 @@
 - A função candidata `evaluate_c09` **NUNCA retorna ALLOW**: devolve somente `DENY`, `NOT_READY` ou `POLICY_PENDING` em observações fictícias. Tipos de status devem corresponder aos **oito valores atuais da S0**; status desconhecido DENY. `sent` marcado por booleano no laboratório **NÃO prova callback real** e não pode ser aceito de browser/modelo como autenticação. Não está ligado à camada real de comandos, não atualiza status, não programa envio nem tem capacidade de ativação comercial.
 - A prova é útil apenas para antecipar regressões negativas; **não verifica funcionamento da integração real nem fecha aceites #4/#6**.
 
+### Revisão de robustez C09 — 19/10/2026
+
+O stub `c09_offline_gate.py` agora exige valores **booleanos reais** nos indicadores de handoff/plano/opt-out/final/evento autenticado e rejeita identidades/estados de tipos impróprios; datas malformadas não provocam acesso a `tzinfo` de uma string. Atestados `"false"` fornecidos como texto são recusados, sem possibilitar `POLICY_PENDING` indevido.
+
+Foram executados **10 testes novos** de coerção e evidências fictícias em `backend/tests/test_s0_openai_c09_strict_types.py` (**10/10 PASS**). As 27 regressões C09 anteriores continuam existentes; não foram reexecutadas nesta rodada. Em todo caso, o resultado **nunca é ALLOW** e não modifica o status comercial. A integração Meta/WA-09 reconhece `API_ACCEPTED` como evidência técnica distinta de `sent`; qualquer prova de callback autenticado exige fronteira Meta real, correlação durável e gate S0 próprios, ainda [R/V]. Sem CI, deploy, API ou banco.
+
 ## 5. Fronteiras e próximos aceites
 
 - **S0 / issue #6:** ratificar matriz C09 por status/ciclo (inclusive se `cadastro enviado ao operador` pode ou não sofrer perda por silêncio) e precedência de template individual versus cadeia, idempotência e critérios de fase.
