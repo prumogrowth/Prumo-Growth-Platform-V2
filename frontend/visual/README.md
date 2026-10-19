@@ -111,3 +111,9 @@ Os projetores de ficha/banco negam qualquer resumo a operador não designado; O5
 ### FV-UI-010 — Testes e limites de integração (19/10/2026)
 
 A gestão G2 opera exclusivamente com dados demonstrativos e mantém **disponibilidade de novos leads** separada de **estado da conta**. O seletor de concessionária filtra conversas, não altera a equipe; solicitações de pausa são globais para todas as lojas já concedidas a cada profissional e não alteram o estado confirmado. A relação gestor→operadores, concessões e distribuição precisam ser confirmadas pelo backend. **123/123 verificações sintéticas no harness V8**; Playwright/Chromium e `node --test` sobre o checkout atual **não executados**. [Auditoria](../docs/22_AUDITORIA_G2_EQUIPE_POR_OPERADORES_PAUSA_GLOBAL_2026_10_19.md).
+
+## FV-UI-011/012 — Painel G3 e lotes G4 por equipe
+
+O gestor fictício acessa **Operadores**, **Monitoramento** e **Lotes**. G3 concilia os oito status comerciais num quadro separado dos indicadores técnicos e mostra alertas somente quando há projeção fictícia S0. G4 utiliza projeções de lotes versionadas e minimizadas por gestor/equipe/loja; não contém upload, aceite de arquivo, seleção de destinatário nem concessões novas. Ao trocar gestor, os dados renderizados das três abas são apagados.
+
+**180/180 verificações sintéticas G2–G4 aprovadas** (110 regras, 45 interações DOM, 25 inspeções). **Node direto/Chromium real ainda pendentes.** Auditorias: [G3](../docs/23_AUDITORIA_G3_MONITORAMENTO_UNIFICADO_FV_UI_011_2026_10_19.md) e [G4](../docs/24_AUDITORIA_G4_LOTES_EQUIPE_FV_UI_012_2026_10_19.md).
