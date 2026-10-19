@@ -1,0 +1,59 @@
+name: Prumo S1-002 - GoTrue PostgREST local I16
+on:
+  push:
+    branches: [feat/s1-002-equipe-prumo]
+    paths:
+      - '.github/workflows/s1-002-auth-real.yml'
+      - 'scripts/test_s1_002_real_auth.py'
+      - 'supabase/tests/s1_016_*'
+      - 'supabase/migrations/202610190051_s1_sessao_autorizacao_privada.sql'
+      - 'supabase/migrations/202610190052_s1_verificacao_sessao_gotrue.sql'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: prumo-s1-002-auth-real
+  cancel-in-progress: true
+jobs:
+  gotrue-postgrest-local:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    env:
+      CI: 'true'
+      PRUMO_S1_I16_EPHEMERAL: 'YES'
+      SUPABASE_DISABLE_TELEMETRY: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Instalar CLI Supabase pinada
+        uses: supabase/setup-cli@v3
+        with:
+          version: 2.84.2
+      - name: Instalar cliente psql se necessario
+        run: command -v psql || (sudo apt-get update -qq && sudo apt-get install -y postgresql-client)
+      - name: Criar stack GoTrue/PostgREST completamente descartavel
+        shell: bash
+        run: |
+          set -euo pipefail
+          workdir="$(mktemp -d)"
+          printf '%s\n' "$workdir" > "$RUNNER_TEMP/prumo-s1-i16-workdir"
+          cd "$workdir"
+          supabase init
+          supabase start --exclude studio,realtime,storage-api,imgproxy,postgres-meta,edge-runtime,logflare,vector,supavisor
+          supabase status -o env > "$RUNNER_TEMP/prumo-s1-i16-env"
+          test -s "$RUNNER_TEMP/prumo-s1-i16-env"
+      - name: Executar testes de JWT GoTrue e API PostgREST reais
+        shell: bash
+        run: |
+          set -euo pipefail
+          set -a
+          source "$RUNNER_TEMP/prumo-s1-i16-env"
+          set +a
+          python3 scripts/test_s1_002_real_auth.py
+      - name: Desligar stack local
+        if: always()
+        shell: bash
+        run: |
+          if [ -f "$RUNNER_TEMP/prumo-s1-i16-workdir" ]; then
+            cd "$(cat "$RUNNER_TEMP/prumo-s1-i16-workdir")"
+            supabase stop || true
+          fi
