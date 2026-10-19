@@ -103,3 +103,7 @@ A aba **Novo contato** consulta vínculos sintéticos recíprocos de casos após
 ## FV-AUD-05 — Correções antes de continuar G2–G4
 
 Os projetores de ficha/banco negam qualquer resumo a operador não designado; O5 permite operação no **novo** caso autorizado sem conceder leitura do histórico anterior; `copyCFDemoFixtures` isola objetos de projeção entre resets. Regressão **105/105 PASS** apenas com harness V8, sem execução nativa do Node nem Chromium atual. [Auditoria e limites](../docs/20_AUDITORIA_RETROSPECTIVA_FV_UI_004_009_2026_10_19.md).
+
+## Atualização de autoridade G1/G2 — gestão por operadores (19/10/2026)
+
+**Orientação nova do responsável:** cada gestor supervisiona um grupo de operadores da Prumo, não concessionárias inteiras. Pode solicitar pausa do recebimento de novos leads de **uma pessoa em todas as concessionárias já concedidas** e acompanhamento do remanejamento; **não** pode selecionar A versus B, criar concessão C ou gerenciar membros fora da equipe. Concessões de loja e composição de equipes pertencem ao responsável. O exemplo atual `Marina por concessionária` permanece **fixture legada demonstrativa e não deve ser usado como regra final de G1/G2**. Não existe botão de pausa ou endpoint operacional autorizado nesta versão. Veja [FV-G2-01](../docs/21_FV_G2_01_GESTAO_POR_OPERADORES_E_PAUSA_GLOBAL_2026_10_19.md) e [issue interfrentes #9](https://github.com/prumogrowth/Prumo-Growth---Platform/issues/9).
