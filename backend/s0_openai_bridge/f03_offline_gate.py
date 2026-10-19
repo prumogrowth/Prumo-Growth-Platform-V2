@@ -8,6 +8,7 @@ snapshot/permissions. Real field semantics and physical envelope need CFI-01.
 from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum
+from types import MappingProxyType
 from typing import Mapping
 
 
@@ -34,6 +35,16 @@ class Evidence:
     actor: str
     asserted_fields: Mapping[str, str]
     authorized: bool = True
+
+    def __post_init__(self) -> None:
+        # A frozen dataclass alone does not freeze a nested dict: an upstream
+        # caller could alter "asserted_fields" AFTER S0 captured the snapshot,
+        # making previously unsupported proposals appear evidenced.
+        # Copy into a read-only mapping at the evidence boundary, preserving
+        # malformed non-mappings for evaluate_f03 to reject fail-closed.
+        if isinstance(self.asserted_fields, Mapping):
+            object.__setattr__(self, "asserted_fields",
+                               MappingProxyType(dict(self.asserted_fields)))
 
 
 @dataclass(frozen=True)
