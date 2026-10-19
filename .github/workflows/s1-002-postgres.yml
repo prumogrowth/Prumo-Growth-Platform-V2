@@ -40,4 +40,4 @@ jobs:
       - name: Criar base local descartavel
         run: psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c 'CREATE DATABASE prumo_s0_test_s1ci'
       - name: Executar regressao S0 e gate equipe S1-002
-        run: bash scripts/run-s1-002-local.sh
+        run: bash scripts/run-s1-002-i12-local.sh
