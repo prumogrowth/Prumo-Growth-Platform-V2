@@ -28,16 +28,22 @@ function currentlyAssigned(record, actorId, shopId) {
     actor.shops.includes(shopId) && record.shopId === shopId && record.assignedTo === actorId);
 }
 
+export function isPriorCycleLocked(record) {
+  // Em retorno pós-banco, pós-venda ou pós-perda, o S0 deve projetar NOVO ciclo humano.
+  // Não ativar a conversa comercial histórica por uma permissão de canal desatualizada.
+  return ['cadastro enviado ao banco', 'vendido', 'perdido'].includes(record?.status);
+}
+
 export function mayMockFreeText(record, actorId, shopId, simulatedCompletion = false) {
-  // Caso histórico, janela ausente/vencida e conclusão interrompem compositor.
-  return currentlyAssigned(record, actorId, shopId) &&
+  // Caso histórico, marco bancário/terminal, janela inválida e conclusão bloqueiam livre.
+  return !isPriorCycleLocked(record) && currentlyAssigned(record, actorId, shopId) &&
     isInActiveInbox(record) && projectedMetaWindow(record) === 'open' &&
     humanCompletion(record, simulatedCompletion) === 'pending' &&
     record?.allowedActionsProjection?.includes('free_text') === true;
 }
 
 export function projectedFollowupActions(record, actorId, shopId, simulatedCompletion = false) {
-  if (!currentlyAssigned(record, actorId, shopId) || !isInActiveInbox(record) ||
+  if (isPriorCycleLocked(record) || !currentlyAssigned(record, actorId, shopId) || !isInActiveInbox(record) ||
       humanCompletion(record, simulatedCompletion) !== 'pending' || projectedMetaWindow(record) !== 'expired') return [];
   const allowed = record.allowedActionsProjection ?? [];
   return FOLLOWUP_ACTIONS.filter(action => allowed.includes(action) &&
