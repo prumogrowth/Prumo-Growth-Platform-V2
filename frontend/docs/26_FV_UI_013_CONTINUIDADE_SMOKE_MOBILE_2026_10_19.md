@@ -16,3 +16,15 @@ Branch exclusiva: `feat/frontend-plataforma-visual`; base `cb53fcaa6ce35dcba46dd
 
 ## Teste negativo da nova guarda
 O teste estático novo foi executado isoladamente em V8 com o arquivo real do GitHub: PASS. Ao trocar deliberadamente a verificação de exclusão de L-G4-03, o mesmo teste falhou como esperado. Este é teste do **roteiro estático**, não execução Chromium.
+
+
+## Terceira rodada — duas larguras gerenciais e isolamento de perfis
+
+Commits:
+- `4bb03f9c`: `browser.smoke.py` repete G2/G3/G4 no Chromium em **390x844 e 320x640**, além da varredura principal de quatro viewports.
+- `7e8e68ed`: nova regra em `source-module-graph.test.mjs` exige as duas larguras e interações G3/G4.
+- `031cafb6`: `app.mobile.dom.test.mjs` ganhou ensaio que alterna Marina -> Daniel -> perfil suspenso enquanto G3/G4 estão ativos, exigindo esvaziamento dos painéis anteriores.
+
+**Ensaios executados nesta rodada:** fonte integral dos 11 módulos e mock DOM original recuperados do GitHub para o HEAD `031cafb6`. No harness V8 adaptado, `app.mobile.dom.test.mjs` passou **10/10**; a verificação estática adicional passou **1/1**. Duas mutações negativas no smoke (remover 320px e remover clique em G3) foram detectadas pelo novo teste estático (**2/2 falhas esperadas**). Nenhum desses números é execução nativa Node/Chromium.
+
+**Pendente:** checkout privado completo, execução oficial `node --test`, Py/Playwright/Chromium real e capturas/evidências de layout nos quatro tamanhos. Não inferir homologação pela passagem V8. Sem alterações fora de `frontend/`; sem deploy, APIs de negócio, autenticação ou remessa. 19F **69/100** e FV-UI-013 **NÃO HOMOLOGADA**.
