@@ -20,4 +20,10 @@ psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$ROOT/supabase/tests/s
 bash "$ROOT/scripts/test_s1_002_queue_recovery_race.sh"
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$ROOT/supabase/migrations/202610180043_s1_drenagem_backlog_limitada.sql"
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$ROOT/supabase/tests/s1_005_backlog_fila_limitada.sql"
-echo 'S1-002/I1–I7 sintético e concorrência; apenas PostgreSQL local descartável.'
+psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$ROOT/supabase/migrations/202610180044_s1_retorno_pos_venda_perdido_reparo.sql"
+# Executar regressao apos o ultimo reparo, nao confiar apenas nos ensaios anteriores:
+psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$ROOT/supabase/tests/s1_002_remanejamento_transacional.sql"
+psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$ROOT/supabase/tests/s1_004_recuperacao_fila_protegida.sql"
+psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$ROOT/supabase/tests/s1_005_backlog_fila_limitada.sql"
+psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$ROOT/supabase/tests/s1_006_auditoria_retorno_ciclo_historico.sql"
+echo 'S1-002/I1–I7 mais auditoria de retorno historico em PG17 descartavel.'
