@@ -27,3 +27,10 @@ As migrations S1-002 039/041 e 042/043 assumiam `vendido` ou `perdido` como term
 4. Testes de scripts PG17 não constituem autorização para serviço hospedado. Sem alterações em main, sem mensageria externa e sem avanço da porcentagem global.
 
 **Veredito até CI:** divergência conceitual comprovada, reparação SQL candidata, ensaio ainda pendente.
+
+
+## Resultado após revisão: problema corrigido e testes verificados
+
+**[PG17 #39192614838 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39192614838)**, SHA `74d03faee0c4a0bc04877c9be8cbb7b83b73da61`, job `117868497833`: logs conferidos, **AUD1-01..07 = 7/7 PASS** e regressões anteriores também executadas após aplicar 044 (S1R 9/9 terceira passagem; S1Q 10/10 segunda; S1B 10/10 segunda). **[PG17 #39192862292 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39192862292)**, SHA `38bc2223d49f0b556f0f859a8c8ee744ed37409b`, job `117869238276`: **AUD2-01..05 = 5/5 PASS**, usando a função real de *inbound sintético* S0 `receber_mensagem_sintetica` (sem Graph API) e depois suspensão/redistribuição S1-002. Testes de replay de mesma mensagem, mesmo caso, venda histórica preservada e retorno de cadastro enviado ao banco confirmados. A mensagem de rejeição `PROFISSIONAL_PRUMO_INELEGIVEL` no log é ensaio negativo esperado, **não falha de CI**.
+
+**Veredito documental:** correção específica confirmada no PG17 descartável. Nenhum novo status comercial; nenhuma ramificação S0, WhatsApp/Meta, OpenAI ou Frontend foi editada; progresso geral não aumenta por teste local. Os *gates de produção* do texto acima continuam [R/V] — principalmente conclusão efetiva da conversa, gestor/escala e permissão GoTrue/REST.
