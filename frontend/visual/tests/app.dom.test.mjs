@@ -450,3 +450,43 @@ test('G3: troca de perfil encerra monitoramento e apaga conteúdo do gestor ante
   assert.ok(get('team-monitor').textContent.includes('Bianca Rocha'));
   get('team-dialog').close();
 });
+
+test('G4: Marina vê seus lotes de Aurora/Horizonte sem herdar Daniel',()=>{
+  reset();env.selectActor('marina');get('team-nav').click();
+  get('team-show-batches').click();
+  assert.equal(get('team-batches').hidden,false);
+  assert.equal(get('team-monitor').hidden,true);
+  assert.equal(get('team-list').hidden,true);
+  const t=get('team-batches').textContent;
+  assert.ok(t.includes('L-G4-01')&&t.includes('L-G4-02'));
+  assert.equal(t.includes('L-G4-03'),false);
+  assert.ok(t.includes('batch-demo-v1'));
+  assert.ok(t.includes('Contagens não confirmadas'));
+  assert.equal(env.descendants(get('team-batches')).filter(n=>n.tagName==='INPUT' || n.tagName==='SELECT').length,0);
+  get('team-show-members').click();
+  assert.equal(get('team-batches').hidden,true);
+  get('team-dialog').close();
+});
+
+test('G4: Daniel vê somente seus lotes e a ausência de elegibilidade real',()=>{
+  reset();env.selectActor('daniel');get('team-nav').click();
+  get('team-show-batches').click();
+  const t=get('team-batches').textContent;
+  assert.ok(t.includes('L-G4-03')&&t.includes('L-G4-04'));
+  assert.ok(t.includes('Distribuição bloqueada na fixture'));
+  assert.equal(t.includes('L-G4-01'),false);
+  assert.equal(t.includes('L-G4-02'),false);
+  get('team-dialog').close();
+});
+
+test('G4: troca de perfil encerra lote anterior e retira dados da interface',()=>{
+  reset();env.selectActor('marina');get('team-nav').click();get('team-show-batches').click();
+  assert.ok(get('team-batches').textContent.includes('L-G4-01'));
+  env.selectActor('daniel');
+  assert.equal(get('team-batches').textContent,'');
+  assert.equal(get('team-dialog').open,false);
+  get('team-nav').click();get('team-show-batches').click();
+  assert.equal(get('team-batches').textContent.includes('L-G4-01'),false);
+  assert.ok(get('team-batches').textContent.includes('L-G4-03'));
+  get('team-dialog').close();
+});
