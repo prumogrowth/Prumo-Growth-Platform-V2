@@ -18,6 +18,7 @@ import { registrationProjectionFor, registrationStateCopy } from './registration
 import { bankProjectionFor, bankPhaseCopy } from './bank-view.mjs';
 import { postmarkViewFor, postmarkCopy, mayMockOperateContinuation } from './postmark-view.mjs';
 import { projectManagedTeam, requestMockIntake } from './team-operations.mjs';
+import { projectManagerMonitor } from './team-monitor.mjs';
 import { projectTeamMonitoring, describeMonitoring } from './team-monitoring.mjs';
 
 const $ = id => document.getElementById(id);
@@ -26,7 +27,7 @@ const list = $('conversation-items');
 const state = {
   actorId: 'rafael', shopId: 'aurora', filter: 'all', statusFilter: 'all', detailTab: 'overview', query: '',
   selectedId: 'A-102', cases: copyCFDemoFixtures(), processing: {}, followupRequests: {}, inboxView: 'active',
-  mobileView: 'list', dialogContext: { completion: null, template: null }, teamRequests:{}
+  mobileView: 'list', dialogContext: { completion: null, template: null }, teamRequests:{}, teamPanel:'members'
 };
 
 function el(tag, className='', text=null) {
@@ -479,7 +480,7 @@ function changeActor(actorId){
   const actor=getActor(actorId);if(!actor)return;
   closeTransientDialogs();
   if($('team-dialog').open)$('team-dialog').close();
-  state.teamRequests={};
+  state.teamRequests={};state.teamPanel='members';
   state.actorId=actor.id;state.shopId=actor.shops[0];state.selectedId=null;state.detailTab='overview';state.statusFilter='all';state.inboxView='active';
   state.filter='all';state.query='';$('search-input').value='';goto('list');updateSelectors();render();
 }
@@ -573,11 +574,78 @@ function renderTeamSummary(){
   }));
   renderTeamMonitoring();
 }
+function renderTeamMonitor(){
+  const target=$('team-monitor');
+  const projection=projectManagerMonitor(state.actorId,state.cases,state.teamRequests);
+  if(projection.visibility!=='ready'){
+    target.replaceChildren(el('p','detail-small','Monitoramento indisponível para este perfil.'));
+    return;
+  }
+  const title=el('h3','detail-label','G3 · MONITORAMENTO DA PRÓPRIA EQUIPE');
+  const note=el('p','team-hint',projection.asOf+
+    '. Contagens da fixture, sem SLA verificado, sem cronômetro Meta/C09 e sem dados bancários D4.');
+  const indicators=el('div','team-monitor-metrics');
+  const data=projection.indicators;
+  const values=[
+    ['Operadores da equipe',data.teamMembers],
+    ['Novos leads pausados',data.intakePaused],
+    ['Casos ativos autorizados',data.operationalActive],
+    ['Fila protegida',data.protectedQueue],
+    ['Histórico autorizado',data.historical],
+    ['Pedidos locais pendentes',data.pendingLocalRequests]
+  ];
+  for(const [label,value] of values){
+    const tile=el('div','team-monitor-metric');
+    tile.append(el('strong','',value),el('span','',label));indicators.append(tile);
+  }
+  const workload=el('div','team-monitor-list');
+  workload.append(el('h3','detail-label','CARTEIRA POR PROFISSIONAL · DEMONSTRAÇÃO'));
+  for(const member of projection.operators){
+    const row=el('div','team-monitor-card');
+    const availability=member.teamState!=='active'?'Conta suspensa · sem entrada':
+      member.intake==='paused_confirmed'?'Novos leads pausados':
+      member.intake==='receiving'?'Recebimento habilitado na fixture':'Entrada não confirmada';
+    row.append(el('strong','',member.name),
+      el('span','',member.cases+' caso(s) autorizados · '+availability));
+    workload.append(row);
+  }
+  const signals=el('div','team-monitor-list');
+  signals.append(el('h3','detail-label','SINAIS OPERACIONAIS PROJETADOS'));
+  if(!projection.signals.length)
+    signals.append(el('p','detail-small','Sem sinal técnico confirmado nesta projeção. Isso não significa ausência de pendências reais.'));
+  for(const signal of projection.signals){
+    const row=el('div','team-monitor-card');
+    row.append(el('strong','',signal.label+' · Caso '+signal.caseId),
+      el('span','',signal.shopName+' · '+signal.observedAt),
+      el('span','',signal.observedWaitMinutes===null?
+        'Tempo de espera não informado nesta projeção.':
+        'Espera observada: '+signal.observedWaitMinutes+' min (fictícia, não SLA).'),
+      el('span','', 'Estado comercial preservado: '+signal.commercialStatus));
+    signals.append(row);
+  }
+  target.replaceChildren(title,note,indicators,workload,signals,
+    el('p','team-hint','Sinais técnicos não são estados comerciais novos. '+
+      'A S0 define prazos, prioridades, distribuição, permissões e confirmação de eventos.'));
+}
+function switchTeamPanel(panel){
+  if(!canSeeTeamSummary(state.actorId,state.shopId))return;
+  state.teamPanel=panel==='monitor'?'monitor':'members';
+  const monitoring=state.teamPanel==='monitor';
+  $('team-list').hidden=monitoring;
+  $('team-monitor').hidden=!monitoring;
+  $('team-show-members').setAttribute('aria-pressed',String(!monitoring));
+  $('team-show-monitor').setAttribute('aria-pressed',String(monitoring));
+  if(monitoring)renderTeamMonitor();
+  else renderTeamSummary();
+}
+$('team-show-members').addEventListener('click',()=>switchTeamPanel('members'));
+$('team-show-monitor').addEventListener('click',()=>switchTeamPanel('monitor'));
+
 function openTeamSummary(){
   if(!canSeeTeamSummary(state.actorId,state.shopId)){
     showToast('A visão da equipe está disponível somente no perfil fictício de gestor.');return;
   }
-  renderTeamSummary();
+  switchTeamPanel('members');
   const dialog=$('team-dialog');dialog.returnValue='';dialog.showModal();
 }
 $('team-nav').addEventListener('click',openTeamSummary);
