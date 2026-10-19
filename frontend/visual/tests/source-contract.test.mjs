@@ -13,6 +13,7 @@ const bank = get('bank-view.mjs');
 const postmark = get('postmark-view.mjs');
 const teamOps = get('team-operations.mjs');
 const teamMonitoring = get('team-monitoring.mjs');
+const teamMonitor = get('team-monitor.mjs');
 const fixtureTeam = get('fixtures.mjs');
 const browserSmoke = get('tests/browser.smoke.py');
 
@@ -168,4 +169,28 @@ test('G3 projeta monitoramento da equipe sem relógio, D3, D4 ou acesso de loja 
 test('G3 tem roteiro visual integrado em Chromium para Desktop',()=>{
   assert.match(browserSmoke, /team-monitoring\.mjs/);
   assert.match(browserSmoke, /Monitoramento operacional da equipe/);
+});
+
+test('G3 reconciliado reúne indicadores agregados e alertas técnicos em aba única',()=>{
+  assert.match(app, /renderTeamMonitoring\(\);\s*target\.append\(title,note,indicators,workload,signals/);
+  assert.match(app, /switchTeamPanel\('members'\)/);
+  assert.match(app, /projectManagerMonitor\(state\.actorId,state\.cases,state\.teamRequests\)/);
+  assert.match(markup, /id="team-show-monitor"/);
+  assert.match(markup, /id="team-show-members"/);
+  assert.equal((markup.match(/id="team-monitor"/g)||[]).length,1);
+});
+
+test('G3 alertas S0 só aceitam projeção de fonte e espera observada sem cronômetro local',()=>{
+  assert.match(teamMonitor, /p\.origin!=='s0_fixture'/);
+  assert.match(teamMonitor, /Number\.isFinite\(p\.observedWaitMinutes\)/);
+  assert.match(teamMonitor, /visibleConversations\(records,managerId,shopId\)/);
+  assert.match(teamMonitor, /row\.teamManagerId!==managerId/);
+  assert.doesNotMatch(teamMonitor, /\bDate\.now\s*\(|\bnew Date\s*\(|\bfetch\s*\(|\bXMLHttpRequest\b/);
+  assert.doesNotMatch(teamMonitor, /registrationProjection|submissionVersionRef|safeDisplayValue/);
+});
+
+test('Chromium smoke usa ambos módulos G3 e só lê painel depois de ativá-lo',()=>{
+  assert.match(browserSmoke, /'team-monitor\.mjs','team-monitoring\.mjs','app\.mjs'/);
+  assert.match(browserSmoke, /page\.locator\('#team-show-monitor'\)\.click\(\)/);
+  assert.match(browserSmoke, /page\.locator\('#team-show-members'\)\.click\(\)/);
 });
