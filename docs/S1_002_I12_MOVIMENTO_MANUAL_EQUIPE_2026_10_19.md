@@ -9,3 +9,12 @@ Migration 049 adiciona função privada s1_mover_atendimento_da_equipe(solicitan
 O código aceita executor somente postgres no **sandbox**; não aceita chamada de authenticated/anon/service_role. Em produção será obrigatório extrair identidade validada da sessão pelo gateway e auditar autorização com requisitos do S0, incluindo caso já concluído. Testes S1M-01..12 verificam A/B sem grant para gestor, destino com/sem grant, pessoas de outras equipes, caso terminal versus retorno, repetição, isolamento por loja, trilha e negação da API. Testes concorrentes intersessões ainda pendentes.
 
 **Limites:** não implementa agendamento, mutação RH real, controle de turnos, bulk manual, integração Meta, reabertura de caso, auth real nem alteração de S0.
+
+
+## Evidências verificadas do incremento I12 (19/10/2026)
+
+[GitHub Actions PG17 #39251996100 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39251996100), commit `d525148242e2d645a6f139af612b8b48dbd99cd2`, job `118057803139`: **S1M-01..12 = 12/12 PASS**, abrangendo gestão por equipe, duas lojas A/B sem grant próprio do gestor, origem/destino dentro da mesma equipe, destino ativo autorizado na loja do caso, venda histórica sem reabertura, replay negado, trilha append-only e sem EXECUTE via authenticated. O primeiro ensaio #39251784096 falhou por expressão SQL qualificada como `pg_catalog.greatest` que não existe; corrigida e retestada, sem deploy.
+
+[GitHub Actions PG17 #39252443273 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39252443273), commit `571df70e44ed9d3ff69c7aa45f72b8aa6217fbde`, job `118059321243`: regressão **S1M 12/12**, mais **S1MR-01..04 = 4/4 PASS**. Duas conexões tentando mudar a mesma atribuição: uma transferência aceita e outra rejeitada sem duplicidade; pausa global simultânea vence comando manual obsoleto sem dois titulares. Suites legadas de I1–I11, inclusive S1T 14/14, S1A 9/9, S1H 8/8, AUD1 7/7 e AUD2 5/5, passaram no mesmo job. Nenhum deadlock SQL inesperado nos marcadores conferidos.
+
+**Conclusão restrita:** funcionamento sintético demonstrado, mas nenhum login Supabase GoTrue, JWT assinado, endpoint REST, serviço bancário, Meta real, status de conclusão humana definitivo, autorização administrativa real ou merge/deploy. O algoritmo automático I2 ainda pode escolher operador de outra equipe elegível na mesma loja; política definitiva desse caso permanece [R], sem presumir decisão do usuário.
