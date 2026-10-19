@@ -54,11 +54,11 @@ test('WA10-08: getters, symbols, arrays and extra fields fail closed',()=>{
 });
 test('WA10-09: capacity is bounded and refuses an extra attempt',()=>{
  const j=new FakeAttemptBindingLedger();
- for(let i=0;i<100;i++)assert.equal(j.claim({...a,attempt_id:'ATTEMPT_'+i}),'NEW');
+ for(let i=0;i<100;i++)assert.equal(j.claim({...a,attempt_id:'ATTEMPT_'+i,provider_message_id:'wamid.OUT_'+i}),'NEW');
  assert.equal(j.size,100);
  assert.equal(j.claim({...a,attempt_id:'ATTEMPT_EXTRA'}),'INVALID');
  assert.equal(j.claim(a),'INVALID');
- assert.equal(j.claim({...a,attempt_id:'ATTEMPT_0'}),'SAME');
+ assert.equal(j.claim({...a,attempt_id:'ATTEMPT_0',provider_message_id:'wamid.OUT_0'}),'SAME');
 });
 test('WA10-10: responses contain no message IDs, customer identifiers, or credentials',()=>{
  const j=new FakeAttemptBindingLedger();
@@ -72,4 +72,55 @@ test('WA10-11: RegExp coercion cannot turn numeric references into accepted iden
    {...a,recipient_verified:5581900000000},{...a,intent_id:123}])
    assert.equal(j.claim(bad),'INVALID');
  assert.equal(j.size,0);
+});
+
+// WA-11: forward wamid uniqueness and stable data-only identity snapshot.
+test('WA11-01: one scoped wamid cannot silently belong to two attempts',()=>{
+ const j=new FakeAttemptBindingLedger();
+ assert.equal(j.claim(a),'NEW');
+ assert.equal(j.claim({...a,attempt_id:'ATTEMPT_B',intent_id:'INTENT_B',correlation_id:'CORR_B'}),'CONFLICT');
+ assert.equal(j.size,1);
+});
+test('WA11-02: equal opaque wamids in distinct Apps remain isolated',()=>{
+ const j=new FakeAttemptBindingLedger();
+ assert.equal(j.claim(a),'NEW');
+ assert.equal(j.claim({...a,app_ref:'APP_B',concessionaria_id:'SHOP_B',attempt_id:'ATTEMPT_B'}),'NEW');
+ assert.equal(j.size,2);
+});
+test('WA11-03: forward key distinguishes WABA and sender number',()=>{
+ for (const changed of [{waba_id:'WABA_B'}, {phone_number_id:'98765432101'}]) {
+   const j=new FakeAttemptBindingLedger();j.claim(a);
+   assert.equal(j.claim({...a,...changed,attempt_id:'ATTEMPT_B'}),'NEW');
+   assert.equal(j.size,2);
+ }
+});
+test('WA11-04: forged shop/channel reassignment under same App and wamid conflicts',()=>{
+ const j=new FakeAttemptBindingLedger();j.claim(a);
+ assert.equal(j.claim({...a,concessionaria_id:'SHOP_B',canal_id:'CHANNEL_B',attempt_id:'ATTEMPT_B'}),'CONFLICT');
+ assert.equal(j.size,1);
+});
+test('WA11-05: conflict mutates neither index and later valid claim succeeds',()=>{
+ const j=new FakeAttemptBindingLedger();j.claim(a);
+ assert.equal(j.claim({...a,attempt_id:'ATTEMPT_X'}),'CONFLICT');
+ assert.equal(j.claim({...a,provider_message_id:'wamid.OTHER'}),'CONFLICT');
+ assert.equal(j.claim(a),'SAME');
+ assert.equal(j.claim({...a,attempt_id:'ATTEMPT_X',provider_message_id:'wamid.OTHER'}),'NEW');
+ assert.equal(j.size,2);
+});
+test('WA11-06: at capacity, existing bindings replay and new forward keys deny',()=>{
+ const j=new FakeAttemptBindingLedger();
+ for(let i=0;i<100;i++)assert.equal(j.claim({...a,attempt_id:'ATTEMPT_'+i,provider_message_id:'wamid.MSG_'+i}),'NEW');
+ assert.equal(j.claim({...a,attempt_id:'ATTEMPT_0',provider_message_id:'wamid.MSG_0'}),'SAME');
+ assert.equal(j.claim({...a,attempt_id:'ATTEMPT_OVERFLOW',provider_message_id:'wamid.MSG_0'}),'CONFLICT');
+ assert.equal(j.claim({...a,attempt_id:'ATTEMPT_OVERFLOW',provider_message_id:'wamid.MSG_OVERFLOW'}),'INVALID');
+ assert.equal(j.size,100);
+});
+test('WA11-07: descriptor snapshot prevents Proxy get trap from changing stored identity',()=>{
+ const j=new FakeAttemptBindingLedger();
+ const hostile=new Proxy({...a},{get(target,field,receiver){
+   return field==='provider_message_id'?'wamid.INCONSISTENT':Reflect.get(target,field,receiver);
+ }});
+ assert.equal(j.claim(hostile),'NEW');
+ assert.equal(j.claim(a),'SAME');
+ assert.equal(j.size,1);
 });
