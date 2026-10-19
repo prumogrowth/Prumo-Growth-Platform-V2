@@ -67,7 +67,7 @@ test('WA09-09: a 2xx Graph record without safe attempt/correlation IDs fails clo
   }
   assert.equal(isAcceptedGraphEvidence(accepted()),true);
 });
-test('WA09-10: pure correlation ref does not accept phone-bearing or control characters', () => {
+test('WA09-10: pure correlation ref blocks controls and unsafe syntax', () => {
   assert.equal(isSafeEvidenceRef('BATCH_42'),true);
   for(const malformed of ['',' x','BATCH\n42','id/1', 'a'.repeat(129),null,{}]) {
     assert.equal(isSafeEvidenceRef(malformed),false);
