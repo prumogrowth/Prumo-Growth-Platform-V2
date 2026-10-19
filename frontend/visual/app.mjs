@@ -16,7 +16,7 @@ import {
 } from './cf-op-02.mjs';
 import { registrationProjectionFor, registrationStateCopy } from './registration-view.mjs';
 import { bankProjectionFor, bankPhaseCopy } from './bank-view.mjs';
-import { postmarkViewFor, postmarkCopy } from './postmark-view.mjs';
+import { postmarkViewFor, postmarkCopy, mayMockOperateContinuation } from './postmark-view.mjs';
 
 const $ = id => document.getElementById(id);
 const app = $('visual-app');
@@ -49,10 +49,10 @@ function filtered() {
 
 function postmarkContextValid(record) {
   if(!record?.postmarkProjection)return true;
-  // Todo ciclo com vínculo projetado deve ser recíproco e acessível. Negação por padrão.
-  const projection=postmarkViewFor(record,state.cases,state.actorId,state.shopId);
-  return projection.linked===true &&
-    (projection.kind==='origin' || projection.kind==='continuation');
+  // Operar caso novo exige atribuição própria, não permissão no histórico antigo.
+  // Abrir o caso antigo ainda exige acesso à relação recíproca autorizada.
+  return record.postmarkProjection.direction==='continuation' &&
+    mayMockOperateContinuation(record,state.cases,state.actorId,state.shopId);
 }
 function canMockMessage(record) {
   return postmarkContextValid(record) &&
