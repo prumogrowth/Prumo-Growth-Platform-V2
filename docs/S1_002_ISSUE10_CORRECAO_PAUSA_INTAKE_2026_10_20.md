@@ -45,4 +45,10 @@ Fixture I32 só representa **fase 1 de bloqueio seguro**, não satisfaz toda a i
 
 **NO-GO produção, merge, acesso Meta, dados reais e Supabase hospedado.** O hardening da testemunha I31 fica em backlog paralelo e não altera essas decisões de negócio.
 
-**Evidências CI:** preencher apenas após conferência do run e logs de ISSUE10-01..11.
+## Evidência conferida — apenas o incremento isolado de segurança da pausa
+
+**[GitHub Actions ISSUE10 #39458246432 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39458246432)**, SHA de código da fixture e testes 3431915129c64714b2181203c6607a5446483481, job 118750634658. Logs examinados: **11/11 identificadores ISSUE10-01..11 PASS**. Passaram os testes de conta ativa sem suspender login, concessões intactas, caso já atribuído permanece com titular, guarda contra novas atribuições, CAS e replay idempotente, outro gestor negado, legados que suspendiam conta recusados, retomada sem motivo/data, novo caso só após retomar, RPC proibida a authenticated e não elevação de concessões gerais.
+
+**[Regressão PG17 #39458207272 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39458207272)**, código histórico em SHA 19f445434c6f64a84a3d5d4241c5eeb0f2dd0ee6; suite anterior I11/I12 S0/S1 passa **antes** de aplicar a fixture ISSUE10. As provas antigas da suspensão total continuam apenas históricas e contradizem o contrato de negócio vigente.
+
+**Aceite parcial:** corretivo sintético de disponibilidade, autoria, CAS, guarda de inserção e desativação local dos comandos de suspensão. **NÃO constitui aceite** de redistribuição seletiva, evento de atendimento humano comprovado, exceção manual com RLS específica, projeção de mensagens do S0, nem nova API gerencial assinada GoTrue/HMAC. Nenhum usuário real afetado, nenhum deploy, merge ou Supabase hospedado.
