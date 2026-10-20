@@ -1,0 +1,32 @@
+# S1-002/I30 — autoridade de revogação autenticada fora do assinador (20/10/2026)
+
+**Status preliminar — aceitação sujeita ao CI.** Experimento somente CI/loopback, PR #5 Draft na branch `feat/s1-002-equipe-prumo`. Nenhuma migration operacional, alteração do Supabase hospedado, deploy, merge, chave real ou dado de cliente.
+
+## Motivação e progresso anterior
+
+I29 passou em **93 testes unitários e 105 E2E** usando SQLite separado do processo assinador; a lista de certificados revogados sobrevivia ao reinício do assinador. Persistência, porém, **não conferia autenticidade ao SQLite**. Quem tivesse escrita no arquivo podia forjar conteúdo estruturalmente consistente, e um snapshot completo antigo podia ressuscitar certificados revogados se o processo fosse reiniciado antes de memorizar uma revisão maior.
+
+## Arquitetura de teste I30
+
+1. **Autoridade dedicada, em outro processo Python:** `backend/s1_i30_signed_revocation_authority_local.py` implementa `LocalRevocationAuthoritySupervisor`. Somente ela recebe chave MAC sintética de 32 bytes; a chave é injetada na criação pelo runner CI, não entregue ao assinador ou ao objeto do gateway. Esse processo controla a leitura e modificação da tabela SQLite de `LocalCertificateState` I29.
+2. **Autenticação criptográfica do estado:** HMAC-SHA256 sobre JSON canônico e completo, com domain separation `prumo-s1-i30-local-v1`, revisão, conjunto ordenado de certificados permitidos/revogados e sequência de eventos. Sidecar de checkpoint separado contém **somente revisão e MAC**; modo de arquivo 0600. O par é verificado antes de qualquer decisão e administração. Troca de checkpoint usa arquivo temporário exclusivo, `fsync`, rename atômico e sincronização do diretório.
+3. **Controle administrativo isolado:** `STAGE_CERT` e `REVOKE_CERT` continuam usando CAS e transação no SQLite, mas passam pela **pipe exclusiva do controlador da autoridade**, nunca pelo gateway ou socket TLS do assinador. Alteração no SQLite antecede atualização do MAC; uma pane entre ambos causa rejeição total de novas decisões, nunca emissão de assinatura baseada em estado não autenticado. Eventos apresentados ao controlador mantêm apenas classe/revisão/contagens.
+4. **Consulta mínima ao assinador:** `backend/s1_signer_mtls_authority_local.py` preserva autenticação mTLS mútua, pin de servidor, GoTrue independente no processo que possui a chave HMAC e validação final do PostgreSQL I20–I24. Recebe **apenas** a conexão `CHECK(fingerprint)` da autoridade, que retorna autorização ou negação. Não lê SQLite, não conhece MAC, não possui segredo MAC, não contém método administrativo TLS.
+5. **Anti-rollback condicionado à vida da autoridade:** a autoridade conserva em memória a maior revisão já validada (`watermark`), **independentemente do ciclo de vida do assinador**. Se atacante restaurar conjuntamente SQLite e MAC de uma versão antiga, a autoridade *ainda viva* recusa operações mesmo após reinício do assinador. Uma autoridade recém-iniciada aceita snapshot antigo cujo MAC corresponda à chave: **não existe anti-rollback verdadeiro contra restauração completa anterior ao próprio reinício da autoridade**.
+6. **Falha fechada:** checkpoint ausente, alterado, corrompido, permissões inseguras, MAC divergente, SQLite corrompido, revisão inferior ao watermark ou indisponibilidade de autoridade resultam em `DENY/UNAVAILABLE`. O assinador nunca deve usar HMAC para uma conexão sem autorização positiva da autoridade.
+
+## Limites importantes
+
+**Não é isolamento operacional independente.** Autoridade, signer, certificados TLS, CA, chave MAC, SQLite, credenciais sintéticas HMAC e PostgreSQL e pipes continuam no **mesmo usuário do runner**. O processo separado reduz o acoplamento lógico, mas um intruso com seus privilégios pode acessar os segredos, recriar uma autoridade com estado antigo ou manipular arquivos. A autenticação de integridade MAC não é prova de inclusão num registro WORM, não estabelece anti-rollback entre reinícios da autoridade, e não controla cópias de backup ou recuperação humana. O MAC não é assinatura verificável por terceiro: trata-se de segredo compartilhado entre instâncias autorizadas do controlador local.
+
+O HMAC do ledger **não** substitui HMAC de transação SQL, GoTrue, regras S1/controle de equipe, TLS mútuo, revogação de Bearer e chaves HMAC, ou mecanismos independentes de emissão de certificado. O servidor de referência opera serialmente em loopback e pode esgotar recursos; não há certificação TLS/PKI de produção, KMS/Vault/HSM, CRL/OCSP, identidades de workloads separadas, observabilidade/retenção inviolável, SLA/HA, contenção por usuário ou auditoria externa.
+
+## Critérios para aceite CI
+
+O job unitário repete **93 testes I23–I29** e acrescenta **15 testes I30** com serviço GoTrue sintético (sem validação real de assinatura JWT) cobrindo: prova assinada, certificado sucessor não autorizado, overlap CAS, revogação, signer reiniciado e watermark da autoridade preservado, alteração SQLite sem MAC, MAC adulterado, replay SQLite+MAC de snapshot válido mais antigo durante vida da autoridade, indisponibilidade da autoridade, CAS stale, proibição de reutilizar revogado, certificado não autorizado pela mesma CA, ausência de interface admin no signer, revogação total após restart e restart honesto da autoridade com checkpoint atual. **108 testes unitários previstos.**
+
+O E2E `scripts/test_s1_002_i30_signed_authority_local.py` mantém 105 cenários anteriores com GoTrue real, PostgreSQL descartável, 50 migrations S0/S1 reais e fixtures I20/I21/I22/I24. Soma **S1AUTHORITY-106..120**, que exercitam integração com authority CHECK, sucessor stage, revogação, restart, adulteração de SQLite e MAC, replay de par SQLite+MAC antigo com autoridade viva, recovery explícito, stale CAS, RBAC de equipes, status mínimo, restart honesto da autoridade e revogação emergencial. **120 E2E previstos.**
+
+**Parecer:** mesmo que os testes passem, **GO apenas para continuidade em sandbox**, sem merge/deploy nem Supabase hospedado. Antes de produção: autoridade em outro domínio de segurança/workload e conta SO, KMS/HSM ou chave não exportável, anti-rollback independente/monotonic counter, ledger verificável/imutável, backup/DR com proteção contra restauração maliciosa, autenticação forte do canal administrativo, revogação e propagação multidestino, integração com a interface gerencial e conclusão humana S0. Sem percentuais globais.
+
+**CI:** preencher resultado somente após conferir jobs, logs e SHA de código executado.
