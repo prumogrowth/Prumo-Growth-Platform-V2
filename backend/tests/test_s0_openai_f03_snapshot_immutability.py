@@ -182,5 +182,31 @@ class EvidenceImmutabilityTests(unittest.TestCase):
             snap.messages[0].asserted_fields._data = {'required': 'NEW'}
 
 
+    def test_20_deepcopy_of_entire_evidence_stays_immutable(self):
+        import copy
+        snap, _, _, _ = scenario()
+        cloned = copy.deepcopy(snap.messages[0])
+        with self.assertRaises(TypeError):
+            cloned.asserted_fields['required'] = 'TAMPER'
+        self.assertEqual(cloned.asserted_fields['required'], 'OLD')
+
+    def test_21_deepcopy_of_entire_snapshot_stays_immutable(self):
+        import copy
+        snap, proposal, _, _ = scenario()
+        cloned = copy.deepcopy(snap)
+        with self.assertRaises(TypeError):
+            cloned.messages[0].asserted_fields['required'] = 'NEW'
+        self.assertEqual(evaluate_f03(cloned, proposal).status, Result.REVIEW)
+
+    def test_22_copied_snapshot_is_independent_after_evidence_replacement(self):
+        import copy
+        snap, proposal, _, _ = scenario()
+        copy_snapshot = copy.deepcopy(snap)
+        changed = replace(copy_snapshot.messages[0], asserted_fields={'required': 'NEW'})
+        copy_snapshot = replace(copy_snapshot, messages=(changed,))
+        self.assertEqual(evaluate_f03(copy_snapshot, proposal).status, Result.PROPOSAL_ONLY)
+        self.assertEqual(evaluate_f03(snap, proposal).status, Result.REVIEW)
+
+
 if __name__ == '__main__':
     unittest.main()
