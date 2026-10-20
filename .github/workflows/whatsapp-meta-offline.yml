@@ -64,13 +64,13 @@ jobs:
         run: |
           set -euo pipefail
           sql='integrations/whatsapp-meta/lab'
-          docker exec wa06d-fixture-pg17 psql -X -qAt -v ON_ERROR_STOP=1 \
+          docker exec --interactive wa06d-fixture-pg17 psql -X -qAt -v ON_ERROR_STOP=1 \
             -U wa06d_owner -d wa06d_test_ephemeral \
             < "$sql/wa06d_pg17_atomicity.sql"
-          docker exec wa06d-fixture-pg17 psql -X -qAt -v ON_ERROR_STOP=1 \
+          docker exec --interactive wa06d-fixture-pg17 psql -X -qAt -v ON_ERROR_STOP=1 \
             -U wa06d_owner -d wa06d_test_ephemeral \
             < "$sql/wa06d_pg17_postcommit_setup.sql"
-          docker exec wa06d-fixture-pg17 psql -X -qAt -v ON_ERROR_STOP=1 \
+          docker exec --interactive wa06d-fixture-pg17 psql -X -qAt -v ON_ERROR_STOP=1 \
             -U wa06d_owner -d wa06d_test_ephemeral \
             < "$sql/wa06d_pg17_postcommit_verify.sql"
           echo 'PASS WA06D: SQL A 14 + B 6, isolated post-COMMIT read'
