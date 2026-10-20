@@ -41,7 +41,8 @@ export function stageConversationAttention(projection) {
  * This helper classifies eligibility for a FUTURE server call, not authorization.
  */
 export function canStageReadAcknowledgment(context) {
-  return isPlain(context) && context.role === 'operador' &&
+  return isPlain(context) && (context.role === 'operador' ||
+    (context.role === 'gestor' && context.acting_as_assigned_operator === true)) &&
     context.account_active === true &&
     typeof context.actor_id === 'string' && context.actor_id.length>0 &&
     context.actor_id === context.assigned_actor_id &&
