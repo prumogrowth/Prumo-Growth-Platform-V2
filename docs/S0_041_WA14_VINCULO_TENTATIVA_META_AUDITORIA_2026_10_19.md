@@ -12,16 +12,16 @@ WA-11/12/13 possuem um único `FakeAttemptBindingLedger` em memória, com duas d
 2. O registro interno `registrar_vinculo_meta_fixture_s0` é `SECURITY INVOKER` restrito por `current_user='postgres'`; resolve loja, WABA e número **na tabela confiável da S0**, não em parâmetros do chamador; exige intenção interna com `BLOQUEADA_GATES` e verifica formato de wamid, destinatário e HTTP 2xx **fictício**. Usa `INSERT ... ON CONFLICT DO NOTHING` e, quando existe colisão, lê ambos os índices e só admite replay da tupla integral idêntica. Uma colisão divergente falha com SQLSTATE `23505`. A escrita não altera o estado comercial nem libera envio. 
 3. A consulta `consultar_vinculo_meta_fixture_s0` apenas recupera `LAB_FOUND_EXACT`, `LAB_ABSENT` ou `LAB_CONFLICT`, sempre `ack_allowed:false`, `retry_external:false` e `production_authorized:false`. **`LAB_ABSENT` depois de timeout NÃO autoriza novo POST Graph.**
 4. Ambos os contratos não são endpoints/RPC pública; ACLs de `anon`, `authenticated`, `service_role`, `prumo_s0_gateway` e `prumo_s0_signer` explicitamente revogadas, RLS habilitada como camada adicional.
-5. `supabase/tests/s0_wa_041_meta_tentativa_binding.sql`: 17 cenários WA14-01..17, todos transacionais e encerrados por `ROLLBACK`, com lojas e emissores sintéticos, idempotência, dois sentidos de unicidade, tentativa de reassociação de App, recuperação ausente/conflitante, transação atômica simulada, cancelamento da intenção, FK e privilégios.
-6. `scripts/run-s0-local.sh` foi atualizado **explicitamente** para aplicar a migration 041 após 040 e executar os 17 cenários após WA40, mantendo a guarda de URL exclusivamente local descartável. Não foi usado `apply_migration` no Supabase hospedado.
+5. `supabase/tests/s0_wa_041_meta_tentativa_binding.sql`: 18 cenários WA14-01..18, todos transacionais e encerrados por `ROLLBACK`, com lojas e emissores sintéticos, idempotência, dois sentidos de unicidade, tentativa de reassociação de App, recuperação ausente/conflitante, transação atômica simulada, cancelamento da intenção, FK e privilégios.
+6. `scripts/run-s0-local.sh` foi atualizado **explicitamente** para aplicar a migration 041 após 040 e executar os 18 cenários após WA40, mantendo a guarda de URL exclusivamente local descartável. Não foi usado `apply_migration` no Supabase hospedado.
 
 ## Evidências realizadas nesta retomada
 
 - **Código publicado no PR #1 Draft**, blobs verificados por leitura posterior do GitHub.
-- **Auditoria estática do conteúdo publicado**: pares de delimitadores `$wa14$` balanceados, parênteses e strings balanceados, identificação dos 17 cenários, existência das duas unicidades, das duas FKs, de RLS, revogações, `ROLLBACK`, e inserção exatamente uma vez de migration e suíte no executor.
+- **Auditoria estática do conteúdo publicado**: pares de delimitadores `$wa14$` balanceados, parênteses e strings balanceados, identificação dos 18 cenários, existência das duas unicidades, das duas FKs, de RLS, revogações, `ROLLBACK`, e inserção exatamente uma vez de migration e suíte no executor.
 - Comparação com o esquema vigente S0-030/040 e checagem do comportamento esperado de `ON CONFLICT DO NOTHING` na documentação PostgreSQL 17.
 
-**NÃO executado:** PostgreSQL 17 não estava disponível no ambiente local e a preparação de instalação não concluiu; portanto **0/17 cenários WA14 executados**, **nenhuma migration 041 aplicada/testada em um servidor**, **nenhum ensaio concorrente PostgreSQL**. Auditoria estática não substitui compilação SQL, execução de transações, verificação de locks/índices nem revisão de permissões efetivas. Testes históricos PG WA-06D (20) e S0-040 (5) também permanecem sem execução confirmada nesta retomada. Não afirmar um gate PostgreSQL PASS.
+**NÃO executado:** PostgreSQL 17 não estava disponível no ambiente local e a preparação de instalação não concluiu; portanto **0/18 cenários WA14 executados**, **nenhuma migration 041 aplicada/testada em um servidor**, **nenhum ensaio concorrente PostgreSQL**. Auditoria estática não substitui compilação SQL, execução de transações, verificação de locks/índices nem revisão de permissões efetivas. Testes históricos PG WA-06D (20) e S0-040 (5) também permanecem sem execução confirmada nesta retomada. Não afirmar um gate PostgreSQL PASS.
 
 Agressividade de CI evitada: nenhum workflow remoto foi disparado **manualmente**; commits de integração do executor usam `[skip ci]`. Não presumir que isso altera execuções disparadas automaticamente por commits anteriores.
 
@@ -35,7 +35,7 @@ Agressividade de CI evitada: nenhum workflow remoto foi disparado **manualmente*
 
 ## Gate seguinte
 
-1. Executar `scripts/run-s0-local.sh` somente contra PostgreSQL 17 descartável, com URL `localhost` e banco `prumo_s0_test_*`, para obter evidência real dos 17 cenários e detectar SQL/ACL incompatíveis; corrigir imediatamente falhas antes de fechar WA-14.
+1. Executar `scripts/run-s0-local.sh` somente contra PostgreSQL 17 descartável, com URL `localhost` e banco `prumo_s0_test_*`, para obter evidência real dos 18 cenários e detectar SQL/ACL incompatíveis; corrigir imediatamente falhas antes de fechar WA-14.
 2. Executar `scripts/test_s0_wa_041_concurrency.sh` com PostgreSQL 17 descartável, incluindo WA14C-01..03 em sessões independentes: duas tentativas por um mesmo `wamid`, um `attempt_ref` com dois `wamid` e replay idêntico com verificação pós-commit.
 3. Reexecutar os 5 cenários S0-040, 20 WA-06D e a regressão Meta `--all` de 29 suítes em checkout integral.
 4. Somente depois revisar integração física Meta → S0 em torno do ledger e das validações de identidade. Credenciais, produção e Meta Graph real seguem fora de escopo sem autorização específica.
@@ -49,10 +49,10 @@ Duas falhas descobertas após a primeira publicação foram corrigidas **antes d
 
 **Auditoria estática repetida sobre blobs publicados no GitHub**:
 - Migration `c9677e2de91261460f9d4a76584d8422f56e24c5`: strings, parênteses e delimitadores de função balanceados; sem quantificadores acima de 255; FKs, duas unicidades, guarda postgres, RLS, revogações e três validações de comprimento presentes.
-- Suíte `9afb852adb1d21cf1630a22393fb368b8733eb16`: strings, parênteses e delimitadores balanceados; 17 IDs WA14-01..17 presentes; variáveis JSONB/record distintas; rollback ao final.
+- Suíte `9afb852adb1d21cf1630a22393fb368b8733eb16`: strings, parênteses e delimitadores balanceados; 18 IDs WA14-01..18 presentes; variáveis JSONB/record distintas; rollback ao final.
 - Executor `89b7893ac3b15ee53f4d7ddfa20c06f3b8d2e970`: migration e suíte referenciadas exatamente uma vez.
 
-**Estado após correções: 0/17 testes WA14 executados.** Não há PostgreSQL local/descartável nem foi enviado comando SQL a banco remoto. Os 17 cenários preparados podem revelar novas falhas quando o gate de execução ocorrer.
+**Estado após correções: 0/18 testes WA14 executados.** Não há PostgreSQL local/descartável nem foi enviado comando SQL a banco remoto. Os 18 cenários preparados podem revelar novas falhas quando o gate de execução ocorrer.
 
 ## WA-14C — ensaios PostgreSQL concorrentes preparados, ainda sem execução
 
@@ -64,7 +64,7 @@ Adicionado `scripts/test_s0_wa_041_concurrency.sh` e incluído **uma única vez*
 
 **Auditoria estática do artefato GitHub:** oito here-docs SQL balanceados, um here-doc Python balanceado, dois caminhos de conflito, três cenários distintos, URL local estrita, `PGHOSTADDR` limpo, ausência de chamadas à rede e referência única no executor. Blobs `test_s0_wa_041_concurrency.sh` `fbab0b1648152d3c4c8ef4b788aa45d7c762a7a1` e `run-s0-local.sh` `4bc7f6784f60a304ee65a01026f418573c1740f6`.
 
-**Estado:** testes de concorrência **0/3 executados**; casos PostgreSQL WA14-01..17 **0/17 executados**. A estrutura do script **não equivale** a execução de comandos em PostgreSQL nem prova lock, serialização ou isolamento. Falta `bash -n` verificado sobre a cópia do GitHub, e execução real em banco descartável.
+**Estado:** testes de concorrência **0/3 executados**; casos PostgreSQL WA14-01..18 **0/18 executados**. A estrutura do script **não equivale** a execução de comandos em PostgreSQL nem prova lock, serialização ou isolamento. Falta `bash -n` verificado sobre a cópia do GitHub, e execução real em banco descartável.
 
 ## WA-14D — imutabilidade em nível de tabela, ainda não homologada
 
@@ -78,9 +78,19 @@ A migration passou a incluir função `prumo_private.bloquear_mutacao_meta_vincu
 
 - Migration publicada Git blob `f92436846e32a162f61509663d704153b29cb55e`.
 - Suíte publicada Git blob `59fc57e54f823ef3223eb0c0f94c5d91c72b2ce8`.
-- Auditoria estática dos blobs: parênteses/aspas/delimitadores balanceados, três operações de mutação abrangidas, função revogada, preservação de duas unicidades, 17 IDs WA14, encerramento em `ROLLBACK`, migration/suíte/concorrência referenciadas exatamente uma vez pelo runner.
+- Auditoria estática dos blobs: parênteses/aspas/delimitadores balanceados, três operações de mutação abrangidas, função revogada, preservação de duas unicidades, 18 IDs WA14, encerramento em `ROLLBACK`, migration/suíte/concorrência referenciadas exatamente uma vez pelo runner.
 - PostgreSQL e `psql` **não instalados** no ambiente. `apt-get update` tentou acessar a fonte de pacotes, mas a resolução de `deb.debian.org` falhou. Não foi acessado banco remoto.
 
-**Resultado verificável: 0/17 testes WA14 SQL e 0/3 testes concorrentes executados.** Nenhuma migration foi aplicada/compilada no PostgreSQL; esta é auditoria estática, não gate PG PASS. Um administrador superusuário ainda pode desabilitar/remover triggers: o endurecimento não equivale a armazenamento contra adulteração absoluta.
+**Resultado verificável: 0/18 testes WA14 SQL e 0/3 testes concorrentes executados.** Nenhuma migration foi aplicada/compilada no PostgreSQL; esta é auditoria estática, não gate PG PASS. Um administrador superusuário ainda pode desabilitar/remover triggers: o endurecimento não equivale a armazenamento contra adulteração absoluta.
+
+## WA-14E — recuperação exige propriedade da intenção S0
+
+Foi encontrada e corrigida uma lacuna no contrato `consultar_vinculo_meta_fixture_s0`: o SQL validava o App/canal consultado, mas não exigia que `p_intencao` pertencesse àquele mesmo canal/concessionária. Isso permitia obter o resultado genérico `LAB_ABSENT` para uma intenção inexistente ou de outro escopo. Em uma recuperação de commit desconhecido, a ausência só deve ser avaliada **após o vínculo de autoridade S0 ser estabelecido**.
+
+O `SELECT` da função passou a incluir `JOIN prumo_private.outbox_intencoes_s0 o` pela chave composta `(concessionaria_id,canal_id,id=p_intencao)`. Quando essa relação não existe, a função falha com `UNTRUSTED_FIXTURE_SCOPE` (SQLSTATE 42501), em vez de afirmar ausência de vínculo.
+
+**Novo cenário WA14-18:** três consultas inválidas (intenção de outro canal, de outra concessionária e inexistente) devem falhar por escopo; uma consulta sem vínculo, mas com intenção pertencente ao mesmo canal, continua retornando `LAB_ABSENT` **sem retry**, e sem alterar a tabela. Uma consulta de histórico não depende do status atual da intenção para autorizar transmissão; ela **jamais** autoriza envio.
+
+**Evidência realizada:** arquivos GitHub conferidos; migration blob `eade2d459e3f61b0788e831d19a9502a4bc8d96a`, testes blob `193c3f17c4fbe12953aa8d66181c4058f9f269c4`. Auditoria estática de parênteses, strings, delimitadores de função, relacionamento de escopo composto, 18 IDs de teste, rollback e referência única do executor passou. **Não há evidência de compilação/aplicação PostgreSQL:** 0/18 casos SQL e 0/3 testes de concorrência executados.
 
 **Classificação honesta:** migration e testes entregues e auditados estaticamente; **persistência PostgreSQL não validada em execução**.
