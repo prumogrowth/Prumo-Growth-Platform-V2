@@ -4,7 +4,9 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 temp="$(mktemp -d)"
 trap 'rm -rf "$temp"' EXIT
-mkdir -p "$temp/mock-bin"
+mkdir -p "$temp/mock-bin" "$temp/no-psql-bin"
+ln -s "$(command -v bash)" "$temp/no-psql-bin/bash"
+ln -s "$(command -v python3)" "$temp/no-psql-bin/python3"
 cat > "$temp/mock-bin/psql" <<'MOCK'
 #!/usr/bin/env bash
 if [[ -n "${PGHOSTADDR:-}" || -n "${PGSERVICE:-}" ]]; then
@@ -44,6 +46,6 @@ expect_exit 'reject URL hostaddr' 1 env -i PATH="$test_path" PRUMO_TEST_DATABASE
 expect_exit 'reject production DB' 1 env -i PATH="$test_path" PRUMO_TEST_DATABASE_URL='postgresql://postgres:fixture@localhost:5432/production' bash "$helper"
 expect_exit 'strip libpq overrides' 0 env -i PATH="$test_path" PGHOSTADDR=8.8.8.8 PGSERVICE=production PRUMO_TEST_DATABASE_URL="$target" bash "$helper"
 expect_exit 'reject server failure' 69 env -i PATH="$test_path" MOCK_ERROR=1 PRUMO_TEST_DATABASE_URL="$target" bash "$helper"
-expect_exit 'reject absent psql' 69 env -i PATH="$base_path" PRUMO_TEST_DATABASE_URL="$target" bash "$helper"
+expect_exit 'reject absent psql' 69 env -i PATH="$temp/no-psql-bin" PRUMO_TEST_DATABASE_URL="$target" bash "$helper"
 expect_exit 'reject malformed PG version' 65 env -i PATH="$test_path" MOCK_PG_VERSION='17xxx' PRUMO_TEST_DATABASE_URL="$target" bash "$helper"
 printf '%s\n' "PASS S0-PG17-PREFLIGHT-TEST: $number/10 synthetic cases (not a real PostgreSQL test)"
