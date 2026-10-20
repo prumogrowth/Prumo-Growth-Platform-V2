@@ -58,8 +58,8 @@ do $t$ begin
  or (select count(*) from public.vinculos_papel_escopo v
      where v.ator_id='b2100000-0000-4000-8000-000000000003')<>2
  or exists(select 1 from prumo_private.s1_remanejamento_pendencias q
-           where q.caso_id in ('b2500000-0000-4000-8000-000000000001',
-                               'b2500000-0000-4000-8000-000000000002')::uuid[])
+           where q.caso_id in ('b2500000-0000-4000-8000-000000000001'::uuid,
+                               'b2500000-0000-4000-8000-000000000002'::uuid))
  then raise exception 'ISSUE10-03 titular/grants/pendencia alterados';end if;
 end $t$;
 \echo 'PASS ISSUE10-03: nao ha redistribuicao sem prova S0, caso sem substituto permanece'
