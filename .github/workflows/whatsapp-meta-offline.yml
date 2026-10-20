@@ -85,3 +85,87 @@ jobs:
       - name: Parar e apagar PostgreSQL descartavel
         if: always()
         run: docker rm --force wa06d-fixture-pg17 >/dev/null 2>&1 || true
+
+  wa15c-cross-branch-pg17:
+    name: WA-15C contratos Meta TS + S0 PG17
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd=pg_isready
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=10
+    env:
+      PGPASSWORD: postgres
+      PRUMO_TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/prumo_s0_test_ci
+      NODE_OPTIONS: ''
+      NODE_PATH: ''
+    steps:
+      - name: Checkout Meta PR Draft, sem merge em main
+        uses: actions/checkout@v4
+        with:
+          path: meta
+          persist-credentials: false
+      - name: Checkout fonte S0 Draft isoladamente, sem merge entre PRs
+        uses: actions/checkout@v4
+        with:
+          ref: feat/s0-fundacao-prumo
+          path: s0
+          persist-credentials: false
+      - name: Node 22 sem npm install
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Cliente PG e banco descartavel
+        run: |
+          set -euo pipefail
+          command -v psql >/dev/null || (sudo apt-get update -qq && sudo apt-get install -y postgresql-client)
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c 'CREATE DATABASE prumo_s0_test_ci'
+      - name: Provar todas as migrations S0 no mesmo PG17
+        run: bash s0/scripts/run-s0-local.sh
+      - name: Gerar comandos parametrizados a partir do TypeScript Meta real
+        run: |
+          set -euo pipefail
+          node --experimental-strip-types meta/integrations/whatsapp-meta/lab/wa15c-produce-s0-commands.ts > "$RUNNER_TEMP/wa15c_commands.json"
+          python3 - "$RUNNER_TEMP/wa15c_commands.json" <<'PY'
+          import json,sys
+          commands=json.load(open(sys.argv[1],encoding='utf-8'))
+          assert len(commands)==8
+          assert len({x['label'] for x in commands})==8
+          assert all(not x['ack_allowed'] and not x['retry_external'] and
+            not x['production_authorized'] for x in commands)
+          print('PASS WA15C-TS: 8 commands from live WA15B code; never ACK/retry')
+          PY
+      - name: Exercitar S0-042 com parametros TS e ler apos COMMIT em nova sessao
+        run: |
+          set -euo pipefail
+          sql='meta/integrations/whatsapp-meta/lab'
+          psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" \
+            -f "$sql/wa15c_pg17_setup.sql"
+          for phase in execute recover; do
+            psql -X -v ON_ERROR_STOP=1 \
+              -v "wa15_payload=$(cat "$RUNNER_TEMP/wa15c_commands.json")" \
+              "$PRUMO_TEST_DATABASE_URL" \
+              -f "$sql/wa15c_pg17_"$phase".sql" \
+              2>&1 | tee "$RUNNER_TEMP/wa15c_"$phase".log"
+          done
+          for n in {01..09}; do
+            count="$(grep -c "PASS WA15C-$n:" "$RUNNER_TEMP/wa15c_execute.log" || true)"
+            if [[ "$count" != 1 ]]; then echo "FAIL WA15C-$n marker: $count" >&2; exit 1; fi
+          done
+          for n in {10..12}; do
+            count="$(grep -c "PASS WA15C-$n:" "$RUNNER_TEMP/wa15c_recover.log" || true)"
+            if [[ "$count" != 1 ]]; then echo "FAIL WA15C-$n marker: $count" >&2; exit 1; fi
+          done
+          echo 'PASS WA15C: 12 cross-branch PostgreSQL checks, three real psql sessions'
