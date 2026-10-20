@@ -93,4 +93,24 @@ O `SELECT` da função passou a incluir `JOIN prumo_private.outbox_intencoes_s0 
 
 **Evidência realizada:** arquivos GitHub conferidos; migration blob `eade2d459e3f61b0788e831d19a9502a4bc8d96a`, testes blob `193c3f17c4fbe12953aa8d66181c4058f9f269c4`. Auditoria estática de parênteses, strings, delimitadores de função, relacionamento de escopo composto, 18 IDs de teste, rollback e referência única do executor passou. **Não há evidência de compilação/aplicação PostgreSQL:** 0/18 casos SQL e 0/3 testes de concorrência executados.
 
+## S0-PG17-PREFLIGHT — ambiente verificado antes de migrations
+
+Após esclarecer que **não é necessário banco definitivo**, foi adicionado `scripts/check_s0_pg17.sh` ao início de `scripts/run-s0-local.sh`. O novo verificador:
+
+- Recusa URLs que não identifiquem **host estritamente local** (`localhost`, `127.0.0.1` ou `::1`), nome `prumo_s0_test_*`, caminhos/queries inesperados e variáveis libpq que poderiam redirecionar o host.
+- Executa uma consulta **somente leitura** para conferir a versão **PostgreSQL 17** e o **nome exato do banco conectado**; só então permite iniciar migrations.
+- Recusa `psql` ausente, falhas de conexão, versões diferentes e divergência no banco; não contém instruções para produção nem Graph API.
+
+A suíte independente `scripts/test_s0_pg17_preflight.sh` usa um `psql` **sintético** em diretório temporário, sem rede ou banco. Foi executada nesta sessão local: **10/10 PASS**, incluindo PG16, outro banco, host remoto, query com `hostaddr`, nome não-descartável, `PGHOSTADDR`/`PGSERVICE`, falha de conexão, ausência de `psql` e saída de versão inválida. Ambos os scripts passaram em `bash -n`. **Hashes Git Blob** da cópia exata executada: `check_s0_pg17.sh` `b849f1aaf7ad0379b842f174d9cc988466e2460f`; `test_s0_pg17_preflight.sh` `16d74e911c3b1c40d67f6968a3ca9ea2a4823579`.
+
+**Importante:** o retorno positivo com `psql` sintético é apenas prova de que o *pré-requisito* protege o ambiente. **WA14-01..18 = 0/18 executados em PostgreSQL; WA14C-01..03 = 0/3.** Sem aplicação real da migration.
+
+### Como viabilizar a execução efetiva
+
+O repositório possui `.github/workflows/s0-postgres.yml` na **branch `feat/s0-fundacao-prumo`**, provisionando `postgres:17` e `prumo_s0_test_ci` descartável, chamando o executor completo. **Não existe** esse arquivo na branch `main` conforme leitura GitHub nesta sessão.
+
+Pela [documentação oficial do GitHub](https://docs.github.com/pt/actions/how-tos/manage-workflow-runs/manually-run-a-workflow), `workflow_dispatch` só é recebido quando o arquivo do workflow está no branch padrão; portanto **não presumir que o botão `Run workflow` esteja disponível agora**. O arquivo na branch S0 também declara gatilho `push` na própria branch. Para executar o CI isolado será necessário disparo elegível permitido pelas políticas da conta, não suprimido por `[skip ci]`, e verificar logs/resultado da execução. Este passo pode consumir minutos de GitHub Actions em repositório privado e **não foi acionado nesta sessão**; nenhuma afirmação de CI PASS.
+
+[Referência GitHub — acionamento de workflows](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows).
+
 **Classificação honesta:** migration e testes entregues e auditados estaticamente; **persistência PostgreSQL não validada em execução**.
