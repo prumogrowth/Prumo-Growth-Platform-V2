@@ -125,3 +125,8 @@
 .team-dialog .team-monitor-card span,.team-dialog .team-batch-card span,
 .team-dialog .team-member span{color:#51676f;font-size:12px}
 .team-dialog .team-monitor-tile span{color:#4e646e;font-size:11px}
+
+/* Demonstração: um único indicador, duas semânticas. Cores provisórias. */
+:root{--attention-unread:#1c9e89;--attention-awaiting:#64748b}
+.attention-unread{background:var(--attention-unread)}
+.attention-pending{background:var(--attention-awaiting);min-width:15px;width:15px;height:15px;padding:0;border:2px solid white;outline:1px solid var(--attention-awaiting)}
