@@ -1,5 +1,7 @@
 # WA-17 — Gestão manual de templates e configuração posterior das variáveis
 
+> **Errata da diretriz (20/10/2026):** este relatório WA-17A registrou o recorte inicial de criação manual. A decisão mais recente do responsável o **substitui** como arquitetura-alvo: a criação e administração ocorrerão **principalmente via MCP** conectado a uma IA, que poderá copiar o texto fornecido **ou gerar novos textos a pedido**; a estrutura deverá suportar HEADER multimídia, FOOTER e botões URL, QUICK_REPLY, PHONE_NUMBER e capacidades avançadas por módulos. A implementação WA-17A segue apenas como biblioteca legada BODY-only. [Nova especificação WA-17B](./wa17b-mcp-templates-multimidia-ia-delegada-2026-10-20.md). Sem chamada Meta real.
+
 **Data:** 20/10/2026. **PR #2:** Draft, sem merge/deploy/API Graph real.
 
 ## 1. Origem e decisão de produto
