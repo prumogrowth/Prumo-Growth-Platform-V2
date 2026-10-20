@@ -38,19 +38,42 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
-      - name: Instalar PostgreSQL 17 somente no runner descartavel
+      - name: Testar restricoes do runner WA-06D, sem SQL real
         run: |
-          sudo apt-get update -qq
-          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y postgresql-17
-          test -x /usr/lib/postgresql/17/bin/initdb
-          test -x /usr/lib/postgresql/17/bin/pg_ctl
-      - name: Verificar runner sem acesso a banco remoto
-        run: |
-          test "$(id -u)" -ne 0
           bash -n integrations/whatsapp-meta/lab/run-wa06d-ephemeral.sh
           python3 -m unittest discover -s integrations/whatsapp-meta/lab -p test_wa06d_ephemeral_runner.py -v
-      - name: Executar 20 casos SQL PG17 com cluster efemero isolado
-        env:
-          PGHOSTADDR: ''
-          PGSERVICE: ''
-        run: bash integrations/whatsapp-meta/lab/run-wa06d-ephemeral.sh
+      - name: Criar PostgreSQL 17 descartavel em Docker, sem rede
+        run: |
+          set -euo pipefail
+          docker run --detach --rm --name wa06d-fixture-pg17 \
+            --network none \
+            --env POSTGRES_USER=wa06d_owner \
+            --env POSTGRES_DB=wa06d_test_ephemeral \
+            --env POSTGRES_PASSWORD=ci_fixture_only \
+            postgres:17 -c listen_addresses=''
+          for i in {1..30}; do
+            if docker exec wa06d-fixture-pg17 pg_isready -U wa06d_owner -d wa06d_test_ephemeral >/dev/null 2>&1; then
+              echo 'PASS WA06D: PostgreSQL 17 sandbox healthy (Unix socket only)'
+              exit 0
+            fi
+            sleep 1
+          done
+          echo 'FAIL WA06D: disposable PostgreSQL did not start' >&2
+          exit 1
+      - name: Executar WA-06D 14 casos SQL + 6 casos pos-COMMIT
+        run: |
+          set -euo pipefail
+          sql='integrations/whatsapp-meta/lab'
+          docker exec wa06d-fixture-pg17 psql -X -qAt -v ON_ERROR_STOP=1 \
+            -U wa06d_owner -d wa06d_test_ephemeral \
+            < "$sql/wa06d_pg17_atomicity.sql"
+          docker exec wa06d-fixture-pg17 psql -X -qAt -v ON_ERROR_STOP=1 \
+            -U wa06d_owner -d wa06d_test_ephemeral \
+            < "$sql/wa06d_pg17_postcommit_setup.sql"
+          docker exec wa06d-fixture-pg17 psql -X -qAt -v ON_ERROR_STOP=1 \
+            -U wa06d_owner -d wa06d_test_ephemeral \
+            < "$sql/wa06d_pg17_postcommit_verify.sql"
+          echo 'PASS WA06D: SQL A 14 + B 6, isolated post-COMMIT read'
+      - name: Parar e apagar PostgreSQL descartavel
+        if: always()
+        run: docker rm --force wa06d-fixture-pg17 >/dev/null 2>&1 || true
