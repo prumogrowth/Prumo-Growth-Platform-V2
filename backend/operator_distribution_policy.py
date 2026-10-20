@@ -20,6 +20,8 @@ class CaseSnapshot:
     # Must come from durable proof of first operator/human interaction.
     # None means unverified; AI messages, opening or reading do not count.
     first_human_contact_confirmed: Optional[bool]
+    # Terminal or historical cases must never be automatically reassigned.
+    active_case_confirmed: bool = False
 
 
 @dataclass(frozen=True)
@@ -60,6 +62,8 @@ def propose_selective_pause_case(
         or not isinstance(candidates, tuple)
     ):
         return PauseRoutingProposal("DENIED_OR_UNVERIFIED")
+    if case.active_case_confirmed is not True:
+        return PauseRoutingProposal("RETAIN_NOT_ACTIVE_OR_UNVERIFIED")
     if case.first_human_contact_confirmed is True:
         return PauseRoutingProposal("RETAIN_STARTED")
     if case.first_human_contact_confirmed is not False:
@@ -103,6 +107,7 @@ def classify_manual_transfer_target(
         or case.manager_ref != manager_ref
         or target.manager_ref != manager_ref
         or target.active_account is not True
+        or target.intake_receiving is not True
         or not target.operator_ref
         or not case.assignment_version
     ):
