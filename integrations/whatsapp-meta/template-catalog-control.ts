@@ -1,5 +1,8 @@
 /**
- * WA-17A: offline, human-authored WhatsApp template catalog contract.
+ * WA-17A: legacy BODY-only catalog for manually specified template text.
+ * WA-17B supersedes this as the MCP-first multi-format/AI-authored interface.
+ * Keep this module for compatibility; AI authorship is explicitly permitted
+ * by WA-17B when delegated by a responsible authenticated administrator.
  * NO Graph/SQL/HTTP, credentials, dispatch, or authentication here.
  * The service must authenticate administrator and Meta status provenance.
  * v0: BODY-only positional {{1}} variables; other components later.
