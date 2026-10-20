@@ -40,4 +40,14 @@ A custódia permanece numa role/tabela PostgreSQL temporária e tem poder de alt
 
 **Gate de produção:** homologar provedor de segredos e identidade operacional, separar chaves e login SQL em domínios de risco independentes, fazer rotação coordenada com confirmação/rollback e teste de chave comprometida, exigir auditoria inviolável fora do banco e revisão de `SECURITY DEFINER` e da infraestrutura de rede. Nunca compartilhar chaves do CI ou copiar as fixtures para migrations. I24 **não** altera o progresso global do projeto.
 
-**CI:** inserir status e links somente após conferir os logs de ambos os jobs; até lá, aceite pendente.
+## Evidência conferida — CI aprovado
+
+**[GitHub Actions #39355788542 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39355788542)**, SHA ensaiado `eba8eabe6cd4c451c82c47e8a1f0ba64c2cb35fd`. Os dois jobs encerraram em sucesso, com logs inspecionados:
+
+- Job `118410127959` (http-policy-unit): **30/30** testes Python HTTP concluídos, `Ran 30 tests`, `OK`.
+- Job `118410128208` (e2e-gerencia-local): **S1KOPS-01..50 = 50/50 PASS**, stack Supabase GoTrue/PostgreSQL local com **50 migrations S0/S1 reais** e fixtures somente de CI I20/I21/I22/I24. Repetiu os 40 gates de autenticação, movimentação por equipe, pausa global, redistribuição, retorno, revogação de sessão, HMAC/nonce, custódia segregada e HTTP.
+- S1KOPS-41..50 foram observados nos logs: eventos mínimos de bootstrap/provisionamento/revogação, CAS obsoleto bloqueado, revogação repetida negada, motivo livre negado, bytes/validade incorretos negados, duas chaves coexistindo antes da troca do assinador, sucessora funcionando após revogar anterior, login SQL sem APIs administrativas/auditoria, duas transações concorrentes com somente uma revogação e um evento, custódia do histórico sem dados sensíveis.
+
+**Correções documentadas, sem classificar jobs anteriores como aceites:** [#39355258925](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39355258925) passou pelos 20 primeiros cenários e identificou `EXECUTE` administrativo insuficiente após `ALTER OWNER`; o grant foi explicitamente emitido pelo proprietário custódio na mesma transação. [#39355531178](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39355531178) passou até S1KOPS-45 e revelou colisão de nome entre a função auxiliar de teste `http` e o módulo `http.client`; os imports do runner foram corrigidos. O CI final citado é o único aceite.
+
+**Parecer técnico:** GO apenas para continuidade em sandbox; **NO-GO para deploy/produção**. A trilha de auditoria está sujeita aos poderes do proprietário/admin PostgreSQL; a recuperação e custódia em infraestrutura real, TLS, gestão de secrets, UI gerencial e encerramento humano S0 continuam pendentes. A rotação testada usa segredos sintéticos gerados no GitHub runner, não um KMS/Vault.
