@@ -84,18 +84,32 @@ grant execute on function prumo_s1_signed_i20.verificar_hmac(
  to prumo_s1_i21_executor;
 
 grant create on schema prumo_s1_signed_i20 to prumo_s1_i22_custodio;
+-- A tabela pertence ao executor I21; postgres gerenciado NAO herda a role
+-- e portanto precisa executar ALTER OWNER como seu dono. Somente durante
+-- esta transacao DDL, ha um GRANT de SET para o custodio; é revogado antes
+-- do commit. Nenhum outro login consegue observar o GRANT intermediario.
+grant prumo_s1_i22_custodio to prumo_s1_i21_executor with inherit false, set true;
+set local role prumo_s1_i21_executor;
 alter table prumo_s1_signed_i20.chaves owner to prumo_s1_i22_custodio;
+reset role;
+revoke prumo_s1_i22_custodio from prumo_s1_i21_executor;
+
 alter function prumo_s1_signed_i20.verificar_hmac(
  text,uuid,uuid,uuid,uuid,uuid,uuid,uuid,text,uuid,bigint,uuid,text)
  owner to prumo_s1_i22_custodio;
-revoke create on schema prumo_s1_signed_i20 from prumo_s1_i22_custodio;
 
--- O executor nao le a tabela de chaves nem a altera. Cuida so da
--- gravacao de nonces e da transacao de negocio (via interfaces I14).
+-- A revogacao da tabela de chave e executada pelo proprio custodio.
+set local role prumo_s1_i22_custodio;
 revoke all on prumo_s1_signed_i20.chaves from
  prumo_s1_i21_executor,prumo_s1_signed_login_ci,public,anon,authenticated,service_role;
+reset role;
+revoke create on schema prumo_s1_signed_i20 from prumo_s1_i22_custodio;
+
+-- A tabela de nonces permanece owned pelo executor I21.
+set local role prumo_s1_i21_executor;
 revoke all on prumo_s1_signed_i20.nonces from
  prumo_s1_i22_custodio,prumo_s1_signed_login_ci,public,anon,authenticated,service_role;
+reset role;
 
 -- Para reescrever o corpo existente e preservar o ownership da funcao,
 -- concede-se CREATE somente na transacao atual e executa-se como seu owner.
