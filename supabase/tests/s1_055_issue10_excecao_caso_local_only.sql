@@ -304,3 +304,96 @@ join public.ciclos_comerciais c on c.concessionaria_id=h.concessionaria_id and c
 where prumo_private.s1_caso_excepcional_autorizado_55(h.concessionaria_id,h.id);
 revoke all on public.s1_55_resumo_caso from public,anon,service_role;
 grant select on public.s1_55_resumo_caso to authenticated;
+
+-- Segundo guard I2 tambem reconhece somente a prova exata da excecao,
+-- sem abrir elegibilidade aos outros casos/lojas.
+create or replace function prumo_private.s1_validar_nova_atribuicao()
+returns trigger language plpgsql security invoker set search_path='' as $fn$
+begin
+ if current_user<>'postgres' then
+  raise exception 'INTERNAL_ONLY' using errcode='42501';end if;
+ if exists(select 1 from public.equipe_prumo_s1 e
+ join public.vinculos_papel_escopo v on v.ator_id=e.ator_id
+ join public.concessionarias l on l.id=v.concessionaria_id
+ where e.ator_id=new.operador_id and e.estado='ativo' and l.ativo
+ and v.concessionaria_id=new.concessionaria_id
+ and v.papel in ('gestor','operador')
+ and v.valido_desde<=pg_catalog.statement_timestamp()
+ and (v.valido_ate is null or v.valido_ate>pg_catalog.statement_timestamp())
+ ) then return new;end if;
+ if exists(select 1 from prumo_private.s1_excecoes_55 x
+ join public.equipe_prumo_s1 e on e.ator_id=x.operador_id and e.estado='ativo'
+ join public.concessionarias l on l.id=x.concessionaria_id and l.ativo
+ where x.atribuicao_id=new.id
+  and x.concessionaria_id=new.concessionaria_id
+  and x.caso_id=new.caso_id and x.operador_id=new.operador_id
+  and x.revogada_em is null
+ ) then return new;end if;
+ raise exception 'PROFISSIONAL_PRUMO_INELEGIVEL' using errcode='23514';
+end $fn$;
+revoke all on function prumo_private.s1_validar_nova_atribuicao()
+ from public,anon,authenticated,service_role;
+
+-- I3 legado deve falhar fechado no grupo com excecao.
+-- S1-002/I3: reparacao de concessoes que expiraram PELO RELOGIO
+-- Sem cron/worker e sem acesso REST; execucao interna controlada em PG descartavel.
+-- Nao altera estados comerciais nem mensagens e nao aplica no Supabase hospedado.
+create or replace function prumo_private.s1_reconciliar_elegibilidade_vencida(p_max_grupos integer default 50)
+returns jsonb language plpgsql security invoker set search_path='' as $s1$
+declare r record; v_motivo text; v_casos integer:=0; v_grupos integer:=0;
+begin
+ if current_user<>'postgres' then
+  raise exception 'INTERNAL_ONLY' using errcode='42501';
+ end if;
+ if p_max_grupos is null or p_max_grupos not between 1 and 100 then
+  raise exception 'INVALID_RECONCILE_BATCH' using errcode='22023';
+ end if;
+ -- Agrupamento deterministico; casos individuais sao travados dentro do I2.
+ -- Nenhuma filtragem por status no reparo de atribuicoes stale:
+ -- I2 encerra vinculo residual de ciclos terminais, sem novo titular.
+ for r in
+  select distinct a.concessionaria_id,a.operador_id
+  from public.atribuicoes_humanas a
+  where a.encerrada_em is null
+   -- Enquanto houver alguma atribuicao viva com historico de excecao
+   -- no par (operador,loja), nao executar o I2 que remaneja grupo inteiro.
+   and not exists (
+    select 1 from public.atribuicoes_humanas ax
+    join prumo_private.s1_excecoes_55 ex on ex.atribuicao_id=ax.id
+    where ax.operador_id=a.operador_id
+      and ax.concessionaria_id=a.concessionaria_id
+      and ax.encerrada_em is null
+   )
+   and (
+    not exists(select 1 from public.equipe_prumo_s1 e
+     where e.ator_id=a.operador_id and e.estado='ativo')
+    or not exists(
+     select 1 from public.vinculos_papel_escopo v
+     join public.concessionarias l on l.id=v.concessionaria_id
+     where v.ator_id=a.operador_id and v.concessionaria_id=a.concessionaria_id
+       and v.papel in ('gestor','operador') and l.ativo
+       and v.valido_desde<=pg_catalog.statement_timestamp()
+       and (v.valido_ate is null or v.valido_ate>pg_catalog.statement_timestamp())
+    )
+   )
+  order by a.concessionaria_id,a.operador_id
+  limit p_max_grupos
+ loop
+  -- A transacao pode ter esperado por outro remanejamento: o segundo
+  -- executor continua idempotente porque I2 so move atribuicoes ativas.
+  if exists(select 1 from public.equipe_prumo_s1 e
+    where e.ator_id=r.operador_id and e.estado='ativo') then
+   v_motivo:='ESCOPO_REVOGADO';
+  else
+   v_motivo:='EQUIPE_INATIVA';
+  end if;
+  v_casos:=v_casos+prumo_private.s1_remanejar_ator(
+   r.operador_id,r.concessionaria_id,v_motivo);
+  v_grupos:=v_grupos+1;
+ end loop;
+ return pg_catalog.jsonb_build_object(
+  'outcome','RECONCILED','groups_checked',v_grupos,
+  'cases_reassigned_or_closed',v_casos);
+end $s1$;
+revoke all on function prumo_private.s1_reconciliar_elegibilidade_vencida(integer)
+ from public,anon,authenticated,service_role;
