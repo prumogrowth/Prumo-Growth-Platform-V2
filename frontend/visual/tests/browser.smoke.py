@@ -2,7 +2,7 @@
 Sem rede/API de negócio: HTML/CSS/JS locais são injetados no navegador real.
 O roteiro não prova autenticação, backend ou execução quando apenas versionado.
 """
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import sync_playwright, expect
 from pathlib import Path
 import os
 import re
@@ -54,7 +54,7 @@ with sync_playwright() as p:
         page.locator('#request-completion').click()
         page.locator('#completion-form button[value=confirm]').click()
         if width<=1040: page.locator('#detail-toggle').click()
-        assert page.locator('.detail-tab.active').inner_text() == 'Extração'
+        expect(page.locator('.detail-tab.active')).to_have_text('Extração')
         page.get_by_role('button',name='Retorno parcial').click()
         page.locator('.detail-tab',has_text='Histórico').click()
         assert 'extração' in page.locator('.activity-item').first.inner_text().lower()
@@ -149,7 +149,7 @@ with sync_playwright() as p:
     page.get_by_role('button',name='Selecionar e solicitar template aprovado').click()
     page.locator('#template-form button[value="confirm"]').click()
     assert page.locator('#message-input').is_disabled()
-    assert 'Pedido simulado' in page.locator('#workflow-bar').inner_text()
+    expect(page.locator('#workflow-bar')).to_contain_text('Pedido simulado')
     page.locator('[data-inbox="history"]').click()
     assert page.locator('.conversation-card').count()==3
     page.get_by_role('button',name='Abrir conversa Cliente Exemplo 12',exact=False).click()
