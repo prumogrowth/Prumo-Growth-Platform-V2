@@ -1713,8 +1713,8 @@ if __name__ == '__main__':
                 # Violacao nao assinada em SQLite: integrity_check continua OK,
                 # mas o MAC do snapshot precisa detectar adulteracao.
                 import sqlite3
-                with sqlite3.connect(db_path) as db:
-                    db.execute("UPDATE certificates SET state='ACTIVE' WHERE fingerprint=?",(first,))
+                with sqlite3.connect(db_path) as ledger_connection:
+                    ledger_connection.execute("UPDATE certificates SET state='ACTIVE' WHERE fingerprint=?",(first,))
                 status,data=rpc("pausar",login["access_token"],p_operador=o3,
                                 p_motivo_codigo="AUSENCIA_TEMPORARIA")
                 if status!=503 or data.get("error")!="UNAVAILABLE":
