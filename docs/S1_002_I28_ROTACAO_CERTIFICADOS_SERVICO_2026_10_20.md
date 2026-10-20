@@ -37,4 +37,11 @@ Riscos restantes: roubo de Bearer válido e/ou certificados TLS/OS, comprometime
 
 **Parecer:** GO para continuar desenvolvimento isolado somente se CI comprovar a suíte; **NO-GO produção, merge, deploy e Supabase hospedado**. Nenhuma porcentagem global do projeto decorre deste teste.
 
-**Evidência CI:** pendente da inspeção de ambos os jobs, logs e commit específico executado.
+## Resultado verificado em CI — aprovado apenas para sandbox
+
+**[GitHub Actions #39401134475 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39401134475)**. Código testado no SHA `eda5d84efac3cd14040d1ac1cb32f7229a82e977`; os dois jobs terminaram em `success`.
+
+- Job `118555841880` (`http-policy-unit`): **78/78 unittest PASS**, conforme cinco relatórios `Ran 30 tests ... OK` (I23), `Ran 10 tests ... OK` (I25), `Ran 10 tests ... OK` (I26), `Ran 13 tests ... OK` (I27) e `Ran 15 tests ... OK` (I28). Inclui certificado sucessor não autorizado, CAS de revisão, overlap controlado, identidade revogada, cliente não confiável, GoTrue, auditoria mínima e emergência.
+- Job `118555841207` (`e2e-gerencia-local`): **S1ROT-01..93 = 93/93 identificadores únicos PASS**, logs examinados. A execução repetiu a cadeia das 50 migrations S0/S1 reais em GoTrue/PostgreSQL efêmeros, fixtures exclusivamente locais I20/I21/I22/I24 e os 80 gates anteriores. S1ROT-81..93 foram confirmados: CA temporária, gestão autorizada, sucessor pré-stage negado, stage CAS, overlap operativo, versão stale recusada, revogação antiga com sucessora ativa, proibição de reautorização do antigo, outro certificado válido mas não allowlisted negado, histórico sem dados secretos, bearer falso recusado, RBAC interequipe e emergência sem alteração do estado da equipe.
+
+**Parecer técnico:** GO exclusivamente para prosseguir em sandbox. **NO-GO para produção, merge, deploy e Supabase hospedado.** Os eventos e revogações de identidade são **voláteis**, controlados pela mesma conta OS que possui certificados/CA e segredos sintéticos. Nenhuma PKI, CRL/OCSP, rotação de workload real ou auditoria imutável externa foi homologada. A evidência acima corresponde ao SHA de código testado; commits subsequentes de documentação não alteram esse resultado.
