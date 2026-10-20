@@ -155,5 +155,32 @@ class EvidenceImmutabilityTests(unittest.TestCase):
         self.assertEqual((one.store, two.store), ('store-A', 'store-B'))
 
 
+    def test_16_standard_dataclass_asdict_serialization_remains_supported(self):
+        from dataclasses import asdict
+        snap, _, _, _ = scenario()
+        raw = asdict(snap)
+        self.assertEqual(raw['messages'][0]['asserted_fields'], {'required': 'OLD'})
+        self.assertIsInstance(raw['messages'][0]['asserted_fields'], dict)
+
+    def test_17_serialized_output_is_detached_from_original(self):
+        from dataclasses import asdict
+        snap, _, _, _ = scenario()
+        copy = asdict(snap)
+        copy['messages'][0]['asserted_fields']['required'] = 'TAMPER'
+        self.assertEqual(snap.messages[0].asserted_fields['required'], 'OLD')
+
+    def test_18_existing_evidence_remains_readonly_after_deepcopy(self):
+        import copy
+        snap, _, _, _ = scenario()
+        copied = copy.deepcopy(snap.messages[0].asserted_fields)
+        copied['required'] = 'NEW'
+        self.assertEqual(snap.messages[0].asserted_fields['required'], 'OLD')
+
+    def test_19_private_mapping_reference_cannot_be_normally_reassigned(self):
+        snap, _, _, _ = scenario()
+        with self.assertRaises(AttributeError):
+            snap.messages[0].asserted_fields._data = {'required': 'NEW'}
+
+
 if __name__ == '__main__':
     unittest.main()
