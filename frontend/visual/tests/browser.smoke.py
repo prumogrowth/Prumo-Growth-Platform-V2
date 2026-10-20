@@ -37,8 +37,8 @@ with sync_playwright() as p:
         page.set_content(html)
         page.add_script_tag(content=script)
         assert page.locator('.conversation-card').count() == 8
-    # Um único indicador: numérico sem leitura, sem número após leitura por titular.
-    assert page.get_by_role('button',name='Abrir conversa Cliente Exemplo 02',exact=False).locator('.attention-unread').inner_text() == '2'
+        # Um único indicador: numérico sem leitura, sem número após leitura por titular.
+        assert page.get_by_role('button',name='Abrir conversa Cliente Exemplo 02',exact=False).locator('.attention-unread').inner_text() == '2'
         assert not errors
         assert not page.evaluate('document.documentElement.scrollWidth > innerWidth')
         # Selecionar caso estável, não depender de ordenação de conversas.
