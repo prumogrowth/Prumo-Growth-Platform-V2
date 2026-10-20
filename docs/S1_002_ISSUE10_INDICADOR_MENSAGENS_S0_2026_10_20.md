@@ -28,4 +28,12 @@ A resposta humana é considerada por **inserção sintética no PostgreSQL**, n�
 
 **NO-GO produção/merge/deploy**, S0 hospedado intacto e sem porcentagem global do projeto.
 
-**CI:** aguardando logs do run e SHA para aceite estritamente de sandbox.
+## Evidência CI revisada — aprovado apenas em sandbox
+
+**[GitHub Actions #39517258320 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39517258320)**, código ensaiado SHA `69fc6f51eacef79bfb15991a93110ad406da398a`, job `118952297289`, logs e marcadores confirmados: **MSG56-01..18 = 18/18 PASS**, **EX55-01..20 = 20/20 PASS**, **ISSUE10-01..23 = 23/23 PASS**, **ISSUE10R-01..04 = 4/4 PASS**. Todas as regressões S0/I11/I12 históricas foram executadas antes das fixtures issue10, com resultado global verde.
+
+`MSG56` confirmou `NONE` sem entradas, `COUNT 2` e `COUNT 1` em leituras parciais, `DOT` sem número quando toda entrada foi lida mas não respondida, `NONE` após saída humana sintética posterior, nova entrada após a resposta retornando a `COUNT`, segunda leitura `DOT`, leitura de gestor isolada da leitura do operador, marcador idempotente, bloqueio de outra conversa/operador/equipe, projeção de novo titular independente e antigo titular bloqueado. A fixture `s1_056` não é endpoint e depende de confirmação de negócio sobre herança de marcadores.
+
+**Histórico de falha corrigida:** [run #39517065926](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39517065926) falhou ao qualificar indevidamente a expressão SQL `COALESCE` como `pg_catalog.coalesce` no trigger de sequência; foi corrigido e executado novamente. O único aceite do indicador é o run verde #39517258320.
+
+**NO-GO produção/merge/deploy:** ainda faltam frontend, verificação de entrega pelo provedor, saída humana em circuito real, JWT/GoTrue/RLS de leitura na UI, controle de eventos fora de ordem, logs duráveis e testes de concorrência envolvendo leituras.
