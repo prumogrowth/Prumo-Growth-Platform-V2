@@ -175,3 +175,26 @@ Esses são **rótulos técnicos candidatos**, não oitavo/nono status comercial,
 **Evidência desta rodada, sem contagem acumulada:** `python -m unittest discover -s backend/tests -p 'test_s0_openai_f03*.py' -v` (subset do laboratório) → **50/50 PASS**, sendo 28 testes de corridas já publicados e **22 novos testes de imutabilidade** em `backend/tests/test_s0_openai_f03_snapshot_immutability.py`. `python -m compileall -q backend` PASS. Códigos e testes dos cinco arquivos locais tiveram SHA de blob Git coincidente com os publicados no PR #8: `f03_offline_gate.py` `01dfce7`, `f03_assignment_recheck.py` `d2e7f6a`, `f03_review_pipeline.py` `11e3908`, matriz race `4366848`, novos testes `5ccc160`. Os 160 testes do incremento anterior **não foram reexecutados contra esta alteração**; não declarar 210 testes numa execução ou aprovação CI.
 
 **Fronteira não resolvida:** `asdict` explicitamente produz uma representação mutável **separada**, não uma credencial S0. Imutabilidade dos registros Python sintéticos não substitui a S0 autenticar evento, construir snapshot físico mínimo com assinatura/corte e consultar permissões e versões atuais sob trava transacional antes de gravar. CFI-01 permanece [P/R], persistência real e API permanecem não implementadas, sem merge, SQL, Meta, custo ou deploy.
+
+### F03 — preparação do gate de regressão integral e critérios transacionais [P/R] (19/10/2026)
+
+**Executor offline publicado (sem banco):** `python3 scripts/run_f03_offline_regression.py` executa exclusivamente as sete suítes F03 conhecidas, com contagem individual fechada (**50 + 28 + 22 + 44 + 16 + 28 + 22 = 210**), hash Git de cada arquivo e recusa `exit 2` quando uma suíte está ausente ou tem número inesperado de casos. Os nomes e totais são *expectativas para futura execução integral*, NÃO aprovação de 210 cenários. `--allow-subset` existe somente para laboratório incompleto, rotula a execução como `SUBSET` e não deve aparecer como aceite integral. O script retira variáveis comuns de segredo da execução, mas isso não isola rede no nível do sistema operacional.
+
+**Evidência realmente executada nesta rodada:** no laboratório local que contém **apenas** a matriz de 28 corridas e a matriz de 22 testes de imutabilidade, a execução `--allow-subset` completou **50/50 PASS**; modo estrito sem flags **bloqueou (código 2)** pela ausência de outras cinco suítes; `python -m compileall -q scripts backend` PASS. Hash do executor local e GitHub = `b2f4a5978f5bfda7887abebe1ddfc919b3efcd93`. Ainda **não** houve execução conjunta 210/210 após a alteração de imutabilidade; os 160 anteriormente verificados eram de versão anterior e não devem ser somados como execução única. Sem CI.
+
+**Checklist [P/R] que a futura transação física S0/F03 deverá demonstrar antes de qualquer `APPLIED`** (sem declarar nomes de RPC/tabela/endpoint homologados):
+
+| Etapa / prova necessária | Pertence a | Falha esperada |
+|---|---|---|
+| Fechamento humano legítimo, autoria, sessão e concessão Prumo/loja ativas | S0 + S1 | `DENY`; modelo não autentica fechamento |
+| Atribuição atual e eventual redistribuição para mesmo operador com ID novo | S0 + S1 | `STALE`, sem reutilizar autorização antiga |
+| Mesmo caso, loja, ciclo e evento de conclusão, com finalidade apropriada | S0 | `DENY`, inclusive para casos pós-venda sem autorização específica |
+| Hash/corte imutável, último inbound, versão de caso e versão de ficha dentro do lock | S0 + domínio de mensagens | `STALE`, sem aceitar resposta tardia ou correção concorrente |
+| Catálogo/versão/classificação D3 aprovada, fontes por mensagem e conflitos | S0 + política de privacidade | Campo excluído/pendência humana; nunca valor inventado |
+| Opt-out, permissão de tratamento e estado humano atual, sem acionar IA Vendedora | S0 + S1 | Bloquear/no-op, sem mensagem à pessoa |
+| Idempotência de execução e CAS/locks junto com escrita e trilha de auditoria | S0 transacional | Zero gravações duplicadas; versão auditável somente no commit |
+| Retorno técnico separado entre sugestão, revisão, recusa, desatualização e `APPLIED` | S0 → FV | `REVIEW_ONLY` nunca equivale a `APPLIED` nem a remessa ao Banco |
+
+**Provas futuras obrigatórias, ainda NÃO executadas:** T-S0F03-01 concorrência de novo inbound versus commit; T-S0F03-02 revogação de concessão depois da extração; T-S0F03-03 reatribuição para mesmo operador com novo ID; T-S0F03-04 duas propostas idênticas concorrentes/idempotência; T-S0F03-05 duas lojas com identificadores semelhantes; T-S0F03-06 correção humana C13 versus sugestão antiga; T-S0F03-07 falha transacional/rollback sem `APPLIED`; T-S0F03-08 retorno pós-venda sem finalidade bancária e sem plano automático. Os IDs são **rótulos de planejamento desta ponte**, não casos canônicos ratificados nem resultados de teste.
+
+**Dependências para retirar [R]:** issue #4 CFI-01 (comando/contrato físico + aprovação S0/OpenAI/FV), issue #6 CF-OP-02 (atribuição/roteamento pós-conclusão, opção de plano sem retomada IA e limites) e validações externas [V]. O documento candidato OAI-05/E01 da frente OpenAI não deve ser apresentado como autorização unilateral para alterar a S0. Nenhum SQL, API Meta/OpenAI, envio, merge ou deploy nesta atividade.
