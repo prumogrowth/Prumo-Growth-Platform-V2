@@ -1196,7 +1196,7 @@ if __name__ == '__main__':
                                                   timeout=4) as raw:
                         raw.settimeout(4)
                         with no_cert.wrap_socket(raw,server_hostname="localhost") as client:
-                            client.sendall(b"\\x00\\x00\\x00\\x02{}")
+                            client.sendall(bytes([0,0,0,2]) + b"{}")
                             data=client.recv(32)
                             if data:
                                 raise AssertionError("I27 sem cert recebeu resposta de assinador")
