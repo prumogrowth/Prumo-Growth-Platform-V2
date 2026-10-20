@@ -69,7 +69,8 @@ Separar permissões de `draft.write`, `media.manage`, `variables.write`, `review
 ## 4. Desenvolvimento publicado
 
 - `integrations/whatsapp-meta/template-mcp-multiformat.ts`: contrato TypeScript puro de componentes e capacidades, origem de criação por IA ou humano, validações de forma, snapshots de mídia, botões URL estáticos/dinâmicos e posições de variável em BODY/HEADER/BUTTON; composição do JSON de **solicitação futura** à Meta, sem Graph/HTTP, e catálogo de nomes de ferramentas MCP planejadas.
-- `integrations/whatsapp-meta/template-mcp-multiformat.test.ts`: **14 testes WA17B-01..14 preparados**, cobrindo imagem, vídeo, documento, texto, rodapé, URL dinâmica, ligação de fontes, formatos futuros negados, conteúdo gerado por IA, ausência de permissão de envio, recusa a URLs e campos suspeitos.
+- `integrations/whatsapp-meta/template-mcp-multiformat.test.ts`: **16 testes WA17B-01..16 preparados**, cobrindo imagem, vídeo, documento, texto, rodapé, URL dinâmica, ligação de fontes, formatos futuros negados, conteúdo gerado por IA, ausência de permissão de envio, recusa a URLs e campos suspeitos.
+- `integrations/whatsapp-meta/mcp-template-tools.v0.json`: contrato JSON Schema com **12 operações MCP** previstas (criar, editar, fazer prévia, mapear fontes, solicitar revisão, consultar status e auditoria), `additionalProperties:false`, sem aceitação de campos `principal_id` ou token do chamador. **Não é ainda registro de ferramentas em um servidor MCP executável.**
 - `integrations/whatsapp-meta/template-catalog-control.ts`: WA-17A BODY-only preservada por compatibilidade; **não é mais o teto de formatos nem a única forma de autoria**.
 - [Issue #11](https://github.com/prumogrowth/Prumo-Growth---Platform/issues/11): atualizada para registrar MCP como entrada principal e mídia/botões como capacidades da arquitetura.
 
