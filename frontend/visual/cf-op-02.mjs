@@ -9,6 +9,18 @@ export const DEMO_TEMPLATES = Object.freeze([
 ]);
 export const FOLLOWUP_ACTIONS = Object.freeze(['single_template', 'request_chain']);
 
+// Dados de S0 precisam ter o formato esperado: string com substring não é permissão.
+export function hasProjectedAction(record, action) {
+  return Array.isArray(record?.allowedActionsProjection) &&
+    record.allowedActionsProjection.includes(action);
+}
+
+export function hasEligibleTemplateVersion(record, template) {
+  return Array.isArray(record?.eligibleTemplatesProjection) &&
+    typeof template?.id === 'string' && typeof template?.version === 'string' &&
+    record.eligibleTemplatesProjection.includes(template.id + '@' + template.version);
+}
+
 export function isInActiveInbox(record) {
   // Fonte: projeção do servidor. Não usar expiração calculada no navegador.
   return record?.inboxProjection === 'active';
@@ -39,15 +51,14 @@ export function mayMockFreeText(record, actorId, shopId, simulatedCompletion = f
   return !isPriorCycleLocked(record) && currentlyAssigned(record, actorId, shopId) &&
     isInActiveInbox(record) && projectedMetaWindow(record) === 'open' &&
     humanCompletion(record, simulatedCompletion) === 'pending' &&
-    record?.allowedActionsProjection?.includes('free_text') === true;
+    hasProjectedAction(record,'free_text');
 }
 
 export function projectedFollowupActions(record, actorId, shopId, simulatedCompletion = false) {
   if (isPriorCycleLocked(record) || !currentlyAssigned(record, actorId, shopId) || !isInActiveInbox(record) ||
       humanCompletion(record, simulatedCompletion) !== 'pending' || projectedMetaWindow(record) !== 'expired') return [];
-  const allowed = record.allowedActionsProjection ?? [];
-  return FOLLOWUP_ACTIONS.filter(action => allowed.includes(action) &&
-    (action !== 'single_template' || DEMO_TEMPLATES.some(t => record.eligibleTemplatesProjection?.includes(t.id + '@' + t.version))));
+  return FOLLOWUP_ACTIONS.filter(action => hasProjectedAction(record,action) &&
+    (action !== 'single_template' || DEMO_TEMPLATES.some(t => hasEligibleTemplateVersion(record,t))));
 }
 
 export function projectInbox(records, actorId, shopId, placement = 'active') {
@@ -66,7 +77,7 @@ export function applyLocalFollowupRequest(record, actorId, shopId, kind, templat
   if (!actions.includes(kind)) throw new Error('ACAO_INELEGIVEL_NA_DEMONSTRACAO');
   if (kind === 'single_template') {
     if (!DEMO_TEMPLATES.some(t => t.id === template?.id && t.version === template.version &&
-      record.eligibleTemplatesProjection?.includes(t.id + '@' + t.version)))
+      hasEligibleTemplateVersion(record,t)))
       throw new Error('TEMPLATE_NAO_ELEGIVEL_NA_DEMONSTRACAO');
     return { kind, state: 'requested', template: { id: template.id, version: template.version }, confirmedSent: false };
   }
