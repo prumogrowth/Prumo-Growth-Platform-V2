@@ -1,5 +1,29 @@
 # S0-041 / WA-14 — Vínculo técnico Meta tentativa ↔ wamid (PostgreSQL sintético)
 
+## ATUALIZAÇÃO — Gate PostgreSQL 17 APROVADO em CI isolado (20/10/2026 UTC)
+
+> **Este resultado substitui o estado '0/18' e '0/3' registrado nas etapas históricas abaixo.** As seções subsequentes documentam a evolução da implementação e dos bloqueios **antes** da execução efetiva.
+
+**Evidência real GitHub Actions:** [Prumo S0 — PostgreSQL isolado, execução #335](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39358441903), `run_id=39358441903`, `job_id=118418652947`, commit testado `364adfc741246832a5f33989162bc70b3bc5d4ec`, PR #1 ainda **Draft e não integrado**. O job `s0-db-isolation` encerrou com `conclusion=success`; `Initialize containers`, `checkout`, criação de banco descartável, testes Python, migrations/SQL/concorrência e parada de contêiner concluíram com sucesso.
+
+**Logs completos do job inspecionados pela API do GitHub, com marcadores concretos:**
+
+| Gate executado | Resultado observado |
+|---|---|
+| `scripts/test_s0_pg17_preflight.sh` (psql fictício, segurança do executor) | **10/10 PASS** |
+| `scripts/check_s0_pg17.sh` (servidor PostgreSQL real, banco `prumo_s0_test_ci`) | **PASS** |
+| `supabase/tests/s0_wa_040_meta_binding.sql` | **WA40-01..05: 5/5 PASS** |
+| `supabase/tests/s0_wa_041_meta_tentativa_binding.sql` | **WA14-01..18: 18/18 PASS** |
+| `scripts/test_s0_wa_041_concurrency.sh` | **WA14C-01..03: 3/3 PASS** em sessões SQL separadas |
+| `python3 -m unittest discover -s backend/tests -v` | **24 testes concluídos, sucesso** |
+| `scripts/run-s0-local.sh` completo (migrations e regressões existentes) | terminou com `Teste local concluído. Não houve escrita no Supabase.` e exit 0 |
+
+O PostgreSQL foi **postgres:17** em serviço Docker do runner `ubuntu-latest`, com banco descartável `prumo_s0_test_ci`. Os logs mostram contêiner iniciado, saudável e removido ao fim do job. Mensagens `CONFLICT_TECHNICAL_BINDING` são esperadas nos cenários adversariais de concorrência. Mensagens periódicas do healthcheck para papel `root` inexistente não significaram falha do job. Nenhum token, canal real, Graph, serviço bancário ou Supabase hospedado foi utilizado nesta validação.
+
+**Conclusão restrita e verificável:** o gate de **persistência sintética WA-14 no PostgreSQL 17 está aprovado nesta versão do código**, incluindo FK, imutabilidade, replay, escopo e as três corridas simuladas. Isso **não** equivale à autorização de enviar mensagens, autenticação produtiva, prova de ACK HTTP/Graph, deploy, ou homologação de ponta a ponta da Prumo. A regressão WA-06D PostgreSQL de 20 cenários **não aparece neste job** e a regressão Meta Node `--all` de 29 suítes também não foi executada aqui; permanecem pendentes separadamente.
+
+---
+
 **Data:** 19/10/2026. **Branch:** `feat/s0-fundacao-prumo`, PR #1 **Draft**. Foco na continuação da frente WhatsApp/Meta após WA-13, mantendo S0 como autoridade. Nenhum merge, produção, Meta Graph, clientes, credenciais, banco hospedado ou instituição financeira foi usado.
 
 ## Necessidade concreta
@@ -113,4 +137,4 @@ Pela [documentação oficial do GitHub](https://docs.github.com/pt/actions/how-t
 
 [Referência GitHub — acionamento de workflows](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows).
 
-**Classificação honesta:** migration e testes entregues e auditados estaticamente; **persistência PostgreSQL não validada em execução**.
+**Classificação atual (após a execução #335):** **WA-14 fixture PostgreSQL 17 validada em CI isolado, 18/18 SQL + 3/3 concorrência PASS**. As anotações anteriores sobre indisponibilidade do PostgreSQL são registros históricos, não o status atual.
