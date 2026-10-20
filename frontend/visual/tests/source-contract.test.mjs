@@ -211,7 +211,7 @@ test('G4 não executa uploads, edição de concessão ou mudança de status come
   assert.doesNotMatch(batchMonitor, /\bfetch\s*\(|\bXMLHttpRequest\b|\bWebSocket\b|\bFileReader\b/);
   assert.doesNotMatch(batchMonitor, /\.assignedTo\s*=(?!=)|\.shops\s*=(?!=)|\.status\s*=(?!=)/);
   assert.match(app, /Somente leitura\. Upload, aceitação de linhas, roteamento/);
-  assert.match(browserSmoke, /'batch-monitor\.mjs','app\.mjs'/);
+  assert.match(browserSmoke, /'batch-monitor\.mjs','conversation-attention\.mjs','app\.mjs'/);
   assert.match(browserSmoke, /page\.locator\('#team-show-batches'\)\.click\(\)/);
 });
 
