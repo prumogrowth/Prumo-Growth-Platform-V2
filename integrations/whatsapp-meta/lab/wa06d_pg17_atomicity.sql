@@ -159,8 +159,12 @@ BEGIN
  THEN RAISE EXCEPTION 'WA06D_01_FAIL'; END IF;
  RAISE NOTICE 'WA06D-01 PASS';
 
- IF pg_temp.wa06d_accept('fake','req1','nonce1',1,'batch1','app_a','shop_a',raw,items)<>'LAB_REPLAY_IN_TX'
-    OR pg_temp.wa06d_accept('fake','req1','nonce2',1,'batch1','app_a','shop_a',raw,items)<>'LAB_REPLAY_IN_TX'
+ -- PostgreSQL does not promise SQL boolean evaluation order. Run each
+ -- writing fixture operation BEFORE measuring side effects.
+ result:=pg_temp.wa06d_accept('fake','req1','nonce1',1,'batch1','app_a','shop_a',raw,items);
+ IF result<>'LAB_REPLAY_IN_TX' THEN RAISE EXCEPTION 'WA06D_02_REPLAY1_FAIL';END IF;
+ result:=pg_temp.wa06d_accept('fake','req1','nonce2',1,'batch1','app_a','shop_a',raw,items);
+ IF result<>'LAB_REPLAY_IN_TX'
     OR (SELECT count(*) FROM pg_temp.wa06d_task)<>1
     OR (SELECT count(*) FROM pg_temp.wa06d_nonce)<>2
  THEN RAISE EXCEPTION 'WA06D_02_FAIL'; END IF;
@@ -211,16 +215,18 @@ BEGIN
  THEN RAISE EXCEPTION 'WA06D_06_FAIL';END IF;
  RAISE NOTICE 'WA06D-06 PASS';
 
- IF pg_temp.wa06d_accept('fake','req_fail2','nonce_fail2',1,'batch_fail2',
-      'app_a','shop_a',raw,items)<>'LAB_INSERTED_IN_TX'
+ result:=pg_temp.wa06d_accept('fake','req_fail2','nonce_fail2',1,'batch_fail2',
+      'app_a','shop_a',raw,items);
+ IF result<>'LAB_INSERTED_IN_TX'
  OR (SELECT count(*) FROM pg_temp.wa06d_task)<>2
  THEN RAISE EXCEPTION 'WA06D_07_FAIL';END IF;
  RAISE NOTICE 'WA06D-07 PASS';
 
  -- statuses[].id is message reference, not a unique callback occurrence.
  dup:=items || jsonb_build_array(jsonb_set(items->0,'{item_index}','1'::jsonb));
- IF pg_temp.wa06d_accept('fake','req_double','nonce_double',1,'batch_double',
-       'app_a','shop_a',raw,dup)<>'LAB_INSERTED_IN_TX'
+ result:=pg_temp.wa06d_accept('fake','req_double','nonce_double',1,'batch_double',
+       'app_a','shop_a',raw,dup);
+ IF result<>'LAB_INSERTED_IN_TX'
  OR (SELECT count(*) FROM pg_temp.wa06d_occurrence WHERE batch='batch_double')<>2
  THEN RAISE EXCEPTION 'WA06D_08_FAIL';END IF;
  RAISE NOTICE 'WA06D-08 PASS';
@@ -258,8 +264,9 @@ BEGIN
 
  -- WA06D-12: same item index under separate entry[] indices is valid.
  dup:=items || jsonb_build_array(jsonb_set(items->0,'{entry_index}','1'::jsonb));
- IF pg_temp.wa06d_accept('fake','req_multientry','nonce_multientry',1,
-       'batch_multientry','app_a','shop_a',raw,dup)<>'LAB_INSERTED_IN_TX'
+ result:=pg_temp.wa06d_accept('fake','req_multientry','nonce_multientry',1,
+       'batch_multientry','app_a','shop_a',raw,dup);
+ IF result<>'LAB_INSERTED_IN_TX'
  OR (SELECT count(*) FROM pg_temp.wa06d_occurrence WHERE batch='batch_multientry')<>2
  OR (SELECT count(*) FROM pg_temp.wa06d_task t
      JOIN pg_temp.wa06d_occurrence o ON o.occurrence=t.occurrence
@@ -287,8 +294,9 @@ BEGIN
  dup:=items || jsonb_build_array(
        jsonb_set(jsonb_set(jsonb_set(items->0,'{item_index}','1'::jsonb),
                 '{channel}','"chan_b"'::jsonb),'{sender}','"sender_b"'::jsonb));
- IF pg_temp.wa06d_accept('fake','req_twochan','nonce_twochan',1,
-        'batch_twochan','app_a','shop_a',raw,dup)<>'LAB_INSERTED_IN_TX'
+ result:=pg_temp.wa06d_accept('fake','req_twochan','nonce_twochan',1,
+        'batch_twochan','app_a','shop_a',raw,dup);
+ IF result<>'LAB_INSERTED_IN_TX'
  OR (SELECT count(*) FROM pg_temp.wa06d_occurrence WHERE batch='batch_twochan')<>2
  THEN RAISE EXCEPTION 'WA06D_14_FAIL';END IF;
  RAISE NOTICE 'WA06D-14 PASS';
