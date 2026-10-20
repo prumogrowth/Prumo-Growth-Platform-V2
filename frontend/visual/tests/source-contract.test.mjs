@@ -220,5 +220,6 @@ test('FV-UI-013 UX: intro detalhável, contraste e toque, indicadores gerenciais
   assert.match(markup, /Solicitar pausa ou retomada de novos leads alcança TODAS as lojas/);
   assert.match(styles, /\.team-mode \.btn\{min-height:44px/);
   assert.match(styles, /\.team-dialog \.icon-button\{width:44px;height:44px/);
+  assert.match(styles, /\.team-dialog \.team-monitor-metric span\{color:#536d75;font-size:11px/);
   assert.match(app, /target\.replaceChildren\(title,note,indicators,workload,signals/);
 });
