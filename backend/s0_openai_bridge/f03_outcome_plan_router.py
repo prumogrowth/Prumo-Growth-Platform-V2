@@ -109,6 +109,10 @@ def route_f03_outcome_to_f02_offline(
             or current.bank_submitted
             or current.sold_or_historical_sale
             or current.post_sale_support
+            or not current.has_handoff_history
+            or current.owner_route != "human"
+            or capture.purpose != "post_human"
+            or current.purpose != "post_human"
             or not s0_grant.valid_human_closure
             or not s0_grant.explicit_planning_request
             or not s0_grant.authorized_for_post_human
@@ -194,9 +198,6 @@ def route_f03_outcome_to_f02_offline(
         # A verified existing remittance takes precedence over proposing a
         # new commercial clarification chain, regardless of model text.
         return RouterReview(RouterStatus.COMMERCIAL_RECONTACT_BLOCKED)
-    if current.owner_route != 'human' or not current.has_handoff_history:
-        return denied
-
     plan = review_f03_to_f02_offline(
         receipt, s0_grant, capture, current, candidate_plan)
     if plan.status is BridgeStatus.DENIED:
