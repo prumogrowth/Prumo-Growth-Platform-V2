@@ -47,3 +47,14 @@ Ao final, entregar um sumário executivo de riscos bloqueantes, decisões penden
 - [Documento S0/S1 e fronteira](S1_002_ISSUE10_MARCO_S0_PROVA_REDIS_E_REVISAO_2026_10_20.md)
 
 **NO-GO produção / merge / deploy**, PR #5 Draft. Nenhuma intervenção na branch S0 base nem no Supabase hospedado. Hardening do witness I31 permanece em backlog até fechar o pacote de negócio e executar a pausa de revisão.
+
+## Atualização do marco — avanço de 20/10/2026, sem antecipar a pausa
+
+Os itens **3 (transferência excepcional por caso)** e **4 (projeções de leitura/resposta e supervisão)** foram concluídos **como contratos de sandbox**, com regressões negativas, sem promover migrations operacionais, Meta ou UI:
+
+- [Exceção manual I35](S1_002_ISSUE10_EXCECAO_POR_CASO_RLS_2026_10_20.md): [CI #39516209628 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39516209628), EX55-01..20 PASS, isolamento RLS por caso/conversa/mensagem, ausência de grant geral, revogação e proteção conservadora do reconciliador I3.
+- [Projeção de mensagens S0 I36](S1_002_ISSUE10_INDICADOR_MENSAGENS_S0_2026_10_20.md): [CI #39517258320 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39517258320), MSG56-01..18 PASS, estados COUNT/DOT/NONE e visitas de gestor independentes do operador. Nesse mesmo CI rodaram EX55-20/20, ISSUE10-23/23 e ISSUE10R-4/4.
+
+**Falta o item 5: novo contrato do gateway gerencial assinado, sem motivo e com revisão CAS, atendendo GoTrue/HMAC e negando rotas legadas.** Depois de testá-lo, verificar o item 6 e preparar o relatório de congelamento. Na etapa A da pausa, pedir confirmação das ambiguidades de negócio (destino pausado, herança de leitura e validade/expiração da exceção). A integração real Meta, confirmação de entrega e S0 ao vivo não são pré-requisito para o **marco de auditoria de sandbox**, mas permanecem gates de produção.
+
+**Aviso:** as seções anteriores deste documento eram o planejamento de 20/10 e registravam 3–5 pendentes. Este adendo atualiza o estado auditável sem sobrescrever a fotografia histórica.
