@@ -311,6 +311,9 @@ test('G2: solicitação de pausa não concede lojas nem altera atribuição/esta
     n.textContent.includes('Solicitar pausa'));
   assert.ok(button);
   button.click();
+  assert.equal(get('intake-dialog').open,true);
+  assert.ok(!team.textContent.includes('SOLICITADO LOCALMENTE'));
+  get('intake-dialog').close('confirm');
   assert.ok(team.textContent.includes('SOLICITADO LOCALMENTE'));
   assert.ok(team.textContent.includes('todas as lojas concedidas'));
   assert.ok(team.textContent.includes('NÃO aplicado'));
@@ -325,7 +328,7 @@ test('G2: pedido local de retomada de Bianca mantém pausa confirmada na fixture
   reset();env.selectActor('daniel');get('team-nav').click();
   const team=get('team-list'),button=env.descendants(team).find(n=>n.tagName==='BUTTON' &&
     n.textContent.includes('Solicitar retomada'));
-  assert.ok(button);button.click();
+  assert.ok(button);button.click();get('intake-dialog').close('confirm');
   assert.ok(team.textContent.includes('Novos leads pausados (projeção fictícia)'));
   assert.ok(team.textContent.includes('SOLICITADO LOCALMENTE'));
   assert.equal(env.descendants(team).filter(n=>n.tagName==='BUTTON').length,0);
@@ -378,7 +381,7 @@ test('G3: pausa solicitada localmente não vira disponibilidade aplicada nos ind
   const before=get('team-monitor').textContent;
   const pause=env.descendants(get('team-list')).find(x=>x.tagName==='BUTTON' &&
     x.textContent.includes('Solicitar pausa'));
-  assert.ok(pause);pause.click();
+  assert.ok(pause);pause.click();get('intake-dialog').close('confirm');
   assert.equal(get('team-monitor').textContent,before);
   assert.ok(get('team-list').textContent.includes('NÃO aplicado'));
   get('team-dialog').close();
@@ -427,7 +430,7 @@ test('G3: Daniel só enxerga equipe própria, mesmo na mesma concessionária',()
 test('G3: pedido local de pausa não muda pausa confirmada nem estado comercial',()=>{
   reset();env.selectActor('marina');get('team-nav').click();
   const btn=env.descendants(get('team-list')).find(x=>x.tagName==='BUTTON' && x.textContent.includes('Solicitar pausa'));
-  assert.ok(btn);btn.click();
+  assert.ok(btn);btn.click();get('intake-dialog').close('confirm');
   get('team-show-monitor').click();
   const tiles=env.descendants(get('team-monitor')).filter(x=>x.classList.contains('team-monitor-metric'));
   const pending=tiles.find(x=>x.textContent.includes('Pedidos locais pendentes'));
