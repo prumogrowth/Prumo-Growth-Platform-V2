@@ -118,3 +118,10 @@
   .team-mode .btn{min-height:44px;padding:10px 7px}
 }
 @media(max-width:400px){.team-mode{gap:4px}}
+
+/* Leitura de indicadores/descrições: cores com contraste >= 4,5:1 no fundo local. */
+.team-dialog .detail-label{color:#4c626b;font-size:11px}
+.team-dialog .team-monitor-metric span{color:#536d75;font-size:11px}
+.team-dialog .team-monitor-card span,.team-dialog .team-batch-card span,
+.team-dialog .team-member span{color:#51676f;font-size:12px}
+.team-dialog .team-monitor-tile span{color:#4e646e;font-size:11px}
