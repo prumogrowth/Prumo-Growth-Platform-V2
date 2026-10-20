@@ -205,6 +205,11 @@ begin
   where x.atribuicao_id=p_atribuicao_esperada and x.revogada_em is null
     and x.operador_id=v_origem and x.concessionaria_id=p_loja and x.caso_id=p_caso
  ) then raise exception 'ORIGEM_SEM_TITULARIDADE_AUTORIZADA' using errcode='42501';end if;
+ -- Até a decisão de produto sobre transferência manual para operador
+ -- pausado, negar como opção conservadora na exceção.
+ if exists(select 1 from prumo_private.s1_disponibilidade_leads_10 d
+   where d.operador_id=p_destino and d.pausado)
+ then raise exception 'DESTINO_COM_INTAKE_PAUSADO' using errcode='42501';end if;
  -- Excepcao nao se aplica se destino ja tem grant da loja.
  if exists(select 1 from public.vinculos_papel_escopo v
   where v.ator_id=p_destino and v.concessionaria_id=p_loja
@@ -285,3 +290,17 @@ revoke all on function
  prumo_private.s1_revogar_excecao_55(uuid,uuid),
  prumo_private.s1_revogar_excecao_atribuicao_55()
  from public,anon,authenticated,service_role;
+
+-- Projecao minima para que o excepcional veja o caso e somente os
+-- campos de lead/ciclo indispensaveis, SEM grant SELECT em todas as lojas.
+-- A view roda como owner no laboratorio e o predicado de per-case
+-- exige JWT/conta/equipe/atribuicao/revogacao em toda consulta.
+create view public.s1_55_resumo_caso with (security_barrier=true) as
+select h.concessionaria_id,h.id as caso_id,h.ciclo_id,h.lead_id,
+  l.telefone_cliente_normalizado,c.status_comercial
+from public.casos_humanos h
+join public.leads_loja l on l.concessionaria_id=h.concessionaria_id and l.id=h.lead_id
+join public.ciclos_comerciais c on c.concessionaria_id=h.concessionaria_id and c.id=h.ciclo_id
+where prumo_private.s1_caso_excepcional_autorizado_55(h.concessionaria_id,h.id);
+revoke all on public.s1_55_resumo_caso from public,anon,service_role;
+grant select on public.s1_55_resumo_caso to authenticated;
