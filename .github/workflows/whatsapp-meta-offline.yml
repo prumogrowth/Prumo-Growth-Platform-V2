@@ -1,0 +1,31 @@
+name: Prumo Meta - regressao offline integral
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    branches: [main]
+    paths:
+      - 'integrations/whatsapp-meta/**'
+      - '.github/workflows/whatsapp-meta-offline.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: prumo-meta-offline-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  meta-offline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      NODE_OPTIONS: ''
+      NODE_PATH: ''
+    steps:
+      - uses: actions/checkout@v4
+      - name: Preparar Node 22 para strip-types sem instalar pacotes do projeto
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Regressao WhatsApp/Meta completa, somente fixtures
+        run: bash integrations/whatsapp-meta/run-offline-tests.sh --all
