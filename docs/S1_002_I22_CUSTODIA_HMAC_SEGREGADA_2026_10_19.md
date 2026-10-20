@@ -29,7 +29,16 @@ A custódia e a rotina de validação compartilham um advisory transaction lock 
 - inexistência de `EXECUTE verificar_hmac` ou `SET ROLE custódio` pelo login SQL;
 - preservação de owners e ausência de `CREATE` após rotação da chave.
 
-**Resultado CI:** pendente até inspeção de logs.
+## Resultado auditado do CI
+
+**[GitHub Actions #39348523980 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39348523980)**, SHA testado `772b627f45d6a891cead0abfa86cf98a049d58dc`, job `118386886398`. Logs inspecionados: **S1KEY-01..33 = 33/33 PASS**. O runner aplicou 50 migrations S0/S1 efetivas, as fixtures locais I20, I21 e I22, criou contas GoTrue sintéticas e verificou fluxos gerenciais autorizados/negados com HMAC transacional, revogação de sessão, timestamps curtos, nonce de uso único e rotação de chave.
+
+Resultados adicionais 28–33: o verificador e `chaves` pertencem a `prumo_s1_i22_custodio`; `invocar` e `nonces` continuam propriedade de `prumo_s1_i21_executor`; o executor foi impedido de executar SELECT/UPDATE direto nas chaves, incluindo tentativas SQL reais sob sua role; o custódio não acessa interfaces gerenciais, `auth.sessions` ou nonce; login SQL não recebe `SET ROLE` custódio nem `EXECUTE verificar_hmac`; nenhuma role recebe `CREATE` persistente no schema e a separação sobrevive à rotação.
+
+O ensaio inicial [#39348215134](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39348215134) falhou durante a transferência de propriedade da tabela de chaves: PostgreSQL gerenciado não considerou o administrador proprietário efetivo da tabela do I21. A fixture foi corrigida com associação temporária `GRANT ... WITH INHERIT FALSE, SET TRUE`, mudança de ownership como dono atual e revogação dessa associação **antes do COMMIT**, dentro de transação DDL única. Essa associação não permanece no estado final (confirmado pelas provas I22-30/32). O código final foi aceito no CI citado acima.
+
+**Parecer:** GO para continuidade em sandbox, **NO-GO para produção**. Não é migração operacional, não instala gateway HTTP nem muda funções comerciais ou Supabase hospedado.
+
 
 ## Riscos remanescentes e gates NO-GO
 
