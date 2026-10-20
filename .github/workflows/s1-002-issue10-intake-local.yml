@@ -9,6 +9,8 @@ on:
       - 'supabase/tests/s1_054_issue10_s0_prova_redistribuicao_local_only.sql'
       - 'supabase/tests/s1_054_issue10_s0_seletiva_aceite.sql'
       - 'scripts/test_s1_002_issue10_human_race.sh'
+      - 'supabase/tests/s1_055_issue10_excecao_caso_local_only.sql'
+      - 'supabase/tests/s1_055_issue10_excecao_caso_aceite.sql'
   workflow_dispatch:
 permissions:
   contents: read
@@ -53,3 +55,7 @@ jobs:
           psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_054_issue10_s0_seletiva_aceite.sql
       - name: 'Corrida real de sessoes SQL: primeira resposta humana versus movimento'
         run: bash scripts/test_s1_002_issue10_human_race.sh
+      - name: 'Excecao manual per-case: verificar dezoito contratos RLS negativos e revogacao'
+        run: |
+          psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_055_issue10_excecao_caso_local_only.sql
+          psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_055_issue10_excecao_caso_aceite.sql
