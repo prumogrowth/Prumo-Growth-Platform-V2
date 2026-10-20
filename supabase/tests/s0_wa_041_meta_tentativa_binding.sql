@@ -258,4 +258,44 @@ begin
   raise notice 'PASS WA14-16: 1024 accepted, 1025 and empty rejected';
 end $wa14_limit$;
 
+
+-- WA14-17: accepted bindings are append-only: UPDATE, DELETE, TRUNCATE
+-- cannot bypass bidirectional uniqueness by direct privileged SQL mutation.
+do $wa14_immutable_test$
+declare previous integer; recovered jsonb;
+begin
+  select count(*) into previous
+    from prumo_private.meta_vinculos_tentativa_fixture_s0;
+  begin
+    update prumo_private.meta_vinculos_tentativa_fixture_s0
+    set provider_message_id='wamid.WA14.FORGED_REWRITE'
+    where app_ref='FIXTURE_WA14_APP_A' and attempt_ref='ATTEMPT_A';
+    raise exception 'FAIL WA14-17: direct UPDATE bypassed immutability';
+  exception when insufficient_privilege then
+    if sqlerrm <> 'IMMUTABLE_TECHNICAL_BINDING' then raise; end if;
+  end;
+  begin
+    delete from prumo_private.meta_vinculos_tentativa_fixture_s0
+    where app_ref='FIXTURE_WA14_APP_A' and attempt_ref='ATTEMPT_A';
+    raise exception 'FAIL WA14-17: direct DELETE bypassed immutability';
+  exception when insufficient_privilege then
+    if sqlerrm <> 'IMMUTABLE_TECHNICAL_BINDING' then raise; end if;
+  end;
+  begin
+    truncate table prumo_private.meta_vinculos_tentativa_fixture_s0;
+    raise exception 'FAIL WA14-17: direct TRUNCATE bypassed immutability';
+  exception when insufficient_privilege then
+    if sqlerrm <> 'IMMUTABLE_TECHNICAL_BINDING' then raise; end if;
+  end;
+  if (select count(*) from prumo_private.meta_vinculos_tentativa_fixture_s0)<>previous
+  then raise exception 'FAIL WA14-17: a forbidden mutation changed the ledger';end if;
+  recovered:=prumo_private.consultar_vinculo_meta_fixture_s0(
+    'FIXTURE_WA14_APP_A','f3100000-0000-4000-8000-000000000001',
+    'f4100000-0000-4000-8000-000000000001','ATTEMPT_A','CORR_A',
+    '5581900000000','wamid.WA14.SAME');
+  if recovered->>'outcome'<>'LAB_FOUND_EXACT'
+  then raise exception 'FAIL WA14-17: original binding was not retained';end if;
+  raise notice 'PASS WA14-17: UPDATE/DELETE/TRUNCATE denied; original binding intact';
+end $wa14_immutable_test$;
+
 rollback;
