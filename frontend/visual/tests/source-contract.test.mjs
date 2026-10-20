@@ -192,7 +192,7 @@ test('G3 alertas S0 só aceitam projeção de fonte e espera observada sem cron�
 });
 
 test('Chromium smoke usa ambos módulos G3 e só lê painel depois de ativá-lo',()=>{
-  assert.match(browserSmoke, /'team-monitor\.mjs','team-monitoring\.mjs','batch-monitor\.mjs','app\.mjs'/);
+  assert.match(browserSmoke, /'team-monitor\.mjs','team-monitoring\.mjs','batch-monitor\.mjs','conversation-attention\.mjs','app\.mjs'/);
   assert.match(browserSmoke, /page\.locator\('#team-show-monitor'\)\.click\(\)/);
   assert.match(browserSmoke, /page\.locator\('#team-show-members'\)\.click\(\)/);
 });
