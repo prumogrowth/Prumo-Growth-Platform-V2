@@ -18,7 +18,7 @@ import time
 import uuid
 from urllib.parse import urlsplit
 
-from backend.identity_boundary import Denied, IdentityUnavailable, InvalidCommand
+from backend.identity_boundary import Denied, IdentityUnavailable, InvalidCommand, SupabaseGoTrueVerifier
 from backend.s1_gateway_local import _fields
 from backend.s1_gateway_signed_local import _COMMAND, _action_args, _proof_material, _SQL_SIGNED
 
@@ -29,9 +29,12 @@ _MATERIAL = re.compile(
 _MAX_MATERIAL = 600
 
 
-def _worker(operations, control):
+def _worker(operations, control, independent_auth=None):
     """Child has key bytes, never logs material/signatures; no key in return."""
     keys = {}
+    # I26: assinador consulta GoTrue e rejeita forja de identidade/sessao.
+    verifier = (SupabaseGoTrueVerifier(*independent_auth)
+                if independent_auth is not None else None)
     try:
         while True:
             ready = wait([operations, control], timeout=0.5)
@@ -66,10 +69,20 @@ def _worker(operations, control):
                     else:
                         conn.send(("DENIED", None))
                     continue
-                if request[0] != "SIGN" or len(request) != 3:
+                if request[0] != "SIGN":
                     conn.send(("DENIED", None))
                     continue
-                _, keyid, material = request
+                if verifier is None and len(request) == 3:
+                    _, keyid, material = request
+                    authorization = None
+                elif verifier is not None and len(request) == 4:
+                    _, keyid, material, authorization = request
+                    if not isinstance(authorization, str):
+                        conn.send(("DENIED", None))
+                        continue
+                else:
+                    conn.send(("DENIED", None))
+                    continue
                 if (type(keyid) is not uuid.UUID or keyid not in keys
                     or type(material) is not bytes or len(material) > _MAX_MATERIAL
                     or not _MATERIAL.fullmatch(material)):
@@ -106,6 +119,22 @@ def _worker(operations, control):
                 except (ValueError, TypeError):
                     conn.send(("DENIED", None))
                     continue
+                if verifier is not None:
+                    try:
+                        principal = verifier.verify(authorization)
+                    except Denied:
+                        conn.send(("DENIED", None))
+                        continue
+                    except IdentityUnavailable:
+                        conn.send(("UNAVAILABLE", None))
+                        continue
+                    except Exception:
+                        conn.send(("UNAVAILABLE", None))
+                        continue
+                    if (parts[2] != str(principal.actor_id) or
+                            parts[3] != str(principal.session_id)):
+                        conn.send(("DENIED", None))
+                        continue
                 conn.send(("SIGNED", hmac.new(keys[keyid], material, hashlib.sha256).hexdigest()))
     finally:
         keys.clear()
@@ -119,7 +148,19 @@ def _worker(operations, control):
 class LocalSignerSupervisor:
     """Runner CI owns control channel; gateway receives ONLY separate client."""
 
-    def __init__(self):
+    def __init__(self, *, independent_auth_url=None, publishable_key=None):
+        if (independent_auth_url is None) != (publishable_key is None):
+            raise ValueError("I26_INDEPENDENT_GOTRUE_REQUIRED")
+        if independent_auth_url is not None:
+            u = urlsplit(independent_auth_url)
+            if (u.scheme != "http" or u.hostname not in
+                ("localhost", "127.0.0.1", "::1") or u.username or u.password
+                or u.query or u.fragment or u.path.rstrip("/") != ""):
+                raise ValueError("I26_ONLY_LOCAL_GOTRUE")
+            if not isinstance(publishable_key, str) or not publishable_key:
+                raise ValueError("I26_PUBLISHABLE_KEY_REQUIRED")
+        independent_auth = ((independent_auth_url, publishable_key)
+                            if independent_auth_url is not None else None)
         ctx = multiprocessing.get_context("spawn")
         work_parent, work_child = ctx.Pipe(duplex=True)
         control_parent, control_child = ctx.Pipe(duplex=True)
@@ -127,12 +168,13 @@ class LocalSignerSupervisor:
         self._control = control_parent
         self._lock = threading.Lock()
         self._ctl_lock = threading.Lock()
-        self._process = ctx.Process(target=_worker, args=(work_child, control_child),
+        self._process = ctx.Process(target=_worker, args=(work_child, control_child, independent_auth),
                                     name="s1_i25_local_signer", daemon=True)
         self._process.start()
         work_child.close()
         control_child.close()
-        self.client = LocalSignerClient(self._ops, self._lock, self._process)
+        self.client = LocalSignerClient(self._ops, self._lock, self._process,
+                                        independent_auth=independent_auth is not None)
 
     def _change(self, operation, *values):
         if not self._process.is_alive():
@@ -172,22 +214,36 @@ class LocalSignerSupervisor:
 
 
 class LocalSignerClient:
-    def __init__(self, pipe, lock, process):
+    def __init__(self, pipe, lock, process, *, independent_auth=False):
+        self._independent_auth = independent_auth
         self._pipe = pipe
         self._lock = lock
         self._process = process
 
-    def sign(self, key_id, material):
+    def sign(self, key_id, material, authorization=None):
         if not self._process.is_alive():
             raise IdentityUnavailable("ASSINADOR_INDISPONIVEL")
+        if self._independent_auth and not isinstance(authorization, str):
+            raise Denied("BEARER_ASSINADOR_OBRIGATORIO")
+        if not self._independent_auth and authorization is not None:
+            raise Denied("PROTOCOLO_NAO_PERMITIDO")
         with self._lock:
             try:
-                self._pipe.send(("SIGN", key_id, material))
-                if not self._pipe.poll(3):
-                    raise IdentityUnavailable("ASSINADOR_INDISPONIVEL")
+                request = (("SIGN", key_id, material, authorization)
+                           if self._independent_auth
+                           else ("SIGN", key_id, material))
+                self._pipe.send(request)
+                # GoTrue usa timeout 5s. Em timeout IPC, matar processo
+                # para jamais consumir resposta antiga numa nova assinatura.
+                if not self._pipe.poll(8 if self._independent_auth else 3):
+                    self._process.terminate()
+                    self._process.join(timeout=2)
+                    raise IdentityUnavailable("ASSINADOR_TIMEOUT")
                 status, signature = self._pipe.recv()
             except (OSError, EOFError, BrokenPipeError):
                 raise IdentityUnavailable("ASSINADOR_INDISPONIVEL") from None
+        if status == "UNAVAILABLE":
+            raise IdentityUnavailable("GOTRUE_ASSINADOR_INDISPONIVEL")
         if status != "SIGNED" or not isinstance(signature, str) or not re.fullmatch(
             r"[0-9a-f]{64}", signature
         ):
