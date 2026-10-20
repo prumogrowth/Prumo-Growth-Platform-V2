@@ -173,7 +173,8 @@ test('G3 tem roteiro visual integrado em Chromium para Desktop',()=>{
 });
 
 test('G3 reconciliado reúne indicadores agregados e alertas técnicos em aba única',()=>{
-  assert.match(app, /renderTeamMonitoring\(\);\s*target\.append\(title,note,indicators,workload,signals/);
+  assert.match(app, /renderTeamMonitoring\(\);[\s\S]*?target\.replaceChildren\(title,note,indicators,workload,signals/);
+  assert.match(app, /commercialSummary=target\.children\[0\]/);
   assert.match(app, /switchTeamPanel\('members'\)/);
   assert.match(app, /projectManagerMonitor\(state\.actorId,state\.cases,state\.teamRequests\)/);
   assert.match(markup, /id="team-show-monitor"/);
@@ -212,4 +213,12 @@ test('G4 não executa uploads, edição de concessão ou mudança de status come
   assert.match(app, /Somente leitura\. Upload, aceitação de linhas, roteamento/);
   assert.match(browserSmoke, /'batch-monitor\.mjs','app\.mjs'/);
   assert.match(browserSmoke, /page\.locator\('#team-show-batches'\)\.click\(\)/);
+});
+
+test('FV-UI-013 UX: intro detalhável, contraste e toque, indicadores gerenciais priorizados',()=>{
+  assert.match(markup, /<details class="team-help"><summary>Entenda o alcance e os limites<\/summary>/);
+  assert.match(markup, /Solicitar pausa ou retomada de novos leads alcança TODAS as lojas/);
+  assert.match(styles, /\.team-mode \.btn\{min-height:44px/);
+  assert.match(styles, /\.team-dialog \.icon-button\{width:44px;height:44px/);
+  assert.match(app, /target\.replaceChildren\(title,note,indicators,workload,signals/);
 });
