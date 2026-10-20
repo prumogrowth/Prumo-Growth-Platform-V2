@@ -1,0 +1,96 @@
+name: Prumo S1-002 - Gateway local auth real I29
+on:
+  push:
+    branches: [feat/s1-002-equipe-prumo]
+    paths:
+      - '.github/workflows/s1-002-i29-persistent-revocation-local.yml'
+      - 'scripts/test_s1_002_i29_persistent_revocation_local.py'
+      - 'backend/s1_signer_process_local.py'
+      - 'backend/s1_signer_independent_gotrue_local.py'
+      - 'backend/s1_signer_mtls_local.py'
+      - 'backend/s1_i27_ephemeral_certificates.py'
+      - 'backend/s1_i28_rotating_certificates.py'
+      - 'backend/s1_signer_mtls_rotation_local.py'
+      - 'backend/s1_i29_persistent_certificate_store.py'
+      - 'backend/s1_signer_mtls_persistent_local.py'
+      - 'tests/test_s1_002_i29_persistent_revocation.py'
+      - 'tests/test_s1_002_i28_cert_lifecycle.py'
+      - 'tests/test_s1_002_i27_mtls.py'
+      - 'tests/test_s1_002_i26_independent_auth.py'
+      - 'tests/test_s1_002_i25_signer_process.py'
+      - 'backend/s1_gateway_http_policy_local.py'
+      - 'tests/test_s1_002_i23_http_policy.py'
+      - 'backend/s1_gateway_signed_local.py'
+      - 'backend/s1_gateway_local.py'
+      - 'supabase/tests/s1_020_signed_gateway_local_only.sql'
+      - 'supabase/tests/s1_021_executor_owner_local_only.sql'
+      - 'supabase/tests/s1_022_chave_custodio_separado_local_only.sql'
+      - 'supabase/tests/s1_024_ciclo_chaves_auditoria_local_only.sql'
+      - 'supabase/migrations/**'
+      - 'scripts/run-s0-local.sh'
+      - 'scripts/run-s1-002-local.sh'
+      - 'scripts/run-s1-002-i12-local.sh'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: prumo-s1-002-i29-persistent-revocation-local
+  cancel-in-progress: true
+jobs:
+  http-policy-unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checar 93 provas unitarias incluindo persistencia e revogacao apos restart
+        run: |
+          PYTHONPATH=. python3 -m compileall -q backend/s1_gateway_http_policy_local.py backend/s1_signer_process_local.py backend/s1_signer_independent_gotrue_local.py backend/s1_signer_mtls_local.py backend/s1_i27_ephemeral_certificates.py backend/s1_i28_rotating_certificates.py backend/s1_signer_mtls_rotation_local.py tests/test_s1_002_i23_http_policy.py tests/test_s1_002_i25_signer_process.py tests/test_s1_002_i26_independent_auth.py tests/test_s1_002_i27_mtls.py tests/test_s1_002_i28_cert_lifecycle.py tests/test_s1_002_i29_persistent_revocation.py backend/s1_i29_persistent_certificate_store.py backend/s1_signer_mtls_persistent_local.py scripts/test_s1_002_i29_persistent_revocation_local.py
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i23_http_policy.py' -v
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i25_signer_process.py' -v
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i26_independent_auth.py' -v
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i27_mtls.py' -v
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i28_cert_lifecycle.py' -v
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i29_persistent_revocation.py' -v
+  e2e-gerencia-local:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    env:
+      CI: 'true'
+      PRUMO_S1_I29_EPHEMERAL: 'YES'
+      SUPABASE_DISABLE_TELEMETRY: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 2.84.2
+      - name: Cliente PostgreSQL
+        run: command -v psql || (sudo apt-get update -qq && sudo apt-get install -y postgresql-client)
+      - name: Instalar driver SQL pinado para gateway efemero
+        run: python3 -m pip install --user 'psycopg[binary]==3.2.6'
+      - name: Subir GoTrue e PostgREST completamente descartaveis
+        shell: bash
+        run: |
+          set -euo pipefail
+          workdir="$(mktemp -d)"
+          printf '%s\n' "$workdir" > "$RUNNER_TEMP/prumo-s1-i29-workdir"
+          cd "$workdir"
+          supabase init
+          supabase start --exclude studio,realtime,storage-api,imgproxy,postgres-meta,edge-runtime,logflare,vector,supavisor
+          supabase status -o env > "$RUNNER_TEMP/prumo-s1-i29-env"
+          test -s "$RUNNER_TEMP/prumo-s1-i29-env"
+      - name: Testar revogacao persistente do assinador com GoTrue e PostgreSQL descartavel
+        shell: bash
+        run: |
+          set -euo pipefail
+          set -a
+          source "$RUNNER_TEMP/prumo-s1-i29-env"
+          set +a
+          PYTHONPATH=. python3 scripts/test_s1_002_i29_persistent_revocation_local.py
+      - name: Desligar stack local
+        if: always()
+        shell: bash
+        run: |
+          if [ -f "$RUNNER_TEMP/prumo-s1-i29-workdir" ]; then
+            cd "$(cat "$RUNNER_TEMP/prumo-s1-i29-workdir")"
+            supabase stop || true
+          fi
