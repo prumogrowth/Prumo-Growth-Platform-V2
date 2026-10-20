@@ -16,7 +16,7 @@ assert html.count(css_link) == 1, 'Link CSS duplicado ou inexistente'
 assert html.count(module_tag) == 1, 'Script de entrada duplicado ou inexistente'
 html = html.replace(css_link, '<style>'+css+'</style>')
 html = html.replace(module_tag, '')
-script = '\n'.join((base / name).read_text(encoding='utf-8') for name in ('fixtures.mjs','view-model.mjs','cf-op-02.mjs','registration-view.mjs','bank-view.mjs','postmark-view.mjs','team-operations.mjs','team-monitor.mjs','team-monitoring.mjs','batch-monitor.mjs','app.mjs'))
+script = '\n'.join((base / name).read_text(encoding='utf-8') for name in ('fixtures.mjs','view-model.mjs','cf-op-02.mjs','registration-view.mjs','bank-view.mjs','postmark-view.mjs','team-operations.mjs','team-monitor.mjs','team-monitoring.mjs','batch-monitor.mjs','conversation-attention.mjs','app.mjs'))
 script = re.sub(r'(?ms)^import \{.*?\} from ["\']\./[^"\']+["\'];\s*', '', script)
 script = re.sub(r'(?m)^export ', '', script)
 assert 'import {' not in script and 'export ' not in script, 'Módulo não concatenado com segurança'
@@ -37,10 +37,13 @@ with sync_playwright() as p:
         page.set_content(html)
         page.add_script_tag(content=script)
         assert page.locator('.conversation-card').count() == 8
+    # Um único indicador: numérico sem leitura, sem número após leitura por titular.
+    assert page.get_by_role('button',name='Abrir conversa Cliente Exemplo 02',exact=False).locator('.attention-unread').inner_text() == '2'
         assert not errors
         assert not page.evaluate('document.documentElement.scrollWidth > innerWidth')
         # Selecionar caso estável, não depender de ordenação de conversas.
         page.get_by_role('button', name='Abrir conversa Cliente Exemplo 02', exact=False).click()
+        assert page.get_by_role('button',name='Abrir conversa Cliente Exemplo 02',exact=False).locator('.attention-pending').count() == 1
         if width<=1040: page.locator('#detail-toggle').click()
         if width<=760: assert page.locator('#visual-app').get_attribute('data-mobile-view') == 'detail'
         page.locator('.detail-tab', has_text='Notas').click()
@@ -69,6 +72,10 @@ with sync_playwright() as p:
     assert not errors_main, 'Erro JavaScript no bootstrap da gestão'
     page.locator('#actor-select').select_option('marina')
     assert page.locator('.conversation-card').count() == 11
+    # Supervisor acessa D2 sem zerar as não lidas do operador.
+    assert page.get_by_role('button',name='Abrir conversa Cliente Exemplo 02',exact=False).locator('.attention-unread').inner_text() == '2'
+    page.get_by_role('button',name='Abrir conversa Cliente Exemplo 02',exact=False).click()
+    assert page.get_by_role('button',name='Abrir conversa Cliente Exemplo 02',exact=False).locator('.attention-unread').inner_text() == '2'
     page.locator('#team-nav').click()
     assert page.locator('#team-list .team-member').count() == 2
     page.locator('#team-show-monitor').click()
@@ -92,7 +99,13 @@ with sync_playwright() as p:
     assert 'Rafael Lima' in page.locator('#team-list').inner_text()
     assert 'Bianca Rocha' not in page.locator('#team-list').inner_text()
     page.get_by_role('button',name='Solicitar pausa de novos leads para Rafael Lima',exact=False).click()
-    assert 'SOLICITADO LOCALMENTE' in page.locator('#team-list').inner_text()
+    assert page.locator('#intake-dialog').is_visible()
+    assert 'SOLICITADO LOCALMENTE' not in page.locator('#team-list').inner_text()
+    page.locator('#intake-form button[value=cancel]').click()
+    assert 'SOLICITADO LOCALMENTE' not in page.locator('#team-list').inner_text()
+    page.get_by_role('button',name='Solicitar pausa de novos leads para Rafael Lima',exact=False).click()
+    page.locator('#intake-form button[value=confirm]').click()
+    expect(page.locator('#team-list')).to_contain_text('SOLICITADO LOCALMENTE')
     page.locator('#team-close').click()
     page.locator('#actor-select').select_option('daniel')
     assert page.locator('.conversation-card').count() == 1
@@ -100,7 +113,8 @@ with sync_playwright() as p:
     assert 'Bianca Rocha' in page.locator('#team-list').inner_text()
     assert 'Rafael Lima' not in page.locator('#team-list').inner_text()
     page.get_by_role('button',name='Solicitar retomada de novos leads para Bianca Rocha',exact=False).click()
-    assert 'SOLICITADO LOCALMENTE' in page.locator('#team-list').inner_text()
+    page.locator('#intake-form button[value=confirm]').click()
+    expect(page.locator('#team-list')).to_contain_text('SOLICITADO LOCALMENTE')
     page.locator('#team-close').click()
     page.locator('#actor-select').select_option('marina')
     page.locator('#shop-select').select_option('horizonte')
