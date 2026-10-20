@@ -28,4 +28,13 @@ Este ensaio estabelece autenticação mútua criptográfica no **transporte loca
 
 **NO-GO para merge, deploy ou produção.** A interface de gerência e a conclusão humana S0 continuam pendentes. Os testes não constituem auditoria externa ou comprovação de infraestrutura independente.
 
-**Evidência CI:** a preencher exclusivamente depois de conferir os dois jobs, commits e logs.
+## Resultado verificado em CI — aprovação exclusivamente local
+
+**[GitHub Actions #39399272234 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39399272234)**, SHA de código testado `7c5b2508ad2921296bdf1f4c715e5252bb316683`. Os dois jobs encerraram em sucesso e os logs foram inspecionados:
+
+- Job `118549740565` (`http-policy-unit`): **63/63 testes unitários PASS** divididos em 30 de política HTTP, 10 de assinador I25, 10 de GoTrue no filho I26 e 13 novos de mTLS I27. Quatro relatórios registraram `Ran 30 tests ... OK`, `Ran 10 tests ... OK`, `Ran 10 tests ... OK` e `Ran 13 tests ... OK`.
+- Job `118549740706` (`e2e-gerencia-local`): **S1MTLS-01..80 = 80/80 marcadores únicos PASS**, sobre 50 migrations S0/S1 reais, PostgreSQL/GoTrue local descartável, fixtures I20–I24 e controles I25/I26. As provas S1MTLS-71..80 confirmaram PKI efêmera, autenticação mútua real com gestão de equipe autorizada, outro certificado válido da mesma CA recusado por fingerprint, ausência de certificado recusada, pin do servidor verificado, divergência de ator/sessão GoTrue recusada, equipes estrangeiras bloqueadas, revogação da chave no signer e pane fail-closed sem alterar dados comerciais.
+
+**Histórico do CI:** a execução inicial [#39399056383](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39399056383) teve o job rápido aprovado, mas foi cancelada pelo gatilho do CI corrigido. O ajuste mudou **apenas o frame de teste de cliente sem certificado** para JSON válido, evitando uma recusa acidental por corpo inválido. O único aceite é a execução `39399272234` em SHA `7c5b250...`.
+
+**Parecer limitado:** GO para continuidade de pesquisa e testes isolados. **NO-GO produção, merge ou deploy.** A conta OS da CI continua controlando CA, chaves privadas de ambos os serviços, HMAC, segredos sintéticos de conexão e pipe administrativa. A prova não atesta separação entre identidades de host, KMS, PKI gerenciada, revogação de certificado, controle de arquivos ou servidor robusto em rede externa.
