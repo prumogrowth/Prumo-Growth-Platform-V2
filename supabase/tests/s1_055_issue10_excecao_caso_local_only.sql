@@ -83,7 +83,7 @@ create policy s1_55_conversa_select on public.conversas
 -- O S0 original autoriza mensagens pelo SELECT de conversa visivel.
 -- Para quem NAO possui grant da loja, limitar ainda mais ao caso do corpo,
 -- nunca liberar mensagens caso_id NULL ou de um caso de outra conversa.
-create policy s1_55_mensagens_restrict as restrictive on public.mensagens
+create policy s1_55_mensagens_restrict on public.mensagens as restrictive
  for select to authenticated using (
   exists(select 1 from public.vinculos_papel_escopo v
     where v.ator_id=(select auth.uid())
