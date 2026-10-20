@@ -12,7 +12,8 @@ import {
 import {
   DEMO_TEMPLATES, copyCFDemoFixtures, isInActiveInbox, projectedMetaWindow,
   humanCompletion, mayMockFreeText, projectedFollowupActions, projectInbox,
-  projectedFollowupState, applyLocalFollowupRequest, isSyntheticBankProtected
+  projectedFollowupState, applyLocalFollowupRequest, isSyntheticBankProtected,
+  hasProjectedAction, hasEligibleTemplateVersion
 } from './cf-op-02.mjs';
 import { registrationProjectionFor, registrationStateCopy } from './registration-view.mjs';
 import { bankProjectionFor, bankPhaseCopy } from './bank-view.mjs';
@@ -65,7 +66,7 @@ function canMockMessage(record) {
 function canMockClose(record) {
   return postmarkContextValid(record) && canSimulateCompletion(record,state.actorId,state.shopId) &&
     isInActiveInbox(record) && humanCompletion(record) === 'pending' &&
-    record?.allowedActionsProjection?.includes('complete') &&
+    hasProjectedAction(record,'complete') &&
     !state.processing[record.id] && !state.followupRequests[record.id];
 }
 
@@ -226,7 +227,7 @@ function renderThread() {
       const current=selectedCase();
       if(!current || current.id!==item.id || !postmarkContextValid(current) ||
         !projectedFollowupActions(current,state.actorId,state.shopId).includes('single_template'))return;
-      const eligible=DEMO_TEMPLATES.filter(t=>current.eligibleTemplatesProjection?.includes(t.id+'@'+t.version));
+      const eligible=DEMO_TEMPLATES.filter(t=>hasEligibleTemplateVersion(current,t));
       if(!eligible.length){showToast('Nenhum template elegível neste caso fictício.');return;}
       $('template-select').replaceChildren(...eligible.map(template=>{
         const option=el('option','',template.title+' · '+template.version+' (fictício)');
