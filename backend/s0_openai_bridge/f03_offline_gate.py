@@ -27,6 +27,32 @@ class FieldRule:
     auto_apply_allowed: bool
 
 
+class _FrozenFields(Mapping[str, str]):
+    """Detached read-only evidence with a plain-dict deepcopy for asdict()."""
+
+    __slots__ = ("_data",)
+
+    def __init__(self, source: Mapping[str, str]) -> None:
+        object.__setattr__(self, "_data", MappingProxyType(dict(source)))
+
+    def __setattr__(self, name: str, value: object) -> None:
+        raise AttributeError("Captured evidence is read-only")
+
+    def __getitem__(self, key: str) -> str:
+        return self._data[key]
+
+    def __iter__(self):
+        return iter(self._data)
+
+    def __len__(self) -> int:
+        return len(self._data)
+
+    def __deepcopy__(self, memo: dict) -> dict:
+        # dataclasses.asdict/deepcopy should yield a detached mutable copy;
+        # never expose or mutate the evidence captured in this instance.
+        return dict(self._data)
+
+
 @dataclass(frozen=True)
 class Evidence:
     ref: str
@@ -44,7 +70,7 @@ class Evidence:
         # malformed non-mappings for evaluate_f03 to reject fail-closed.
         if isinstance(self.asserted_fields, Mapping):
             object.__setattr__(self, "asserted_fields",
-                               MappingProxyType(dict(self.asserted_fields)))
+                               _FrozenFields(self.asserted_fields))
 
 
 @dataclass(frozen=True)
