@@ -1,7 +1,8 @@
 name: Prumo S0 - PostgreSQL isolado
 on:
-  push:
-    branches: [feat/s0-fundacao-prumo]
+  pull_request:
+    types: [synchronize, opened, reopened]
+    branches: [main]
     paths:
       - 'supabase/**'
       - 'scripts/**'
