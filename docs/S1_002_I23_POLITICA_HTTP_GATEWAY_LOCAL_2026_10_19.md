@@ -34,4 +34,11 @@ O novo `backend/s1_gateway_http_policy_local.py` é uma implementação *somente
 
 **Parecer:** desenvolvimento em sandbox permitido, **NO-GO para produção/merge/deploy**. Um CI verde somente comprova os cenários listados; não representa auditoria externa nem comprova TLS, WAF, CSRF, multiinstância ou gestão operacional de segredos.
 
-**CI I23:** preencher após conferir os dois jobs e logs; nunca anunciar aceite sem evidência.
+## Resultado executado e auditado
+
+**[GitHub Actions #39351896002 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39351896002)**, SHA de código testado `e5f160ee7f96e124e4f00c4a7d145785de870461`. Os dois jobs foram concluídos com sucesso:
+
+- `http-policy-unit`, job `118397772661`: **30/30 testes unittest PASS**, incluindo sintaxe e política de Authorization duplicado, Host duplicado/forjado, origem externa, cookies, headers de proxy, body, JSON duplicado/NaN, content type, métodos, limite por peer, respostas fail-closed e eventos sem dados sensíveis. Saída real `Ran 30 tests` e `OK` verificada.
+- `e2e-gerencia-local`, job `118397772981`: **S1HTTP-01..40 = 40/40 PASS**, logs conferidos. Aplicou **50 migrations S0/S1 reais**, fixtures I20/I21/I22 somente no Docker CI, cinco contas GoTrue sintéticas, gateway de assinatura HMAC e novo servidor de política HTTP, e repetiu as 33 provas criptográficas/gerenciais I22 mais sete negações HTTP. Comprovou que malformações de Host, Authorization, cookie, proxy, transfer encoding e JSON não causam a pausa do operador.
+
+**Limite do aceite:** o servidor `http.server` foi criado e utilizado **somente em loopback no GitHub Actions**. O limite por IP é local à instância, a política não permite browser/CORS e não valida configuração de TLS/proxy/WAF, autenticação por cookies ou balanceador. Os itens de produção da tabela anterior permanecem NÃO realizados. A documentação e `tests/S1_ACEITE.md` são atualizações de evidência posteriores ao SHA de CI, sem mudanças no código testado. PR #5 Draft, sem merge, deploy ou alteração no Supabase hospedado.
