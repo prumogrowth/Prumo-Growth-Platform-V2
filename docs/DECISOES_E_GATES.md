@@ -44,3 +44,10 @@ DEC-WA-01/02/03: diretrizes aprovadas, protótipos sintéticos 028/029 e correç
 A frente visual preparou contratos de **leitura UQ01–UQ09** e de **classificação de resultados de comandos C11–C18** sem conexão com S0. Isso não autentica sessão, não confirma prova bancária e não altera comercial. Códigos APPLIED/ALREADY_APPLIED somente podem ser considerados efetivos por S0 autenticada com auditoria; resultados PENDING/ACCEPTED/UNCERTAIN não autorizam inferência de venda, envio ou remessa. Ver `frontend/docs/30_FV_S0_UQ_CONTRATO_LEITURA_CANDIDATO_2026_10_20.md` e `frontend/docs/31_FV_S0_RESULTADO_COMANDOS_E_DIVERGENCIA_S1_2026_10_20.md` na branch `feat/frontend-plataforma-visual`. Estas fontes **não foram integradas/mescladas** a esta branch.
 
 **Escopo da alteração presente:** esclarecimento documental do gate S0, sem SQL/migration, RLS, Auth, API, Supabase hospedado, produção ou implantação. Exigir revisão técnica coordenada antes de alterar permissões reais.
+
+
+## Atualização D: pausa seletiva sem bloqueio de conta — 20/10/2026
+
+A decisão de produto foi **refinada e prevalece** sobre a hipótese de I11 de redistribuir toda a carteira na pausa. Consultar [S0-043](./S0_043_PAUSA_SELETIVA_E_INDICADOR_CONVERSA_2026_10_20.md) e, na frente visual, FV-UI-014. Gestor pausa e retoma **apenas o recebimento** com confirmação simples, sem motivo/data. Casos com contato humano iniciado permanecem; os demais somente são candidatos a transferências **para pessoas elegíveis da própria equipe**, e permanecem atribuídos quando não há substituto. Transferência manual sem concessão geral de loja exige autoridade **específica para o caso**, ainda pendente em S1 e sem exceção RLS liberada.
+
+O módulo puro `backend/operator_distribution_policy.py` é um **planejador isolado para testes**: não executa a pausa/transação, não autoriza servidor e não altera triggers, funções SQL ou contas. Não associar este marco a homologação da operação real. A frente S1 receberá o detalhamento diretamente do responsável e fará as adaptações sob sua propriedade.
