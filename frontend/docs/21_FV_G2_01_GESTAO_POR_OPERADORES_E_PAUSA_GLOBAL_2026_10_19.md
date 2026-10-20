@@ -1,3 +1,5 @@
+> **ATUALIZAÇÃO SUPERVENIENTE [D], 20/10/2026:** a regra operacional de redistribuição e pausa aqui descrita foi refinada pelo responsável. Aplicar [FV-UI-014 — indicador único e pausa seletiva](./32_FV_UI_014_INDICADOR_UNICO_E_PAUSA_SELETIVA_2026_10_20.md): sem motivo/data, apenas casos sem contato humano confirmado são candidatos a remanejamento automático dentro da mesma equipe; sem substituto elegível, manter a titularidade do operador pausado; casos com contato iniciado permanecem; transferência manual sem grant exige exceção restrita ao caso a ser implementada pela S1. **Pausar entrada não suspende conta.** Este documento permanece como histórico de formação da regra, não deve prevalecer sobre FV-UI-014.
+
 # FV-G2-01 — Gestão por equipes de operadores, pausa de distribuição e concessões
 
 Data: 19/10/2026. **Fonte de decisão [D]: orientação direta do responsável nesta conversa**. Este documento prepara as telas G1/G2/G3, **não é contrato físico S0/S1, não implementa autorização**. Divergência interfrentes registrada na [issue #9](https://github.com/prumogrowth/Prumo-Growth---Platform/issues/9).
