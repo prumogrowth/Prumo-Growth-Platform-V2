@@ -48,6 +48,18 @@ function freeze(t:Template):Template{
 }
 /** Text and examples come exclusively from a responsible human's input. */
 export function createManualTemplate(input:ManualTemplateInput):Template{
+ // The future HTTP/UI boundary must not inject access tokens, fake approval
+ // flags or getters into a persisted template draft.
+ const allowed=['local_id','concessionaria_id','meta_account_ref','name',
+   'language','category','body','examples'];
+ requireValid(!!input&&typeof input==='object'&&!Array.isArray(input),
+   'INVALID_DRAFT_OBJECT');
+ const prototype=Object.getPrototypeOf(input);
+ requireValid(prototype===Object.prototype||prototype===null,'INVALID_DRAFT_PROTOTYPE');
+ const descriptors=Object.getOwnPropertyDescriptors(input);
+ requireValid(Reflect.ownKeys(input).length===allowed.length&&
+   allowed.every(k=>Object.hasOwn(descriptors,k)&&
+     Object.hasOwn(descriptors[k],'value')),'UNKNOWN_DRAFT_FIELDS');
  requireValid(UUID.test(input.local_id)&&UUID.test(input.concessionaria_id),
    'INVALID_LOCAL_OR_TENANT_ID');
  requireValid(NUM.test(input.meta_account_ref),'INVALID_META_ACCOUNT');
