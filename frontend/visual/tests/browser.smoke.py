@@ -16,7 +16,7 @@ assert html.count(css_link) == 1, 'Link CSS duplicado ou inexistente'
 assert html.count(module_tag) == 1, 'Script de entrada duplicado ou inexistente'
 html = html.replace(css_link, '<style>'+css+'</style>')
 html = html.replace(module_tag, '')
-script = '\n'.join((base / name).read_text(encoding='utf-8') for name in ('fixtures.mjs','view-model.mjs','cf-op-02.mjs','registration-view.mjs','bank-view.mjs','postmark-view.mjs','team-operations.mjs','team-monitor.mjs','team-monitoring.mjs','batch-monitor.mjs','conversation-attention.mjs','app.mjs'))
+script = '\n'.join((base / name).read_text(encoding='utf-8') for name in ('fixtures.mjs','view-model.mjs','cf-op-02.mjs','registration-view.mjs','bank-view.mjs','postmark-view.mjs','team-operations.mjs','team-pause-preview.mjs','team-monitor.mjs','team-monitoring.mjs','batch-monitor.mjs','conversation-attention.mjs','app.mjs'))
 script = re.sub(r'(?ms)^import \{.*?\} from ["\']\./[^"\']+["\'];\s*', '', script)
 script = re.sub(r'(?m)^export ', '', script)
 assert 'import {' not in script and 'export ' not in script, 'Módulo não concatenado com segurança'
@@ -78,6 +78,11 @@ with sync_playwright() as p:
     assert page.get_by_role('button',name='Abrir conversa Cliente Exemplo 02',exact=False).locator('.attention-unread').inner_text() == '2'
     page.locator('#team-nav').click()
     assert page.locator('#team-list .team-member').count() == 2
+    assert page.locator('.team-pause-preview').count() == 2
+    page.locator('.team-pause-preview summary').first.click()
+    assert 'Sem substituto na equipe' in page.locator('.team-pause-preview').first.inner_text()
+    assert 'Somente prévia fictícia' in page.locator('.team-pause-preview').first.inner_text()
+    page.locator('.team-pause-preview summary').first.click()
     page.locator('#team-show-monitor').click()
     assert page.locator('#team-monitor').is_visible()
     assert 'G3 · MONITORAMENTO DA PRÓPRIA EQUIPE' in page.locator('#team-monitor').inner_text()
