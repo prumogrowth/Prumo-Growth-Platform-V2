@@ -156,11 +156,18 @@ begin
     or length(p_wamid) not between 7 and 1030
   then raise exception 'INVALID_TECHNICAL_QUERY' using errcode='22023';end if;
 
+  -- A recovery query must also establish intent ownership; otherwise a
+  -- caller can treat another shop/channel's intent as a benign ABSENT result.
+  -- Historical lookup is allowed after cancellation: current send eligibility
+  -- is deliberately NOT re-evaluated here, and never grants Graph retry.
   select m.app_ref,m.concessionaria_id,m.canal_id,m.waba_ref,m.phone_number_ref
     into v_scope
   from prumo_private.meta_canais_fixture_s0 m
   join public.canais_loja c on c.id=m.canal_id
     and c.concessionaria_id=m.concessionaria_id
+  join prumo_private.outbox_intencoes_s0 o
+    on o.concessionaria_id=m.concessionaria_id
+    and o.canal_id=m.canal_id and o.id=p_intencao
   where m.app_ref=p_app and m.canal_id=p_canal and c.modo='simulado'
   for share of m;
   if not found then
