@@ -27,6 +27,18 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Gate focado WA16 e WA17 Node (44 testes, sem rede)
+        run: |
+          set -euo pipefail
+          node --experimental-strip-types --test --test-concurrency=1 \
+            integrations/whatsapp-meta/s0-unknown-commit-recovery.test.ts \
+            integrations/whatsapp-meta/template-catalog-control.test.ts \
+            integrations/whatsapp-meta/template-mcp-multiformat.test.ts \
+            2>&1 | tee "$RUNNER_TEMP/wa16_wa17.tap"
+          grep -qx '# tests 44' "$RUNNER_TEMP/wa16_wa17.tap"
+          grep -qx '# pass 44' "$RUNNER_TEMP/wa16_wa17.tap"
+          grep -qx '# fail 0' "$RUNNER_TEMP/wa16_wa17.tap"
+          echo 'PASS WA16/17: 44 tests in native Node 22 test runner'
       - name: Regressao WhatsApp/Meta completa, somente fixtures
         run: bash integrations/whatsapp-meta/run-offline-tests.sh --all
 
