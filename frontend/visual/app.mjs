@@ -639,9 +639,13 @@ function renderTeamMonitor(){
   // Conciliação: preservar o quadro de oito etapas comerciais e indicadores
   // agregado G3, acrescentando sinais técnicos explícitos do S0 fictício.
   renderTeamMonitoring();
-  target.append(title,note,indicators,workload,signals,
+  // UX: indicadores e alertas primeiro; o quadro canônico/comercial continua
+  // completo logo abaixo, sem multiplicar conteúdo ou alterar autorização.
+  const commercialSummary=target.children[0];
+  target.replaceChildren(title,note,indicators,workload,signals,
     el('p','team-hint','Sinais técnicos não são estados comerciais novos. '+
-      'A S0 define prazos, prioridades, distribuição, permissões e confirmação de eventos.'));
+      'A S0 define prazos, prioridades, distribuição, permissões e confirmação de eventos.'),
+    commercialSummary);
 }
 function renderTeamBatches(){
   const target=$('team-batches'),projection=projectManagerBatches(state.actorId);
