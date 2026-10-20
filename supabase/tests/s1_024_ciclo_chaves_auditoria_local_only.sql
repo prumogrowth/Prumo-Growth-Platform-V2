@@ -134,6 +134,14 @@ alter function prumo_s1_signed_i20.provisionar_chave_i24(
  uuid,bytea,timestamptz,timestamptz,text) owner to prumo_s1_i22_custodio;
 alter function prumo_s1_signed_i20.revogar_chave_i24(
  uuid,bigint,text) owner to prumo_s1_i22_custodio;
+-- A concessao feita pelo owner original postgres nao persiste na troca:
+-- refazer GRANT explicitamente PELO NOVO OWNER, apenas ao admin CI.
+set local role prumo_s1_i22_custodio;
+grant execute on function prumo_s1_signed_i20.provisionar_chave_i24(
+ uuid,bytea,timestamptz,timestamptz,text) to postgres;
+grant execute on function prumo_s1_signed_i20.revogar_chave_i24(
+ uuid,bigint,text) to postgres;
+reset role;
 revoke create on schema prumo_s1_signed_i20 from prumo_s1_i22_custodio;
 
 -- Revogar grants herdados e comprovar ausencia de APIs indevidas.
