@@ -130,3 +130,11 @@
 :root{--attention-unread:#1c9e89;--attention-awaiting:#64748b}
 .attention-unread{background:var(--attention-unread)}
 .attention-pending{background:var(--attention-awaiting);min-width:15px;width:15px;height:15px;padding:0;border:2px solid white;outline:1px solid var(--attention-awaiting)}
+
+/* FV-UI-016: prévia funcional discreta; cores definitivas serão definidas depois. */
+.team-pause-preview{margin:8px 0;border:1px solid #d7e4e1;border-radius:9px;padding:9px 12px;background:#f8fbfa;color:#344b54;font-size:12px}
+.team-pause-preview summary{cursor:pointer;font-weight:650;padding:4px 0}
+.team-pause-preview summary:focus-visible{outline:2px solid #4e928d;outline-offset:3px}
+.team-pause-counts{line-height:1.5;color:#425a63;margin:9px 0}
+.team-pause-cases{margin:5px 0 9px;padding-left:20px;line-height:1.55}
+.team-pause-cases li{margin:4px 0}
