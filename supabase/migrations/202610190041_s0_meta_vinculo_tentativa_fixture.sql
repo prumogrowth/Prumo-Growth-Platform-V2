@@ -41,6 +41,25 @@ create table prumo_private.meta_vinculos_tentativa_fixture_s0 (
   constraint meta_vinculo_wamid_uniq_s0
     unique(app_ref,waba_ref,phone_number_ref,provider_message_id)
 );
+-- WA-14D: provider linkage is append-only even for the privileged local
+-- fixture writer. Without this, direct UPDATE/DELETE could bypass both
+-- uniqueness constraints and the exact-replay contract after the fact.
+-- A DB owner/superuser can still intentionally disable/drop a trigger; this
+-- is a defense-in-depth guard, not a tamper-proof audit mechanism.
+create function prumo_private.bloquear_mutacao_meta_vinculo_fixture_s0()
+returns trigger language plpgsql security invoker set search_path='' as $wa14_immutable$
+begin
+  raise exception 'IMMUTABLE_TECHNICAL_BINDING' using errcode='42501';
+end $wa14_immutable$;
+create trigger meta_vinculo_block_update_delete_s0
+  before update or delete on prumo_private.meta_vinculos_tentativa_fixture_s0
+  for each row execute function prumo_private.bloquear_mutacao_meta_vinculo_fixture_s0();
+create trigger meta_vinculo_block_truncate_s0
+  before truncate on prumo_private.meta_vinculos_tentativa_fixture_s0
+  for each statement execute function prumo_private.bloquear_mutacao_meta_vinculo_fixture_s0();
+revoke all on function prumo_private.bloquear_mutacao_meta_vinculo_fixture_s0()
+  from public,anon,authenticated,service_role,prumo_s0_gateway,prumo_s0_signer;
+
 alter table prumo_private.meta_vinculos_tentativa_fixture_s0 enable row level security;
 revoke all on prumo_private.meta_vinculos_tentativa_fixture_s0
   from public,anon,authenticated,service_role,prumo_s0_gateway,prumo_s0_signer;
