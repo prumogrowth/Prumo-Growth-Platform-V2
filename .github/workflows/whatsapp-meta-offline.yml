@@ -29,3 +29,28 @@ jobs:
           node-version: '22'
       - name: Regressao WhatsApp/Meta completa, somente fixtures
         run: bash integrations/whatsapp-meta/run-offline-tests.sh --all
+
+  wa06d-postgresql-17:
+    name: WA-06D PG17 descartavel
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Instalar PostgreSQL 17 somente no runner descartavel
+        run: |
+          sudo apt-get update -qq
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y postgresql-17
+          test -x /usr/lib/postgresql/17/bin/initdb
+          test -x /usr/lib/postgresql/17/bin/pg_ctl
+      - name: Verificar runner sem acesso a banco remoto
+        run: |
+          test "$(id -u)" -ne 0
+          bash -n integrations/whatsapp-meta/lab/run-wa06d-ephemeral.sh
+          python3 -m unittest discover -s integrations/whatsapp-meta/lab -p test_wa06d_ephemeral_runner.py -v
+      - name: Executar 20 casos SQL PG17 com cluster efemero isolado
+        env:
+          PGHOSTADDR: ''
+          PGSERVICE: ''
+        run: bash integrations/whatsapp-meta/lab/run-wa06d-ephemeral.sh
