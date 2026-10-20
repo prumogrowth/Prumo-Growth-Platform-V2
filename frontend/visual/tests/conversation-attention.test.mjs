@@ -39,6 +39,7 @@ test('supervisor nunca confirma leitura pelo operador nem reatribui caso',()=>{
   const base={role:'operador',account_active:true,actor_id:'op-a',
     assigned_actor_id:'op-a',case_ref:'case-1',case_version:'v3'};
   assert.equal(canStageReadAcknowledgment(base),true);
+  assert.equal(canStageReadAcknowledgment({...base,role:'gestor',acting_as_assigned_operator:true}),true);
   for(const changed of [
     {role:'gestor'},{actor_id:'manager'},{assigned_actor_id:'op-b'},
     {account_active:false},{case_version:null},{case_ref:''}
