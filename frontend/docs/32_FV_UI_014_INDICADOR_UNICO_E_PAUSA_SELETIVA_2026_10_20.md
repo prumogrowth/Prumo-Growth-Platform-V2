@@ -1,3 +1,5 @@
+> **Incremento sintético posterior FV-UI-015 (20/10/2026):** o indicador único e a confirmação G2 estão agora conectados **à interface demonstrativa em memória**, com testes Node/Chromium nativos registrados em [FV-UI-015](./33_FV_UI_015_INDICADOR_OPERACIONAL_E_CONFIRMACAO_2026_10_20.md). Isso **não** implementa leitura confirmada, pausa ou redistribuição operacional no S0/S1. Abaixo permanece o contrato de domínio para integração futura.
+
 # FV-UI-014 — Indicador único e pausa seletiva: decisão funcional (20/10/2026)
 
 **Fonte [D]:** decisão direta do responsável nesta conversa. **Escopo:** somente documentação e contratos candidatos da frente visual. Design/cores finais ficam para uma etapa posterior. Não alterar S1, não criar acesso real à Meta, S0 ou Supabase.
