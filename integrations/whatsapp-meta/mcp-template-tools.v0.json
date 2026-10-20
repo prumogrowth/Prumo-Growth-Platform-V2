@@ -1,0 +1,387 @@
+{
+  "schema_version": "wa17b-mcp-template-tools-v0",
+  "status": "CONTRACT_ONLY_NOT_AN_INSTALLED_MCP_SERVER",
+  "authentication": "MCP transport authenticates actor and delegation; no self-asserted actor_id, tenant_id, WABA role or Meta token accepted from tool arguments",
+  "tenant_resolution": "Server obtains authorized concessionaria_id and WABA from authenticated account context; all mutations use expected version + immutable audit trail",
+  "no_real_meta_calls": true,
+  "audit_fields_server_injected": [
+    "principal_id",
+    "delegated_agent_id",
+    "delegated_by",
+    "concessionaria_id",
+    "waba_ref",
+    "request_id",
+    "timestamp",
+    "before_revision",
+    "after_revision",
+    "reason"
+  ],
+  "operations": [
+    {
+      "name": "templates.capabilities",
+      "required_scope": "templates.read",
+      "mutates": false,
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {},
+        "required": []
+      }
+    },
+    {
+      "name": "templates.list",
+      "required_scope": "templates.read",
+      "mutates": false,
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "cursor": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "templates.get",
+      "required_scope": "templates.read",
+      "mutates": false,
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "draft_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Draft identifier; server resolves tenant and WABA."
+          }
+        },
+        "required": [
+          "draft_id"
+        ]
+      }
+    },
+    {
+      "name": "templates.create_draft",
+      "required_scope": "templates.draft.write",
+      "mutates": true,
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "client_request_id": {
+            "type": "string",
+            "minLength": 16,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9_.:-]+$"
+          },
+          "name": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "language": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 10
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "MARKETING",
+              "UTILITY"
+            ]
+          },
+          "body": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024
+          },
+          "examples": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            },
+            "maxItems": 20
+          },
+          "authoring_origin": {
+            "type": "string",
+            "enum": [
+              "HUMAN_SPECIFIED",
+              "AI_ASSISTED",
+              "AI_GENERATED"
+            ]
+          },
+          "header": {
+            "type": "object",
+            "description": "Validated discriminated union TEXT, IMAGE, VIDEO or DOCUMENT. Media must reference a tenant-scoped asset; never raw Graph credentials."
+          },
+          "footer": {
+            "type": "string",
+            "maxLength": 60
+          },
+          "buttons": {
+            "type": "array",
+            "description": "Typed and validated URL/QUICK_REPLY/PHONE_NUMBER array; advanced combinations use specialized contracts."
+          }
+        },
+        "required": [
+          "client_request_id",
+          "name",
+          "language",
+          "category",
+          "body",
+          "examples",
+          "authoring_origin"
+        ]
+      }
+    },
+    {
+      "name": "templates.edit_draft_components",
+      "required_scope": "templates.draft.write",
+      "mutates": true,
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "draft_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Draft identifier; server resolves tenant and WABA."
+          },
+          "expected_content_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "patch": {
+            "type": "object",
+            "description": "Server validates immutable approved-version boundary and all component variants."
+          },
+          "client_request_id": {
+            "type": "string",
+            "minLength": 16,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9_.:-]+$"
+          }
+        },
+        "required": [
+          "draft_id",
+          "expected_content_version",
+          "patch",
+          "client_request_id"
+        ]
+      }
+    },
+    {
+      "name": "templates.preview",
+      "required_scope": "templates.read",
+      "mutates": false,
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "draft_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Draft identifier; server resolves tenant and WABA."
+          },
+          "sample_values": {
+            "type": "object",
+            "description": "Synthetic examples only. Never retrieve real-client PII for review previews."
+          }
+        },
+        "required": [
+          "draft_id"
+        ]
+      }
+    },
+    {
+      "name": "templates.configure_variable_sources",
+      "required_scope": "templates.variables.write",
+      "mutates": true,
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "draft_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Draft identifier; server resolves tenant and WABA."
+          },
+          "expected_mapping_revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "bindings": {
+            "type": "object",
+            "description": "Map slot keys body.1, header.1, button.0.url.1 to trusted registered sources",
+            "additionalProperties": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*){1,3}$"
+            }
+          },
+          "client_request_id": {
+            "type": "string",
+            "minLength": 16,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9_.:-]+$"
+          }
+        },
+        "required": [
+          "draft_id",
+          "expected_mapping_revision",
+          "bindings",
+          "client_request_id"
+        ]
+      }
+    },
+    {
+      "name": "templates.prepare_review",
+      "required_scope": "templates.review.prepare",
+      "mutates": false,
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "draft_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Draft identifier; server resolves tenant and WABA."
+          },
+          "expected_content_version": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "draft_id",
+          "expected_content_version"
+        ]
+      }
+    },
+    {
+      "name": "templates.submit_for_meta_review",
+      "required_scope": "templates.review.submit",
+      "mutates": true,
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "draft_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Draft identifier; server resolves tenant and WABA."
+          },
+          "expected_content_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "approval_reference": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "Server-verified responsible authorization or policy delegation; not self-authorizing."
+          },
+          "client_request_id": {
+            "type": "string",
+            "minLength": 16,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9_.:-]+$"
+          }
+        },
+        "required": [
+          "draft_id",
+          "expected_content_version",
+          "approval_reference",
+          "client_request_id"
+        ]
+      }
+    },
+    {
+      "name": "templates.sync_meta_status",
+      "required_scope": "templates.review.status.read",
+      "mutates": false,
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "draft_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Draft identifier; server resolves tenant and WABA."
+          }
+        },
+        "required": [
+          "draft_id"
+        ]
+      }
+    },
+    {
+      "name": "templates.new_content_version",
+      "required_scope": "templates.draft.write",
+      "mutates": true,
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "from_template_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Draft identifier; server resolves tenant and WABA."
+          },
+          "expected_content_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "new_name": {
+            "type": "string"
+          },
+          "client_request_id": {
+            "type": "string",
+            "minLength": 16,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9_.:-]+$"
+          }
+        },
+        "required": [
+          "from_template_id",
+          "expected_content_version",
+          "new_name",
+          "client_request_id"
+        ]
+      }
+    },
+    {
+      "name": "templates.audit_history",
+      "required_scope": "templates.audit.read",
+      "mutates": false,
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "draft_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Draft identifier; server resolves tenant and WABA."
+          },
+          "cursor": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "draft_id"
+        ]
+      }
+    }
+  ]
+}
