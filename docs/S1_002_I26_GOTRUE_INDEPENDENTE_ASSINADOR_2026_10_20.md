@@ -28,4 +28,15 @@ O job E2E `scripts/test_s1_002_i26_dual_gotrue_local.py` reaplica 50 migrations 
 
 **NO-GO para produção e merge.** Continuam como gates: isolamento da identidade e do runtime do assinador em infraestrutura independente, autenticação mútua da workload, custódia externa, TLS/controle de origem, auditoria operacional, procedimentos de chave comprometida e integração com UI e conclusão humana S0.
 
-**Resultado do CI:** registrar somente após conferir ambas as execuções e seus logs.
+## Resultado inspecionado e aceito apenas no CI
+
+**[GitHub Actions #39362965397 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39362965397)**, SHA testado `590cf7ca8444b047b3c28315ce1bf51bf07fe6b3`. Os dois jobs encerraram em sucesso:
+
+- `http-policy-unit` (job `118433150113`): **50/50 unittest PASS**. Logs confirmam três saídas separadas: `Ran 30 tests ... OK` (HTTP I23), `Ran 10 tests ... OK` (processo I25), `Ran 10 tests ... OK` (GoTrue independente I26, mock local).
+- `e2e-gerencia-local` (job `118433150420`): **70/70 identificadores S1AUTH-01..70 PASS**, sem duplicação. Aplicadas **50 migrations reais S0/S1** em GoTrue/PostgreSQL descartáveis e fixtures de teste I20–I24. I26-61..70 foram confirmados em logs de operações GoTrue reais, prova HMAC, anti-forja de sub/sessão e negação RBAC, indisponibilidade de autoridade e pane do assinador.
+
+Também foi verificada a regressão I25 histórica depois da alteração do modo de assinador: [GitHub Actions #39362715347 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39362715347). Esse fluxo mantém o modo anterior exclusivamente para preservar os testes, sem fallback automático a partir de I26.
+
+**Parecer restrito: GO para continuar o desenvolvimento isolado. NO-GO produção, merge ou deploy.** Os testes de IPC com pipe e o login SQL de teste em conjunto demonstram limites dos contratos, mas **não representam um teste de penetração de infraestrutura nem segurança contra o roubo simultâneo de token válido, IPC ou identidade OS**. A custódia e o canal continuam no mesmo runner.
+
+**Integridade de evidência:** as atualizações de `docs/` e `tests/S1_ACEITE.md` são posteriores ao SHA de código efetivamente testado, sem mudanças no caminho de execução aprovado.
