@@ -36,4 +36,13 @@ O job integrado `scripts/test_s1_002_i25_signer_recovery_local.py` reaplica **50
 
 **NO-GO produção, merge e deploy.** Próximo passo exige contrato de autenticação ponta a ponta entre gateway e serviço assinador/secret manager, segregação de identidades de processo, controle de acesso ao canal, provisionamento externo e auditoria durável. A execução de gerenciamento de equipe, escalas e fluxo humano S0 ainda tem os gates anteriores.
 
-**Resultado CI:** pendente; preencher apenas após inspeção dos dois jobs e seus logs.
+## Evidência executada — CI aprovado no sandbox
+
+**[GitHub Actions #39358933474 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39358933474)**, SHA do código testado `a1bf35f3174765c522d9b9449e1f457a040f96be`, dois jobs concluídos em `success`:
+
+- Job `118420248301` (http-policy-unit): **30/30 HTTP** da política I23 e **10/10** novos testes de processo assinador I25; logs `Ran 30 tests ... OK` e `Ran 10 tests ... OK` inspecionados. O processo negou chaves desconhecidas/curtas/duplicadas, material arbitrário, timestamp vencido e uso após revogação/queda, sem compartilhar segredo com o objeto gateway.
+- Job `118420248166` (e2e-gerencia-local): **S1REC-01..60, 60 identificadores distintos de aceite passando**, com **50 migrations S0/S1 reais** em GoTrue e PostgreSQL descartáveis, fixtures I20–I24 e gateway HTTP I23. Foram exercidos 50 cenários de regressão anteriores e os dez novos cenários S1REC-51..60 de processo separado, pane, retomada, revogação, ordem GoTrue→assinatura, recusa de troca silenciosa de chave e preservação do domínio sintético.
+
+*Nota de contagem:* o script registra duas linhas `PASS S1REC-50` (resultado original e recapitulativo); por isso existem **61 linhas PASS para 60 identificadores únicos**, sem constituir uma verificação adicional. A saída final confirma `60/60`.
+
+**Parecer:** GO estritamente para prosseguir com testes e arquitetura no sandbox; **NO-GO** para operação real, merge e deploy. O processo assinador, o gerenciador de chaves e o gateway foram orquestrados pela mesma conta do runner; nenhum isolamento OS/KMS/HSM, recuperação real de secrets, proteção independente da pipe de assinatura nem observabilidade externa foi homologado. A documentação e o arquivo de aceite são modificações posteriores ao SHA de código efetivamente testado, sem alterar o runner aprovado.
