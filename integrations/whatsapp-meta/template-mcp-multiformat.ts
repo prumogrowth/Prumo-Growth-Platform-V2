@@ -90,7 +90,10 @@ function secureUrl(url:string):URL{
   let target:URL;
   try{target=new URL(url);}catch{throw Error('INVALID_URL');}
   demand(target.protocol==='https:'&&!target.username&&!target.password&&
-    target.hostname.includes('.')&&!target.hostname.endsWith('.local')&&
+    target.hostname.includes('.')&&
+    !/(?:^|\.)(?:local|localhost|internal)$/.test(target.hostname)&&
+    !/^\d{1,3}(?:\.\d{1,3}){3}$/.test(target.hostname)&&
+    !target.hostname.includes(':')&&
     !['localhost','127.0.0.1','0.0.0.0'].includes(target.hostname),
     'UNSAFE_URL');
   return target;
@@ -171,7 +174,10 @@ export function composeMcpTemplateDraft(raw:MultiFormatInput):MultiFormatDraft{
         const url=b.url as string;secureUrl(url.replace(/\{\{1\}\}/g,'example'));
         const uids=positions(url,1);
         const dynamic=uids.length===1;
-        demand(!dynamic||url.endsWith('{{1}}'),'DYNAMIC_URL_REQUIRES_FINAL_SUFFIX');
+        demand(!dynamic||(
+          url.endsWith('{{1}}')&&
+          (url.match(/\{\{1\}\}/g)||[]).length===1
+        ),'DYNAMIC_URL_REQUIRES_FINAL_SUFFIX');
         demand(!dynamic||(typeof b.example_suffix==='string'&&
           SAFE_VALUE.test(b.example_suffix)),'INVALID_URL_EXAMPLE_SUFFIX');
         demand(dynamic||b.example_suffix===undefined,
