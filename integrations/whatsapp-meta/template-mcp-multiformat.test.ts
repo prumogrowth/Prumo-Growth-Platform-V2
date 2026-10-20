@@ -150,3 +150,34 @@ test('WA17B-14: Meta body can be human-provided, AI-assisted or generated',()=>{
   assert.equal(d.input.origin,origin);
  }
 });
+
+test('WA17B-15: reject IP literals, internal domains and repeated URL placeholders',()=>{
+ for(const url of [
+  'https://127.0.0.2/visit/{{1}}',
+  'https://service.internal/visit/{{1}}',
+  'https://[::1]/visit/{{1}}',
+ ]){
+  assert.throws(()=>composeMcpTemplateDraft({...base,buttons:[
+   {kind:'URL',label:'Abrir',url,example_suffix:'test'}
+  ]}),/UNSAFE_URL/);
+ }
+ assert.throws(()=>composeMcpTemplateDraft({...base,buttons:[
+  {kind:'URL',label:'Abrir',url:'https://example.com/{{1}}/{{1}}',
+   example_suffix:'test'}
+ ]}),/DYNAMIC_URL_REQUIRES_FINAL_SUFFIX/);
+});
+test('WA17B-16: JSON-described MCP tools are contracts, not privileged executable tools',async()=>{
+ const {readFileSync}=await import('node:fs');
+ const spec=JSON.parse(readFileSync(
+   new URL('./mcp-template-tools.v0.json',import.meta.url),'utf8'));
+ assert.equal(spec.status,'CONTRACT_ONLY_NOT_AN_INSTALLED_MCP_SERVER');
+ assert.equal(spec.no_real_meta_calls,true);
+ assert.equal(spec.operations.length,12);
+ assert.equal(spec.operations.some((x:{name:string})=>
+   x.name==='templates.submit_for_meta_review'),true);
+ for(const tool of spec.operations){
+  assert.equal(tool.inputSchema.additionalProperties,false);
+  assert.equal('principal_id' in tool.inputSchema.properties,false);
+  assert.equal('access_token' in tool.inputSchema.properties,false);
+ }
+});
