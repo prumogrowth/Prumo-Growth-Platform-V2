@@ -56,7 +56,7 @@ begin
  where c.id=new.conversa_id and c.concessionaria_id=new.concessionaria_id
  for update of c;
  if not found then raise exception 'CONVERSA_INVALIDA' using errcode='23503';end if;
- select pg_catalog.coalesce(pg_catalog.max(o.ordem),0)
+ select coalesce(pg_catalog.max(o.ordem),0)
  into v_ultima
  from prumo_private.s0_ordem_mensagem_56 o
  where o.concessionaria_id=new.concessionaria_id and o.conversa_id=new.conversa_id;
