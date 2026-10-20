@@ -18,3 +18,13 @@ O código aceita executor somente postgres no **sandbox**; não aceita chamada d
 [GitHub Actions PG17 #39252443273 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39252443273), commit `571df70e44ed9d3ff69c7aa45f72b8aa6217fbde`, job `118059321243`: regressão **S1M 12/12**, mais **S1MR-01..04 = 4/4 PASS**. Duas conexões tentando mudar a mesma atribuição: uma transferência aceita e outra rejeitada sem duplicidade; pausa global simultânea vence comando manual obsoleto sem dois titulares. Suites legadas de I1–I11, inclusive S1T 14/14, S1A 9/9, S1H 8/8, AUD1 7/7 e AUD2 5/5, passaram no mesmo job. Nenhum deadlock SQL inesperado nos marcadores conferidos.
 
 **Conclusão restrita:** funcionamento sintético demonstrado, mas nenhum login Supabase GoTrue, JWT assinado, endpoint REST, serviço bancário, Meta real, status de conclusão humana definitivo, autorização administrativa real ou merge/deploy. O algoritmo automático I2 ainda pode escolher operador de outra equipe elegível na mesma loja; política definitiva desse caso permanece [R], sem presumir decisão do usuário.
+
+---
+
+## Retificação de contrato — issue #10 (20/10/2026)
+
+**A exigência atual de concessão geral à loja permanece válida apenas para o fluxo manual comum.** A nova decisão [D] autoriza que um gestor transfira individualmente um atendimento a integrante de sua equipe mesmo sem grant geral da concessionária, **somente se existir autorização excepcional revogável e auditável restrita àquele caso**. Não é permitido editar concessões de loja, transferir outra equipe nem dar leitura a outros casos/documentos da concessionária.
+
+As migrations 049/050 ainda aplicam o contrato legado, com obrigatoriedade de grant de loja; **a exceção não foi implementada como operação**. A tabela privada `s1_excecoes_caso_preparacao_10` da fixture ISSUE10 representa apenas modelagem sem permissões RLS/SELECT nem autorização real. A efetivação depende do S0 certificar quais tabelas, visões, anexos, mensagens e projeções precisam ser isolados por caso, e do núcleo oferecer um evento versionado de início de atendimento humano. Nunca contornar o guard de atribuição com concessão geral, login fingido ou flag do navegador.
+
+[Plano técnico e dependências S0](S1_002_ISSUE10_CORRECAO_PAUSA_INTAKE_2026_10_20.md). A regressão histórica I12 continua evidência do fluxo normal **pré-exceção**, não da nova capacidade. **NO-GO produção/merge/deploy.**
