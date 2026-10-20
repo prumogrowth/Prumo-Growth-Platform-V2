@@ -9,7 +9,7 @@
 export const ATTENTION_PROPOSAL_VERSION = 'ui-attention-proposal/0.1';
 const isPlain = o => o !== null && typeof o === 'object' && !Array.isArray(o) &&
   (Object.getPrototypeOf(o) === Object.prototype || Object.getPrototypeOf(o) === null);
-const EMPTY = Object.freeze({kind:'none',count:null,label:null});
+const ATTENTION_EMPTY = Object.freeze({kind:'none',count:null,label:null});
 
 /** Accepts a source-minimized per-case projection, never raw message content.
  * The result has exactly ONE visual state: unread numbered or read awaiting
@@ -21,7 +21,7 @@ export function stageConversationAttention(projection) {
       !Number.isSafeInteger(projection.unread_inbound_count) ||
       projection.unread_inbound_count < 0 ||
       typeof projection.operator_read_confirmed !== 'boolean' ||
-      typeof projection.human_reply_pending !== 'boolean') return EMPTY;
+      typeof projection.human_reply_pending !== 'boolean') return ATTENTION_EMPTY;
   const count=projection.unread_inbound_count;
   if (count > 0) return Object.freeze({
     kind:'unread',count:Math.min(count,99),
@@ -33,7 +33,7 @@ export function stageConversationAttention(projection) {
       kind:'read_awaiting_reply',count:null,
       label:'Visualizada pelo operador; resposta humana pendente'
     });
-  return EMPTY;
+  return ATTENTION_EMPTY;
 }
 
 /** A supervisory read is passive: it may display a permitted projection,
