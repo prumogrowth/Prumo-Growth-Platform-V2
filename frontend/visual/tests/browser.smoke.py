@@ -43,7 +43,7 @@ with sync_playwright() as p:
         assert not page.evaluate('document.documentElement.scrollWidth > innerWidth')
         # Selecionar caso estável, não depender de ordenação de conversas.
         page.get_by_role('button', name='Abrir conversa Cliente Exemplo 02', exact=False).click()
-        assert page.get_by_role('button',name='Abrir conversa Cliente Exemplo 02',exact=False).locator('.attention-pending').count() == 1
+        assert page.locator('.conversation-card').filter(has_text='Cliente Exemplo 02').locator('.attention-pending').count() == 1
         if width<=1040: page.locator('#detail-toggle').click()
         if width<=760: assert page.locator('#visual-app').get_attribute('data-mobile-view') == 'detail'
         page.locator('.detail-tab', has_text='Notas').click()
