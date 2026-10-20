@@ -105,6 +105,7 @@ def classify_manual_transfer_target(
         or not isinstance(target, CandidateSnapshot)
         or not manager_ref
         or case.manager_ref != manager_ref
+        or case.active_case_confirmed is not True
         or target.manager_ref != manager_ref
         or target.active_account is not True
         or target.intake_receiving is not True
