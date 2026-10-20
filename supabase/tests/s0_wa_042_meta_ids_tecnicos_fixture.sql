@@ -231,6 +231,31 @@ begin
   then raise exception 'FAIL WA15-12: absent recovery authorized retry';end if;
   raise notice 'PASS WA15-12: absent read does not authorize retry';
 
+  -- WA15-16: SQL CHECK cannot use UNKNOWN(NULL) to admit a half-filled
+  -- WABA/phone tuple. Neither order of a partially populated pair is valid.
+  insert into public.canais_loja(id,concessionaria_id,identificador_emissor)
+  values('f5300000-0000-4000-8000-000000000004',
+         'f5200000-0000-4000-8000-000000000001','WA15_PARTIAL');
+  begin
+    insert into prumo_private.meta_canais_fixture_s0(
+       app_ref,concessionaria_id,canal_id,waba_ref,phone_number_ref,
+       waba_technical_ref,phone_technical_ref)
+    values('FIXTURE_WA15_APP_A','f5200000-0000-4000-8000-000000000001',
+       'f5300000-0000-4000-8000-000000000004','FIXTURE_WA15_WABA_A',
+       'FIXTURE_WA15_PHONE_PART','33345678901',null);
+    raise exception 'FAIL WA15-16: WABA-only mapping accepted';
+  exception when check_violation then null;end;
+  begin
+    insert into prumo_private.meta_canais_fixture_s0(
+       app_ref,concessionaria_id,canal_id,waba_ref,phone_number_ref,
+       waba_technical_ref,phone_technical_ref)
+    values('FIXTURE_WA15_APP_A','f5200000-0000-4000-8000-000000000001',
+       'f5300000-0000-4000-8000-000000000004','FIXTURE_WA15_WABA_A',
+       'FIXTURE_WA15_PHONE_PART',null,'88845678901');
+    raise exception 'FAIL WA15-16: sender-only mapping accepted';
+  exception when check_violation then null;end;
+  raise notice 'PASS WA15-16: half-configured WABA/phone rejected';
+
   -- WA15-15: public/exposed roles cannot reach new functions.
   if has_function_privilege('anon',
        'prumo_private.registrar_vinculo_meta_tecnico_fixture_s0(text,text,text,uuid,uuid,text,text,text,text,integer)','EXECUTE')
