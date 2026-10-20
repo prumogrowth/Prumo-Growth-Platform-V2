@@ -4,7 +4,7 @@ on:
     branches: [feat/s1-002-equipe-prumo]
     paths:
       - '.github/workflows/s1-002-i30-signed-authority-local.yml'
-      - 'backend/s1_i30_signed_revocation_authority_local.py backend/s1_signer_mtls_authority_local.py tests/test_s1_002_i30_authenticated_authority.py scripts/test_s1_002_i30_signed_authority_local.py'
+      - 'scripts/test_s1_002_i30_signed_authority_local.py'
       - 'backend/s1_signer_process_local.py'
       - 'backend/s1_signer_independent_gotrue_local.py'
       - 'backend/s1_signer_mtls_local.py'
@@ -47,7 +47,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Checar 108 unidades incluindo autoridade MAC e protecao contra replay
         run: |
-          PYTHONPATH=. python3 -m compileall -q backend/s1_gateway_http_policy_local.py backend/s1_signer_process_local.py backend/s1_signer_independent_gotrue_local.py backend/s1_signer_mtls_local.py backend/s1_i27_ephemeral_certificates.py backend/s1_i28_rotating_certificates.py backend/s1_signer_mtls_rotation_local.py tests/test_s1_002_i23_http_policy.py tests/test_s1_002_i25_signer_process.py tests/test_s1_002_i26_independent_auth.py tests/test_s1_002_i27_mtls.py tests/test_s1_002_i28_cert_lifecycle.py tests/test_s1_002_i29_persistent_revocation.py backend/s1_i29_persistent_certificate_store.py backend/s1_signer_mtls_persistent_local.py scripts/test_s1_002_i30_signed_authority_local.py
+          PYTHONPATH=. python3 -m compileall -q backend/s1_gateway_http_policy_local.py backend/s1_signer_process_local.py backend/s1_signer_independent_gotrue_local.py backend/s1_signer_mtls_local.py backend/s1_i27_ephemeral_certificates.py backend/s1_i28_rotating_certificates.py backend/s1_signer_mtls_rotation_local.py tests/test_s1_002_i23_http_policy.py tests/test_s1_002_i25_signer_process.py tests/test_s1_002_i26_independent_auth.py tests/test_s1_002_i27_mtls.py tests/test_s1_002_i28_cert_lifecycle.py tests/test_s1_002_i29_persistent_revocation.py backend/s1_i29_persistent_certificate_store.py backend/s1_signer_mtls_persistent_local.py backend/s1_i30_signed_revocation_authority_local.py backend/s1_signer_mtls_authority_local.py tests/test_s1_002_i30_authenticated_authority.py scripts/test_s1_002_i30_signed_authority_local.py
           PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i23_http_policy.py' -v
           PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i25_signer_process.py' -v
           PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i26_independent_auth.py' -v
