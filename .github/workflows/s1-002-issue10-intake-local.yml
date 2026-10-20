@@ -6,6 +6,8 @@ on:
       - '.github/workflows/s1-002-issue10-intake-local.yml'
       - 'supabase/tests/s1_053_issue10_disponibilidade_local_only.sql'
       - 'supabase/tests/s1_053_issue10_disponibilidade_aceite.sql'
+      - 'supabase/tests/s1_054_issue10_s0_prova_redistribuicao_local_only.sql'
+      - 'supabase/tests/s1_054_issue10_s0_seletiva_aceite.sql'
   workflow_dispatch:
 permissions:
   contents: read
@@ -40,7 +42,11 @@ jobs:
         run: psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c 'CREATE DATABASE prumo_s0_test_issue10'
       - name: Executar todas regressões S0 + I11/I12 históricas
         run: bash scripts/run-s1-002-i12-local.sh
-      - name: Aplicar somente fixture corretiva e testar onze provas ISSUE10
+      - name: Executar fixture de pausa e onze provas ISSUE10 historicas
         run: |
           psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_053_issue10_disponibilidade_local_only.sql
           psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_053_issue10_disponibilidade_aceite.sql
+      - name: Prova S0 e redistribuicao S1 seletiva com 23 gates integrados
+        run: |
+          psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_054_issue10_s0_prova_redistribuicao_local_only.sql
+          psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_054_issue10_s0_seletiva_aceite.sql
