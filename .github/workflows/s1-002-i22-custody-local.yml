@@ -1,0 +1,66 @@
+name: Prumo S1-002 - Gateway local auth real I22
+on:
+  push:
+    branches: [feat/s1-002-equipe-prumo]
+    paths:
+      - '.github/workflows/s1-002-i22-custody-local.yml'
+      - 'scripts/test_s1_002_i22_key_custody_local.py'
+      - 'backend/s1_gateway_signed_local.py'
+      - 'backend/s1_gateway_local.py'
+      - 'supabase/tests/s1_020_signed_gateway_local_only.sql'
+      - 'supabase/tests/s1_021_executor_owner_local_only.sql'
+      - 'supabase/tests/s1_022_chave_custodio_separado_local_only.sql'
+      - 'supabase/migrations/**'
+      - 'scripts/run-s0-local.sh'
+      - 'scripts/run-s1-002-local.sh'
+      - 'scripts/run-s1-002-i12-local.sh'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: prumo-s1-002-i22-custody-local
+  cancel-in-progress: true
+jobs:
+  e2e-gerencia-local:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    env:
+      CI: 'true'
+      PRUMO_S1_I22_EPHEMERAL: 'YES'
+      SUPABASE_DISABLE_TELEMETRY: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 2.84.2
+      - name: Cliente PostgreSQL
+        run: command -v psql || (sudo apt-get update -qq && sudo apt-get install -y postgresql-client)
+      - name: Instalar driver SQL pinado para gateway efemero
+        run: python3 -m pip install --user 'psycopg[binary]==3.2.6'
+      - name: Subir GoTrue e PostgREST completamente descartaveis
+        shell: bash
+        run: |
+          set -euo pipefail
+          workdir="$(mktemp -d)"
+          printf '%s\n' "$workdir" > "$RUNNER_TEMP/prumo-s1-i22-workdir"
+          cd "$workdir"
+          supabase init
+          supabase start --exclude studio,realtime,storage-api,imgproxy,postgres-meta,edge-runtime,logflare,vector,supavisor
+          supabase status -o env > "$RUNNER_TEMP/prumo-s1-i22-env"
+          test -s "$RUNNER_TEMP/prumo-s1-i22-env"
+      - name: Testar custodia HMAC separada do executor com GoTrue
+        shell: bash
+        run: |
+          set -euo pipefail
+          set -a
+          source "$RUNNER_TEMP/prumo-s1-i22-env"
+          set +a
+          PYTHONPATH=. python3 scripts/test_s1_002_i22_key_custody_local.py
+      - name: Desligar stack local
+        if: always()
+        shell: bash
+        run: |
+          if [ -f "$RUNNER_TEMP/prumo-s1-i22-workdir" ]; then
+            cd "$(cat "$RUNNER_TEMP/prumo-s1-i22-workdir")"
+            supabase stop || true
+          fi
