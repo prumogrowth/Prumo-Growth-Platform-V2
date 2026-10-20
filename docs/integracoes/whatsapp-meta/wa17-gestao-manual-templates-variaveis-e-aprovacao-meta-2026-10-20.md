@@ -67,7 +67,7 @@ Funções puras, sem HTTP ou escrita em banco:
 - `createEditedContentVersion` separa conteúdo novo em outro rascunho, sem adulterar a versão aprovada.
 - `prepareApprovedTemplateParameters` forma apenas os parâmetros dinâmicos, **send_authorized:false** e **network_performed:false**.
 
-**Testes escritos:** `integrations/whatsapp-meta/template-catalog-control.test.ts`, casos WA17-01..16. Cobrem estados, ciclo de revisão, versões imutáveis, mapeamento flexível, consentimento não presumido, erros em fontes/valores, revisões obsoletas, escopo de concessionária e não autorização de envio.
+**Testes escritos:** `integrations/whatsapp-meta/template-catalog-control.test.ts`, casos WA17-01..18. Cobrem estados, ciclo de revisão, versões imutáveis, mapeamento flexível, consentimento não presumido, erros em fontes/valores, revisões obsoletas, escopo de concessionária, não autorização de envio e rejeição de metadados inesperados, tokens e getters em rascunhos.
 
 **Limite v0:** suporta apenas templates de texto `BODY` com variáveis posicionais e categorias `MARKETING`/`UTILITY`. Esse é um **recorte de implementação**, não afirmação de que a Meta só aceita essas formas. `AUTHENTICATION` tem regras próprias; mídia, cabeçalhos, rodapés, botões, outros parâmetros e formatos nomeados precisam de contratos próprios. A versão exata da Graph API e a identidade da conta proprietária dos templates exigem verificação no onboarding, inclusive à luz da evolução das contas Meta em 2026.
 
@@ -75,7 +75,7 @@ Funções puras, sem HTTP ou escrita em banco:
 
 **Ainda não implementados:** tela efetiva do painel, persistência relacional física de `catalogo_templates` e do mapa de variáveis, registro de fontes autorizado por concessionária, identidade/autorização/confirmacão administrativa, adaptador Graph autenticado para POST/GET de templates, armazenamento de recibo de revisão e sincronização da Meta, auditoria de alterações, integração de envio e políticas operacionais. **Nenhum template foi submetido à Meta nesta etapa.**
 
-**CI da WA-17:** há 16 testes definidos, mas um resultado GitHub Actions para esses testes só poderá ser declarado após consultar os logs do commit correspondente. Os gates anteriores WA15C, WA06D e Meta 479/479 NÃO comprovam esta funcionalidade.
+**CI da WA-17:** há 18 testes definidos, mas um resultado GitHub Actions para esses testes só poderá ser declarado após consultar os logs do commit correspondente. Os gates anteriores WA15C, WA06D e Meta 479/479 NÃO comprovam esta funcionalidade.
 
 ## Referências externas verificadas
 
