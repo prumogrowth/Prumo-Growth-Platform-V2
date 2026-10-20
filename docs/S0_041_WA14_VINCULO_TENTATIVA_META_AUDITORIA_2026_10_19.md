@@ -36,7 +36,7 @@ Agressividade de CI evitada: nenhum workflow remoto foi disparado **manualmente*
 ## Gate seguinte
 
 1. Executar `scripts/run-s0-local.sh` somente contra PostgreSQL 17 descartável, com URL `localhost` e banco `prumo_s0_test_*`, para obter evidência real dos 16 cenários e detectar SQL/ACL incompatíveis; corrigir imediatamente falhas antes de fechar WA-14.
-2. Executar testes de concorrência em sessões independentes: duas tentativas competindo por `wamid` e duas observações tentando alterar o `wamid` de uma única tentativa, com verificação pós-commit.
+2. Executar `scripts/test_s0_wa_041_concurrency.sh` com PostgreSQL 17 descartável, incluindo WA14C-01..03 em sessões independentes: duas tentativas por um mesmo `wamid`, um `attempt_ref` com dois `wamid` e replay idêntico com verificação pós-commit.
 3. Reexecutar os 5 cenários S0-040, 20 WA-06D e a regressão Meta `--all` de 29 suítes em checkout integral.
 4. Somente depois revisar integração física Meta → S0 em torno do ledger e das validações de identidade. Credenciais, produção e Meta Graph real seguem fora de escopo sem autorização específica.
 
@@ -53,5 +53,17 @@ Duas falhas descobertas após a primeira publicação foram corrigidas **antes d
 - Executor `89b7893ac3b15ee53f4d7ddfa20c06f3b8d2e970`: migration e suíte referenciadas exatamente uma vez.
 
 **Estado após correções: 0/16 testes WA14 executados.** Não há PostgreSQL local/descartável nem foi enviado comando SQL a banco remoto. Os 16 cenários preparados podem revelar novas falhas quando o gate de execução ocorrer.
+
+## WA-14C — ensaios PostgreSQL concorrentes preparados, ainda sem execução
+
+Adicionado `scripts/test_s0_wa_041_concurrency.sh` e incluído **uma única vez** em `scripts/run-s0-local.sh`, sem alterar o isolamento pré-existente do executor. O script realiza autenticação exclusiva de URL `localhost` / `prumo_s0_test_*` e limpa variáveis libpq que poderiam redirecionar a conexão. O teste **não** chama Graph, Meta, Banco, Supabase remoto ou operação comercial.
+
+- **WA14C-01:** duas sessões tentam associar um mesmo `attempt_ref` a dois `wamid`; espera uma gravação e uma rejeição de conflito explícita.
+- **WA14C-02:** duas tentativas reivindicam o mesmo `wamid` no mesmo App/WABA/emissor; espera uma gravação e uma rejeição de conflito explícita.
+- **WA14C-03:** replay *exatamente igual* de duas sessões concorrentes; espera `LAB_BOUND` seguido de `LAB_REPLAY` e verifica apenas três linhas persistidas no escopo sintético, com recuperação exata sem retry externo.
+
+**Auditoria estática do artefato GitHub:** oito here-docs SQL balanceados, um here-doc Python balanceado, dois caminhos de conflito, três cenários distintos, URL local estrita, `PGHOSTADDR` limpo, ausência de chamadas à rede e referência única no executor. Blobs `test_s0_wa_041_concurrency.sh` `fbab0b1648152d3c4c8ef4b788aa45d7c762a7a1` e `run-s0-local.sh` `4bc7f6784f60a304ee65a01026f418573c1740f6`.
+
+**Estado:** testes de concorrência **0/3 executados**; casos PostgreSQL WA14-01..16 **0/16 executados**. A estrutura do script **não equivale** a execução de comandos em PostgreSQL nem prova lock, serialização ou isolamento. Falta `bash -n` verificado sobre a cópia do GitHub, e execução real em banco descartável.
 
 **Classificação honesta:** migration e testes entregues e auditados estaticamente; **persistência PostgreSQL não validada em execução**.
