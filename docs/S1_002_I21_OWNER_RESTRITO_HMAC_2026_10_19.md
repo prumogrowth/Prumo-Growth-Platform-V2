@@ -30,3 +30,13 @@ O runner `scripts/test_s1_002_i21_executor_local.py` reaplica 50 migrations S0/S
 O PostgreSQL `postgres` usado por CI conserva autoridade de manutenção da fixture (apenas local), enquanto o owner NOLOGIN é separado do login operacional. Não há ambiente operacional, gestão de credenciais, HSM/Vault, custódia de chaves, rotação central, RBAC de administradores, HTTP robusto (TLS/rate limiting/controles de origem), auditoria de recusas ou execução de integração S0 de conclusão humana.
 
 **Parecer provisório: NO-GO para produção.** GO apenas para desenvolvimento adicional no sandbox se o CI demonstrar todas as invariantes.
+
+## Resultado verificado em CI
+
+**[GitHub Actions #39345352479 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39345352479)**, código testado no SHA `f4d008a531f217fdeb287f8ae1137cd805a7c63d`, job `118376500998`. Logs inspecionados: **S1OWN-01..27 = 27/27 PASS**. O ensaio aplicou 50 migrations S0/S1 reais sobre stack GoTrue/PostgreSQL descartável, depois fixture I20 e ajuste I21. Os casos 01–21 preservaram gerenciamento por equipe, concessões, mudança de caso, pausa global, redistribuição, retorno, sessão revogada, HMAC vinculada à operação e anti-replay de nonce.
+
+Os casos 22–27 verificaram: propriedade `prumo_s1_i21_executor` sobre `invocar/chaves/nonces`; ausência de `LOGIN/SUPERUSER/BYPASSRLS/CREATEDB/CREATEROLE/REPLICATION/INHERIT`; login de conexão sem associação ao executor, sem `SET ROLE` e sem escrita em nonces; executor sem leitura direta de `auth.sessions`, leads comerciais ou acesso direto ao schema `prumo_private`; três fachadas I14 ainda pertencentes a `postgres`; e rotação de chave no sandbox, mantendo os comandos válidos.
+
+**Correção de roteiro:** [CI #39345015703](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39345015703) passou pelos primeiros 20 cenários, mas bloqueou uma atualização administrativa da tabela de chaves após a transferência de propriedade. O CI final executou a manutenção de teste com `SET LOCAL ROLE prumo_s1_i21_executor` dentro de transação exclusivamente administrativa, sem conceder essa capacidade ao login do gateway. Isso não altera a função HMAC nem amplia a superfície pública.
+
+**Parecer final restrito:** aprovado para desenvolvimento adicional isolado. **NO-GO operacional/produção**: falta custódia independente da chave HMAC, política de secrets e ownership de dados da prova, revisão do `SECURITY DEFINER` ainda utilizado por I14, controle de acesso a infra/HTTP, monitoração de negativas e integração S0/UI. Não houve merge, deploy ou mudança no Supabase hospedado.
