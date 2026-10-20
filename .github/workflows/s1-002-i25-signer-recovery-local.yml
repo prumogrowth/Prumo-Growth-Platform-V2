@@ -1,0 +1,81 @@
+name: Prumo S1-002 - Gateway local auth real I25
+on:
+  push:
+    branches: [feat/s1-002-equipe-prumo]
+    paths:
+      - '.github/workflows/s1-002-i25-signer-recovery-local.yml'
+      - 'scripts/test_s1_002_i25_signer_recovery_local.py'
+      - 'backend/s1_signer_process_local.py'
+      - 'tests/test_s1_002_i25_signer_process.py'
+      - 'backend/s1_gateway_http_policy_local.py'
+      - 'tests/test_s1_002_i23_http_policy.py'
+      - 'backend/s1_gateway_signed_local.py'
+      - 'backend/s1_gateway_local.py'
+      - 'supabase/tests/s1_020_signed_gateway_local_only.sql'
+      - 'supabase/tests/s1_021_executor_owner_local_only.sql'
+      - 'supabase/tests/s1_022_chave_custodio_separado_local_only.sql'
+      - 'supabase/tests/s1_024_ciclo_chaves_auditoria_local_only.sql'
+      - 'supabase/migrations/**'
+      - 'scripts/run-s0-local.sh'
+      - 'scripts/run-s1-002-local.sh'
+      - 'scripts/run-s1-002-i12-local.sh'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: prumo-s1-002-i25-signer-recovery-local
+  cancel-in-progress: true
+jobs:
+  http-policy-unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checar sintaxe Python, 30 cenarios HTTP e 10 do assinador
+        run: |
+          PYTHONPATH=. python3 -m compileall -q backend/s1_gateway_http_policy_local.py backend/s1_signer_process_local.py tests/test_s1_002_i23_http_policy.py tests/test_s1_002_i25_signer_process.py scripts/test_s1_002_i25_signer_recovery_local.py
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i23_http_policy.py' -v
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i25_signer_process.py' -v
+  e2e-gerencia-local:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    env:
+      CI: 'true'
+      PRUMO_S1_I25_EPHEMERAL: 'YES'
+      SUPABASE_DISABLE_TELEMETRY: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 2.84.2
+      - name: Cliente PostgreSQL
+        run: command -v psql || (sudo apt-get update -qq && sudo apt-get install -y postgresql-client)
+      - name: Instalar driver SQL pinado para gateway efemero
+        run: python3 -m pip install --user 'psycopg[binary]==3.2.6'
+      - name: Subir GoTrue e PostgREST completamente descartaveis
+        shell: bash
+        run: |
+          set -euo pipefail
+          workdir="$(mktemp -d)"
+          printf '%s\n' "$workdir" > "$RUNNER_TEMP/prumo-s1-i25-workdir"
+          cd "$workdir"
+          supabase init
+          supabase start --exclude studio,realtime,storage-api,imgproxy,postgres-meta,edge-runtime,logflare,vector,supavisor
+          supabase status -o env > "$RUNNER_TEMP/prumo-s1-i25-env"
+          test -s "$RUNNER_TEMP/prumo-s1-i25-env"
+      - name: Testar recuperacao de assinador isolado com GoTrue
+        shell: bash
+        run: |
+          set -euo pipefail
+          set -a
+          source "$RUNNER_TEMP/prumo-s1-i25-env"
+          set +a
+          PYTHONPATH=. python3 scripts/test_s1_002_i25_signer_recovery_local.py
+      - name: Desligar stack local
+        if: always()
+        shell: bash
+        run: |
+          if [ -f "$RUNNER_TEMP/prumo-s1-i25-workdir" ]; then
+            cd "$(cat "$RUNNER_TEMP/prumo-s1-i25-workdir")"
+            supabase stop || true
+          fi
