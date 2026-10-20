@@ -25,6 +25,7 @@ from backend.s1_i29_persistent_certificate_store import (
 )
 from backend.identity_boundary import IdentityUnavailable
 from backend.s1_i31_monotonic_witness_local import LocalWitnessClient
+from backend.s1_i30_signed_revocation_authority_local import LocalAuthorityCheckClient
 
 _FP = re.compile(r"[0-9a-f]{64}\Z")
 
@@ -181,28 +182,6 @@ def _witness_authority_worker(admin, requests, db_path, checkpoint_path, secret,
         admin.close()
         requests.close()
         witness_connection.close()
-
-
-class LocalAuthorityCheckClient:
-    """Objeto UNICO entregue ao signer: nao recebe chave MAC nem admin."""
-    def __init__(self,connection):
-        self._connection=connection
-        self._unusable=False
-
-    def allowed(self,fingerprint):
-        if self._unusable or type(fingerprint) is not str or _FP.fullmatch(fingerprint) is None:
-            return False
-        try:
-            self._connection.send(("CHECK",fingerprint))
-            if not self._connection.poll(3):
-                self._unusable=True
-                self._connection.close()
-                return False
-            outcome,_=self._connection.recv()
-            return outcome=="ALLOW"
-        except (EOFError,OSError,BrokenPipeError):
-            self._unusable=True
-            return False
 
 
 class LocalWitnessBackedRevocationSupervisor:
