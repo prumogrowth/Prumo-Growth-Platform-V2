@@ -191,8 +191,23 @@ with sync_playwright() as p:
         assert mobile.locator('#team-dialog').is_visible()
         assert mobile.locator('#team-list .team-member').count() == 2
         # FV-UI-013: exercitar G3 e G4 também com navegação real no celular.
+        assert mobile.locator('.team-help').evaluate('(e) => !e.open'), 'Explicação deve iniciar recolhida'
+        mobile.locator('.team-help summary').click()
+        assert mobile.locator('.team-help').evaluate('(e) => e.open'), 'Ajuda deve abrir via toque'
+        assert 'S0/S1-002' in mobile.locator('.team-help').inner_text()
+        mobile.locator('.team-help summary').click()
         mobile.locator('#team-show-monitor').click()
         assert mobile.locator('#team-monitor').is_visible()
+        # A primeira métrica deve estar dentro da altura visível do diálogo.
+        assert mobile.locator('#team-monitor > .team-monitor-metrics').count() == 1
+        assert mobile.evaluate('''() => {
+            const d=document.querySelector('#team-dialog').getBoundingClientRect();
+            const m=document.querySelector('#team-monitor .team-monitor-metric');
+            return m.getBoundingClientRect().bottom <= d.bottom &&
+                m.getBoundingClientRect().top >= d.top;
+        }'''), 'Indicadores G3 devem ficar acessíveis sem rolar o diálogo'
+        assert all(mobile.locator('#team-dialog .team-mode button').nth(i).evaluate('(e) => e.getBoundingClientRect().height >= 44') for i in range(3))
+
         monitor_mobile = mobile.locator('#team-monitor').inner_text()
         assert 'G3 · MONITORAMENTO DA PRÓPRIA EQUIPE' in monitor_mobile
         assert 'Monitoramento operacional da equipe' in monitor_mobile
