@@ -130,18 +130,9 @@ def review_f03_to_f02_offline(
             or capture.case != permission.case or current.case != permission.case
             or capture.cycle != permission.cycle or current.cycle != permission.cycle):
         return denied
-    if (f03.closure_event_id != permission.closure_event_id
-            or f03.snapshot_hash != permission.snapshot_hash
-            or f03.case_version != permission.case_version
-            or f03.form_version != permission.form_version
-            or f03.message_watermark != permission.message_watermark
-            or permission.case_version != capture.case_version
-            or permission.case_version != current.case_version
-            or permission.message_watermark != capture.message_watermark
-            or permission.message_watermark != current.message_watermark):
-        return BridgeReview(BridgeStatus.STALE)
-    # Live S0/S1 flags (still invented in this lab) must outrank model hints;
-    # never expose even review metadata on revoked or ineligible cases.
+    # Permission denial has precedence over concurrent staleness: never
+    # distinguish a superseded message/closure for a revoked actor.
+    # These flags are still synthetic; production S0 must check atomically.
     current_flags = (current.session_authorized, current.store_authorized,
                      current.case_eligible, current.plan_authorized,
                      current.opted_out, current.bank_submitted,
@@ -154,6 +145,17 @@ def review_f03_to_f02_offline(
             or current.opted_out or current.bank_submitted
             or current.sold_or_historical_sale or current.post_sale_support):
         return denied
+    # Only current, authorized actors may learn that the receipt went stale.
+    if (f03.closure_event_id != permission.closure_event_id
+            or f03.snapshot_hash != permission.snapshot_hash
+            or f03.case_version != permission.case_version
+            or f03.form_version != permission.form_version
+            or f03.message_watermark != permission.message_watermark
+            or permission.case_version != capture.case_version
+            or permission.case_version != current.case_version
+            or permission.message_watermark != capture.message_watermark
+            or permission.message_watermark != current.message_watermark):
+        return BridgeReview(BridgeStatus.STALE)
     if capture.template_catalogue_version != current.template_catalogue_version:
         return BridgeReview(BridgeStatus.STALE)
     if (capture.request_id != permission.planning_request_id
