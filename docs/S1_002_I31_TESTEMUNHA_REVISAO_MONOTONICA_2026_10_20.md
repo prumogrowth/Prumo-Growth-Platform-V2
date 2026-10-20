@@ -28,4 +28,13 @@ A testemunha pode sobreviver ao reinício da autoridade e do assinador. Se algu�
 
 **NO-GO produção/merge/deploy.** Próximos requisitos: testemunha durável **fora do domínio de administração do assinador**, chave não exportável e verificação de monotonicidade entre reinícios completos, auditoria imutável, operação de recuperação e rollback controlados, isolamento real de workload e identidade, e homologação de gestão humana no S0. Não alterar percentuais globais de conclusão.
 
-**Evidência final CI:** registrar somente depois de verificar os dois jobs, logs, SHA e estado do PR.
+## Evidências confirmadas — aprovado apenas para continuidade em sandbox
+
+**[GitHub Actions #39456206106 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39456206106)**, código ensaiado SHA `9d8c40d18e9d2ed849651f328b7fc2e91cb753f1`. Dois jobs inspecionados:
+
+- Job `118743867662` (`http-policy-unit`): **123/123 unittest PASS**, os 108 testes legados I23–I30 mais 15 provas I31. Os logs registraram `Ran 30 tests ... OK`, `Ran 10 tests ... OK` duas vezes, `Ran 13 tests ... OK` e `Ran 15 tests ... OK` quatro vezes. Inclui replay de SQLite+checkpoint antigos **após reinício da própria autoridade**, enquanto a testemunha permaneceu ativa.
+- Job `118743866960` (`e2e-gerencia-local`): **S1WITNESS-01..132 = 132/132 marcadores PASS distintos**, 50 migrations S0/S1 reais sobre PostgreSQL/GoTrue locais, fixtures somente de CI I20/I21/I22/I24. Os novos casos 121–132 confirmam bootstrap independente, operação GoTrue/HMAC sob witness, avanço CAS, revogação e sucessor, replay da versão antiga após autoridade reiniciar recusado, restauração explícita do estado corrente, adulteração de SQLite/witness negada, RBAC interequipe, reinício honesto de witness+authority, revogação total e persistência da recusa após reiniciar authority/signer.
+
+**Histórico transparente:** [CI #39455942197](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39455942197) encontrou incompatibilidade de classe no cliente `CHECK` do novo módulo e foi cancelado na execução seguinte. Foi corrigido ao reutilizar o tipo `LocalAuthorityCheckClient` já validado do I30. O aceite **não** usa o run anterior, somente o run `39456206106` verde no SHA indicado.
+
+**Parecer:** GO apenas para desenvolver no sandbox; **NO-GO para produção, merge e deploy**. O witness não oferece segurança contra a restauração **de todos os seus próprios arquivos** e do ledger pela mesma conta OS, nem prova de monotonicidade num serviço independente de segurança. Os commits documentais posteriores não modificaram o código testado.
