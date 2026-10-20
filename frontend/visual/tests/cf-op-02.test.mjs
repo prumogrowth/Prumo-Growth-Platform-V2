@@ -4,7 +4,8 @@ import { visibleConversations, COMMERCIAL_STATUSES } from '../fixtures.mjs';
 import {
   DEMO_TEMPLATES, copyCFDemoFixtures, isInActiveInbox, projectedMetaWindow,
   humanCompletion, mayMockFreeText, projectedFollowupActions, projectInbox,
-  projectedFollowupState, applyLocalFollowupRequest, isSyntheticBankProtected
+  projectedFollowupState, applyLocalFollowupRequest, isSyntheticBankProtected,
+  hasProjectedAction, hasEligibleTemplateVersion
 } from '../cf-op-02.mjs';
 
 const cases = () => copyCFDemoFixtures();
@@ -168,4 +169,37 @@ test('auditoria: reset de fixtures não compartilha projeções O3/O4/O5',()=>{
   const third=copyCFDemoFixtures();
   assert.equal(third.find(x=>x.id==='A-114').postmarkProjection.linkVersionRef,
     secondById('A-114').postmarkProjection.linkVersionRef);
+});
+
+test('regressão FV-UI-013: lista de permissões malformada não autoriza nenhuma ação',()=>{
+  const rows=cases(),open=byId(rows,'A-102'),expired=byId(rows,'A-107');
+  for(const wrong of ['not_free_text','free_text,complete','single_template,request_chain',
+    {includes:()=>true},{free_text:true},true,42,null,undefined]){
+    const changedOpen={...open,allowedActionsProjection:wrong};
+    const changedExpired={...expired,allowedActionsProjection:wrong};
+    for(const action of ['free_text','complete','single_template','request_chain'])
+      assert.equal(hasProjectedAction(changedOpen,action),false);
+    assert.equal(mayMockFreeText(changedOpen,'rafael','aurora'),false);
+    assert.deepEqual(projectedFollowupActions(changedExpired,'rafael','aurora'),[]);
+    assert.throws(()=>applyLocalFollowupRequest(changedExpired,'rafael','aurora','request_chain'),
+      /ACAO_INELEGIVEL/);
+  }
+  assert.equal(hasProjectedAction(open,'free_text'),true);
+  assert.equal(hasProjectedAction(open,'complete'),true);
+  assert.deepEqual(projectedFollowupActions(expired,'rafael','aurora'),
+    ['single_template','request_chain']);
+});
+
+test('regressão FV-UI-013: catálogo textual de templates não substitui lista de elegibilidade',()=>{
+  const expired=byId(cases(),'A-107');
+  const good=DEMO_TEMPLATES[0];
+  for(const wrong of [good.id+'@'+good.version,{includes:()=>true},true,42,null,undefined]){
+    const changed={...expired,eligibleTemplatesProjection:wrong};
+    assert.equal(hasEligibleTemplateVersion(changed,good),false);
+    assert.deepEqual(projectedFollowupActions(changed,'rafael','aurora'),['request_chain']);
+    assert.throws(()=>applyLocalFollowupRequest(changed,'rafael','aurora','single_template',good),
+      /ACAO_INELEGIVEL/);
+  }
+  assert.equal(hasEligibleTemplateVersion(expired,good),true);
+  assert.equal(hasEligibleTemplateVersion(expired,DEMO_TEMPLATES[1]),false);
 });
