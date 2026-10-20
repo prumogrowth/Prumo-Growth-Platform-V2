@@ -2,6 +2,17 @@
 
 **Data:** 20/10/2026. **PR:** #2, Draft, sem deploy/merge. **Decisão nova do responsável:** o meio principal de administração da plataforma é **MCP**, operado por uma IA ou outro cliente autorizado. A IA pode inserir exatamente o texto que o responsável disser ou **gerar o conteúdo inteiro quando solicitado**. A restrição anterior “apenas cadastro manual/sem texto gerado pela IA” está **revogada**. A tela administrativa é opcional; ela não é a única porta de cadastro.
 
+## Decisão de divisão de frentes — 20/10/2026
+
+**Responsabilidade exclusiva de outra frente:** implementar, hospedar e integrar o **servidor MCP** e suas ferramentas executáveis, incluindo protocolo MCP, registro e descoberta de tools, autenticação e delegação de IA/responsável, política de confirmação e autorização das chamadas MCP. **A frente WhatsApp/Meta NÃO desenvolverá o servidor MCP, endpoints MCP ou ferramentas MCP operacionais.**
+
+**Responsabilidade desta frente WhatsApp/Meta:** evoluir o **núcleo de domínio** consumido futuramente pelo MCP: tipos de templates Meta (texto/mídia/botões), validação de componentes, rascunhos e versões, catálogo persistente em coordenação com a S0, ligação de fontes de variáveis, identidade da concessionária/WABA, estados de submissão e aprovação comprovados pela Meta, integrações internas autorizadas, eventos/auditoria de negócio e testes isolados. Esta frente mantém documentados os contratos necessários para o futuro MCP (por exemplo `integrations/whatsapp-meta/mcp-template-tools.v0.json`) **sem implementá-lo nem catalogar todos os demais assuntos do projeto**.
+
+**Entrega de passagem para a equipe MCP:** ao desenvolver o MCP, consultar esta especificação, [issue #11](https://github.com/prumogrowth/Prumo-Growth---Platform/issues/11) e o contrato JSON das 12 operações planejadas; adaptar os contratos definitivos da API interna em vez de permitir que um agente crie autoridade própria, altere aprovação Meta ou faça disparos por conta própria. A IA pode propor/redigir texto e componentes quando autorizada; o backend executa os gates. O uso real de Graph API e Supabase hospedado continua fora do escopo sem autorização específica.
+
+**Próximo trabalho desta frente, em ordem:** (1) verificar/retomar a execução de CI pendente WA-16 e WA-17A/17B, reparando defeitos concretos; (2) desenvolver o **catálogo persistente multi-concessionária de templates, versões e mapeamento variável/componente**, incluindo testes de isolamento e papel autorizado com PostgreSQL 17 descartável; (3) modelar e testar estados da **solicitação/consulta de aprovação Meta** com conector falso, garantindo `HTTP 2xx != APPROVED` e `APPROVED != envio autorizado`; (4) deixar o contrato interno documentado e pronto para consumo pela frente MCP, sem servidor MCP nesta frente.
+
+---
 ## 1. Fluxo desejado
 
 1. Responsável autenticado ou IA à qual ele delegou permissões chama o servidor MCP da Prumo: “crie um template com imagem, corpo com nome do cliente e um botão ‘Simular agora’ apontando para uma URL”.
