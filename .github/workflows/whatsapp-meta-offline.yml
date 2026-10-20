@@ -66,14 +66,22 @@ jobs:
           sql='integrations/whatsapp-meta/lab'
           docker exec --interactive wa06d-fixture-pg17 psql -X -qAt -v ON_ERROR_STOP=1 \
             -U wa06d_owner -d wa06d_test_ephemeral \
-            < "$sql/wa06d_pg17_atomicity.sql"
+            < "$sql/wa06d_pg17_atomicity.sql" 2>&1 | tee "$RUNNER_TEMP/wa06d_atomicity.log"
           docker exec --interactive wa06d-fixture-pg17 psql -X -qAt -v ON_ERROR_STOP=1 \
             -U wa06d_owner -d wa06d_test_ephemeral \
-            < "$sql/wa06d_pg17_postcommit_setup.sql"
+            < "$sql/wa06d_pg17_postcommit_setup.sql" 2>&1 | tee "$RUNNER_TEMP/wa06d_postcommit_setup.log"
           docker exec --interactive wa06d-fixture-pg17 psql -X -qAt -v ON_ERROR_STOP=1 \
             -U wa06d_owner -d wa06d_test_ephemeral \
-            < "$sql/wa06d_pg17_postcommit_verify.sql"
-          echo 'PASS WA06D: SQL A 14 + B 6, isolated post-COMMIT read'
+            < "$sql/wa06d_pg17_postcommit_verify.sql" 2>&1 | tee "$RUNNER_TEMP/wa06d_postcommit_verify.log"
+          for n in {01..14}; do
+            count="$(grep -cE "WA06D-$n PASS$" "$RUNNER_TEMP/wa06d_atomicity.log" || true)"
+            if [[ "$count" != 1 ]]; then echo "FAIL WA06D-$n: missing/duplicated pass marker" >&2; exit 1; fi
+          done
+          for n in {01..06}; do
+            count="$(grep -cE "WA06D-B$n PASS:" "$RUNNER_TEMP/wa06d_postcommit_verify.log" || true)"
+            if [[ "$count" != 1 ]]; then echo "FAIL WA06D-B$n: missing/duplicated pass marker" >&2; exit 1; fi
+          done
+          echo 'PASS WA06D: all 20 SQL markers independently verified with 0 psql errors'
       - name: Parar e apagar PostgreSQL descartavel
         if: always()
         run: docker rm --force wa06d-fixture-pg17 >/dev/null 2>&1 || true
