@@ -35,4 +35,11 @@ Para um desenho operacional futuro: criar autoridade de certificado em serviço/
 
 **NO-GO para merge, produção e deploy.** Nenhuma porcentagem de conclusão global. Aceite de CI somente depois de logs completos dos dois jobs.
 
-**CI:** status pendente de validação.
+## Evidência revisada — CI aprovado exclusivamente no sandbox
+
+**[GitHub Actions #39404883256 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39404883256)**, código ensaiado no SHA `bb86bca7626c4a2abea976bbc30824bb92fd332e`; dois jobs `success`, logs verificados.
+
+- Job `118568281189` (`http-policy-unit`): **93/93 testes unitários PASS**, cinco grupos de regressão (30 HTTP I23; 10 assinador I25; 10 GoTrue I26; 13 mTLS I27; 15 rotação I28), mais **15 novos I29**. Logs com `Ran 30 tests ... OK`, `Ran 10 tests ... OK` duas vezes, `Ran 13 tests ... OK` e `Ran 15 tests ... OK` duas vezes. Confirmados concorrência CAS, tombstone após restart, ausência/corrupção/permissões de arquivo, watermark de versão apenas na vida do processo e emergência.
+- Job `118568281629` (`e2e-gerencia-local`): **S1PERSIST-01..105 = 105/105 identificadores distintos PASS**, 50 migrations S0/S1 reais em GoTrue/PostgreSQL descartáveis, fixtures locais I20–I24 e regressão de todos os gates I28. As 12 provas S1PERSIST-94..105 atestaram ledger único, operação e rotação autorizadas, certificado antigo revogado, restart sem reativação, sucessor funcional após restart, arquivo removido/corrompido bloqueando escrita comercial, ausência impedindo restart, restauração sintética explícita, controle CAS e RBAC preservados e emergência sobrevivendo a novo restart.
+
+**Ressalva crítica:** essas evidências demonstram continuidade de revogação com **arquivo SQLite sintético intacto no mesmo filesystem**; não garantem assinatura criptográfica/autenticidade do ledger ou resistência à restauração de um snapshot antigo **antes de reiniciar o assinador**. A exigência de storage/identidade operacional independentes, anticlonagem/anti-rollback e auditoria WORM externa permanece. Sem mudança na base hospedada nem no estado humano de S0. Documentação e aceite posteriores ao SHA não alteram código executado.
