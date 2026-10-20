@@ -8,7 +8,7 @@ from backend.operator_distribution_policy import (
 
 
 def case(started=False, shop="aurora"):
-    return CaseSnapshot("case-1", shop, "rafael", "marina", "v7", started)
+    return CaseSnapshot("case-1", shop, "rafael", "marina", "v7", started, True)
 
 
 def person(operator, manager="marina", shops=("aurora",), active=True, intake=True):
@@ -49,6 +49,11 @@ class SelectivePauseContractTests(unittest.TestCase):
             self.assertEqual(result.disposition, "RETAIN_NO_SAME_TEAM_RECIPIENT")
             self.assertIsNone(result.proposed_operator)
 
+    def test_completed_case_is_never_moved_automatically(self):
+        closed=CaseSnapshot("case-1", "aurora", "rafael", "marina", "v7", False, False)
+        result=propose_selective_pause_case(closed,"rafael","marina",(person("lia"),))
+        self.assertEqual(result.disposition,"RETAIN_NOT_ACTIVE_OR_UNVERIFIED")
+
     def test_unknown_human_contact_is_not_reassigned(self):
         result = propose_selective_pause_case(
             case(None), "rafael", "marina", (person("lia"),)
@@ -68,7 +73,7 @@ class SelectivePauseContractTests(unittest.TestCase):
         )
         self.assertEqual(
             propose_selective_pause_case(
-                CaseSnapshot("case-1","aurora","rafael","marina","",False),
+                CaseSnapshot("case-1","aurora","rafael","marina","",False,True),
                 "rafael", "marina", (person("lia"),)
             ).disposition, "DENIED_OR_UNVERIFIED"
         )
