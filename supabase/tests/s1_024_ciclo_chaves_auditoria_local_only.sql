@@ -21,6 +21,10 @@ alter table prumo_s1_signed_i20.chaves
 reset role;
 
 -- Historico sem bytes, HMAC, JWT, payload, dado pessoal ou texto livre.
+-- FK REFERENCES em chaves exige custodia: criar audit como proprio custodio,
+-- com CREATE temporario revogado antes do COMMIT.
+grant create on schema prumo_s1_signed_i20 to prumo_s1_i22_custodio;
+set local role prumo_s1_i22_custodio;
 create table prumo_s1_signed_i20.auditoria_chaves_i24 (
  id bigint generated always as identity primary key,
  chave_id uuid not null references prumo_s1_signed_i20.chaves(id),
@@ -45,10 +49,7 @@ insert into prumo_s1_signed_i20.auditoria_chaves_i24
 (chave_id,evento,versao,motivo_codigo)
 select id,'PROVISIONADA',versao,'BOOTSTRAP_CI'
 from prumo_s1_signed_i20.chaves where ativo;
-
-grant create on schema prumo_s1_signed_i20 to prumo_s1_i22_custodio;
-alter table prumo_s1_signed_i20.auditoria_chaves_i24
- owner to prumo_s1_i22_custodio;
+reset role;
 revoke create on schema prumo_s1_signed_i20 from prumo_s1_i22_custodio;
 
 -- Administracao: somente LOGIN postgres local. SECURITY DEFINER executa
