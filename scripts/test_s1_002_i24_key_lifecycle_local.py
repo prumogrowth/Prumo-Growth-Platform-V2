@@ -616,10 +616,10 @@ print("PASS S1KOPS-33: ownership e CREATE seguem separados apos rotacao")
 
 # I23: Requisicoes HTTP malformadas NAO chegam ao GoTrue nem ao banco.
 # Estados comerciais devem permanecer intactos apos todos os bloqueios.
-import http.client
+import http.client as http_client
 def hostile_http(headers=None, body=None, method="POST", path="/s1/pausar",
                  duplicate=()):
-    conn=http.client.HTTPConnection("127.0.0.1",server.server_address[1],timeout=6)
+    conn=http_client.HTTPConnection("127.0.0.1",server.server_address[1],timeout=6)
     payload = (body if body is not None else
                json.dumps({"operador_id":o3,"motivo_codigo":"AUSENCIA_TEMPORARIA"}))
     b=payload.encode() if isinstance(payload,str) else payload
