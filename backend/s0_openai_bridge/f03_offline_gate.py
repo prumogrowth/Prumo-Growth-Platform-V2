@@ -72,6 +72,15 @@ class Evidence:
             object.__setattr__(self, "asserted_fields",
                                _FrozenFields(self.asserted_fields))
 
+    def __deepcopy__(self, memo: dict) -> "Evidence":
+        # Without this, deepcopy() bypasses __post_init__ and installs the
+        # serializable dict returned by _FrozenFields.__deepcopy__ as mutable
+        # evidence on the copied dataclass. Reconstruct to freeze it again.
+        copied = type(self)(self.ref, self.store, self.case, self.actor,
+                            self.asserted_fields, self.authorized)
+        memo[id(self)] = copied
+        return copied
+
 
 @dataclass(frozen=True)
 class Candidate:
