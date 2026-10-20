@@ -233,3 +233,10 @@ test('FV-UI-013 funcional: ações do aplicativo exigem listas de permissão e t
   assert.match(app, /DEMO_TEMPLATES\.filter\(t=>hasEligibleTemplateVersion\(current,t\)\)/);
   assert.doesNotMatch(app, /allowedActionsProjection\?\.includes\('complete'\)/);
 });
+
+test('FV-UI-016: prévia de carteira G2 não executa redistribuições',()=>{
+  assert.match(app,/projectManagerPausePreview\(state\.actorId,member\.id,state\.cases\)/);
+  assert.match(app,/Somente prévia fictícia\. Nenhuma atribuição, conta ou concessão é alterada/);
+  assert.match(browserSmoke,/'team-pause-preview\.mjs','team-monitor\.mjs'/);
+  assert.match(browserSmoke,/page\.locator\('\.team-pause-preview summary'\)\.first\.click\(\)/);
+});
