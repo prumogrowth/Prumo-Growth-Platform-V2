@@ -135,6 +135,7 @@ class F02CandidateReviewTests(unittest.TestCase):
         _,_,p=scenario(); a=replace(p.proposed_attempts[1],scheduled_at='2026-11-04T15:00:00+00:00')
         self.check(F02Status.INVALID_PROPOSAL,proposal=replace(p,proposed_attempts=(p.proposed_attempts[0],a)))
 
+
     def test_41_operator_requested_human_route_can_review(self):
         c,s,p=scenario()
         self.check(F02Status.REVIEW_ONLY, cap=replace(c,purpose='operator_requested'),
