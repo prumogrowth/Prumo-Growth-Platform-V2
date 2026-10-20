@@ -134,6 +134,24 @@ class F03F02BridgeTests(unittest.TestCase):
     def test_44_malformed_current_flag_fail_closed(self):
         _, _, _, n, _ = fixture(); self.check(BridgeStatus.DENIED, current=replace(n, has_handoff_history='false'))
 
+    def test_45_revoked_session_beats_concurrent_inbound(self):
+        _, _, _, n, _ = fixture()
+        self.check(BridgeStatus.DENIED, current=replace(
+            n, session_authorized=False, message_watermark='msg-new'))
+    def test_46_opt_out_beats_concurrent_inbound(self):
+        _, _, _, n, _ = fixture()
+        self.check(BridgeStatus.DENIED, current=replace(
+            n, opted_out=True, message_watermark='msg-new'))
+    def test_47_revoked_store_beats_changed_closure(self):
+        f, _, _, n, _ = fixture()
+        self.check(BridgeStatus.DENIED, receipt=replace(
+            f, closure_event_id='close-new'), current=replace(n, store_authorized=False))
+    def test_48_invalid_authority_flag_beats_stale_form(self):
+        f, _, _, n, _ = fixture()
+        self.check(BridgeStatus.DENIED, receipt=replace(
+            f, form_version=99), current=replace(n, plan_authorized='true'))
+
+
 
 if __name__ == '__main__':
     unittest.main()
