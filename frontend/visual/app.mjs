@@ -22,6 +22,10 @@ import { projectManagedTeam, requestMockIntake } from './team-operations.mjs';
 import { projectManagerMonitor } from './team-monitor.mjs';
 import { projectManagerBatches } from './batch-monitor.mjs';
 import { projectTeamMonitoring, describeMonitoring } from './team-monitoring.mjs';
+import {
+  ATTENTION_PROPOSAL_VERSION, stageConversationAttention,
+  canStageReadAcknowledgment
+} from './conversation-attention.mjs';
 
 const $ = id => document.getElementById(id);
 const app = $('visual-app');
@@ -29,7 +33,7 @@ const list = $('conversation-items');
 const state = {
   actorId: 'rafael', shopId: 'aurora', filter: 'all', statusFilter: 'all', detailTab: 'overview', query: '',
   selectedId: 'A-102', cases: copyCFDemoFixtures(), processing: {}, followupRequests: {}, inboxView: 'active',
-  mobileView: 'list', dialogContext: { completion: null, template: null }, teamRequests:{}, teamPanel:'members'
+  mobileView: 'list', dialogContext: { completion: null, template: null }, intakeDialogContext:null, teamRequests:{}, teamPanel:'members'
 };
 
 function el(tag, className='', text=null) {
@@ -45,6 +49,34 @@ function ico(name) {
   use.setAttribute('href', '#i-' + name); svg.append(use); return svg;
 }
 function selectedCase() { return accessible().find(x => x.id === state.selectedId) ?? null; }
+
+/** Apenas fixture local: S0 fornecerá evidência de leitura e resposta humana.
+ * Última mensagem de cliente após a última resposta humana => pendência demo.
+ * Não calcular pendência real a partir do texto/tempo no browser.
+ */
+function demoAttentionFor(item) {
+  const lastHumanRelevant=[...(item.messages??[])].reverse()
+    .find(message=>message.side==='in' || message.side==='out');
+  return stageConversationAttention({
+    schema_version:ATTENTION_PROPOSAL_VERSION,
+    unread_inbound_count:item.unread,
+    operator_read_confirmed:item.demoReadByAssigned===true,
+    human_reply_pending:lastHumanRelevant?.side==='in'
+  });
+}
+function acknowledgeDemoReadByAssignee(item) {
+  const actor=getActor(state.actorId);
+  const eligible=canStageReadAcknowledgment({
+    role:actor?.role,acting_as_assigned_operator:actor?.role==='gestor' && item.assignedTo===actor?.id,
+    account_active:actor?.teamState==='active',
+    actor_id:state.actorId,assigned_actor_id:item.assignedTo,
+    case_ref:item.id,case_version:'local-fixture-only'
+  });
+  if(eligible) {
+    // No backend API: this is a purely local synthetic demonstration.
+    item.unread=0;item.demoReadByAssigned=true;
+  }
+}
 function accessible() { return visibleConversations(state.cases, state.actorId, state.shopId); }
 function filtered() {
   return projectQueue(state.cases, state.actorId, state.shopId, {
@@ -82,6 +114,9 @@ function consumeDialogContext(kind) {
     saved.shopId === state.shopId && saved.caseId === state.selectedId);
 }
 function closeTransientDialogs() {
+  if(state.intakeDialogContext){state.intakeDialogContext=null;}
+  const intake=$('intake-dialog');intake.returnValue='';
+  if(intake.open)intake.close();
   for (const [kind,id] of [['completion','completion-dialog'],['template','template-dialog']]) {
     state.dialogContext[kind] = null;
     const dialog = $(id);
@@ -140,18 +175,26 @@ function renderList() {
   const nodes = items.map((item, idx) => {
     const card = el('button', 'conversation-card' + (item.id === state.selectedId ? ' is-selected' : ''));
     card.type = 'button'; card.setAttribute('aria-pressed', String(item.id === state.selectedId));
-    card.setAttribute('aria-label', `Abrir conversa ${item.name}, ${item.status}, ${item.unread} não lidas`);
+    const attention=demoAttentionFor(item);
+    card.setAttribute('aria-label', `Abrir conversa ${item.name}, ${item.status}, ${attention.label??'sem pendência indicada'}`);
     const avatar = el('div', 'avatar a' + (idx%4+1), item.initials); avatar.setAttribute('aria-hidden','true');
     const center = el('div','item-center');
     const row = el('div','item-title-row'); row.append(el('span','item-title',item.name),el('span','item-time',item.updatedAt));
     const preview = item.messages.at(-1)?.body ?? 'Sem mensagens';
     const foot = el('div', 'item-foot'); foot.append(el('span','micro-tag',item.tag));
     if(projectedMetaWindow(item)==='expired') foot.append(el('span','window-mini','Janela expirada'));
-    if (item.unread > 0) foot.append(el('span','unread',item.unread));
+    if(attention.kind!=='none'){
+      const badge=el('span',attention.kind==='unread'?'unread attention-unread':'unread attention-pending',
+        attention.kind==='unread'?attention.count:'');
+      badge.setAttribute('role','img');
+      badge.setAttribute('aria-label',attention.label);
+      badge.setAttribute('title',attention.label);
+      foot.append(badge);
+    }
     center.append(row, el('div','item-preview',preview),foot);
     card.append(avatar,center);
     card.addEventListener('click', () => {
-      closeTransientDialogs();state.selectedId = item.id; item.unread = 0;state.detailTab='overview';
+      closeTransientDialogs();state.selectedId = item.id; acknowledgeDemoReadByAssignee(item);state.detailTab='overview';
       goto('thread'); render();
     });
     return card;
@@ -576,11 +619,16 @@ function renderTeamSummary(){
       button.type='button';button.setAttribute('aria-label',`${action==='pause'?'Solicitar pausa':'Solicitar retomada'} de novos leads para ${member.name}, todas as concessionárias concedidas`);
       button.addEventListener('click',()=>{
         if(state.teamRequests[member.id])return;
-        try{
-          const requestedNow=requestMockIntake(state.actorId,member.id,action);
-          state.teamRequests[member.id]=requestedNow;renderTeamSummary();
-          showToast('Pedido fictício registrado somente no navegador. Nenhum lead foi redistribuído.');
-        }catch{showToast('Ação indisponível para este gestor e operador.');}
+        // UI confirma a INTENÇÃO. Não aplica pausa nem move caso em JS.
+        try {
+          requestMockIntake(state.actorId,member.id,action);
+          state.intakeDialogContext={actorId:state.actorId,operatorId:member.id,action};
+          $('intake-dialog-title').textContent=action==='pause'?
+            'Confirmar pausa de novos leads':'Confirmar retomada de novos leads';
+          $('intake-dialog-copy').textContent=`${member.name} · todas as concessionárias concedidas. Sem bloquear conta ou alterar a carteira. Somente demonstração local.`;
+          $('intake-dialog').returnValue='';
+          $('intake-dialog').showModal();
+        } catch {showToast('Ação indisponível para este gestor e operador.');}
       });
       card.append(button);
     }
@@ -704,6 +752,18 @@ function openTeamSummary(){
 $('team-nav').addEventListener('click',openTeamSummary);
 $('team-nav-mobile').addEventListener('click',openTeamSummary);
 $('team-close').addEventListener('click',()=>$('team-dialog').close());
+$('intake-dialog').addEventListener('close',()=>{
+  const confirm=$('intake-dialog').returnValue==='confirm';
+  $('intake-dialog').returnValue='';
+  const ctx=state.intakeDialogContext;state.intakeDialogContext=null;
+  if(!confirm || !ctx || ctx.actorId!==state.actorId || state.teamRequests[ctx.operatorId])return;
+  try{
+    const requestedNow=requestMockIntake(state.actorId,ctx.operatorId,ctx.action);
+    state.teamRequests[ctx.operatorId]=requestedNow;
+    renderTeamSummary();
+    showToast('Pedido fictício registrado. Pausa/retomada ainda NÃO aplicada no S0/S1.');
+  }catch{showToast('Ação indisponível para este gestor e operador.');}
+});
 document.addEventListener('keydown',event=>{
   // Não deslocar o foco para trás de um diálogo modal nativo.
   if(document.querySelector('dialog[open]'))return;
@@ -722,6 +782,7 @@ $('composer').addEventListener('submit',event=>{
   event.preventDefault();const item=selectedCase();const input=$('message-input');const text=input.value.trim();
   if(!text || !item || !canMockMessage(item)) return;
   item.messages.push({id:`demo-${item.messages.length+1}`,side:'out',body:text,time:'Agora · fictício'});
+  item.demoReadByAssigned=true;
   item.updatedAt='Agora';input.value='';render();showToast('Mensagem adicionada apenas à simulação local.');
 });
 $('completion-dialog').addEventListener('close',()=>{
