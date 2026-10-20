@@ -102,3 +102,19 @@
 
 /* Respeitar atributo semântico hidden mesmo nos controles com display próprio. */
 .rail-icon[hidden], .mobile-team-button[hidden] { display:none!important; }
+
+/* FV-UI-013 UX: priorizar conteúdo essencial e alvos de toque no modal gerencial. */
+.team-dialog .team-hint{color:#536d75}
+.team-help{font-size:12px;line-height:1.55;color:#536d75;margin:0 0 8px}
+.team-help summary{cursor:pointer;display:list-item;list-style-position:inside;padding:7px 4px;border-radius:6px;font-weight:720;color:#206b63}
+.team-help summary:focus-visible{outline:3px solid #5dbbb3;outline-offset:2px}
+.team-help p{margin:5px 0 10px;padding-inline:4px}
+.team-intro{margin:6px 0 5px}
+@media(max-width:760px){
+  .team-dialog{width:calc(100vw - 16px);max-height:calc(100dvh - 24px);padding:16px}
+  .team-dialog-header h2{font-size:18px;line-height:1.25;margin-bottom:5px}
+  .team-dialog .icon-button{width:44px;height:44px}
+  .team-mode{gap:5px;margin:8px 0 12px}
+  .team-mode .btn{min-height:44px;padding:10px 7px}
+}
+@media(max-width:400px){.team-mode{gap:4px}}
