@@ -381,7 +381,9 @@ else:
 print("PASS S1OWN-20: login SQL nao assume role JWT nem le segredo")
 
 # Revogar chave no postgres efemero deve bloquear comando, sem writes S1.
-sql(f"update prumo_s1_signed_i20.chaves set ativo=false where id='{key_id}'::uuid")
+sql("begin; set local role prumo_s1_i21_executor; "
+    f"update prumo_s1_signed_i20.chaves set ativo=false where id='{key_id}'::uuid; "
+    "commit;")
 status, _ = rpc("pausar", login["access_token"], p_operador=o3,
                 p_motivo_codigo="AUSENCIA_TEMPORARIA")
 blocked(status,"chave de assinatura revogada")
@@ -489,9 +491,11 @@ print("PASS S1OWN-26: regras e owners I14 preservados")
 new_key_id = uuid.uuid4()
 new_secret = secrets.token_bytes(32)
 sql(
+    "begin; set local role prumo_s1_i21_executor; "
     "insert into prumo_s1_signed_i20.chaves(id,segredo,valido_desde,valido_ate) "
     f"values ('{new_key_id}'::uuid, decode('{new_secret.hex()}','hex'), "
-    "clock_timestamp() - interval '1 minute', clock_timestamp() + interval '10 minutes')"
+    "clock_timestamp() - interval '1 minute', clock_timestamp() + interval '10 minutes'); "
+    "commit;"
 )
 gateway.key_id = new_key_id
 gateway.signing_key = new_secret
