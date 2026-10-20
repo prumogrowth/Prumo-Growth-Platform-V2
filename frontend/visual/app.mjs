@@ -19,6 +19,7 @@ import { registrationProjectionFor, registrationStateCopy } from './registration
 import { bankProjectionFor, bankPhaseCopy } from './bank-view.mjs';
 import { postmarkViewFor, postmarkCopy, mayMockOperateContinuation } from './postmark-view.mjs';
 import { projectManagedTeam, requestMockIntake } from './team-operations.mjs';
+import { projectManagerPausePreview } from './team-pause-preview.mjs';
 import { projectManagerMonitor } from './team-monitor.mjs';
 import { projectManagerBatches } from './batch-monitor.mjs';
 import { projectTeamMonitoring, describeMonitoring } from './team-monitoring.mjs';
@@ -610,6 +611,21 @@ function renderTeamSummary(){
       member.intake==='receiving'?'Apto a receber novos leads (projeção fictícia)':'Indisponível para receber';
     card.append(el('span','',`${staffState} · ${leadState} · ${member.cases} caso(s) na equipe`));
     card.append(el('span','',`Concessionárias concedidas pelo responsável (somente leitura): ${member.shops.map(id=>getShop(id)?.name??id).join(', ')}`));
+    const preview=projectManagerPausePreview(state.actorId,member.id,state.cases);
+    if(preview.visibility==='ready'){
+      const details=el('details','team-pause-preview');
+      details.append(el('summary','','Prévia da carteira durante pausa · '+preview.summary.total+' caso(s)'));
+      const indicators=el('p','team-pause-counts',
+        `Mantidos após contato: ${preview.summary.started} · Sem substituto: ${preview.summary.noRecipient} · Sem prova: ${preview.summary.unverified} · Ciclos protegidos: ${preview.summary.protected} · Candidatos à transferência: ${preview.summary.candidates}`);
+      const rows=el('ul','team-pause-cases');
+      for(const item of preview.cases){
+        const line=el('li','',item.caseId+' · '+item.shopName+' · '+item.label);
+        rows.append(line);
+      }
+      details.append(indicators,rows,el('p','team-hint',
+        'Somente prévia fictícia. Nenhuma atribuição, conta ou concessão é alterada.'));
+      card.append(details);
+    }
     const requested=state.teamRequests[member.id];
     if(requested){
       card.append(el('span','',`SOLICITADO LOCALMENTE: ${requested.action==='pause'?'pausar novos leads':'retomar novos leads'} em todas as lojas concedidas. NÃO aplicado; redistribuição NÃO executada.`));
