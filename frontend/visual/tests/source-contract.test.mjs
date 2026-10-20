@@ -223,3 +223,13 @@ test('FV-UI-013 UX: intro detalhável, contraste e toque, indicadores gerenciais
   assert.match(styles, /\.team-dialog \.team-monitor-metric span\{color:#536d75;font-size:11px/);
   assert.match(app, /target\.replaceChildren\(title,note,indicators,workload,signals/);
 });
+
+
+test('FV-UI-013 funcional: ações do aplicativo exigem listas de permissão e template tipadas',()=>{
+  assert.match(contract, /export function hasProjectedAction\(record, action\)/);
+  assert.match(contract, /Array\.isArray\(record\?\.allowedActionsProjection\)/);
+  assert.match(contract, /Array\.isArray\(record\?\.eligibleTemplatesProjection\)/);
+  assert.match(app, /hasProjectedAction\(record,'complete'\)/);
+  assert.match(app, /DEMO_TEMPLATES\.filter\(t=>hasEligibleTemplateVersion\(current,t\)\)/);
+  assert.doesNotMatch(app, /allowedActionsProjection\?\.includes\('complete'\)/);
+});
