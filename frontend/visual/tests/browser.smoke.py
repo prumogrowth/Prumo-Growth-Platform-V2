@@ -196,6 +196,11 @@ with sync_playwright() as p:
         assert mobile.locator('.team-help').evaluate('(e) => e.open'), 'Ajuda deve abrir via toque'
         assert 'S0/S1-002' in mobile.locator('.team-help').inner_text()
         mobile.locator('.team-help summary').click()
+        mobile.locator('.team-help summary').focus()
+        mobile.keyboard.press('Enter')
+        assert mobile.locator('.team-help').evaluate('(e) => e.open'), 'Ajuda acessível via teclado'
+        mobile.keyboard.press('Enter')
+        assert mobile.locator('.team-help').evaluate('(e) => !e.open'), 'Ajuda recolhe via teclado'
         mobile.locator('#team-show-monitor').click()
         assert mobile.locator('#team-monitor').is_visible()
         # A primeira métrica deve estar dentro da altura visível do diálogo.
