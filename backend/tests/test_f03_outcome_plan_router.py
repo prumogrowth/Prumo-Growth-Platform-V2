@@ -214,5 +214,21 @@ class OutcomePlanRoutingTests(unittest.TestCase):
         self.verify(S.DENIED, x)
 
 
+    def test_41_bank_stage_wrong_owner_denied_before_disclosure(self):
+        x = list(setup(O.CONTINUE_TO_BANK_REVIEW))
+        x[7] = replace(x[7], owner_route='seller_ai')
+        self.verify(S.DENIED, x)
+
+    def test_42_bank_stage_without_handoff_denied_before_disclosure(self):
+        x = list(setup(O.CONTINUE_TO_BANK_REVIEW))
+        x[7] = replace(x[7], has_handoff_history=False)
+        self.verify(S.DENIED, x)
+
+    def test_43_bank_stage_wrong_planning_purpose_denied(self):
+        x = list(setup(O.CONTINUE_TO_BANK_REVIEW))
+        x[6] = replace(x[6], purpose='ai_owned')
+        self.verify(S.DENIED, x)
+
+
 if __name__ == '__main__':
     unittest.main()
