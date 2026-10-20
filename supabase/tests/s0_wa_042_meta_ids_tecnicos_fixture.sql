@@ -132,6 +132,28 @@ begin
   if v->>'outcome'<>'LAB_BOUND' then raise exception 'FAIL WA15-07';end if;
   raise notice 'PASS WA15-07: same WABA, second sender isolated';
 
+  -- Tests 13-14 run while B mapping is not yet bound by attempt.
+  -- WA15-13: identical numeric phone cannot be reused cross-App.
+  begin
+    update prumo_private.meta_canais_fixture_s0
+    set phone_technical_ref='55545678901'
+    where phone_number_ref='FIXTURE_WA15_PHONE_B';
+    raise exception 'FAIL WA15-13: numeric sender reused';
+  exception when unique_violation then null;end;
+  raise notice 'PASS WA15-13: technical sender unique globally';
+
+  -- WA15-14: WABA cannot be silently moved across two Apps.
+  begin
+    update prumo_private.meta_canais_fixture_s0
+    set waba_technical_ref='33345678901'
+    where phone_number_ref='FIXTURE_WA15_PHONE_B';
+    raise exception 'FAIL WA15-14: WABA shared across Apps';
+  exception when unique_violation then
+    if sqlerrm<>'WABA_TECHNICAL_OWNER_CONFLICT' then raise;end if;
+  end;
+  raise notice 'PASS WA15-14: WABA owner constrained to single App';
+
+
   -- WA15-08: same opaque wamid under another shop/App is independent.
   v:=prumo_private.registrar_vinculo_meta_tecnico_fixture_s0(
     '22345678901','44445678901','77745678901',
@@ -208,26 +230,6 @@ begin
     or (select count(*) from prumo_private.meta_vinculos_tentativa_fixture_s0)<>count_before
   then raise exception 'FAIL WA15-12: absent recovery authorized retry';end if;
   raise notice 'PASS WA15-12: absent read does not authorize retry';
-
-  -- WA15-13: identical numeric phone cannot be reused cross-App.
-  begin
-    update prumo_private.meta_canais_fixture_s0
-    set phone_technical_ref='55545678901'
-    where phone_number_ref='FIXTURE_WA15_PHONE_B';
-    raise exception 'FAIL WA15-13: numeric sender reused';
-  exception when unique_violation then null;end;
-  raise notice 'PASS WA15-13: technical sender unique globally';
-
-  -- WA15-14: WABA cannot be silently moved across two Apps.
-  begin
-    update prumo_private.meta_canais_fixture_s0
-    set waba_technical_ref='33345678901'
-    where phone_number_ref='FIXTURE_WA15_PHONE_B';
-    raise exception 'FAIL WA15-14: WABA shared across Apps';
-  exception when unique_violation then
-    if sqlerrm<>'WABA_TECHNICAL_OWNER_CONFLICT' then raise;end if;
-  end;
-  raise notice 'PASS WA15-14: WABA owner constrained to single App';
 
   -- WA15-15: public/exposed roles cannot reach new functions.
   if has_function_privilege('anon',
