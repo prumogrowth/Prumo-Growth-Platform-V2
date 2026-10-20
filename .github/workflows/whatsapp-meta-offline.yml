@@ -52,7 +52,8 @@ jobs:
             --env POSTGRES_PASSWORD=ci_fixture_only \
             postgres:17 -c listen_addresses=''
           for i in {1..30}; do
-            if docker exec wa06d-fixture-pg17 pg_isready -U wa06d_owner -d wa06d_test_ephemeral >/dev/null 2>&1; then
+            if docker logs wa06d-fixture-pg17 2>&1 | grep -q 'PostgreSQL init process complete; ready for start up' && \
+              docker exec wa06d-fixture-pg17 pg_isready -U wa06d_owner -d wa06d_test_ephemeral >/dev/null 2>&1; then
               echo 'PASS WA06D: PostgreSQL 17 sandbox healthy (Unix socket only)'
               exit 0
             fi
