@@ -298,4 +298,42 @@ begin
   raise notice 'PASS WA14-17: UPDATE/DELETE/TRUNCATE denied; original binding intact';
 end $wa14_immutable_test$;
 
+
+-- WA14-18: recovery MUST verify that requested intent belongs to the
+-- same App/dealership/channel. A forged or absent intent is not LAB_ABSENT.
+do $wa14_recovery_scope$
+declare v_bad uuid; initial_count bigint; r jsonb;
+begin
+  select count(*) into initial_count
+    from prumo_private.meta_vinculos_tentativa_fixture_s0;
+  foreach v_bad in array ARRAY[
+    'f4100000-0000-4000-8000-000000000003'::uuid, -- same shop, other channel
+    'f4100000-0000-4000-8000-000000000004'::uuid, -- different shop/App
+    'f4100000-0000-4000-8000-000000000099'::uuid  -- nonexisting intent
+  ] loop
+    begin
+      perform prumo_private.consultar_vinculo_meta_fixture_s0(
+        'FIXTURE_WA14_APP_A','f3100000-0000-4000-8000-000000000001',
+        v_bad,'ATTEMPT_MISSING','CORR_MISSING',
+        '5581900000000','wamid.WA14.MISSING');
+      raise exception 'FAIL WA14-18: mismatched outbox intent yielded a normal recovery';
+    exception when insufficient_privilege then
+      if sqlerrm <> 'UNTRUSTED_FIXTURE_SCOPE' then raise;end if;
+    end;
+  end loop;
+
+  -- Genuine current-shop/current-channel intent with NO binding remains
+  -- a read-only LAB_ABSENT; never permission to resend Graph.
+  r:=prumo_private.consultar_vinculo_meta_fixture_s0(
+    'FIXTURE_WA14_APP_A','f3100000-0000-4000-8000-000000000001',
+    'f4100000-0000-4000-8000-000000000002',
+    'ATTEMPT_MISSING','CORR_MISSING',
+    '5581900000000','wamid.WA14.MISSING');
+  if r->>'outcome' <> 'LAB_ABSENT'
+    or (r->>'retry_external')::boolean
+    or (select count(*) from prumo_private.meta_vinculos_tentativa_fixture_s0) <> initial_count
+  then raise exception 'FAIL WA14-18: recovery changed ledger or authorized retry';end if;
+  raise notice 'PASS WA14-18: recovery verifies intent owner, never treats spoof as ABSENT';
+end $wa14_recovery_scope$;
+
 rollback;
