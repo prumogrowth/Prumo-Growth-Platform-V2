@@ -12,7 +12,7 @@ const read = name => readFileSync(join(visual, name), 'utf8');
 const order = [
   'fixtures.mjs', 'view-model.mjs', 'cf-op-02.mjs',
   'registration-view.mjs', 'bank-view.mjs', 'postmark-view.mjs',
-  'team-operations.mjs', 'team-monitor.mjs', 'team-monitoring.mjs',
+  'team-operations.mjs', 'team-pause-preview.mjs', 'team-monitor.mjs', 'team-monitoring.mjs',
   'batch-monitor.mjs', 'conversation-attention.mjs', 'app.mjs'
 ];
 const src = Object.fromEntries(order.map(name=>[name,read(name)]));
