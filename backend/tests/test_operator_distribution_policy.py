@@ -103,6 +103,10 @@ class SelectivePauseContractTests(unittest.TestCase):
             "DENIED"
         )
 
+    def test_manual_transfer_of_closed_case_is_denied(self):
+        archived=CaseSnapshot("case-1", "aurora", "rafael", "marina", "v7", True, False)
+        self.assertEqual(classify_manual_transfer_target(archived,"marina",person("lia")),"DENIED")
+
     def test_no_grant_provision_and_no_input_mutation(self):
         original_case=case(False)
         source=(person("lia"), person("bianca",manager="daniel"))
