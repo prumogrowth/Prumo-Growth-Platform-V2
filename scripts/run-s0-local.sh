@@ -30,4 +30,5 @@ bash "$ROOT/scripts/test_s0_wa_030_concurrency.sh"
 bash "$ROOT/scripts/test_s0_wa_031_c01_concurrency.sh"
 bash "$ROOT/scripts/test_s0_wa_032_lifecycle_concurrency.sh"
 bash "$ROOT/scripts/test_s0_wa_033_concurrency.sh"
+bash "$ROOT/scripts/test_s0_wa_041_concurrency.sh"
 echo 'Teste local concluído. Não houve escrita no Supabase.'
