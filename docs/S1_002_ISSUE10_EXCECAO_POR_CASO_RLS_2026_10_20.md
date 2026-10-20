@@ -1,0 +1,31 @@
+# S1-002 / issue #10 — exceção manual por atendimento, sem concessão de loja (20/10/2026)
+
+**Escopo:** protótipo isolado na branch `feat/s1-002-equipe-prumo`, PR #5 Draft. Não é migração operacional, não foi implantado, não modifica o Supabase hospedado, S0 base, Meta ou clientes reais.
+
+## Decisão de negócio e risco tratado
+
+Gestor da equipe pode transferir caso individual a outro membro da **mesma equipe**, mesmo quando este não tem concessão geral à concessionária. O direito deve nascer apenas para a **atribuição específica** e não pode permitir ler outras lojas, casos, conversas, leads, ciclos, canais ou mensagens. Revogação tem de cortar leitura e novos envios; a titularidade ativa continua única. Não introduzir concessão fictícia para a loja nem alterar o regime de contas pelos gestores.
+
+## Implementação de teste
+
+`supabase/tests/s1_055_issue10_excecao_caso_local_only.sql` é uma fixture **S0+S1 aplicada apenas ao PostgreSQL 17 descartável depois das migrações e regressões históricas**:
+
+- Entitlement `prumo_private.s1_excecoes_55`, com loja, caso, atribuição nova de UUID explícito, operador, gestor, criação e revogação; FK deferida garante que a atribuição preparada na mesma transação realmente exista. Nenhuma entrada no `public.vinculos_papel_escopo`. Eventos `CRIADA/REVOGADA` append-only e ACL privada, sem exposição direta à Data API.
+- `prumo_private.s1_mover_excecao_caso_55` (executor local `postgres` somente) exige identidade do gestor explicitada por executor confiável, chefia da origem **e** destino na mesma equipe, contas ativas, concessão válida do titular antigo ou entitlement excepcional atual, caso na loja certa, ciclo não terminal ou retorno excepcional já autorizado e ID exato da atribuição atual. Toma locks da equipe/chefia e do caso/atribuição em ordem; insere entitlement e nova atribuição no mesmo commit; encerra a anterior e mantém histórico I12 de duas atribuições. Replicar no futuro com sessão GoTrue real antes de qualquer RPC externa.
+- Gatilho S0 `public.s0_verificar_atribuicao()` continua aceitando grant comum; apenas para executor interno PostgreSQL aceita um entitlement **exatamente correspondente ao UUID da nova atribuição, loja, caso e operador**. Não permite a um usuário externo fabricar exceção nem associar outro caso.
+- `prumo_private.s1_caso_excepcional_autorizado_55` (predicado fixo SECURITY DEFINER, apenas booleano) lê auth.uid() da sessão, atribuição ainda ativa, exceção não revogada, conta do destino e do gestor ativas, chefia ainda vigente e loja ativa. Esse predicado é usado nas novas políticas RLS de **casos, atribuições e conversas**, mantendo o gate restritivo preexistente da equipe ativa do I1.
+- Para mensagens, há uma política **restritiva** adicional que impede o operador sem grant de consultar linha sem `caso_id` correspondente, mesmo se a conversa for visível. A escrita de mensagem sintética pelo excepcional exige JWT como autoria, `caso_id` não nulo, mesmo caso/canal/conversa e entitlement ativo. Não autoriza Meta nem envio externo; o banco ainda não registra prova de entrega real.
+- `public.s1_55_resumo_caso` é uma **projeção mínima e filtrada** para telefone/ciclo/status do único caso excepcional, sem conceder `SELECT` nas tabelas inteiras de leads/ciclos/concessionárias/canais.
+- Encerrar uma atribuição revoga automaticamente o entitlement e registra evento imutável; o gestor autorizado pode revogar explicitamente a exceção, bloqueando imediatamente leituras futuras mesmo quando a atribuição ainda não foi reassociada. Essa última condição protege a confidencialidade, mas requer fluxo gerencial para resolver caso temporariamente sem operador apto: não reatribuir automaticamente a outra equipe.
+
+## Pontos de segurança e limitações pendentes
+
+Esta alteração **não substitui** as antigas rotas assinadas I18–I31 e não está integrada a frontend, GoTrue real, Meta ou armazenamento de arquivos. O escopo de anexos e projeções posteriores do S0 deve ser auditado antes de produção. É necessário testar concorrência entre revogação do entitlement e consultas/escritas iniciadas antes do commit, resposta humana em voo, mensagens caso_id nulo e novas relações S0. O predicado SECURITY DEFINER requer uma auditoria de proprietário, `search_path` e permissões antes de promover uma migration. A view de resumo usa privilégios do owner de laboratório e precisa de revisão de fronteira de dados.
+
+A equipe ainda precisa confirmar se um operador **pausado para novos leads** pode receber transferência manual de caso existente; até essa confirmação, o protótipo **nega** destino pausado por segurança. A revogação explícita durante atribuição ativa também exigirá sinalização gerencial para não deixar atendimento sem pessoa apta a responder.
+
+**Nova evidência esperada:** `supabase/tests/s1_055_issue10_excecao_caso_aceite.sql` com 18 verificações SQL (isolation normal/negativo, leitura e escrita específicas, titularidade, grant de loja inalterado, chefe externo/caso externo negados, transferência repetida com revogação da anterior, corte de leitura e novos envios após revogação, ACL admin). O workflow `s1-002-issue10-intake-local.yml` executa regressão anterior + 23 gates ISSUE10 + 4 corridas + 18 novos gates. Aceite somente com logs e SHA de código ensaiado.
+
+**Não é aceite geral da issue #10.** Ainda faltam projeções S0 de não lidas x lidas sem resposta e supervisão separada; API gerencial versionada/GoTrue/HMAC sem motivo; produtor de prova real de início humano; revisão da exceção junto a anexos/serviços adicionais. A pausa combinada com usuário para perguntas, auditoria e limpeza documental será **após** essas integrações.
+
+**CI:** pendente.
