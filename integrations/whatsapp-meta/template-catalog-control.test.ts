@@ -170,3 +170,15 @@ test('WA17-16: approve alone never authorizes sending without mapping or consent
  assert.equal('access_token' in p,false);
  assert.equal('recipient' in p,false);
 });
+
+test('WA17-17: reject extra fields trying to forge provider approval or embed secrets',()=>{
+ const attack={...draftInput,stage:'APPROVED',access_token:'NEVER_STORE'};
+ assert.throws(()=>createManualTemplate(attack as ManualTemplateInput),/UNKNOWN_DRAFT_FIELDS/);
+});
+test('WA17-18: reject accessors and inherited mutable template drafts',()=>{
+ const getter={...draftInput};
+ Object.defineProperty(getter,'body',{get(){throw Error('UNTRUSTED_GETTER');}});
+ assert.throws(()=>createManualTemplate(getter as ManualTemplateInput),/UNKNOWN_DRAFT_FIELDS/);
+ const inherited=Object.assign(Object.create({stage:'APPROVED'}),draftInput);
+ assert.throws(()=>createManualTemplate(inherited as ManualTemplateInput),/INVALID_DRAFT_PROTOTYPE/);
+});
