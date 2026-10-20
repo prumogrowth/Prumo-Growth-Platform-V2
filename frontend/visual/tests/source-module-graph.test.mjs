@@ -13,7 +13,7 @@ const order = [
   'fixtures.mjs', 'view-model.mjs', 'cf-op-02.mjs',
   'registration-view.mjs', 'bank-view.mjs', 'postmark-view.mjs',
   'team-operations.mjs', 'team-monitor.mjs', 'team-monitoring.mjs',
-  'batch-monitor.mjs', 'app.mjs'
+  'batch-monitor.mjs', 'conversation-attention.mjs', 'app.mjs'
 ];
 const src = Object.fromEntries(order.map(name=>[name,read(name)]));
 const smoke = read('tests/browser.smoke.py');
