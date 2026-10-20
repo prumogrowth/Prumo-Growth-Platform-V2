@@ -50,3 +50,47 @@ test('fixtures são cópias em memória e não mutam a base', () => {
   c[0].messages.push({ id:'sintetico', side:'out', body:'Teste' });
   assert.equal(INITIAL_CONVERSATIONS[0].messages.length, 4);
 });
+
+
+test('matriz combinatória: gestor supervisiona operadores e não herda todos os casos da loja',()=>{
+  const shops=['aurora','horizonte'];
+  const assignments=[...ACTORS.map(a=>a.id),null,'alien'];
+  const managerIds=['marina','daniel',null,'alien'];
+  const directTeam={
+    marina:new Set(['rafael','lia']),
+    daniel:new Set(['bianca','otavio'])
+  };
+  const scenarios=[];
+  for(const shopId of shops)for(const assignedTo of assignments)
+    for(const teamManagerId of managerIds)for(const status of COMMERCIAL_STATUSES){
+      scenarios.push({
+        id:'scope-'+scenarios.length,shopId,assignedTo,teamManagerId,status,
+        messages:[],unread:0,
+        inboxProjection:status==='vendido'||status==='perdido'?'historical':'active'
+      });
+    }
+  const subjects=[...ACTORS,{id:'ghost',role:'operador',teamState:'suspended',shops:[]}];
+  let checks=0;
+  for(const subject of subjects)for(const shopId of shops){
+    const found=new Set(visibleConversations(scenarios,subject.id,shopId).map(x=>x.id));
+    for(const record of scenarios){
+      const base=subject.teamState==='active'&&subject.shops.includes(shopId)&&
+        record.shopId===shopId;
+      let allowed=false;
+      if(base){
+        if(subject.role==='operador')allowed=record.assignedTo===subject.id;
+        else if(subject.role==='gestor'){
+          allowed=record.assignedTo===subject.id||
+            (record.assignedTo===null&&record.teamManagerId===subject.id)||
+            Boolean(directTeam[subject.id]?.has(record.assignedTo)&&
+              ACTORS.find(a=>a.id===record.assignedTo)?.shops.includes(record.shopId));
+        }
+      }
+      assert.equal(found.has(record.id),allowed,
+        'Visibilidade incorreta para '+subject.id+'/'+shopId+'/'+record.id);
+      checks++;
+    }
+  }
+  assert.equal(scenarios.length,512);
+  assert.equal(checks,7168);
+});
