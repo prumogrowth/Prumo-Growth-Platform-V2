@@ -28,3 +28,12 @@ Commits:
 **Ensaios executados nesta rodada:** fonte integral dos 11 módulos e mock DOM original recuperados do GitHub para o HEAD `031cafb6`. No harness V8 adaptado, `app.mobile.dom.test.mjs` passou **10/10**; a verificação estática adicional passou **1/1**. Duas mutações negativas no smoke (remover 320px e remover clique em G3) foram detectadas pelo novo teste estático (**2/2 falhas esperadas**). Nenhum desses números é execução nativa Node/Chromium.
 
 **Pendente:** checkout privado completo, execução oficial `node --test`, Py/Playwright/Chromium real e capturas/evidências de layout nos quatro tamanhos. Não inferir homologação pela passagem V8. Sem alterações fora de `frontend/`; sem deploy, APIs de negócio, autenticação ou remessa. 19F **69/100** e FV-UI-013 **NÃO HOMOLOGADA**.
+
+
+## FV-UI-013 — prova combinatória do isolamento entre gestores
+
+Commit [`414e825f`](https://github.com/prumogrowth/Prumo-Growth---Platform/commit/414e825f2273ac80153458c37fc632fa5fb3d7a8): incremento de `frontend/visual/tests/fixtures.test.mjs`, **sem mudar o comportamento de produção**. Acrescentada matriz determinística de 512 registros com os oito estados comerciais, atribuições a seis atores, nulo ou desconhecido, vinculação de gestão Marina/Daniel/nula/desconhecida e duas lojas fictícias. Cruzamento com seis perfis e usuário ausente em duas lojas: **7.168 asserções de visibilidade esperada**.
+
+**Execução comprovada desta rodada:** fontes literais `fixtures.mjs` (Git blob `22264f84947c5f8ea4a1a52adf038dcd1ac27d4b`) e nova suíte (Git blob `9547b1dfd1cf9107a897eb85f3d4cecddc3d900d`) recuperadas da branch. Harness **V8 adaptado**, não Node nativo: **7/7 testes passaram**, inclusive o novo teste combinatório. Mutação proposital da regra de gestor para aceitar qualquer atribuição dentro da loja levou a **5/7 PASS e 2 falhas esperadas**, demonstrando que a nova matriz rejeita a ampliação indevida do acesso.
+
+**Limites:** essa asserção exercita exclusivamente o filtro da demonstração e **não é prova de autorização do S0, RLS ou integração**. O teste adicionado ainda requer reexecução com `node --test` sobre o checkout privado integral e Chromium real. Git HTTPS local permanece bloqueado por ausência de resolução DNS. FV-UI-013 **não homologada**; indicador 19F **69/100**.
