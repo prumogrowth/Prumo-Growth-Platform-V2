@@ -88,6 +88,15 @@ do $t$ begin
  then raise exception 'EX55-03 concedeu loja inteira';end if;
 end $t$;
 \echo 'PASS EX55-03: zero grants gerais criados; entitlement unico por atribuicao'
+do $t$ declare r jsonb;begin
+ r:=prumo_private.s1_reconciliar_elegibilidade_vencida(20);
+ if not exists(select 1 from public.atribuicoes_humanas
+   where caso_id='f6550000-0000-4000-8000-000000000001'
+    and operador_id='f1550000-0000-4000-8000-000000000004'
+    and encerrada_em is null)
+ then raise exception 'EX55-19 reconciliação legado tirou titular excepcional';end if;
+end $t$;
+\echo 'PASS EX55-19: reconciliador I3 legado nao remove titular excepcional'
 set local role authenticated;
 select pg_catalog.set_config('request.jwt.claim.sub',
 'f1550000-0000-4000-8000-000000000004',true);
@@ -251,6 +260,21 @@ do $t$ begin
   raise exception 'EX55-16 revogado ainda le o caso';end if;
 end $t$;
 \echo 'PASS EX55-16: revogacao explicita corta leitura mesmo com atribuicao atual'
+do $t$ begin
+ begin
+ insert into public.mensagens(
+  concessionaria_id,conversa_id,canal_id,caso_id,direcao,origem,
+  conteudo_sintetico,enviada_por)
+ values('f2550000-0000-4000-8000-000000000001',
+ 'f7550000-0000-4000-8000-000000000001',
+ 'f3550000-0000-4000-8000-000000000001',
+ 'f6550000-0000-4000-8000-000000000001',
+ 'saida','simulado','tentativa apos revogacao',
+ 'f1550000-0000-4000-8000-000000000006');
+ raise exception 'EX55-20 revogado conseguiu enviar';
+ exception when insufficient_privilege then null;end;
+end $t$;
+\echo 'PASS EX55-20: revogado nao consegue inserir novas mensagens'
 reset role;
 do $t$ begin
  if (select count(*) from prumo_private.s1_movimentos_manuais_historico
