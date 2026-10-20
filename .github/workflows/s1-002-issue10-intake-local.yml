@@ -11,6 +11,8 @@ on:
       - 'scripts/test_s1_002_issue10_human_race.sh'
       - 'supabase/tests/s1_055_issue10_excecao_caso_local_only.sql'
       - 'supabase/tests/s1_055_issue10_excecao_caso_aceite.sql'
+      - 'supabase/tests/s1_056_issue10_indicadores_s0_local_only.sql'
+      - 'supabase/tests/s1_056_issue10_indicadores_s0_aceite.sql'
   workflow_dispatch:
 permissions:
   contents: read
@@ -59,3 +61,7 @@ jobs:
         run: |
           psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_055_issue10_excecao_caso_local_only.sql
           psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_055_issue10_excecao_caso_aceite.sql
+      - name: 'S0 leitura isolada: 18 provas de contador, bolinha e supervisor'
+        run: |
+          psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_056_issue10_indicadores_s0_local_only.sql
+          psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_056_issue10_indicadores_s0_aceite.sql
