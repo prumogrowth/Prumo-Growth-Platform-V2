@@ -37,3 +37,19 @@ Commit [`414e825f`](https://github.com/prumogrowth/Prumo-Growth---Platform/commi
 **Execução comprovada desta rodada:** fontes literais `fixtures.mjs` (Git blob `22264f84947c5f8ea4a1a52adf038dcd1ac27d4b`) e nova suíte (Git blob `9547b1dfd1cf9107a897eb85f3d4cecddc3d900d`) recuperadas da branch. Harness **V8 adaptado**, não Node nativo: **7/7 testes passaram**, inclusive o novo teste combinatório. Mutação proposital da regra de gestor para aceitar qualquer atribuição dentro da loja levou a **5/7 PASS e 2 falhas esperadas**, demonstrando que a nova matriz rejeita a ampliação indevida do acesso.
 
 **Limites:** essa asserção exercita exclusivamente o filtro da demonstração e **não é prova de autorização do S0, RLS ou integração**. O teste adicionado ainda requer reexecução com `node --test` sobre o checkout privado integral e Chromium real. Git HTTPS local permanece bloqueado por ausência de resolução DNS. FV-UI-013 **não homologada**; indicador 19F **69/100**.
+
+
+## Bloqueio explicado e caminho alternativo de execução (19/10/2026)
+
+**O checkout não depende do Supabase.** Checkout significa obter no computador/ambiente de testes uma cópia integral da branch GitHub, com arquivos e metadados de revisão. O bloqueio visto no terminal é de **resolução DNS de `github.com`**, enquanto a integração autenticada GitHub consegue ler e editar arquivos. Node v22 e Chromium já estão instalados; nenhum backend, banco Supabase, RLS ou endpoint Meta é exigido para estes testes exclusivamente fictícios.
+
+**Nova ferramenta de desbloqueio:** [`frontend/visual/tests/verify_offline_export.py`](../visual/tests/verify_offline_export.py), criada em `f6037291`. Ela aceita um ZIP padrão da branch baixado no GitHub e verifica, em memória e por SHA-1 Git Blob + tamanho, **31 arquivos obrigatórios** de `frontend/visual/` correspondentes ao commit base `50cc951e52c5ac5ca125e93416b2cad45f416ee9`. Esses arquivos não foram modificados no commit que adicionou a ferramenta. Arquivo ausente, duplicado, alterado ou com caminho inseguro é reprovado antes de executar qualquer teste. Caso aprovada a integridade, `--run-native` executa todas as suítes `node --test` e o roteiro real Playwright/Chromium sobre os bytes verificados, gravando evidências JSON.
+
+### Como executar com o ZIP autorizado
+
+1. Baixar do próprio GitHub o **ZIP da branch** `feat/frontend-plataforma-visual` (idealmente fixado no commit `50cc951e52c5ac5ca125e93416b2cad45f416ee9`, ou revisão posterior que preserve os mesmos 31 blobs). Não colocar token, arquivo `.env`, segredo ou dados reais no ZIP; é apenas fonte fictícia.
+2. Com a ferramenta e o ZIP em mãos, executar `python3 verify_offline_export.py --archive /caminho/branch.zip --run-native --json-report /caminho/evidencia.json`.
+3. Inspecionar os passos `node` e `chromium` no JSON. A ferramenta fixa `full_acceptance=false` e `git_checkout_verified=false` porque ZIP íntegro **não é o mesmo que checkout Git**. Resultados só devem ser relatados se realmente executados.
+4. Para o gate **formal original** (`run_acceptance.py --expected-head SHA`), ainda é necessário um checkout Git completo, com branch, HEAD e árvore de trabalho verificados. A ferramenta ZIP viabiliza o diagnóstico nativo sem liberar homologação indevida.
+
+**Ensaios efetivos desta rodada:** o verificador local equivalente foi compilado por Python e exercitado com ZIP sintético íntegro (aceito), arquivo adulterado (rejeitado) e erro de manifesto (rejeitado). A versão GitHub teve a consistência de seu manifesto de 31 arquivos e do commit-base conferida pela leitura autenticada. **Nenhum ZIP integral real do frontend foi fornecido nesta rodada; Node/Chromium integrais ainda não foram executados**. Sem Supabase, integração, merge ou produção. FV-UI-013 segue **NÃO HOMOLOGADA**; 19F **69/100**.
