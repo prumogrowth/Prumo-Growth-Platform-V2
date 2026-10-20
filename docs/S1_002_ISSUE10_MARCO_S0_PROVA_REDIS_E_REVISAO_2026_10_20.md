@@ -39,3 +39,16 @@ O workflow `.github/workflows/s1-002-issue10-intake-local.yml` executa regressõ
 **Marco proposto para uma pausa planejada de alinhamento:** concluir o pacote da issue #10 em sandbox — S0 evidência sintética, S1 seletiva, exceção manual segura por caso com regressões negativas, contrato dos indicadores e documentação de fronteiras — e então interromper incremento funcional antes de começar hardening I31/produção. Realizar nessa ordem as três ações pedidas: (1) perguntas de ambiguidade/decisão, (2) auditoria geral S1+interfaces S0, (3) limpeza, rastreabilidade e consolidação da documentação. Nenhum passo depende de tocar o banco hospedado.
 
 **NO-GO produção, deploy e merge.** A qualidade do pacote não deve ser expressa como porcentagem global.
+
+## Evidência CI verificada — prova seletiva + concorrência
+
+**[GitHub Actions #39506166135 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39506166135)**, código testado SHA `400062d6eef9d1dd2a646f53f332075e96100889`, job `118915499582` concluído com sucesso. Logs inspecionados:
+
+- **ISSUE10-01..23 = 23/23 marcadores únicos PASS**, incluindo 11 gates anteriores da separação conta/pausa e 12 novos gates de prova de início humano S0 e seleção transacional S1.
+- **ISSUE10R-01..04 = 4/4 PASS**, sob **duas sessões PostgreSQL reais**. Cenário 1: prova positiva de resposta humana mantém lock de caso até commit; o reconciliador concorrente aguarda e preserva o titular. Cenário 2: a redistribuição adquire lock primeiro, move a atribuição e confirma; um evento humano tardio dirigido à **atribuição antiga** é recusado com conflito `ATRIBUICAO_NAO_ATUAL`. Nenhum cenário criou dois titulares.
+- Todos os testes históricos S0/S1, incluindo I11/I12 com as premissas antigas, foram executados **antes** das fixtures corretivas no mesmo job, para detectar regressão técnica. Não se deve confundir a aprovação dos contratos históricos com aprovação da antiga regra de suspensão da conta.
+- A tentativa anterior [#39506096877](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39506096877) não criou jobs porque o nome de uma etapa com dois-pontos não estava entre aspas no YAML. A correção gerou o CI verde acima. Não contar o workflow inválido como teste.
+
+**Aceite restrito do pacote S0-prova/S1-seletiva:** simulador SQL local e isolamento transacional aprovados. **Ainda não há produtor de evidência Meta/GoTrue humano real nem transferência manual sem concessão geral à loja, API versionada de pausa, projeção de leitura ou autorização por caso.** A prova negativa de início é marcada pelo próprio fixture de teste, não por um canal real. A execução não é homologação operacional; branch S0 base, produção e Supabase hospedado continuam intactos.
+
+**Marcação de revisão futura:** quando transferência por caso e indicadores de mensagens também estiverem cobertos por regressões locais e possuírem contratos explícitos, interromper novos incrementos para as três sessões ordenadas de alinhamento, auditoria geral S1/S0 e documentação consolidada.
