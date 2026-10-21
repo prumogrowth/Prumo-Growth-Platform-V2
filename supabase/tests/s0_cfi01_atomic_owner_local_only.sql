@@ -5,6 +5,28 @@
 create role prumo_cfi01_atomic_owner_local nologin noinherit
   nosuperuser nocreatedb nocreaterole noreplication nobypassrls;
 grant usage on schema public,prumo_private to prumo_cfi01_atomic_owner_local;
+-- Supabase may install pgcrypto in "extensions" or another trusted schema.
+-- Mirror S0/027: grant ONLY required crypto functions to the NOLOGIN owner.
+-- Never expose schema usage or HMAC to the restricted SQL login.
+do $crypto_acl$
+declare v_schema name;
+begin
+ select n.nspname into v_schema
+ from pg_catalog.pg_extension e
+ join pg_catalog.pg_namespace n on n.oid=e.extnamespace
+ where e.extname='pgcrypto';
+ if v_schema is null then
+   raise exception 'CFI01_PGCRYPTO_NOT_INSTALLED' using errcode='42501';
+ end if;
+ execute pg_catalog.format(
+   'grant usage on schema %I to prumo_cfi01_atomic_owner_local',v_schema);
+ execute pg_catalog.format(
+   'grant execute on function %I.hmac(bytea,bytea,text) to prumo_cfi01_atomic_owner_local',
+   v_schema);
+ execute pg_catalog.format(
+   'grant execute on function %I.digest(bytea,text) to prumo_cfi01_atomic_owner_local',
+   v_schema);
+end $crypto_acl$;
 grant select on public.equipe_prumo_s1,
  public.casos_humanos,public.ciclos_comerciais,public.concessionarias,
  public.atribuicoes_humanas,public.vinculos_papel_escopo,
