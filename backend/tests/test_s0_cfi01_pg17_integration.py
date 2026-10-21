@@ -183,6 +183,43 @@ class PostgresPhysicalIntegration(unittest.TestCase):
                               (self.cycle,)).fetchone()[0]
         self.assertEqual(value,"em atendimento pelo operador")
 
+    def test_11_inbound_commits_before_snapshot_after_parent_lock(self):
+        # A concurrent writer first holds the conversation row. Capture
+        # must wait, then observe the new inbound after writer commits.
+        with self.pg.connect(DB) as con:
+            con.execute("""select id from public.conversas
+                where id=%s for update""",(self.conversation,))
+            with ThreadPoolExecutor(max_workers=1) as pool:
+                future=pool.submit(self.capture,"new-inbound-lock-race")
+                # Ensure capture has reached the physical blocking point
+                # without claiming deterministic scheduler timestamps.
+                with self.assertRaises(TimeoutError):
+                    future.result(timeout=0.15)
+                with con.cursor() as cur:
+                    self._add_message(cur,uuid.uuid4())
+                con.commit()
+                result=future.result(timeout=10)
+        self.assertIs(result.state,ClosureState.CAPTURED_LOCAL_ONLY)
+        with self.pg.connect(DB) as con:
+            count=con.execute("""select quantidade_mensagens from
+                prumo_private.cfi01_human_closure_events_local
+                where concessionaria_id=%s and caso_id=%s""",
+                (self.shop,self.case)).fetchone()[0]
+        self.assertEqual(count,2)
+
+    def test_12_team_suspend_transaction_wins_before_case_capture(self):
+        with self.pg.connect(DB) as con:
+            con.execute("""update public.equipe_prumo_s1
+                set estado='suspenso' where ator_id=%s""",(self.actor,))
+            with ThreadPoolExecutor(max_workers=1) as pool:
+                future=pool.submit(self.capture,"s1-revocation-race")
+                with self.assertRaises(TimeoutError):
+                    future.result(timeout=0.15)
+                con.commit()
+                result=future.result(timeout=10)
+        self.assertIs(result.state,ClosureState.BLOCKED_S1)
+        self.assertEqual(self._count(),0)
+
 
 if __name__ == "__main__":
     unittest.main()
