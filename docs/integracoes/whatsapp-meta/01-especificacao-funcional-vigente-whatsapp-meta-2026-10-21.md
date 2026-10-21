@@ -2,7 +2,7 @@
 
 **Atualização:** 21/10/2026 · **Condição:** consolidação das decisões do responsável tomadas de 20 a 21/10 e das regras históricas compatíveis de 17/10 · **Escopo:** WhatsApp/Meta e contratos com S0, IA, MCP futuro e operadores. **Esta é a referência FUNCIONAL de consulta; não substitui validações externas nem afirma que tudo está implementado.**
 
-**Leitura obrigatória:** [índice das decisões com IDs WDC-01..21](./00-decisoes-vigentes-precedencia-documental-2026-10-21.md) e [mapa de conflitos e fontes históricas](./02-mapa-fontes-conflitos-e-emendas-2026-10-21.md). Para registros anteriores, vale a regra explícita de precedência: **última decisão expressa do responsável somente sobre o tópico revisto**; as demais normas históricas permanecem. D = decisão aprovada; H = histórico ainda válido; P = proposta de desenho; V = validação externa; T = situação técnica a comprovar.
+**Leitura obrigatória:** [índice das decisões com IDs WDC-01..22](./00-decisoes-vigentes-precedencia-documental-2026-10-21.md) e [mapa de conflitos e fontes históricas](./02-mapa-fontes-conflitos-e-emendas-2026-10-21.md). Para registros anteriores, vale a regra explícita de precedência: **última decisão expressa do responsável somente sobre o tópico revisto**; as demais normas históricas permanecem. D = decisão aprovada; H = histórico ainda válido; P = proposta de desenho; V = validação externa; T = situação técnica a comprovar.
 
 ## 1. Identidade do produto e escopo da operação [D/H]
 
@@ -10,6 +10,10 @@
 - **Cada concessionária terá sua conta empresarial Meta, Meta App próprio, WABA separada, número WhatsApp dedicado e catálogo de templates específico**, conforme a DEC-WA-05 expressamente aprovada em 17/10 e reiterada em 20/10. Sem WABA central única da Prumo. Um mesmo cliente pode aparecer em concessionárias A e B, com históricos e direitos independentes; impedir consulta e referência cruzadas.
 - O nome e a foto do WhatsApp exibidos ao cliente correspondem à **concessionária**, e a IA conhece e representa a identidade daquela loja. Ela não precisa repetir uma autodescrição artificial a cada mensagem.
 - **Decisão de negócio já tomada [D]:** esses ativos Meta são das concessionárias e a Prumo age como integradora **mediante acesso delegado** (DEC-WA-05). **Validação externa ainda necessária [V]:** confirmar em cada conta Meta os titulares efetivos, IDs, habilitação, sistema de permissão, webhook, inscrição WABA e acesso delegado. Não confundir falta de verificação documental real com falta de definição da titularidade desejada.
+
+### 1A. Nomenclatura aprovada dos papéis (WA-21)
+
+**Diretor** substitui o cargo antes chamado responsável, **Gestor** mantém o nome, e **Consultor** substitui o cargo anteriormente chamado operador. Isso altera nomenclaturas visíveis, não permissões técnicas automaticamente. Textos antigos e identificadores físicos continuam preservados até migração coordenada; o substantivo genérico “responsável” não é necessariamente um cargo. [Decisão WA-21](./wa21-papeis-diretor-gestor-consultor-assinatura-2026-10-21.md).
 
 ## 2. Registros estruturais separados e dados rastreáveis [D/H]
 
