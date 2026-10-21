@@ -1,6 +1,10 @@
 # COMECE AQUI — fontes vigentes da frente visual LiberaCred
 **Corte:** 21/10/2026. **Função:** índice de consulta com **precedência**, não autorização para executar operações. Esta frente documenta produto e interface; a implementação real depende de S0/S1/Meta/OpenAI/Banco e aceite próprio.
 
+## Alteração posterior de nomenclatura [D-NOM-01]
+
+**[Papéis vigentes: Diretor / Gestor / Consultor](./37_D_NOM_01_NOMENCLATURA_DIRETOR_GESTOR_CONSULTOR_2026_10_21.md)** (21/10/2026) deve ser consultado **antes das demais referências**: **responsável da plataforma → Diretor**, **gestor → Gestor**, **operador → Consultor**, com as mesmas atribuições. O conteúdo anterior não é substituído quanto à lógica de negócios. Nomes técnicos legados permanecem até etapa específica de integração.
+
 ## Ordem recomendada de consulta
 1. **[FV-DOC-01 — Decisões vigentes D-AL-01..10](./35_FV_DOC_01_DECISOES_VIGENTES_ALINHAMENTO_2026_10_21.md)**: fonte prioritária para pausa, atendimento existente, transferência excepcional, contato humano comprovado, leads novos entre equipes, fila compartilhada de gestores, retomada, limites da IA Vendedora, badge único e Supabase.
 2. **[FV-DOC-02 — Ambiguidades e precedência](./36_FV_DOC_02_AUDITORIA_AMBIGUIDADES_E_PRECEDENCIA_2026_10_21.md)**: riscos DOC-01..13, pontos históricos e escopos das frentes.
