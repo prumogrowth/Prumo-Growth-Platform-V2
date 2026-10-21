@@ -84,14 +84,16 @@ begin
  then raise exception 'I37_INVALID_RESULT' using errcode='42501';end if;
  return v_resultado;
 end $signed$;
-reset role;
-revoke create on schema prumo_s1_signed_i20 from prumo_s1_i21_executor;
+-- Revogacao/grant devem ser feitos pelo PROPRIETARIO NOLOGIN (I21).
+-- postgres tem SET ROLE autorizado somente no runner CI.
 revoke all on function prumo_s1_signed_i20.invocar_intake_v37(
  uuid,uuid,uuid,boolean,bigint,uuid,bigint,uuid,text)
  from public,anon,authenticated,service_role,prumo_s1_signed_login_ci;
 grant execute on function prumo_s1_signed_i20.invocar_intake_v37(
  uuid,uuid,uuid,boolean,bigint,uuid,bigint,uuid,text)
  to prumo_s1_signed_login_ci;
+reset role;
+revoke create on schema prumo_s1_signed_i20 from prumo_s1_i21_executor;
 
 do $assert$
 declare exec_owner text;bridge_owner text;
