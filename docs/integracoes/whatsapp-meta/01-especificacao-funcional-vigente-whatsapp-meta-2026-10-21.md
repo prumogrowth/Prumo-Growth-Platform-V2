@@ -109,6 +109,14 @@ Se o envio comprovado do template FINAL ocorreu, a regra C09 de silêncio pós-e
 - Operador pode enviar template **individualmente** dentro de suas concessões/caso/loja e janela Meta, sem ganhar privilégio de gerenciar todo catálogo. Handoff ao humano interrompe automação de IA para aquele caso e roteia inbound subsequente ao responsável humano conforme contrato S0.
 - O envio de template **não abre** a janela de mensagem livre de 24h; somente inbound do cliente pode alterar a janela prevista.
 
+### 12A. Identificação visível do operador no WhatsApp [D/P/V]
+
+O responsável deseja que a mensagem **enviada pelo operador humano** possa exibir o **nome do operador** imediatamente antes do conteúdo no WhatsApp do cliente, de forma automática. Na Cloud API Meta, o envio sai do `Phone-Number-ID` da concessionária e o corpo está em `text.body`; **não foi identificado atributo oficial que renderize o agente humano como remetente visual separado da mensagem**. A identificação em uma plataforma de atendimento pode ser apenas visual na UI própria, ou parte literal do texto enviado ao WhatsApp quando o backend acrescentar uma assinatura de texto.
+
+**Contrato de autoria:** obter conta/autorização/atribuição de caso a partir do S0, não do nome escrito por IA ou cliente. Conservar `actor_tipo`/referência ao operador e snapshot do nome no histórico e registrar o texto **exato** efetivamente enviado. Prévia deve corresponder ao resultado, respeitando janela WhatsApp, escopo da loja, idempotência e limite de mensagem. **Não atribuir nome humano a mensagens da IA.**
+
+**Templates aprovados:** o nome do operador só pode ser injetado por **slot/variável aprovado** ou conteúdo previamente aprovado; não anexar prefixo livre ao payload de um template e não usar mensagem livre fora de janela. A plataforma preenche qualquer variável autorizada. Formato/frequência da assinatura, legendas/mídias e apresentação da IA ainda são [P/R] para decisão em fase de UI. **A funcionalidade ainda não foi implementada.** Referência: [WA-20](./wa20-identificacao-visivel-atendente-assinatura-mensagem-2026-10-21.md).
+
 ## 13. Administração MCP e auditoria de autoria [D/H/P]
 
 - Cada **responsável autorizado** possui autenticação e vínculo individual, sem conta compartilhada como prova de autoria. Responsável pode instruir sua IA administrativa conectada ao MCP: ler dados autorizados, preparar rascunhos, texto, mídia, finalidades, editar/excluir/desativar o que sua matriz expressamente permite e solicitar submissão à Meta.
