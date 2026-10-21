@@ -58,3 +58,8 @@ Os itens **3 (transferência excepcional por caso)** e **4 (projeções de leitu
 **Falta o item 5: novo contrato do gateway gerencial assinado, sem motivo e com revisão CAS, atendendo GoTrue/HMAC e negando rotas legadas.** Depois de testá-lo, verificar o item 6 e preparar o relatório de congelamento. Na etapa A da pausa, pedir confirmação das ambiguidades de negócio (destino pausado, herança de leitura e validade/expiração da exceção). A integração real Meta, confirmação de entrega e S0 ao vivo não são pré-requisito para o **marco de auditoria de sandbox**, mas permanecem gates de produção.
 
 **Aviso:** as seções anteriores deste documento eram o planejamento de 20/10 e registravam 3–5 pendentes. Este adendo atualiza o estado auditável sem sobrescrever a fotografia histórica.
+
+## Duas definições confirmadas antes da rodada futura de perguntas
+
+- **Decisão fechada:** pausar a distribuição não suspende a conta nem o acesso à plataforma. Operador pausado segue podendo consultar e responder seus casos não redistribuídos. A ausência de substituto mantém a atribuição. Esta pergunta **não deve ser repetida** na futura reunião de alinhamento.
+- **Decisão de UI ainda aberta, sem necessidade de pergunta imediata:** `COUNT` (não lidas) e `DOT` (lidas sem resposta) não precisam de cores diferentes. Mesmo esquema de cores ou cores distintas são opções válidas; a semântica e ausência de número na bolinha são o contrato funcional, não a paleta.
