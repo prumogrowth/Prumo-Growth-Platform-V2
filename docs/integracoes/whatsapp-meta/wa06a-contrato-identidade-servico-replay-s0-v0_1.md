@@ -1,5 +1,7 @@
 # WA-06A — contrato candidato de autenticação interna, privilégio mínimo e antirreplay Meta → S0
 
+> **[LEITURA_ORIENTADA_2026_10_21] Registro histórico ou de engenharia, não substitui decisões recentes.** Consulte [LEIA PRIMEIRO](./README.md), [especificação funcional vigente](./01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md) e [mapa de conflitos](./02-mapa-fontes-conflitos-e-emendas-2026-10-21.md). Somente trechos expressamente substituídos perdem vigência; provas offline não significam serviços reais homologados.
+
 **Data:** 18/10/2026. **Estado:** [P] proposta de interface para revisão cruzada; **não** equivale a DEC-WA-06 aprovada, DDL, API operacional ou homologação. **Base lida:** WA-05C, WA-05D, WA-05D-AUD1 do PR #2; interface compartilhada Meta/S0; S0-033, S0-037D e S0-037F do PR #1. Preservam-se DEC-WA-01/02/03/05, D-ORG-01 e Supabase diretamente no caminho crítico sem n8n inicial.
 
 ## 1. Por que este incremento não é outro simulador
