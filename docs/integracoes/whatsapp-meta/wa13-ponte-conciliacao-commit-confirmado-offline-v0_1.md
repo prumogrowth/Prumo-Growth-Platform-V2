@@ -1,5 +1,7 @@
 # WA-13 — conciliação compartilhada S0 → Meta com vínculo pré-confirmado (offline)
 
+> **[LEITURA_ORIENTADA_2026_10_21] Registro histórico ou de engenharia, não substitui decisões recentes.** Consulte [LEIA PRIMEIRO](./README.md), [especificação funcional vigente](./01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md) e [mapa de conflitos](./02-mapa-fontes-conflitos-e-emendas-2026-10-21.md). Somente trechos expressamente substituídos perdem vigência; provas offline não significam serviços reais homologados.
+
 **Data:** 19/10/2026. **Estado:** entregue na branch do [PR #2 Draft](https://github.com/prumogrowth/Prumo-Growth---Platform/pull/2). **Não** é persistência PostgreSQL, endpoint Meta, ACK real, homologação da S0 ou autorização de envio. Sem credenciais, CI acionado, Supabase hospedado, merge, deploy ou contato real.
 
 ## Lacuna de engenharia
