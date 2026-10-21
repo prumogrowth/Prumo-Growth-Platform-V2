@@ -4,6 +4,8 @@
 
 > **AVISO DE PRECEDÊNCIA** — A cópia histórica dos 55 documentos de 17/10/2026 e a consolidação conceitual de 10/10/2026 continuam referências de origem. Porém, onde uma decisão expressa do responsável em 20–21/10/2026 as substituiu, prevalece a regra MAIS RECENTE, especificamente identificada abaixo. Propostas e exemplos NÃO viram decisões por serem reproduzidos aqui. A vigência de produto não prova implementação, conformidade Meta/LGPD/Banco nem aprovação em CI.
 
+> **NAVEGAÇÃO RÁPIDA:** [LEIA PRIMEIRO](./README.md) → [01 ESPECIFICAÇÃO FUNCIONAL VIGENTE, com regras completas e exemplos](./01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md) → **este índice WDC, com precedência e origem** → [02 MAPA DE FONTES/CONFLITOS](./02-mapa-fontes-conflitos-e-emendas-2026-10-21.md). A documentação de 17/10 continua preservada como histórico; DEC-WA-05 de 17/10 já fixou a titularidade pretendida de contas/App/WABA/número por concessionária. 
+
 ## Regras para interpretar a documentação
 
 - **[D] Decisão expressa:** confirmada pelo responsável e aplicável ao desenho de produto dentro do escopo indicado.
