@@ -1,5 +1,7 @@
 # WA-04A — Seleção de credenciais Meta por concessionária (offline) | 18/10/2026
 
+> **[LEITURA_ORIENTADA_2026_10_21] Registro histórico ou de engenharia, não substitui decisões recentes.** Consulte [LEIA PRIMEIRO](./README.md), [especificação funcional vigente](./01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md) e [mapa de conflitos](./02-mapa-fontes-conflitos-e-emendas-2026-10-21.md). Somente trechos expressamente substituídos perdem vigência; provas offline não significam serviços reais homologados.
+
 **Estado:** proposta técnica [P] isolada no PR #2. **Não é integração operacional de segredos, Supabase ou WhatsApp.** O usuário está providenciando as credenciais definitivas e informou que as cadastrará pessoalmente no Supabase; a frente Meta aguardará a sua confirmação para qualquer avaliação das configurações reais. Não solicitar valores secretos no chat, Issues, PRs ou arquivos de repositório.
 
 ## 1. Diretriz respeitada
