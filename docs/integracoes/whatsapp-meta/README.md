@@ -18,9 +18,11 @@
 | Contratos operacionais e código do adaptador | [README do código WhatsApp](../../../integrations/whatsapp-meta/README.md) | Fases e candidatos técnicos, NÃO prova de produção |
 | Escopo da futura interface MCP | [Issue #11](https://github.com/prumogrowth/Prumo-Growth---Platform/issues/11) | Contratos de templates para outra frente construir servidor MCP real |
 
-## Nova funcionalidade registrada — nome do operador nas mensagens
+## Funcionalidade aprovada — assinatura de Diretor, Gestor e Consultor
 
 [WA-20 — Identificação visível do atendente: o que a Meta oferece e como a plataforma poderá implementar](./wa20-identificacao-visivel-atendente-assinatura-mensagem-2026-10-21.md). A Meta envia pelo número da concessionária; para aparecer no WhatsApp do cliente, o nome poderá ser acrescentado pelo backend ao **texto da mensagem**. Autoria de operador permanece separada e autenticada no S0. O formato/frequência exata ainda não foi fechado; mensagens de template obedecem ao conteúdo/variáveis aprovados. **Não implementado.**
+
+> **DECISÃO DE 21/10 (WA-21):** os papéis visíveis passam a ser **Diretor** (antes responsável), **Gestor** (mantido) e **Consultor** (antes operador). A assinatura automática nas mensagens humanas usará `Consultor Nome:\nMensagem`, `Gestor Nome:\nMensagem` ou `Diretor Nome:\nMensagem`. **Isso substitui o formato provisório da WA-20**; o recurso continua não implementado. [Leia a decisão e os limites técnicos WA-21](./wa21-papeis-diretor-gestor-consultor-assinatura-2026-10-21.md).
 
 ## Política editorial
 
@@ -102,6 +104,7 @@ Arquivos abaixo permanecem pesquisáveis e preservados por fase. São histórico
 - [wa18c-falhas-consecutivas-taxonomia-interna-templates-2026-10-20.md](./wa18c-falhas-consecutivas-taxonomia-interna-templates-2026-10-20.md)
 - [wa19-auditoria-documental-reconciliacao-2026-10-21.md](./wa19-auditoria-documental-reconciliacao-2026-10-21.md)
 - [wa20-identificacao-visivel-atendente-assinatura-mensagem-2026-10-21.md](./wa20-identificacao-visivel-atendente-assinatura-mensagem-2026-10-21.md)
+- [wa21-papeis-diretor-gestor-consultor-assinatura-2026-10-21.md](./wa21-papeis-diretor-gestor-consultor-assinatura-2026-10-21.md)
 
 ### Índices vigentes e matrizes adicionais
 
