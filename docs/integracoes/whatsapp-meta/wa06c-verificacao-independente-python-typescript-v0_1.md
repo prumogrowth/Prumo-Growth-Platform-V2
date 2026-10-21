@@ -1,5 +1,7 @@
 # WA-06C — verificação independente do formato Meta → S0 em Python e TypeScript
 
+> **[LEITURA_ORIENTADA_2026_10_21] Registro histórico ou de engenharia, não substitui decisões recentes.** Consulte [LEIA PRIMEIRO](./README.md), [especificação funcional vigente](./01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md) e [mapa de conflitos](./02-mapa-fontes-conflitos-e-emendas-2026-10-21.md). Somente trechos expressamente substituídos perdem vigência; provas offline não significam serviços reais homologados.
+
 **Data:** 18/10/2026. **Estado:** [P/V local]. **Escopo:** conferir apenas a *compatibilidade da serialização* candidata WA-06B. Não confundir com validação de HMAC real, identidade de serviço, autorização S0, consumo transacional de nonce, persistência protegida ou ACK Meta.
 
 ## 1. Contexto e objetivo
