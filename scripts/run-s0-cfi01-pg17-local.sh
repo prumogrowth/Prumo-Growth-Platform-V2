@@ -34,7 +34,8 @@ for file in \
   supabase/migrations/202610170008_s0_lead_operador_caso.sql \
   supabase/tests/s0_cfi01_s1_038_reference_local_only.sql \
   supabase/tests/s0_cfi01_human_closure_table_local_only.sql \
-  supabase/tests/s0_cfi01_signed_prerequisite_local_only.sql
+  supabase/tests/s0_cfi01_signed_prerequisite_local_only.sql \
+  supabase/tests/s0_cfi01_atomic_owner_local_only.sql
 do
     psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$file"
 done
