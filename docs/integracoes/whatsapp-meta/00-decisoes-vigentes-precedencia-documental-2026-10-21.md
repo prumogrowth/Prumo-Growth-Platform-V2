@@ -1,0 +1,73 @@
+# WhatsApp/Meta — Fonte de referência das decisões vigentes (21/10/2026)
+
+**Classe:** consolidação documental de decisões expressas do responsável, fontes históricas e limites de implementação. **Objetivo:** resolver ambiguidades de recuperação de conhecimento, sem modificar o código, o banco ou a interpretação de normas externas. **Escopo:** frente WhatsApp/Meta, interfaces com S0 e contrato futuro MCP, não o projeto inteiro.
+
+> **AVISO DE PRECEDÊNCIA** — A cópia histórica dos 55 documentos de 17/10/2026 e a consolidação conceitual de 10/10/2026 continuam referências de origem. Porém, onde uma decisão expressa do responsável em 20–21/10/2026 as substituiu, prevalece a regra MAIS RECENTE, especificamente identificada abaixo. Propostas e exemplos NÃO viram decisões por serem reproduzidos aqui. A vigência de produto não prova implementação, conformidade Meta/LGPD/Banco nem aprovação em CI.
+
+## Regras para interpretar a documentação
+
+- **[D] Decisão expressa:** confirmada pelo responsável e aplicável ao desenho de produto dentro do escopo indicado.
+- **[E] Estrutura histórica ainda válida:** decisão de 17/10 não alterada pelos novos alinhamentos.
+- **[P] Proposta técnica:** desenho recomendado mas não aprovado como nomes físicos ou política final.
+- **[V] Validação externa:** depende das regras Meta, LGPD, Banco ou acordos; não presumir autorização.
+- **[T] Estado técnico:** fato sobre código/testes/serviços que só pode ser afirmado com evidência identificável.
+- **[S] Superada:** decisão histórica substituída SOMENTE no aspecto explicitamente indicado; o restante do documento permanece válido.
+
+**Ordem de consulta:** este índice com fontes → registros WA-18C/WA-18B/WA-18/WA-17B e demais decisões da conversa datadas → documentos aprovados do pacote 17/10 com índice 00A/13A/41 → materiais conceituais mais antigos. A ordem não dá poder para substituir validações [V] por preferências [D].
+
+## Matriz normativa consolidada e evidência de origem
+
+| ID | Regra atual e classificação | Origem/precedência |
+|---|---|---|
+| WDC-01 | [E] LiberaCred é produto da instituição financeira; Prumo é a plataforma/gestora operacional. Atendimento, banco, Meta e operador são domínios distintos. | Pacote 00A, 09, 11 e notas dos PRs; consolidação 0.2 é fotografia conceitual de 10/10 |
+| WDC-02 | [D] Uma WABA SEPARADA, um número WhatsApp dedicado e um catálogo privado por concessionária. A Prumo acessa/usa a API sob autorização; nome e imagem apresentados são da concessionária. Sem WABA única central; não compartilhar templates, histórico, lead ou desfecho entre lojas. | WA-18 D-WA18-03, 20/10; [S] declarações em pacote 04/09/25/30/33/34 sobre titularidade da gestora e catálogo global/opcional, somente no que contradisserem a separação |
+| WDC-03 | [V] Titularidade legal de WABA/número, Business Manager, Meta App, credenciais e procuração/acessos da Prumo precisam ser formalizados. WABA separada por concessionária não equivale a parecer sobre titularidade jurídica. | WA-18; pacote 34 META-01; sem decisão final de propriedade contratual |
+| WDC-04 | [E] Três registros lógicos: mensagens (uma linha por comunicação), envios_template (tentativa programada/realizada e histórico) e catalogo_templates (conteúdo, versão, aprovação). Histórico administrativo append-only separado; versão/snapshot exatos preservados em envios passados. | Pacote 09, 10; WA-17; não substituir por único JSON |
+| WDC-05 | [D] O responsável individual autenticado poderá usar IA administrativa via MCP para redigir/copiar texto, preparar mídia/botões, criar/editar/solicitar aprovação quando permitido pela Meta, administrar dados autorizados e consultar informações permitidas. Escritas/exclusões precisam de prévia, SEGUNDA CONFIRMAÇÃO EXPLÍCITA DO MESMO RESPONSÁVEL, escopo, idempotência e trilha de auditoria. IA/MCP não altera schema/DDL/estrutura, permissões globais, provas bancárias ou audit log por conta própria. | Alinhamentos 20/10 WA-17B e WA-18 D-WA18-02; [S parcial] D41-03 do pacote 41 limitava escritas na primeira versão a importar lote/remanejar casos. As NOVAS operações pedem matriz de ferramentas granular; não significa autorização técnica irrestrita agora |
+| WDC-06 | [D] Implementar/operar o servidor MCP e suas tools executáveis é de OUTRA frente; WhatsApp/Meta fornece domínio, contratos e documentação para futuro consumo. Responsáveis recebem acessos individuais. Nenhum cliente WhatsApp ganha poder administrativo por prompt. | WA-17B, issue #11 |
+| WDC-07 | [D] Templates admitem texto, cabeçalhos de imagem/vídeo/documento/texto, rodapé, botões URL (rótulo e link), resposta rápida/telefone, além de variantes Meta futuras mediante contrato específico. Conteúdo pode ser criado por IA administrativa sob instrução do responsável. A Meta administra categoria oficial, aprovação e restrições de formato. | WA-17B; fontes e capacidade Meta a verificar por versão [V] |
+| WDC-08 | [D] Edição de template já aprovado PODE ser permitida se a API/estado Meta permitir. Cada edição precisa de controle de revisão, auditoria, confirmação administrativa, reanálise quando exigida e preservar versão/snapshot usado nos envios históricos. Não tomar HTTP 2xx como APPROVED. | WA-18B revisa [S] imutabilidade absoluta de WA-18 D-WA18-01 |
+| WDC-09 | [D] Vínculo posicional de variáveis de cada versão aprovada fica CONGELADO; mudar o mapeamento exige ciclo de revisão/versionamento compatível e não altera envio histórico. Plataforma preenche valores no instante de envio; nem IA Planejadora nem IA Vendedora substituem valores. Campos comerciais da tabela de leads constituem fontes CANDIDATAS, sem lista de colunas congelada hoje; a política de privacidade deve liberar fontes permitidas por finalidade e escopo. Sem SQL dinâmico ou valores inferidos. | WA-18B D-WA18B-02; [S parcial] WA-17A/B permitem tecnicamente editar mapeamento após aprovação, pendente correção da IMPLEMENTAÇÃO |
+| WDC-10 | [D] A classificação oficial do provedor (MARKETING, UTILITY e outras aceitas pela Meta) é DIFERENTE das FINALIDADES internas. Responsáveis poderão criar FINALIDADES por concessionária, como abertura/recontato/campanha/operador. Um template pode ter MULTIPLAS finalidades; cada uma tem concessão independente explícita por ator/fluxo/uso. Não somar permissões implicitamente. | WA-18C, decisão complementar de 21/10; [S] nomenclatura histórica “categorias internas” |
+| WDC-11 | [D] IA Planejadora/Orquestradora recebe somente templates já aprovados, ativos, compatíveis com finalidade, loja/WABA, contexto, campanha e público permitido; nunca vê catálogo inteiro por padrão. Pode retirar, substituir, reordenar, alterar quantidade/horário dentro do conjunto autorizado. Não cria novos templates nem solicita aprovação pelo MCP ao precisar de substituição. O backend valida autorização também NO ENVIO, não apenas no planejamento; promoção exige prova de campanha/oferta realmente aplicável ao lead. | WA-18B/WA-18C; pacote 06/09/13/26 já separava planejamento da criação e do transporte |
+| WDC-12 | [D] Indisponibilidade oficial de um template (rejeitado/pausado/suspenso/inválido) bloqueia aquele template e aciona Planejadora COM CONTEXTO reduzido de razão Meta, versão, cadência e alternativas permitidas. Falha normal de entrega/envio NÃO chama Planejadora. | WA-18B |
+| WDC-13 | [D] Regra determinística por fluxo: primeira falha definitiva e correlacionada conta 1; PRÓXIMO template comprovadamente ENVIADO zera para 0, mesmo sem resposta do cliente, independentemente do intervalo. Duas FALHAS definitivas em TENTATIVAS CONSECUTIVAS cancelam o restante da cadência e encerram ciclo/lead como PERDIDO com motivo técnico; sem IA. API_ACCEPTED/timeout/falta de callback/resultado INCERTO não contam como sent nem falha até conciliação. | WA-18B + WA-18C; [S parcial] pacote 13 REC-10 e 26 apenas cancelavam e diziam não classificar perdido automaticamente |
+| WDC-14 | [D] Opt-out pedido à concessionária A suprime proatividade de A, NÃO altera autorização/histórico da concessionária B. B precisa de elegibilidade própria válida; opt-out validado bloqueia proatividade independentemente de julgamento comercial da IA. Recebimento espontâneo depois de opt-out não é opt-in. | WA-18/WA-18B; [S parcial] pacote 33/34/35 tratavam DEC-17 como aberta |
+| WDC-15 | [T] Há suporte APENAS SINTÉTICO no PR #1: S0-016 cria supressoes_contato_sinteticas por loja+lead+canal+finalidade e rotina idempotente que cancela pendências; S0-018 impede reopt-in inferido. Não afirmar opt-out real homologado nem inventar tabela nova. O alcance operacional por concessionária, inclusive troca técnica de canal, ainda precisa refinamento. | docs/C04_ELEGIBILIDADE_OPTOUT_SIMULADO_2026_10_17.md e migrations 016/018 do PR #1; WA-18B |
+| WDC-16 | [D] Decisão comercial sobre resposta de botão é contextual da IA de atendimento, exceto supressão inequívoca que bloqueia envios proativos. Lead perdido por falha técnica não equivale a desinteresse; eventual nova campanha depende de decisão administrativa e revalidação. | WA-18, WA-18B |
+| WDC-17 | [D/P] Painel de saúde de template e métricas de eficácia por versão/componente são desejados; NÃO criar bloqueio automático por limite monetário. Custo/cobrança devem ser analisáveis fora dos gates de envio. | WA-18; valores e categorias econômicas continuam [V] |
+| WDC-18 | [V] Uso financeiro LiberaCred no WhatsApp, solicitações de dados/documentos e fotos, consentimento Meta, bases LGPD e compartilhamento com Banco exigem validação própria. Material recebido espontaneamente não autoriza automaticamente extrair/armazenar identificadores proibidos. | Pacote 33/34 e WA-18; nenhuma autorização externa presumida |
+| WDC-19 | [E/T] A estrutura lógica e os testes escritos não equivalem a CI homologado. WA-15C teve CI cruzado anterior comprovado; WA-16/17 atuais têm testes escritos e verificações V8 parciais, sem confirmação de execução nativa/SQL do ciclo atual. | Relatório wa16-wa17-fechamento-validacao-e-pausa-2026-10-20.md no PR #2 |
+| WDC-20 | [E] Estados de mensagem, envio/entrega/leitura e oito estados comerciais são dimensões distintas; somente S0 aplica transição comercial, janela e condições de término. Envio não abre janela de resposta livre. Handoff humano e etapas bancárias conservam suas regras documentadas. | Pacote 13/13A/21/22/23/26; WA-07 |
+
+## Vocabulário para consulta e testes
+
+- **Categoria Meta:** classificação formal do provedor (por exemplo, MARKETING/UTILITY); não é autorização de uso interno.
+- **Finalidade do template:** etiqueta/configuração interna da concessionária que pode coexistir com outras; o uso concreto requer concessão específica por contexto e elegibilidade comercial.
+- **Finalidade do contato/consentimento:** escopo jurídico/comunicacional de opt-in, opt-out e tratamento; NÃO é a mesma coisa que finalidade de template. Não unificar essas dimensões em um só campo.
+- **Autorização de envio:** decisão de backend baseada em prova de consentimento/opt-out, identidade de loja/canal, template Meta aprovado, finalidades e elegibilidade da campanha, gates comerciais e técnicos; não é output da IA.
+- **Falha definitiva:** erro técnico terminal confirmado e atribuído à tentativa; não confundir com timeout ou ausência de callback.
+- **SENT:** evento oficial ou evidência confiável equivalente correlacionada da transmissão. Um ACK HTTP do POST não basta para declarar envio.
+- **Versão do template:** identidade do conteúdo e mapeamento congelado naquela aprovação, com snapshot preservado mesmo se edição posterior Meta mantiver ID do provedor.
+- **IA Planejadora:** seleciona/substitui/reordena tentativas já permitidas; **IA administrativa:** cria/edita conteúdo por MCP do responsável; **IA de atendimento:** conversa/interpreta respostas; **plataforma:** valida/realiza preenchimento e transições.
+
+## Pendências que NÃO viraram decisões
+
+1. Prova jurídica e titularidade formal das WABAs, dos números e do acesso delegado à Prumo [V].
+2. Critérios legais/Meta para tratar dados cadastrais, imagens e identificadores completos no canal WhatsApp [V].
+3. Modelo físico e política detalhada das finalidades, das concessões por fluxo e das campanhas; entidades/comportamento devem ser auditados contra S0 e o pacote 25/30/31 antes de SQL [P].
+4. Registro automático de novas fontes comerciais de leads com classificação de segurança e governança de mudanças de schema [P].
+5. Comportamento técnico sob callbacks fora de ordem, dois envios concorrentes e sinal incerto na série de falhas [P/T]; não alterar regra de produto por inferência.
+6. Prazo, elegibilidade e comprovação externa de mensagens/template, status da Meta, aprovação de mídia e política financeira [V].
+7. Permissões MCP granulares além das intenções confirmadas: definir quais ações a cada responsável por tenant, perfil e canal administrativo sem conceder schema/DDL ou poderes globais [P], pela OUTRA frente MCP.
+8. Execução nativa de CI/PG17 atual WA-16/17 e posterior auditoria de implementação separada [T].
+
+## Fontes do registro
+
+**Históricas (pacote fechado 17/10, arquivos íntegros):** 00A Índice Mestre, 04 Dados/Integrações/MCP, 05 Catálogo de Regras, 06 IA, 09 Mensagens/Templates, 10 Identidade/Auditoria, 11 Arquitetura, 13 Estados, 13A Emendas, 25 Modelo de Dados, 26 APIs, 30 Projeto Físico, 31 Matriz de Permissões, 33 Ameaças/OptOut, 34 Homologações, 35 Decisões, 41 Matriz Aprovada. Arquivo de consolidação conceitual 0.2 de 10/10. Nenhum arquivo histórico foi reescrito neste PR.
+
+**Atualizações expressas 20–21/10:** WA-17A/B, WA-18, WA-18B, WA-18C (documentos em docs/integracoes/whatsapp-meta), issue #11, decisões do responsável nesta conversa. Para detalhes de status de teste usar somente relatório WA-16/17 com evidência indicada.
+
+## Fronteira
+
+Este documento é o **índice de interpretação da frente WhatsApp/Meta**, não uma alteração das 55 fontes históricas, da matriz de permissões de toda a plataforma ou das condições legais externas. Projetos/PRs de S0 ou MCP continuam com proprietários próprios; consolidação normativa global posterior deve incorporar esta emenda com revisão cruzada.
