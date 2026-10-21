@@ -1,5 +1,7 @@
 # WA-12 — recuperação de resultado incerto na vinculação tentativa ↔ wamid (offline)
 
+> **[LEITURA_ORIENTADA_2026_10_21] Registro histórico ou de engenharia, não substitui decisões recentes.** Consulte [LEIA PRIMEIRO](./README.md), [especificação funcional vigente](./01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md) e [mapa de conflitos](./02-mapa-fontes-conflitos-e-emendas-2026-10-21.md). Somente trechos expressamente substituídos perdem vigência; provas offline não significam serviços reais homologados.
+
 **Data:** 19/10/2026. **Escopo:** PR #2 Draft, sem deploy, banco remoto, CI acionado, Meta Graph, tokens reais ou mensagens. Este documento descreve **somente código e testes efetivamente realizados** nesta retomada.
 
 ## Lacuna verificada
