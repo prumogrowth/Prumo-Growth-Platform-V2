@@ -22,6 +22,7 @@ from backend.s0_cfi01_authenticated_commands_local import (
 from backend.s0_cfi01_signed_prerequisite_local import (
     S0CFI01RestrictedSignedPrerequisiteLocal, SignedState,
 )
+from backend.s0_cfi01_signed_commands_local import S0CFI01SignedCommandsLocal
 import hmac
 import hashlib
 from backend.tests.test_s0_cfi01_authenticated_commands_local import (
@@ -596,6 +597,59 @@ class PostgresPhysicalIntegration(unittest.TestCase):
                 conn.execute("""insert into prumo_private.cfi01_human_closure_events_local
                     (id) values (%s)""",(uuid.uuid4(),))
 
+
+
+    def _signed_commands(self):
+        return S0CFI01SignedCommandsLocal(
+            'https://auth.example.invalid','test-public-key',
+            DB,self._RESTRICTED_DSN,
+            key_id=self._SIGNED_KEY_ID,signing_key=self._SIGNED_SECRET,
+            opener=SyntheticGoTrueHTTP(actor=self.actor))
+
+    def test_52_signed_sql_gate_then_real_pg_capture(self):
+        gate=self._signed_commands()
+        result=gate.execute(synthetic_token(self.actor,self.session),
+             'capture_human_closure',self._gateway_payload())
+        self.assertIs(result.state,CommandState.CAPTURED_LOCAL_ONLY)
+        self.assertEqual(self._count(),1)
+
+    def test_53_signed_sql_gate_then_real_pg_recheck(self):
+        gate=self._signed_commands()
+        auth=synthetic_token(self.actor,self.session)
+        receipt=gate.execute(auth,'capture_human_closure',self._gateway_payload())
+        self.assertIs(receipt.state,CommandState.CAPTURED_LOCAL_ONLY)
+        check=gate.execute(auth,'recheck_human_closure',
+             {**self._gateway_payload(),'closure_event_ref':receipt.closure_event_ref})
+        self.assertIs(check.state,CommandState.VERIFIED_REVIEW_ONLY_LOCAL)
+        self.assertEqual(self._count(),1)
+
+    def test_54_wrong_signed_key_blocks_before_privileged_capture(self):
+        gate=S0CFI01SignedCommandsLocal(
+            'https://auth.example.invalid','test-public-key',
+            DB,self._RESTRICTED_DSN,key_id=self._SIGNED_KEY_ID,
+            signing_key=b'x'*32,opener=SyntheticGoTrueHTTP(actor=self.actor))
+        result=gate.execute(synthetic_token(self.actor,self.session),
+             'capture_human_closure',self._gateway_payload())
+        self.assertIs(result.state,CommandState.DENIED)
+        self.assertEqual(self._count(),0)
+
+    def test_55_team_suspension_blocks_signed_capture(self):
+        gate=self._signed_commands()
+        with self.pg.connect(DB) as con:
+            con.execute("update public.equipe_prumo_s1 set estado='suspenso' where ator_id=%s",
+                        (self.actor,))
+        result=gate.execute(synthetic_token(self.actor,self.session),
+            'capture_human_closure',self._gateway_payload())
+        self.assertIs(result.state,CommandState.DENIED)
+        self.assertEqual(self._count(),0)
+
+    def test_56_signed_entry_rejects_claimed_browser_role(self):
+        gate=self._signed_commands()
+        result=gate.execute(synthetic_token(self.actor,self.session),
+            'capture_human_closure',{**self._gateway_payload(),
+                                      'actor_id':str(self.actor)})
+        self.assertIs(result.state,CommandState.INPUT_REJECTED)
+        self.assertEqual(self._count(),0)
 
 
 if __name__ == "__main__":
