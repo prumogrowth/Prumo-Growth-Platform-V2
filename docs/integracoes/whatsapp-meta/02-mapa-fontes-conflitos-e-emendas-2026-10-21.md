@@ -53,6 +53,12 @@ As decisões presentes em `documentos/02`, `03`, `05`, `07`, `08A/B/C`, `10`, `1
 
 **NÃO houve uma leitura editorial integral, linha a linha, de cada um dos 55 documentos para fins de errata textual.** Houve inspeção temática do conjunto e leitura aprofundada das fontes de conflito listadas. Este mapa é a camada de reconciliação **vigente no escopo da frente**; caso um trecho não listado apresente conflito concreto, abrir adendo com ID/origem/regra substituta em vez de presumir que nada mais possa conflitar.
 
+### Terminologia de papéis e assinatura humana — WA-21 (21/10/2026)
+
+A decisão mais recente altera as nomenclaturas de produto: **responsável (CARGO) → Diretor**, **gestor → Gestor** e **operador (CARGO) → Consultor**. Nos documentos legados `documentos/10`, `24`, `31`, `36`, `41`, na WA-07/17/20 e em SQL/contratos, *operador* e *responsável* podem ser termos históricos; migrar strings/ACLs somente sob análise de compatibilidade. O uso de “responsável” como substantivo genérico **não** muda. Status e colunas físicos são referências históricas, não autorização de migration automática. [WA-21](./wa21-papeis-diretor-gestor-consultor-assinatura-2026-10-21.md) é a fonte da decisão.
+
+A WA-20 documentava **exemplo provisório** `Mariana — Atendimento` e formato pendente: ambos **SUPERADOS** pela regra de produto **`Consultor Nome:\nMensagem`**, **`Gestor Nome:\nMensagem`** e **`Diretor Nome:\nMensagem`** como assinatura textual automática por humano. Para template aprovado, somente conteúdo ou slot autorizados Meta. O nome vem da conta/atribuição autenticada, não de declaração da IA. Frente S0/UX/MCP deve revisar efeitos de perfil; a alteração nesta fase é apenas documental.
+
 ## 4. Divergências internas do PR #2 e sua resolução
 
 | Documento da frente | Problema | Ação de interpretação |
