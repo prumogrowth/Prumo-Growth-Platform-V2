@@ -101,6 +101,8 @@ class Cases(unittest.TestCase):
         self.assertIs(call(inspection=Inspection(status=S.DENIED)).status,S.DENIED)
     def test_15_arbitrary_storage_reply_fails_closed(self):
         self.assertIs(call(inspection=Inspection(status='AUTHORIZED')).status,S.DENIED)
+    def test_16a_string_impersonating_enum_is_denied(self):
+        self.assertIs(call(inspection=Inspection(status="S0_READ_CHECKS_PASSED_S1_REQUIRED")).status,S.DENIED)
     def test_16_storage_error_unavailable(self):
         self.assertIs(call(inspection=Inspection(error=RuntimeError('db down'))).status,S.UNAVAILABLE)
     def test_17_pg_remote_dsn_rejected(self):
