@@ -1,5 +1,7 @@
 # WA-16 — classificação segura de COMMIT incerto e prova de transações em laboratório
 
+> **[LEITURA_ORIENTADA_2026_10_21] Registro histórico ou de engenharia, não substitui decisões recentes.** Consulte [LEIA PRIMEIRO](./README.md), [especificação funcional vigente](./01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md) e [mapa de conflitos](./02-mapa-fontes-conflitos-e-emendas-2026-10-21.md). Somente trechos expressamente substituídos perdem vigência; provas offline não significam serviços reais homologados.
+
 **Estado em 20/10/2026:** código e suíte publicados no PR #2 (Draft); **CI da revisão WA-16 ainda não confirmado**. Não declarar PASS PostgreSQL/TypeScript sem job concluído e logs. Os gates WA-15C (12/12), WA-06D (20/20) e Meta (479/479) já aprovados se referem a **commits anteriores**, não demonstram a WA-16.
 
 ## Objetivo
