@@ -2,7 +2,7 @@
 
 **Atualização:** 21/10/2026 · **Condição:** consolidação das decisões do responsável tomadas de 20 a 21/10 e das regras históricas compatíveis de 17/10 · **Escopo:** WhatsApp/Meta e contratos com S0, IA, MCP futuro e operadores. **Esta é a referência FUNCIONAL de consulta; não substitui validações externas nem afirma que tudo está implementado.**
 
-**Leitura obrigatória:** [índice das decisões com IDs WDC-01..20](./00-decisoes-vigentes-precedencia-documental-2026-10-21.md) e [mapa de conflitos e fontes históricas](./02-mapa-fontes-conflitos-e-emendas-2026-10-21.md). Para registros anteriores, vale a regra explícita de precedência: **última decisão expressa do responsável somente sobre o tópico revisto**; as demais normas históricas permanecem. D = decisão aprovada; H = histórico ainda válido; P = proposta de desenho; V = validação externa; T = situação técnica a comprovar.
+**Leitura obrigatória:** [índice das decisões com IDs WDC-01..21](./00-decisoes-vigentes-precedencia-documental-2026-10-21.md) e [mapa de conflitos e fontes históricas](./02-mapa-fontes-conflitos-e-emendas-2026-10-21.md). Para registros anteriores, vale a regra explícita de precedência: **última decisão expressa do responsável somente sobre o tópico revisto**; as demais normas históricas permanecem. D = decisão aprovada; H = histórico ainda válido; P = proposta de desenho; V = validação externa; T = situação técnica a comprovar.
 
 ## 1. Identidade do produto e escopo da operação [D/H]
 
