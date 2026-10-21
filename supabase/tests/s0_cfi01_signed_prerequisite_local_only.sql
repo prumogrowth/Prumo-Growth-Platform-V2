@@ -33,6 +33,7 @@ declare
   v_secret bytea;
   v_material text;
   v_signature bytea;
+  v_crypto_schema name;
   v_shop uuid;
   v_assignment uuid;
   v_actual_version bigint;
@@ -64,8 +65,18 @@ begin
     where k.key_id=p_key_id and k.active for share;
   if v_secret is null then
     raise exception 'CFI01_PROOF_DENIED' using errcode='42501';end if;
-  v_signature := public.hmac(
-     pg_catalog.convert_to(v_material,'utf8'),v_secret,'sha256');
+  -- pgcrypto may be in public in bare PG17, but in extensions or
+  -- prumo_crypto under managed Supabase. Resolve trusted extension schema.
+  select n.nspname into v_crypto_schema
+  from pg_catalog.pg_extension e
+  join pg_catalog.pg_namespace n on n.oid=e.extnamespace
+  where e.extname='pgcrypto';
+  if v_crypto_schema is null then
+    raise exception 'CFI01_HMAC_UNAVAILABLE' using errcode='42501';end if;
+  execute pg_catalog.format('select %I.hmac($1,$2,''sha256'')',
+                            v_crypto_schema)
+    into v_signature
+    using pg_catalog.convert_to(v_material,'utf8'),v_secret;
   if v_signature is distinct from pg_catalog.decode(p_signature,'hex') then
     raise exception 'CFI01_PROOF_DENIED' using errcode='42501';end if;
 
