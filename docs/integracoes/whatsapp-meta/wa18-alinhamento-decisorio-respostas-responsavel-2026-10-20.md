@@ -1,4 +1,6 @@
 # WA-18 — Registro de alinhamento de decisões WhatsApp/Meta (20/10/2026)
+> **Atualização de precedência — WA-18B possui precedência sobre itens revistos neste documento:** o responsável posteriormente confirmou que a edição de templates pode ser permitida quando a Meta a autorizar; o **mapeamento da versão aprovada** é que fica congelado. Confirmou também **duas falhas comprovadas consecutivas → cancelar restante da cadência e marcar `perdido` por erro sistêmico**, sem chamar a Planejadora por falha comum; a Planejadora pode reorganizar somente modelos disponíveis e aprovados quando a Meta invalidar algum deles. Ver [WA-18B](./wa18b-alinhamento-fechamento-optout-variaveis-falhas-cadencia-2026-10-20.md). O opt-out já possui tabela S0 sintética, mas não homologação real.
+
 
 **Tipo:** decisões verbais expressas do responsável, verificações externas pontuais e perguntas residuais. **Estado:** registro para auditoria/reconciliação, não uma migration, regra de produção ou autorização externa. **PR #2 Draft**, sem merge/deploy/Graph real. A frente MCP é independente: aqui somente contratos de domínio WhatsApp/Meta.
 
