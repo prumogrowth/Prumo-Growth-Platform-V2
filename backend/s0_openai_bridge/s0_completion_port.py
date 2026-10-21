@@ -6,7 +6,9 @@ version and ALL persistent effects. The public request cannot supply those.
 
 No real adapter, HTTP client, SQL, OpenAI call or banking side effect exists.
 Injectable ports are for explicit synthetic tests; a fake port is NOT evidence
-of real permission. The only positive result requires further S0 validation.
+of real permission. The model sees only a correlation-only F03ModelView,
+never S0ClosedSnapshot (including assignment and idempotency fields).
+The only positive result requires further S0 validation.
 """
 from __future__ import annotations
 
@@ -60,6 +62,22 @@ class S0ClosedSnapshot:
 
 
 @dataclass(frozen=True)
+class F03ModelView:
+    """Minimal correlation-only reference for the untrusted F03 model port.
+
+    No authorization, actor, assignment, idempotency key, store/case identity,
+    customer message, or bank state is passed to the model. The future S0
+    adapter must separately provide minimised, authorised conversation content
+    only after a ratified OAI-05/LGPD contract. This is NOT a retrieval token.
+    """
+    operation_kind: str
+    closure_event_ref: str
+    snapshot_hash: str
+    message_watermark: str
+    catalogue_version: str
+
+
+@dataclass(frozen=True)
 class S0Answer:
     kind: S0AnswerKind
     snapshot: S0ClosedSnapshot | None = None
@@ -79,7 +97,7 @@ class S0CompletionPort(Protocol):
 
 class F03CandidatePort(Protocol):
     """Untrusted model output; does not authenticate or authorize anything."""
-    def propose(self, captured: S0ClosedSnapshot) -> object: ...
+    def propose(self, context: F03ModelView) -> object: ...
 
 
 def _id(value: object) -> bool:
@@ -137,8 +155,17 @@ def prepare_f03_completion_review(
             or snap.case_version != request.expected_case_version
             or snap.completion_request_key != request.idempotency_key):
         return CompletionReview(CompletionState.DENIED)
+    # Never send S0 authority/scope/assignment fields to the untrusted model.
+    # The physical provider payload remains blocked by OAI-05/LGPD approval.
+    view = F03ModelView(
+        operation_kind='human_close_extract',
+        closure_event_ref=snap.closure_event_ref,
+        snapshot_hash=snap.snapshot_hash,
+        message_watermark=snap.message_watermark,
+        catalogue_version=snap.catalogue_version,
+    )
     try:
-        untrusted_model_result = model.propose(snap)
+        untrusted_model_result = model.propose(view)
     except Exception:
         return CompletionReview(CompletionState.MODEL_UNAVAILABLE)
     # Untrusted model output is NOT interpreted or copied out of this boundary.
