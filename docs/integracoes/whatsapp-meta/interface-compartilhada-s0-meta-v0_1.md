@@ -1,5 +1,7 @@
 # Interface compartilhada S0 ↔ Meta/Supabase | desenho v0.1
 
+> **[LEITURA_ORIENTADA_2026_10_21] Documento de referência histórica ou de engenharia, NÃO substitui decisões funcionais recentes.** Consulte o [LEIA PRIMEIRO](./README.md), a [especificação vigente](./01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md) e o [mapa de conflitos por origem](./02-mapa-fontes-conflitos-e-emendas-2026-10-21.md). Apenas trechos expressamente substituídos perdem vigência; evidências offline não significam serviços reais homologados.
+
 **Estado:** desenho de contrato [P] para revisão cruzada. **As diretrizes DEC-WA-01/02/03 estão APROVADAS [D]** pelo responsável; nomes de API, payloads internos, modelo físico, auth, fila e implementação permanecem **PROPOSTOS**, até confirmação pela frente principal.  
 **Documento vinculante de contexto:** [Conciliação PR #1 ↔ PR #2](conciliacao-pr1-pr2-s0-whatsapp-v0_1.md), [contrato geral](contrato-webhook-meta-supabase-v0_1.md), [modelo ingresso/identidade/idempotência](modelo-tecnico-ingresso-identidade-idempotencia-v0_1.md).  
 **Objetivo:** fronteira única, testável e com responsabilidades claras entre duas frentes; **não definir um segundo backend nem enviar mensagens reais**.
