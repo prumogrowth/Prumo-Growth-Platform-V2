@@ -1,4 +1,6 @@
 # WA-18B — Complemento decisório: edição Meta, variáveis congeladas, opt-out e falhas de cadência
+> **Atualização (WA-18C) com precedência sobre a dúvida residual de falhas e acréscimo de categorias internas:** o responsável definiu que um envio tecnicamente confirmado **zera o contador de falhas imediatamente, mesmo sem resposta do cliente**. As duas falhas precisam ser de templates consecutivos do mesmo fluxo, independentemente do tempo decorrido. Também decidiu que templates devem ter **categorias internas e políticas de disponibilidade por IA/operador/campanha/abertura/recontato**, separadas de `MARKETING`/`UTILITY` da Meta, para evitar promessa comercial inadequada. A modelagem exata dessas categorias ainda é proposta, não implementação. Veja [WA-18C](./wa18c-falhas-consecutivas-taxonomia-interna-templates-2026-10-20.md).
+
 
 **Data:** 20/10/2026. **Natureza:** resposta expressa do responsável e auditoria da S0 já implementada. **Somente documentação; nada executado em Graph/SQL real, sem merge/deploy.** Este complemento **substitui** os itens incompatíveis de `wa18-alinhamento-decisorio-respostas-responsavel-2026-10-20.md`. O trabalho permanece em pausa para revisão e alinhamentos.
 
