@@ -23,6 +23,7 @@ from backend.s0_cfi01_signed_prerequisite_local import (
     S0CFI01RestrictedSignedPrerequisiteLocal, SignedState,
 )
 from backend.s0_cfi01_signed_commands_local import S0CFI01SignedCommandsLocal
+from backend.s0_cfi01_atomic_commands_local import S0CFI01AtomicCommandsLocal, _ATOMIC_SQL
 import hmac
 import hashlib
 from backend.tests.test_s0_cfi01_authenticated_commands_local import (
@@ -649,6 +650,129 @@ class PostgresPhysicalIntegration(unittest.TestCase):
             'capture_human_closure',{**self._gateway_payload(),
                                       'actor_id':str(self.actor)})
         self.assertIs(result.state,CommandState.INPUT_REJECTED)
+        self.assertEqual(self._count(),0)
+
+
+    def _atomic_gateway(self,signing_key=None):
+        return S0CFI01AtomicCommandsLocal(
+            'https://auth.example.invalid','test-public-key',
+            self._RESTRICTED_DSN,
+            key_id=self._SIGNED_KEY_ID,
+            signing_key=signing_key if signing_key is not None
+              else self._SIGNED_SECRET,
+            opener=SyntheticGoTrueHTTP(actor=self.actor))
+
+    def test_57_atomic_capture_only_restricted_login(self):
+        gate=self._atomic_gateway()
+        result=gate.execute(synthetic_token(self.actor,self.session),
+            'capture_human_closure',self._gateway_payload())
+        self.assertIs(result.state,CommandState.CAPTURED_LOCAL_ONLY)
+        self.assertTrue(uuid.UUID(result.closure_event_ref))
+        self.assertEqual(self._count(),1)
+
+    def test_58_atomic_recheck_and_idempotency(self):
+        gate=self._atomic_gateway()
+        auth=synthetic_token(self.actor,self.session)
+        first=gate.execute(auth,'capture_human_closure',self._gateway_payload())
+        self.assertIs(first.state,CommandState.CAPTURED_LOCAL_ONLY)
+        repeat=gate.execute(auth,'capture_human_closure',self._gateway_payload())
+        self.assertIs(repeat.state,CommandState.ALREADY_CAPTURED)
+        self.assertEqual(repeat.closure_event_ref,first.closure_event_ref)
+        result=gate.execute(auth,'recheck_human_closure',
+           {**self._gateway_payload(),'closure_event_ref':first.closure_event_ref})
+        self.assertIs(result.state,CommandState.VERIFIED_REVIEW_ONLY_LOCAL)
+        self.assertEqual(self._count(),1)
+
+    def test_59_atomic_recheck_rejects_inbound_change(self):
+        gate=self._atomic_gateway()
+        auth=synthetic_token(self.actor,self.session)
+        cap=gate.execute(auth,'capture_human_closure',self._gateway_payload())
+        self.assertIs(cap.state,CommandState.CAPTURED_LOCAL_ONLY)
+        with self.pg.connect(DB) as con:
+            with con.cursor() as cur:
+                self._add_message(cur,uuid.uuid4())
+        out=gate.execute(auth,'recheck_human_closure',
+            {**self._gateway_payload(),'closure_event_ref':cap.closure_event_ref})
+        self.assertIs(out.state,CommandState.STALE)
+
+    def test_60_atomic_wrong_signing_key_never_mutates(self):
+        gate=self._atomic_gateway(signing_key=b'wrong-lab-test-key-must-be-32bytes-at-least')
+        result=gate.execute(synthetic_token(self.actor,self.session),
+             'capture_human_closure',self._gateway_payload())
+        self.assertIs(result.state,CommandState.DENIED)
+        self.assertEqual(self._count(),0)
+
+    def test_61_atomic_s1_suspension_denied(self):
+        with self.pg.connect(DB) as con:
+            con.execute("update public.equipe_prumo_s1 set estado='suspenso' where ator_id=%s",
+                        (self.actor,))
+        out=self._atomic_gateway().execute(
+             synthetic_token(self.actor,self.session),'capture_human_closure',
+             self._gateway_payload())
+        self.assertIs(out.state,CommandState.DENIED)
+        self.assertEqual(self._count(),0)
+
+    def test_62_atomic_recheck_new_session_denied(self):
+        gate=self._atomic_gateway()
+        cap=gate.execute(synthetic_token(self.actor,self.session),
+          'capture_human_closure',self._gateway_payload())
+        newer=uuid.uuid4()
+        with self.pg.connect(DB) as con:
+            con.execute('insert into auth.sessions(id,user_id) values (%s,%s)',
+                        (newer,self.actor))
+        out=gate.execute(synthetic_token(self.actor,newer),
+          'recheck_human_closure',
+          {**self._gateway_payload(),'closure_event_ref':cap.closure_event_ref})
+        self.assertIs(out.state,CommandState.DENIED)
+
+    def test_63_atomic_owner_is_nonlogin_nonbypassrls_nonsuperuser(self):
+        with self.pg.connect(DB) as con:
+            row=con.execute("""select rolcanlogin,rolsuper,rolbypassrls,rolinherit
+              from pg_roles where rolname='prumo_cfi01_atomic_owner_local'""").fetchone()
+            self.assertEqual(row,(False,False,False,False))
+            owner=con.execute("""select pg_get_userbyid(proowner)
+                from pg_proc where oid='prumo_private.cfi01_atomic_signed_closure_local(
+                  text,uuid,uuid,uuid,bigint,uuid,text,uuid,bigint,uuid,text)'::regprocedure""").fetchone()[0]
+            self.assertEqual(owner,'prumo_cfi01_atomic_owner_local')
+
+    def test_64_atomic_restricted_login_still_cannot_read_or_update_messages(self):
+        with self.pg.connect(self._RESTRICTED_DSN) as con:
+            with self.assertRaises(self.pg.Error):
+                con.execute("select * from public.mensagens")
+        with self.pg.connect(self._RESTRICTED_DSN) as con:
+            with self.assertRaises(self.pg.Error):
+                con.execute("update public.mensagens set conteudo_sintetico='forged'")
+
+    def test_65_atomic_restricted_login_cannot_insert_receipt(self):
+        with self.pg.connect(self._RESTRICTED_DSN) as con:
+            with self.assertRaises(self.pg.Error):
+                con.execute("insert into prumo_private.cfi01_human_closure_events_local(id) values (%s)",
+                            (uuid.uuid4(),))
+
+    def test_66_atomic_never_changes_eight_commercial_statuses(self):
+        self.assertIs(self._atomic_gateway().execute(
+            synthetic_token(self.actor,self.session),'capture_human_closure',
+            self._gateway_payload()).state,CommandState.CAPTURED_LOCAL_ONLY)
+        with self.pg.connect(DB) as con:
+            x=con.execute("select status_comercial from public.ciclos_comerciais where id=%s",
+                (self.cycle,)).fetchone()[0]
+        self.assertEqual(x,'em atendimento pelo operador')
+
+    def test_67_atomic_request_binds_idempotency_key_before_sql(self):
+        gate=self._atomic_gateway()
+        auth=synthetic_token(self.actor,self.session)
+        cap=gate.execute(auth,'capture_human_closure',self._gateway_payload())
+        self.assertIs(cap.state,CommandState.CAPTURED_LOCAL_ONLY)
+        wrong=gate.execute(auth,'recheck_human_closure',
+            {**self._gateway_payload(),'idempotency_key':'different-safe-key',
+             'closure_event_ref':cap.closure_event_ref})
+        self.assertIs(wrong.state,CommandState.DENIED)
+
+    def test_68_atomic_denies_f03_fields_in_public_command(self):
+        out=self._atomic_gateway().execute(
+            synthetic_token(self.actor,self.session),'capture_human_closure',
+            {**self._gateway_payload(),'fields_proposed':{'bank_status':'approved'}})
+        self.assertIs(out.state,CommandState.INPUT_REJECTED)
         self.assertEqual(self._count(),0)
 
 
