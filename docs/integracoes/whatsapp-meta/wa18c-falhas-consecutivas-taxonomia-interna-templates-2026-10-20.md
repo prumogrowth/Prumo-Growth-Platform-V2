@@ -1,6 +1,12 @@
-# WA-18C — Falhas consecutivas e categorias internas de templates
+# WA-18C — Falhas consecutivas e finalidades de templates
 
 **Data:** 20/10/2026. **Natureza:** decisão expressa do responsável + proposta conceitual. **Precedência:** complementa WA-18B e encerra a dúvida sobre o evento que zera o contador. Somente documentação, PR #2 Draft; não há código ou alteração de banco nesta rodada.
+
+## Decisão complementar — nome finalidades e múltiplos contextos (21/10/2026)
+
+**Decisão expressa do responsável:** usar **FINALIDADES DE TEMPLATE** como denominação interna, e não “finalidades internas”. Um mesmo template poderá ter **múltiplas finalidades**, como ABERTURA e RECONTATO, desde que **cada finalidade/contexto de uso tenha permissão explícita e independente**. Adicionar uma finalidade não concede acesso automático à IA Planejadora, operadores nem campanhas; a plataforma filtra candidatos e revalida a política no envio. Continua existindo, separadamente, a **categoria oficial da Meta** (MARKETING/UTILITY e outras suportadas pela API).
+
+**Registro de precedência:** esta decisão responde e encerra a primeira dúvida da seção “Questões pendentes” abaixo. Os demais detalhes de implementação (identificadores, cardinalidade física, fontes de elegibilidade de campanhas, desenho das concessões) ficam para auditoria técnica, sem necessidade de nova definição de produto agora.
 
 ## 1. Decisão expressa: duas falhas consecutivas na mesma cadência
 
@@ -20,18 +26,18 @@
 
 **Distinção técnica para implementação:** “foi enviado” precisa de **evidência confiável e correlacionada de sent**. Apenas HTTP 2xx ou API_ACCEPTED não provam envio. Timeout/falta de callback/COMMIT incerto não somam falha nem zeram como sucesso sem conciliação; não permitem replay cego. Webhook duplicado ou fora de ordem não altera duas vezes contador. A implementação atual S0 C07 ainda é SOMENTE_DIAGNOSTICO e NAO_AVALIADAS_DEC_15; **não há contador final homologado**.
 
-## 2. Decisão expressa: categorias e permissões internas de templates
+## 2. Decisão expressa: finalidades e permissões internas de templates
 
 O responsável quer que o catálogo da **concessionária/WABA específica** permita **criar e administrar categorias próprias**, de modo a determinar quais templates estarão disponíveis a qual sistema, IA, operador, campanha ou situação. Isso evita que a IA Planejadora escolha um template de promoção específica para um lead não elegível, criando promessa comercial falsa.
 
-**Categoria oficial Meta é diferente de categoria de negócio da Liberacred.** MARKETING e UTILITY descrevem a classificação Meta (e regras/preços correspondentes); categorias internas definem contexto de uso/visibilidade/eligibilidade e NÃO substituem a aprovação Meta.
+**Categoria oficial Meta é diferente de categoria de negócio da Liberacred.** MARKETING e UTILITY descrevem a classificação Meta (e regras/preços correspondentes); finalidades internas definem contexto de uso/visibilidade/eligibilidade e NÃO substituem a aprovação Meta.
 
 ### Proposta de modelo multidimensional (ainda não homologada)
 
 | Dimensão | Exemplos ilustrativos | Quem controla |
 |---|---|---|
 | Meta category | MARKETING, UTILITY, eventualmente AUTHENTICATION conforme API | Meta e gerenciamento aprovado |
-| Categorias internas da concessionária | abertura, recontato, informativo, uso de operador, campanha | Responsáveis administrativos autorizados |
+| Finalidades da concessionária | abertura, recontato, informativo, uso de operador, campanha | Responsáveis administrativos autorizados |
 | Consumidor/escopo de uso | Planejadora, IA de atendimento, operador, campanha autorizada | Matriz de permissões contextual da plataforma |
 | Elegibilidade comercial | campanha ativa, público elegível, oferta verdadeira/vigente, modelo de interesse, finalidade permitida | Fonte comercial autorizada, nunca alegação inventada pela IA |
 
@@ -40,7 +46,7 @@ O responsável quer que o catálogo da **concessionária/WABA específica** perm
 - Um template de RECONTATO pode ser usado pela Planejadora quando a plataforma o disponibilizar naquele contexto.
 - Um template de OPERADOR pode ser apresentado apenas a operador autorizado com caso elegível, sem liberar uso pela Planejadora.
 - Um template de CAMPANHA X requer campanha vigente e vínculo comprovado do lead às condições anunciadas. Aprovação Meta **não comprova** direito à promoção.
-- Mesmo em mesma categoria interna, templates de concessionárias diferentes não são compartilhados.
+- Mesmo na mesma finalidade interna, templates de concessionárias diferentes não são compartilhados.
 
 ### Regra de acesso/seleção proposta (segura por padrão)
 
@@ -50,12 +56,12 @@ O responsável quer que o catálogo da **concessionária/WABA específica** perm
 4. Se nenhum template atender aos filtros, não improvisar mensagem promocional nem escolher categoria não autorizada; registrar falta de candidato permitido.
 5. Responsáveis via futura IA administrativa/MCP poderão criar categorias e solicitar mudança de políticas com identidade individual, segunda confirmação e auditoria. **Esta frente não implementará o servidor MCP.**
 
-**Recomendação de estrutura para auditoria (não é migration aprovada):** separar categoria interna da classificação Meta; prever categoria interna por concessionária, vínculos entre categoria e template/versão, regra de uso por consumidor e finalidade, vínculo opcional de campanha e snapshot de motivo/versão/permissão no planejamento e envio. Reutilizar entidades de campanha já existentes, se houver, evitando tabelas duplicadas. Políticas devem ficar versionadas/auditáveis, sem alterar retrospectivamente histórico de envios.
+**Recomendação de estrutura para auditoria (não é migration aprovada):** separar finalidade interna da classificação Meta; prever finalidade interna por concessionária, vínculos entre categoria e template/versão, regra de uso por consumidor e finalidade, vínculo opcional de campanha e snapshot de motivo/versão/permissão no planejamento e envio. Reutilizar entidades de campanha já existentes, se houver, evitando tabelas duplicadas. Políticas devem ficar versionadas/auditáveis, sem alterar retrospectivamente histórico de envios.
 
 ## 3. Questões pendentes (não transformá-las em decisão)
 
-- Um template poderá pertencer a **mais de uma categoria interna**, ou uma categoria principal? Proposta: múltiplas etiquetas, **sem** combinar permissões para ampliar acesso acidentalmente.
-- Uma mesma versão poderá ser permitida tanto em ABERTURA quanto em RECONTATO mediante concessões separadas, ou exigirá categoria única por contexto?
+- **Respondido em 21/10/2026:** um template pode ter **múltiplas finalidades** com permissões expressas para cada contexto; o nome aprovado é **finalidades**.
+- **Respondido em 21/10/2026:** ABERTURA e RECONTATO podem coexistir no mesmo template, **com concessões separadas**; nenhuma finalidade amplia implicitamente a outra.
 - Qual fonte do domínio comercial comprova que campanha/oferta é aplicável ao lead e ainda está vigente? Não usar decisão da IA como prova.
 - A política para visibilidade de operadores deve respeitar escopo de loja e caso atribuído já previsto no S0, sem criar atalho alternativo.
 
