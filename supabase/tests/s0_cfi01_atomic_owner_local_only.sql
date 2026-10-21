@@ -252,9 +252,16 @@ end $fn$;
 revoke all on function prumo_private.cfi01_atomic_signed_closure_local(
  text,uuid,uuid,uuid,bigint,uuid,text,uuid,bigint,uuid,text)
  from public,anon,authenticated,service_role;
+-- PostgreSQL 17 owner transfer needs SET ROLE permission. The Supabase
+-- local `postgres` account is not necessarily superuser; grant TEMPORARY
+-- membership and CREATE just for ownership transfer, revoke immediately.
+grant create on schema prumo_private to prumo_cfi01_atomic_owner_local;
+grant prumo_cfi01_atomic_owner_local to postgres with set true;
 alter function prumo_private.cfi01_atomic_signed_closure_local(
  text,uuid,uuid,uuid,bigint,uuid,text,uuid,bigint,uuid,text)
  owner to prumo_cfi01_atomic_owner_local;
+revoke prumo_cfi01_atomic_owner_local from postgres;
+revoke create on schema prumo_private from prumo_cfi01_atomic_owner_local;
 grant execute on function prumo_private.cfi01_atomic_signed_closure_local(
  text,uuid,uuid,uuid,bigint,uuid,text,uuid,bigint,uuid,text)
  to prumo_cfi01_pgtest_login;
