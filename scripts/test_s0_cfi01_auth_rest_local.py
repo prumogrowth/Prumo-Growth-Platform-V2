@@ -159,8 +159,11 @@ def main():
             name=(getattr(error.diag,'message_primary',None) or '')
             # Permit only a narrow code from our private SQL or generic ACL
             # diagnostic, never values or generated SQL.
-            reason=(name if name.startswith('CFI01_ATOMIC_') else
-                    'DATABASE_ACL_OR_RLS_ERROR')
+            reason=(name if name.startswith('CFI01_ATOMIC_')
+                    or name.startswith('permission denied for ')
+                    or name.startswith('must be owner of ')
+                    or (name.startswith('function ') and ' does not exist' in name)
+                    else 'DATABASE_ACL_OR_RLS_ERROR')
             print('CFI01_LAB_DIAGNOSTIC:',error.sqlstate,reason)
     demand(result.state is CommandState.CAPTURED_LOCAL_ONLY
            and bool(result.closure_event_ref),
