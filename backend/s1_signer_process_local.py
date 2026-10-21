@@ -23,7 +23,7 @@ from backend.s1_gateway_local import _fields
 from backend.s1_gateway_signed_local import _COMMAND, _action_args, _proof_material, _SQL_SIGNED
 
 _MATERIAL = re.compile(
-    rb"prumo-s1-i20-v1\|(MOVER|PAUSAR|REATIVAR)\|"
+    rb"prumo-s1-i20-v1\|(MOVER|PAUSAR|REATIVAR|INTAKE)\|"
     rb"[0-9a-f-]{36}\|[0-9a-f-]{36}\|[A-Z0-9a-f|_-]{5,350}"
 )
 _MAX_MATERIAL = 600
@@ -113,6 +113,12 @@ def _worker(operations, control, independent_auth=None):
                             raise ValueError()
                     elif parts[1] == "REATIVAR":
                         if parts[4:8] != ["-"] * 4 or parts[8] == "-" or parts[9] != "-":
+                            raise ValueError()
+                    elif parts[1] == "INTAKE":
+                        if (parts[4:8] != ["-"] * 4
+                            or str(uuid.UUID(parts[8])) != parts[8]
+                            or re.fullmatch(r"[PR]:[1-9][0-9]{0,18}",parts[9]) is None
+                            or int(parts[9][2:]) > 9223372036854775807):
                             raise ValueError()
                     else:
                         raise ValueError()
