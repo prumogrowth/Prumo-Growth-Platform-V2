@@ -4,7 +4,7 @@
 
 ## Contrato da decisão de produto
 
-O frontend exibirá um único indicador com três saídas técnicas, correspondentes a **dois estados de alerta** e a nenhum alerta: `COUNT` com quantidade de mensagens de entrada não lidas, `DOT` (bolinha de cor diferente sem número) quando não há entrada não lida mas existe mensagem lida sem resposta humana posterior, ou `NONE` quando não há nada pendente. `COUNT` tem precedência sobre `DOT`. A supervisão da conversa **nunca** altera o registro de leitura do operador.
+O frontend exibirá um único indicador com três saídas técnicas, correspondentes a **dois estados de alerta** e a nenhum alerta: `COUNT` com quantidade de mensagens de entrada não lidas, `DOT` (bolinha sem número, de cor a definir no frontend) quando não há entrada não lida mas existe mensagem lida sem resposta humana posterior, ou `NONE` quando não há nada pendente. `COUNT` tem precedência sobre `DOT`. A supervisão da conversa **nunca** altera o registro de leitura do operador.
 
 ## Fixture S0 I36
 
@@ -37,3 +37,7 @@ A resposta humana é considerada por **inserção sintética no PostgreSQL**, n�
 **Histórico de falha corrigida:** [run #39517065926](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39517065926) falhou ao qualificar indevidamente a expressão SQL `COALESCE` como `pg_catalog.coalesce` no trigger de sequência; foi corrigido e executado novamente. O único aceite do indicador é o run verde #39517258320.
 
 **NO-GO produção/merge/deploy:** ainda faltam frontend, verificação de entrega pelo provedor, saída humana em circuito real, JWT/GoTrue/RLS de leitura na UI, controle de eventos fora de ordem, logs duráveis e testes de concorrência envolvendo leituras.
+
+## Ratificação visual — 20/10/2026
+
+As duas situações de alerta (`COUNT` e `DOT`) são **semanticamente distintas**, mas **não há decisão obrigatória de cores diferentes**. A mesma cor ou cores diferentes são aceitáveis até definição visual posterior. A referência ao WhatsApp inspira o formato do aviso, **não** os significados, cores ou estados de leitura daquele aplicativo. O contrato SQL não deve persistir cor nem assumir regra de design; ele emite somente `state`, `unread_count` e o marcador de resposta pendente.
