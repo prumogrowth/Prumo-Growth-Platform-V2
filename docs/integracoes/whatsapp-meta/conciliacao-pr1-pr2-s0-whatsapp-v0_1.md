@@ -1,5 +1,7 @@
 # Conciliação entre PR #1 (núcleo S0) e PR #2 (WhatsApp/Meta) | v0.1
 
+> **[LEITURA_ORIENTADA_2026_10_21] Documento de referência histórica ou de engenharia, NÃO substitui decisões funcionais recentes.** Consulte o [LEIA PRIMEIRO](./README.md), a [especificação vigente](./01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md) e o [mapa de conflitos por origem](./02-mapa-fontes-conflitos-e-emendas-2026-10-21.md). Apenas trechos expressamente substituídos perdem vigência; evidências offline não significam serviços reais homologados.
+
 **Status:** **DEC-WA-01, DEC-WA-02 e DEC-WA-03 APROVADAS pelo responsável** como diretrizes arquiteturais. Detalhamento físico permanece proposto [P]; **não há autorização para migrations, implantação, operações de canal comercial ou contratação**. DEC-WA-04 a DEC-WA-06 continuam pendentes.  
 **Contexto:** parecer recebido da frente principal e conferência de leitura de migrations/documentos da branch `feat/s0-fundacao-prumo`, em 17/10/2026.  
 **Fontes de implementação examinadas:** `supabase/migrations/202610170001_s0_foundation.sql`, `202610170003_s0_domain.sql`, `202610170009_s0_c02_inbound_synthetic.sql`, `202610170011_s0_c02_ambiguous_inbox.sql`, `202610170019_c07_callbacks_sinteticos.sql`, `docs/DECISAO_POSTERIOR_EXCLUSIVIDADE_NUMEROS_2026_10_17.md`, `docs/C02_RECEBIMENTO_SIMULADO_S0.md`. Os demais arquivos do PR #1 podem evoluir independentemente; revalidar branch/HEAD na implementação.
