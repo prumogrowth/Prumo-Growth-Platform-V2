@@ -4,6 +4,10 @@
 
 ## Decisão de divisão de frentes — 20/10/2026
 
+> **AUDITORIA DOCUMENTAL DE 21/10 — COMPLEMENTO OBRIGATÓRIO:** além do suporte a mídias/botões e MCP futuro, o catálogo será **por concessionária/WABA**; possui **finalidades** internas MULTIPLAS com concessão de uso independente e categoria Meta separada; a Planejadora só pode receber modelos elegíveis para contexto/campanha, nunca o acervo amplo. O **vínculo de campos a posições fica congelado por versão aprovada** e a **plataforma preenche os valores**, não a IA. Editar conteúdo aprovado é possível SOMENTE quando permitido pela API Meta, com nova verificação/revisão e snapshots. Os nomes de ferramentas MCP continuam **documentais, não servidor implementado**. Ver [fonte canônica](./00-decisoes-vigentes-precedencia-documental-2026-10-21.md).
+
+
+
 **Responsabilidade exclusiva de outra frente:** implementar, hospedar e integrar o **servidor MCP** e suas ferramentas executáveis, incluindo protocolo MCP, registro e descoberta de tools, autenticação e delegação de IA/responsável, política de confirmação e autorização das chamadas MCP. **A frente WhatsApp/Meta NÃO desenvolverá o servidor MCP, endpoints MCP ou ferramentas MCP operacionais.**
 
 **Responsabilidade desta frente WhatsApp/Meta:** evoluir o **núcleo de domínio** consumido futuramente pelo MCP: tipos de templates Meta (texto/mídia/botões), validação de componentes, rascunhos e versões, catálogo persistente em coordenação com a S0, ligação de fontes de variáveis, identidade da concessionária/WABA, estados de submissão e aprovação comprovados pela Meta, integrações internas autorizadas, eventos/auditoria de negócio e testes isolados. Esta frente mantém documentados os contratos necessários para o futuro MCP (por exemplo `integrations/whatsapp-meta/mcp-template-tools.v0.json`) **sem implementá-lo nem catalogar todos os demais assuntos do projeto**.
