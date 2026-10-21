@@ -72,7 +72,7 @@ _MESSAGES = """select m.id, m.criada_em, m.direcao, m.origem, m.conteudo_sinteti
 from public.mensagens m join public.conversas v
 on v.id=m.conversa_id and v.concessionaria_id=m.concessionaria_id
 where v.concessionaria_id=%s::uuid and v.caso_id=%s::uuid
-order by m.criada_em,m.id"""
+order by m.criada_em,m.id for share of m"""
 _EXISTING = """select id, ator_id, atribuicao_id, versao_ciclo, snapshot_sha256
 from prumo_private.cfi01_human_closure_events_local
 where concessionaria_id=%s::uuid and caso_id=%s::uuid and chave_idempotencia=%s::text
