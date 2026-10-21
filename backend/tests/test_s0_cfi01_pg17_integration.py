@@ -666,20 +666,6 @@ class PostgresPhysicalIntegration(unittest.TestCase):
         gate=self._atomic_gateway()
         result=gate.execute(synthetic_token(self.actor,self.session),
             'capture_human_closure',self._gateway_payload())
-        if result.state is not CommandState.CAPTURED_LOCAL_ONLY:
-            # DEBUG-ONLY on disposable CI UUIDs; remove after diagnosis.
-            import time
-            issued=int(time.time());nonce=uuid.uuid4()
-            material=gate._material('capture_human_closure',
-                Principal(self.actor,self.session),self.case,1,None,
-                self._gateway_payload()['idempotency_key'],
-                self._SIGNED_KEY_ID,issued,nonce)
-            proof=hmac.new(self._SIGNED_SECRET,material,hashlib.sha256).hexdigest()
-            with self.pg.connect(self._RESTRICTED_DSN) as dbconn:
-                dbconn.execute(_ATOMIC_SQL,('capture_human_closure',self.actor,
-                    self.session,self.case,1,None,
-                    self._gateway_payload()['idempotency_key'],self._SIGNED_KEY_ID,
-                    issued,nonce,proof)).fetchall()
         self.assertIs(result.state,CommandState.CAPTURED_LOCAL_ONLY)
         self.assertTrue(uuid.UUID(result.closure_event_ref))
         self.assertEqual(self._count(),1)
