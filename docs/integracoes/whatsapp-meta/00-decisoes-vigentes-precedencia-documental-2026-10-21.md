@@ -42,6 +42,10 @@
 | WDC-19 | [E/T] A estrutura lógica e os testes escritos não equivalem a CI homologado. WA-15C teve CI cruzado anterior comprovado; WA-16/17 atuais têm testes escritos e verificações V8 parciais, sem confirmação de execução nativa/SQL do ciclo atual. | Relatório wa16-wa17-fechamento-validacao-e-pausa-2026-10-20.md no PR #2 |
 | WDC-20 | [E] Estados de mensagem, envio/entrega/leitura e oito estados comerciais são dimensões distintas; somente S0 aplica transição comercial, janela e condições de término. Envio não abre janela de resposta livre. Handoff humano e etapas bancárias conservam suas regras documentadas. | Pacote 13/13A/21/22/23/26; WA-07 |
 
+### WDC-21 — Identificação visível do atendente por mensagem (21/10/2026)
+
+**[D] Direção desejada:** o responsável quer que o cliente consiga visualizar **o nome do operador humano** associado às mensagens dele, automaticamente, sem que cada operador precise digitá-lo. **[V] Pesquisa Meta:** os exemplos oficiais de `POST /{Phone-Number-ID}/messages` para texto expõem remetente empresarial por Phone Number ID e conteúdo em `text.body`, **não um campo de apresentação de operador individual nativo**; um CRM pode exibir o nome só na própria interface ou o backend pode **inseri-lo no texto enviado ao cliente**. **[P] A forma exata da assinatura e frequência ainda não foram decididas.** Autoria verificada por conta/atribuição no S0, snapshot e conteúdo final auditável; IA não se apresenta como humano. Não acrescentar texto livre a templates Meta já aprovados, a menos que conste do conteúdo/slots aprovados. **[T] Não implementado.** Fonte primária: [WA-20 — pesquisa e contrato para implementação futura](./wa20-identificacao-visivel-atendente-assinatura-mensagem-2026-10-21.md); `documentos/09_Estrutura_Mensagens_Templates_v4_6.md` e `documentos/24_Caderno_Telas_Fluxos_Aceite_Operacional_v0_1.md` já exigiam autoria e identificação interna de mensagens, mas não assinatura visível no WhatsApp.
+
 ## Vocabulário para consulta e testes
 
 - **Categoria Meta:** classificação formal do provedor (por exemplo, MARKETING/UTILITY); não é autorização de uso interno.
