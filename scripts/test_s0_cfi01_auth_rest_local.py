@@ -137,7 +137,8 @@ def main():
                  idempotency_key='real-gotrue-cfi01-key')
     result=gate.execute("Bearer "+token,"capture_human_closure",payload)
     demand(result.state is CommandState.CAPTURED_LOCAL_ONLY
-           and bool(result.closure_event_ref),"real token failed to capture")
+           and bool(result.closure_event_ref),
+           "real token failed to capture; state="+result.state.value)
     print("PASS CFI01-AUTH-01 real GoTrue bearer + S0/S1 PG17 capture")
 
     recheck_payload={**payload,"closure_event_ref":result.closure_event_ref}
