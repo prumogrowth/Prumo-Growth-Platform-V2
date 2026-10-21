@@ -1,5 +1,7 @@
 # Estratégia de implementação sem credenciais reais — APIs no gate de integração
 
+> **[LEITURA_ORIENTADA_2026_10_21] Documento de referência histórica ou de engenharia, NÃO substitui decisões funcionais recentes.** Consulte o [LEIA PRIMEIRO](./README.md), a [especificação vigente](./01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md) e o [mapa de conflitos por origem](./02-mapa-fontes-conflitos-e-emendas-2026-10-21.md). Apenas trechos expressamente substituídos perdem vigência; evidências offline não significam serviços reais homologados.
+
 **19/10/2026 — proposta de execução [P], não decisão de negócio nem homologação.** Aplica-se à plataforma **Prumo**; **LiberaCred é produto da instituição financeira**, não o nome da plataforma.
 
 ## Resposta operacional
