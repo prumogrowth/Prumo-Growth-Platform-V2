@@ -1,5 +1,7 @@
 # WA-02B — Templates C06 na Graph API | contrato isolado v0.1
 
+> **[LEITURA_ORIENTADA_2026_10_21] Registro histórico ou de engenharia, não substitui decisões recentes.** Consulte [LEIA PRIMEIRO](./README.md), [especificação funcional vigente](./01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md) e [mapa de conflitos](./02-mapa-fontes-conflitos-e-emendas-2026-10-21.md). Somente trechos expressamente substituídos perdem vigência; provas offline não significam serviços reais homologados.
+
 **Estado: [P], implementação sintética e não operacional.** A aprovação arquitetural DEC-WA-01/02/03 não equivale a permissão de envio ou campanha. DEC-WA-05 definiu a titularidade de App/WABA/número **por concessionária**, mas não liberou onboarding. DEC-WA-04/06 permanecem pendentes.
 
 ## 1. Protocolo Meta consultado em 18/10/2026
