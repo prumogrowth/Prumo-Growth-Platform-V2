@@ -16,6 +16,10 @@ from backend.identity_boundary import Principal
 from backend.s0_human_closure_event_local import (
     ClosureRequest, ClosureState, S0LocalClosureStore, capture_human_closure_local)
 from backend.s0_s1_closure_authority_local import S0S1LocalTeamAuthority
+from backend.s0_human_closure_recheck_local import (
+    RecheckRequest, RecheckState, S0LocalClosureRecheck,
+    recheck_human_closure_local,
+)
 
 DB = os.environ.get("PRUMO_TEST_DATABASE_URL", "")
 URI = urlsplit(DB)
@@ -98,6 +102,14 @@ class PostgresPhysicalIntegration(unittest.TestCase):
             "Bearer synthetic-identity-only",
             ClosureRequest(str(self.case),1,key),
             identity=self.identity,store=self.store,s1=self.s1)
+
+    def recheck(self, closure_event_ref, key="closure-lab-key",
+                identity=None, cycle_version=1):
+        return recheck_human_closure_local(
+            "Bearer synthetic-identity-only",
+            RecheckRequest(str(self.case),closure_event_ref,cycle_version,key),
+            identity=identity if identity is not None else self.identity,
+            store=S0LocalClosureRecheck(DB),s1=self.s1)
 
     def _count(self):
         with self.pg.connect(DB) as con:
@@ -219,6 +231,109 @@ class PostgresPhysicalIntegration(unittest.TestCase):
                 result=future.result(timeout=10)
         self.assertIs(result.state,ClosureState.BLOCKED_S1)
         self.assertEqual(self._count(),0)
+
+
+    def test_13_recheck_success_only_for_same_s0_receipt(self):
+        first=self.capture()
+        self.assertIs(first.state,ClosureState.CAPTURED_LOCAL_ONLY)
+        review=self.recheck(first.closure_event_ref)
+        self.assertIs(review.state,RecheckState.VERIFIED_REVIEW_ONLY_LOCAL)
+        self.assertFalse(hasattr(review,"applied"))
+        self.assertEqual(self._count(),1)
+
+    def test_14_missing_receipt_is_denied(self):
+        self.assertIs(self.recheck(str(uuid.uuid4())).state,RecheckState.DENIED)
+
+    def test_15_new_message_after_receipt_is_stale(self):
+        receipt=self.capture().closure_event_ref
+        with self.pg.connect(DB) as con:
+            with con.cursor() as cur:
+                self._add_message(cur,uuid.uuid4())
+        self.assertIs(self.recheck(receipt).state,RecheckState.STALE)
+
+    def test_16_edited_message_after_receipt_is_stale(self):
+        receipt=self.capture().closure_event_ref
+        with self.pg.connect(DB) as con:
+            con.execute("""update public.mensagens
+               set conteudo_sintetico='conteudo editado' where id=%s""",
+               (self.message,))
+        self.assertIs(self.recheck(receipt).state,RecheckState.STALE)
+
+    def test_17_s1_suspension_after_receipt_blocks_recheck(self):
+        receipt=self.capture().closure_event_ref
+        with self.pg.connect(DB) as con:
+            con.execute("update public.equipe_prumo_s1 set estado='suspenso' where ator_id=%s",
+                        (self.actor,))
+        self.assertIs(self.recheck(receipt).state,RecheckState.BLOCKED_S1)
+
+    def test_18_session_revoked_after_receipt_denies_recheck(self):
+        receipt=self.capture().closure_event_ref
+        with self.pg.connect(DB) as con:
+            con.execute("delete from auth.sessions where id=%s",(self.session,))
+        self.assertIs(self.recheck(receipt).state,RecheckState.DENIED)
+
+    def test_19_reassignment_after_receipt_denies_recheck(self):
+        receipt=self.capture().closure_event_ref
+        with self.pg.connect(DB) as con:
+            con.execute("""update public.atribuicoes_humanas
+              set encerrada_em=greatest(atribuida_em,statement_timestamp())
+              where id=%s""",(self.assignment,))
+        self.assertIs(self.recheck(receipt).state,RecheckState.DENIED)
+
+    def test_20_store_grant_revoked_after_receipt_denies_recheck(self):
+        receipt=self.capture().closure_event_ref
+        with self.pg.connect(DB) as con:
+            con.execute("""delete from public.vinculos_papel_escopo
+             where ator_id=%s and concessionaria_id=%s""",(self.actor,self.shop))
+        self.assertIs(self.recheck(receipt).state,RecheckState.DENIED)
+
+    def test_21_different_idempotency_key_cannot_reuse_receipt(self):
+        receipt=self.capture().closure_event_ref
+        self.assertIs(self.recheck(receipt,key="different-key-abc").state,
+                      RecheckState.DENIED)
+
+    def test_22_new_session_cannot_reuse_original_receipt(self):
+        receipt=self.capture().closure_event_ref
+        newer=uuid.uuid4()
+        with self.pg.connect(DB) as con:
+            con.execute("insert into auth.sessions(id,user_id) values (%s,%s)",
+                        (newer,self.actor))
+        self.assertIs(self.recheck(receipt,identity=FixtureIdentity(self.actor,newer)).state,
+                      RecheckState.DENIED)
+
+    def test_23_cycle_version_changed_after_receipt_is_stale(self):
+        receipt=self.capture().closure_event_ref
+        with self.pg.connect(DB) as con:
+            con.execute("update public.ciclos_comerciais set versao_registro=2 where id=%s",
+                        (self.cycle,))
+        self.assertIs(self.recheck(receipt).state,RecheckState.STALE)
+
+    def test_24_new_inbound_commit_while_recheck_waits_marks_stale(self):
+        receipt=self.capture().closure_event_ref
+        with self.pg.connect(DB) as con:
+            con.execute("select id from public.conversas where id=%s for update",
+                        (self.conversation,))
+            with ThreadPoolExecutor(max_workers=1) as pool:
+                future=pool.submit(self.recheck,receipt)
+                with self.assertRaises(TimeoutError):
+                    future.result(timeout=0.15)
+                with con.cursor() as cur:
+                    self._add_message(cur,uuid.uuid4())
+                con.commit()
+                review=future.result(timeout=10)
+        self.assertIs(review.state,RecheckState.STALE)
+
+    def test_25_status_changed_after_receipt_is_denied(self):
+        receipt=self.capture().closure_event_ref
+        with self.pg.connect(DB) as con:
+            con.execute("""update public.ciclos_comerciais
+                set status_comercial='cadastro enviado ao banco'
+                where id=%s""",(self.cycle,))
+        self.assertIs(self.recheck(receipt).state,RecheckState.DENIED)
+
+    def test_26_wrong_cycle_expectation_is_stale(self):
+        receipt=self.capture().closure_event_ref
+        self.assertIs(self.recheck(receipt,cycle_version=2).state,RecheckState.STALE)
 
 
 if __name__ == "__main__":
