@@ -1,5 +1,7 @@
 # WA-02A/02B — reparos pós-auditoria | 18/10/2026
 
+> **[LEITURA_ORIENTADA_2026_10_21] Registro histórico ou de engenharia, não substitui decisões recentes.** Consulte [LEIA PRIMEIRO](./README.md), [especificação funcional vigente](./01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md) e [mapa de conflitos](./02-mapa-fontes-conflitos-e-emendas-2026-10-21.md). Somente trechos expressamente substituídos perdem vigência; provas offline não significam serviços reais homologados.
+
 **Status:** código sintético reparado no PR #2, aguardando revisão cruzada; **sem integração/implantação**. Corrige o parecer de auditoria registrado no PR #2, comentário `6248555958`. A implementação permanece uma preparação **inerte** de mensagens; não prova autorização comercial nem faz chamadas Graph.
 
 ## Achados e medidas aplicadas
