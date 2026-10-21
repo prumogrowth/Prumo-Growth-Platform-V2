@@ -1,5 +1,8 @@
 # WA-07 — Contrato Meta: janela 24h, templates humanos e prova do último envio | CF-OP-02 v0.1
 
+> **Nota de precedência de 21/10/2026:** o item 1 registra o contrato WA-07 daquele momento. A decisão de produto mais recente exige **WABA e número dedicados 1:1 por concessionária**, com API operada pela Prumo; **titularidade jurídica/Business Manager, procurações e quantidade de Meta Apps continuam sujeitos a formalização**, não se concluem apenas desta frase antiga (“titular de sua própria Meta App/WABA/número”). O item 3 trata do caso de seleção individual pelo operador, NÃO exclui IA administrativa autorizada via futuro MCP nem finalidades internas que restringem templates. Para escopo atual consultar [decisões vigentes](./00-decisoes-vigentes-precedencia-documental-2026-10-21.md). Estado de integração real continua não homologado.
+
+
 Data: 18/10/2026. **[D-negócio] direção confirmada; [P/R] protocolo/eventos e sinais; [V] regras reais Meta/LGPD/Banco.** Proprietária: frente WhatsApp/Meta, subordinada às decisões DEC-WA-01/02/03/05, WA-01A/B/C, WA-05/06 e contrato S0 CF-OP-02. Não é homologação Graph API, template real ou webhook implantado. Issue #6/PR #7 coordenam.
 
 ## Propriedade exclusiva Meta
