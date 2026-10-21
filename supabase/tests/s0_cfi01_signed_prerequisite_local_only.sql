@@ -41,7 +41,7 @@ declare
 begin
   -- No dynamic SQL or arbitrary tenant/role selection. SQL login has only
   -- EXECUTE on this function; definer authority is tightly allowlisted.
-  if pg_catalog.session_user <> 'prumo_cfi01_pgtest_login'
+  if session_user <> 'prumo_cfi01_pgtest_login'
      or p_operation not in ('capture_human_closure','recheck_human_closure')
      or p_actor is null or p_session is null or p_case is null
      or p_cycle_version is null or p_cycle_version<1
