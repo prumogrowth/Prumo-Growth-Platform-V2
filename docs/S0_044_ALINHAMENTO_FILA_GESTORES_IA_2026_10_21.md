@@ -1,3 +1,5 @@
+> **Terminologia atualizada [S0-045], 21/10/2026:** “responsável da plataforma” passa a **Diretor**; “operador” passa a **Consultor**; **Gestor** permanece. Somente nomenclatura, sem mudança de função ou código. Consultar [S0-045](./S0_045_NOMENCLATURA_DIRETOR_GESTOR_CONSULTOR_2026_10_21.md). Referências abaixo podem usar nomes anteriores por terem sido redigidas antes.
+
 # S0-044 — Contrato documental de alinhamento: novos leads, fila dos gestores e IA
 **Data:** 21/10/2026. **Natureza:** registro de **decisões de produto [D]**, para coordenação S0↔S1↔Frontend. **Não** confirma SQL, endpoint, RLS, Auth, integrações nem operação real. Registro complementar à [S0-043](./S0_043_PAUSA_SELETIVA_E_INDICADOR_CONVERSA_2026_10_20.md). A fonte detalhada do frontend é [FV-DOC-01/D-AL-01..10](https://github.com/prumogrowth/Prumo-Growth---Platform/blob/feat/frontend-plataforma-visual/frontend/docs/35_FV_DOC_01_DECISOES_VIGENTES_ALINHAMENTO_2026_10_21.md).
 
