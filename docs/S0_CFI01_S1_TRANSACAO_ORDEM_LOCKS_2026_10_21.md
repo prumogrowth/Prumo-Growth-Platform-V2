@@ -50,3 +50,13 @@ Em ambiente descartável e isolado com PostgreSQL 17 + GoTrue, aplicar o baselin
 6. Sem schema S1 instalado, nenhuma captura e nenhum privilégio elevado.
 
 Só após prova física avançar a `begin/recheck` S0/integração com F03 OAI-05/OAI-07 e aplicação de campos. Mesmo assim, seguirão pendentes a assinatura de contrato e autorização real de serviço com privilégio mínimo. **A pausa para dúvidas e auditoria documental geral deve ocorrer depois dos dois marcos combinados; não agora.**
+
+## Correção complementar de isolamento do laboratório (21/10/2026)
+
+A validação anterior de DSN só examinava o host `localhost` e o nome do banco no URI. **Isso é insuficiente isoladamente** porque `libpq` pode receber parâmetros por variáveis de ambiente que alteram a conexão, incluindo `PGHOSTADDR` e `PGSERVICE`. Antes dessa correção, uma configuração ambiente maliciosa poderia invalidar a suposição de conexão exclusivamente local.
+
+Os construtores de **ambos** os adaptadores `PsycopgLocalCaseInspection` e `S0LocalClosureStore` agora rejeitam qualquer configuração preenchida dentre: `PGHOSTADDR`, `PGHOST`, `PGPORT`, `PGDATABASE`, `PGUSER`, `PGSERVICE`, `PGSERVICEFILE`, `PGOPTIONS`, `PGSSLMODE`, `PGSSLCERT`, `PGSSLKEY` e `PGSSLROOTCERT`. Esta proteção é para o **laboratório local privilegiado**, não especificação de configuração do serviço de produção. A implantação real precisará de credencial mínima, conexão e política de segurança próprias.
+
+**Execução final desta rodada:** **97/97 PASS** numa única execução Python (35 pré-check, 42 evento, 20 S1 local), `compileall` PASS. Foram adicionados 4 testes adversariais `PGHOSTADDR`/`PGSERVICE`/`PGSERVICEFILE`. Hashes de código e testes publicados devem corresponder aos arquivos executados: pré-check `b4ac45733a858358640bf38c4363d033f8a007ad`, teste pré-check `aed083272184e29c831dd326c9a6067eb1d3cc82`, evento `55db817af4a51cce9bb8b52fb404fd503a86795a`, teste evento `553a4054be705fd8c2c39853a87a55768c283f14`.
+
+**Bloqueio remanescente:** a execução da bateria usa `Principal` e curso de cursor/SQL simulados. Nesta sessão não havia `psql`/PostgreSQL/Docker instalados, e a tentativa de preparar pacotes PostgreSQL não concluiu no tempo disponível. **Não** houve aplicação da fixture SQL ou teste de duas conexões reais. Não promover a autorização S1 em produção, nem alegar que a correção de ordem de locks foi comprovada contra deadlock físico. O ponto de pausa/auditoria global continua reservado para depois da conciliação e integração autenticada S0.
