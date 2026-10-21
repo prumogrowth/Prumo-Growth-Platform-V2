@@ -63,3 +63,19 @@ Os itens **3 (transferência excepcional por caso)** e **4 (projeções de leitu
 
 - **Decisão fechada:** pausar a distribuição não suspende a conta nem o acesso à plataforma. Operador pausado segue podendo consultar e responder seus casos não redistribuídos. A ausência de substituto mantém a atribuição. Esta pergunta **não deve ser repetida** na futura reunião de alinhamento.
 - **Decisão de UI ainda aberta, sem necessidade de pergunta imediata:** `COUNT` (não lidas) e `DOT` (lidas sem resposta) não precisam de cores diferentes. Mesmo esquema de cores ou cores distintas são opções válidas; a semântica e ausência de número na bolinha são o contrato funcional, não a paleta.
+
+## Marco formal atingido — congelamento funcional de S1-002 em sandbox
+
+Em 20/10/2026 (execuções CI registradas em 21/10 UTC), o último pré-requisito de laboratório, **I37 gateway GoTrue/HMAC de intake-only**, foi comprovado por [CI #39526190841 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39526190841), código SHA `bb1e61bb4bd9c0d65f1cc33d17530fe689a6c57c`, 138 unitários e 148 marcadores E2E (132 históricos e 16 do intake).
+
+**Os seis itens de laboratório acima têm agora contrato, testes e evidências rastreáveis.** Itens 3 e 4 já haviam sido aceitos nos ensaios PG17 ISSUE10 (EX55 20/20 e MSG56 18/18). Em I37, o gateway usa GoTrue real **descartável** e não rota antiga de suspensão; identifica `INTAKE_PAUSED`, `INTAKE_RESUMED`, `ALREADY_APPLIED`, `CONFLICT` e `DEFERRED_S0_PROOF`. A identidade do operador, sua conta e concessões permanecem ativas durante pausa do intake, e o frontend não deve sinalizar redistribuição concluída antes de prova e confirmação S0.
+
+**A partir deste marco, interromper novos incrementos funcionais S1** e executar o processo combinado, nesta ordem:
+
+1. **Alinhamento com o responsável:** pedir somente respostas ainda não definidas (destino já pausado em transferência manual, herança de leitura após mudança de titular, natureza da confirmação de contato humano, revogação excepcional e chefia múltipla), apresentando alternativas e trade-offs; não reabrir decisão fechada sobre acesso do pausado ou obrigatoriedade de cores diferentes.
+2. **Auditoria geral técnica S1/S0:** inventariar migrations históricas, funções/fachadas, teste RLS cross-store, anti-concorrência, autenticação GoTrue, HMAC, signer/witness, contratos S0, regressões semânticas e caminhos legados. Não presumir que resultados E2E do sandbox implicam segurança em produção.
+3. **Higiene e consolidação:** reconciliar contratos vigentes vs histórico I11/I12, revisar divergências, fontes de verdade, requisitos abertos, issues/PR/CI/SHA e classificação de risco, consolidando documentação recuperável.
+
+**Gates de produção ainda BLOQUEADOS:** Meta/WhatsApp e contato humano confirmado realmente, governança de anexos/documentos, UI e leitura real, migrations operacionais, isolamento de domínios de segurança/KMS/testemunha I31, DR, homologação de operações humanas, revisões de Security Definer, execução distribuída, usuários/clientes e autorização de deploy. O reconhecimento do marco significa **pausa para revisão**, jamais merge ou GO de produção.
+
+**PR #5 permanece Draft, base S0 não modificada, banco Supabase hospedado intocado.** Não registrar percentual global de conclusão.
