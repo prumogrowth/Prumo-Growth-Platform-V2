@@ -28,8 +28,13 @@ begin
   raise exception 'I37_SESSION_REVOKED' using errcode='42501';end if;
  if not exists(select 1 from public.atores where id=p_ator) then
   raise exception 'I37_ACTOR_UNKNOWN' using errcode='42501';end if;
- return prumo_private.s1_definir_disponibilidade_leads_10(
-  p_ator,p_operador,p_pausar,p_versao);
+ begin
+  return prumo_private.s1_definir_disponibilidade_leads_10(
+   p_ator,p_operador,p_pausar,p_versao);
+ exception when sqlstate '22023' then
+  -- Stale CAS: do not leak the current revision/other operator information.
+  return pg_catalog.jsonb_build_object('outcome','CONFLICT');
+ end;
 end $bridge$;
 revoke all on function prumo_private.s1_apply_intake_signed_v37(
  uuid,uuid,uuid,boolean,bigint) from public,anon,authenticated,service_role,
@@ -73,8 +78,9 @@ begin
   raise exception 'I37_NONCE_REPLAY' using errcode='42501';end if;
  v_resultado:=prumo_private.s1_apply_intake_signed_v37(
   p_ator,p_sessao,p_operador,p_pausar,p_versao);
- if v_resultado->>'outcome' not in ('INTAKE_PAUSED','INTAKE_RESUMED','ALREADY_APPLIED')
-   or v_resultado->>'redistribution' is distinct from 'DEFERRED_S0_PROOF'
+ if v_resultado->>'outcome' not in ('INTAKE_PAUSED','INTAKE_RESUMED','ALREADY_APPLIED','CONFLICT')
+   or (v_resultado->>'outcome'<>'CONFLICT'
+    and v_resultado->>'redistribution' is distinct from 'DEFERRED_S0_PROOF')
  then raise exception 'I37_INVALID_RESULT' using errcode='42501';end if;
  return v_resultado;
 end $signed$;
