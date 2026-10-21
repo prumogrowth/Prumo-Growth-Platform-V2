@@ -8,11 +8,13 @@ on:
       - 'backend/s0_cfi01_authenticated_commands_local.py'
       - 'backend/s0_cfi01_signed_prerequisite_local.py'
       - 'backend/s0_cfi01_signed_commands_local.py'
+      - 'backend/s0_cfi01_atomic_commands_local.py'
       - 'backend/s0_s1_closure_authority_local.py'
       - 'backend/tests/test_s0_*'
       - 'scripts/run-s0-cfi01-pg17-local.sh'
       - 'supabase/tests/s0_cfi01_human_closure_table_local_only.sql'
       - 'supabase/tests/s0_cfi01_signed_prerequisite_local_only.sql'
+      - 'supabase/tests/s0_cfi01_atomic_owner_local_only.sql'
       - '.github/workflows/s0-cfi01-pg17-integration.yml'
   workflow_dispatch:
 
