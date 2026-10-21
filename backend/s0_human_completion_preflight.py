@@ -9,6 +9,7 @@ No public HTTP route, model credential, writes or production DSN.
 from __future__ import annotations
 
 import uuid
+import os
 import urllib.parse
 from dataclasses import dataclass
 from enum import Enum
@@ -120,6 +121,11 @@ where id=%s::uuid and user_id=%s::uuid for key share"""
             not (u.path.strip('/') == 'postgres' or
                  u.path.strip('/').startswith('prumo_s0_test_'))):
             raise ValueError('S0_DISPOSABLE_POSTGRES_ONLY')
+        if any(os.environ.get(name) for name in (
+                'PGHOSTADDR','PGHOST','PGPORT','PGDATABASE','PGUSER',
+                'PGSERVICE','PGSERVICEFILE','PGOPTIONS','PGSSLMODE',
+                'PGSSLCERT','PGSSLKEY','PGSSLROOTCERT')):
+            raise ValueError('S0_AMBIENT_LIBPQ_CONFIG_FORBIDDEN')
         self._dsn=dsn
 
     def check(self, principal: Principal, case_id: uuid.UUID, cycle_version: int) -> CheckStatus:
