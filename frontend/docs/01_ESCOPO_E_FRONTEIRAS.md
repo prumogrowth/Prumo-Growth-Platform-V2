@@ -1,3 +1,5 @@
+> **LEITURA ATUALIZADA — 21/10/2026:** Este escopo deve ser lido com a precedência DEC-WA-05 da S0 (titularidade Meta da **concessionária**, Prumo **integradora**, em vez das premissas históricas sobre canais da gestora). Gestão de operadores por equipe e fila de novos leads estão refinadas nas decisões D-AL-01..10. Para decisões vigentes de pausa, distribuição, filas, acesso por caso, comprovação humana e IA, consultar **[FV-DOC-01](./35_FV_DOC_01_DECISOES_VIGENTES_ALINHAMENTO_2026_10_21.md)**; divergências descritas em **[FV-DOC-02](./36_FV_DOC_02_AUDITORIA_AMBIGUIDADES_E_PRECEDENCIA_2026_10_21.md)**. Trechos abaixo permanecem como histórico técnico da sua data, sem substituir decisões posteriores.
+
 # 01 — Escopo e fronteiras da frente visual
 
 **Natureza:** organização de trabalho [P] informada pela instrução do responsável em 18/10/2026; não modifica as decisões comerciais e de autorização já aprovadas. **Objetivo:** desenvolver a experiência visual da plataforma e versionar o trabalho exclusivamente no GitHub.
