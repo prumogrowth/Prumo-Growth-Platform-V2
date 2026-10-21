@@ -46,7 +46,7 @@ class TestIntake(unittest.TestCase):
     def test_08_overflow_version_rejected(self):
         with self.assertRaises(InvalidCommand):intake_fields("intake",{"operador_id":str(self.operator),"pausar":True,"versao_esperada":2**63})
     def test_09_strict_uuid_rejected(self):
-        with self.assertRaises(InvalidCommand):intake_fields("intake",{"operador_id":str(self.operator).upper(),"pausar":True,"versao_esperada":1})
+        with self.assertRaises(InvalidCommand):intake_fields("intake",{"operador_id":"AAAAAAAA-0000-4000-8000-000000000003","pausar":True,"versao_esperada":1})
     def test_10_signed_action_revision(self):
         at=int(time.time())
         nonce=uuid.uuid4()
