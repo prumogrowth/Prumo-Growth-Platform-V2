@@ -1,5 +1,7 @@
 # Contrato de integração — WhatsApp Cloud API ↔ Supabase | v0.1
 
+> **[LEITURA_ORIENTADA_2026_10_21] Documento de referência histórica ou de engenharia, NÃO substitui decisões funcionais recentes.** Consulte o [LEIA PRIMEIRO](./README.md), a [especificação vigente](./01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md) e o [mapa de conflitos por origem](./02-mapa-fontes-conflitos-e-emendas-2026-10-21.md). Apenas trechos expressamente substituídos perdem vigência; evidências offline não significam serviços reais homologados.
+
 **Projeto:** plataforma de atendimento para LiberaCred — frente WhatsApp/Meta  
 **Data:** 17/10/2026 (planejamento a partir da POC); **estado:** ESPECIFICAÇÃO PROPOSTA, não implementada nem homologada para produção.  
 **Diretriz aprovada pelo responsável nesta frente:** usar **Supabase diretamente**, sem n8n no caminho crítico inicial, sujeito a reavaliação por necessidade real e métricas. **Plano atual relatado:** Supabase Free. Nenhuma contratação aprovada agora.  
