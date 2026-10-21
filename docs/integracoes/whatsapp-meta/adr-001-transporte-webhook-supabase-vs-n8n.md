@@ -1,5 +1,7 @@
 # ADR-001 — Transporte WhatsApp/Meta: Supabase direto versus n8n
 
+> **[LEITURA_ORIENTADA_2026_10_21] Documento de referência histórica ou de engenharia, NÃO substitui decisões funcionais recentes.** Consulte o [LEIA PRIMEIRO](./README.md), a [especificação vigente](./01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md) e o [mapa de conflitos por origem](./02-mapa-fontes-conflitos-e-emendas-2026-10-21.md). Apenas trechos expressamente substituídos perdem vigência; evidências offline não significam serviços reais homologados.
+
 **Data:** 17/10/2026 (revisão técnica após POC, logs em 18/10 UTC)  
 **Status:** **DIREÇÃO SUPABASE DIRETO ESCOLHIDA PELO RESPONSÁVEL** (planejamento, sem implementação de produção). Avaliação de filas, SLA e detalhes técnicos ainda [P/R].  
 **Contexto:** frente WhatsApp/Meta — concessionária de demonstração / plataforma de atendimento LiberaCred.  
