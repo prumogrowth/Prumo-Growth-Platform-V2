@@ -28,6 +28,7 @@ class CompletionState(str, Enum):
     DENIED = 'DENIED'
     STALE = 'STALE'
     INVALID_S0_RESPONSE = 'INVALID_S0_RESPONSE'
+    MODEL_RESPONSE_INVALID = 'MODEL_RESPONSE_INVALID'
     MODEL_UNAVAILABLE = 'MODEL_UNAVAILABLE'
     S0_VALIDATION_REQUIRED = 'S0_VALIDATION_REQUIRED'
 
@@ -50,6 +51,11 @@ class S0ClosedSnapshot:
     case_version: int
     form_version: int
     catalogue_version: str
+    # S0-issued correlation with the request and the active assignment.
+    # These are NOT credentials or substitutes for S0 authorization.
+    completion_request_key: str
+    assignment_ref: str
+    assignment_version: int
     # Model input deliberately NOT defined until OAI-05 schema is ratified.
 
 
@@ -85,7 +91,9 @@ def _valid_snapshot(value: object) -> bool:
         return False
     return (all(_id(x) for x in (value.store_ref, value.case_ref,
                                value.closure_event_ref, value.snapshot_hash,
-                               value.message_watermark, value.catalogue_version))
+                               value.message_watermark, value.catalogue_version,
+                               value.completion_request_key, value.assignment_ref))
+            and type(value.assignment_version) is int and value.assignment_version >= 1
             and type(value.case_version) is int and value.case_version >= 1
             and type(value.form_version) is int and value.form_version >= 1)
 
@@ -126,10 +134,11 @@ def prepare_f03_completion_review(
     if not _valid_snapshot(snap):
         return CompletionReview(CompletionState.INVALID_S0_RESPONSE)
     if (snap.case_ref != request.case_ref
-            or snap.case_version != request.expected_case_version):
+            or snap.case_version != request.expected_case_version
+            or snap.completion_request_key != request.idempotency_key):
         return CompletionReview(CompletionState.DENIED)
     try:
-        _untrusted_model_result = model.propose(snap)
+        untrusted_model_result = model.propose(snap)
     except Exception:
         return CompletionReview(CompletionState.MODEL_UNAVAILABLE)
     # Untrusted model output is NOT interpreted or copied out of this boundary.
@@ -150,4 +159,10 @@ def prepare_f03_completion_review(
         return CompletionReview(CompletionState.INVALID_S0_RESPONSE)
     if fresh.snapshot != snap:
         return CompletionReview(CompletionState.STALE)
+    # A *minimal* shape check is safe before the physical OAI-05 JSON Schema
+    # is ratified. Never mark empty/foreign operation as validation-ready.
+    # Extra fields are never inspected: not a schema validation or approval.
+    if (type(untrusted_model_result) is not dict
+            or untrusted_model_result.get('operation_kind') != 'human_close_extract'):
+        return CompletionReview(CompletionState.MODEL_RESPONSE_INVALID)
     return CompletionReview(CompletionState.S0_VALIDATION_REQUIRED)
