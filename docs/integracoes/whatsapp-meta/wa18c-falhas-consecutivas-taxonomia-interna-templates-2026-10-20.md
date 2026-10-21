@@ -4,7 +4,7 @@
 
 ## Decisão complementar — nome finalidades e múltiplos contextos (21/10/2026)
 
-**Decisão expressa do responsável:** usar **FINALIDADES DE TEMPLATE** como denominação interna, e não “finalidades internas”. Um mesmo template poderá ter **múltiplas finalidades**, como ABERTURA e RECONTATO, desde que **cada finalidade/contexto de uso tenha permissão explícita e independente**. Adicionar uma finalidade não concede acesso automático à IA Planejadora, operadores nem campanhas; a plataforma filtra candidatos e revalida a política no envio. Continua existindo, separadamente, a **categoria oficial da Meta** (MARKETING/UTILITY e outras suportadas pela API).
+**Decisão expressa do responsável:** usar **FINALIDADES DE TEMPLATE** como denominação interna, e não “categorias internas”. Um mesmo template poderá ter **múltiplas finalidades**, como ABERTURA e RECONTATO, desde que **cada finalidade/contexto de uso tenha permissão explícita e independente**. Adicionar uma finalidade não concede acesso automático à IA Planejadora, operadores nem campanhas; a plataforma filtra candidatos e revalida a política no envio. Continua existindo, separadamente, a **categoria oficial da Meta** (MARKETING/UTILITY e outras suportadas pela API).
 
 **Registro de precedência:** esta decisão responde e encerra a primeira dúvida da seção “Questões pendentes” abaixo. Os demais detalhes de implementação (identificadores, cardinalidade física, fontes de elegibilidade de campanhas, desenho das concessões) ficam para auditoria técnica, sem necessidade de nova definição de produto agora.
 
@@ -56,13 +56,13 @@ O responsável quer que o catálogo da **concessionária/WABA específica** perm
 
 1. O backend seleciona, antes de chamar a IA Planejadora ou apresentar ao operador, um **conjunto filtrado** por concessionária, WABA, estado oficial da Meta, versão, idioma, status do catálogo, contexto de fluxo, permissões do consumidor, campanha e validade/eligibilidade.
 2. A IA **não recebe acesso irrestrito ao catálogo**. Ela escolhe, substitui, remove, reordena ou varia a quantidade apenas dentro do conjunto autorizado; não cria ofertas e não contorna bloqueios por prompt.
-3. O backend **revalida na reserva e no envio**, pois categoria, campanha, política, template e opt-out podem mudar após o planejamento. Não basta esconder templates no prompt.
-4. Se nenhum template atender aos filtros, não improvisar mensagem promocional nem escolher categoria não autorizada; registrar falta de candidato permitido.
-5. Responsáveis via futura IA administrativa/MCP poderão criar categorias e solicitar mudança de políticas com identidade individual, segunda confirmação e auditoria. **Esta frente não implementará o servidor MCP.**
+3. O backend **revalida na reserva e no envio**, pois finalidade, campanha, política, template e opt-out podem mudar após o planejamento. Não basta esconder templates no prompt.
+4. Se nenhum template atender aos filtros, não improvisar mensagem promocional nem escolher finalidade não autorizada; registrar falta de candidato permitido.
+5. Responsáveis via futura IA administrativa/MCP poderão criar finalidades e solicitar mudança de políticas com identidade individual, segunda confirmação e auditoria. **Esta frente não implementará o servidor MCP.**
 
-**Recomendação de estrutura para auditoria (não é migration aprovada):** separar finalidade interna da classificação Meta; prever finalidade interna por concessionária, vínculos entre categoria e template/versão, regra de uso por consumidor e finalidade, vínculo opcional de campanha e snapshot de motivo/versão/permissão no planejamento e envio. Reutilizar entidades de campanha já existentes, se houver, evitando tabelas duplicadas. Políticas devem ficar versionadas/auditáveis, sem alterar retrospectivamente histórico de envios.
+**Recomendação de estrutura para auditoria (não é migration aprovada):** separar finalidade interna da classificação Meta; prever finalidade interna por concessionária, vínculos entre finalidade e template/versão, regra de uso por consumidor e finalidade, vínculo opcional de campanha e snapshot de motivo/versão/permissão no planejamento e envio. Reutilizar entidades de campanha já existentes, se houver, evitando tabelas duplicadas. Políticas devem ficar versionadas/auditáveis, sem alterar retrospectivamente histórico de envios.
 
-## 3. Questões pendentes (não transformá-las em decisão)
+## 3. Decisões respondidas e modelagem técnica pendente
 
 - **Respondido em 21/10/2026:** um template pode ter **múltiplas finalidades** com permissões expressas para cada contexto; o nome aprovado é **finalidades**.
 - **Respondido em 21/10/2026:** ABERTURA e RECONTATO podem coexistir no mesmo template, **com concessões separadas**; nenhuma finalidade amplia implicitamente a outra.
@@ -73,7 +73,7 @@ Essas são questões de refinamento para a auditoria e não impedem registrar a 
 
 ## 4. Divergências e status a acompanhar
 
-- WA-17A/B hoje modela apenas campo category=MARKETING/UTILITY da Meta; **a taxonomia interna contextual ainda NÃO foi implementada**.
+- WA-17A/B hoje modela apenas campo category=MARKETING/UTILITY da Meta; **a estrutura interna de finalidades e concessões ainda NÃO foi implementada**.
 - WA-18B deixava aberta a dúvida sobre qual evidência zerava falhas; WA-18C esclarece **enviado tecnicamente confirmado, sem necessidade de resposta**.
 - O diagnóstico de falhas no S0 C07 ainda retorna ação SOMENTE_DIAGNOSTICO; nenhuma implementação real é presumida.
 - WA-18B mantém decisões sobre edição Meta conforme permitido, congelamento do mapeamento de variáveis de versão aprovada e responsabilidade da plataforma por preenchimento no envio.
