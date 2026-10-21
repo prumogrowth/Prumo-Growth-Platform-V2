@@ -1,3 +1,5 @@
+> **LEITURA ATUALIZADA — 21/10/2026:** O fluxo G2 legado não distingue completamente **redistribuição de caso já atribuído (apenas mesma equipe)** de **distribuição de lead novo (entre equipes elegíveis)**, nem a fila compartilhada de gestores e retomada automática. Para decisões vigentes de pausa, distribuição, filas, acesso por caso, comprovação humana e IA, consultar **[FV-DOC-01](./35_FV_DOC_01_DECISOES_VIGENTES_ALINHAMENTO_2026_10_21.md)**; divergências descritas em **[FV-DOC-02](./36_FV_DOC_02_AUDITORIA_AMBIGUIDADES_E_PRECEDENCIA_2026_10_21.md)**. Trechos abaixo permanecem como histórico técnico da sua data, sem substituir decisões posteriores.
+
 # 02 — Mapa inicial de telas e jornadas
 
 **Fonte principal:** documento 24, *Caderno de telas, fluxos e critérios de aceite operacional*, v0.1, complementado pelas decisões D41-01..06 e D-ORG-01. O mapa abaixo serve como **inventário para design [P]**, não é layout homologado nem escopo fechado de MVP.
