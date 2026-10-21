@@ -2,6 +2,8 @@
 
 **Data da pesquisa:** 21/10/2026 · **Classe:** [D] desejo funcional do responsável de identificar o atendente para o cliente; [V] verificação de capacidade Meta; [P] contrato/decisões de apresentação para implementação futura; [T] não implementado e não homologado em conta Meta. **Etapa documental somente.** Nenhuma chamada à Graph API real.
 
+> **ATUALIZAÇÃO NORMATIVA WA-21 (21/10/2026) — REGRA DE PRECEDÊNCIA:** o responsável fechou o formato antes deixado aberto. Os cargos agora se chamam **Diretor** (antigo papel “responsável”), **Gestor** (mantido) e **Consultor** (antigo “operador”). Para texto livre de autoria humana, a plataforma deverá acrescentar automaticamente `Consultor Fulano:\nMensagem`, `Gestor Ciclano:\nMensagem` ou `Diretor Beltrano:\nMensagem`, conforme o cargo e autor reais autenticados. **O antigo exemplo “Mariana — Atendimento” e a declaração de que o formato/frequência estavam sem decisão são SUPERADOS.** Para templates Meta continuam valendo apenas conteúdo/slots aprovados. Fonte de decisão: [WA-21](./wa21-papeis-diretor-gestor-consultor-assinatura-2026-10-21.md). A implementação continua pendente.
+
 ## 1. Pergunta e resposta técnica
 
 O responsável observou plataformas de atendimento que exibem o **nome do atendente imediatamente antes da mensagem** no WhatsApp do cliente. Deseja incluir essa capacidade na plataforma.
@@ -10,14 +12,14 @@ O responsável observou plataformas de atendimento que exibem o **nome do atende
 - **Exibir o operador apenas em SUA interface interna** de atendimento, sobre a mensagem, sem que esse nome exista no WhatsApp do cliente; e/ou
 - **Incluir no texto efetivamente enviado** uma linha de identificação/assinatura gerada pelo backend, de modo que o cliente também a veja. O WhatsApp mostra essa linha como texto comum da mensagem, não como identidade Meta independente.
 
-**Exemplo de renderização definida pela plataforma [P], e NÃO por layout especial da Meta:**
+**Exemplo de referência histórica abaixo [SUPERADO PELA WA-21], e NÃO por layout especial da Meta:**
 
 ```text
 Mariana — Atendimento
 Bom dia! Posso ajudar com as informações da sua motocicleta?
 ```
 
-O operador digitou apenas `Bom dia! Posso ajudar...`; a plataforma acrescentou a linha de identificação. Uma outra forma de apresentação, por exemplo `*Mariana:* ...`, é escolha de produto ainda não aprovada em detalhe.
+Este exemplo é histórico. O padrão **já decidido** encontra-se na WA-21: `Consultor Mariana:\nBom dia!...`, com alternativas `Gestor Nome:\n...` e `Diretor Nome:\n...`. O cargo + nome + dois pontos não é mais proposta aberta.
 
 **Referências Meta (pesquisadas em 21/10/2026):**
 - Send Text Message, coleção oficial: https://www.postman.com/meta/whatsapp-business-platform/request/8gvd47s/send-text-message
@@ -32,7 +34,7 @@ O operador digitou apenas `Bom dia! Posso ajudar...`; a plataforma acrescentou a
 - [D] **Desejo aprovado para planejamento:** identificar o **operador humano** no WhatsApp do cliente nas mensagens que ele enviar através da plataforma, de forma automática, sem digitar seu nome a cada envio.
 - [E] Já estava previsto no pacote 17/10 que a tela O2 da plataforma mostre **mensagens com autores/horários** (`documentos/24_Caderno_Telas_Fluxos_Aceite_Operacional_v0_1.md`) e que `mensagens.remetente_tipo` distinga cliente, IA, humano e sistema (`documentos/09_Estrutura_Mensagens_Templates_v4_6.md`). Isso NÃO fornecia assinatura VISÍVEL ao cliente.
 - [P] Realização mais simples: o backend **compõe o texto de saída com uma linha de identificação gerada a partir da conta do operador autenticado**, enquanto a interface interna pode mostrar cabeçalho visual independente.
-- [R] **Ainda NÃO decidido:** assinatura em TODAS as mensagens humanas, apenas na primeira depois do handoff/troca de operador, ou por conversa/intervalo; formato exato (`Mariana:`, `Mariana — Atendimento`, primeiro nome ou nome de exibição). Essas decisões podem ser tomadas junto ao design de atendimento, sem bloquear a documentação.
+- [D] **Atualizada pela WA-21:** a plataforma identifica **automaticamente os humanos** com prefixo `Consultor Nome:`, `Gestor Nome:` ou `Diretor Nome:` antes do texto enviado. O padrão documentado para texto livre é a assinatura em cada mensagem humana correspondente; futuras exceções para outros meios precisam de decisão específica. Nome legível derivado do cadastro autenticado.
 - [R] Mensagens de IA, sistema e operador como TEMPLATE, mensagens com mídia/legenda e textos de suporte a templates podem merecer políticas distintas. **Não atribuir assinatura humana a mensagem escrita exclusivamente pela IA.**
 - [V] Se um aplicativo intermediário/BSP oferecer rótulos proprietários por agente, tratar isso como recurso **da plataforma específica**, não nativo garantido da Meta.
 
@@ -59,8 +61,8 @@ O operador digitou apenas `Bom dia! Posso ajudar...`; a plataforma acrescentou a
 
 | Caso | Prova esperada |
 |---|---|
-| Operador A envia texto com janela elegível | A plataforma gera a prévia `Mariana — Atendimento\n...` e transmite no `text.body`; atribuição e snapshot persistidos |
-| Outro operador assume o caso | Próxima assinatura reflete **operador B**, mantendo histórico do nome A |
+| Consultor A envia texto com janela elegível | A plataforma gera a prévia `Consultor Mariana:\n...` e transmite no `text.body`; atribuição, cargo e snapshot persistidos |
+| Outro humano assume o caso | Próxima assinatura reflete **cargo e nome** de Consultor, Gestor ou Diretor B, mantendo histórico do autor A |
 | IA responde | Não aparece nome de um humano de forma falsa; rótulo de IA quando definido por política própria |
 | Tentativa de falsificar `actor_id`/nome | Backend rejeita identidade injetada e aplica atribuição autenticada |
 | Texto enviado novamente por idempotência | Mesma mensagem final, sem prefixo duplicado |
