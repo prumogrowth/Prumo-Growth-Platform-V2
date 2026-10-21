@@ -1,3 +1,5 @@
+> **NOMENCLATURA VIGENTE [D-NOM-01] — 21/10/2026:** o papel anteriormente chamado **responsável** passa a chamar-se **Diretor**; **gestor** permanece **Gestor**; **operador** passa a chamar-se **Consultor**. A mudança é somente de nomes, sem alteração de alçadas, código ou permissões. Palavras genéricas como “responsável pelo caso” não mudam automaticamente. Ver [decisão de nomenclatura](./37_D_NOM_01_NOMENCLATURA_DIRETOR_GESTOR_CONSULTOR_2026_10_21.md); terminologia abaixo pode refletir a data original do texto.
+
 # FV-DOC-02 — Auditoria documental de precedência e lacunas (21/10/2026)
 **Natureza:** auditoria DOCUMENTAL da frente visual/S0 com leitura das retificações S1; **não** revisão de código, não homologação. Decisões expressas do responsável estão consolidadas em [FV-DOC-01](./35_FV_DOC_01_DECISOES_VIGENTES_ALINHAMENTO_2026_10_21.md). Fontes confrontadas: pacote histórico de 55 documentos com corte 17/10 (especialmente 00A/13A/31/41), documentos `frontend/docs/`, `docs/S0_043`, `docs/DECISOES_E_GATES` e retificações S1 I11/I12 (somente leitura).
 
@@ -31,3 +33,7 @@ A branch S1 consultada já contém retificações explícitas no início/fim de 
 Evento versionado e validação do primeiro contato; intake independente de conta; grants de loja e exceções por caso em D2/D3/D4/anexos; fila compartilhada com autorizações de gestores; concorrência entre autoseleção e autoatribuição; redistribuição cross-team de novos leads, mas same-team de carteira pausada; revalidação de identidade/grant, algoritmos de distribuição, idempotência, logs; isolamento da IA de metadados administrativos; continuidade ao handoff. Nenhum item é classificado como bug de produção sem examinar código, dados e ambiente.
 
 **Escopo da revisão:** somente documentos da própria frente (Frontend e notas de S0); S1/Meta/Banco sem alteração, sem código, migração, deploy ou mudança do índice 19F.
+
+## DOC-14 — Ambiguidade de nomenclatura dos papéis (21/10/2026)
+
+O vocabulário anterior (“responsável” e “operador”) é histórico **quando designa os papéis da plataforma**; ler respectivamente **Diretor** e **Consultor**. “Gestor” não mudou. Fontes técnicas e históricos não devem ser renomeados por substituição textual, e uma menção genérica a “responsável pelo caso” não designa necessariamente o papel Diretor. A precedência é da [D-NOM-01](./37_D_NOM_01_NOMENCLATURA_DIRETOR_GESTOR_CONSULTOR_2026_10_21.md). A futura atualização de interface, Auth, APIs, S0/S1 e testes exige plano próprio e não foi realizada aqui.
