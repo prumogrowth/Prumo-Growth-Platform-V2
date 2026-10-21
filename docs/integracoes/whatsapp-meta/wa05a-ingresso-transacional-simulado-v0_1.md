@@ -1,5 +1,7 @@
 # WA-05A — handoff S0 simulado com revalidação no commit | 18/10/2026
 
+> **[LEITURA_ORIENTADA_2026_10_21] Registro histórico ou de engenharia, não substitui decisões recentes.** Consulte [LEIA PRIMEIRO](./README.md), [especificação funcional vigente](./01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md) e [mapa de conflitos](./02-mapa-fontes-conflitos-e-emendas-2026-10-21.md). Somente trechos expressamente substituídos perdem vigência; provas offline não significam serviços reais homologados.
+
 **Estado:** [P/V local], **sem Supabase real e sem ACK HTTP**. A etapa implementa e testa em memória a fronteira entre o roteamento autenticado Meta WA-04B e a futura inbox transacional da S0. O token definitivo continua aguardando verificação de uma terceira pessoa.
 
 ## 1. Cadeia simulada
