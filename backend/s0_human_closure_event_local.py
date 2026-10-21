@@ -119,7 +119,9 @@ class S0LocalClosureStore:
         if (u.scheme not in ('postgres','postgresql') or
             u.hostname not in ('localhost','127.0.0.1','::1') or
             u.username != 'postgres' or u.query or u.fragment or
-            not u.path.strip('/').startswith('prumo_s0_test_')):
+            not (u.path.strip('/').startswith('prumo_s0_test_') or
+                 (os.environ.get('PRUMO_CFI01_SUPABASE_LOCAL_AUTH_TEST') == '1'
+                  and u.path == '/postgres' and u.port == 54322))):
             raise ValueError('DISPOSABLE_LOCAL_PG_ONLY')
         if any(os.environ.get(name) for name in (
                 'PGHOSTADDR','PGHOST','PGPORT','PGDATABASE','PGUSER',
