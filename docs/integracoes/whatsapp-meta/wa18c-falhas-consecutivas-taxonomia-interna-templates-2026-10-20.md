@@ -28,6 +28,10 @@
 
 ## 2. Decisão expressa: finalidades e permissões internas de templates
 
+> **TERMINOLOGIA NORMALIZADA em 21/10:** “finalidades de template” designa o conjunto configurável de contextos internos; “categoria Meta” designa MARKETING/UTILITY e demais tipos da Meta. **Finalidade de contato para consentimento/opt-out é outra dimensão.** Múltiplas finalidades por template foram aprovadas com **permissões explícitas por finalidade e consumidor**. Referência [canônica](./00-decisoes-vigentes-precedencia-documental-2026-10-21.md).
+
+
+
 O responsável quer que o catálogo da **concessionária/WABA específica** permita **criar e administrar categorias próprias**, de modo a determinar quais templates estarão disponíveis a qual sistema, IA, operador, campanha ou situação. Isso evita que a IA Planejadora escolha um template de promoção específica para um lead não elegível, criando promessa comercial falsa.
 
 **Categoria oficial Meta é diferente de categoria de negócio da Liberacred.** MARKETING e UTILITY descrevem a classificação Meta (e regras/preços correspondentes); finalidades internas definem contexto de uso/visibilidade/eligibilidade e NÃO substituem a aprovação Meta.
