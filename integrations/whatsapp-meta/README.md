@@ -1,5 +1,7 @@
 # WA-01A — Adaptador Meta inbound isolado (candidato)
 
+> **ENTRADA ÚNICA DA DOCUMENTAÇÃO FUNCIONAL (21/10/2026):** [LEIA PRIMEIRO — frente WhatsApp/Meta](../../docs/integracoes/whatsapp-meta/README.md). Ali estão a especificação atual, as 20 regras identificadas, o mapa de conflitos entre fontes e a auditoria documental. O README técnico abaixo é um histórico de **módulos offline/candidatos**, não a especificação vigente de produto nem evidência de integração em produção.
+
 > **Índice documental vigente (21/10/2026):** o histórico técnico abaixo deve ser interpretado junto à [fonte de decisões atuais WhatsApp/Meta](../../docs/integracoes/whatsapp-meta/00-decisoes-vigentes-precedencia-documental-2026-10-21.md). Este README descreve fases WA-01 em diante e não substitui a matriz de decisões posteriores sobre WABA por loja, finalidades de templates, duas falhas consecutivas, opt-out por concessionária e contratos futuros de MCP. A auditoria desta fase é **somente documental**, não comprovação de execução do código.
 
 
