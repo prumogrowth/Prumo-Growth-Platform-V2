@@ -12,7 +12,7 @@
 
 1. O PostgreSQL local aceita grants sobre `auth.sessions` que o Supabase gerenciado **não permite ao instalador**. A tentativa antiga gerava warnings `no privileges were granted for auth / sessions` e negava a captura. Removemos os GRANTs diretos. A função `prumo_private.cfi01_session_valid_local(actor,session)`, **SECURITY DEFINER de `postgres` com apenas uma busca exata e `FOR KEY SHARE`**, é chamada dentro da transação da função atômica, e seu EXECUTE é permitido somente ao proprietário atômico NOLOGIN. `public`, `anon`, `authenticated`, `service_role` e o login restrito têm EXECUTE revogado. Isto segue a estratégia já usada na S0 para C07/C08: um helper estreito pode precisar do owner privilegiado sem que **toda a transação** retorne a esse owner.
 2. A função de assinatura também era negada porque `pgcrypto` fica no schema `extensions` no Supabase CLI. Assim como a migração S0/027 faz para o signer, a fixture agora descobre o schema da extensão em `pg_catalog.pg_extension` e concede ao **proprietário atômico NOLOGIN apenas** `USAGE` no schema encontrado e `EXECUTE` de `hmac(bytea,bytea,text)` e `digest(bytea,text)`. Não concede qualquer acesso ao login SQL ou ao modelo F03.
-3. O helper de diagnóstico acrescentado temporariamente ao script `scripts/test_s0_cfi01_auth_rest_local.py` roda apenas **no caso de falha** do CI descartável; emite o estado SQL e mensagens de ACL sem token, segredo ou dados reais. O teste final passou sem acionar o diagnóstico. Se retirado futuramente, exigir reexecução para equivalência exata de HEAD testado.
+3. O diagnóstico temporário de SQL foi **retirado** do script `scripts/test_s0_cfi01_auth_rest_local.py` após identificar e corrigir a ACL de `pgcrypto`. A suíte foi executada novamente com o código limpo, sem a rota alternativa de diagnóstico.
 
 ## Fronteira realmente validada
 
@@ -40,3 +40,12 @@ A proteção do segredo HMAC e os credenciais nesta fixture são **públicos e s
 5. **n8n:** sua presença como intermediário continua **pendente**; estes testes exercitam backend S0→GoTrue/PostgreSQL, sem ligação direta OpenAI→SQL ou dependência de n8n.
 
 **Situação de governança:** PR #12 e #8 ainda são Draft. O gate de autenticação/fechamento técnico **em laboratório** passou; a conciliação e a substituição de permissões/efeitos na F03 ainda não estão integradas. A pausa para dúvidas seguida de auditoria geral só após os dois marcos, sem declarar trabalho faltante como concluído.
+
+
+## Validação adicional após retirada do diagnóstico temporário
+
+- **[GitHub Actions #39637758555 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39637758555)**: GoTrue real + função de sessão estreita + HMAC/nonce + função atômica de proprietário sem superusuário, com a rota temporária de diagnóstico **removida**; **8/8 CFI01-AUTH** e testes S0 Auth/REST anteriores passaram. Instância Supabase efêmera encerrada, sem contato com banco remoto.
+- **[GitHub Actions #39637726654 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39637726654)**: **73/73 testes físicos PostgreSQL 17** e **133/133 unitários** aprovados na mesma versão de código limpa.
+- Essa evidência confirma a correção da compatibilidade em laboratório mesmo sem probe de SQL auxiliar. O executor permanece sem acesso SQL direto a conversas, mensagens e auth.sessions; a pequena função de checagem de sessão permanece privilegiada, executável apenas pelo proprietário sem login da função atômica.
+
+**Prontidão:** concluído apenas o incremento de engenharia do executor atômico e autenticação S0/CFI-01 em laboratório. O contrato canônico S0↔F03, o tratamento autorizado do conteúdo das mensagens, a aplicação idempotente dos campos da ficha e os controles/segredos reais de produção ainda NÃO foram concluídos. Não abrir auditoria geral nem afirmar que os dois marcos combinados foram integralmente encerrados.
