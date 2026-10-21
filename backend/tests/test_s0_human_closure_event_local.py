@@ -227,4 +227,8 @@ class Tests(unittest.TestCase):
         self.assertNotIn(_CASE,[q for q,_ in cur.calls])
 
 
+    def test_40_messages_locked_during_snapshot_fingerprint(self):
+        self.assertIn('for share of m',_MESSAGES.lower())
+        self.assertIn('order by m.criada_em,m.id',_MESSAGES.lower())
+
 if __name__ == '__main__':unittest.main()
