@@ -110,6 +110,15 @@ def _sign_with_verified_identity(payload, keys, verifier):
                     or str(uuid.UUID(parts[8])) != parts[8]
                     or parts[9] != "-"):
                 return {"status": "DENIED"}
+        elif parts[1] == "INTAKE":
+            # I37: same proven I22 canonical material and custody; the
+            # action + CAS revision are included in the signed HMAC,
+            # never taken from unsigned HTTP headers or session claims.
+            if (parts[4:8] != ["-"] * 4
+                    or str(uuid.UUID(parts[8])) != parts[8]
+                    or re.fullmatch(r"[PR]:[1-9][0-9]{0,18}", parts[9]) is None
+                    or int(parts[9][2:]) > 9223372036854775807):
+                return {"status": "DENIED"}
         else:
             return {"status": "DENIED"}
         try:
