@@ -70,6 +70,8 @@ O operador digitou apenas `Bom dia! Posso ajudar...`; a plataforma acrescentou a
 | Mudança de nome do operador no cadastro | Novas mensagens podem usar nome atual; histórico conserva `nome_exibicao_snapshot` |
 | Mídias e legendas | Seguem a política [R/P] por tipo, sem campo Graph inventado |
 
+> **Acompanhamento de implementação futura:** [issue #14 — WA-20: identificação visível do operador](https://github.com/prumogrowth/Prumo-Growth---Platform/issues/14). Registro de produto não aprova envio real nem determina ainda a frequência do prefixo.
+
 ## 5. Escopo, documentação e coordenação
 
 - **Frente WhatsApp/Meta:** valida se tipos de mensagem Meta permitem a forma de conteúdo autorizada, adapta texto/caption/template e registra status externos, sem decidir autoria ou permissão humana por conta própria.
