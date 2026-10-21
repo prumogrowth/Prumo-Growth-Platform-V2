@@ -19,6 +19,7 @@ import uuid
 
 from backend.s0_cfi01_authenticated_commands_local import CommandState
 from backend.s0_cfi01_atomic_commands_local import S0CFI01AtomicCommandsLocal
+from backend.s0_cfi01_f03_receipt_bridge_local import S0CFI01F03ReceiptBridgeLocal, S0F03BridgeState
 
 def demand(condition, message):
     if not condition:
@@ -168,6 +169,22 @@ def main():
            and typed_recheck.receipt==typed.receipt,
            "GoTrue atomic internal receipt differs during recheck")
     print("PASS CFI01-AUTH-09 GoTrue-backed internal receipt matches S0 metadata")
+
+    # Bridge deliberately reports contract PENDING after genuine physical S0
+    # capture/recheck: no form, catalogue, model context, or auto-application.
+    bridge=S0CFI01F03ReceiptBridgeLocal(gate)
+    bound=bridge.capture("Bearer "+token,payload)
+    demand(bound.state is S0F03BridgeState.VERIFIED_CONTRACT_PENDING
+           and bound.binding is not None
+           and bound.binding.receipt==typed.receipt,
+           "bridge did not bind physically authenticated S0 closure")
+    fresh=bridge.recheck("Bearer "+token,bound.binding)
+    demand(fresh.state is S0F03BridgeState.VERIFIED_CONTRACT_PENDING
+           and fresh.binding==bound.binding
+           and not hasattr(fresh.binding.receipt,"form_version"),
+           "bridge improperly approved F03 contract or lost S0 identity")
+    print("PASS CFI01-AUTH-10 real S0 receipt bridge remains contract-pending")
+
 
     stranger=gate.execute("Bearer "+outsider_token,"capture_human_closure",payload)
     demand(stranger.state is CommandState.DENIED,"other authenticated user gained assigned case")

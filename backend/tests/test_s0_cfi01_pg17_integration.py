@@ -24,6 +24,10 @@ from backend.s0_cfi01_signed_prerequisite_local import (
 )
 from backend.s0_cfi01_signed_commands_local import S0CFI01SignedCommandsLocal
 from backend.s0_cfi01_atomic_commands_local import S0CFI01AtomicCommandsLocal, _ATOMIC_SQL
+from backend.s0_cfi01_f03_receipt_bridge_local import (
+    S0CFI01F03ReceiptBridgeLocal, S0F03BridgeState,
+    S0F03BoundReceiptLocal, UNRATIFIED_F03_INPUTS,
+)
 import hmac
 import hashlib
 from backend.tests.test_s0_cfi01_authenticated_commands_local import (
@@ -906,6 +910,106 @@ class PostgresPhysicalIntegration(unittest.TestCase):
         self.assertIs(revoked.state,CommandState.DENIED)
         self.assertIsNone(revoked.receipt)
         self.assertEqual(self._count(),0)
+
+    def test_77_bridge_real_capture_and_recheck_remain_contract_pending(self):
+        bridge=S0CFI01F03ReceiptBridgeLocal(self._atomic_gateway())
+        auth=synthetic_token(self.actor,self.session)
+        result=bridge.capture(auth,self._gateway_payload())
+        self.assertIs(result.state,S0F03BridgeState.VERIFIED_CONTRACT_PENDING)
+        self.assertEqual(result.binding.receipt.case_ref,str(self.case))
+        self.assertEqual(result.binding.receipt.assignment_ref,str(self.assignment))
+        self.assertEqual(result.binding.receipt.message_count,1)
+        self.assertFalse(hasattr(result.binding.receipt,'case_version'))
+        self.assertFalse(hasattr(result.binding.receipt,'form_version'))
+        self.assertFalse(hasattr(result.binding.receipt,'catalogue_version'))
+        self.assertTrue(any('expected_case_version' in g for g in UNRATIFIED_F03_INPUTS))
+        again=bridge.recheck(auth,result.binding)
+        self.assertIs(again.state,S0F03BridgeState.VERIFIED_CONTRACT_PENDING)
+        self.assertEqual(again.binding,result.binding)
+        self.assertEqual(self._count(),1)
+
+    def test_78_bridge_new_message_blocks_without_receipt_leak(self):
+        bridge=S0CFI01F03ReceiptBridgeLocal(self._atomic_gateway())
+        auth=synthetic_token(self.actor,self.session)
+        cap=bridge.capture(auth,self._gateway_payload())
+        with self.pg.connect(DB) as con:
+            with con.cursor() as cur:
+                self._add_message(cur,uuid.uuid4())
+        later=bridge.recheck(auth,cap.binding)
+        self.assertIs(later.state,S0F03BridgeState.STALE)
+        self.assertIsNone(later.binding)
+
+    def test_79_bridge_reassignment_invalidates_old_binding(self):
+        bridge=S0CFI01F03ReceiptBridgeLocal(self._atomic_gateway())
+        auth=synthetic_token(self.actor,self.session)
+        cap=bridge.capture(auth,self._gateway_payload())
+        self.assertIs(cap.state,S0F03BridgeState.VERIFIED_CONTRACT_PENDING)
+        with self.pg.connect(DB) as con:
+            con.execute('delete from public.atribuicoes_humanas where id=%s',
+                        (self.assignment,))
+            con.execute('''insert into public.atribuicoes_humanas
+                        (id,concessionaria_id,caso_id,operador_id)
+                        values (%s,%s,%s,%s)''',
+                        (uuid.uuid4(),self.shop,self.case,self.actor))
+        after=bridge.recheck(auth,cap.binding)
+        self.assertIn(after.state,(S0F03BridgeState.DENIED,S0F03BridgeState.STALE))
+        self.assertIsNone(after.binding)
+
+    def test_80_bridge_rejects_ui_catalog_and_case_version_injection(self):
+        bridge=S0CFI01F03ReceiptBridgeLocal(self._atomic_gateway())
+        auth=synthetic_token(self.actor,self.session)
+        for fake in ('expected_case_version','form_version','catalogue_version',
+                     'actor_id','assignment_ref','fields_proposed'):
+            with self.subTest(fake=fake):
+                outcome=bridge.capture(auth,{**self._gateway_payload(),fake:1})
+                self.assertIs(outcome.state,S0F03BridgeState.INPUT_REJECTED)
+                self.assertIsNone(outcome.binding)
+        self.assertEqual(self._count(),0)
+
+    def test_81_bridge_cycle_version_change_is_stale(self):
+        bridge=S0CFI01F03ReceiptBridgeLocal(self._atomic_gateway())
+        auth=synthetic_token(self.actor,self.session)
+        cap=bridge.capture(auth,self._gateway_payload())
+        with self.pg.connect(DB) as con:
+            con.execute('update public.ciclos_comerciais set versao_registro=2 where id=%s',
+                        (self.cycle,))
+        after=bridge.recheck(auth,cap.binding)
+        self.assertIs(after.state,S0F03BridgeState.STALE)
+        self.assertIsNone(after.binding)
+
+    def test_82_bridge_revoked_session_denies_recheck(self):
+        bridge=S0CFI01F03ReceiptBridgeLocal(self._atomic_gateway())
+        auth=synthetic_token(self.actor,self.session)
+        cap=bridge.capture(auth,self._gateway_payload())
+        with self.pg.connect(DB) as con:
+            con.execute('delete from auth.sessions where id=%s',(self.session,))
+        denied=bridge.recheck(auth,cap.binding)
+        self.assertIs(denied.state,S0F03BridgeState.DENIED)
+        self.assertIsNone(denied.binding)
+
+    def test_83_bridge_tampered_receipt_cannot_skip_s0_recheck(self):
+        from dataclasses import replace
+        bridge=S0CFI01F03ReceiptBridgeLocal(self._atomic_gateway())
+        auth=synthetic_token(self.actor,self.session)
+        cap=bridge.capture(auth,self._gateway_payload())
+        modified=replace(cap.binding,receipt=replace(
+            cap.binding.receipt,closure_event_ref=str(uuid.uuid4())))
+        denied=bridge.recheck(auth,modified)
+        self.assertIs(denied.state,S0F03BridgeState.DENIED)
+        self.assertIsNone(denied.binding)
+
+    def test_84_bridge_rejects_fake_source_and_malformed_binding(self):
+        from dataclasses import replace
+        with self.assertRaises(TypeError):
+            S0CFI01F03ReceiptBridgeLocal(object())
+        bridge=S0CFI01F03ReceiptBridgeLocal(self._atomic_gateway())
+        auth=synthetic_token(self.actor,self.session)
+        self.assertIs(bridge.recheck(auth,{'case_ref':str(self.case)}).state,
+                      S0F03BridgeState.INPUT_REJECTED)
+        cap=bridge.capture(auth,self._gateway_payload())
+        bad=replace(cap.binding,receipt=replace(
+            cap.binding.receipt,expected_cycle_version=True))
+        self.assertIs(bridge.recheck(auth,bad).state,S0F03BridgeState.INPUT_REJECTED)
 
 if __name__ == "__main__":
     unittest.main()
