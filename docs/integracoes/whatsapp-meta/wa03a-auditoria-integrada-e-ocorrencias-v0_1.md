@@ -1,5 +1,7 @@
 # WA-03A — auditoria cruzada sintética do fluxo Meta (18/10/2026)
 
+> **[LEITURA_ORIENTADA_2026_10_21] Registro histórico ou de engenharia, não substitui decisões recentes.** Consulte [LEIA PRIMEIRO](./README.md), [especificação funcional vigente](./01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md) e [mapa de conflitos](./02-mapa-fontes-conflitos-e-emendas-2026-10-21.md). Somente trechos expressamente substituídos perdem vigência; provas offline não significam serviços reais homologados.
+
 **Estado:** auditoria e regressão local com um reparo de isolamento **no simulador**. Não existe integração operacional Meta/Supabase. PRs #1 e #2 seguem Draft, sem merge/deploy. Uso proibido de números reais, tokens, webhook comercial concessionária de demonstração ou migrations hospedadas.
 
 ## 1. Escopo, fonte e precedência
