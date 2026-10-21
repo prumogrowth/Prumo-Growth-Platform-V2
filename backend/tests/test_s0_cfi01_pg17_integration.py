@@ -776,5 +776,46 @@ class PostgresPhysicalIntegration(unittest.TestCase):
         self.assertEqual(self._count(),0)
 
 
+    def test_69_atomic_two_concurrent_sessions_same_key_single_receipt(self):
+        gate=self._atomic_gateway()
+        auth=synthetic_token(self.actor,self.session)
+        barrier=threading.Barrier(2)
+        def runner():
+            barrier.wait(timeout=7)
+            return gate.execute(auth,'capture_human_closure',
+                                self._gateway_payload()).state
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            futures=[pool.submit(runner) for _ in range(2)]
+            results={f.result(timeout=15) for f in futures}
+        self.assertEqual(results,{CommandState.CAPTURED_LOCAL_ONLY,
+                                  CommandState.ALREADY_CAPTURED})
+        self.assertEqual(self._count(),1)
+
+    def test_70_atomic_inbound_arrives_before_conversation_lock(self):
+        gate=self._atomic_gateway()
+        auth=synthetic_token(self.actor,self.session)
+        with self.pg.connect(DB) as con:
+            con.execute('select id from public.conversas where id=%s for update',
+                        (self.conversation,))
+            with ThreadPoolExecutor(max_workers=1) as pool:
+                future=pool.submit(gate.execute,auth,'capture_human_closure',
+                                   self._gateway_payload())
+                with self.assertRaises(TimeoutError):
+                    future.result(timeout=0.15)
+                with con.cursor() as cur:
+                    self._add_message(cur,uuid.uuid4())
+                con.commit()
+                cap=future.result(timeout=10)
+        self.assertIs(cap.state,CommandState.CAPTURED_LOCAL_ONLY)
+        with self.pg.connect(DB) as con:
+            count=con.execute("""select quantidade_mensagens from
+                prumo_private.cfi01_human_closure_events_local where caso_id=%s""",
+                (self.case,)).fetchone()[0]
+        self.assertEqual(count,2)
+        check=gate.execute(auth,'recheck_human_closure',
+             {**self._gateway_payload(),'closure_event_ref':cap.closure_event_ref})
+        self.assertIs(check.state,CommandState.VERIFIED_REVIEW_ONLY_LOCAL)
+
+
 if __name__ == "__main__":
     unittest.main()
