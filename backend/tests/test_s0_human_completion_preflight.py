@@ -154,4 +154,13 @@ class Cases(unittest.TestCase):
             self.assertNotIn('update ',query.lower())
             self.assertNotIn('insert ',query.lower())
 
+    def test_33_ambient_pghostaddr_cannot_redirect_local_dsn(self):
+        with patch.dict('os.environ',{'PGHOSTADDR':'203.0.113.2'}):
+            with self.assertRaisesRegex(ValueError,'LIBPQ'):
+                PsycopgLocalCaseInspection('postgresql://postgres:pw@localhost/prumo_s0_test_ci')
+    def test_34_ambient_pgservice_cannot_redirect_local_dsn(self):
+        with patch.dict('os.environ',{'PGSERVICE':'untrusted'}):
+            with self.assertRaisesRegex(ValueError,'LIBPQ'):
+                PsycopgLocalCaseInspection('postgresql://postgres:pw@localhost/prumo_s0_test_ci')
+
 if __name__=='__main__': unittest.main()
