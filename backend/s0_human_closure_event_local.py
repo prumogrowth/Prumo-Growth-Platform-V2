@@ -7,6 +7,7 @@ must be checked in the same transaction by a trusted server-side port.
 from __future__ import annotations
 
 import hashlib
+import os
 import json
 import urllib.parse
 import uuid
@@ -120,6 +121,11 @@ class S0LocalClosureStore:
             u.username != 'postgres' or u.query or u.fragment or
             not u.path.strip('/').startswith('prumo_s0_test_')):
             raise ValueError('DISPOSABLE_LOCAL_PG_ONLY')
+        if any(os.environ.get(name) for name in (
+                'PGHOSTADDR','PGHOST','PGPORT','PGDATABASE','PGUSER',
+                'PGSERVICE','PGSERVICEFILE','PGOPTIONS','PGSSLMODE',
+                'PGSSLCERT','PGSSLKEY','PGSSLROOTCERT')):
+            raise ValueError('S0_AMBIENT_LIBPQ_CONFIG_FORBIDDEN')
         self._dsn=dsn
 
     def capture(self, principal: Principal, request: ClosureRequest,
