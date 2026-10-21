@@ -7,9 +7,9 @@
 ## 1. Identidade do produto e escopo da operação [D/H]
 
 - A **Prumo Growth** é a estrutura/gestora/plataforma que opera para concessionárias; **LiberaCred** é o produto/serviço de crédito associado ao **instituição financeira**, não o nome genérico de toda a plataforma.
-- **Cada concessionária tem uma WABA separada, um número WhatsApp dedicado e catálogo de templates específico**, sem WABA central única compartilhada da Prumo. Um mesmo cliente pode aparecer em concessionárias A e B, com históricos e direitos independentes; impedir consulta e referência cruzadas.
+- **Cada concessionária terá sua conta empresarial Meta, Meta App próprio, WABA separada, número WhatsApp dedicado e catálogo de templates específico**, conforme a DEC-WA-05 expressamente aprovada em 17/10 e reiterada em 20/10. Sem WABA central única da Prumo. Um mesmo cliente pode aparecer em concessionárias A e B, com históricos e direitos independentes; impedir consulta e referência cruzadas.
 - O nome e a foto do WhatsApp exibidos ao cliente correspondem à **concessionária**, e a IA conhece e representa a identidade daquela loja. Ela não precisa repetir uma autodescrição artificial a cada mensagem.
-- A **titularidade jurídica** de WABA, número, Business Manager, Meta App e delegação de acesso à Prumo [V] ainda requer formalização. A expressão “WABA da concessionária” determina o **isolamento operacional**, não resolve sozinha quem assina a contratação Meta.
+- **Decisão de negócio já tomada [D]:** esses ativos Meta são das concessionárias e a Prumo age como integradora **mediante acesso delegado** (DEC-WA-05). **Validação externa ainda necessária [V]:** confirmar em cada conta Meta os titulares efetivos, IDs, habilitação, sistema de permissão, webhook, inscrição WABA e acesso delegado. Não confundir falta de verificação documental real com falta de definição da titularidade desejada.
 
 ## 2. Registros estruturais separados e dados rastreáveis [D/H]
 
