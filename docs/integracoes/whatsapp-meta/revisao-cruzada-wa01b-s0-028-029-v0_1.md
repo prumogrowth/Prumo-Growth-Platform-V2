@@ -1,5 +1,7 @@
 # WA-01B — revisão cruzada Meta ↔ S0/028/029 | 18/10/2026 | v0.1
 
+> **[LEITURA_ORIENTADA_2026_10_21] Documento de referência histórica ou de engenharia, NÃO substitui decisões funcionais recentes.** Consulte o [LEIA PRIMEIRO](./README.md), a [especificação vigente](./01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md) e o [mapa de conflitos por origem](./02-mapa-fontes-conflitos-e-emendas-2026-10-21.md). Apenas trechos expressamente substituídos perdem vigência; evidências offline não significam serviços reais homologados.
+
 **Estado: PARECER E CONTRATO CANDIDATO [P] — não homologado pela frente principal.**
 Base auditada no GitHub: PR #1 `feat/s0-fundacao-prumo`, HEAD `1ed4bab627a6f1977c3c1889eed6ada03c456a69`; PR #2 `docs/whatsapp-meta-concessionária de demonstração-poc-20261017` após WA-01A e DEC-WA-05. Nenhum merge, migration hospedada, webhook real ou canal comercial foi alterado.
 
