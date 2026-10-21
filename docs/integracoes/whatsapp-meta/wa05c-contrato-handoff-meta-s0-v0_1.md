@@ -1,5 +1,7 @@
 # WA-05C — contrato candidato Meta → persistência S0, sem ACK real
 
+> **[LEITURA_ORIENTADA_2026_10_21] Registro histórico ou de engenharia, não substitui decisões recentes.** Consulte [LEIA PRIMEIRO](./README.md), [especificação funcional vigente](./01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md) e [mapa de conflitos](./02-mapa-fontes-conflitos-e-emendas-2026-10-21.md). Somente trechos expressamente substituídos perdem vigência; provas offline não significam serviços reais homologados.
+
 **Data:** 18/10/2026. **Situação: [P/V local]**, exclusivamente em branch Draft PR #2. Revisado com o contrato compartilhado S0 ↔ Meta \`interface-compartilhada-s0-meta-v0_1.md\` e as interfaces WA-01A/B, WA-04A/B, WA-05A/B. **Nenhuma alteração** de função hospedada, secrets, número comercial, Supabase, Meta ou deploy.
 
 ## 1. Fronteira arquitetural preservada
