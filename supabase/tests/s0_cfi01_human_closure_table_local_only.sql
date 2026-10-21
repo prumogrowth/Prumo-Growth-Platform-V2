@@ -23,6 +23,14 @@ create table prumo_private.cfi01_human_closure_events_local (
  unique(concessionaria_id,caso_id,atribuicao_id,snapshot_sha256)
 );
 revoke all on prumo_private.cfi01_human_closure_events_local
- from public,anon,authenticated,service_role,prumo_s0_gateway;
+ from public,anon,authenticated,service_role;
+-- Full S0 gateway migration is not part of this minimal PG17 fixture;
+-- revoke the optional gateway role if it happens to have been installed.
+do $cf$
+begin
+ if exists(select 1 from pg_catalog.pg_roles where rolname='prumo_s0_gateway') then
+  execute 'revoke all on prumo_private.cfi01_human_closure_events_local from prumo_s0_gateway';
+ end if;
+end $cf$;
 comment on table prumo_private.cfi01_human_closure_events_local is
  'DISPOSABLE S0 LOCAL CFI-01; NOT live closure/business status, cannot be used for production';
