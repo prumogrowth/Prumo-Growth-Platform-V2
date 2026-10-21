@@ -1,5 +1,7 @@
 # Modelo técnico de ingresso, identidade telefônica e idempotência — WhatsApp/Meta ↔ Supabase | v0.1
 
+> **[LEITURA_ORIENTADA_2026_10_21] Documento de referência histórica ou de engenharia, NÃO substitui decisões funcionais recentes.** Consulte o [LEIA PRIMEIRO](./README.md), a [especificação vigente](./01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md) e o [mapa de conflitos por origem](./02-mapa-fontes-conflitos-e-emendas-2026-10-21.md). Apenas trechos expressamente substituídos perdem vigência; evidências offline não significam serviços reais homologados.
+
 **Projeto:** Plataforma de atendimento comercial para LiberaCred  
 **Frente:** WhatsApp/Meta, integrando-se ao backend principal  
 **Classificação:** **ESPECIFICAÇÃO TÉCNICA CANDIDATA [P] — não executada, sem migrations e sem modificação do webhook de teste**  
