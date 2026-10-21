@@ -47,6 +47,9 @@
 
 ## 4. Reparo a ser feito na documentação global do projeto (fora da propriedade deste PR)
 
+**Rastreamento global aberto:** [issue #13 — DOC-AUD: incorporar emendas às fontes versionadas](https://github.com/prumogrowth/Prumo-Growth---Platform/issues/13). A publicação desta issue não implica que as fontes históricas tenham sido modificadas.
+
+
 **Pacote para outras frentes / consolidação global, sem alterar a versão histórica:**
 
 - 41 D41-03 (e 31/36): redigir **emenda normativa granular** cobrindo ferramentas administrativas de templates e finalidades via MCP com segundo aceite do mesmo responsável; conservar proibições de schema, poderes globais e auditoria. Definir matriz executável quando frente MCP trabalhar no serviço; não concluir permissão universal de banco.
