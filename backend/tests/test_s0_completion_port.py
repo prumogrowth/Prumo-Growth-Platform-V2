@@ -4,7 +4,7 @@ import unittest
 
 from backend.s0_openai_bridge.s0_completion_port import (
     CompletionRequest, CompletionState as State, S0Answer, S0AnswerKind as Kind,
-    S0ClosedSnapshot, prepare_f03_completion_review,
+    S0ClosedSnapshot, F03ModelView, prepare_f03_completion_review,
 )
 
 
@@ -29,8 +29,10 @@ class FakeF03:
         self.calls=[]
         self.failure=failure
         self.reply=reply
+        self.contexts=[]
     def propose(self, captured):
         self.calls.append('propose')
+        self.contexts.append(captured)
         if self.failure: raise RuntimeError('external model unavailable')
         return (self.reply if self.reply is not None else
                 {'operation_kind':'human_close_extract','bank_status':'SOLD',
@@ -219,6 +221,74 @@ class Tests(unittest.TestCase):
         s0.final=S0Answer(Kind.ACCEPTED,replace(s0.captured,catalogue_version='catalogue-2'))
         self.assertEqual(prepare_f03_completion_review(req,s0=s0,model=model).state,
                          State.STALE)
+
+
+    def test_33_model_only_receives_minimal_context(self):
+        req,s0,model=fixture()
+        self.assertEqual(prepare_f03_completion_review(req,s0=s0,model=model).state,
+                         State.S0_VALIDATION_REQUIRED)
+        self.assertEqual(len(model.contexts),1)
+        view=model.contexts[0]
+        self.assertIs(type(view),F03ModelView)
+        self.assertEqual(set(view.__dataclass_fields__),
+                         {'operation_kind','closure_event_ref','snapshot_hash',
+                          'message_watermark','catalogue_version'})
+    def test_34_model_does_not_see_assignment_or_version(self):
+        req,s0,model=fixture()
+        prepare_f03_completion_review(req,s0=s0,model=model)
+        view=model.contexts[0]
+        for name in ('assignment_ref','assignment_version','owner_route','store_ref','case_ref'):
+            self.assertFalse(hasattr(view,name),name)
+    def test_35_model_does_not_see_browser_idempotency_key(self):
+        req,s0,model=fixture()
+        prepare_f03_completion_review(req,s0=s0,model=model)
+        self.assertFalse(hasattr(model.contexts[0],'completion_request_key'))
+        self.assertNotIn(req.idempotency_key,repr(model.contexts[0]))
+    def test_36_model_does_not_see_credential_or_customer_data(self):
+        req,s0,model=fixture()
+        prepare_f03_completion_review(req,s0=s0,model=model)
+        view=model.contexts[0]
+        for name in ('actor_id','session_id','access_token','bearer','messages',
+                     'phone','customer','bank_submission_proved','consent'):
+            self.assertFalse(hasattr(view,name),name)
+    def test_37_model_gets_same_closure_and_snapshot_refs(self):
+        req,s0,model=fixture()
+        prepare_f03_completion_review(req,s0=s0,model=model)
+        view=model.contexts[0]
+        self.assertEqual(view.closure_event_ref,s0.captured.closure_event_ref)
+        self.assertEqual(view.snapshot_hash,s0.captured.snapshot_hash)
+        self.assertEqual(view.message_watermark,s0.captured.message_watermark)
+        self.assertEqual(view.catalogue_version,s0.captured.catalogue_version)
+        self.assertEqual(view.operation_kind,'human_close_extract')
+    def test_38_model_view_is_immutable(self):
+        from dataclasses import FrozenInstanceError
+        req,s0,model=fixture()
+        prepare_f03_completion_review(req,s0=s0,model=model)
+        with self.assertRaises(FrozenInstanceError):
+            model.contexts[0].catalogue_version='malicious'
+    def test_39_s0_recheck_receives_full_trusted_snapshot(self):
+        class InspectingS0(FakeS0):
+            def recheck(self, captured):
+                self.last_rechecked=captured
+                return super().recheck(captured)
+        req,s0,model=fixture()
+        s0=InspectingS0()
+        self.assertEqual(prepare_f03_completion_review(req,s0=s0,model=model).state,
+                         State.S0_VALIDATION_REQUIRED)
+        self.assertIs(type(s0.last_rechecked),S0ClosedSnapshot)
+        self.assertEqual(s0.last_rechecked.assignment_ref,'assignment-1')
+        self.assertEqual(s0.last_rechecked.completion_request_key,req.idempotency_key)
+    def test_40_denial_before_proposal_never_exposes_model_view(self):
+        req,s0,model=fixture()
+        s0.initial=S0Answer(Kind.DENIED)
+        self.assertEqual(prepare_f03_completion_review(req,s0=s0,model=model).state,
+                         State.DENIED)
+        self.assertEqual(model.contexts,[])
+    def test_41_model_view_not_same_as_s0_snapshot(self):
+        req,s0,model=fixture()
+        prepare_f03_completion_review(req,s0=s0,model=model)
+        self.assertIsNot(model.contexts[0],s0.captured)
+        self.assertNotEqual(type(model.contexts[0]),type(s0.captured))
 
 if __name__ == '__main__':
     unittest.main()
