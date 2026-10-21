@@ -32,7 +32,7 @@ for file in \
   supabase/migrations/202610170005_s0_scope_integrity.sql \
   supabase/migrations/202610170006_s0_transactional_simulation.sql \
   supabase/migrations/202610170008_s0_lead_operador_caso.sql \
-  supabase/migrations/202610180038_s1_equipe_prumo_gate.sql \
+  supabase/tests/s0_cfi01_s1_038_reference_local_only.sql \
   supabase/tests/s0_cfi01_human_closure_table_local_only.sql
 do
     psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$file"
