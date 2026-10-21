@@ -230,4 +230,14 @@ class Tests(unittest.TestCase):
         self.assertIn('for share of m',_MESSAGES.lower())
         self.assertIn('order by m.criada_em,m.id',_MESSAGES.lower())
 
+    def test_41_pghostaddr_cannot_redirect_local_closure(self):
+        with patch.dict('os.environ',{'PGHOSTADDR':'203.0.113.3'}):
+            with self.assertRaisesRegex(ValueError,'LIBPQ'):
+                S0LocalClosureStore(DSN)
+
+    def test_42_pgservicefile_cannot_redirect_local_closure(self):
+        with patch.dict('os.environ',{'PGSERVICEFILE':'/tmp/evil'}):
+            with self.assertRaisesRegex(ValueError,'LIBPQ'):
+                S0LocalClosureStore(DSN)
+
 if __name__ == '__main__':unittest.main()
