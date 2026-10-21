@@ -16,7 +16,7 @@ import urllib.request
 import uuid
 
 from backend.s0_cfi01_authenticated_commands_local import CommandState
-from backend.s0_cfi01_signed_commands_local import S0CFI01SignedCommandsLocal
+from backend.s0_cfi01_atomic_commands_local import S0CFI01AtomicCommandsLocal
 
 def demand(condition, message):
     if not condition:
@@ -79,6 +79,7 @@ def main():
     sql_file(db,"supabase/tests/s0_cfi01_s1_038_reference_local_only.sql")
     sql_file(db,"supabase/tests/s0_cfi01_human_closure_table_local_only.sql")
     sql_file(db,"supabase/tests/s0_cfi01_signed_prerequisite_local_only.sql")
+    sql_file(db,"supabase/tests/s0_cfi01_atomic_owner_local_only.sql")
     import psycopg
     operator,token=register(api,key)
     outsider,outsider_token=register(api,key)
@@ -122,14 +123,14 @@ def main():
                                  'frase ficticia no CI',%s)""",
                       (msg,store,conversation,channel,case,str(msg)))
 
-    # Real GoTrue token + signed nonce/HMAC over restricted SQL user, then
-    # full existing S0/S1 capture/recheck. The final step remains privileged
-    # solely in this disposable test setup and is NOT production-ready.
+    # Real GoTrue + signed nonce/HMAC with one atomic transaction under
+    # the restricted SQL login; owner is NOLOGIN/NOSUPERUSER subject to RLS.
+    # All keys and role data are synthetic and this remains LAB-ONLY.
     u=urllib.parse.urlsplit(db)
     restricted=(f"postgresql://prumo_cfi01_pgtest_login:"
                 f"cf-i01-disposable-test-only-not-production@{u.hostname}:{u.port}/postgres")
-    gate=S0CFI01SignedCommandsLocal(
-        api,key,db,restricted,
+    gate=S0CFI01AtomicCommandsLocal(
+        api,key,restricted,
         key_id=uuid.UUID("cfeed000-0000-4000-8000-000000000001"),
         signing_key=bytes.fromhex(
           "1160b59cd3466f55112233445566778899aabbccddeeff001122334455667788"))
