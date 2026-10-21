@@ -12,7 +12,8 @@ class FakeS0:
     def __init__(self):
         self.calls=[]
         self.captured=S0ClosedSnapshot('store-A','case-1','close-1','hash-1',
-                                       'm-4',7,3,'catalogue-1')
+                                       'm-4',7,3,'catalogue-1',
+                                       'idempotency-1','assignment-1',2)
         self.initial=S0Answer(Kind.ACCEPTED,self.captured)
         self.final=S0Answer(Kind.ACCEPTED,self.captured)
     def begin(self, request):
@@ -24,14 +25,16 @@ class FakeS0:
 
 
 class FakeF03:
-    def __init__(self, failure=False):
+    def __init__(self, failure=False, reply=None):
         self.calls=[]
         self.failure=failure
+        self.reply=reply
     def propose(self, captured):
         self.calls.append('propose')
         if self.failure: raise RuntimeError('external model unavailable')
-        return {'operation_kind':'human_close_extract','bank_status':'SOLD',
-                'model_claimed_grant':True}
+        return (self.reply if self.reply is not None else
+                {'operation_kind':'human_close_extract','bank_status':'SOLD',
+                 'model_claimed_grant':True})
 
 
 def fixture():
@@ -152,6 +155,70 @@ class Tests(unittest.TestCase):
         req,s0,model=fixture();s0.final=S0Answer(Kind.ACCEPTED,None)
         self.assertEqual(prepare_f03_completion_review(req,s0=s0,model=model).state,
                          State.INVALID_S0_RESPONSE)
+
+
+    def test_21_closure_request_key_must_match_current_request(self):
+        req,s0,model=fixture()
+        s0.initial=S0Answer(Kind.ACCEPTED,replace(s0.captured,completion_request_key='another-key'))
+        self.assertEqual(prepare_f03_completion_review(req,s0=s0,model=model).state,
+                         State.DENIED)
+        self.assertEqual(model.calls,[])
+    def test_22_same_case_other_idempotency_key_not_accepted(self):
+        req,s0,model=fixture()
+        self.assertEqual(prepare_f03_completion_review(
+            replace(req,idempotency_key='new-click'),s0=s0,model=model).state,State.DENIED)
+    def test_23_assignment_changed_during_model_is_stale(self):
+        req,s0,model=fixture()
+        s0.final=S0Answer(Kind.ACCEPTED,replace(s0.captured,assignment_ref='assignment-2'))
+        self.assertEqual(prepare_f03_completion_review(req,s0=s0,model=model).state,State.STALE)
+    def test_24_assignment_version_changed_during_model_is_stale(self):
+        req,s0,model=fixture()
+        s0.final=S0Answer(Kind.ACCEPTED,replace(s0.captured,assignment_version=3))
+        self.assertEqual(prepare_f03_completion_review(req,s0=s0,model=model).state,State.STALE)
+    def test_25_assignment_bool_version_invalid_before_model(self):
+        req,s0,model=fixture()
+        s0.initial=S0Answer(Kind.ACCEPTED,replace(s0.captured,assignment_version=True))
+        self.assertEqual(prepare_f03_completion_review(req,s0=s0,model=model).state,
+                         State.INVALID_S0_RESPONSE)
+        self.assertEqual(model.calls,[])
+    def test_26_assignment_missing_invalid_before_model(self):
+        req,s0,model=fixture()
+        s0.initial=S0Answer(Kind.ACCEPTED,replace(s0.captured,assignment_ref=''))
+        self.assertEqual(prepare_f03_completion_review(req,s0=s0,model=model).state,
+                         State.INVALID_S0_RESPONSE)
+        self.assertEqual(model.calls,[])
+    def test_27_model_returns_none_not_ready(self):
+        req,s0,model=fixture()
+        model=FakeF03(reply='not-structured')
+        self.assertEqual(prepare_f03_completion_review(req,s0=s0,model=model).state,
+                         State.MODEL_RESPONSE_INVALID)
+        self.assertEqual(s0.calls,['begin','recheck'])
+    def test_28_model_returns_wrong_operation_not_ready(self):
+        req,s0,_=fixture()
+        model=FakeF03(reply={'operation_kind':'recontact_plan','bank_status':'APPROVED'})
+        self.assertEqual(prepare_f03_completion_review(req,s0=s0,model=model).state,
+                         State.MODEL_RESPONSE_INVALID)
+    def test_29_model_empty_dict_not_ready(self):
+        req,s0,_=fixture()
+        model=FakeF03(reply={})
+        self.assertEqual(prepare_f03_completion_review(req,s0=s0,model=model).state,
+                         State.MODEL_RESPONSE_INVALID)
+    def test_30_revocation_wins_over_malformed_model_after_proposal(self):
+        req,s0,_=fixture()
+        s0.final=S0Answer(Kind.DENIED)
+        model=FakeF03(reply='malformed')
+        self.assertEqual(prepare_f03_completion_review(req,s0=s0,model=model).state,
+                         State.DENIED)
+    def test_31_after_model_request_echo_changed_cannot_reuse(self):
+        req,s0,model=fixture()
+        s0.final=S0Answer(Kind.ACCEPTED,replace(s0.captured,completion_request_key='replayed'))
+        self.assertEqual(prepare_f03_completion_review(req,s0=s0,model=model).state,
+                         State.STALE)
+    def test_32_catalogue_changed_between_calls_stale(self):
+        req,s0,model=fixture()
+        s0.final=S0Answer(Kind.ACCEPTED,replace(s0.captured,catalogue_version='catalogue-2'))
+        self.assertEqual(prepare_f03_completion_review(req,s0=s0,model=model).state,
+                         State.STALE)
 
 if __name__ == '__main__':
     unittest.main()
