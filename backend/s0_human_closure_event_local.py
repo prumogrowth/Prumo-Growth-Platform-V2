@@ -48,7 +48,8 @@ class ClosureResult:
 
 
 class S1TransactionAuthority(Protocol):
-    """Not supplied in production; must verify S1 facts using the SAME cursor."""
+    """S1 authorization must lock TEAM before CASE using the SAME cursor."""
+    def lock_team(self, cursor: Any, principal: Principal) -> S1Proof: ...
     def check(self, cursor: Any, principal: Principal, store: uuid.UUID,
               case: uuid.UUID, assignment: uuid.UUID) -> S1Proof: ...
 
@@ -131,6 +132,10 @@ class S0LocalClosureStore:
                 cur.execute(_SESSION,(principal.session_id,principal.actor_id))
                 if cur.fetchone() is None:
                     return ClosureResult(ClosureState.DENIED)
+                # Match S1 I13 lock order: TEAM BEFORE case and assignment.
+                # If S1 table/adapter is absent or rejects, fail closed.
+                if s1.lock_team(cur,principal) is not S1Proof.ALLOW:
+                    return ClosureResult(ClosureState.BLOCKED_S1)
                 case_id=_uuid(request.case_ref)
                 cur.execute(_CASE,(principal.actor_id,case_id))
                 case=cur.fetchone()
@@ -144,8 +149,9 @@ class S0LocalClosureStore:
                     return ClosureResult(ClosureState.STALE)
                 if status not in ('em atendimento pelo operador','cadastro enviado ao operador'):
                     return ClosureResult(ClosureState.DENIED)
-                # Caller-provided S1 port is ONLY a laboratory injection.
-                # A production adapter must own this query & lock S1 rows.
+                # S1 was locked first; recheck exact scope after the
+                # current case/assignment/store grant locks. Adapter is only
+                # local until S0+S1 physical contract is ratified.
                 if s1.check(cur,principal,store,case_id,assignment) is not S1Proof.ALLOW:
                     return ClosureResult(ClosureState.BLOCKED_S1)
                 # FOR UPDATE of parent conversations serializes inserts that
