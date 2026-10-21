@@ -1,5 +1,8 @@
 # S1-002 — alinhamento da issue #10: pausa só de novos leads e transferências seguras (20/10/2026)
 
+> **[D] Atualização de nomenclatura (21/10/2026):** **diretor** substitui o nome de papel **responsável (da plataforma)**; **gestor** permanece **gestor**; **consultor** substitui **operador**. As competências permanecem iguais, e a estrutura técnica/identificadores ainda **não** foram renomeados. A terminologia antiga neste documento deve ser interpretada por esta equivalência. [Decisão normativa de nomenclatura](S1_002_DECISAO_NOMENCLATURA_PAPEIS_2026_10_21.md).
+
+
 **Prioridade de produto sobre o hardening I32 da testemunha I31.** Trabalho somente em `feat/s1-002-equipe-prumo`, PR #5 Draft, sem merge, deploy ou Supabase hospedado. Fonte: [issue #10](https://github.com/prumogrowth/Prumo-Growth---Platform/issues/10), atualização de negócio de 20/10/2026.
 
 ## Decisões recebidas [D] e mudança necessária
