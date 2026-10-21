@@ -5,6 +5,7 @@ Uses the Supabase CLI's throwaway Auth + PostgREST + database, never remote.
 No production keys, hosted database, customer messages, API OpenAI or Meta.
 The CFI01 database adapter remains postgres-privileged LOCAL ONLY.
 """
+import base64
 import json
 import os
 import re
@@ -139,7 +140,20 @@ def main():
     demand(stranger.state is CommandState.DENIED,"other authenticated user gained assigned case")
     print("PASS CFI01-AUTH-03 authenticated outside operator blocked from case")
 
-    tampered=token[:-1]+("A" if token[-1]!="A" else "B")
+    # Change the authenticated JWT's actual payload bytes but keep its
+    # original signature. Flipping one trailing Base64URL character is NOT
+    # reliable: unused padding bits can decode to identical bytes.
+    parts=token.split(".")
+    demand(len(parts)==3,"GoTrue JWT did not contain three segments")
+    old_payload=base64.urlsafe_b64decode(
+        parts[1]+"="*((-len(parts[1]))%4))
+    fake_claims=json.loads(old_payload)
+    fake_claims["sub"]=str(outsider)
+    forged_payload=base64.urlsafe_b64encode(
+        json.dumps(fake_claims,separators=(",",":")).encode()
+    ).decode().rstrip("=")
+    demand(forged_payload != parts[1],"JWT mutation did not change payload")
+    tampered=".".join((parts[0],forged_payload,parts[2]))
     invalid=gate.execute("Bearer "+tampered,"capture_human_closure",payload)
     demand(invalid.state is CommandState.DENIED,"tampered genuine JWT passed GoTrue")
     print("PASS CFI01-AUTH-04 invalid signature rejected by real GoTrue")
