@@ -4,8 +4,8 @@
 -- The test key/password are PUBLISHED, unsafe outside a throwaway database.
 create role prumo_cfi01_atomic_owner_local nologin noinherit
   nosuperuser nocreatedb nocreaterole noreplication nobypassrls;
-grant usage on schema auth,public,prumo_private to prumo_cfi01_atomic_owner_local;
-grant select on auth.sessions,public.equipe_prumo_s1,
+grant usage on schema public,prumo_private to prumo_cfi01_atomic_owner_local;
+grant select on public.equipe_prumo_s1,
  public.casos_humanos,public.ciclos_comerciais,public.concessionarias,
  public.atribuicoes_humanas,public.vinculos_papel_escopo,
  public.conversas,public.mensagens,
@@ -23,7 +23,6 @@ grant update on public.casos_humanos,public.ciclos_comerciais,
  to prumo_cfi01_atomic_owner_local;
 -- PostgreSQL FOR SHARE/FOR KEY SHARE requires UPDATE privilege as well.
 -- Grant only identity columns, never customer text or signing key secret.
-grant update(id) on auth.sessions to prumo_cfi01_atomic_owner_local;
 grant update(ator_id) on public.equipe_prumo_s1 to prumo_cfi01_atomic_owner_local;
 grant update(id) on public.vinculos_papel_escopo to prumo_cfi01_atomic_owner_local;
 grant update(id) on public.mensagens to prumo_cfi01_atomic_owner_local;
@@ -69,6 +68,29 @@ create policy cfi01_owner_lock_grant_lab on public.vinculos_papel_escopo
  for update to prumo_cfi01_atomic_owner_local using (true) with check (true);
 create policy cfi01_owner_lock_team_lab on public.equipe_prumo_s1
  for update to prumo_cfi01_atomic_owner_local using (true) with check (true);
+
+-- Supabase reserves ownership/ACL of auth.sessions for the Auth service.
+-- The migration role cannot grant its SELECT/UPDATE to our NOLOGIN owner.
+-- Use a narrowly scoped postgres-owned helper (precedent S0/C07) that
+-- checks only the actor/session tuple under a row lock in THIS transaction.
+-- The atomic owner receives EXECUTE only, not direct auth schema rights.
+create function prumo_private.cfi01_session_valid_local(
+ p_actor uuid,p_session uuid
+) returns boolean
+language plpgsql security definer set search_path=''
+as $session$
+begin
+ if p_actor is null or p_session is null then
+   return false;
+ end if;
+ perform 1 from auth.sessions s
+ where s.id=p_session and s.user_id=p_actor for key share;
+ return found;
+end $session$;
+revoke all on function prumo_private.cfi01_session_valid_local(uuid,uuid)
+ from public,anon,authenticated,service_role,prumo_cfi01_pgtest_login;
+grant execute on function prumo_private.cfi01_session_valid_local(uuid,uuid)
+ to prumo_cfi01_atomic_owner_local;
 
 create function prumo_private.cfi01_atomic_signed_closure_local(
  p_operation text,p_actor uuid,p_session uuid,p_case uuid,
@@ -133,8 +155,7 @@ begin
 
   -- Single S0-authoritative transaction; same cursor/role for all locks,
   -- exact S1 TEAM -> CASE -> CONVERSA -> MENSAGEM -> RECIBO order.
-  if not exists (select 1 from auth.sessions s
-      where s.id=p_session and s.user_id=p_actor for key share)
+  if not prumo_private.cfi01_session_valid_local(p_actor,p_session)
   then raise exception 'CFI01_ATOMIC_SESSION_DENIED' using errcode='42501';end if;
   if not exists (select 1 from public.equipe_prumo_s1 t
       where t.ator_id=p_actor and t.estado='ativo' for share)
