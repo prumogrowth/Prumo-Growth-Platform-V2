@@ -41,6 +41,10 @@
 | Sucesso fictício de CI | Relatório `wa16-wa17-fechamento-validacao-e-pausa-2026-10-20.md`, PR #2 | Testes escritos/smoke em V8 seriam reportados como Node/PG17 aprovados | [T] 44 Node definidos, 42 checagens V8 independentes PASS, Node/SQL nativos de WA16/17 atuais **não comprovados**. WDC-19 |
 | Progresso histórico | `documentos/19F_Controle_Progresso_Evolutivo_69_por_cento_v0_1.md`, consolidado v0.2 de 10/10 | 69% planejamento poderia ser tratado como desenvolvimento 69% | [S contexto] percentuais são **fotografia de planejamento histórico**, não medição atual de código pronto/produção. WDC-19 |
 
+### Adição funcional nova, sem conflito normativo — WA-20 (21/10/2026)
+
+`documentos/09_Estrutura_Mensagens_Templates_v4_6.md` já exige `remetente_tipo` e mensagem individual; `documentos/24_Caderno_Telas_Fluxos_Aceite_Operacional_v0_1.md` prevê identificação de **autores/horários NA INTERFACE INTERNA**. Esses requisitos não garantiam que o nome do operador apareça **no WhatsApp do cliente**. O responsável deseja esse complemento e [WA-20](./wa20-identificacao-visivel-atendente-assinatura-mensagem-2026-10-21.md) o distingue da autoria interna: para texto livre, **o backend pode compor prefixo textual**; a Meta não documenta parâmetro nativo individual no corpo padrão; templates não podem receber prefixo fora do conteúdo aprovado. Frequência/formato é proposta ainda não decidida. **Não revoga a autoria interna já obrigatória.**
+
 ## 3. Documentos do pacote histórico que seguem como fonte sem revogação geral
 
 As decisões presentes em `documentos/02`, `03`, `05`, `07`, `08A/B/C`, `10`, `11`, `12`, `13A`, `14`, `21`, `22`, `23`, `24`, `27`, `28`, `29`, `31`, `32`, `36`, `38`, `39`, `40`, `41`, `42`, `43` **não são automaticamente anuladas** por conter referências a Meta/WhatsApp. Seus controles de isolamento, oito estados comerciais, auditoria, handoff, provas bancárias, privacidade, concorrência, eventos e limites permanecem úteis; quando um trecho contradiz alguma linha da seção 2, **somente esse trecho** é substituído. Consultar seção específica do documento original antes de invocar um dever normativo.
