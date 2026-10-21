@@ -62,7 +62,7 @@ A **finalidade do contato/consentimento/opt-out** é uma TERCEIRA dimensão dist
 
 - Exemplo de rascunho: `Olá {{1}}, temos informações sobre {{2}}`; fontes fixadas **antes da aprovação daquela versão**: `body.1 -> lead.nome`, `body.2 -> lead.modelo_interesse`. Se a versão for aprovada, **NÃO trocar as fontes desses slots nessa versão**.
 - A lista completa de colunas comerciais da tabela de leads **ainda não foi decidida**. Cada nova coluna de negócio pode se tornar **candidata** a fonte de variável, desde que política por campo/finalidade a autorize. Um nome de coluna existente não concede automaticamente divulgação de CPF, dados bancários, segredo, IDs técnicos nem metadados sensíveis.
-- Ao enviar, o backend lê os **dados da mesma concessionária** e resolves `{{n}}` com tipos, fontes e validações autorizadas. Não confiar em parâmetros de IA ou campos SQL arbitrários; não inventar valores ausentes. Falta de dado seguro bloqueia envio e gera evidência de motivo.
+- Ao enviar, o backend lê os **dados da mesma concessionária** e resolve `{{n}}` com tipos, fontes e validações autorizadas. Não confiar em parâmetros de IA ou campos SQL arbitrários; não inventar valores ausentes. Falta de dado seguro bloqueia envio e gera evidência de motivo.
 - Slots de BODY, HEADER e URL dinâmica de botão também obedecem ao vínculo imutável da versão e verificação de links/domínios seguros. É permitido evoluir **versão seguinte** por fluxo autorizado, nunca reescrever os envios anteriores.
 
 ## 9. Planejamento e substituição de templates [D]
