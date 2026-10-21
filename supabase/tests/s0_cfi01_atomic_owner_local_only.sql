@@ -252,6 +252,10 @@ end $fn$;
 revoke all on function prumo_private.cfi01_atomic_signed_closure_local(
  text,uuid,uuid,uuid,bigint,uuid,text,uuid,bigint,uuid,text)
  from public,anon,authenticated,service_role;
+-- Grant to restricted login while the fixture installer still owns it.
+grant execute on function prumo_private.cfi01_atomic_signed_closure_local(
+ text,uuid,uuid,uuid,bigint,uuid,text,uuid,bigint,uuid,text)
+ to prumo_cfi01_pgtest_login;
 -- PostgreSQL 17 owner transfer needs SET ROLE permission. The Supabase
 -- local `postgres` account is not necessarily superuser; grant TEMPORARY
 -- membership and CREATE just for ownership transfer, revoke immediately.
@@ -262,8 +266,6 @@ alter function prumo_private.cfi01_atomic_signed_closure_local(
  owner to prumo_cfi01_atomic_owner_local;
 revoke prumo_cfi01_atomic_owner_local from postgres;
 revoke create on schema prumo_private from prumo_cfi01_atomic_owner_local;
-grant execute on function prumo_private.cfi01_atomic_signed_closure_local(
- text,uuid,uuid,uuid,bigint,uuid,text,uuid,bigint,uuid,text)
- to prumo_cfi01_pgtest_login;
+
 -- Only the server-held HMAC signing secret can cause this function to act.
 -- The login cannot SELECT private rows or INSERT receipts directly.
