@@ -78,8 +78,9 @@ def preflight_human_closure(
     except Exception:
         # Unexpected storage error must never grant or leak scoped context.
         return CasePreflightResult(CheckStatus.UNAVAILABLE)
-    if result not in (CheckStatus.DENIED, CheckStatus.STALE,
-                      CheckStatus.S0_READ_CHECKS_PASSED_S1_REQUIRED):
+    if type(result) is not CheckStatus or result not in (
+            CheckStatus.DENIED, CheckStatus.STALE,
+            CheckStatus.S0_READ_CHECKS_PASSED_S1_REQUIRED):
         return CasePreflightResult(CheckStatus.DENIED)
     return CasePreflightResult(result)
 
