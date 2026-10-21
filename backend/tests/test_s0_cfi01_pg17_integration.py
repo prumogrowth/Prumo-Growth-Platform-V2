@@ -16,6 +16,12 @@ from backend.identity_boundary import Principal
 from backend.s0_human_closure_event_local import (
     ClosureRequest, ClosureState, S0LocalClosureStore, capture_human_closure_local)
 from backend.s0_s1_closure_authority_local import S0S1LocalTeamAuthority
+from backend.s0_cfi01_authenticated_commands_local import (
+    S0CFI01AuthenticatedCommandsLocal, CommandState,
+)
+from backend.tests.test_s0_cfi01_authenticated_commands_local import (
+    token as synthetic_token, Opener as SyntheticGoTrueHTTP,
+)
 from backend.s0_human_closure_recheck_local import (
     RecheckRequest, RecheckState, S0LocalClosureRecheck,
     recheck_human_closure_local,
@@ -334,6 +340,75 @@ class PostgresPhysicalIntegration(unittest.TestCase):
     def test_26_wrong_cycle_expectation_is_stale(self):
         receipt=self.capture().closure_event_ref
         self.assertIs(self.recheck(receipt,cycle_version=2).state,RecheckState.STALE)
+
+
+    def _local_gateway(self):
+        # Actual SupabaseGoTrueVerifier network contract with SYNTHETIC HTTP
+        # responder; full physical S0/S1 database queries remain real PG17.
+        return S0CFI01AuthenticatedCommandsLocal(
+            'https://auth.example.invalid','test-publishable-key',DB,
+            opener=SyntheticGoTrueHTTP(actor=self.actor))
+
+    def _gateway_payload(self):
+        return dict(case_ref=str(self.case), expected_cycle_version=1,
+                    idempotency_key='ci-gotrue-wire-key')
+
+    def test_27_gotrue_verifier_code_and_real_pg_capture_recheck(self):
+        gateway=self._local_gateway()
+        bearer=synthetic_token(self.actor,self.session)
+        capture=gateway.execute(bearer,'capture_human_closure',self._gateway_payload())
+        self.assertEqual(capture.state,CommandState.CAPTURED_LOCAL_ONLY)
+        self.assertEqual(self._count(),1)
+        outcome=gateway.execute(bearer,'recheck_human_closure',
+            {**self._gateway_payload(),'closure_event_ref':capture.closure_event_ref})
+        self.assertEqual(outcome.state,CommandState.VERIFIED_REVIEW_ONLY_LOCAL)
+        self.assertIsNone(outcome.closure_event_ref)
+
+    def test_28_rogue_browser_actor_rejected_before_physical_writes(self):
+        g=self._local_gateway()
+        outcome=g.execute(synthetic_token(self.actor,self.session),
+            'capture_human_closure',{**self._gateway_payload(),'actor_id':str(uuid.uuid4())})
+        self.assertEqual(outcome.state,CommandState.INPUT_REJECTED)
+        self.assertEqual(self._count(),0)
+
+    def test_29_expired_local_session_revoked_despite_gotrue_http_success(self):
+        g=self._local_gateway()
+        with self.pg.connect(DB) as con:
+            con.execute('delete from auth.sessions where id=%s',(self.session,))
+        x=g.execute(synthetic_token(self.actor,self.session),
+            'capture_human_closure',self._gateway_payload())
+        self.assertEqual(x.state,CommandState.DENIED)
+        self.assertEqual(self._count(),0)
+
+    def test_30_s1_suspended_blocks_authenticated_command(self):
+        g=self._local_gateway()
+        with self.pg.connect(DB) as con:
+            con.execute("update public.equipe_prumo_s1 set estado='suspenso' where ator_id=%s",
+                        (self.actor,))
+        x=g.execute(synthetic_token(self.actor,self.session),
+                    'capture_human_closure',self._gateway_payload())
+        self.assertEqual(x.state,CommandState.BLOCKED_S1)
+        self.assertEqual(self._count(),0)
+
+    def test_31_gotrue_sub_mismatch_denied_before_sql(self):
+        g=self._local_gateway()
+        x=g.execute(synthetic_token(uuid.uuid4(),self.session),
+            'capture_human_closure',self._gateway_payload())
+        self.assertEqual(x.state,CommandState.DENIED)
+        self.assertEqual(self._count(),0)
+
+    def test_32_gotrue_http_recheck_fails_after_new_inbound(self):
+        g=self._local_gateway()
+        bearer=synthetic_token(self.actor,self.session)
+        capture=g.execute(bearer,'capture_human_closure',self._gateway_payload())
+        self.assertEqual(capture.state,CommandState.CAPTURED_LOCAL_ONLY)
+        with self.pg.connect(DB) as con:
+            with con.cursor() as cur:
+                self._add_message(cur,uuid.uuid4())
+        out=g.execute(bearer,'recheck_human_closure',
+           {**self._gateway_payload(),'closure_event_ref':capture.closure_event_ref})
+        self.assertEqual(out.state,CommandState.STALE)
+        self.assertEqual(self._count(),1)
 
 
 if __name__ == "__main__":
