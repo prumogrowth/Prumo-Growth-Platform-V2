@@ -1,5 +1,7 @@
 # WA-04B — Roteamento confiável GET/POST, HMAC por App e escopo de canal (offline)
 
+> **[LEITURA_ORIENTADA_2026_10_21] Registro histórico ou de engenharia, não substitui decisões recentes.** Consulte [LEIA PRIMEIRO](./README.md), [especificação funcional vigente](./01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md) e [mapa de conflitos](./02-mapa-fontes-conflitos-e-emendas-2026-10-21.md). Somente trechos expressamente substituídos perdem vigência; provas offline não significam serviços reais homologados.
+
 **Data:** 18/10/2026. **Estado:** implementação candidata [P] e testes sintéticos na branch Draft do PR #2. **Sem** Supabase hospedado, leitura de segredos definitivos, tráfego Graph/Meta, mensagens reais, migration, troca do webhook concessionária de demonstração ou deploy.
 
 ## 1. Fronteira implementada
