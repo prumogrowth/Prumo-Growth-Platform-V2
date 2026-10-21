@@ -35,3 +35,13 @@ Os 8 cenários GoTrue reais anteriores foram [aprovados #39588160832](https://gi
 6. As exceções S1 por caso continuam conservadoramente negadas fora do contrato normal de concessão de loja. Pausa de intake não equivale a revogação de conta.
 
 **Próximo gate de engenharia:** fechar proprietário/credencial mínima e mover efetivamente `capture/recheck` para a operação assinada atômica. Depois definir com o responsável o envelope canônico e a aplicação de campos F03. PR #8 (OpenAI) e PR #12 (S0) permanecem Draft; sem merge/deploy, cliente real, banco ou Meta.
+
+## Fechamento da verificação conjunta real — resultado posterior nesta rodada
+
+**CONFIRMADO:** [GitHub Actions Supabase Auth/REST #39623019891 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39623019891). A suíte CFI01-AUTH-01..08 passou **8/8** com **GoTrue real e PostgreSQL 17 efêmeros usando agora `S0CFI01SignedCommandsLocal`**: token GoTrue real → prova HMAC/nonce pelo login SQL restrito → captura/recheck S0/S1 com validações transacionais. Outra conta autenticada, JWT adulterado, suspensão, mensagem nova e exclusão de sessão foram recusados. Recibo único sem transição comercial. Contêineres efêmeros desligados após execução.
+
+[GitHub Actions PostgreSQL isolado #39623010453 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39623010453) confirmou novamente **133/133 unitários e 56/56 testes físicos**. Estes números são suítes diferentes; a bateria histórica de 210 F03 não foi integrada nesta rodada.
+
+**Incidente de compatibilidade encontrado e corrigido:** a primeira execução GoTrue+gate assinado [#39622346275](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39622346275) não capturava o recibo, pois a função SQL chamava `public.hmac` diretamente, mas a extensão `pgcrypto` do Supabase pode estar instalada em outro esquema. Corrigimos usando o esquema instalado obtido de `pg_catalog.pg_extension` e SQL `format('%I.hmac',schema)` — sem assumir `public` e sem conceder permissões adicionais. A execução posterior comprovou sucesso, sem inferir que o SQL anterior era válido no Supabase.
+
+**Importante:** GO apenas para **pré-autorização assinada de LABORATÓRIO**, não para operação real. O login restrito só executa função allowlisted; o proprietário `SECURITY DEFINER` ainda é `postgres` e `capture/recheck` posterior ainda abre uma conexão `postgres` local em transação separada. O modelo F03 não recebe grant nem grava campos. A substituição integral do executor e o contrato canônico de aplicação F03 continuam pendentes. Rótulo temporário `run-auth-integration` foi removido após disparo e contêineres efêmeros desligados.
