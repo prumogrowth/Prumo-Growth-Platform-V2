@@ -817,5 +817,44 @@ class PostgresPhysicalIntegration(unittest.TestCase):
         self.assertIs(check.state,CommandState.VERIFIED_REVIEW_ONLY_LOCAL)
 
 
+    def test_71_atomic_owner_cannot_directly_read_auth_sessions(self):
+        # Session verification remains a privileged tiny helper, NOT
+        # blanket access by the NOLOGIN atomic function owner.
+        with self.pg.connect(DB) as con:
+            direct=con.execute("""select has_schema_privilege(
+                  'prumo_cfi01_atomic_owner_local','auth','USAGE'),
+                  has_table_privilege('prumo_cfi01_atomic_owner_local',
+                  'auth.sessions','SELECT')""").fetchone()
+            self.assertEqual(direct,(False,False))
+            ownership=con.execute("""select pg_get_userbyid(p.proowner)
+             from pg_proc p where p.oid=
+             'prumo_private.cfi01_session_valid_local(uuid,uuid)'::regprocedure
+             """).fetchone()[0]
+            self.assertEqual(ownership,'postgres')
+
+    def test_72_session_helper_not_callable_by_browser_or_sql_login(self):
+        with self.pg.connect(DB) as con:
+            direct=con.execute("""select has_function_privilege(
+                  'prumo_cfi01_pgtest_login',
+                  'prumo_private.cfi01_session_valid_local(uuid,uuid)',
+                  'EXECUTE'),
+                  has_function_privilege('authenticated',
+                  'prumo_private.cfi01_session_valid_local(uuid,uuid)',
+                  'EXECUTE'),
+                  has_function_privilege('prumo_cfi01_atomic_owner_local',
+                  'prumo_private.cfi01_session_valid_local(uuid,uuid)',
+                  'EXECUTE')""").fetchone()
+            self.assertEqual(direct,(False,False,True))
+
+    def test_73_atomic_missing_session_denied_by_private_helper(self):
+        with self.pg.connect(DB) as con:
+            con.execute("delete from auth.sessions where id=%s",(self.session,))
+        result=self._atomic_gateway().execute(
+            synthetic_token(self.actor,self.session),
+            'capture_human_closure',self._gateway_payload())
+        self.assertIs(result.state,CommandState.DENIED)
+        self.assertEqual(self._count(),0)
+
+
 if __name__ == "__main__":
     unittest.main()
