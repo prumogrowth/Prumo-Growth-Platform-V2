@@ -5,6 +5,7 @@ on:
     branches: [feat/s0-fundacao-prumo]
     paths:
       - 'backend/s0_human*'
+      - 'backend/s0_cfi01_authenticated_commands_local.py'
       - 'backend/s0_s1_closure_authority_local.py'
       - 'backend/tests/test_s0_*'
       - 'scripts/run-s0-cfi01-pg17-local.sh'
@@ -48,6 +49,6 @@ jobs:
       - name: Create disposable local integration database
         run: psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c 'CREATE DATABASE prumo_s0_test_cfi01'
       - name: Synthetic S0/S1 unit regressions
-        run: python3 -m unittest backend.tests.test_s0_human_completion_preflight backend.tests.test_s0_human_closure_event_local backend.tests.test_s0_s1_closure_authority_local backend.tests.test_s0_human_closure_recheck_local -v
+        run: python3 -m unittest backend.tests.test_s0_human_completion_preflight backend.tests.test_s0_human_closure_event_local backend.tests.test_s0_s1_closure_authority_local backend.tests.test_s0_human_closure_recheck_local backend.tests.test_s0_cfi01_authenticated_commands_local -v
       - name: Execute physical S0/S1 schema and closure integration
         run: bash scripts/run-s0-cfi01-pg17-local.sh
