@@ -1,5 +1,7 @@
 # WA-08 — Validação estrita da conciliação técnica Graph ↔ callback (offline)
 
+> **[LEITURA_ORIENTADA_2026_10_21] Registro histórico ou de engenharia, não substitui decisões recentes.** Consulte [LEIA PRIMEIRO](./README.md), [especificação funcional vigente](./01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md) e [mapa de conflitos](./02-mapa-fontes-conflitos-e-emendas-2026-10-21.md). Somente trechos expressamente substituídos perdem vigência; provas offline não significam serviços reais homologados.
+
 **19/10/2026 — desenvolvimento implementado no PR #2 Draft; não homologado nem executado em PostgreSQL/Meta.** Continuação da estrutura **sem conexão com APIs reais**, conforme diretriz de projeto. Não altera contratos S0, status comerciais ou código dos serviços Meta em operação.
 
 ## Problema identificado na revisão da fronteira de integração
