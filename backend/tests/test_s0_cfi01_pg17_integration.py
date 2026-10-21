@@ -22,6 +22,10 @@ from backend.s0_cfi01_authenticated_commands_local import (
 from backend.tests.test_s0_cfi01_authenticated_commands_local import (
     token as synthetic_token, Opener as SyntheticGoTrueHTTP,
 )
+from backend.tests.cfi01_signed_http_auth_fixture import (
+    mock_signed_auth_server, make_signed_token,
+)
+import time
 from backend.s0_human_closure_recheck_local import (
     RecheckRequest, RecheckState, S0LocalClosureRecheck,
     recheck_human_closure_local,
@@ -408,6 +412,59 @@ class PostgresPhysicalIntegration(unittest.TestCase):
         out=g.execute(bearer,'recheck_human_closure',
            {**self._gateway_payload(),'closure_event_ref':capture.closure_event_ref})
         self.assertEqual(out.state,CommandState.STALE)
+        self.assertEqual(self._count(),1)
+
+
+    def test_33_signed_loopback_http_auth_real_pg_capture_and_recheck(self):
+        with mock_signed_auth_server() as url:
+            g=S0CFI01AuthenticatedCommandsLocal(url,'test-public-key',DB)
+            auth=make_signed_token(self.actor,self.session)
+            cap=g.execute(auth,'capture_human_closure',self._gateway_payload())
+            self.assertIs(cap.state,CommandState.CAPTURED_LOCAL_ONLY)
+            check=g.execute(auth,'recheck_human_closure',
+                {**self._gateway_payload(),'closure_event_ref':cap.closure_event_ref})
+        self.assertIs(check.state,CommandState.VERIFIED_REVIEW_ONLY_LOCAL)
+        self.assertEqual(self._count(),1)
+
+    def test_34_tampered_signed_payload_is_denied_before_pg_insert(self):
+        with mock_signed_auth_server() as url:
+            g=S0CFI01AuthenticatedCommandsLocal(url,'test-public-key',DB)
+            good=make_signed_token(self.actor,self.session)
+            parts=good.split('.')
+            # Keep original signature, change the user payload.
+            tampered=parts[0]+'.'+parts[1][:-1]+('A' if parts[1][-1]!='A' else 'B')+'.'+parts[2]
+            x=g.execute(tampered,'capture_human_closure',self._gateway_payload())
+        self.assertIs(x.state,CommandState.DENIED)
+        self.assertEqual(self._count(),0)
+
+    def test_35_expired_signed_token_is_denied_before_pg_insert(self):
+        with mock_signed_auth_server() as url:
+            g=S0CFI01AuthenticatedCommandsLocal(url,'test-public-key',DB)
+            expired=make_signed_token(self.actor,self.session,
+                                      expires_at=int(time.time())-5)
+            x=g.execute(expired,'capture_human_closure',self._gateway_payload())
+        self.assertIs(x.state,CommandState.DENIED)
+        self.assertEqual(self._count(),0)
+
+    def test_36_wrong_signature_denied(self):
+        with mock_signed_auth_server() as url:
+            g=S0CFI01AuthenticatedCommandsLocal(url,'test-public-key',DB)
+            auth=make_signed_token(self.actor,self.session,signing_key=b'another-test-key')
+            x=g.execute(auth,'capture_human_closure',self._gateway_payload())
+        self.assertIs(x.state,CommandState.DENIED)
+        self.assertEqual(self._count(),0)
+
+    def test_37_valid_signed_http_but_session_deleted_revokes_recheck(self):
+        with mock_signed_auth_server() as url:
+            g=S0CFI01AuthenticatedCommandsLocal(url,'test-public-key',DB)
+            auth=make_signed_token(self.actor,self.session)
+            cap=g.execute(auth,'capture_human_closure',self._gateway_payload())
+            self.assertIs(cap.state,CommandState.CAPTURED_LOCAL_ONLY)
+            with self.pg.connect(DB) as con:
+                con.execute('delete from auth.sessions where id=%s',(self.session,))
+            check=g.execute(auth,'recheck_human_closure',
+                {**self._gateway_payload(),'closure_event_ref':cap.closure_event_ref})
+        self.assertIs(check.state,CommandState.DENIED)
         self.assertEqual(self._count(),1)
 
 
