@@ -21,6 +21,16 @@ grant insert on prumo_private.cfi01_consumed_nonces_local,
 grant update on public.casos_humanos,public.ciclos_comerciais,
  public.concessionarias,public.atribuicoes_humanas,public.conversas
  to prumo_cfi01_atomic_owner_local;
+-- PostgreSQL FOR SHARE/FOR KEY SHARE requires UPDATE privilege as well.
+-- Grant only identity columns, never customer text or signing key secret.
+grant update(id) on auth.sessions to prumo_cfi01_atomic_owner_local;
+grant update(ator_id) on public.equipe_prumo_s1 to prumo_cfi01_atomic_owner_local;
+grant update(id) on public.vinculos_papel_escopo to prumo_cfi01_atomic_owner_local;
+grant update(id) on public.mensagens to prumo_cfi01_atomic_owner_local;
+grant update(id) on prumo_private.cfi01_human_closure_events_local
+ to prumo_cfi01_atomic_owner_local;
+grant update(key_id) on prumo_private.cfi01_signing_keys_local
+ to prumo_cfi01_atomic_owner_local;
 
 -- Domain relations have RLS deny by default. Policies exist ONLY for this
 -- inaccessible NOLOGIN owner and only in this disposable fixture.
@@ -41,6 +51,24 @@ create policy cfi01_owner_read_message_lab on public.mensagens
 -- S1 table normally has RLS; setting policy to owner only where enabled.
 create policy cfi01_owner_read_team_lab on public.equipe_prumo_s1
  for select to prumo_cfi01_atomic_owner_local using (true);
+-- RLS also checks UPDATE policy for locked rows on relevant S0 tables.
+-- Only the NOLOGIN definer role gets these laboratory policies.
+create policy cfi01_owner_lock_case_lab on public.casos_humanos
+ for update to prumo_cfi01_atomic_owner_local using (true) with check (true);
+create policy cfi01_owner_lock_cycle_lab on public.ciclos_comerciais
+ for update to prumo_cfi01_atomic_owner_local using (true) with check (true);
+create policy cfi01_owner_lock_store_lab on public.concessionarias
+ for update to prumo_cfi01_atomic_owner_local using (true) with check (true);
+create policy cfi01_owner_lock_assignment_lab on public.atribuicoes_humanas
+ for update to prumo_cfi01_atomic_owner_local using (true) with check (true);
+create policy cfi01_owner_lock_conversation_lab on public.conversas
+ for update to prumo_cfi01_atomic_owner_local using (true) with check (true);
+create policy cfi01_owner_lock_message_lab on public.mensagens
+ for update to prumo_cfi01_atomic_owner_local using (true) with check (true);
+create policy cfi01_owner_lock_grant_lab on public.vinculos_papel_escopo
+ for update to prumo_cfi01_atomic_owner_local using (true) with check (true);
+create policy cfi01_owner_lock_team_lab on public.equipe_prumo_s1
+ for update to prumo_cfi01_atomic_owner_local using (true) with check (true);
 
 create function prumo_private.cfi01_atomic_signed_closure_local(
  p_operation text,p_actor uuid,p_session uuid,p_case uuid,
