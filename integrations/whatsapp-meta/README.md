@@ -1,5 +1,8 @@
 # WA-01A — Adaptador Meta inbound isolado (candidato)
 
+> **Índice documental vigente (21/10/2026):** o histórico técnico abaixo deve ser interpretado junto à [fonte de decisões atuais WhatsApp/Meta](../../docs/integracoes/whatsapp-meta/00-decisoes-vigentes-precedencia-documental-2026-10-21.md). Este README descreve fases WA-01 em diante e não substitui a matriz de decisões posteriores sobre WABA por loja, finalidades de templates, duas falhas consecutivas, opt-out por concessionária e contratos futuros de MCP. A auditoria desta fase é **somente documental**, não comprovação de execução do código.
+
+
 **Situação:** engenharia sintética, não implantado; contrato técnico proposto. Não altera a POC
 `whatsapp-webhook-sandbox`, as migrations S0, o projeto Supabase hospedado ou canais comerciais.
 
