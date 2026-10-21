@@ -51,6 +51,50 @@ do $t$ declare r jsonb; begin
  then raise exception 'ISSUE10-02 pause alterou conta: %',r;end if;
 end $t$;
 \echo 'PASS ISSUE10-02: pausa so intake, estado de conta ativo, sem motivo'
+
+-- NOVO gate 24: pausa NAO pode negar leitura/envio sobre casos do titular.
+insert into public.canais_loja(id,concessionaria_id,identificador_emissor)
+ values('b2600000-0000-4000-8000-000000000001',
+ 'b2200000-0000-4000-8000-000000000001','issue10-paused-operator-access');
+insert into public.conversas(id,concessionaria_id,lead_id,canal_id,caso_id)
+ values('b2700000-0000-4000-8000-000000000001',
+ 'b2200000-0000-4000-8000-000000000001',
+ 'b2300000-0000-4000-8000-000000000001',
+ 'b2600000-0000-4000-8000-000000000001',
+ 'b2500000-0000-4000-8000-000000000001');
+insert into public.mensagens(concessionaria_id,conversa_id,canal_id,caso_id,
+ direcao,origem,conteudo_sintetico,id_externo)
+ values('b2200000-0000-4000-8000-000000000001',
+ 'b2700000-0000-4000-8000-000000000001',
+ 'b2600000-0000-4000-8000-000000000001',
+ 'b2500000-0000-4000-8000-000000000001',
+ 'entrada','simulado','mensagem anterior a nova distribuicao','issue10-active-owner-inbound');
+set local role authenticated;
+select pg_catalog.set_config('request.jwt.claim.sub',
+ 'b2100000-0000-4000-8000-000000000003',true);
+do $t$ begin
+ if (select count(*) from public.casos_humanos
+    where id in ('b2500000-0000-4000-8000-000000000001'::uuid,
+                 'b2500000-0000-4000-8000-000000000002'::uuid))<>2
+ or (select count(*) from public.atribuicoes_humanas
+     where operador_id='b2100000-0000-4000-8000-000000000003'
+      and encerrada_em is null)<>2
+ or (select count(*) from public.mensagens
+     where id_externo='issue10-active-owner-inbound')<>1
+ or (select estado from public.equipe_prumo_s1
+     where ator_id='b2100000-0000-4000-8000-000000000003')<>'ativo'
+ then raise exception 'ISSUE10-24 pausa revogou visibilidade de caso ou mensagem';end if;
+end $t$;
+insert into public.mensagens(concessionaria_id,conversa_id,canal_id,caso_id,
+ direcao,origem,conteudo_sintetico,enviada_por)
+ values('b2200000-0000-4000-8000-000000000001',
+ 'b2700000-0000-4000-8000-000000000001',
+ 'b2600000-0000-4000-8000-000000000001',
+ 'b2500000-0000-4000-8000-000000000001',
+ 'saida','simulado','resposta do titular ainda ativo apos pausa',
+ 'b2100000-0000-4000-8000-000000000003');
+reset role;
+\echo 'PASS ISSUE10-24: operador pausado mantém login lógico, leitura e resposta nos casos atribuídos'
 do $t$ begin
  if (select count(*) from public.atribuicoes_humanas a
      where a.operador_id='b2100000-0000-4000-8000-000000000003'
