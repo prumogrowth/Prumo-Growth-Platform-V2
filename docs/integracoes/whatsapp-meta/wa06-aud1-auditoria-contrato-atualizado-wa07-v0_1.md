@@ -1,5 +1,7 @@
 # WA-06-AUD1 — auditoria pós-contrato WA-07 dos incrementos WA-06A/B/C
 
+> **[LEITURA_ORIENTADA_2026_10_21] Registro histórico ou de engenharia, não substitui decisões recentes.** Consulte [LEIA PRIMEIRO](./README.md), [especificação funcional vigente](./01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md) e [mapa de conflitos](./02-mapa-fontes-conflitos-e-emendas-2026-10-21.md). Somente trechos expressamente substituídos perdem vigência; provas offline não significam serviços reais homologados.
+
 **Data:** 18/10/2026. **Estado:** auditoria local concluída quanto ao escopo indicado, **com reparo de código**; o contrato de negócio WA-07 permanece [D-negócio/P-R-V] e a integração real [R]. **Não é homologação de serviço, Meta, Supabase ou produção.**
 
 ## 1. Fontes e precedência lidas
