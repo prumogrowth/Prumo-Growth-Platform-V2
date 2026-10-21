@@ -205,6 +205,8 @@ def serve_http_policy_local(gateway, *, max_requests=200, window_seconds=60,
                 if type(answer) is not dict:
                     self._audit("HTTP_UPSTREAM_UNAVAILABLE", command_name)
                     return self._respond(503, "UNAVAILABLE")
+                if command_name == "intake" and answer.get("outcome") == "CONFLICT":
+                    return self._respond(409, payload={"outcome": "CONFLICT"})
                 return self._respond(200, payload=answer)
             except (ValueError, TypeError):
                 self._audit("HTTP_INPUT_REJECTED", command_name)
