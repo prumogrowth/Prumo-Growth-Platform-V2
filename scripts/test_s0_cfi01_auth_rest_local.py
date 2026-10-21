@@ -150,6 +150,25 @@ def main():
            "real GoTrue recheck not verified")
     print("PASS CFI01-AUTH-02 verified real token on separate post-F03 recheck")
 
+    # Internal S0 receipt is read in the same authenticated/HMAC transaction.
+    # It is NOT a content export or F03 form-write authorization.
+    typed=gate.capture_internal_receipt("Bearer "+token,payload)
+    demand(typed.state is CommandState.ALREADY_CAPTURED
+           and typed.receipt is not None
+           and typed.receipt.closure_event_ref==result.closure_event_ref
+           and typed.receipt.store_ref==str(store)
+           and typed.receipt.case_ref==str(case)
+           and typed.receipt.assignment_ref==str(assignment)
+           and typed.receipt.message_watermark==str(msg)
+           and typed.receipt.message_count==1
+           and typed.receipt.expected_cycle_version==1,
+           "authenticated S0 internal metadata does not match physical receipt")
+    typed_recheck=gate.recheck_internal_receipt("Bearer "+token,recheck_payload)
+    demand(typed_recheck.state is CommandState.VERIFIED_REVIEW_ONLY_LOCAL
+           and typed_recheck.receipt==typed.receipt,
+           "GoTrue atomic internal receipt differs during recheck")
+    print("PASS CFI01-AUTH-09 GoTrue-backed internal receipt matches S0 metadata")
+
     stranger=gate.execute("Bearer "+outsider_token,"capture_human_closure",payload)
     demand(stranger.state is CommandState.DENIED,"other authenticated user gained assigned case")
     print("PASS CFI01-AUTH-03 authenticated outside operator blocked from case")
