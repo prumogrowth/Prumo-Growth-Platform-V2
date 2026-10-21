@@ -1,5 +1,7 @@
 # WA-01C — Identificadores técnicos Meta e pistas de correlação v0.1
 
+> **[LEITURA_ORIENTADA_2026_10_21] Registro histórico ou de engenharia, não substitui decisões recentes.** Consulte [LEIA PRIMEIRO](./README.md), [especificação funcional vigente](./01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md) e [mapa de conflitos](./02-mapa-fontes-conflitos-e-emendas-2026-10-21.md). Somente trechos expressamente substituídos perdem vigência; provas offline não significam serviços reais homologados.
+
 **Status: CANDIDATO [P], aguardando revisão cruzada do PR #1.** Incremento de código puramente local, sem DDL, credenciais, chamada Graph, ACK, banco ou deploy. A diretriz DEC-WA-05 de **um aplicativo Meta próprio por concessionária** está aprovada, mas o registro autenticado de vínculos e onboarding real continuam pendentes.
 
 ## Evidência do fornecedor e semântica
