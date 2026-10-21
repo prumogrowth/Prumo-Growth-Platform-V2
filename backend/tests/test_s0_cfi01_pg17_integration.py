@@ -945,7 +945,10 @@ class PostgresPhysicalIntegration(unittest.TestCase):
         cap=bridge.capture(auth,self._gateway_payload())
         self.assertIs(cap.state,S0F03BridgeState.VERIFIED_CONTRACT_PENDING)
         with self.pg.connect(DB) as con:
-            con.execute('delete from public.atribuicoes_humanas where id=%s',
+            # Preserve original receipt's FK; close the old assignment,
+            # then open a distinct UUID for the same operator and case.
+            con.execute('''update public.atribuicoes_humanas
+                        set encerrada_em=clock_timestamp() where id=%s''',
                         (self.assignment,))
             con.execute('''insert into public.atribuicoes_humanas
                         (id,concessionaria_id,caso_id,operador_id)
