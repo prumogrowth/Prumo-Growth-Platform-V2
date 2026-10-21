@@ -6,7 +6,11 @@
 
 ## A. Decisões expressas do responsável nesta sessão [DECISÃO INTERNA]
 
-### D-WA18-01 — Template aprovado permanece imutável na Liberacred
+### D-WA18-01 — [SUPERADA EM 20/10, VER WA-18B] Template aprovado permanece imutável na Liberacred
+
+> **Esta seção abaixo registra uma posição anterior do responsável, REVISTA logo depois.** A decisão atual é: edição de conteúdo Meta pode ocorrer onde API/estado permitirem, com controle de revisão e novo status/aprovação conforme aplicável; imutáveis são os snapshots históricos e o vínculo de posições com campos da **versão já aprovada**. Não implementar a vedação absoluta abaixo. Ver [fonte canônica](./00-decisoes-vigentes-precedencia-documental-2026-10-21.md) e [WA-18B](./wa18b-alinhamento-fechamento-optout-variaveis-falhas-cadencia-2026-10-20.md).
+
+
 - Depois que a **Meta aprovou** um template, a plataforma não permitirá modificar seu conteúdo nem seus componentes submetidos (BODY, HEADER, mídia, FOOTER, botões, URLs) na mesma identidade/versão.
 - Poderá ser tornado **indisponível** para novos envios no catálogo local, mantendo histórico, snapshot e links dos envios anteriores. Exclusão física na Meta é uma operação técnica **distinta**, não implicada por desativação local, a definir sob confirmação.
 - Para alterar texto ou componentes, gerar **novo rascunho/identidade e novo ciclo de aprovação**, preservando versões anteriores.
