@@ -115,13 +115,20 @@ Se o envio comprovado do template FINAL ocorreu, a regra C09 de silêncio pós-e
 
 ### 12A. Identificação visível do operador no WhatsApp [D/P/V]
 
+> **ATUALIZAÇÃO WA-21 — FORMATOS DECIDIDOS:** não usar “Mariana — Atendimento” e não classificar mais o formato de assinatura como indefinido. Em **cada mensagem textual livre enviada por humano**, a plataforma acrescentará automaticamente cargo e nome reais antes do conteúdo: `Consultor Fulano:\nMensagem`, `Gestor Ciclano:\nMensagem` ou `Diretor Beltrano:\nMensagem`. A nomenclatura substitui antigo operador por **consultor**, antigo responsável-cargo por **diretor** e preserva gestor. A autoria é autenticada pelo S0, e o prefixo é texto do `text.body`, não identidade Meta nativa. **Para templates** só conteúdo ou slots aprovados pela Meta; não concatenar prefixos arbitrários. Identificadores físicos/status anteriores só mudam após revisão de compatibilidade. [WA-21](./wa21-papeis-diretor-gestor-consultor-assinatura-2026-10-21.md).
+
+
+
 O responsável deseja que a mensagem **enviada pelo operador humano** possa exibir o **nome do operador** imediatamente antes do conteúdo no WhatsApp do cliente, de forma automática. Na Cloud API Meta, o envio sai do `Phone-Number-ID` da concessionária e o corpo está em `text.body`; **não foi identificado atributo oficial que renderize o agente humano como remetente visual separado da mensagem**. A identificação em uma plataforma de atendimento pode ser apenas visual na UI própria, ou parte literal do texto enviado ao WhatsApp quando o backend acrescentar uma assinatura de texto.
 
 **Contrato de autoria:** obter conta/autorização/atribuição de caso a partir do S0, não do nome escrito por IA ou cliente. Conservar `actor_tipo`/referência ao operador e snapshot do nome no histórico e registrar o texto **exato** efetivamente enviado. Prévia deve corresponder ao resultado, respeitando janela WhatsApp, escopo da loja, idempotência e limite de mensagem. **Não atribuir nome humano a mensagens da IA.**
 
-**Templates aprovados:** o nome do operador só pode ser injetado por **slot/variável aprovado** ou conteúdo previamente aprovado; não anexar prefixo livre ao payload de um template e não usar mensagem livre fora de janela. A plataforma preenche qualquer variável autorizada. Formato/frequência da assinatura, legendas/mídias e apresentação da IA ainda são [P/R] para decisão em fase de UI. **A funcionalidade ainda não foi implementada.** Referência: [WA-20](./wa20-identificacao-visivel-atendente-assinatura-mensagem-2026-10-21.md).
+**Templates aprovados:** o nome do operador só pode ser injetado por **slot/variável aprovado** ou conteúdo previamente aprovado; não anexar prefixo livre ao payload de um template e não usar mensagem livre fora de janela. A plataforma preenche qualquer variável autorizada. O cargo/nome/dois-pontos para texto livre HUMANO já foram decididos; somente exceções para mídias/legendas e apresentação de IA ainda estão pendentes. **A funcionalidade ainda não foi implementada.** Referência: [WA-20](./wa20-identificacao-visivel-atendente-assinatura-mensagem-2026-10-21.md).
 
 ## 13. Administração MCP e auditoria de autoria [D/H/P]
+
+> **Nomenclatura atual:** o antigo papel superior denominado responsável é agora **Diretor**, e o antigo operador é **Consultor**. Na administração por MCP, aplicar a matriz de acesso por perfil sem conceder poderes novos automaticamente; preservar a segunda confirmação e a identidade individual. Ver [WA-21](./wa21-papeis-diretor-gestor-consultor-assinatura-2026-10-21.md).
+
 
 - Cada **responsável autorizado** possui autenticação e vínculo individual, sem conta compartilhada como prova de autoria. Responsável pode instruir sua IA administrativa conectada ao MCP: ler dados autorizados, preparar rascunhos, texto, mídia, finalidades, editar/excluir/desativar o que sua matriz expressamente permite e solicitar submissão à Meta.
 - **Consultas** exigem autenticação/autorização; **TODA escrita ou exclusão** exige prévia da operação EXATA, **segunda confirmação do MESMO responsável autenticado**, revalidação de escopo/versão, execução limitada e auditoria administrativa imutável. Nem a IA nem o MCP podem conceder a si próprios autoridade, alterar estrutura SQL/DDL, provas bancárias ou registros de auditoria.
