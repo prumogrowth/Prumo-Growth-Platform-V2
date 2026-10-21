@@ -9,7 +9,7 @@
 | Para descobrir | Arquivo oficial de referência | Função |
 |---|---|---|
 | O que o sistema **deve fazer** | [01 — Especificação funcional vigente](./01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md) | Regras completas por domínio, exemplos, exceções, papéis das IAs, estados e limitações |
-| Qual decisão prevalece e quem decidiu | [00 — 20 regras WDC com precedência](./00-decisoes-vigentes-precedencia-documental-2026-10-21.md) | Índice de decisões com IDs, proveniência, glossário e pendências |
+| Qual decisão prevalece e quem decidiu | [00 — 21 regras WDC com precedência](./00-decisoes-vigentes-precedencia-documental-2026-10-21.md) | Índice de decisões com IDs, proveniência, glossário e pendências |
 | Por que documento antigo diz outra coisa | [02 — Mapa de conflitos por documento e seção](./02-mapa-fontes-conflitos-e-emendas-2026-10-21.md) | Relação da regra substituída com a atual, sem perder histórico |
 | O que a auditoria encontrou e reparou | [WA-19 — Auditoria documental](./wa19-auditoria-documental-reconciliacao-2026-10-21.md) | Achados, limites, reparos e pendências |
 | Histórico de decisões recentes | [WA-17B](./wa17b-mcp-templates-multimidia-ia-delegada-2026-10-20.md), [WA-18](./wa18-alinhamento-decisorio-respostas-responsavel-2026-10-20.md), [WA-18B](./wa18b-alinhamento-fechamento-optout-variaveis-falhas-cadencia-2026-10-20.md), [WA-18C](./wa18c-falhas-consecutivas-taxonomia-interna-templates-2026-10-20.md) | Proveniência cronológica; partes superadas identificadas |
@@ -101,6 +101,7 @@ Arquivos abaixo permanecem pesquisáveis e preservados por fase. São histórico
 - [wa18b-alinhamento-fechamento-optout-variaveis-falhas-cadencia-2026-10-20.md](./wa18b-alinhamento-fechamento-optout-variaveis-falhas-cadencia-2026-10-20.md)
 - [wa18c-falhas-consecutivas-taxonomia-interna-templates-2026-10-20.md](./wa18c-falhas-consecutivas-taxonomia-interna-templates-2026-10-20.md)
 - [wa19-auditoria-documental-reconciliacao-2026-10-21.md](./wa19-auditoria-documental-reconciliacao-2026-10-21.md)
+- [wa20-identificacao-visivel-atendente-assinatura-mensagem-2026-10-21.md](./wa20-identificacao-visivel-atendente-assinatura-mensagem-2026-10-21.md)
 
 ### Índices vigentes e matrizes adicionais
 
@@ -108,4 +109,4 @@ Arquivos abaixo permanecem pesquisáveis e preservados por fase. São histórico
 - [01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md](./01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md)
 - [02-mapa-fontes-conflitos-e-emendas-2026-10-21.md](./02-mapa-fontes-conflitos-e-emendas-2026-10-21.md)
 
-**Cobertura de navegação:** 58 documentos Markdown já identificados no PR #2 antes deste README; a lista não substitui a verificação do repositório ao adicionar novos artefatos. O ZIP de 55 documentos históricos de 17/10 segue preservado fora deste diretório. Essa biblioteca não contém ferramentas MCP executáveis.
+**Cobertura de navegação:** os relatórios anteriores à WA-20 permanecem listados abaixo; novos documentos da frente são adicionados ao índice quando criados. O inventário inicial tinha 58 arquivos antes deste README; a contagem é um marco histórico, não um total fixo. O ZIP de 55 documentos históricos de 17/10 segue preservado fora deste diretório. Essa biblioteca não contém ferramentas MCP executáveis.
