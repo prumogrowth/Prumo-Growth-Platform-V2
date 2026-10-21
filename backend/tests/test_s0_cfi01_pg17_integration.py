@@ -856,5 +856,56 @@ class PostgresPhysicalIntegration(unittest.TestCase):
         self.assertEqual(self._count(),0)
 
 
+    def test_74_atomic_internal_receipt_matches_persisted_event(self):
+        gate=self._atomic_gateway()
+        auth=synthetic_token(self.actor,self.session)
+        outcome=gate.capture_internal_receipt(auth,self._gateway_payload())
+        self.assertIs(outcome.state,CommandState.CAPTURED_LOCAL_ONLY)
+        receipt=outcome.receipt
+        self.assertIsNotNone(receipt)
+        with self.pg.connect(DB) as con:
+            row=con.execute("""select concessionaria_id,caso_id,id,atribuicao_id,
+                versao_ciclo,snapshot_sha256,ultima_mensagem_id,quantidade_mensagens
+                from prumo_private.cfi01_human_closure_events_local
+                where caso_id=%s""",(self.case,)).fetchone()
+        self.assertEqual((receipt.store_ref,receipt.case_ref,receipt.closure_event_ref,
+                          receipt.assignment_ref,receipt.expected_cycle_version,
+                          receipt.snapshot_sha256,receipt.message_watermark,receipt.message_count),
+                         (str(row[0]),str(row[1]),str(row[2]),str(row[3]),row[4],
+                          row[5],str(row[6]),row[7]))
+        self.assertFalse(hasattr(receipt,"content"))
+        self.assertFalse(hasattr(receipt,"form_version"))
+        self.assertFalse(hasattr(receipt,"bank_submission_proved"))
+        same=gate.recheck_internal_receipt(auth,{
+           **self._gateway_payload(),"closure_event_ref":receipt.closure_event_ref})
+        self.assertIs(same.state,CommandState.VERIFIED_REVIEW_ONLY_LOCAL)
+        self.assertEqual(same.receipt,receipt)
+
+    def test_75_atomic_internal_receipt_no_leak_when_stale(self):
+        gate=self._atomic_gateway()
+        auth=synthetic_token(self.actor,self.session)
+        first=gate.capture_internal_receipt(auth,self._gateway_payload())
+        self.assertIs(first.state,CommandState.CAPTURED_LOCAL_ONLY)
+        with self.pg.connect(DB) as con:
+            with con.cursor() as cur: self._add_message(cur,uuid.uuid4())
+        later=gate.recheck_internal_receipt(auth,{
+           **self._gateway_payload(),"closure_event_ref":first.receipt.closure_event_ref})
+        self.assertIs(later.state,CommandState.STALE)
+        self.assertIsNone(later.receipt)
+
+    def test_76_atomic_internal_receipt_denies_fake_grant_and_revoked_session(self):
+        gate=self._atomic_gateway()
+        auth=synthetic_token(self.actor,self.session)
+        injected=gate.capture_internal_receipt(auth,{
+           **self._gateway_payload(),"store_grant":True})
+        self.assertIs(injected.state,CommandState.INPUT_REJECTED)
+        self.assertIsNone(injected.receipt)
+        with self.pg.connect(DB) as con:
+            con.execute('delete from auth.sessions where id=%s',(self.session,))
+        revoked=gate.capture_internal_receipt(auth,self._gateway_payload())
+        self.assertIs(revoked.state,CommandState.DENIED)
+        self.assertIsNone(revoked.receipt)
+        self.assertEqual(self._count(),0)
+
 if __name__ == "__main__":
     unittest.main()

@@ -118,7 +118,9 @@ create function prumo_private.cfi01_atomic_signed_closure_local(
  p_operation text,p_actor uuid,p_session uuid,p_case uuid,
  p_cycle_version bigint,p_event uuid,p_idempotency_key text,
  p_key_id uuid,p_issued_at bigint,p_nonce uuid,p_signature text
-) returns table(state text,event_ref uuid)
+) returns table(state text,event_ref uuid,
+ store_ref uuid,snapshot_sha256 text,message_watermark uuid,
+ assignment_ref uuid,cycle_version bigint,message_count integer)
 language plpgsql security definer set search_path=''
 as $fn$
 declare
@@ -212,7 +214,8 @@ begin
     where v.concessionaria_id=v_shop and v.caso_id=p_case
     order by v.id for update;
   if not found then
-    return query select 'NO_CONVERSATION'::text,null::uuid;return;
+    return query select 'NO_CONVERSATION'::text,null::uuid,
+ null::uuid,null::text,null::uuid,null::uuid,null::bigint,null::integer;return;
   end if;
   -- First lock every existing message row. New messages referencing the
   -- parent conversation FK wait for the FOR UPDATE lock on the conversation.
@@ -234,7 +237,8 @@ begin
       on v.id=m.conversa_id and v.concessionaria_id=m.concessionaria_id
     where v.concessionaria_id=v_shop and v.caso_id=p_case;
   if v_count<1 or v_count>2500 then
-    return query select 'NO_CONVERSATION'::text,null::uuid;return;
+    return query select 'NO_CONVERSATION'::text,null::uuid,
+ null::uuid,null::text,null::uuid,null::uuid,null::bigint,null::integer;return;
   end if;
   execute pg_catalog.format('select pg_catalog.encode(%I.digest($1,''sha256''),''hex'')',
                              v_crypto_schema)
@@ -274,10 +278,12 @@ begin
   if v_nonce is null then
     raise exception 'CFI01_ATOMIC_NONCE_REPLAY' using errcode='42501';end if;
   if p_operation='recheck_human_closure' then
-    return query select 'VERIFIED_REVIEW_ONLY_LOCAL'::text,null::uuid;return;
+    return query select 'VERIFIED_REVIEW_ONLY_LOCAL'::text,null::uuid,
+ v_shop,v_hash,v_last_message,v_assignment,v_version,v_count;return;
   end if;
   if v_existing.id is not null then
-    return query select 'ALREADY_CAPTURED'::text,v_existing.id;return;
+    return query select 'ALREADY_CAPTURED'::text,v_existing.id,
+ v_shop,v_hash,v_last_message,v_assignment,v_version,v_count;return;
   end if;
   insert into prumo_private.cfi01_human_closure_events_local
     (concessionaria_id,caso_id,ator_id,sessao_id,atribuicao_id,
@@ -287,9 +293,11 @@ begin
           v_version,p_idempotency_key,v_hash,v_last_message,v_count)
    on conflict do nothing returning id into v_inserted;
   if v_inserted is null then
-    return query select 'DUPLICATE_SNAPSHOT'::text,null::uuid;return;
+    return query select 'DUPLICATE_SNAPSHOT'::text,null::uuid,
+ null::uuid,null::text,null::uuid,null::uuid,null::bigint,null::integer;return;
   end if;
-  return query select 'CAPTURED_LOCAL_ONLY'::text,v_inserted;
+  return query select 'CAPTURED_LOCAL_ONLY'::text,v_inserted,
+ v_shop,v_hash,v_last_message,v_assignment,v_version,v_count;
 end $fn$;
 
 revoke all on function prumo_private.cfi01_atomic_signed_closure_local(

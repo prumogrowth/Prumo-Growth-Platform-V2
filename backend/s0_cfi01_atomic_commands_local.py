@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import hashlib
 import hmac
+from dataclasses import dataclass
 import time
 import uuid
 from typing import Any
@@ -30,10 +31,33 @@ _ATOMIC_SQL="""select state,event_ref
  from prumo_private.cfi01_atomic_signed_closure_local(
  %s::text,%s::uuid,%s::uuid,%s::uuid,%s::bigint,%s::uuid,
  %s::text,%s::uuid,%s::bigint,%s::uuid,%s::text)"""
+_ATOMIC_INTERNAL_SQL=_ATOMIC_SQL.replace(
+    'select state,event_ref',
+    'select state,event_ref,store_ref,snapshot_sha256,message_watermark,'
+    'assignment_ref,cycle_version,message_count',1)
 _OUTCOMES=frozenset({
     "CAPTURED_LOCAL_ONLY","ALREADY_CAPTURED","DUPLICATE_SNAPSHOT",
     "VERIFIED_REVIEW_ONLY_LOCAL","NO_CONVERSATION"
 })
+
+
+@dataclass(frozen=True)
+class S0InternalReceiptLocal:
+    """Backend S0 metadata, not model content or commercial authorization."""
+    store_ref: str
+    case_ref: str
+    closure_event_ref: str
+    expected_cycle_version: int
+    assignment_ref: str
+    snapshot_sha256: str
+    message_watermark: str
+    message_count: int
+
+
+@dataclass(frozen=True)
+class S0InternalReceiptResultLocal:
+    state: CommandState
+    receipt: S0InternalReceiptLocal | None = None
 
 
 class S0CFI01AtomicCommandsLocal:
@@ -62,6 +86,18 @@ class S0CFI01AtomicCommandsLocal:
         ]).encode("utf-8")
 
     def execute(self,authorization: str,command: str,payload: object) -> CommandResult:
+        return self._execute(authorization,command,payload,include_receipt=False)
+
+    def capture_internal_receipt(self,authorization: str,payload: object) -> S0InternalReceiptResultLocal:
+        result=self._execute(authorization,'capture_human_closure',payload,include_receipt=True)
+        return result if type(result) is S0InternalReceiptResultLocal else S0InternalReceiptResultLocal(result.state)
+
+    def recheck_internal_receipt(self,authorization: str,payload: object) -> S0InternalReceiptResultLocal:
+        result=self._execute(authorization,'recheck_human_closure',payload,include_receipt=True)
+        return result if type(result) is S0InternalReceiptResultLocal else S0InternalReceiptResultLocal(result.state)
+
+    def _execute(self,authorization: str,command: str,payload: object, *,
+                 include_receipt: bool) -> CommandResult | S0InternalReceiptResultLocal:
         if type(command) is not str or command not in (
             "capture_human_closure","recheck_human_closure"):
             return CommandResult(CommandState.UNSUPPORTED_COMMAND)
@@ -100,7 +136,7 @@ class S0CFI01AtomicCommandsLocal:
             import psycopg
             with psycopg.connect(self._dsn,connect_timeout=5) as con:
                 with con.cursor() as cur:
-                    cur.execute(_ATOMIC_SQL,(
+                    cur.execute(_ATOMIC_INTERNAL_SQL if include_receipt else _ATOMIC_SQL,(
                         command,principal.actor_id,principal.session_id,
                         case,version,event,key,self._key_id,issued,nonce,proof))
                     rows=cur.fetchall()
@@ -113,6 +149,26 @@ class S0CFI01AtomicCommandsLocal:
                 return CommandResult(CommandState.DENIED)
             if command=="capture_human_closure" and state=="VERIFIED_REVIEW_ONLY_LOCAL":
                 return CommandResult(CommandState.DENIED)
+            if include_receipt:
+                if state in ("CAPTURED_LOCAL_ONLY","ALREADY_CAPTURED",
+                             "VERIFIED_REVIEW_ONLY_LOCAL"):
+                    actual_event=(event if command=="recheck_human_closure" else event_ref)
+                    if (type(actual_event) is not uuid.UUID or len(rows[0])!=8
+                            or type(rows[0][2]) is not uuid.UUID
+                            or type(rows[0][3]) is not str
+                            or len(rows[0][3])!=64
+                            or any(c not in '0123456789abcdef' for c in rows[0][3])
+                            or type(rows[0][4]) is not uuid.UUID
+                            or type(rows[0][5]) is not uuid.UUID
+                            or type(rows[0][6]) is not int or rows[0][6]!=version
+                            or type(rows[0][7]) is not int
+                            or not 1<=rows[0][7]<=2500):
+                        return CommandResult(CommandState.DENIED)
+                    return S0InternalReceiptResultLocal(CommandState[state],
+                        S0InternalReceiptLocal(
+                            str(rows[0][2]),str(case),str(actual_event),version,
+                            str(rows[0][5]),rows[0][3],str(rows[0][4]),rows[0][7]))
+                return S0InternalReceiptResultLocal(CommandState[state])
             if state in ("CAPTURED_LOCAL_ONLY","ALREADY_CAPTURED"):
                 if type(event_ref) is not uuid.UUID:
                     return CommandResult(CommandState.DENIED)
