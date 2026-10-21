@@ -28,4 +28,16 @@ I37 **não** promove nenhuma fixture PG17 ISSUE10 a migration operacional, não 
 
 **Próximo marco planejado:** se os jobs passarem e a documentação de dependências for consistente, interromper novos incrementos funcionais para realizar as três atividades autorizadas: perguntas de alinhamento, auditoria geral S1/S0 e higiene/consolidação documental. Não promover para produção; NO-GO merge/deploy, sem porcentagem global.
 
-**Evidência CI:** preencher somente após logs, jobs, SHA e PR verificados.
+## Evidências conferidas — homologado somente no sandbox
+
+**[GitHub Actions #39526190841 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39526190841)**, SHA do **código testado** `bb1e61bb4bd9c0d65f1cc33d17530fe689a6c57c`. Os dois jobs concluíram em `success` e seus logs foram inspecionados:
+
+- `118981274648` (`http-policy-unit`): **138/138 testes PASS** (123 I23–I31 + 15 I37), incluindo parser sem motivo, revisão estrita, HMAC que vincula ação/versão, e HTTP allowlist exclusivo.
+- `118981274428` (`e2e-gerencia-local`): **S1WITNESS-01..132 = 132/132** e **S1INTAKE-133..148 = 16/16** marcadores distintos PASS, com migrations reais S0/S1, GoTrue real e PostgreSQL/PostgREST descartáveis, custódia I22, signer mTLS, autoridade MAC I30 e witness I31. Verificados: pausa autenticada sem suspender conta, grants intactos, resposta `DEFERRED_S0_PROOF`, idempotência, stale CAS `HTTP 409`, gestor cruzado recusado, payload sem motivo, rotas legadas não expostas, retomada sem suspensão de conta, comando assinado e commit, replay nonce recusado, adulteração HMAC bloqueada, ausência de mutação após falha, revogação de chave e indisponibilidade do assinador fechada.
+
+**Falhas históricas corrigidas (não contabilizar como aceite):**
+- [#39525595164](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39525595164) teve falha no novo teste unitário porque o UUID de exemplo possuía apenas dígitos; o teste pretendia avaliar rejeição de maiúsculas, mas `.upper()` não modificou o valor. Código/teste corrigido.
+- [#39525804908](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39525804908) passou 138 unitários e os 132 E2E históricos, mas falhou na fixture I37 devido ao `GRANT EXECUTE` executado fora do contexto de proprietário da função. O DDL foi corrigido para a role dona `prumo_s1_i21_executor`, **sem conceder acesso direto a chave/nonce/negócio ao login SQL**.
+
+**Parecer:** gateway I37 pronto para ser submetido ao **marco de alinhamento/auditoria/documentação da frente**, não para deploy. Código ensaiado no SHA identificado; commits posteriores de documentação não substituem nem invalidam esse SHA. O produtor S0 de prova humana real e a integração Meta/front permanecem pendentes; proteção de witness fora da conta do runner também.
+
