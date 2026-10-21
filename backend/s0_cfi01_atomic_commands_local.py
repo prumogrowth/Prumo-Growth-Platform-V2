@@ -142,7 +142,7 @@ class S0CFI01AtomicCommandsLocal:
                     rows=cur.fetchall()
             if len(rows)!=1 or type(rows[0][0]) is not str:
                 return CommandResult(CommandState.DENIED)
-            state,event_ref=rows[0]
+            state,event_ref=rows[0][0:2]
             if state not in _OUTCOMES:
                 return CommandResult(CommandState.DENIED)
             if command=="recheck_human_closure" and state!="VERIFIED_REVIEW_ONLY_LOCAL":
