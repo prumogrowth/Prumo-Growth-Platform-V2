@@ -1,5 +1,7 @@
 # Gate de regressão offline WA / Meta e S0 — evidência de GitHub Actions
 
+> **[LEITURA_ORIENTADA_2026_10_21] Registro histórico ou de engenharia, não substitui decisões recentes.** Consulte [LEIA PRIMEIRO](./README.md), [especificação funcional vigente](./01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md) e [mapa de conflitos](./02-mapa-fontes-conflitos-e-emendas-2026-10-21.md). Somente trechos expressamente substituídos perdem vigência; provas offline não significam serviços reais homologados.
+
 **Atualização:** 20/10/2026 UTC (19/10/2026 à noite em Recife). **PR #2:** branch `docs/whatsapp-meta-concessionária de demonstração-poc-20261017`, permanece **Draft**, sem merge ou deploy. Esta evidência confirma execução de testes com fixtures, não valida operação Meta/Graph.
 
 ## 1. Regressão integral Meta no checkout completo
