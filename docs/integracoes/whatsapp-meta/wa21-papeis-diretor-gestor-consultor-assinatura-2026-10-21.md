@@ -33,7 +33,7 @@ Diretor Beltrano:
 Estamos acompanhando seu atendimento.
 ```
 
-**Esquema aprovado:** `<Cargo de exibição> <Nome de exibição>:\n<Mensagem original>`. Nome dos cargos com inicial maiúscula, seguido de espaço, nome do usuário, **dois pontos** e mensagem em seguida, idealmente na próxima linha para reproduzir a referência do cliente de nome acima do texto. **Não utilizar “Mariana — Atendimento” como padrão vigente.**
+**Esquema aprovado:** `Cargo Nome:\nMensagem original`. Nome do cargo com inicial maiúscula, seguido de espaço e nome do usuário, **dois pontos** e mensagem **na linha seguinte**, para que a identificação fique acima do texto recebido pelo cliente. **Não utilizar “Mariana — Atendimento” como padrão vigente.**
 
 A aplicação é para **mensagens textuais livres enviadas por humanos** que atuem como Consultor, Gestor ou Diretor, dentro da janela e das regras WhatsApp. O comportamento padrão desejado é a composição automática quando um humano desses perfis enviar a mensagem; política de exceções (ex.: mídia, legenda, um único cabeçalho por conversa, outros formatos) só pode ser alterada mediante decisão explícita posterior. **Não atribuir assinatura humana a texto originado exclusivamente por IA ou sistema.**
 
