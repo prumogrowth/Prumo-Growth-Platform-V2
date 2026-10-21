@@ -1,5 +1,7 @@
 # WA-03B — Auditoria dos módulos anteriormente não auditados | 18/10/2026
 
+> **[LEITURA_ORIENTADA_2026_10_21] Registro histórico ou de engenharia, não substitui decisões recentes.** Consulte [LEIA PRIMEIRO](./README.md), [especificação funcional vigente](./01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md) e [mapa de conflitos](./02-mapa-fontes-conflitos-e-emendas-2026-10-21.md). Somente trechos expressamente substituídos perdem vigência; provas offline não significam serviços reais homologados.
+
 **Estado:** revisão adversarial de WA-01A/B/C/D e regressão das WA-02A/B/C/D e WA-03A. Reparos publicados **exclusivamente** na branch Draft do PR #2. Nenhum merge, deploy, migration hospedada, webhook operacional, Graph API, número real ou custo pago.
 
 ## Objetivo e evidências examinadas
