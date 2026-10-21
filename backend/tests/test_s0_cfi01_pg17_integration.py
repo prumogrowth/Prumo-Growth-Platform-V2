@@ -19,6 +19,11 @@ from backend.s0_s1_closure_authority_local import S0S1LocalTeamAuthority
 from backend.s0_cfi01_authenticated_commands_local import (
     S0CFI01AuthenticatedCommandsLocal, CommandState,
 )
+from backend.s0_cfi01_signed_prerequisite_local import (
+    S0CFI01RestrictedSignedPrerequisiteLocal, SignedState,
+)
+import hmac
+import hashlib
 from backend.tests.test_s0_cfi01_authenticated_commands_local import (
     token as synthetic_token, Opener as SyntheticGoTrueHTTP,
 )
@@ -466,6 +471,131 @@ class PostgresPhysicalIntegration(unittest.TestCase):
                 {**self._gateway_payload(),'closure_event_ref':cap.closure_event_ref})
         self.assertIs(check.state,CommandState.DENIED)
         self.assertEqual(self._count(),1)
+
+
+    # CFI-01 signed SQL gate, separate restricted database user. This is
+    # proof-of-prerequisites only: no F03 data access or model writes.
+    _SIGNED_KEY_ID=uuid.UUID('cfeed000-0000-4000-8000-000000000001')
+    _SIGNED_SECRET=bytes.fromhex(
+        '1160b59cd3466f55112233445566778899aabbccddeeff001122334455667788')
+    _RESTRICTED_DSN=('postgresql://prumo_cfi01_pgtest_login:'
+        'cf-i01-disposable-test-only-not-production@127.0.0.1:5432/prumo_s0_test_cfi01')
+
+    def _signed_gate(self):
+        return S0CFI01RestrictedSignedPrerequisiteLocal(
+            self._RESTRICTED_DSN,key_id=self._SIGNED_KEY_ID,
+            signing_key=self._SIGNED_SECRET)
+
+    def _restricted_call_raw(self, *, operation='capture_human_closure',
+                             actor=None,case=None,session=None,version=1,
+                             event=None,key=None,issued=None,nonce=None,
+                             signature=None):
+        import time
+        from backend.s0_cfi01_signed_prerequisite_local import _QUERY
+        actor=actor or self.actor
+        case=case or self.case
+        session=session or self.session
+        key=key or self._SIGNED_KEY_ID
+        issued=issued if issued is not None else int(time.time())
+        nonce=nonce or uuid.uuid4()
+        material=self._signed_gate()._material(
+            operation,Principal(actor,session),case,version,event,issued,nonce)
+        signature=signature if signature is not None else hmac.new(
+            self._SIGNED_SECRET,material,hashlib.sha256).hexdigest()
+        conn=self.pg.connect(self._RESTRICTED_DSN,connect_timeout=5)
+        try:
+            with conn:
+                with conn.cursor() as cur:
+                    cur.execute(_QUERY,(operation,actor,session,case,version,event,
+                                        key,issued,nonce,signature))
+                    return cur.fetchone()
+        finally:
+            conn.close()
+
+    def test_38_signed_gate_valid_physical_restricted_login(self):
+        result=self._signed_gate().prove('capture_human_closure',
+           Principal(self.actor,self.session),self.case,1)
+        self.assertIs(result.state,SignedState.SIGNED_PREREQUISITES_ONLY_LOCAL)
+        self.assertEqual(self._count(),0)
+
+    def test_39_nonce_replay_is_physically_rejected(self):
+        nonce=uuid.uuid4()
+        self.assertEqual(self._restricted_call_raw(nonce=nonce),
+                         ('SIGNED_PREREQUISITES_ONLY_LOCAL',))
+        with self.assertRaises(self.pg.Error):
+            self._restricted_call_raw(nonce=nonce)
+        self.assertEqual(self._count(),0)
+
+    def test_40_signed_proof_changed_case_is_rejected(self):
+        false_case=uuid.uuid4()
+        out=self._signed_gate().prove('capture_human_closure',
+             Principal(self.actor,self.session),false_case,1)
+        self.assertIs(out.state,SignedState.DENIED)
+
+    def test_41_signed_proof_wrong_session_is_rejected(self):
+        out=self._signed_gate().prove('capture_human_closure',
+            Principal(self.actor,uuid.uuid4()),self.case,1)
+        self.assertIs(out.state,SignedState.DENIED)
+
+    def test_42_signed_proof_stale_cycle_is_rejected(self):
+        out=self._signed_gate().prove('capture_human_closure',
+            Principal(self.actor,self.session),self.case,2)
+        self.assertIs(out.state,SignedState.DENIED)
+
+    def test_43_expired_proof_is_rejected(self):
+        import time
+        with self.assertRaises(self.pg.Error):
+            self._restricted_call_raw(issued=int(time.time())-90)
+
+    def test_44_forged_hmac_is_rejected(self):
+        with self.assertRaises(self.pg.Error):
+            self._restricted_call_raw(signature='a'*64)
+
+    def test_45_wrong_key_id_is_rejected(self):
+        with self.assertRaises(self.pg.Error):
+            self._restricted_call_raw(key=uuid.uuid4())
+
+    def test_46_restricted_login_cannot_directly_read_private_receipts(self):
+        with self.pg.connect(self._RESTRICTED_DSN) as conn:
+            with self.assertRaises(self.pg.Error):
+                conn.execute("select * from prumo_private.cfi01_human_closure_events_local")
+
+    def test_47_restricted_login_cannot_directly_read_messages(self):
+        with self.pg.connect(self._RESTRICTED_DSN) as conn:
+            with self.assertRaises(self.pg.Error):
+                conn.execute("select * from public.mensagens")
+
+    def test_48_restricted_login_cannot_directly_read_signing_keys(self):
+        with self.pg.connect(self._RESTRICTED_DSN) as conn:
+            with self.assertRaises(self.pg.Error):
+                conn.execute("select * from prumo_private.cfi01_signing_keys_local")
+
+    def test_49_recheck_requires_matching_existing_receipt(self):
+        missing=self._signed_gate().prove('recheck_human_closure',
+            Principal(self.actor,self.session),self.case,1,event=uuid.uuid4())
+        self.assertIs(missing.state,SignedState.DENIED)
+        captured=self.capture()
+        self.assertIs(captured.state,ClosureState.CAPTURED_LOCAL_ONLY)
+        good=self._signed_gate().prove('recheck_human_closure',
+            Principal(self.actor,self.session),self.case,1,
+            event=uuid.UUID(captured.closure_event_ref))
+        self.assertIs(good.state,SignedState.SIGNED_PREREQUISITES_ONLY_LOCAL)
+
+    def test_50_s1_suspension_revokes_signed_gate(self):
+        with self.pg.connect(DB) as conn:
+            conn.execute("update public.equipe_prumo_s1 set estado='suspenso' where ator_id=%s",
+                         (self.actor,))
+        out=self._signed_gate().prove('capture_human_closure',
+            Principal(self.actor,self.session),self.case,1)
+        self.assertIs(out.state,SignedState.DENIED)
+        self.assertEqual(self._count(),0)
+
+    def test_51_restricted_login_cannot_insert_technical_receipt(self):
+        with self.pg.connect(self._RESTRICTED_DSN) as conn:
+            with self.assertRaises(self.pg.Error):
+                conn.execute("""insert into prumo_private.cfi01_human_closure_events_local
+                    (id) values (%s)""",(uuid.uuid4(),))
+
 
 
 if __name__ == "__main__":
