@@ -1,5 +1,7 @@
 # WA-04-AUD1 — Auditoria retroativa completa dos candidatos WhatsApp/Meta (18/10/2026)
 
+> **[LEITURA_ORIENTADA_2026_10_21] Registro histórico ou de engenharia, não substitui decisões recentes.** Consulte [LEIA PRIMEIRO](./README.md), [especificação funcional vigente](./01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md) e [mapa de conflitos](./02-mapa-fontes-conflitos-e-emendas-2026-10-21.md). Somente trechos expressamente substituídos perdem vigência; provas offline não significam serviços reais homologados.
+
 **Escopo e decisão:** auditoria **sintética local** de todo o conjunto de módulos de laboratório da frente Meta ainda sem teste conjunto completo, com atenção especial às etapas **WA-04A/B/C** e à pendência de execução dos **quatro testes originais WA-01A/B/C/D**. Um defeito reproduzível foi reparado e sua regressão publicada. **GO somente para evolução sintética; NO-GO para integração ou envio real.**
 
 A verificação do token definitivo continua **dependente de terceiro**. Não foi solicitada, usada, inspecionada ou alterada nenhuma credencial no Supabase, Meta ou GitHub.
