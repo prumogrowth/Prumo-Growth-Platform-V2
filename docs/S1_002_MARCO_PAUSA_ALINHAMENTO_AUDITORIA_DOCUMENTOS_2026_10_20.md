@@ -1,5 +1,8 @@
 # S1-002 — preparação do marco de pausa: alinhamento, auditoria e higiene documental (20/10/2026)
 
+> **[D] Atualização de nomenclatura (21/10/2026):** **diretor** substitui o nome de papel **responsável (da plataforma)**; **gestor** permanece **gestor**; **consultor** substitui **operador**. As competências permanecem iguais, e a estrutura técnica/identificadores ainda **não** foram renomeados. A terminologia antiga neste documento deve ser interpretada por esta equivalência. [Decisão normativa de nomenclatura](S1_002_DECISAO_NOMENCLATURA_PAPEIS_2026_10_21.md).
+
+
 **Documento preparatório, não realização das três etapas.** A frente continua trabalhando na issue #10 em sandbox; quando o marco descrito abaixo estiver satisfeito, interromper novos incrementos S1 antes de iniciar a rodada de perguntas, a auditoria e o fechamento documental.
 
 ## Condição objetiva para a pausa
