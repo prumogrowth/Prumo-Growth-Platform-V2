@@ -51,8 +51,8 @@ begin
      or (p_operation='recheck_human_closure' and p_event is null)
   then raise exception 'CFI01_PROOF_DENIED' using errcode='42501'; end if;
 
-  if p_issued_at < pg_catalog.extract(epoch from pg_catalog.clock_timestamp())::bigint - 30
-     or p_issued_at > pg_catalog.extract(epoch from pg_catalog.clock_timestamp())::bigint + 5
+  if p_issued_at < pg_catalog.date_part('epoch',pg_catalog.clock_timestamp())::bigint - 30
+     or p_issued_at > pg_catalog.date_part('epoch',pg_catalog.clock_timestamp())::bigint + 5
   then raise exception 'CFI01_PROOF_EXPIRED' using errcode='42501';end if;
 
   -- Clock and keyed canonical bytes are generated exclusively by S0 server.
