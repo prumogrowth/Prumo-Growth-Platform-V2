@@ -1,5 +1,7 @@
 # S1-002/I11 — Gestores por equipe, grants pelos responsáveis e pausa global
 
+**AVISO DE CONTRATO VIGENTE (20/10/2026):** a descrição histórica de pausa que suspende `equipe_prumo_s1.estado`, remove a leitura do operador e redistribui toda a carteira **FOI SUPERADA** pela issue #10. Pausa gerencial atual é exclusivamente `intake_paused`, sem suspender login, retirar grants ou acesso a casos ainda atribuídos. Somente casos sem contato humano iniciado, comprovado pelo S0, podem ser redistribuídos a outra pessoa disponível da mesma equipe e com grant da concessionária; sem destino elegível, o titular permanece. Leitura e resposta sobre casos não transferidos continuam habilitadas. A migration I11 antiga e seus testes não são aceites da nova regra. [Contrato vigente da issue #10](S1_002_ISSUE10_CORRECAO_PAUSA_INTAKE_2026_10_20.md).
+
 **[D] Correção expressa de negócio — 19/10/2026.** Substitui a interpretação por concessionária de I10. Dono desta frente: S1-002. Aplica-se ao produto Prumo/LiberaCred, mantendo os contratos de casos comerciais no núcleo S0.
 
 ## 1. Três relações que não podem ser confundidas
