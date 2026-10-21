@@ -58,7 +58,7 @@ begin
   -- Clock and keyed canonical bytes are generated exclusively by S0 server.
   v_material := pg_catalog.concat_ws('|','cfi01-local-v1',p_operation,
         p_actor::text,p_session::text,p_case::text,p_cycle_version::text,
-        pg_catalog.coalesce(p_event::text,'-'),p_issued_at::text,p_nonce::text);
+        coalesce(p_event::text,'-'),p_issued_at::text,p_nonce::text);
   select k.secret into v_secret
     from prumo_private.cfi01_signing_keys_local k
     where k.key_id=p_key_id and k.active for share;
