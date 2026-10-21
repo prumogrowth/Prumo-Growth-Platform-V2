@@ -1,5 +1,7 @@
 # WA-06B — bytes canônicos candidatos para prova interna Meta → S0
 
+> **[LEITURA_ORIENTADA_2026_10_21] Registro histórico ou de engenharia, não substitui decisões recentes.** Consulte [LEIA PRIMEIRO](./README.md), [especificação funcional vigente](./01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md) e [mapa de conflitos](./02-mapa-fontes-conflitos-e-emendas-2026-10-21.md). Somente trechos expressamente substituídos perdem vigência; provas offline não significam serviços reais homologados.
+
 **Data:** 18/10/2026. **Estado: [P/V local].** Engenharia de interface: bytes determinísticos e testes unitários locais. **Não** é autenticação de serviço, esquema de banco, implementação ACID, serviço hospedado, credencial, assinatura real, autorização de ACK ou aprovação de DEC-WA-06.
 
 ## 1. Incremento efetivamente realizado
