@@ -24,7 +24,7 @@ from backend.s1_gateway_signed_local import _COMMAND, _action_args, _proof_mater
 
 _MATERIAL = re.compile(
     rb"prumo-s1-i20-v1\|(MOVER|PAUSAR|REATIVAR|INTAKE)\|"
-    rb"[0-9a-f-]{36}\|[0-9a-f-]{36}\|[A-Z0-9a-f|_-]{5,350}"
+    rb"[0-9a-f-]{36}\|[0-9a-f-]{36}\|[A-Z0-9a-f|_:\-]{5,350}"
 )
 _MAX_MATERIAL = 600
 
