@@ -28,7 +28,7 @@
 - **Uma WABA separada para cada concessionária**, e **um número de WhatsApp dedicado a essa concessionária**. Não haverá WABA única central da Prumo.
 - A Prumo operará tecnicamente a **API** conforme autorização; WhatsApp exibirá principalmente foto/logo e nome da concessionária, enquanto a IA conhece e respeita a identidade da loja representada.
 - **Templates pertencem ao catálogo específico da concessionária/WABA**, sem compartilhamento entre lojas, inclusive quando contêm o nome da concessionária.
-- **PENDÊNCIA de interpretação jurídica/técnica para onboarding:** quem será o titular contratual de cada WABA e do telefone, permissões delegadas à Prumo, vínculo dos Meta Apps; a fala não resolve sozinha esse detalhe. Não alterar mappings técnicos S0-042 ainda; auditar aderência da cardinalidade `App/WABA/phone` ao cenário **WABA por loja**, inclusive segregação de credenciais.
+- **[RETIFICAÇÃO DE PRECEDÊNCIA — DEC-WA-05 de 17/10]** A titularidade **não estava aberta no conjunto do projeto**: concessionária proprietária da conta empresarial Meta, Meta App, WABA e número; a Prumo opera como integradora delegada. Permanece PENDENTE verificar no painel Meta a configuração de propriedade/acessos, registro, webhooks e credenciais antes do onboarding real. Não alterar mappings técnicos S0-042 ainda; auditar escopo App/WABA/phone por loja.
 - Referências com potencial de conflito: `documentos/09_Estrutura_Mensagens_Templates_v4_6.md` e `documentos/34_Roteiro_Homologacoes_Meta_Banco_LGPD_Decisoes_Agrupadas_v0_1.md`, que tratavam números sob titularidade/controle da gestora.
 
 ### D-WA18-04 — Opt-out isolado por concessionária
@@ -83,13 +83,13 @@
 1. **Após aprovação Meta, pode mudar apenas o mapeamento interno de uma variável `{{n}}` para outra fonte de dados autorizada, sem editar o template, com segunda confirmação e auditoria?** Exemplo trocar `operador.nome` por `operador.primeiro_nome`. Se não, também congelar `mapping_revision`; se sim, restringir a fontes semanticamente compatíveis e snapshot por envio.
 2. **Falhas repetidas:** quantas **falhas definitivas comprovadas** e qual período caracterizam exaustão para passar a `perdido` técnico? O que fazer se resultado permanece `INCERTO` depois de conciliação? **Não inventar** quantidade, hora ou prazo.
 3. **Alternativa a template indisponível:** Planejadora pode substituir diretamente na cadência por **outro template já APPROVED** da mesma concessionária, finalidade e categoria, ou o responsável deve confirmar essa substituição? Criar novo template sempre via MCP administrativo de responsável, independentemente dessa resposta.
-4. **Titularidade da WABA e número:** “WABA da concessionária” significa conta **juridicamente pertencente à concessionária** com acesso delegado à Prumo, ou WABA administrada/registrada pela Prumo mas **isolada 1:1 por concessionária**? A separação funcional está aprovada, mas a titularidade legal/Business Manager altera a integração.
+4. **[RESPONDIDA por DEC-WA-05 de 17/10, identificada na auditoria]** A concessionária será proprietária da própria conta empresarial Meta, App, WABA e número; Prumo acessará por delegação. **Ainda conferir prova real de titularidade/onboarding**, não tratar como pergunta de negócio aberta.
 5. **Botão explícito de opt-out:** validar execução de supressão automática no escopo da concessionária mesmo antes de a IA fechar eventual decisão comercial. Recomendação de conformidade: sim.
 
 ## D. Necessidades de auditoria documental futuras
 
 - **Matriz MCP:** `documentos/41_Decisao_Aprovada_Matriz_Permissoes_Gestor_Operador_MCP_v1_0.md` D41-03 proíbe escrita em templates enquanto a decisão atual pede gestão ampla via MCP. Criar emenda de precedência com escopos por operação, dupla confirmação e bloqueio estrutural, sem apagar texto antigo.
-- **WABA/número:** documentos 09/34 falam números gestora dedicados; revisar contra nova regra **WABA por concessionária** e titularidade a esclarecer. Verificar se o esquema técnico `meta_apps_fixture_s0` / `meta_canais_fixture_s0` admite a relação.
+- **WABA/número:** documentos 09/34 falam números gestora dedicados; substituir essa parte pela decisão DEC-WA-05 (17/10) de **conta/App/WABA/número pertencentes à concessionária**. Ainda verificar vínculos efetivos na Meta. Verificar se o esquema técnico `meta_apps_fixture_s0` / `meta_canais_fixture_s0` admite a relação.
 - **DEC-13..18 (doc 35):** introduzir marcadores de evidência e desfechos `perdido` técnico; opt-out apenas por loja; esclarecimento de dois estados incertos; substituição de template sem alterações clandestinas.
 - **WA-17A/B:** esclarecer conflito entre a implementação anterior que permitia editar `mapping_revision` pós-aprovação e a imutabilidade recém-afirmada. Sem modificar código até resposta.
 - **Categorias/custos:** não presumir que utility seja gratuito nem equiparar relatório de cobrança ao webhook; custo não decide envio.
