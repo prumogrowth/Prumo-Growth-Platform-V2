@@ -6,6 +6,10 @@
 
 ## 1. Origem e decisão de produto
 
+> **AUDITORIA DOCUMENTAL DE 21/10 — PRECEDÊNCIA LOCAL:** esta especificação é histórico WA-17A de módulo BODY-only, não o requisito atual. Estão **superadas** as expressões “a plataforma não precisa gerar texto por IA”, “formulário manual como única entrada” e “mapeamento editável depois da aprovação”. O responsável **permite texto escrito pela IA administrativa via futuro MCP** e **congelou a fonte posicional de cada versão já aprovada**; editabilidade de conteúdo fica sujeita à Meta/revisão e novos snapshots. Templates são escopados por concessionária/WABA, com **finalidades** internas (não “categorias internas”), múltiplas e permissões por contexto, além das categorias oficiais da Meta. Consultar [fonte canônica](./00-decisoes-vigentes-precedencia-documental-2026-10-21.md) e [WA-18B](./wa18b-alinhamento-fechamento-optout-variaveis-falhas-cadencia-2026-10-20.md). Abaixo fica o registro histórico, não norma para novas implementações.
+
+
+
 **A documentação vigente já exigia** a estrutura relacional lógica `catalogo_templates`, separada de `envios_template` e `mensagens` (fonte do projeto: `documentos/09_Estrutura_Mensagens_Templates_v4_6.md`). O documento consolidado prevê uma biblioteca inicialmente manual, solicitação de criação pela API e consulta à situação de aprovação na Meta (`projeto_liberacred_consolidacao_ideias_v0_2_auditada.md`, seção 9.2).
 
 **Esclarecimento solicitado pelo responsável em 20/10/2026:** os responsáveis autorizados devem poder **inserir eles mesmos o conteúdo** de novos templates na plataforma, solicitar a submissão à Meta por meio da plataforma e **editar depois o mapeamento das variáveis**, como nome do cliente, nome do operador e novas fontes reconhecidas pelo sistema. **A plataforma não precisa gerar textos de templates.** A IA não ganha autorização para escrever ou publicar modelos autonomamente por causa desta funcionalidade.
