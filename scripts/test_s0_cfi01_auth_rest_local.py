@@ -137,6 +137,31 @@ def main():
     payload=dict(case_ref=str(case),expected_cycle_version=1,
                  idempotency_key='real-gotrue-cfi01-key')
     result=gate.execute("Bearer "+token,"capture_human_closure",payload)
+    if result.state is not CommandState.CAPTURED_LOCAL_ONLY:
+        # DISPOSABLE AUTH-CI DIAGNOSTIC ONLY. Do not print JWT, keys,
+        # identifiers, input payload, SQL or personal data.
+        import hashlib, hmac, time
+        from backend.s0_cfi01_atomic_commands_local import _ATOMIC_SQL
+        principal=gate._identity.verify("Bearer "+token)
+        issued=int(time.time())
+        nonce=uuid.uuid4()
+        material=gate._material('capture_human_closure',principal,case,1,None,
+                                payload['idempotency_key'],gate._key_id,issued,nonce)
+        proof=hmac.new(gate._secret,material,hashlib.sha256).hexdigest()
+        try:
+            with psycopg.connect(restricted,connect_timeout=5) as diagnostic_db:
+                diagnostic_db.execute(_ATOMIC_SQL,(
+                    'capture_human_closure',operator,principal.session_id,
+                    case,1,None,payload['idempotency_key'],gate._key_id,
+                    issued,nonce,proof)).fetchall()
+            raise AssertionError("Unexpected raw SQL success after DENIED")
+        except psycopg.Error as error:
+            name=(getattr(error.diag,'message_primary',None) or '')
+            # Permit only a narrow code from our private SQL or generic ACL
+            # diagnostic, never values or generated SQL.
+            reason=(name if name.startswith('CFI01_ATOMIC_') else
+                    'DATABASE_ACL_OR_RLS_ERROR')
+            print('CFI01_LAB_DIAGNOSTIC:',error.sqlstate,reason)
     demand(result.state is CommandState.CAPTURED_LOCAL_ONLY
            and bool(result.closure_event_ref),
            "real token failed to capture; state="+result.state.value)
