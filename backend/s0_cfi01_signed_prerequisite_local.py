@@ -49,8 +49,10 @@ class S0CFI01RestrictedSignedPrerequisiteLocal:
         u=urllib.parse.urlsplit(dsn)
         if (u.scheme not in ("postgres","postgresql")
                 or u.hostname not in ("127.0.0.1","localhost","::1")
-                or u.username != _LOCAL_USER or u.port != 5432
-                or u.path != "/"+_LOCAL_TEST_DB or u.query or u.fragment):
+                or u.username != _LOCAL_USER or u.query or u.fragment
+                or not ((u.port == 5432 and u.path == "/"+_LOCAL_TEST_DB)
+                        or (os.environ.get("PRUMO_CFI01_SUPABASE_LOCAL_AUTH_TEST") == "1"
+                            and u.port == 54322 and u.path == "/postgres"))):
             raise ValueError("SIGNED_GATE_DISPOSABLE_PG_ONLY")
         if any(os.environ.get(k) for k in (
             "PGHOSTADDR","PGHOST","PGPORT","PGDATABASE","PGUSER",
