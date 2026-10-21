@@ -1,5 +1,7 @@
 # DEC-WA-05 — titularidade dos canais Meta por concessionária | v1.0
 
+> **[LEITURA_ORIENTADA_2026_10_21] Documento de referência histórica ou de engenharia, NÃO substitui decisões funcionais recentes.** Consulte o [LEIA PRIMEIRO](./README.md), a [especificação vigente](./01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md) e o [mapa de conflitos por origem](./02-mapa-fontes-conflitos-e-emendas-2026-10-21.md). Apenas trechos expressamente substituídos perdem vigência; evidências offline não significam serviços reais homologados.
+
 **Status:** **DECISÃO DE NEGÓCIO APROVADA PELO RESPONSÁVEL** quanto à **titularidade e padrão de implantação por concessionária**. A verificação documental das contas Meta, os requisitos de provisionamento, a ativação real, as permissões e a operação permanecem **PENDENTES DE VALIDAÇÃO**. Este documento substitui a hipótese anterior de números/WABAs pertencentes à gestora e dedicados a lojas.
 
 **Declaração do responsável:** “Cada concessionária vai ser proprietária do canal de WhatsApp usando a sua própria conta empresarial, ou seja, esse App criado para a concessionária de demonstração e API vai pertencer à concessionária de demonstração; outra concessionária vai ser outro App e outra API.”
