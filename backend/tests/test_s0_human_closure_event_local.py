@@ -31,7 +31,11 @@ class Identity:
         return Principal(A,S)
 
 class S1:
-    def __init__(self,result=S1Proof.ALLOW): self.result=result;self.calls=[]
+    def __init__(self,result=S1Proof.ALLOW):
+        self.result=result;self.calls=[];self.lock_calls=[]
+    def lock_team(self,cur,principal):
+        self.lock_calls.append((cur,principal))
+        return self.result
     def check(self,cur,principal,store,case,assignment):
         self.calls.append((cur,principal,store,case,assignment))
         return self.result
@@ -193,5 +197,34 @@ class Tests(unittest.TestCase):
         self.assertEqual(params[8],MSG)
         self.assertEqual(params[9],1)
         self.assertEqual(len(params),10)
+
+    def test_36_s1_team_checked_before_case_lock(self):
+        cur=Cursor()
+        s1=S1()
+        execute(cur,s1=s1)
+        self.assertEqual(s1.lock_calls[0][1],Principal(A,S))
+        self.assertEqual(len(s1.calls),1)
+        self.assertIs(s1.lock_calls[0][0],cur)
+
+    def test_37_missing_s1_lock_method_fails_closed(self):
+        class OldS1:
+            def check(self,*args):
+                return S1Proof.ALLOW
+        result,cur,*_=execute(s1=OldS1())
+        self.assertIs(result.state,Status.UNAVAILABLE)
+        self.assertNotIn(_CASE,[q for q,_ in cur.calls])
+
+    def test_38_s1_lock_denied_before_case(self):
+        cur=Cursor()
+        result,cur,*_=execute(cursor=cur,s1=S1(S1Proof.DENY))
+        self.assertIs(result.state,Status.BLOCKED_S1)
+        self.assertNotIn(_CASE,[q for q,_ in cur.calls])
+
+    def test_39_s1_string_lock_unauthorized(self):
+        cur=Cursor()
+        result,cur,*_=execute(cursor=cur,s1=S1('ALLOW'))
+        self.assertIs(result.state,Status.BLOCKED_S1)
+        self.assertNotIn(_CASE,[q for q,_ in cur.calls])
+
 
 if __name__ == '__main__':unittest.main()
