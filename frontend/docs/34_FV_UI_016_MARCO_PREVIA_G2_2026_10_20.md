@@ -1,3 +1,5 @@
+> **LEITURA ATUALIZADA — 21/10/2026:** A prévia sintética de carteira pausa mantém sua validade **somente para casos existentes e mesma equipe**, mas não representa a distribuição de novos leads entre equipes nem a fila gerencial compartilhada aprovada depois. Nenhuma regra real da S1 foi validada por esta prévia. Para decisões vigentes de pausa, distribuição, filas, acesso por caso, comprovação humana e IA, consultar **[FV-DOC-01](./35_FV_DOC_01_DECISOES_VIGENTES_ALINHAMENTO_2026_10_21.md)**; divergências descritas em **[FV-DOC-02](./36_FV_DOC_02_AUDITORIA_AMBIGUIDADES_E_PRECEDENCIA_2026_10_21.md)**. Trechos abaixo permanecem como histórico técnico da sua data, sem substituir decisões posteriores.
+
 # FV-UI-016 — Marco funcional fechado: prévia seletiva da carteira G2
 **Data:** 20/10/2026. **Situação:** demonstração funcional sintética, não homologação. **Branch:** `feat/frontend-plataforma-visual`. Nenhuma operação real, nenhuma alteração na S1 e nenhum deploy.
 
