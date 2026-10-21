@@ -18,6 +18,10 @@
 | Contratos operacionais e código do adaptador | [README do código WhatsApp](../../../integrations/whatsapp-meta/README.md) | Fases e candidatos técnicos, NÃO prova de produção |
 | Escopo da futura interface MCP | [Issue #11](https://github.com/prumogrowth/Prumo-Growth---Platform/issues/11) | Contratos de templates para outra frente construir servidor MCP real |
 
+## Nova funcionalidade registrada — nome do operador nas mensagens
+
+[WA-20 — Identificação visível do atendente: o que a Meta oferece e como a plataforma poderá implementar](./wa20-identificacao-visivel-atendente-assinatura-mensagem-2026-10-21.md). A Meta envia pelo número da concessionária; para aparecer no WhatsApp do cliente, o nome poderá ser acrescentado pelo backend ao **texto da mensagem**. Autoria de operador permanece separada e autenticada no S0. O formato/frequência exata ainda não foi fechado; mensagens de template obedecem ao conteúdo/variáveis aprovados. **Não implementado.**
+
 ## Política editorial
 
 1. **Decisão vigente [D]** é diferente de **documento histórico [H]**, **proposta [P]**, **homologação externa [V]** e **estado técnico [T]**. Em caso de conflito, usar a referência 01 e os IDs WDC de 00; uma nova decisão só altera o tema expressamente revisado.
