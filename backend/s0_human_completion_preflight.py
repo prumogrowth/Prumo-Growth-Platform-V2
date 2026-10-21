@@ -87,7 +87,7 @@ def preflight_human_closure(
 class PsycopgLocalCaseInspection:
     """Query ACTUAL S0 schema, locked to a disposable localhost PG instance.
 
-    This temporary LOCAL implementation requires `postgres` access,
+    This temporary LOCAL implementation requires privileged `postgres` access,
     matching the existing S0 local test boundary. It is not a service design:
     must be replaced with audited, least-privileged signed S0 operation.
     """
