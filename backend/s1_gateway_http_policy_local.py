@@ -77,8 +77,12 @@ def _parse_body(raw: bytes):
 
 
 def serve_http_policy_local(gateway, *, max_requests=200, window_seconds=60,
-                            allowed_origins=(), security_events=None):
+                            allowed_origins=(), security_events=None,
+                            allowed_commands=None):
     """Return a loopback-only test server; caller must shutdown/server_close."""
+    commands = frozenset(_SQL) if allowed_commands is None else frozenset(allowed_commands)
+    if not commands or not commands.issubset({"mover","pausar","reativar","intake"}):
+        raise ValueError("HTTP_COMMAND_ALLOWLIST_INVALID")
     origins = tuple(allowed_origins)
     for origin in origins:
         if not isinstance(origin, str) or not re.fullmatch(
@@ -133,7 +137,7 @@ def serve_http_policy_local(gateway, *, max_requests=200, window_seconds=60,
 
         def do_POST(self):
             command = self.path.removeprefix("/s1/")
-            if self.path != "/s1/" + command or command not in _SQL:
+            if self.path != "/s1/" + command or command not in commands:
                 return self._respond(404, "NOT_FOUND")
             command_name = command  # constant allowlisted code, not raw URL
             try:
