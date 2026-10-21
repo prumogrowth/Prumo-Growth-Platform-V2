@@ -17,6 +17,10 @@ A interpretação anterior de imutabilidade integral foi corrigida: o responsáv
 - Variáveis de BODY, HEADER e URL dinâmica de botão exigem validação e snapshot de fontes por versão. A plataforma guarda referência ao campo, não copia informação pessoal para o texto-base.
 
 ### WA18B-03 — Regra EXATA de duas falhas consecutivas, sem chamar IA para falhas comuns
+
+> **FECHAMENTO 21/10 — a dúvida residual deste item foi respondida na WA-18C:** um template subsequente com **envio efetivo confirmado** zera o contador, **sem exigir resposta do cliente**; não depende do intervalo entre tentativas. Apenas duas falhas definitivas em tentativas consecutivas do mesmo fluxo produzem `perdido` técnico. Estado incerto não é sent nem falha confirmada. Além disso, “categorias internas” neste documento é terminologia SUPERADA: utilizar **finalidades de template** distintas de categoria Meta, com múltiplas finalidades e autorização independente. Ver [fonte canônica](./00-decisoes-vigentes-precedencia-documental-2026-10-21.md) e [WA-18C](./wa18c-falhas-consecutivas-taxonomia-interna-templates-2026-10-20.md).
+
+
 - O backend conta **duas falhas de envio consecutivas e tecnicamente comprovadas de templates do mesmo fluxo/cadência**. A primeira falha permite seguir para a próxima tentativa já planejada, sem acionar a IA Planejadora. A segunda falha consecutiva **cancela os envios restantes do plano** e atualiza o lead/ciclo para `perdido` com motivo `falha_sistemica_envio_template` (código conceitual, nome final em auditoria), com evidências e histórico preservados.
 - Nunca contabilizar como falha comprovada: timeout isolado, falta de callback, `API_ACCEPTED`, estado `UNCERTAIN_EXTERNAL`, reprocessamento de webhook repetido ou falha sem escopo/tentativa correlacionada. Antes de contar, resolver incertezas conforme política WA-16; reenvio cego continua proibido.
 - A IA Planejadora **não é acionada por erros normais de envio**; não tem autoridade para neutralizar automaticamente o contador. Regra de duas falhas é determinística do backend.
