@@ -115,13 +115,45 @@ export function managedOperators(managerId) {
   return ACTORS.filter(operator=>operator.role==='operador' &&
     operator.managerId===managerId);
 }
+/** Concessão excepcional já CONFIRMADA na fixture de S0: SOMENTE o caso.
+ * Não confere grant geral e nunca aceita parâmetro fornecido pelo navegador.
+ */
+export function hasMockCaseOnlyScope(record,actorId,shopId) {
+  const actor=getActor(actorId),p=record?.caseOnlyAccessProjection;
+  return Boolean(actor?.role==='operador' && actor.teamState==='active' &&
+    record?.assignedTo===actorId && record.shopId===shopId &&
+    p?.origin==='s0_fixture' && p.confirmed===true &&
+    p.scope==='case_only' && p.reason==='manual_team_transfer' &&
+    p.actorId===actorId && p.caseId===record.id && p.shopId===shopId &&
+    typeof p.versionRef==='string' && p.versionRef.trim());
+}
+export function hasMockCaseScope(record,actorId,shopId) {
+  const actor=getActor(actorId);
+  return Boolean(actor && actor.teamState==='active' && record &&
+    record.shopId===shopId &&
+    (actor.shops.includes(shopId) || hasMockCaseOnlyScope(record,actorId,shopId)));
+}
+/** Filtro de concessionária pode incluir somente a loja de caso excepcional.
+ * A presença da opção NÃO libera qualquer outro recurso nessa loja.
+ */
+export function visibleMockShops(records,actorId) {
+  const actor=getActor(actorId);
+  if(!actor || actor.teamState!=='active')return [];
+  const shops=new Set(actor.shops);
+  for(const record of Array.isArray(records)?records:[]) {
+    if(hasMockCaseOnlyScope(record,actorId,record?.shopId))shops.add(record.shopId);
+  }
+  return [...shops];
+}
 export function visibleConversations(records, actorId, shopId) {
   const actor=getActor(actorId);
-  if(!actor || actor.teamState!=='active' || !actor.shops.includes(shopId))return [];
+  if(!actor || actor.teamState!=='active' || !Array.isArray(records) ||
+     !visibleMockShops(records,actorId).includes(shopId))return [];
   const team=actor.role==='gestor' ? managedOperators(actorId) : [];
   return records.filter(record=>{
     if(record.shopId!==shopId)return false;
-    if(actor.role!=='gestor')return record.assignedTo===actorId;
+    if(actor.role!=='gestor')return record.assignedTo===actorId &&
+      hasMockCaseScope(record,actorId,shopId);
     if(record.assignedTo===actorId)return true; // gestor autoatribuído
     if(record.assignedTo==null)return record.teamManagerId===actorId;
     return team.some(operator=>operator.id===record.assignedTo &&
@@ -130,9 +162,8 @@ export function visibleConversations(records, actorId, shopId) {
 }
 export function canSimulateCompletion(record, actorId, shopId) {
   const actor = getActor(actorId);
-  return Boolean(actor && actor.teamState === 'active' && record && actor.shops.includes(shopId) &&
-    record.shopId === shopId && record.assignedTo === actorId &&
-    record.status === 'em atendimento pelo operador');
+  return Boolean(actor && hasMockCaseScope(record,actorId,shopId) &&
+    record.assignedTo === actorId && record.status === 'em atendimento pelo operador');
 }
 export function statusTone(status) {
   if (status === 'em atendimento pelo operador') return 'human';
