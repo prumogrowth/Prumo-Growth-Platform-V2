@@ -255,7 +255,8 @@ export function copyCFDemoFixtures() {
     };
   });
   return [...base,...SCENARIOS.map(record => ({
-    ...record, notes:[], messages:record.messages.map(m=>({...m})),
+    ...record, notes:[], messages:record.messages.map(m=>({...m,
+      transportProjection:m.transportProjection?{...m.transportProjection}:undefined})),
     monitorProjection:demoMonitorProjection(record.id),
     allowedActionsProjection:[...(record.allowedActionsProjection??[])],
     eligibleTemplatesProjection:[...(record.eligibleTemplatesProjection??[])],
