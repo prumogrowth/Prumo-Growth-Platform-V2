@@ -1,5 +1,7 @@
 # E02 — Gabarito documental SYN-01..SYN-32 | v0.1
 
+> **Oráculos corrigidos [P/R]:** [E02-MT v0.3](./E02_MATRIZ_REGRESSAO_OPERACIONAL_v0_3.md). SYN-08 conserva **cutoff histórico** até mA07 e separa revalidação atual da aplicação; SYN-09 **não** autoriza edição de ficha pelo Consultor. Este gabarito v0.1 é histórico; nenhum EXPECTED aqui é PASS observado.
+
 **Data:** 18/10/2026 | **Natureza:** [P] estímulos sintéticos e oráculos esperados para revisão. **Nenhum teste, mock, fixture física, schema, API call, banco ou mídia foi executado/criado por este documento.** Não declarar `PASS` com base em EXPECTED. **O aceite canônico F03 [R] na issue #4 e a elegibilidade C09 pós-humana [R] na issue #6 permanecem pendentes.**
 
 **Fonte primária:** `E02_MATRIZ_CASOS_SINTETICOS_E_METRICAS_v0_1.md`, mantendo rigorosamente IDs SYN-01..32 e prioridades originais P0/P1. Rubrica candidata: `E02_RUBRICA_DE_ACEITE_PRE_E04_CF_OP_02_v0_1.md`. Contratos complementares: OAI-05/06/07/08 e proposta de equivalência CFI-01. Não atribuir nome comercial “LiberaCred” à plataforma: produto é da instituição financeira, nome da plataforma não decidido.
