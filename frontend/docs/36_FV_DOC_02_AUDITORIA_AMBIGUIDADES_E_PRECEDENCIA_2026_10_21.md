@@ -37,3 +37,8 @@ Evento versionado e validação do primeiro contato; intake independente de cont
 ## DOC-14 — Ambiguidade de nomenclatura dos papéis (21/10/2026)
 
 O vocabulário anterior (“responsável” e “operador”) é histórico **quando designa os papéis da plataforma**; ler respectivamente **Diretor** e **Consultor**. “Gestor” não mudou. Fontes técnicas e históricos não devem ser renomeados por substituição textual, e uma menção genérica a “responsável pelo caso” não designa necessariamente o papel Diretor. A precedência é da [D-NOM-01](./37_D_NOM_01_NOMENCLATURA_DIRETOR_GESTOR_CONSULTOR_2026_10_21.md). A futura atualização de interface, Auth, APIs, S0/S1 e testes exige plano próprio e não foi realizada aqui.
+
+
+## Atualização da auditoria de 22/10/2026
+
+A [FV-DOC-04](./39_FV_DOC_04_AUDITORIA_DOCUMENTAL_FRONTEND_2026_10_22.md) amplia esta análise para a identidade **plataforma vs produto LiberaCred**, a proibição TOTAL de edição cadastral manual pelo Consultor, autoria visível nas mensagens, condições de F03, nomes de cargos, F02 como Planejadora, exclusão da IA de melhoria na primeira versão, governança de templates e sinais de atendimento da S1. O contrato [FV-DOC-03](./38_FV_DOC_03_CONTRATO_FUNCIONAL_FRONTEND_2026_10_22.md) é a referência consolidada para a interface. **Os fatos anteriores neste arquivo representam o estado auditado em 21/10, e não revogam decisões de 22/10.**
