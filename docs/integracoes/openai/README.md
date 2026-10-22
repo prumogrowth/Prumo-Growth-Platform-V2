@@ -1,5 +1,9 @@
 # Frente OpenAI — Prumo Growth | índice inicial
 
+## Coordenação interfrentes: solicitações enviadas em 22/10/2026
+
+As dúvidas da [E02-REV — sete decisões](./E02_RESUMO_DECISOES_PARA_RATIFICACAO_v0_4.md) foram encaminhadas aos donos por comentários rastreáveis em [CFI-01 issue #4](https://github.com/prumogrowth/Prumo-Growth---Platform/issues/4#issuecomment-6352881916), [CF-OP-02 issue #6](https://github.com/prumogrowth/Prumo-Growth---Platform/issues/6#issuecomment-6352882384) e [WA-22 issue #15](https://github.com/prumogrowth/Prumo-Growth---Platform/issues/15#issuecomment-6352882892). **Comentário enviado ≠ aceite recebido.** Manter E02-REV aberta até manifestação formal dos respectivos donos; nenhuma mudança em contratos/branches alheias.
+
 ## E02: avanço documental de oráculos e evidências (22/10/2026)
 
 **Novas referências da frente OpenAI:** [CFI-01E — manifesto lógico de histórico F03](./CFI_01_MANIFESTO_HISTORICO_F03_CANDIDATO_v0_1.md), [E02-FIX v0.4 — 70 oráculos com observáveis e negativos](./E02_CADERNO_70_ORACULOS_E_OBSERVAVEIS_v0_4.md), [E02-REV v0.4 — sete decisões objetivas a ratificar](./E02_RESUMO_DECISOES_PARA_RATIFICACAO_v0_4.md).
