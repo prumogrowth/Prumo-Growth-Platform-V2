@@ -121,4 +121,6 @@
 - Para regras técnicas S0/Meta, preferir a decisão de produto com fonte + versão e bloqueio conservador até testes/ratificação, nunca aprovar novo evento SQL ou tipo Meta inventado.
 - Onde uma fonte diz [DN] sobre produto, isso NÃO comprova que S0 tenha já incorporado a regra; onde há provas PG17 de laboratório, elas não validam Meta real ou OpenAI paga.
 
+**Rastreamento para futura auditoria técnica:** [issue #15 — coordenação interfrentes](https://github.com/prumogrowth/Prumo-Growth---Platform/issues/15).
+
 **Consulta:** [LEIA PRIMEIRO](./README.md) → [01 funcional vigente](./01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md) → [00 WDC de decisões](./00-decisoes-vigentes-precedencia-documental-2026-10-21.md) → [02 conflitos](./02-mapa-fontes-conflitos-e-emendas-2026-10-21.md). A harmonização documental global está na [issue #13](https://github.com/prumogrowth/Prumo-Growth---Platform/issues/13). **Nenhum merge, SQL de produção, Meta/Graph, OpenAI paga, MCP ou deploy neste registro.**
