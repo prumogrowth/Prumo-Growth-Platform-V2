@@ -1,5 +1,7 @@
 # E02-REV v0.3 — Pacote de revisão cruzada, decisões e gate de aceite
 
+> **Material adicional para os revisores [P/R]:** [E01-INT v0.4 — portões do adaptador, resultados e erros](./E01_CONTRATO_TIPADO_ADAPTADOR_FALHAS_v0_4.md). Usar como proposta de contrato a homologar, não como evidência de implementação. Questões encaminhadas às issues #4/#6/#15 continuam pendentes.
+
 > **Novo apoio à ratificação:** [resumo de sete decisões por frente](./E02_RESUMO_DECISOES_PARA_RATIFICACAO_v0_4.md), [manifesto de evidências F03](./CFI_01_MANIFESTO_HISTORICO_F03_CANDIDATO_v0_1.md) e [70 oráculos E02 v0.4](./E02_CADERNO_70_ORACULOS_E_OBSERVAVEIS_v0_4.md). Revisores **não** homologaram campos/ACL nem liberaram implementação por esses textos.
 
 **Elaborado em:** 22/10/2026. **Status real:** **PACOTE DOCUMENTAL PREPARADO; E02-REV NÃO RATIFICADO; E02-FIX PARCIAL DOCUMENTAL; 0 TESTES OPENAI EXECUTADOS.** Isto é checklist de decisão, **não** pedido de autorização de implementação, merge, acesso a segredos, transferência de dados ou gasto. Todas as pendências [R/V] continuam abertas até prova expressa da frente titular.
