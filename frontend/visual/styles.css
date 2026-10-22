@@ -153,3 +153,9 @@
 .team-queue-item strong{font-size:12px;color:#294a54}
 .team-queue-item span{font-size:11px;color:#526c72;line-height:1.5}
 .team-queue-item .btn{white-space:normal;min-height:44px;text-align:left}
+
+/* FV-UI-020 transport: etiqueta técnica sempre distinta do status comercial. */
+.message-transport-state{display:block;max-width:100%;overflow-wrap:anywhere;
+  color:#415f68;font-weight:700;letter-spacing:.015em}
+.message-transport-hint{display:block;max-width:100%;overflow-wrap:anywhere;
+  color:#7d5428;line-height:1.5}
