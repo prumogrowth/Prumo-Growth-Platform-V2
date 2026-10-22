@@ -17,16 +17,19 @@ test('FV-UI-015 operador vê contador e leitura sem resposta muda a MESMA bolinh
   env.openCase('Exemplo 02');
   assert.ok(attention('Exemplo 02').classList.contains('attention-pending'));
   assert.equal(attention('Exemplo 02').textContent,'');
-  assert.match(attention('Exemplo 02').getAttribute('aria-label'),/Visualizada pelo operador/);
+  assert.match(attention('Exemplo 02').getAttribute('aria-label'),/Visualizada pelo titular/);
 });
 
-test('FV-UI-015 resposta humana simulada elimina alerta sem inventar SLA',()=>{
+test('FV-UI-017 mensagem local NÃO enviada não comprova resposta humana',()=>{
   reset();
   env.openCase('Exemplo 02');
   get('message-input').value='Resposta humana local de demonstração';
   get('composer').fire('submit');
-  assert.equal(attention('Exemplo 02'),undefined);
-  assert.equal(env.cards().filter(x=>x.classList.contains('attention-pending')).length,0);
+  assert.equal(get('message-preview-dialog').open,true);
+  assert.ok(attention('Exemplo 02').classList.contains('attention-pending'));
+  get('message-preview-dialog').close('confirm');
+  assert.ok(attention('Exemplo 02').classList.contains('attention-pending'));
+  assert.match(get('thread-body').textContent,/NÃO ENVIADA/);
 });
 
 test('FV-UI-015 gestor apenas supervisor não marca mensagens como lidas pelo operador',()=>{
