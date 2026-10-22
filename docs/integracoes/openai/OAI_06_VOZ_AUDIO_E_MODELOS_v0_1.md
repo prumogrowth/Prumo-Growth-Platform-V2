@@ -1,5 +1,7 @@
 # OAI-06 — Voz, áudio e seleção de modelos OpenAI | contrato v0.1
 
+> **Risco de ciclo de vida do provedor (22/10/2026):** ler [E01-AUDIO v0.4](./E01_ATUALIZACAO_MODELOS_AUDIO_DEPRECACOES_2026_10_22_v0_4.md) antes de selecionar F04/F05. As capacidades de voz permanecem auxiliares e sujeitas a contrato S0/Meta; o mecanismo TTS antigo não deve ser adotado para arquitetura nova sem verificar descontinuação e o protocolo substituto. Testes reais e implementação não foram autorizados.
+
 **Data:** 18/10/2026 | **Estado:** [D de finalidade] necessidade funcional apresentada pelo responsável: IA Vendedora poderá responder com mensagens de áudio quando adequado; [P] fluxos técnicos, catálogo e avaliação; [R] regras de quando usar voz, linguagem/identidade, modelo por tarefa, critério de qualidade, suporte real do canal; [V] políticas Meta/Banco/LGPD, mídia, condições contratuais. NÃO IMPLEMENTADO.
 
 ## 1. Três capacidades diferentes, sem confundi-las
