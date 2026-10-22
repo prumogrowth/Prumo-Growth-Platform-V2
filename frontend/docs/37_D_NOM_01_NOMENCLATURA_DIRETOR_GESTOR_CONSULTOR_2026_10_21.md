@@ -1,5 +1,5 @@
-# D-NOM-01 — Nomenclatura oficial dos papéis da LiberaCred
-**Decisão do responsável pelo produto:** 21/10/2026. **Status:** decisão de nomenclatura [D], imediata **na documentação vigente**; sem modificação de permissões, estrutura de equipes ou software nesta rodada.
+# D-NOM-01 — Nomenclatura oficial dos papéis da plataforma Prumo
+**Decisão do responsável pelo desenvolvimento da plataforma:** 21/10/2026. **Esclarecimento posterior (22/10):** LiberaCred é exclusivamente o produto da instituição financeira; a plataforma ainda não possui nome próprio. **Status:** decisão de nomenclatura [D], imediata **na documentação vigente**; sem modificação de permissões, estrutura de equipes ou software nesta rodada.
 
 ## Termos oficiais para documentação nova e interface futura
 
