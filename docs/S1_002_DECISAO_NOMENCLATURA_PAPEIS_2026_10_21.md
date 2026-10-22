@@ -32,3 +32,9 @@
 - [Marco de auditoria e consolidação](S1_002_MARCO_PAUSA_ALINHAMENTO_AUDITORIA_DOCUMENTOS_2026_10_20.md).
 
 **Status operacional:** decisão documental publicada na branch S1-002; nenhuma mudança funcional, migration, merge, deploy ou Supabase hospedado decorre deste registro.
+
+## Identidade do produto comercial versus software — reafirmação [D] de 22/10/2026
+
+**Libera Credi (também grafado LiberaCred em documentos históricos) é o produto de crédito da instituição financeira; NÃO é o nome da plataforma que estamos criando.** Enquanto a marca da aplicação não for escolhida, usar **plataforma** ou **plataforma de atendimento e vendas** em textos novos. Referências a LiberaCred só quando se tratar do produto financeiro promovido/comercializado, de regras bancárias ou de citações históricas. Não converter a Prumo, que aparece como operação/empresa em contratos, em nome oficial da aplicação por inferência.
+
+Essa separação já constava no doc. 17 do pacote histórico de 17/10 e está reafirmada em [auditoria cruzada de 22/10](S1_002_AUDITORIA_CRUZADA_FRENTES_CONTRATOS_2026_10_22.md), seção 0. Não é renomeação técnica ou mudança de contrato com a instituição financeira.
