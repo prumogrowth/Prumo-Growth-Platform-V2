@@ -13,7 +13,7 @@ const humanCycles = get('human-cycle-view.mjs');
 const transport = get('transport-state-view.mjs');
 const feedback = get('operation-feedback.mjs');
 const command = get('s0-command-result.mjs');
-const transport = get('transport-state-view.mjs');
+
 const bank = get('bank-view.mjs');
 const postmark = get('postmark-view.mjs');
 const teamOps = get('team-operations.mjs');
