@@ -16,7 +16,7 @@
 
 **Verificação automatizada de referências:** em cinco lotes, os links Markdown locais dos 62 arquivos anteriores foram resolvidos em relação às pastas correspondentes e comparados aos caminhos versionados no PR #2. **Nenhum destino local ausente foi identificado pelo método de verificação aplicado.** Isto **não** verifica URLs externas, âncoras Markdown de seções, qualidade da fonte de cada afirmação nem o conteúdo linha a linha de todas as mensagens históricas. Os links dos documentos centrais foram também examinados na auditoria anterior.
 
-**Organização:** 5 referências centrais anteriores (`README`, `00`, `01`, `02`, `WA-19`); 48 registros históricos de engenharia com banner de leitura controlada no início; 6 históricos de decisão/contrato com erratas de precedência próprias (`WA-07`, `WA-17A/B`, `WA-18/A/B/C`); 3 documentos recentes temáticos (`WA-20/21/22`). Este relatório é o **64º artefato? NÃO**: são **63 Markdown no diretório contando este arquivo** (62 anteriores +1). O índice técnico do código é um arquivo Markdown **fora desse diretório**.
+**Organização:** 5 referências centrais anteriores (`README`, `00`, `01`, `02`, `WA-19`); 48 registros históricos de engenharia com banner de leitura controlada no início; 6 históricos de decisão/contrato com erratas de precedência próprias (`WA-07`, `WA-17A/B`, `WA-18/A/B/C`); 3 documentos recentes temáticos (`WA-20/21/22`). O total verificado **após adicionar este relatório é 63 arquivos Markdown** no diretório (62 anteriores + este). O índice técnico do código é um arquivo Markdown **fora desse diretório**.
 
 ## 2. Hierarquia de consulta para qualquer desenvolvimento futuro
 
