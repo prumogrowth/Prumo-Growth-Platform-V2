@@ -1,5 +1,7 @@
 # E01 v0.3 — Contrato funcional integrado OpenAI F01/F02/F03 e áudio (candidato)
 
+> **Complemento E01-KH v0.3:** [Conhecimento, bases, habilidades e MCP do Diretor](./E01_CONHECIMENTO_HABILIDADES_E_MCP_OPERACIONAL_v0_3.md). O conteúdo deste complemento é **candidato [P/R]**, não interface S0 ratificada. E02 operacional tem segurança, matriz de 70 cenários e fixtures narrativas com **zero execução**.
+
 **Data:** 22/10/2026. **Status:** versão operacional de trabalho **[P/R]**, coerente com diretrizes [DN] AL-IA de 22/10, sem homologação bilateral, código, testes de modelo ou integração real. Este arquivo é sucessor para futuras implementações de `E01_CONTRATO_FUNCIONAL_MULTI_CAPACIDADE_v0_2.md`, mantido como histórico de 18/10.
 
 ## 1. Documentos e regra de precedência
