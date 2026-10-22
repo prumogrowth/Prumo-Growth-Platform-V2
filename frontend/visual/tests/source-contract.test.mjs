@@ -11,6 +11,9 @@ const contract = get('cf-op-02.mjs');
 const registration = get('registration-view.mjs');
 const humanCycles = get('human-cycle-view.mjs');
 const transport = get('transport-state-view.mjs');
+const feedback = get('operation-feedback.mjs');
+const command = get('s0-command-result.mjs');
+const transport = get('transport-state-view.mjs');
 const bank = get('bank-view.mjs');
 const postmark = get('postmark-view.mjs');
 const teamOps = get('team-operations.mjs');
@@ -280,4 +283,16 @@ test('FV-UI-020: ACK e estado incerto nunca viram envio provado no navegador',()
   assert.match(styles,/\.message-transport-state/);
   assert.match(browserSmoke,/FV-UI-020 fronteira de transporte/);
   assert.doesNotMatch(transport,/fetch\s*\(|XMLHttpRequest/);
+});
+
+
+test('FV-UI-020: resultado técnico conservador e C13 fora das ações candidatas da UI',()=>{
+  assert.match(feedback,/automaticRetryAllowed:false/);
+  assert.match(feedback,/effectConfirmed:false/);
+  assert.match(feedback,/commercialTransition:false/);
+  assert.match(app,/projectDemoOperationFeedback\(proc\.kind\)/);
+  assert.match(app,/não há correção manual ou retentativa automática/);
+  assert.doesNotMatch(command,/\['C11', 'C12', 'C13'/);
+  assert.match(command,/C13 is historical/);
+  assert.doesNotMatch(feedback,/\bfetch\s*\(|\bXMLHttpRequest\b/);
 });
