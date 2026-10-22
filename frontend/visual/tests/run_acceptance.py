@@ -112,13 +112,13 @@ def main():
         "postmark-view.test.mjs", "registration-view.test.mjs",
         "source-contract.test.mjs", "source-module-graph.test.mjs",
         "team-monitor.test.mjs", "team-monitoring.test.mjs",
-        "team-operations.test.mjs", "view-model.test.mjs",
+        "team-operations.test.mjs", "distribution-view.test.mjs", "view-model.test.mjs",
     }
     required_sources = {
         "index.html", "styles.css", "app.mjs", "fixtures.mjs",
         "view-model.mjs", "cf-op-02.mjs", "registration-view.mjs",
         "bank-view.mjs", "postmark-view.mjs", "team-operations.mjs",
-        "team-monitor.mjs", "team-monitoring.mjs", "batch-monitor.mjs",
+        "team-monitor.mjs", "team-monitoring.mjs", "batch-monitor.mjs", "distribution-view.mjs",
     }
     missing = sorted(
         [f"tests/{name}" for name in expected_tests if not (TESTS / name).is_file()]
