@@ -38,7 +38,7 @@
   </aside>
 
   <main class="workspace" aria-label="Central de atendimento visual">
-    <section class="list-pane" id="conversation-list" aria-labelledby="inbox-title">
+    <section class="list-pane" id="conversation-list" aria-labelledby="inbox-title" tabindex="-1">
       <header class="list-heading">
         <div class="list-topline"><div><p class="eyebrow">CENTRAL DE ATENDIMENTO</p><h1 id="inbox-title">Conversas<span class="title-dot">.</span></h1></div><div class="list-header-actions"><button type="button" id="team-nav-mobile" class="mobile-team-button" hidden>Equipe</button><span class="demo-pill">Demo local</span></div></div>
         <div class="actor-control"><label for="actor-select">Visualizar como <span>(perfil fictício)</span></label><div class="select-wrap"><select id="actor-select" aria-label="Selecionar perfil fictício"></select><svg class="icon small"><use href="#i-chevron"/></svg></div></div>
@@ -143,6 +143,7 @@
     </div>
   </form>
 </dialog>
+<div id="context-announcement" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
 <div role="status" aria-live="polite" aria-atomic="true" id="toast" class="toast" hidden></div>
 </body>
 </html>
