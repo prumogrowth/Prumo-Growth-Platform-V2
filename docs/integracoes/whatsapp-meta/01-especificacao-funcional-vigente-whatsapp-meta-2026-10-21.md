@@ -1,6 +1,6 @@
 # WhatsApp/Meta — Especificação funcional vigente da frente
 
-**Atualização:** 21/10/2026 · **Condição:** consolidação das decisões do responsável tomadas de 20 a 21/10 e das regras históricas compatíveis de 17/10 · **Escopo:** WhatsApp/Meta e contratos com S0, IA, MCP futuro e operadores. **Esta é a referência FUNCIONAL de consulta; não substitui validações externas nem afirma que tudo está implementado.**
+**Atualização:** 22/10/2026 · **Condição:** decisões de produto até 22/10 mais regras históricas compatíveis e interfaces recentes dos PRs independentes · **Escopo:** WhatsApp/Meta e contratos documentais com S0, S1, OpenAI, MCP futuro e interface dos Consultores. **Esta é a referência FUNCIONAL de consulta; não substitui validações externas nem afirma que tudo está implementado.**
 
 **Leitura obrigatória:** [índice das decisões com IDs WDC-01..22](./00-decisoes-vigentes-precedencia-documental-2026-10-21.md) e [mapa de conflitos e fontes históricas](./02-mapa-fontes-conflitos-e-emendas-2026-10-21.md). Para registros anteriores, vale a regra explícita de precedência: **última decisão expressa do responsável somente sobre o tópico revisto**; as demais normas históricas permanecem. D = decisão aprovada; H = histórico ainda válido; P = proposta de desenho; V = validação externa; T = situação técnica a comprovar.
 
@@ -29,21 +29,22 @@ Os **oito** status comerciais são, com nomes literais documentados no pacote hi
 
 Esses status **não são** estados de envio, estados de template, fila humana ou aprovação bancária. A IA não inventa venda, negativa definitiva, remessa bancária, entrega ou leitura. O atendimento humano e os comprovantes da instituição financeira têm contratos próprios, conservados mesmo após mudanças na frente Meta.
 
-## 4. Três papéis diferentes das IAs e responsabilidade da plataforma [D/H]
+## 4. Papéis distintos das IAs e responsabilidade da plataforma [D/H/R]
 
 - **IA de atendimento/vendedora:** conversa e interpreta respostas no contexto daquele lead/loja, respeitando handoff humano, finalidade, opt-out e política Meta.
 - **IA Planejadora/Orquestradora:** elabora/revisa a **cadência** (templates aprovados permitidos, ordem, quantidade e horários), inclusive após a Meta rejeitar/pausar/inutilizar um template. Não cria novo template por conta própria, não acessa o MCP administrativo ao faltar opção, não faz POST Graph e não decide autorização final de envio.
-- **IA administrativa delegada pelo responsável via MCP futuro:** pode criar/editar rascunhos de templates, escrever texto exatamente instruído ou propor texto, anexar mídia, escolher botões, solicitar revisão e demais ações administrativas expressamente autorizadas, sujeitas a confirmação/auditoria. O **servidor MCP real é desenvolvido por OUTRA frente**.
+- **IA administrativa delegada pelo Diretor autenticado via MCP futuro:** pode criar/editar rascunhos de templates, escrever texto exatamente instruído ou propor texto, anexar mídia, escolher botões, solicitar revisão e demais ações administrativas expressamente autorizadas, sujeitas a confirmação/auditoria. O **servidor MCP real é desenvolvido por OUTRA frente**.
 - A **IA separada que melhora o atendimento** possui seus próprios parâmetros e só modifica os parâmetros AUTORIZADOS da IA de atendimento, não se altera autonomamente; não se confunde com Planejadora nem IA administrativa.
+- **F03 — extração e classificação pós-atendimento humano (frente OpenAI):** não conversa com o cliente e é acionada exclusivamente pela conclusão humana explícita autorizada na S0. Recupera contexto permitido do mesmo cliente/concessionária até o corte do fechamento, propõe campos/desfechos sem autorizar por si remessa, venda ou disparo; histórico multimodal e portão físico seguem [R/V/T]. Ver [WA-22](./wa22-revisao-cruzada-outras-frentes-contratos-2026-10-22.md).
 - **Plataforma/S0 e serviço Meta:** resolvem as variáveis com fonte confiável, revalidam elegibilidade/permissões, registram eventos e só transmitem intenções autorizadas. A IA escolhe a proposta; **a plataforma decide tecnicamente o que é permitido e executa**.
 
 ## 5. Meta category versus FINALIDADES do template [D]
 
 **Categoria oficial Meta:** `MARKETING` / `UTILITY` e outros formatos/categorias que a API Meta efetivamente suportar. Tem validade, revisão e políticas do provedor; utility não deve ser presumido gratuito.
 
-**FINALIDADE de template:** dimensão INTERNA e configurável da concessionária, não categoria Meta. Exemplos iniciais, **não enum fechado**: abertura de conversa, recontato, atendimento por operador, atendimento por IA, campanha determinada, informativo. **Um mesmo template pode ter MÚLTIPLAS finalidades.**
+**FINALIDADE de template:** dimensão INTERNA e configurável da concessionária, não categoria Meta. Exemplos iniciais, **não enum fechado**: abertura de conversa, recontato, atendimento por consultor, atendimento por IA, campanha determinada, informativo. **Um mesmo template pode ter MÚLTIPLAS finalidades.**
 
-**Permissão independente por finalidade e contexto:** a associação do template com uma finalidade não concede automaticamente acesso a operadores, Planejadora, outros fluxos ou campanhas. Precisam de concessões expressas e escopadas, considerando identidade/consumidor, loja, WABA, finalidade, situação e público autorizado.
+**Permissão independente por finalidade e contexto:** a associação do template com uma finalidade não concede automaticamente acesso a Consultores, Planejadora, outros fluxos ou campanhas. Precisam de concessões expressas e escopadas, considerando identidade/consumidor, loja, WABA, finalidade, situação e público autorizado.
 
 A **finalidade do contato/consentimento/opt-out** é uma TERCEIRA dimensão distinta: não reutilizar seu significado nem sua coluna para indicar finalidades do template.
 
@@ -57,7 +58,7 @@ A **finalidade do contato/consentimento/opt-out** é uma TERCEIRA dimensão dist
 ## 7. Autoria, multimídia e edição de templates [D/V]
 
 - Suportar rascunhos com BODY texto e exemplos; HEADER texto, imagem, vídeo ou documento, FOOTER, botões de URL estática ou dinâmica com **rótulo visível distinto do link**, telefone, resposta rápida; recursos Meta adicionais só após contratos técnicos próprios. Nem toda combinação é válida em toda versão de API.
-- A IA administrativa pode redigir conteúdo ou obedecer literalmente ao responsável; registro distingue autoria humana, assistência e geração por IA, **sem** mudar permissões.
+- A IA administrativa pode redigir conteúdo ou obedecer literalmente ao Diretor autorizado; registro distingue autoria humana, assistência e geração por IA, **sem** mudar permissões.
 - Responsável pode solicitar submissão e consulta do status, mas **2xx/ID da Meta não equivale a APPROVED**. Somente status Meta verificável indica aprovação, e aprovação não equivale a autorização de disparo.
 - **Edição de template que já foi aprovado não é proibida pela plataforma por princípio:** oferecer quando API/estado Meta permitir, preservando identificação, ciclo de revisão, exigência de confirmação administrativa e snapshots de versões anteriores. Se a edição exigir reaprovação, bloquear o uso da revisão até Meta confirmar.
 - Desativar LOCALMENTE o template para novos envios é diferente de pedir exclusão pela Meta. Em ambos, histórico/snapshot não são apagados e alterações administrativas têm autoria/auditoria.
@@ -94,7 +95,7 @@ O contador é **por cadência/fluxo do lead**, não pelo tempo cronológico entr
 
 **SENT** exige evidência técnica confiável e correlacionada, e **NÃO exige resposta do cliente**; chegada de confirmação posterior deve ser conciliada idempotentemente. `API_ACCEPTED`, reserva, timeout, ausência de callback e COMMIT incerto não bastam para resetar nem incrementar o contador; não reenviar às cegas.
 
-Na segunda falha consecutiva qualificada, o backend cancela todo o restante do plano e marca o ciclo/lead `perdido` com **motivo técnico**, não por recusa expressa. Eventual recontato posterior depende de nova iniciativa/importação autorizada por responsável e revalidação de elegibilidade.
+Na segunda falha consecutiva qualificada, o backend cancela todo o restante do plano e marca o ciclo/lead `perdido` com **motivo técnico**, não por recusa expressa. Eventual recontato posterior depende de nova iniciativa/importação autorizada por Diretor ou outro ator expressamente competente, com revalidação de elegibilidade.
 
 Se o envio comprovado do template FINAL ocorreu, a regra C09 de silêncio pós-envio de **24h** pertence a outro fluxo; agendamento/aceite/incerteza **não inicia** ficticiamente esse relógio. Handoff humano bloqueia cadências incompatíveis.
 
@@ -106,32 +107,32 @@ Se o envio comprovado do template FINAL ocorreu, a regra C09 de silêncio pós-e
 - **Há protótipo sintético S0-016:** `supressoes_contato_sinteticas` registra loja+lead+canal+finalidade, evento de origem e instante, cancela envios pendentes do escopo. S0-018 impede que inbound espontâneo implique reopt-in; função sintética não autoriza Meta real. Não criar outra estrutura concorrente sem auditar S0.
 - A abrangência legal exata entre **finalidades de comunicação** e canal ainda exige política executável [P/V]; o objetivo aprovado de produto é não propagar A para B.
 
-## 12. Operadores, botões e atendimento humano [D/H]
+## 12. Consultores, Gestores, botões e atendimento humano [D/H]
 
 - Botões são componentes da mensagem; a IA de atendimento interpreta o resultado no contexto. Um clique em “Não tenho interesse” não marca automaticamente `perdido`; pode suscitar clarificação, encaminhamento humano ou desfecho de acordo com regras.
 - Um pedido de “Parar mensagens” válido é exceção: supressão automática de proatividade da loja sem depender de conclusão comercial da IA.
-- Operador pode enviar template **individualmente** dentro de suas concessões/caso/loja e janela Meta, sem ganhar privilégio de gerenciar todo catálogo. Handoff ao humano interrompe automação de IA para aquele caso e roteia inbound subsequente ao responsável humano conforme contrato S0.
+- Consultor autenticado e atribuído ao caso pode solicitar envio de template **individualmente** dentro de suas concessões/caso/loja e janela Meta, sem ganhar privilégio de gerenciar todo catálogo. Handoff ao humano interrompe automação de IA para aquele caso e roteia inbound subsequente ao responsável humano conforme contrato S0.
 - O envio de template **não abre** a janela de mensagem livre de 24h; somente inbound do cliente pode alterar a janela prevista.
 
-### 12A. Identificação visível do operador no WhatsApp [D/P/V]
+### 12A. Identificação visível do Consultor, Gestor ou Diretor no WhatsApp [D/P/V]
 
 > **ATUALIZAÇÃO WA-21 — FORMATOS DECIDIDOS:** não usar “Mariana — Atendimento” e não classificar mais o formato de assinatura como indefinido. Em **cada mensagem textual livre enviada por humano**, a plataforma acrescentará automaticamente cargo e nome reais antes do conteúdo: `Consultor Fulano:\nMensagem`, `Gestor Ciclano:\nMensagem` ou `Diretor Beltrano:\nMensagem`. A nomenclatura substitui antigo operador por **consultor**, antigo responsável-cargo por **diretor** e preserva gestor. A autoria é autenticada pelo S0, e o prefixo é texto do `text.body`, não identidade Meta nativa. **Para templates** só conteúdo ou slots aprovados pela Meta; não concatenar prefixos arbitrários. Identificadores físicos/status anteriores só mudam após revisão de compatibilidade. [WA-21](./wa21-papeis-diretor-gestor-consultor-assinatura-2026-10-21.md).
 
 
 
-O responsável deseja que a mensagem **enviada pelo operador humano** possa exibir o **nome do operador** imediatamente antes do conteúdo no WhatsApp do cliente, de forma automática. Na Cloud API Meta, o envio sai do `Phone-Number-ID` da concessionária e o corpo está em `text.body`; **não foi identificado atributo oficial que renderize o agente humano como remetente visual separado da mensagem**. A identificação em uma plataforma de atendimento pode ser apenas visual na UI própria, ou parte literal do texto enviado ao WhatsApp quando o backend acrescentar uma assinatura de texto.
+A decisão de produto determina que cada mensagem textual livre **enviada por Consultor, Gestor ou Diretor** terá automaticamente seu **cargo e nome** antes do conteúdo no WhatsApp do cliente, de forma automática. Na Cloud API Meta, o envio sai do `Phone-Number-ID` da concessionária e o corpo está em `text.body`; **não foi identificado atributo oficial que renderize o agente humano como remetente visual separado da mensagem**. A identificação em uma plataforma de atendimento pode ser apenas visual na UI própria, ou parte literal do texto enviado ao WhatsApp quando o backend acrescentar uma assinatura de texto.
 
-**Contrato de autoria:** obter conta/autorização/atribuição de caso a partir do S0, não do nome escrito por IA ou cliente. Conservar `actor_tipo`/referência ao operador e snapshot do nome no histórico e registrar o texto **exato** efetivamente enviado. Prévia deve corresponder ao resultado, respeitando janela WhatsApp, escopo da loja, idempotência e limite de mensagem. **Não atribuir nome humano a mensagens da IA.**
+**Contrato de autoria:** obter conta/autorização/atribuição de caso a partir do S0, não do nome escrito por IA ou cliente. Conservar `actor_tipo`/referência ao autor humano real e snapshots de cargo/nome no histórico e registrar o texto **exato** efetivamente enviado. Prévia deve corresponder ao resultado, respeitando janela WhatsApp, escopo da loja, idempotência e limite de mensagem. **Não atribuir nome humano a mensagens da IA.**
 
-**Templates aprovados:** o nome do operador só pode ser injetado por **slot/variável aprovado** ou conteúdo previamente aprovado; não anexar prefixo livre ao payload de um template e não usar mensagem livre fora de janela. A plataforma preenche qualquer variável autorizada. O cargo/nome/dois-pontos para texto livre HUMANO já foram decididos; somente exceções para mídias/legendas e apresentação de IA ainda estão pendentes. **A funcionalidade ainda não foi implementada.** Referência: [WA-20](./wa20-identificacao-visivel-atendente-assinatura-mensagem-2026-10-21.md).
+**Templates aprovados:** o nome do autor só pode ser inserido por **slot/variável aprovado** ou conteúdo previamente aprovado; não anexar prefixo livre ao payload de um template e não usar mensagem livre fora de janela. A plataforma preenche qualquer variável autorizada. O cargo/nome/dois-pontos para texto livre HUMANO já foram decididos; somente exceções para mídias/legendas e apresentação de IA ainda estão pendentes. **A funcionalidade ainda não foi implementada.** Referência: [WA-20](./wa20-identificacao-visivel-atendente-assinatura-mensagem-2026-10-21.md).
 
 ## 13. Administração MCP e auditoria de autoria [D/H/P]
 
 > **Nomenclatura atual:** o antigo papel superior denominado responsável é agora **Diretor**, e o antigo operador é **Consultor**. Na administração por MCP, aplicar a matriz de acesso por perfil sem conceder poderes novos automaticamente; preservar a segunda confirmação e a identidade individual. Ver [WA-21](./wa21-papeis-diretor-gestor-consultor-assinatura-2026-10-21.md).
 
 
-- Cada **responsável autorizado** possui autenticação e vínculo individual, sem conta compartilhada como prova de autoria. Responsável pode instruir sua IA administrativa conectada ao MCP: ler dados autorizados, preparar rascunhos, texto, mídia, finalidades, editar/excluir/desativar o que sua matriz expressamente permite e solicitar submissão à Meta.
-- **Consultas** exigem autenticação/autorização; **TODA escrita ou exclusão** exige prévia da operação EXATA, **segunda confirmação do MESMO responsável autenticado**, revalidação de escopo/versão, execução limitada e auditoria administrativa imutável. Nem a IA nem o MCP podem conceder a si próprios autoridade, alterar estrutura SQL/DDL, provas bancárias ou registros de auditoria.
+- Cada **Diretor autorizado** possui autenticação e vínculo individual, sem conta compartilhada como prova de autoria. O Diretor pode instruir sua IA administrativa conectada ao MCP: ler dados autorizados, preparar rascunhos, texto, mídia, finalidades, editar/excluir/desativar o que sua matriz expressamente permite e solicitar submissão à Meta.
+- **Consultas** exigem autenticação/autorização; **TODA escrita ou exclusão** exige prévia da operação EXATA, **segunda confirmação do MESMO Diretor autenticado**, revalidação de escopo/versão, execução limitada e auditoria administrativa imutável. Nem a IA nem o MCP podem conceder a si próprios autoridade, alterar estrutura SQL/DDL, provas bancárias ou registros de auditoria.
 - **A frente MCP** implementará protocolo/servidor/tools executáveis e identidade delegada; **a frente Meta** documentará e implementará posteriormente apenas os contratos e serviços internos de domínio. O arquivo de 12 ferramentas WA-17B é **especificação, NÃO servidor instalado**.
 - Documento histórico 41 D41-03 limitava inicialmente as escritas MCP a importações/remanejamentos. A intenção nova **revoga esse teto funcional restrito** para operações administrativas de templates, mas não cria por si uma ACL executável pronta nem libera ações bancárias/estruturais; emenda granular global ainda pendente.
 
