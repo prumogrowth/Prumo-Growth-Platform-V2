@@ -1,0 +1,137 @@
+{
+  "schema": "frontend-fv22-acceptance-evidence/0.1",
+  "document": "frontend/docs/38_FV_DOC_03_CONTRATO_FUNCIONAL_FRONTEND_2026_10_22.md",
+  "scope": "synthetic_frontend_only",
+  "homologated": false,
+  "note": "Todos os testes são candidatos; nenhuma passagem de DOM/V8 equivale a autorização S0/S1, transporte Meta, OpenAI F03 ou homologação nativa.",
+  "criteria": [
+    {
+      "id": "FV-22-01",
+      "coverage": "prototype_only",
+      "tests": [
+        "source-contract.test.mjs"
+      ]
+    },
+    {
+      "id": "FV-22-02",
+      "coverage": "prototype_only",
+      "tests": [
+        "app.dom.test.mjs",
+        "source-contract.test.mjs"
+      ]
+    },
+    {
+      "id": "FV-22-03",
+      "coverage": "prototype_only",
+      "tests": [
+        "registration-view.test.mjs",
+        "s0-command-result.test.mjs"
+      ]
+    },
+    {
+      "id": "FV-22-04",
+      "coverage": "prototype_only",
+      "tests": [
+        "app.dom.test.mjs",
+        "human-cycle-view.test.mjs"
+      ]
+    },
+    {
+      "id": "FV-22-05",
+      "coverage": "prototype_only",
+      "tests": [
+        "human-cycle-view.test.mjs",
+        "app.dom.test.mjs"
+      ]
+    },
+    {
+      "id": "FV-22-06",
+      "coverage": "prototype_only",
+      "tests": [
+        "human-cycle-view.test.mjs",
+        "app.dom.test.mjs"
+      ]
+    },
+    {
+      "id": "FV-22-07",
+      "coverage": "prototype_only",
+      "tests": [
+        "human-cycle-view.test.mjs",
+        "bank-view.test.mjs"
+      ]
+    },
+    {
+      "id": "FV-22-08",
+      "coverage": "prototype_only",
+      "tests": [
+        "app.dom.test.mjs",
+        "attention-integration.test.mjs"
+      ]
+    },
+    {
+      "id": "FV-22-09",
+      "coverage": "prototype_only",
+      "tests": [
+        "cf-op-02.test.mjs",
+        "app.dom.test.mjs"
+      ]
+    },
+    {
+      "id": "FV-22-10",
+      "coverage": "partial",
+      "tests": [
+        "operation-feedback.test.mjs",
+        "s0-command-result.test.mjs"
+      ]
+    },
+    {
+      "id": "FV-22-11",
+      "coverage": "prototype_only",
+      "tests": [
+        "conversation-attention.test.mjs",
+        "attention-integration.test.mjs"
+      ]
+    },
+    {
+      "id": "FV-22-12",
+      "coverage": "prototype_only",
+      "tests": [
+        "team-pause-preview.test.mjs",
+        "distribution-view.test.mjs"
+      ]
+    },
+    {
+      "id": "FV-22-13",
+      "coverage": "prototype_only",
+      "tests": [
+        "distribution-view.test.mjs",
+        "app.dom.test.mjs"
+      ]
+    },
+    {
+      "id": "FV-22-14",
+      "coverage": "external_blocked",
+      "tests": [
+        "source-contract.test.mjs",
+        "cf-op-02.test.mjs"
+      ]
+    },
+    {
+      "id": "FV-22-15",
+      "coverage": "partial",
+      "tests": [
+        "bank-view.test.mjs",
+        "registration-view.test.mjs",
+        "operation-feedback.test.mjs"
+      ]
+    },
+    {
+      "id": "FV-22-16",
+      "coverage": "prototype_only",
+      "tests": [
+        "source-contract.test.mjs",
+        "s0-command-result.test.mjs"
+      ]
+    }
+  ]
+}
