@@ -64,7 +64,10 @@ create policy s1_63_atribuicoes_restrict on public.atribuicoes_humanas as restri
    encerrada_em is null and
    prumo_private.s1_caso_excepcional_autorizado_55(concessionaria_id,caso_id)
   ));
+-- Duas policies RESTRICTIVE distintas gerariam AND: retirar ambas.
+-- I42 isolado tambem nega Gestor de equipe sem grant da concessionaria.
 drop policy s1_61_mensagens_r on public.mensagens;
+drop policy s1_62_mensagens_restrict on public.mensagens;
 create policy s1_63_mensagens_restrict on public.mensagens as restrictive
  for select to authenticated using (
   prumo_s1_i41_test.pode_ler_mensagem(concessionaria_id,conversa_id,caso_id)
