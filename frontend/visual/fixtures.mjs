@@ -39,7 +39,10 @@ export const INITIAL_CONVERSATIONS = Object.freeze([
     updatedAt: '10:42', tag: 'Aguardando retorno',
     messages: [
       msg('a102-1', 'in', 'Olá! Gostaria de continuar o atendimento que comecei mais cedo.', '10:31'),
-      msg('a102-2', 'out', 'Claro! Vou acompanhar seu atendimento por aqui.', '10:34'),
+      {...msg('a102-2', 'out', 'Claro! Vou acompanhar seu atendimento por aqui.', '10:34'),
+        transportProjection:{source:'s0_fixture',caseRef:'A-102',shopRef:'aurora',
+          messageRef:'a102-2',versionRef:'transport-a102-v1',
+          state:'api_accepted',confirmed:false,apiAckRef:'ack-synthetic-102'}},
       msg('a102-3', 'in', 'Estou procurando uma opção que combine com meu uso no dia a dia.', '10:40'),
       msg('a102-4', 'in', 'Podemos conversar sobre as próximas etapas?', '10:42')
     ]
@@ -50,7 +53,10 @@ export const INITIAL_CONVERSATIONS = Object.freeze([
     updatedAt: '09:18', tag: 'Aguardando banco',
     messages: [
       msg('a105-1', 'in', 'Conseguimos seguir com meu processo?', '09:12'),
-      msg('a105-2', 'out', 'O encaminhamento aparece registrado neste exemplo de demonstração.', '09:18')
+      {...msg('a105-2', 'out', 'O encaminhamento aparece registrado neste exemplo de demonstração.', '09:18'),
+        transportProjection:{source:'s0_fixture',caseRef:'A-105',shopRef:'aurora',
+          messageRef:'a105-2',versionRef:'transport-a105-v1',
+          state:'sent_confirmed',confirmed:true,proofRef:'proof-synthetic-105'}}
     ]
   },
   {
@@ -77,7 +83,10 @@ export const INITIAL_CONVERSATIONS = Object.freeze([
     updatedAt: 'Segunda', tag: 'Gestora autoatribuída',
     messages: [
       msg('a106-1', 'in', 'Gostaria de esclarecer minha solicitação com uma pessoa.', 'Segunda'),
-      msg('a106-2', 'out', 'Estou disponível para acompanhar este caso.', 'Segunda')
+      {...msg('a106-2', 'out', 'Estou disponível para acompanhar este caso.', 'Segunda'),
+        transportProjection:{source:'s0_fixture',caseRef:'A-106',shopRef:'aurora',
+          messageRef:'a106-2',versionRef:'transport-a106-v1',
+          state:'uncertain',confirmed:false}}
     ]
   },
   {
