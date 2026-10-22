@@ -1,5 +1,10 @@
 # E02 — Rastreabilidade de regressão CF-OP-02 e CFI-01 | v0.1
 
+> **AVISO DE PRECEDÊNCIA — AUDITORIA DA FRENTE OPENAI, 22/10/2026.** Este documento anterior permanece preservado como **contrato candidato/histórico**; trechos conflitantes **NÃO são a direção funcional vigente**. Ler primeiro [AL-IA-00 — índice e precedência](./ALINHAMENTO_2026_10_22_00_INDICE_E_PRECEDENCIA_v0_1.md), [AL-IA-01 — jornada](./ALINHAMENTO_2026_10_22_01_JORNADA_F01_F02_F03_v0_1.md), [AL-IA-04 — deltas](./ALINHAMENTO_2026_10_22_04_RASTREABILIDADE_DELTAS_PENDENCIAS_v0_1.md), [AL-IA-07 — dependências entre frentes](./ALINHAMENTO_2026_10_22_07_DEPENDENCIAS_RELEVANTES_OUTRAS_FRENTES_v0_1.md) e [AL-IA-08 — auditoria documental](./ALINHAMENTO_2026_10_22_08_AUDITORIA_FECHAMENTO_DOCUMENTAL_FRENTE_OPENAI_v0_1.md). O texto abaixo documenta o estado de sua data original, **sem emendar código, criar autorização S0, nem corrigir documentação de outras frentes**.
+>
+> **Atenção especial:** os casos textuais de regressão anteriores não cobrem por completo F03 recorrente com histórico integral, múltiplos telefones em discussão, perda técnica F02, bases pausadas e regras administrativas MCP. Não considerar matriz antiga suficiente para aceite das decisões AL-IA; criar testes futuros sob contratos das frentes titulares.
+
+
 Data: 18/10/2026. **Estado [P/R]: projeto de testes e vínculos entre frentes, NÃO suíte executada.** Sem custo, API real, alteração S0/Meta, fixture física ou homologação. Referências: [CF-OP-02 issue #6](https://github.com/prumogrowth/Prumo-Growth---Platform/issues/6), [PR #7](https://github.com/prumogrowth/Prumo-Growth---Platform/pull/7), [CFI-01 issue #4](https://github.com/prumogrowth/Prumo-Growth---Platform/issues/4), OAI-08, OAI-05, OAI-07, E01/E02.
 
 ## 1. Famílias candidatas e ausência de execução
