@@ -162,6 +162,7 @@ A [WA-22](./wa22-revisao-cruzada-outras-frentes-contratos-2026-10-22.md) traz **
 | R2 | `template-catalog-control.test.ts` | WA17-05/06/07/08/09/10/12/16 passam a distinguir edição anterior à aprovação, congelamento após aprovação e reprovação de versão sem bindings | Commit `df5398a8a5ea90007d61233058fa2444262b9b20`; **18 definições mantidas** |
 | R3 | `template-mcp-multiformat.ts` | Prévia WA-17B carrega snapshot imutável de origem posicional e revisão, incluindo indicador de completude; recusa objetos com getters/protótipos impróprios e mapeamento em estado declarado aprovado | Commit `300079bb5a7d04cad0198399561b4c4c7ebb5da8` |
 | R4 | `template-mcp-multiformat.test.ts` | WA17B-05/06 cobrem snapshot e getter hostil; **16 definições mantidas** | Commit `1ec841c596e3b915a5c50d3a4d63b200d87ffa21` |
+| R5 | `.github/workflows/whatsapp-meta-offline.yml` | Corrige sintaxe YAML inválida de `name: WA-16B: ...` (segundo `:` sem aspas), causa concreta de workflow sem jobs; prefixo da etapa colocado entre aspas | Commit `f0d42245a377cef5ef788207f5cd566f2a836a3f`; GitHub voltou a iniciar jobs |
 
 **Limite fundamental:** a WA-17B segue apenas preparadora de rascunho/prévia, sem estado persistido de aprovação, submissão ou serviço MCP real. O snapshot preparado deve ser revisto/comparado pelo serviço autenticado quando este for implementado. As mudanças **não concedem** licença de Graph nem realizam efeito comercial.
 
@@ -170,21 +171,22 @@ A [WA-22](./wa22-revisao-cruzada-outras-frentes-contratos-2026-10-22.md) traz **
 | Prova | Fonte verificável | Estado |
 |---|---|---|
 | Inspeção de assinatura de funções/guarda em TS WA17A/B e testes após commits | Releitura dos 4 arquivos com SHAs novos; presença de guards, mesmas 18+16 definições de testes | **PASS em verificação estática limitada**, não é teste funcional |
-| Testes WA-16/17 `node --experimental-strip-types --test` (44) após os reparos | Gate definido no workflow | **NÃO EXECUTADOS / NÃO COMPROVADOS** neste ciclo |
-| Regressão das 33 suítes atuais | Arquivos encontrados e contados | **NÃO EXECUTADA** nesta rodada |
-| WA-16 PG17 11 verificações + JSON→TS | Scripts em `lab/`; workflow | **NÃO EXECUTADOS / NÃO COMPROVADOS** neste ciclo |
+| Testes WA-16/17 `node --experimental-strip-types --test` (44) após os reparos | [Run 39775076366](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39775076366), job `meta-offline`, commit `f0d42245...`, 22/10 | **PASS 44/44, fail 0 — Node 22 nativo** |
+| Regressão das 33 suítes atuais | [Run 39775076366](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39775076366), job `meta-offline`, logs do runner | **PASS 523/523, fail 0 — Node 22 nativo** (519 chamadas textuais de `test(` não eram contador confiável de casos dinâmicos) |
+| WA-16 PG17 11 verificações + JSON→TS | [Run 39775076366](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39775076366), job `WA-15C contratos Meta TS + S0 PG17` | **PASS 11/11 WA16P + WA16C JSONB→TS**, com sessões PostgreSQL 17 distintas. Também **WA-15C 12/12 PASS** |
 | CI prévio verde | GitHub Actions run [39401664926](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39401664926), commit `96c16ef24e6d1a263cd2657c4ca567c0a55916bc`, 20/10; três jobs PASS (regressão offline, WA-15C S0/PG17, WA-06D PG17) | **APROVADO HISTORICAMENTE**, código anterior ao gate 44 |
-| Runs recentes após 20/10 e após R1/R2 | Ex.: [39504828861](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39504828861), [39774079723](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39774079723), [39774140443](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39774140443) | GitHub marca **failure**, mas API de jobs retorna **lista vazia** para a execução de 20/10; não atribuir à falha dos testes sem logs/runner. Corrigir/diagnosticar disparo de Actions antes de declarar verde |
+| Runs anteriores sem jobs | Ex.: [39504828861](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39504828861), [39774140443](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39774140443). Localizada linha 186 com `name: WA-16B: ...` sem aspas; PyYAML reproduziu `ScannerError`. | **Falha de sintaxe YAML corrigida em R5.** O run novo [39775076366](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39775076366) executou **3 jobs PASS**, conclusão global **success** |
+| WA-06D PostgreSQL 17 descartável | [Run 39775076366](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39775076366), job `WA-06D PG17 descartavel` | **PASS 20/20 marcadores SQL, sem erros psql; 14 de atomicidade + 6 pós-COMMIT** |
 | Homologação Meta/Graph/credenciais, banco hospedado, LGPD/instituição financeira | Nenhuma execução real autorizada/atestada | **NÃO HOMOLOGADO** |
 
-Na sessão de auditoria o repositório privado é acessível pela conexão GitHub, mas **não houve checkout executável do código no runner local**; sem rede para clonagem no ambiente de execução. Por isso não atribuir PASS ao Node/TS/PG17 atuais.
+Na sessão local não foi possível clonar o repositório privado por indisponibilidade de rede. **O GitHub Actions fez o checkout e EXECUTOU os testes nativos da branch com sucesso** no commit `f0d42245a377cef5ef788207f5cd566f2a836a3f`: Node WA16/17 44/44; regressão 523/523; PG17 WA06D 20/20, WA15C 12/12, WA16P 11/11 e classificação DB→TS. São testes **offline/em PG17 descartável e S0 Draft de laboratório**, não prova de API Meta, Banco, LGPD nem deploy. Eventos de erro PostgreSQL intencionais em cenários negativos não foram contados como falha do job, que terminou verde.
 
 ## 8. Plano priorizado após os reparos
 
 | Prioridade | Trabalho e dono | Critério objetivo de aceite |
 |---|---|---|
 | **P0** | WA-17A/B e contrato do catálogo de bindings, **frente Meta** (R1–R4 já aplicados) | Revisão/versão imutável de origem aprovada; testes nativos + teste de concorrência; snapshots históricos sem remapeamento; falha segura |
-| **P0** | Diagnosticar jobs GitHub Actions e executar gate WA16/17/PG17, **frente Meta + infraestrutura CI** | Jobs realmente iniciados; 44/44 Node e 11/11 PG17 + DB→TS, logs/SHAs publicados; nenhum teste fictício contado |
+| **P0 (CI concluído em laboratório)** | Manter workflow válido, execução automática e rastreio dos gates, **frente Meta** | **Cumprido no run 39775076366: 3 jobs success**; qualquer mudança posterior de código precisa de nova rodada; não confundir CI com homologação externa |
 | **P0** | Segregação, HMAC, vínculo ativo e autorização operacional; **Meta + S0** | Ingestão durável/ACK por commit; replay sem duplicação; revogação concorrente; App/WABA/phone/loja validados; nenhum segredo exposto |
 | **P1** | Registro versionado de finalidades múltiplas e grants por ator/fluxo, **domínio Meta; auth S0** | F02 só vê templates autorizados por finalidade/campanha; Meta category independente; isolamento entre concessionárias; versão/ACL não mutável por modelo |
 | **P1** | Reconciliador de falhas definitivas por fluxo, **Meta como evidência + S0 comercial** | Uma falha=1; `sent` comprovado reseta; segunda falha consecutiva=cancelar fluxo e `perdido` técnico pela S0; duplicação/incerteza não contam |
