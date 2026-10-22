@@ -138,3 +138,10 @@
 .team-pause-counts{line-height:1.5;color:#425a63;margin:9px 0}
 .team-pause-cases{margin:5px 0 9px;padding-left:20px;line-height:1.55}
 .team-pause-cases li{margin:4px 0}
+
+
+/* FV-UI-017: assinatura candidata legível; envio não confirmado não se confunde com resposta. */
+.message p{white-space:pre-wrap}
+.message-send-state{font-weight:750;color:#815a29;text-transform:uppercase;letter-spacing:.03em}
+.message-preview-body{white-space:pre-wrap;overflow-wrap:anywhere;background:#f3f8f7;color:#2b4650;border:1px solid #dbe8e5;border-radius:11px;padding:14px;font-size:13px;line-height:1.55;max-height:35vh;overflow-y:auto}
+.message-preview-disclaimer{font-size:12px;line-height:1.55;color:#536d75}
