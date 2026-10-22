@@ -238,7 +238,7 @@ jobs:
         run: |
           set -euo pipefail
           sql='meta/integrations/whatsapp-meta/lab'
-          psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" \
+          psql -X -qAt -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" \
             -f "$sql/wa27_pg17_setup.sql" > "$RUNNER_TEMP/wa27_setup.log"
           grep -qx 'WA27-SETUP PASS' "$RUNNER_TEMP/wa27_setup.log"
           capture() {
