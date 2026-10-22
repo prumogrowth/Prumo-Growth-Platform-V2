@@ -112,7 +112,7 @@ def main():
         "postmark-view.test.mjs", "registration-view.test.mjs", "human-cycle-view.test.mjs",
         "source-contract.test.mjs", "source-module-graph.test.mjs",
         "team-monitor.test.mjs", "team-monitoring.test.mjs",
-        "team-operations.test.mjs", "distribution-view.test.mjs", "view-model.test.mjs",
+        "team-operations.test.mjs", "distribution-view.test.mjs", "transport-state-view.test.mjs", "view-model.test.mjs",
         "attention-integration.test.mjs", "conversation-attention.test.mjs",
         "team-pause-preview.test.mjs", "s0-command-result.test.mjs",
         "s0-read-contract.test.mjs", "operation-feedback.test.mjs",
@@ -124,7 +124,7 @@ def main():
         "operation-feedback.mjs", "s0-command-result.mjs", "s0-read-contract.mjs",
         "bank-view.mjs", "postmark-view.mjs", "team-operations.mjs",
         "tests/acceptance-matrix.json",
-        "team-monitor.mjs", "team-monitoring.mjs", "batch-monitor.mjs", "distribution-view.mjs",
+        "team-monitor.mjs", "team-monitoring.mjs", "batch-monitor.mjs", "distribution-view.mjs", "transport-state-view.mjs",
     }
     missing = sorted(
         [f"tests/{name}" for name in expected_tests if not (TESTS / name).is_file()]
