@@ -113,11 +113,17 @@ def main():
         "source-contract.test.mjs", "source-module-graph.test.mjs",
         "team-monitor.test.mjs", "team-monitoring.test.mjs",
         "team-operations.test.mjs", "distribution-view.test.mjs", "view-model.test.mjs",
+        "attention-integration.test.mjs", "conversation-attention.test.mjs",
+        "team-pause-preview.test.mjs", "s0-command-result.test.mjs",
+        "s0-read-contract.test.mjs", "operation-feedback.test.mjs",
+        "acceptance-matrix.test.mjs",
     }
     required_sources = {
         "index.html", "styles.css", "app.mjs", "fixtures.mjs",
         "view-model.mjs", "cf-op-02.mjs", "registration-view.mjs", "human-cycle-view.mjs",
+        "operation-feedback.mjs", "s0-command-result.mjs", "s0-read-contract.mjs",
         "bank-view.mjs", "postmark-view.mjs", "team-operations.mjs",
+        "tests/acceptance-matrix.json",
         "team-monitor.mjs", "team-monitoring.mjs", "batch-monitor.mjs", "distribution-view.mjs",
     }
     missing = sorted(
@@ -126,6 +132,10 @@ def main():
         + (["tests/browser.smoke.py"] if not (TESTS / "browser.smoke.py").is_file() else [])
         + (["tests/dom-fixture.mjs"] if not (TESTS / "dom-fixture.mjs").is_file() else [])
     )
+    # Não aceitar regressão apenas parcial: todo *.test.mjs deve estar registrado.
+    unknown = sorted(file.name for file in TESTS.glob("*.test.mjs")
+                     if file.name not in expected_tests)
+    missing += [f"NOT_REGISTERED:{name}" for name in unknown]
     inventory_ok = not missing
     report["steps"].append({
         "name": "FV-UI-013 checkout inventory", "passed": inventory_ok,
