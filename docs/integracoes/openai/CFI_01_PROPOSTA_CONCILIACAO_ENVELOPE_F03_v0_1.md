@@ -1,5 +1,10 @@
 # CFI-01 — Proposta de conciliação do contrato F03 S0 ↔ OpenAI | v0.1
 
+> **AVISO DE PRECEDÊNCIA — AUDITORIA DA FRENTE OPENAI, 22/10/2026.** Este documento anterior permanece preservado como **contrato candidato/histórico**; trechos conflitantes **NÃO são a direção funcional vigente**. Ler primeiro [AL-IA-00 — índice e precedência](./ALINHAMENTO_2026_10_22_00_INDICE_E_PRECEDENCIA_v0_1.md), [AL-IA-01 — jornada](./ALINHAMENTO_2026_10_22_01_JORNADA_F01_F02_F03_v0_1.md), [AL-IA-04 — deltas](./ALINHAMENTO_2026_10_22_04_RASTREABILIDADE_DELTAS_PENDENCIAS_v0_1.md), [AL-IA-07 — dependências entre frentes](./ALINHAMENTO_2026_10_22_07_DEPENDENCIAS_RELEVANTES_OUTRAS_FRENTES_v0_1.md) e [AL-IA-08 — auditoria documental](./ALINHAMENTO_2026_10_22_08_AUDITORIA_FECHAMENTO_DOCUMENTAL_FRENTE_OPENAI_v0_1.md). O texto abaixo documenta o estado de sua data original, **sem emendar código, criar autorização S0, nem corrigir documentação de outras frentes**.
+>
+> **Atenção especial:** o envelope descrito foi proposto antes do alinhamento de histórico lógico F03 por cliente/concessionária até o corte e sem correção cadastral pelo Consultor; não interpretar proposta de hash/versão do caso atual como contrato suficiente para todos os históricos, mídias e fechamentos recorrentes. Ratificação interfrentes S0↔OpenAI ainda pendente.
+
+
 **Data:** 18/10/2026 | **Estado:** [P] proposta de assinatura e mapa de migração, **NÃO interface canônica homologada**. Aceites S0 e OpenAI pendentes [R]; frontend revisa apenas a projeção UI↔S0; privacidade Banco/Meta/LGPD [V]. Coordenar em [issue #4](https://github.com/prumogrowth/Prumo-Growth---Platform/issues/4) e [CF-OP-02 issue #6](https://github.com/prumogrowth/Prumo-Growth---Platform/issues/6). Não alterar PRs de outras frentes.
 
 ## 1. Escolha técnica candidata, não homologação
