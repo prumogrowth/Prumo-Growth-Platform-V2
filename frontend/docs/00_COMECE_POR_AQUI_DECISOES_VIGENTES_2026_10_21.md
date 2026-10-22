@@ -48,6 +48,10 @@
 
 **[FV-UI-020 — erros, transporte de mensagens e matriz FV-22](./44_FV_UI_020_ERROS_TRANSPORTE_E_MATRIZ_ACEITACAO_2026_10_22.md)**: estados técnicos explicitamente **sintéticos**, rejeição de C13 na camada visual, 16 critérios rastreados a 24 suítes e bloqueios de integração. Não constitui homologação Node/Chromium, Meta ou S0/S1.
 
+## Preparação de contratos e acessibilidade (22/10/2026)
+
+**[FV-UI-021 — gate candidato S0/S1 e navegação acessível](./45_FV_UI_021_PREPARACAO_S0_S1_ACESSIBILIDADE_2026_10_22.md)**: classificação conservadora de envelopes sem liberar dados ou efeitos; anúncios de contexto, foco móvel, teclado Home/End e testes sintéticos. Não é conexão S0, prova de acesso nem homologação em Chromium.
+
 ## Estado do trabalho
 FV-UI-015/016: demonstrações com dados sintéticos. **NÃO** declarar integração real, Auth/RLS/GoTrue, comunicações Meta ou remessas confirmadas. FV-UI-013 não homologada formalmente; **19F 69/100** como último marco. Esta consolidação é **documentação somente**. Nenhum código, migration, branch S1, dado real ou deploy foi tocado.
 
