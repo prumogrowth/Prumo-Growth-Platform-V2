@@ -1,5 +1,11 @@
 # E02-REV v0.4 — Encaminhamento enxuto de decisões para os donos
 
+## Solicitações de revisão efetivamente registradas — 22/10/2026
+
+Os sete pontos D1–D7 deste caderno foram **encaminhados como perguntas**, não aprovados: [issue #4 — F03/CFI-01](https://github.com/prumogrowth/Prumo-Growth---Platform/issues/4#issuecomment-6352881916), [issue #6 — F02/C09](https://github.com/prumogrowth/Prumo-Growth---Platform/issues/6#issuecomment-6352882384), [issue #15 — Meta/WA-22](https://github.com/prumogrowth/Prumo-Growth---Platform/issues/15#issuecomment-6352882892).
+
+**Trilha:** os comentários pedem manifestação da S0/S1/FV/Meta/privacidade sobre escopo, versões, transições/segurança e provas. **Status de cada uma das sete decisões: PENDENTE DE RESPOSTA E RATIFICAÇÃO.** Comentar a questão não dá aceite, nem autoriza a OpenAI a editar APIs de outra frente, fazer merge, iniciar E04 ou usar provedores pagos.
+
 **22/10/2026.** Este documento é uma **minuta de revisão**, não mensagem efetivamente enviada, não aceite S0/S1/Meta/Prumo e não liberação de E04. A OpenAI prepara decisões para seus proprietários sem editar outras branches/issues.
 
 ## 1. Sete respostas objetivas que desbloqueiam design físico
