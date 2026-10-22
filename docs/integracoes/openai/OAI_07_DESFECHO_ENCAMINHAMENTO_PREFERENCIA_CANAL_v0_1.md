@@ -1,5 +1,10 @@
 # OAI-07 — Desfecho após atendimento humano, roteamento, avisos e preferência de canal | v0.1
 
+> **AVISO DE PRECEDÊNCIA — AUDITORIA DA FRENTE OPENAI, 22/10/2026.** Este documento anterior permanece preservado como **contrato candidato/histórico**; trechos conflitantes **NÃO são a direção funcional vigente**. Ler primeiro [AL-IA-00 — índice e precedência](./ALINHAMENTO_2026_10_22_00_INDICE_E_PRECEDENCIA_v0_1.md), [AL-IA-01 — jornada](./ALINHAMENTO_2026_10_22_01_JORNADA_F01_F02_F03_v0_1.md), [AL-IA-04 — deltas](./ALINHAMENTO_2026_10_22_04_RASTREABILIDADE_DELTAS_PENDENCIAS_v0_1.md), [AL-IA-07 — dependências entre frentes](./ALINHAMENTO_2026_10_22_07_DEPENDENCIAS_RELEVANTES_OUTRAS_FRENTES_v0_1.md) e [AL-IA-08 — auditoria documental](./ALINHAMENTO_2026_10_22_08_AUDITORIA_FECHAMENTO_DOCUMENTAL_FRENTE_OPENAI_v0_1.md). O texto abaixo documenta o estado de sua data original, **sem emendar código, criar autorização S0, nem corrigir documentação de outras frentes**.
+>
+> **Atenção especial:** o veto antigo à mudança automática para `perdido` por F03 foi superado no plano funcional; desistência explícita pode ensejar proposta e aplicação pela S0. `vendido` continua humano/provado; negativa bancária formal também é humana e comprovada. A F03 não escreve status diretamente nem comprova remessa.
+
+
 **Data:** 18/10/2026 | **Origem:** esclarecimentos funcionais expressos por um responsável do projeto na presente conversa.
 **Classificação:** [D-NEGÓCIO] intenção funcional explicada; [P] interfaces, eventos, tipos e fluxo candidato; [R] reconciliação com S0/Meta e atos comerciais normativos; [V] requisitos oficiais de remessa, tratamento de dados, Banco/Meta/LGPD. **NÃO é código implantado nem autorização para alterar estados comerciais.**
 **Precedência:** docs 13A/21–23/41 (decisões normativas) > interfaces propostas 24/26/40 e OAI-01/05/06. Se a orientação nova divergir de uma decisão aprovada, declarar a tensão e não revogá-la silenciosamente.
