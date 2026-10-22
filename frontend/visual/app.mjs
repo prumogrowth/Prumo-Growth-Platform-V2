@@ -34,7 +34,7 @@ const list = $('conversation-items');
 const state = {
   actorId: 'rafael', shopId: 'aurora', filter: 'all', statusFilter: 'all', detailTab: 'overview', query: '',
   selectedId: 'A-102', cases: copyCFDemoFixtures(), processing: {}, followupRequests: {}, inboxView: 'active',
-  mobileView: 'list', dialogContext: { completion: null, template: null }, intakeDialogContext:null, teamRequests:{}, teamPanel:'members'
+  mobileView: 'list', dialogContext: { completion: null, template: null, message: null }, intakeDialogContext:null, teamRequests:{}, teamPanel:'members'
 };
 
 function el(tag, className='', text=null) {
@@ -51,13 +51,40 @@ function ico(name) {
 }
 function selectedCase() { return accessible().find(x => x.id === state.selectedId) ?? null; }
 
+// Nomes exibidos; nenhum identificador técnico, role ou status é renomeado.
+const HUMAN_ROLE_LABELS = Object.freeze({
+  operador:'Consultor', gestor:'Gestor', responsavel:'Diretor', diretor:'Diretor'
+});
+function humanRoleLabel(actor) { return HUMAN_ROLE_LABELS[actor?.role] ?? null; }
+function stageHumanMessagePreview(actor, rawText) {
+  const role=humanRoleLabel(actor);
+  const message=typeof rawText==='string' ? rawText.trim() : '';
+  if(!role || typeof actor?.id!=='string' || !actor.id ||
+     typeof actor.name!=='string' || !actor.name.trim() ||
+     /[\r\n:]/.test(actor.name) || !message || message.length>500)return null;
+  return Object.freeze({
+    rawText,
+    previewBody:`${role} ${actor.name.trim()}:\n${message}`,
+    authorId:actor.id, roleLabel:role
+  });
+}
+function clearComposerContext() {
+  // Falha fechada: texto digitado nunca atravessa caso, pessoa ou loja.
+  $('message-input').value='';
+  $('message-preview-body').textContent='';
+  state.dialogContext.message=null;
+  const dialog=$('message-preview-dialog');
+  dialog.returnValue='';
+  if(dialog.open)dialog.close();
+}
+
 /** Apenas fixture local: S0 fornecerá evidência de leitura e resposta humana.
  * Última mensagem de cliente após a última resposta humana => pendência demo.
  * Não calcular pendência real a partir do texto/tempo no browser.
  */
 function demoAttentionFor(item) {
   const lastHumanRelevant=[...(item.messages??[])].reverse()
-    .find(message=>message.side==='in' || message.side==='out');
+    .find(message=>message.side==='in' || (message.side==='out' && message.deliveryState!=='local_demo_not_sent'));
   return stageConversationAttention({
     schema_version:ATTENTION_PROPOSAL_VERSION,
     unread_inbound_count:item.unread,
@@ -115,6 +142,7 @@ function consumeDialogContext(kind) {
     saved.shopId === state.shopId && saved.caseId === state.selectedId);
 }
 function closeTransientDialogs() {
+  clearComposerContext();
   if(state.intakeDialogContext){state.intakeDialogContext=null;}
   const intake=$('intake-dialog');intake.returnValue='';
   if(intake.open)intake.close();
@@ -139,7 +167,7 @@ function updateSelectors() {
   const actor = getActor(state.actorId);
   const actorSelect = $('actor-select');
   actorSelect.replaceChildren(...ACTORS.map(a => {
-    const o = el('option', '', `${a.name} · ${a.role === 'gestor' ? 'Gestor' : 'Operador'} da Prumo`);
+    const o = el('option', '', `${a.name} · ${humanRoleLabel(a)??'Perfil não reconhecido'} da Prumo`);
     o.value = a.id; return o;
   }));
   actorSelect.value = state.actorId;
@@ -181,7 +209,8 @@ function renderList() {
     const avatar = el('div', 'avatar a' + (idx%4+1), item.initials); avatar.setAttribute('aria-hidden','true');
     const center = el('div','item-center');
     const row = el('div','item-title-row'); row.append(el('span','item-title',item.name),el('span','item-time',item.updatedAt));
-    const preview = item.messages.at(-1)?.body ?? 'Sem mensagens';
+    const latest=item.messages.at(-1);
+    const preview=latest?.deliveryState==='local_demo_not_sent' ? 'Mensagem fictícia preparada · NÃO ENVIADA' : (latest?.body ?? 'Sem mensagens');
     const foot = el('div', 'item-foot'); foot.append(el('span','micro-tag',item.tag));
     if(projectedMetaWindow(item)==='expired') foot.append(el('span','window-mini','Janela expirada'));
     if(attention.kind!=='none'){
@@ -229,6 +258,7 @@ function renderThread() {
   for (const m of item.messages) {
     const bubble = el('div', 'message ' + m.side);
     bubble.append(el('p','', m.body), el('small','',m.time));
+    if(m.deliveryState==='local_demo_not_sent') bubble.append(el('small','message-send-state','Somente simulação · NÃO ENVIADA'));
     children.push(bubble);
   }
   body.replaceChildren(...children);
@@ -339,7 +369,7 @@ function renderDetails() {
       prop('Etapa humana',({'pending':'Pendente','completed':'Concluída · cenário fictício','requested_demo':'Conclusão solicitada · ainda não confirmada','unknown':'Não confirmada'})[humanCompletion(item,Boolean(state.processing[item.id]))] ?? 'Não confirmada'),
       prop('Lista',isInActiveInbox(item)?'Ativa / pendente':'Histórico preservado')
     );
-    if(item.reassignmentProjection==='protected_queue') group.append(callout('Acesso operacional protegido','A S1-002 decidirá o remanejamento real; não há escolha de operador pelo frontend.','warning'));
+    if(item.reassignmentProjection==='protected_queue') group.append(callout('Acesso operacional protegido','A S1-002 decidirá o remanejamento real; não há escolha de Consultor pelo frontend.','warning'));
     if(isSyntheticBankProtected(item)) group.append(callout('Marco bancário protegido','Silêncio de cliente ou janela Meta expirada não representa negativa da instituição financeira.','warning'));
     const rule=detailSection('REGRAS DA EXPERIÊNCIA');
     rule.append(callout('Atendimento humano independente','Concluir a conversa não envia cadastro ao banco, não marca vendido ou perdido e não reativa a IA Vendedora.'));
@@ -572,7 +602,7 @@ function renderTeamMonitoring(){
   }
   section.append(tiles);
   const states=el('p','team-monitor-states',
-    `Operadores supervisionados: ${view.summary.operatorCount} · Entrada de leads pausada: ${view.summary.intakePausedCount} · Conta indisponível: ${view.summary.intakeUnavailableCount} · Casos no histórico: ${view.summary.historicalCases} · Casos ativos autoatribuídos ao gestor: ${view.summary.managerOwnedCases}`);
+    `Consultores supervisionados: ${view.summary.operatorCount} · Entrada de leads pausada: ${view.summary.intakePausedCount} · Conta indisponível: ${view.summary.intakeUnavailableCount} · Casos no histórico: ${view.summary.historicalCases} · Casos ativos autoatribuídos ao gestor: ${view.summary.managerOwnedCases}`);
   section.append(states);
   const stageHeader=el('h4','team-monitor-subheading','Etapas comerciais canônicas — casos ativos');
   section.append(stageHeader);
@@ -610,7 +640,7 @@ function renderTeamSummary(){
     const leadState=member.intake==='paused_confirmed'?'Novos leads pausados (projeção fictícia)':
       member.intake==='receiving'?'Apto a receber novos leads (projeção fictícia)':'Indisponível para receber';
     card.append(el('span','',`${staffState} · ${leadState} · ${member.cases} caso(s) na equipe`));
-    card.append(el('span','',`Concessionárias concedidas pelo responsável (somente leitura): ${member.shops.map(id=>getShop(id)?.name??id).join(', ')}`));
+    card.append(el('span','',`Concessionárias concedidas pelo Diretor (somente leitura): ${member.shops.map(id=>getShop(id)?.name??id).join(', ')}`));
     const preview=projectManagerPausePreview(state.actorId,member.id,state.cases);
     if(preview.visibility==='ready'){
       const details=el('details','team-pause-preview');
@@ -644,7 +674,7 @@ function renderTeamSummary(){
           $('intake-dialog-copy').textContent=`${member.name} · todas as concessionárias concedidas. Sem bloquear conta ou alterar a carteira. Somente demonstração local.`;
           $('intake-dialog').returnValue='';
           $('intake-dialog').showModal();
-        } catch {showToast('Ação indisponível para este gestor e operador.');}
+        } catch {showToast('Ação indisponível para este Gestor e Consultor.');}
       });
       card.append(button);
     }
@@ -665,7 +695,7 @@ function renderTeamMonitor(){
   const indicators=el('div','team-monitor-metrics');
   const data=projection.indicators;
   const values=[
-    ['Operadores da equipe',data.teamMembers],
+    ['Consultores da equipe',data.teamMembers],
     ['Novos leads pausados',data.intakePaused],
     ['Casos ativos autorizados',data.operationalActive],
     ['Fila protegida',data.protectedQueue],
@@ -720,7 +750,7 @@ function renderTeamBatches(){
   }
   const title=el('h3','detail-label','G4 · LOTES AUTORIZADOS DA PRÓPRIA EQUIPE');
   const note=el('p','team-hint',
-    'Projeções fictícias por equipe e concessionária concedida. Não há importação, distribuição ou alteração de permissões. Operadores e lojas elegíveis são definidos pelo responsável.');
+    'Projeções fictícias por equipe e concessionária concedida. Não há importação, distribuição ou alteração de permissões. Consultores e lojas elegíveis são definidos pelo Diretor.');
   const totals=projection.totals,summary=el('div','team-batch-summary');
   summary.append(el('span','',totals.visibleBatches+' lote(s) visíveis'),
     el('span','',totals.confirmedBatches+' com contagem validada na fixture'),
@@ -778,7 +808,7 @@ $('intake-dialog').addEventListener('close',()=>{
     state.teamRequests[ctx.operatorId]=requestedNow;
     renderTeamSummary();
     showToast('Pedido fictício registrado. Pausa/retomada ainda NÃO aplicada no S0/S1.');
-  }catch{showToast('Ação indisponível para este gestor e operador.');}
+  }catch{showToast('Ação indisponível para este Gestor e Consultor.');}
 });
 document.addEventListener('keydown',event=>{
   // Não deslocar o foco para trás de um diálogo modal nativo.
@@ -795,11 +825,33 @@ $('reset-app').addEventListener('click',()=>{
   state.cases=copyCFDemoFixtures();state.processing={};state.followupRequests={};changeActor('rafael');showToast('Dados de demonstração restaurados.');
 });
 $('composer').addEventListener('submit',event=>{
-  event.preventDefault();const item=selectedCase();const input=$('message-input');const text=input.value.trim();
-  if(!text || !item || !canMockMessage(item)) return;
-  item.messages.push({id:`demo-${item.messages.length+1}`,side:'out',body:text,time:'Agora · fictício'});
-  item.demoReadByAssigned=true;
-  item.updatedAt='Agora';input.value='';render();showToast('Mensagem adicionada apenas à simulação local.');
+  event.preventDefault();
+  const item=selectedCase(),input=$('message-input');
+  if(!item || !canMockMessage(item))return;
+  const candidate=stageHumanMessagePreview(getActor(state.actorId),input.value);
+  if(!candidate)return;
+  captureDialogContext('message');
+  state.dialogContext.message={...state.dialogContext.message,...candidate};
+  $('message-preview-body').textContent=candidate.previewBody;
+  const dialog=$('message-preview-dialog');dialog.returnValue='';dialog.showModal();
+});
+$('message-preview-dialog').addEventListener('close',()=>{
+  const confirmed=$('message-preview-dialog').returnValue==='confirm';
+  $('message-preview-dialog').returnValue='';
+  const draft=state.dialogContext.message;
+  const sameContext=consumeDialogContext('message');
+  $('message-preview-body').textContent='';
+  const item=selectedCase(),input=$('message-input');
+  if(!confirmed || !sameContext || !draft || !item || !canMockMessage(item) ||
+     draft.rawText!==input.value)return;
+  const current=stageHumanMessagePreview(getActor(state.actorId),input.value);
+  if(!current || current.previewBody!==draft.previewBody || current.authorId!==draft.authorId)return;
+  item.messages.push({
+    id:`demo-${item.messages.length+1}`,side:'out',body:current.previewBody,
+    time:'Agora · fictício',authorId:current.authorId,deliveryState:'local_demo_not_sent'
+  });
+  item.updatedAt='Agora · fictício';input.value='';render();
+  showToast('Texto inserido somente na demonstração. NÃO enviado via WhatsApp.');
 });
 $('completion-dialog').addEventListener('close',()=>{
   const isConfirm=$('completion-dialog').returnValue==='confirm';
