@@ -31,7 +31,7 @@ export function stageConversationAttention(projection) {
   if(projection.operator_read_confirmed && projection.human_reply_pending)
     return Object.freeze({
       kind:'read_awaiting_reply',count:null,
-      label:'Visualizada pelo operador; resposta humana pendente'
+      label:'Visualizada pelo titular; resposta humana pendente'
     });
   return ATTENTION_EMPTY;
 }
