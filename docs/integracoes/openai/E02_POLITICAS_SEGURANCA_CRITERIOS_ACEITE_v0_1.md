@@ -1,5 +1,10 @@
 # E02 — Políticas de segurança, privacidade e critérios de aceite | v0.1
 
+> **AVISO DE PRECEDÊNCIA — AUDITORIA DA FRENTE OPENAI, 22/10/2026.** Este documento anterior permanece preservado como **contrato candidato/histórico**; trechos conflitantes **NÃO são a direção funcional vigente**. Ler primeiro [AL-IA-00 — índice e precedência](./ALINHAMENTO_2026_10_22_00_INDICE_E_PRECEDENCIA_v0_1.md), [AL-IA-01 — jornada](./ALINHAMENTO_2026_10_22_01_JORNADA_F01_F02_F03_v0_1.md), [AL-IA-04 — deltas](./ALINHAMENTO_2026_10_22_04_RASTREABILIDADE_DELTAS_PENDENCIAS_v0_1.md), [AL-IA-07 — dependências entre frentes](./ALINHAMENTO_2026_10_22_07_DEPENDENCIAS_RELEVANTES_OUTRAS_FRENTES_v0_1.md) e [AL-IA-08 — auditoria documental](./ALINHAMENTO_2026_10_22_08_AUDITORIA_FECHAMENTO_DOCUMENTAL_FRENTE_OPENAI_v0_1.md). O texto abaixo documenta o estado de sua data original, **sem emendar código, criar autorização S0, nem corrigir documentação de outras frentes**.
+>
+> **Atenção especial:** planos de testes e limites de dados precisam ser recalibrados para histórico F03 integral lógico da mesma concessionária (incluindo mídias autorizadas), sem impor retenção indiscriminada de mídia bruta; Consultor sem edição cadastral; F03 pode propor transições comerciais permitidas pela S0, nunca atos bancários fictícios. Este documento continua referência histórica para controles e propostas.
+
+
 Data: 18/10/2026. Estado: [P] proposta técnica para avaliação do responsável, S0 e fronteira Meta; [R] decisões operacionais pendentes; [V] condições Banco/Meta/LGPD e laboratório real. Nenhuma chamada à API, leitura de clientes, acesso ao Supabase remoto ou ensaio real realizado para produzir este documento.
 
 ## 1. Alcance, precedência e objetivos
