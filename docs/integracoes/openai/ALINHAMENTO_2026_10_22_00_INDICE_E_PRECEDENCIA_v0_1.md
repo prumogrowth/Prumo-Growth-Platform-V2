@@ -21,6 +21,7 @@ O registro é **aditivo**: não apaga arquivos antigos da frente OpenAI nem os 5
 | [AL-IA-04 — Rastreabilidade](./ALINHAMENTO_2026_10_22_04_RASTREABILIDADE_DELTAS_PENDENCIAS_v0_1.md) | Deltas entre documentação antiga/novo alinhamento, conflitos, responsáveis, pendências técnicas, validações externas e propostas de testes |
 [TRECHO COMERCIAL INTERNO EXCLUÍDO DA VERSÃO PÚBLICA]
 | [AL-IA-06 — Auditoria de fidelidade e completude](./ALINHAMENTO_2026_10_22_06_AUDITORIA_FIDELIDADE_E_COMPLETUDE_v0_1.md) | Checklist de decisões, achados, reparos já publicados e divergências ainda não conciliadas |
+| [AL-IA-07 — Dependências das outras frentes](./ALINHAMENTO_2026_10_22_07_DEPENDENCIAS_RELEVANTES_OUTRAS_FRENTES_v0_1.md) | Leitura cruzada de S0, Meta, S1, frontend, ponte F03 e CF-OP; apenas informações que interferem na nossa integração |
 
 **Ordem de leitura:** 00 → 01 → 02 → 03 → 04 → 05 → **06 (auditoria)**. Para esclarecer precedência, usar primeiro as etiquetas de status abaixo e conferir documento-fonte.
 
