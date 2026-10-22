@@ -19,6 +19,7 @@
 | Onde foi exercitada a ponte WA-26 em PostgreSQL 17 RLS | [WA-27 — RLS e revogação PG17 (22/10)](./wa27-pg17-rls-finalidades-revogacao-2026-10-22.md) | 14 gates físicos entre PostgreSQL e TypeScript, isolamento de lojas e revogação pós-COMMIT |
 | Como reserva e revogação se serializam sob concorrência real em PG17 | [WA-28 — Reserva transacional e revogação (22/10)](./wa28-reserva-transacional-revogacao-concorrente-pg17-2026-10-22.md) | 21 provas físicas, dois interleavings, rollback/idempotência, sem habilitar envio ou autenticação real |
 | Como a claim pré-despacho impede duplicidades mesmo com revogação concorrente | [WA-29 — Claim única e revogação PG17 (22/10)](./wa29-claim-unico-pre-despacho-revogacao-concorrente-pg17-2026-10-22.md) | 23 verificações físicas, três corridas, sem autorização de Graph |
+| Como recuperar envio com resposta Graph incerta, sem reenvio automático | [WA-30 — Recuperação incerta sem retry (22/10)](./wa30-recuperacao-envio-incerto-ledger-offline-pg17-2026-10-22.md) | 18 testes Node novos, 27 PG17 físicos e 11 leituras TS, com quarentena e hold |
 | O que a auditoria encontrou e reparou | [WA-19 — Auditoria documental](./wa19-auditoria-documental-reconciliacao-2026-10-21.md) | Achados, limites, reparos e pendências |
 | Histórico de decisões recentes | [WA-17B](./wa17b-mcp-templates-multimidia-ia-delegada-2026-10-20.md), [WA-18](./wa18-alinhamento-decisorio-respostas-responsavel-2026-10-20.md), [WA-18B](./wa18b-alinhamento-fechamento-optout-variaveis-falhas-cadencia-2026-10-20.md), [WA-18C](./wa18c-falhas-consecutivas-taxonomia-interna-templates-2026-10-20.md) | Proveniência cronológica; partes superadas identificadas |
 | O que foi testado de verdade | [WA-16/17 — fechamento de validação](./wa16-wa17-fechamento-validacao-e-pausa-2026-10-20.md) | Distingue casos escritos, verificações V8 e CI Node/PG17 não comprovado |
@@ -127,6 +128,7 @@ Arquivos abaixo permanecem pesquisáveis e preservados por fase. São histórico
 - [wa27-pg17-rls-finalidades-revogacao-2026-10-22.md](./wa27-pg17-rls-finalidades-revogacao-2026-10-22.md)
 - [wa28-reserva-transacional-revogacao-concorrente-pg17-2026-10-22.md](./wa28-reserva-transacional-revogacao-concorrente-pg17-2026-10-22.md)
 - [wa29-claim-unico-pre-despacho-revogacao-concorrente-pg17-2026-10-22.md](./wa29-claim-unico-pre-despacho-revogacao-concorrente-pg17-2026-10-22.md)
+- [wa30-recuperacao-envio-incerto-ledger-offline-pg17-2026-10-22.md](./wa30-recuperacao-envio-incerto-ledger-offline-pg17-2026-10-22.md)
 
 ### Índices vigentes e matrizes adicionais
 
@@ -134,4 +136,4 @@ Arquivos abaixo permanecem pesquisáveis e preservados por fase. São histórico
 - [01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md](./01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md)
 - [02-mapa-fontes-conflitos-e-emendas-2026-10-21.md](./02-mapa-fontes-conflitos-e-emendas-2026-10-21.md)
 
-**Cobertura documental em 22/10/2026:** a auditoria editorial WA-23 conferiu **63 arquivos Markdown** (README + 62 links). Com a inclusão posterior de **WA-24**, **WA-25**, **WA-26**, **WA-27**, **WA-28** e **WA-29**, o diretório passa a **69 Markdown** (README + **68 links**), sujeitos a commits futuros. O novo documento inicia auditoria TÉCNICA e reparos, sem significar teste nativo verde ou homologação. Os históricos têm aviso de precedência ou nota contextual, quando necessário. O ZIP de 55 documentos históricos de 17/10 segue preservado fora deste diretório. Essa biblioteca não contém ferramentas MCP executáveis.
+**Cobertura documental em 22/10/2026:** a auditoria editorial WA-23 conferiu **63 arquivos Markdown** (README + 62 links). Com a inclusão posterior de **WA-24**, **WA-25**, **WA-26**, **WA-27**, **WA-28**, **WA-29** e **WA-30**, o diretório passa a **70 Markdown** (README + **69 links**), sujeitos a commits futuros. O novo documento inicia auditoria TÉCNICA e reparos, sem significar teste nativo verde ou homologação. Os históricos têm aviso de precedência ou nota contextual, quando necessário. O ZIP de 55 documentos históricos de 17/10 segue preservado fora deste diretório. Essa biblioteca não contém ferramentas MCP executáveis.
