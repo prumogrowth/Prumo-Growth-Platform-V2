@@ -16,6 +16,7 @@ import {
   hasProjectedAction, hasEligibleTemplateVersion
 } from './cf-op-02.mjs';
 import { registrationProjectionFor, registrationStateCopy } from './registration-view.mjs';
+import { projectDemoOperationFeedback } from './operation-feedback.mjs';
 import { stageMockMessageTransport } from './transport-state-view.mjs';
 import { projectMockHumanCycleHistory, projectMockClarificationScene,
   stageMockRepeatCompletion, projectMockCustomerDossier } from './human-cycle-view.mjs';
@@ -479,8 +480,11 @@ function renderDetails() {
         phase==='pending' ? callout('Ainda não solicitada','Após a conclusão humana, o S0 poderá solicitar extração. Nenhum dado foi processado neste exemplo.') :
         callout('Situação não confirmada','Não é possível afirmar que a etapa humana terminou ou que houve extração. Aguarde uma projeção confiável da S0.','warning'));
     }else{
-      const scenario=modelExtraction(proc.kind);
-      extract.append(callout(scenario.title,scenario.explanation,proc.kind==='accepted'||proc.kind==='partial'?'warning':''));
+      const scenario=projectDemoOperationFeedback(proc.kind);
+      extract.append(callout(scenario.title,scenario.description,'warning'));
+      extract.append(el('p','detail-small',scenario.nextStep));
+      extract.append(el('p','detail-small',
+        'Nenhum efeito técnico/comercial foi confirmado. Reenvio automático e edição cadastral indisponíveis.'));
       if(proc.kind==='partial'){
         const example=el('div','detail-row');example.append(el('strong','','Campo ilustrativo A'),el('span','','Proposta sintética · não persistida'));
         const missing=el('div','detail-row');missing.append(el('strong','','Campo ilustrativo B'),el('span','','Sem fonte suficiente · pendente'));
@@ -488,11 +492,15 @@ function renderDetails() {
       }
       if(canSimulateCompletion(item,state.actorId,state.shopId) && state.processing[item.id] && humanCompletion(item)==='pending'){
         const actions=el('div','scenario-options');
-        for(const [kind,label] of [['partial','Retorno parcial'],['failed','Falha técnica'],['stale','Versão obsoleta']]){
+        for(const [kind,label] of [
+          ['partial','Retorno parcial'],['failed','Falha técnica'],
+          ['stale','Versão obsoleta'],['uncertain','Confirmação incerta'],
+          ['denied','Permissão negada'],['unavailable','Serviço indisponível']
+        ]){
           const button=el('button','btn btn-light',label);button.type='button';
           button.addEventListener('click',()=>{if(!canSimulateCompletion(selectedCase(),state.actorId,state.shopId))return;
             if(selectedCase()?.id!==item.id)return;
-            state.processing[item.id]={...state.processing[item.id],kind};render();showToast(modelExtraction(kind).title+'. Nenhuma API foi chamada.');});actions.append(button);
+            state.processing[item.id]={...state.processing[item.id],kind};render();showToast(projectDemoOperationFeedback(kind).title+'. Nenhuma API foi chamada.');});actions.append(button);
         }extract.append(actions);
       }
     }
@@ -662,7 +670,7 @@ function changeActor(actorId){
   if($('team-dialog').open)$('team-dialog').close();
   // Não deixar carteira do gestor anterior, nem mesmo oculta no DOM da demo.
   $('team-list').replaceChildren();$('team-monitor').replaceChildren();$('team-batches').replaceChildren();$('team-queue').replaceChildren();
-  state.teamRequests={};state.queueRequests={};state.reviewScenes={};state.teamPanel='members';
+  state.teamRequests={};state.queueRequests={};state.reviewScenes={};state.processing={};state.teamPanel='members';
   state.actorId=actor.id;state.shopId=actor.shops[0];state.selectedId=null;state.detailTab='overview';state.statusFilter='all';state.inboxView='active';
   state.filter='all';state.query='';$('search-input').value='';goto('list');updateSelectors();render();
 }
