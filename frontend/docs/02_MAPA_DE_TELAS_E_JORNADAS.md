@@ -1,3 +1,5 @@
+> **EMENDA SUPERVENIENTE — 22/10/2026 [D/E]:** para a **frente Frontend** prevalece o [FV-DOC-03 — contrato funcional vigente](./38_FV_DOC_03_CONTRATO_FUNCIONAL_FRONTEND_2026_10_22.md). **A plataforma da Prumo ainda não tem nome; LiberaCred é o produto da instituição financeira.** Papéis visíveis: **Diretor / Gestor / Consultor**. A ficha cadastral do **Consultor é integralmente não editável**, inclusive sem correção excepcional C13 na UI; pendências são esclarecidas por atendimento, e atualização autorizada é confirmada pelo S0. **F01** atende, **F02** planeja templates, **F03** extrai após conclusão humana explícita; a troca de siglas em fala recente está marcada [R-SIGLA-01]. Assinatura de mensagem humana livre deve ser `Cargo Nome:\nMensagem` com validação pelo serviço. IA de melhoria fora da primeira versão. **Descrições anteriores incompatíveis abaixo são históricas e não critérios vigentes de aceite de UI.** Nenhuma alteração de código ou das outras frentes decorre desta emenda.
+
 > **LEITURA ATUALIZADA — 21/10/2026:** O fluxo G2 legado não distingue completamente **redistribuição de caso já atribuído (apenas mesma equipe)** de **distribuição de lead novo (entre equipes elegíveis)**, nem a fila compartilhada de gestores e retomada automática. Para decisões vigentes de pausa, distribuição, filas, acesso por caso, comprovação humana e IA, consultar **[FV-DOC-01](./35_FV_DOC_01_DECISOES_VIGENTES_ALINHAMENTO_2026_10_21.md)**; divergências descritas em **[FV-DOC-02](./36_FV_DOC_02_AUDITORIA_AMBIGUIDADES_E_PRECEDENCIA_2026_10_21.md)**. Trechos abaixo permanecem como histórico técnico da sua data, sem substituir decisões posteriores.
 
 # 02 — Mapa inicial de telas e jornadas
@@ -10,7 +12,7 @@
 | --- | --- | --- |
 | O1 | Meus atendimentos | Lista dos casos efetivamente atribuídos ao operador; escopo da concessionária e indicadores de espera sem inventar novos status |
 | O2 | Conversa e histórico | Mensagens, autoria, eventos e notas internas; opção candidata **Concluir atendimento** para solicitar extração pós-humana via S0; IA Vendedora não retorna |
-| O3 | Ficha extraída, conferência e pendências | **Sem preenchimento manual habitual**: exibir campos elegíveis extraídos da conversa e persistidos pelo S0, origem/versão, faltas e contradições; correção humana C13 somente excepcional e autorizada [D/R] |
+| O3 | Ficha extraída, conferência e pendências | **Ficha SOMENTE LEITURA para Consultor, SEM qualquer correção manual C13**, mesmo excepcional: exibir campos persistidos pelo S0, origem/versão, lacunas e contradições; esclarecer com cliente e aguardar processo de IA autorizado [D 22/10] |
 | O4 | Remessa e retorno do banco | Exibir resultado e permitir registros humanos autorizados somente quando sustentados por evidência real; modo protótipo deve rotular simulação |
 | O5 | Novo contato após marcos | Encaminhamento humano após `cadastro enviado ao banco` ou `vendido`, com ciclo histórico preservado |
 
@@ -50,7 +52,7 @@ As vistas R1–R4 do documento 24 abrangem administração **via ChatGPT/MCP**. 
 
 A jornada O2 → O3 precisa mostrar dois momentos separados: **pedido de conclusão da conversa aceito** e **versão da ficha validada/persistida pelo backend**. Processamento parcial, lacuna, conflito, versão obsoleta e erro técnico exigem mensagens próprias; nenhum equivale a novo status comercial. Os dados extraídos não devem ser considerados verdadeiros somente pelo modelo: a validação de catálogo/proveniência e a persistência pertencem a S0.
 
-**Nova divisão:** FV-01 (visual ↔ S0), FV-02 (solicitação de conclusão e leitura de resultado), OAI-05/E01 (S0 ↔ adaptador OpenAI, sob frente OpenAI). O botão **Concluir atendimento** é rótulo provisório [P], não conclusão de venda nem remessa bancária. Manter as correções humanas individuais excepcionais aprovadas nos docs 23/41, sem transformar a exceção em formulário habitual.
+**Nova divisão:** FV-01 (visual ↔ S0), FV-02 (solicitação de conclusão e leitura de resultado), OAI-05/E01 (S0 ↔ adaptador OpenAI, sob frente OpenAI). O botão **Concluir atendimento** é rótulo provisório [P], não conclusão de venda nem remessa bancária. **Emenda posterior de 22/10:** não oferecer correção manual excepcional nem habitual pelo Consultor. Docs 23/41 ficam como histórico da decisão anterior, sem ação C13 disponível na UI.
 
 **Evidência:** [FV-02](05_CONTRATO_FV02_CONCLUSAO_EXTRAÇÃO_POS_HUMANA_v0_1.md) e [auditoria](06_AUDITORIA_CONTRATOS_FV_2026_10_18.md). A S1 sintética existente na branch S0 não representa esse fluxo novo até revisão cruzada.
 
