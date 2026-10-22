@@ -484,7 +484,7 @@ function renderDetails() {
       extract.append(callout(scenario.title,scenario.description,'warning'));
       extract.append(el('p','detail-small',scenario.nextStep));
       extract.append(el('p','detail-small',
-        'Nenhum efeito técnico/comercial foi confirmado. Reenvio automático e edição cadastral indisponíveis.'));
+        'Nenhum efeito técnico/comercial foi confirmado: não há correção manual ou retentativa automática nesta demonstração.'));
       if(proc.kind==='partial'){
         const example=el('div','detail-row');example.append(el('strong','','Campo ilustrativo A'),el('span','','Proposta sintética · não persistida'));
         const missing=el('div','detail-row');missing.append(el('strong','','Campo ilustrativo B'),el('span','','Sem fonte suficiente · pendente'));
