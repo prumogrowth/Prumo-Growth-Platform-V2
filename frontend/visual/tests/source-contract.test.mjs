@@ -240,3 +240,17 @@ test('FV-UI-016: prévia de carteira G2 não executa redistribuições',()=>{
   assert.match(browserSmoke,/'team-pause-preview\.mjs','team-monitor\.mjs'/);
   assert.match(browserSmoke,/page\.locator\('\.team-pause-preview summary'\)\.first\.click\(\)/);
 });
+
+
+test('FV-UI-017: prévia humana, assinatura legível e nenhuma confirmação Meta inventada',()=>{
+  assert.match(markup,/id="message-preview-dialog"/);
+  assert.match(markup,/id="message-preview-body"/);
+  assert.match(app,/operador:'Consultor', gestor:'Gestor', responsavel:'Diretor'/);
+  assert.match(app,/stageHumanMessagePreview\(getActor\(state\.actorId\),input\.value\)/);
+  assert.match(app,/deliveryState:'local_demo_not_sent'/);
+  assert.match(app,/clearComposerContext\(\)/);
+  assert.match(styles,/\.message p\{white-space:pre-wrap\}/);
+  assert.match(styles,/\.message-preview-body\{white-space:pre-wrap/);
+  assert.doesNotMatch(app,/deliveryState:'sent_confirmed'/);
+  assert.doesNotMatch(app,/\bfetch\s*\(|\bXMLHttpRequest\b/);
+});
