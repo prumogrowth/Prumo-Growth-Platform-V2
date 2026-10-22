@@ -2,7 +2,7 @@
  * Não há relógio Meta/SLA, agregação de D3/D4, consulta direta de dados, mutação
  * de status, redistribuição ou autorização real. S0 deve entregar projeção minimizada.
  */
-import { COMMERCIAL_STATUSES, getActor, managedOperators, visibleConversations } from './fixtures.mjs';
+import { COMMERCIAL_STATUSES, getActor, hasMockCaseOnlyScope, managedOperators, visibleConversations } from './fixtures.mjs';
 import { isInActiveInbox } from './cf-op-02.mjs';
 
 export function projectTeamMonitoring(managerId, records) {
@@ -26,7 +26,8 @@ export function projectTeamMonitoring(managerId, records) {
     record.bankProjection?.phase==='reply_pending';
   const perOperator=operators.map(operator=>{
     const own=cases.filter(record=>record.assignedTo===operator.id &&
-      operator.shops.includes(record.shopId));
+      (operator.shops.includes(record.shopId) ||
+       hasMockCaseOnlyScope(record,operator.id,record.shopId)));
     const open=own.filter(isInActiveInbox);
     return Object.freeze({
       id:operator.id,name:operator.name,
