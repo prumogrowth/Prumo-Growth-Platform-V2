@@ -19,5 +19,5 @@ A extensão consulta o vínculo excepcional **ativo** do Consultor com uma atrib
 
 A exceção deve ser derivada de um **entitlement canônico S0 vinculado a uma atribuição**, não de um grant de loja nem da política de assinatura WhatsApp. Não resolver A2 por inferência: transferência manual a Consultor com intake pausado permanece [R].
 
-## Evidência de teste
-Executar PG17 e vincular a URL do GitHub Actions e saída I42 ao confirmar; sem alegar aprovação antes do resultado.
+## Evidência de teste confirmada
+[GitHub Actions PG17 #39868254265 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39868254265), job `120135831929`, código testado no commit `5cc2eae1c60d933eca17835017f74648849cb2c4`. Logs observados: `I42-RED`, `PASS I42-01/02`, `PASS I42-03`, `PASS I42-04/05`, `PASS I42-06/ROLLBACK`. Regressões `I41-01..07` e concorrência multissessão `I40-01..04` continuaram aprovadas. A primeira execução `#39867958800` falhou por parêntese extra na policy de mensagens; corrigido no commit acima, sem ampliar privilégios. Essa evidência é **somente PG17 descartável**, não homologação S0/GoTrue/PostgREST.
