@@ -183,7 +183,7 @@ jobs:
           done
           echo 'PASS WA15C: 12 cross-branch PostgreSQL checks, three real psql sessions'
 
-      - name: WA-16B: commit response perdida e recuperacao em novas sessoes PG17
+      - name: "WA-16B: commit response perdida e recuperacao em novas sessoes PG17"
         run: |
           set -euo pipefail
           sql='meta/integrations/whatsapp-meta/lab'
