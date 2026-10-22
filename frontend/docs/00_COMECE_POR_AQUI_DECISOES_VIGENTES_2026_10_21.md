@@ -52,6 +52,10 @@
 
 **[FV-UI-021 — gate candidato S0/S1 e navegação acessível](./45_FV_UI_021_PREPARACAO_S0_S1_ACESSIBILIDADE_2026_10_22.md)**: classificação conservadora de envelopes sem liberar dados ou efeitos; anúncios de contexto, foco móvel, teclado Home/End e testes sintéticos. Não é conexão S0, prova de acesso nem homologação em Chromium.
 
+## Robustez de Escape, rascunho e smoke Chromium (22/10/2026)
+
+**[FV-UI-022 — navegação móvel e atualização do smoke](./46_FV_UI_022_ESCAPE_RASCUNHO_SMOKE_REGRESSAO_2026_10_22.md)**: foco devolvido ao painel visível no Escape, rascunho cancelado mantido somente no contexto original, mock de input corrigido e expectativa de supervisão atualizada para incluir A-117. Execuções V8 concluídas; **Chromium/Node nativos continuam não homologados**.
+
 ## Estado do trabalho
 FV-UI-015/016: demonstrações com dados sintéticos. **NÃO** declarar integração real, Auth/RLS/GoTrue, comunicações Meta ou remessas confirmadas. FV-UI-013 não homologada formalmente; **19F 69/100** como último marco. Esta consolidação é **documentação somente**. Nenhum código, migration, branch S1, dado real ou deploy foi tocado.
 
