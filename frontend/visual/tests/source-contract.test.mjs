@@ -10,6 +10,7 @@ const styles = get('styles.css');
 const contract = get('cf-op-02.mjs');
 const registration = get('registration-view.mjs');
 const humanCycles = get('human-cycle-view.mjs');
+const integrationGate = get('integration-gate-view.mjs');
 const transport = get('transport-state-view.mjs');
 const feedback = get('operation-feedback.mjs');
 const command = get('s0-command-result.mjs');
@@ -309,4 +310,16 @@ test('FV-UI-021: foco e contexto acessíveis, sem tocar dados ou integrações r
   assert.match(styles,/\.sr-only\{/);
   assert.match(styles,/\.detail-tab\{min-height:44px\}/);
   assert.match(styles,/max-height:550px/);
+});
+
+test('FV-UI-021: gate não aciona rede e nunca autoriza efeito ou dados',()=>{
+  assert.match(integrationGate,/stageProposedS0ReadEnvelope/);
+  assert.match(integrationGate,/stageCandidateCommandResult/);
+  assert.match(integrationGate,/canExposeRecords:false/);
+  assert.match(integrationGate,/canPerformCommand:false/);
+  assert.match(integrationGate,/hasVerifiedEffect:false/);
+  assert.match(integrationGate,/automaticRetry:false/);
+  assert.match(integrationGate,/canChangeCommercialStatus:false/);
+  assert.match(browserSmoke,/FV-UI-021 foco móvel/);
+  assert.doesNotMatch(integrationGate,/\bfetch\s*\(|XMLHttpRequest|WebSocket/);
 });
