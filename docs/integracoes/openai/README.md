@@ -1,5 +1,19 @@
 # Frente OpenAI — Prumo Growth | índice inicial
 
+## Atualização documental de alinhamento [DN] — 22/10/2026
+
+O responsável pelo produto concluiu uma nova rodada de alinhamento sobre F01/F02/F03, ficha e histórico, status comerciais, MCP de Diretores, bases de conhecimento, instruções globais, comportamento F01, cache opcional, habilidades e vigência/pausa de campanhas. Esse alinhamento foi **registrado na própria frente OpenAI**, em documentação aditiva, com precedência explícita e diferenças para contratos anteriores; não altera contratos físicos nem concede autorização de deploy.
+
+**Comece pelo [AL-IA-00 — Índice, precedência e escopo](./ALINHAMENTO_2026_10_22_00_INDICE_E_PRECEDENCIA_v0_1.md)**, que referencia:
+- [AL-IA-01 — Jornada F01/F02/F03, conclusão humana, ficha e estados](./ALINHAMENTO_2026_10_22_01_JORNADA_F01_F02_F03_v0_1.md)
+- [AL-IA-02 — Conhecimento, bases, pausa, cache, instruções e habilidades](./ALINHAMENTO_2026_10_22_02_CONHECIMENTO_CACHE_HABILIDADES_v0_1.md)
+- [AL-IA-03 — MCP Diretor, guias semânticos e auditoria protegida](./ALINHAMENTO_2026_10_22_03_MCP_DIRETOR_GUIAS_AUDITORIA_v0_1.md)
+- [AL-IA-04 — Matriz de deltas, conflitos, pendências e revisões cruzadas](./ALINHAMENTO_2026_10_22_04_RASTREABILIDADE_DELTAS_PENDENCIAS_v0_1.md)
+- [AL-IA-05 — Histórico de ideias, hipóteses e frentes não ativas](./ALINHAMENTO_2026_10_22_05_HISTORICO_IDEIAS_E_LINHAS_NAO_ATIVAS_v0_1.md)
+
+**ATENÇÃO À PRECEDÊNCIA:** em especial, as novas decisões **retiram edição de ficha pelo Consultor**, exigem acesso lógico F03 ao histórico completo da própria concessionária até o cutoff, permitem transições comerciais F03 **mediante S0** (exceto `vendido`), ampliam a intenção administrativa do MCP sem liberar alteração de sua auditoria e adotam **somente quatro campos globais para IA**. As seções e contratos datados de 18/10 abaixo continuam como registros históricos/candidatos quando divergirem; qualquer mudança nas frentes S0/Meta/Frontend exige conciliação do respectivo dono. Envio direto ao Banco segue **[V] expressamente adiado**. PR #3 permanece Draft e E04/E05 não foram abertos.
+
+
 **Data:** 18/10/2026. **Branch:** feat/s2-openai-adapter-sintetico. **Estado:** planejamento contratual [P], sem integração operacional. Branch derivada de main; não contém código das branches S0 ou Meta.
 **Regra de convivência:** NÃO transferir, cancelar, bloquear, reescrever ou assumir demandas dos PRs #1 (S0) e #2 (WhatsApp/Meta). Se uma dessas frentes já implementa algo relacionado a IA, a titularidade permanece com ela até decisão expressa posterior.
 
