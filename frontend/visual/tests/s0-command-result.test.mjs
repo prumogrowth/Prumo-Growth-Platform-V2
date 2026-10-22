@@ -21,12 +21,14 @@ const denied=(r,e=expected())=>{
 };
 
 test('somente IDs de comandos humanos explicitamente candidatos',()=>{
-  assert.deepEqual(HUMAN_COMMAND_IDS,['C11','C12','C13','C15','C16','C17','C18']);
+  assert.deepEqual(HUMAN_COMMAND_IDS,['C11','C12','C15','C16','C17','C18']);
   for(const id of HUMAN_COMMAND_IDS){
     const v=stageCandidateCommandResult(response('APPLIED',expected(id)),expected(id));
     assert.equal(v.displayState,'claimed_applied');
     assert.equal(v.hasVerifiedEffect,false);
   }
+  // Proibição posterior do C13 para Consultor: não aceitar envelope nem classificador visual.
+  denied(response('APPLIED',expected('C13')),expected('C13'));
   denied(response('APPLIED',expected('C14')),expected('C14'));
   denied(response('APPLIED',expected('C21')),expected('C21'));
 });
