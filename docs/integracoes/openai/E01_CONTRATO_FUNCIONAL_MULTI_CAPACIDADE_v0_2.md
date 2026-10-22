@@ -1,5 +1,8 @@
 # E01 — Contrato funcional S0 ↔ OpenAI, multicaptacidade | v0.2
 
+> **Versão operacional posterior:** [E01_CONTRATO_FUNCIONAL_OPERACIONAL_v0_3.md](./E01_CONTRATO_FUNCIONAL_OPERACIONAL_v0_3.md) — candidata [P/R] de 22/10/2026, coerente com AL-IA. O presente arquivo permanece **histórico** para rastreabilidade; em divergências não aplicar sua redação anterior. A nova versão não equivale a aceite físico S0, testes ou implementação.
+
+
 > **AVISO DE PRECEDÊNCIA — AUDITORIA DA FRENTE OPENAI, 22/10/2026.** Este documento anterior permanece preservado como **contrato candidato/histórico**; trechos conflitantes **NÃO são a direção funcional vigente**. Ler primeiro [AL-IA-00 — índice e precedência](./ALINHAMENTO_2026_10_22_00_INDICE_E_PRECEDENCIA_v0_1.md), [AL-IA-01 — jornada](./ALINHAMENTO_2026_10_22_01_JORNADA_F01_F02_F03_v0_1.md), [AL-IA-04 — deltas](./ALINHAMENTO_2026_10_22_04_RASTREABILIDADE_DELTAS_PENDENCIAS_v0_1.md), [AL-IA-07 — dependências entre frentes](./ALINHAMENTO_2026_10_22_07_DEPENDENCIAS_RELEVANTES_OUTRAS_FRENTES_v0_1.md) e [AL-IA-08 — auditoria documental](./ALINHAMENTO_2026_10_22_08_AUDITORIA_FECHAMENTO_DOCUMENTAL_FRENTE_OPENAI_v0_1.md). O texto abaixo documenta o estado de sua data original, **sem emendar código, criar autorização S0, nem corrigir documentação de outras frentes**.
 >
 > **Atenção especial:** operações, exemplos e parâmetros aqui são candidatos datados; as instruções atuais são quatro campos globais (F01 instruções+comportamento; F02 e F03 instruções distintas), sem versões por concessionária. F03 consulta histórico lógico integral até o corte; Consultor não corrige campos da ficha; transições permitidas podem resultar de F03 via S0, nunca `vendido`.
