@@ -24,7 +24,7 @@
 - **[DA]** Cliente que **já comprou naquela concessionária** e volta espontaneamente, qualquer que seja o assunto, vai diretamente para humano; não retorna à F01. Venda e histórico anteriores não são retroativamente alterados. Se compra foi em A e contato ocorre em B, B não pode saber da compra em A; a situação é analisada apenas pelo contexto conhecido em B. Manifestação do próprio cliente de compra anterior deve ser encaminhada a humano, sem tratar alegação como prova.
 - **[DN/V]** Objetivo futuro, se formalmente viabilizado: quando a F01 concluir dados e condições necessários, **desencadear** remessa direta por operação autorizada da plataforma; caso não haja integração bancária direta homologada, entregar ficha pronta ao consultor para remessa humana real. F01 não é conexão bancária independente nem assume autorização por mera conclusão conversacional.
 
-### Complementos auditados da entrada e do retorno [DA/R]
+## 2A. Complementos auditados da entrada e do retorno [DA/R]
 
 - **[DA] Entrada da carteira:** fase inicial admite leads elegíveis de listas/importações; o **telefone/WhatsApp apto** pode ser o único campo inicial. `aguardando primeiro disparo` não significa conversa iniciada. `primeiro disparo enviado` depende do **envio real** do primeiro template sem resposta; a conversa atendida pela F01 começa quando o cliente **manifesta-se/responde**, ou por entrada receptiva, e passa a `em atendimento pela IA` quando pertinente. A lista-mestre de campos e as condições oficiais de elegibilidade/opt-in continuam pendentes.
 - **[DA] Novos lotes importados:** cada remessa é lote independente; **não substituir os dados conversacionais mais confiáveis por campos auxiliares reapresentados**. Mesmo contato ativo não inicia duas conversas/cadências paralelas. Identificador comercial vigente no acervo anterior é **telefone dentro da concessionária**; a nova hipótese de vários telefones por cliente requer conciliação específica de identidade [R] (AL-IA-04).
@@ -106,7 +106,7 @@
 
 **[DA]** Gestor supervisiona conversas D2 das concessionárias autorizadas e gerencia equipe/fila com escopo, sem adquirir automaticamente documentos bancários D3/D4 em leitura comum nem titularidade de todos os casos. Consultor mantém acesso somente ao atribuído; gestor designado pode atuar como consultor nesse caso. Nenhum acesso cruzado entre concessionárias.
 
-### Identificação de cliente com novo número [DN/R]
+## 6A. Identificação de cliente com novo número [DN/R]
 
 O responsável deseja que a **IA conduza uma, duas, três ou quantas verificações contextualmente necessárias** para avaliar se o novo número pertence à mesma pessoa **naquela concessionária**, sem simplesmente confiar numa alegação. Quando o número anterior não for mais válido, a intenção é **substituí-lo no cadastro vivo**; quando ambos ainda forem úteis, **vincular múltiplos números à mesma ficha**, sem ficha duplicada. A intenção é funcional [DN], mas o método de prova de identidade, risco de número reciclado/compartilhado e aplicação segura pela S0 continuam [R]. **Não tratar a decisão anterior de telefone como identificador comercial único como se a transição para múltiplos números já estivesse modelada ou homologada.**
 
