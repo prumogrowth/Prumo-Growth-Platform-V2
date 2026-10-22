@@ -80,6 +80,7 @@
       "id": "FV-22-10",
       "coverage": "partial",
       "tests": [
+        "transport-state-view.test.mjs",
         "operation-feedback.test.mjs",
         "s0-command-result.test.mjs"
       ]
