@@ -1,5 +1,8 @@
 # S1-002 / I37 — gateway gerencial assinado para pausa de ingresso (issue #10, 20/10/2026)
 
+> **AVISO DE PRECEDÊNCIA — 22/10/2026:** **Marco de laboratório preservado:** gateway intake assinado I37 não comprova distribuição cross-team de novos leads, fila sem titular, histórico por contato, prova Meta de primeiro envio, regra de entrega do indicador nem F03. Nenhum nome técnico é migrado pela troca para Diretor/Gestor/Consultor. [Contrato funcional S1 vigente (22/10/2026)](S1_002_01_CONTRATO_FUNCIONAL_VIGENTE_2026_10_22.md) · [matriz de aderência](S1_002_02_MATRIZ_ADERENCIA_E_PENDENCIAS_2026_10_22.md).
+
+
 **Status: implementação de laboratório, aceite CI pendente.** PR #5 Draft em `feat/s1-002-equipe-prumo`, sem merge, deploy, Meta ou Supabase hospedado.
 
 ## Regra de negócio vigente
