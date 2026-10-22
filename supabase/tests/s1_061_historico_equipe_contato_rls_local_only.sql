@@ -300,6 +300,39 @@ do $t$ begin
  then raise exception 'I41-GREEN06 mesmo telefone cruzou lojas';end if;
 end $t$;
 \echo 'PASS I41-06: mesmo telefone em loja B nao libera historico da loja A'
+-- Ler como Gestor nao permite enviar sem transferencia formal S0.
+select pg_catalog.set_config('request.jwt.claim.sub',
+ '61110000-0000-4000-8000-000000000001',true);
+do $t$ begin
+ begin
+  insert into public.mensagens(concessionaria_id,conversa_id,canal_id,caso_id,
+   direcao,origem,conteudo_sintetico,enviada_por)
+  values('61220000-0000-4000-8000-000000000001',
+   '61770000-0000-4000-8000-000000000002',
+   '61660000-0000-4000-8000-000000000001',
+   '61550000-0000-4000-8000-000000000002',
+   'saida','simulado','I41 tentativa indevida de gestor observador',
+   '61110000-0000-4000-8000-000000000001');
+  raise exception 'I41-GREEN07 Gestor sem titularidade enviou';
+ exception when insufficient_privilege or check_violation then null;end;
+end $t$;
+select pg_catalog.set_config('request.jwt.claim.sub',
+ '61110000-0000-4000-8000-000000000004',true);
+insert into public.mensagens(concessionaria_id,conversa_id,canal_id,caso_id,
+ direcao,origem,conteudo_sintetico,enviada_por)
+values('61220000-0000-4000-8000-000000000001',
+ '61770000-0000-4000-8000-000000000002',
+ '61660000-0000-4000-8000-000000000001',
+ '61550000-0000-4000-8000-000000000002',
+ 'saida','simulado','I41 resposta simulada do titular atual',
+ '61110000-0000-4000-8000-000000000004');
+do $t$ begin
+ if (select count(*) from public.mensagens
+      where conteudo_sintetico='I41 resposta simulada do titular atual'
+        and enviada_por='61110000-0000-4000-8000-000000000004')<>1
+ then raise exception 'I41-GREEN07 Consultor titular nao conseguiu enviar';end if;
+end $t$;
+\echo 'PASS I41-07: Gestor observador nao envia; Consultor titular envia caso atual simulado'
 reset role;
 rollback;
 \echo 'PASS I41-ROLLBACK: candidatura de policy e dados removidos; S0 inalterada'
