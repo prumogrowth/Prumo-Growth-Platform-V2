@@ -24,7 +24,7 @@ const noProjection=Object.freeze({
   failedConfirmed:false,needsRefresh:false
 });
 const isRef=v=>typeof v==='string' && v.trim()===v && v.length>0 && v.length<=160;
-const isPlain=o=>o && typeof o==='object' && !Array.isArray(o) &&
+const isTransportProjection=o=>o && typeof o==='object' && !Array.isArray(o) &&
   (Object.getPrototypeOf(o)===Object.prototype || Object.getPrototypeOf(o)===null);
 
 /** Só mostra o estado da mensagem identificada, por mesma concessionária.
@@ -33,13 +33,13 @@ const isPlain=o=>o && typeof o==='object' && !Array.isArray(o) &&
  * Uma mensagem criada localmente nunca recebe prova de transporte.
  */
 export function stageMockMessageTransport(record,message,actorId,shopId) {
-  if(!isPlain(record) || !isPlain(message) || message.side!=='out' ||
+  if(!isTransportProjection(record) || !isTransportProjection(message) || message.side!=='out' ||
     message.deliveryState==='local_demo_not_sent' ||
     record.shopId!==shopId || record.assignedTo!==actorId ||
     !hasMockCaseScope(record,actorId,shopId) ||
     !Array.isArray(record.messages) || !record.messages.includes(message))return noProjection;
   const p=message.transportProjection;
-  if(!isPlain(p) || p.source!=='s0_fixture' ||
+  if(!isTransportProjection(p) || p.source!=='s0_fixture' ||
     p.caseRef!==record.id || p.shopRef!==shopId || p.messageRef!==message.id ||
     !isRef(p.versionRef) || !TRANSPORT_PRESENTATION_STATES.includes(p.state))
     return noProjection;
