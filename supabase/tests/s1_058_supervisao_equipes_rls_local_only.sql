@@ -85,8 +85,10 @@ end $audit$;
 reset role;
 
 -- Somente CANDIDATO TRANSITORIO do laboratorio, sem aprovacao para S0.
+-- Schema dedicado impede USAGE amplo no prumo_private.
+create schema prumo_s1_i38_test authorization postgres;
 -- SECURITY DEFINER deve ser auditado antes de qualquer uso real.
-create function prumo_private.s1_58_eh_supervisor()
+create function prumo_s1_i38_test.s1_58_eh_supervisor()
 returns boolean language sql stable security definer set search_path='' as $fn$
  select exists(select 1 from prumo_private.s1_gestor_operadores g
                where g.gestor_id=(select auth.uid()) and g.encerrado_em is null)
@@ -95,7 +97,7 @@ returns boolean language sql stable security definer set search_path='' as $fn$
                and v.valido_desde<=pg_catalog.statement_timestamp()
                and (v.valido_ate is null or v.valido_ate>pg_catalog.statement_timestamp()));
 $fn$;
-create function prumo_private.s1_58_caso_do_ator(p_loja uuid,p_caso uuid)
+create function prumo_s1_i38_test.s1_58_caso_do_ator(p_loja uuid,p_caso uuid)
 returns boolean language sql stable security definer set search_path='' as $fn$
  select exists(
    select 1 from public.atribuicoes_humanas a
@@ -111,41 +113,41 @@ returns boolean language sql stable security definer set search_path='' as $fn$
  );
 $fn$;
 -- O teste usa apenas authenticated e helper sem argumentos de ator browser.
-revoke all on function prumo_private.s1_58_eh_supervisor(),
- prumo_private.s1_58_caso_do_ator(uuid,uuid) from public,anon,service_role;
-grant usage on schema prumo_private to authenticated;
-grant execute on function prumo_private.s1_58_eh_supervisor(),
- prumo_private.s1_58_caso_do_ator(uuid,uuid) to authenticated;
+revoke all on function prumo_s1_i38_test.s1_58_eh_supervisor(),
+ prumo_s1_i38_test.s1_58_caso_do_ator(uuid,uuid) from public,anon,service_role;
+grant usage on schema prumo_s1_i38_test to authenticated;
+grant execute on function prumo_s1_i38_test.s1_58_eh_supervisor(),
+ prumo_s1_i38_test.s1_58_caso_do_ator(uuid,uuid) to authenticated;
 
 create policy s1_58_casos_equipe on public.casos_humanos
  for select to authenticated
- using (prumo_private.s1_58_caso_do_ator(concessionaria_id,id));
+ using (prumo_s1_i38_test.s1_58_caso_do_ator(concessionaria_id,id));
 create policy s1_58_atribuicoes_equipe on public.atribuicoes_humanas
  for select to authenticated
- using (prumo_private.s1_58_caso_do_ator(concessionaria_id,caso_id));
+ using (prumo_s1_i38_test.s1_58_caso_do_ator(concessionaria_id,caso_id));
 create policy s1_58_conversas_equipe on public.conversas
  for select to authenticated
  using (caso_id is not null and
-        prumo_private.s1_58_caso_do_ator(concessionaria_id,caso_id));
+        prumo_s1_i38_test.s1_58_caso_do_ator(concessionaria_id,caso_id));
 
 create policy s1_58_casos_restrict on public.casos_humanos
  as restrictive for select to authenticated using (
- not prumo_private.s1_58_eh_supervisor()
- or prumo_private.s1_58_caso_do_ator(concessionaria_id,id));
+ not prumo_s1_i38_test.s1_58_eh_supervisor()
+ or prumo_s1_i38_test.s1_58_caso_do_ator(concessionaria_id,id));
 create policy s1_58_atribuicoes_restrict on public.atribuicoes_humanas
  as restrictive for select to authenticated using (
- not prumo_private.s1_58_eh_supervisor()
- or prumo_private.s1_58_caso_do_ator(concessionaria_id,caso_id));
+ not prumo_s1_i38_test.s1_58_eh_supervisor()
+ or prumo_s1_i38_test.s1_58_caso_do_ator(concessionaria_id,caso_id));
 create policy s1_58_conversas_restrict on public.conversas
  as restrictive for select to authenticated using (
- not prumo_private.s1_58_eh_supervisor()
+ not prumo_s1_i38_test.s1_58_eh_supervisor()
  or (caso_id is not null and
-     prumo_private.s1_58_caso_do_ator(concessionaria_id,caso_id)));
+     prumo_s1_i38_test.s1_58_caso_do_ator(concessionaria_id,caso_id)));
 create policy s1_58_mensagens_restrict on public.mensagens
  as restrictive for select to authenticated using (
- not prumo_private.s1_58_eh_supervisor()
+ not prumo_s1_i38_test.s1_58_eh_supervisor()
  or (caso_id is not null and
-     prumo_private.s1_58_caso_do_ator(concessionaria_id,caso_id)));
+     prumo_s1_i38_test.s1_58_caso_do_ator(concessionaria_id,caso_id)));
 
 set local role authenticated;
 select pg_catalog.set_config('request.jwt.claim.sub',
