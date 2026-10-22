@@ -17,11 +17,11 @@
 | **SYN-08** | “snapshot obsoleto ⇒ descartar ou reprocessar” | **Corte histórico até mA07 continua válido** como fato; mA08 posterior não integra aquela execução. Aplicação da proposta pode ser negada/posta em revisão se versões, autorização ou fatos atuais a tornam obsoleta; não exigir novo fechamento só porque chegou mA08, sem política S0. |
 | **SYN-09** | “operador autorizado corrige ficha enquanto IA processa” | **Consultor não edita ficha.** Usar mutação concorrente autorizada da **S0 por outra execução F03** ou **ator administrativo distinto, autorizado por contrato próprio** (se implementado), atualizando versão da ficha 4→5. F03 antiga não sobrescreve versão 5. Não supor privilégio administrativo já físico. |
 
-Outros SYN-01..32 permanecem candidatos, ressalvadas divergências adicionais identificadas em auditoria. **SYN-02** não significa que falta de campo **opcional** bloqueia remessa; **SYN-03** não confunde simples evolução legítima com contradição; **SYN-13** continua condicionado a política real de minimização e dado sintético; F04/F05 são capacidades de áudio auxiliares, não novas IAs; classificação de §perdido§ por F03 não é proibida universalmente. A peça legada, não atualizada retroativamente, serve como histórico.
+Outros SYN-01..32 permanecem candidatos, ressalvadas divergências adicionais identificadas em auditoria. **SYN-02** não significa que falta de campo **opcional** bloqueia remessa; **SYN-03** não confunde simples evolução legítima com contradição; **SYN-13** continua condicionado a política real de minimização e dado sintético; F04/F05 são capacidades de áudio auxiliares, não novas IAs; classificação de `perdido` por F03 não é proibida universalmente. A peça legada, não atualizada retroativamente, serve como histórico.
 
 ## 3. Novos cenários com INPUT e EXPECTED lógicos
 
-A coluna “origem” indica revisão cruzada necessária, **não delega código nem homologa operação física**. Cada caso possui ator, loja, instantes e mensagens fictícios a instanciar no gate E02-FIX; §ACTUAL=NÃO_EXECUTADO§ em todos.
+A coluna “origem” indica revisão cruzada necessária, **não delega código nem homologa operação física**. Cada caso possui ator, loja, instantes e mensagens fictícios a instanciar no gate E02-FIX; `ACTUAL=NÃO_EXECUTADO` em todos.
 | ID | Entrada sintética / intenção | EXPECTED — oráculo verificável | Prioridade | Revisão |
 |---|---|---|---|---|
 | **SYN-33 F03, histórico entre casos** | Loja A cliente C1 declarou renda 3000 em caso K1 e 3500 como retificação em caso K2, fechado por Consultor. | Recuperar ambas origens; propor atual 3500 com fonte K2 se sem conflito não resolvido; jamais limitar consulta a K2. | P0 | S0/OpenAI |
@@ -64,16 +64,16 @@ A coluna “origem” indica revisão cruzada necessária, **não delega código
 | **SYN-70 Conhecimento, data prevista** | Contexto de campanha diz 'prevista para encerrar 20/10', sem confirmação e consulta 22/10. | Não afirmar encerramento comprovado nem prorrogação; sem prova de vigência atual, não oferecer condição como válida. | P0 | S0/OpenAI |
 ## 4. Concretização futura [P/R]
 
-Para **cada** SYN antigo ou novo, congelar antes do E04: §fixture_id§ e revisão; carimbos locais e UTC fictícios; tenant/caso/pessoa e fontes por versão; autorização/estado/cutoff; input da operação, EXPECTED tipado (inclusive **ausência** de escrita, envio e acesso) e verificação em log/recibo sintético; regra de revalidação S0; dono da fronteira; prioridade; artefato ACTUAL/commit e PASS/FAIL. **Zero P0 falhos** como meta documental, mas nenhum percentual foi medido.
+Para **cada** SYN antigo ou novo, congelar antes do E04: `fixture_id` e revisão; carimbos locais e UTC fictícios; tenant/caso/pessoa e fontes por versão; autorização/estado/cutoff; input da operação, EXPECTED tipado (inclusive **ausência** de escrita, envio e acesso) e verificação em log/recibo sintético; regra de revalidação S0; dono da fronteira; prioridade; artefato ACTUAL/commit e PASS/FAIL. **Zero P0 falhos** como meta documental, mas nenhum percentual foi medido.
 
-Manter §f03_closure_cutoff§ distinto da data da chamada e do controle de versão para persistência. Representar §API_ACCEPTED§, §queued§, §sent§, §definitive_failed§, §unknown§ como eventos semânticos de simulação — **não declarar que são os enums reais da Meta/S0**. Estados comerciais mantêm exatamente o conjunto legado de oito.
+Manter `f03_closure_cutoff` distinto da data da chamada e do controle de versão para persistência. Representar `API_ACCEPTED`, `queued`, `sent`, `definitive_failed`, `unknown` como eventos semânticos de simulação — **não declarar que são os enums reais da Meta/S0**. Estados comerciais mantêm exatamente o conjunto legado de oito.
 
 A E02 **não** implementa stub, schema Python/TypeScript, índice vetorial, cache nem credenciais; E04 aguarda autorização **expressa de implementação** conforme G-FASE-DO-PROJETO. E05 necessita autorização específica de custo/secret e teste apenas fictício.
 
 ## 5. Indicadores e status
 
-- Prioridade P0: §tenant_leak_count§, §unauthorized_outbound_count§, §illegal_write_count§, §duplicate_business_effect_count§, §audit_tamper_count§, §expired_offer_count§ devem ser **0 nos ensaios futuros**, não alegados como 0 agora.
+- Prioridade P0: `tenant_leak_count`, `unauthorized_outbound_count`, `illegal_write_count`, `duplicate_business_effect_count`, `audit_tamper_count`, `expired_offer_count` devem ser **0 nos ensaios futuros**, não alegados como 0 agora.
 - Efetividade F03: precisão de campos com prova, recuperação de todos os campos elegíveis (opcionais incluídos), sensibilidade às correções temporais, detecção de conflitos e pendências **só para essenciais**; números e thresholds finais [R].
-- F02/Meta: acurácia de elegibilidade de finalidade/template/versão, prova §sent§ para C09, não consecutividade de falhas, cancelamento de cadeia sem reativar F01.
+- F02/Meta: acurácia de elegibilidade de finalidade/template/versão, prova `sent` para C09, não consecutividade de falhas, cancelamento de cadeia sem reativar F01.
 - Conhecimento/MCP: fontes autorizadas, pausas/expiração, confirmação individual, nenhuma manipulação de auditoria, fallback/negação seguros; comparar com e sem cache.
-- §EXPERADO§ ≠ §ACTUAL§. **Total descrito 70 SYN, executados 0, aceitos 0**. A soma das fontes históricas sobrepostas não é número de testes.
+- `EXPERADO` ≠ `ACTUAL`. **Total descrito 70 SYN, executados 0, aceitos 0**. A soma das fontes históricas sobrepostas não é número de testes.
