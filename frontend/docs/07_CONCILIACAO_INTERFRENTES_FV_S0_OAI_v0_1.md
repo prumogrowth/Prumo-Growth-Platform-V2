@@ -17,7 +17,7 @@ Os códigos `C01–C24` e `UQ01–UQ09` são **contratos conceituais [P]** dos d
 
 | ID | Tema | Compatibilidade/resultado | Estado |
 | --- | --- | --- | --- |
-| CF-01 | Sem digitação cadastral rotineira na UI, extração automática após conversa | FV-02, OAI-05 e E01 são concordantes quanto à direção de negócio | **[D-direção]** |
+| CF-01 [revisão posterior de UI 22/10] | **Sem QUALQUER edição cadastral manual pelo Consultor**, inclusive exceção antiga; extração automática após conversa sob S0 | FV-02, OAI-05 e E01 são concordantes quanto à direção de negócio | **[D-direção]** |
 | CF-02 | Clique visual, evento técnico S0, operação interna OpenAI | Separação em fronteiras distintas; FV não chama OpenAI diretamente | **[P] compatível** |
 | CF-03 | Identificador da operação OpenAI | E01 atual e OAI-05 usam `human_close_extract`; não usar nome anterior `post_human_extract` como enum | **[P] conciliado quanto ao nome** |
 | CF-04 | Envelope E01 ↔ OAI-05 | Exemplos não têm os mesmos caminhos, campos e nomes | **[R] diverge; requer padronização pelos donos** |
