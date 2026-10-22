@@ -331,4 +331,34 @@ with sync_playwright() as p:
     assert 'API aceitou · envio NÃO comprovado' not in technical.locator('#thread-body').inner_text()
     technical.close()
     print('FV-UI-020 fronteira de transporte e supervisão: PASS')
+    # FV-UI-021: foco, anúncio acessível, Home/End e viewport baixa; sem S0.
+    access_page=browser.new_page(viewport={'width':390,'height':844})
+    access_page.set_default_timeout(4500)
+    access_page.set_content(html)
+    access_page.add_script_tag(content=script)
+    assert 'Consultor fictício' in access_page.locator('#context-announcement').inner_text()
+    access_page.get_by_role('button',name='Abrir conversa Cliente Exemplo 02',exact=False).click()
+    assert 'Caso A-102 aberto' in access_page.locator('#context-announcement').inner_text()
+    assert access_page.evaluate('document.activeElement.id') == 'thread-back'
+    access_page.locator('#detail-toggle').click()
+    assert access_page.evaluate('document.activeElement.id') == 'detail-back'
+    access_page.locator('.detail-tab[role=tab]').first.focus()
+    access_page.keyboard.press('End')
+    assert access_page.locator('.detail-tab[aria-selected=true]').inner_text() == 'Recontatos'
+    access_page.keyboard.press('Home')
+    assert access_page.locator('.detail-tab[aria-selected=true]').inner_text() == 'Resumo'
+    access_page.locator('#detail-back').click()
+    assert access_page.evaluate('document.activeElement.id') == 'detail-toggle'
+    access_page.locator('#thread-back').click()
+    assert access_page.evaluate('document.activeElement.id') == 'search-input'
+    access_page.locator('#actor-select').select_option('marina')
+    assert 'Gestor fictício' in access_page.locator('#context-announcement').inner_text()
+    assert 'A-102' not in access_page.locator('#context-announcement').inner_text()
+    access_page.close()
+    short_page=browser.new_page(viewport={'width':390,'height':480})
+    short_page.set_content(html)
+    short_page.add_script_tag(content=script)
+    assert not short_page.evaluate('document.documentElement.scrollWidth > innerWidth')
+    short_page.close()
+    print('FV-UI-021 foco móvel, anúncio, Home End e viewport baixa: PASS')
     browser.close()
