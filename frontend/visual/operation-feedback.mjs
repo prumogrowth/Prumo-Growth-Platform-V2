@@ -8,7 +8,7 @@ export const DEMO_OPERATION_STATES=Object.freeze([
 ]);
 const STATES=Object.freeze({
   accepted:{
-    title:'Pedido registrado somente na simulação',
+    title:'Solicitação registrada — somente na simulação',
     description:'Não há confirmação S0 de conclusão, execução F03 ou gravação cadastral.',
     nextStep:'Aguardar uma projeção autenticada do núcleo, quando a integração existir.'
   },
