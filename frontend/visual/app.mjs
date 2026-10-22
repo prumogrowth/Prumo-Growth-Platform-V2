@@ -2,7 +2,7 @@
  * Não chamar backend, OpenAI, Meta, Banco, storage ou permitir efeito comercial.
  */
 import {
-  ACTORS, COMMERCIAL_STATUSES, getActor, getShop, visibleConversations, visibleMockShops,
+  ACTORS, COMMERCIAL_STATUSES, getActor, getShop, visibleConversations, visibleMockShops, hasMockCaseOnlyScope,
   canSimulateCompletion, statusTone
 } from './fixtures.mjs';
 import {
@@ -180,7 +180,9 @@ function updateSelectors() {
   $('team-nav').hidden=!showTeam;
   const shopSelect = $('shop-select');
   shopSelect.replaceChildren(...visibleMockShops(state.cases,state.actorId).map(id => {
-    const shop = getShop(id); const o = el('option', '', `${shop.name} · fictícia`); o.value = id; return o;
+    const shop = getShop(id);
+    const context=actor.shops.includes(id)?'fictícia':'somente caso excepcional · fictício';
+    const o = el('option', '', `${shop.name} · ${context}`); o.value = id; return o;
   }));
   shopSelect.value = state.shopId;
   const statusSelect = $('status-filter');
@@ -258,6 +260,7 @@ function renderThread() {
     $('detail-toggle').disabled = true; return;
   }
   $('detail-toggle').disabled = false;
+  const isExceptional=hasMockCaseOnlyScope(item,state.actorId,state.shopId);
   const children = [el('span','day-separator','CONVERSA SINTÉTICA · EXEMPLO VISUAL')];
   for (const m of item.messages) {
     const bubble = el('div', 'message ' + m.side);
@@ -273,6 +276,8 @@ function renderThread() {
   const t = el('span', 'tiny-note', 'Estado comercial · não alterado pela interface');
   note.append(s,t);
   bar.replaceChildren(note);
+  if(isExceptional)bar.append(el('span','status-indicator',
+    'Acesso excepcional: SOMENTE este caso · projeção fictícia'));
   const meta=projectedMetaWindow(item);
   bar.append(el('span','window-indicator '+(meta==='open'?'open':'closed'),meta==='open'?'Janela Meta aberta · projeção':meta==='expired'?'Janela Meta expirada · projeção':'Janela Meta não confirmada'));
   const completionState = humanCompletion(item,Boolean(state.processing[item.id]));
@@ -644,6 +649,8 @@ function renderTeamSummary(){
     const leadState=member.intake==='paused_confirmed'?'Novos leads pausados (projeção fictícia)':
       member.intake==='receiving'?'Apto a receber novos leads (projeção fictícia)':'Indisponível para receber';
     card.append(el('span','',`${staffState} · ${leadState} · ${member.cases} caso(s) na equipe`));
+    if(member.intake==='paused_confirmed') card.append(el('span','',
+      'Pausa da entrada confirmada somente na fixture; redistribuição de casos NÃO comprovada.'));
     card.append(el('span','',`Concessionárias concedidas pelo Diretor (somente leitura): ${member.shops.map(id=>getShop(id)?.name??id).join(', ')}`));
     const preview=projectManagerPausePreview(state.actorId,member.id,state.cases);
     if(preview.visibility==='ready'){
