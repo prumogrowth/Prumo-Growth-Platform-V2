@@ -2,7 +2,7 @@
  * Não há comando de remessa, retorno/recusa/venda ou upload de prova no browser.
  * A S0 deve produzir projeções já minimizadas e autorizadas; filtragem JS não é segurança.
  */
-import { getActor, visibleConversations } from './fixtures.mjs';
+import { getActor, hasMockCaseScope, visibleConversations } from './fixtures.mjs';
 
 export const BANK_PHASES = Object.freeze([
   'not_submitted', 'submission_requested', 'submission_verified',
@@ -17,7 +17,7 @@ const EMPTY_VIEW = Object.freeze({
 export function bankProjectionFor(record, actorId, shopId) {
   const actor = getActor(actorId);
   if (!record || !actor || actor.teamState !== 'active' ||
-      !actor.shops.includes(shopId) || record.shopId !== shopId ||
+      !hasMockCaseScope(record,actorId,shopId) ||
       !visibleConversations([record],actorId,shopId).includes(record)) {
     return Object.freeze({ ...EMPTY_VIEW, visibility:'forbidden', phase:'unavailable' });
   }
