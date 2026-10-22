@@ -72,7 +72,7 @@ export function describeMonitoring(metric) {
     unreadCases:'Conversas com mensagens não lidas',
     windowAttentionCases:'Janela Meta expirada com etapa humana pendente (projeção)',
     protectedQueueCases:'Casos indicados como fila protegida',
-    unassignedTeamCases:'Casos sem titular nesta projeção histórica (fila compartilhada ainda não modelada)',
+    unassignedTeamCases:'Casos sem titular na visão histórica da equipe (NÃO incluem fila de novos leads)',
     bankReplyPendingCases:'Retornos bancários pendentes de prova (projeção)'
   };
   return labels[metric]??'Indicador indisponível';
