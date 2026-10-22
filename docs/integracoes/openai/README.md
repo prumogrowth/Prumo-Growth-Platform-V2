@@ -1,5 +1,9 @@
 # Frente OpenAI — Prumo Growth | índice inicial
 
+## Contrato tipado e erros da integração — E01-INT v0.4 (22/10/2026)
+
+A frente OpenAI publicou o [**E01-INT v0.4 — contrato lógico F01/F02/F03, saída tipada e falha fechada**](./E01_CONTRATO_TIPADO_ADAPTADOR_FALHAS_v0_4.md). Ele descreve o que é **entrada autorizada da S0**, o que pode ser **proposta do modelo**, o que exige **revalidação e efeito exclusivo S0**, tratamento de `DENIED` antes de divulgar `STALE` e distinção entre resultado técnico, `sent` Meta e estado comercial. **[P/R]: não é schema físico, código, teste executado nem interface aprovada.** Issues de ratificação #4/#6/#15 seguem sem resposta nova; E02-REV/FIX permanecem abertas; E04 ainda depende de autorização expressa de implementação.
+
 ## Coordenação interfrentes: solicitações enviadas em 22/10/2026
 
 As dúvidas da [E02-REV — sete decisões](./E02_RESUMO_DECISOES_PARA_RATIFICACAO_v0_4.md) foram encaminhadas aos donos por comentários rastreáveis em [CFI-01 issue #4](https://github.com/prumogrowth/Prumo-Growth---Platform/issues/4#issuecomment-6352881916), [CF-OP-02 issue #6](https://github.com/prumogrowth/Prumo-Growth---Platform/issues/6#issuecomment-6352882384) e [WA-22 issue #15](https://github.com/prumogrowth/Prumo-Growth---Platform/issues/15#issuecomment-6352882892). **Comentário enviado ≠ aceite recebido.** Manter E02-REV aberta até manifestação formal dos respectivos donos; nenhuma mudança em contratos/branches alheias.
