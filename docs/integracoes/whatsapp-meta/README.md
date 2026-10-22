@@ -9,7 +9,7 @@
 | Para descobrir | Arquivo oficial de referência | Função |
 |---|---|---|
 | O que o sistema **deve fazer** | [01 — Especificação funcional vigente](./01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md) | Regras completas por domínio, exemplos, exceções, papéis das IAs, estados e limitações |
-| Qual decisão prevalece e quem decidiu | [00 — 21 regras WDC com precedência](./00-decisoes-vigentes-precedencia-documental-2026-10-21.md) | Índice de decisões com IDs, proveniência, glossário e pendências |
+| Qual decisão prevalece e quem decidiu | [00 — 22 regras WDC com precedência](./00-decisoes-vigentes-precedencia-documental-2026-10-21.md) | Índice de decisões com IDs, proveniência, glossário e pendências |
 | Por que documento antigo diz outra coisa | [02 — Mapa de conflitos por documento e seção](./02-mapa-fontes-conflitos-e-emendas-2026-10-21.md) | Relação da regra substituída com a atual, sem perder histórico |
 | O que a auditoria encontrou e reparou | [WA-19 — Auditoria documental](./wa19-auditoria-documental-reconciliacao-2026-10-21.md) | Achados, limites, reparos e pendências |
 | Histórico de decisões recentes | [WA-17B](./wa17b-mcp-templates-multimidia-ia-delegada-2026-10-20.md), [WA-18](./wa18-alinhamento-decisorio-respostas-responsavel-2026-10-20.md), [WA-18B](./wa18b-alinhamento-fechamento-optout-variaveis-falhas-cadencia-2026-10-20.md), [WA-18C](./wa18c-falhas-consecutivas-taxonomia-interna-templates-2026-10-20.md) | Proveniência cronológica; partes superadas identificadas |
@@ -23,6 +23,12 @@
 [WA-20 — Identificação visível do atendente: o que a Meta oferece e como a plataforma poderá implementar](./wa20-identificacao-visivel-atendente-assinatura-mensagem-2026-10-21.md). A Meta envia pelo número da concessionária; para aparecer no WhatsApp do cliente, o nome poderá ser acrescentado pelo backend ao **texto da mensagem**. Autoria de operador permanece separada e autenticada no S0. O formato/frequência exata ainda não foi fechado; mensagens de template obedecem ao conteúdo/variáveis aprovados. **Não implementado.**
 
 > **DECISÃO DE 21/10 (WA-21):** os papéis visíveis passam a ser **Diretor** (antes responsável), **Gestor** (mantido) e **Consultor** (antes operador). A assinatura automática nas mensagens humanas usará `Consultor Nome:\nMensagem`, `Gestor Nome:\nMensagem` ou `Diretor Nome:\nMensagem`. **Isso substitui o formato provisório da WA-20**; o recurso continua não implementado. [Leia a decisão e os limites técnicos WA-21](./wa21-papeis-diretor-gestor-consultor-assinatura-2026-10-21.md).
+
+## Atualização transversal — outras frentes e nome da plataforma (22/10)
+
+**A plataforma de atendimento comercial permanece sem nome próprio definido.** É desenvolvida pela Prumo para atendimento comercial às concessionárias e à comercialização do **LiberaCred, produto da instituição financeira**. Não usar “LiberaCred” para nomear o software; o documento `17_Identidade_e_Nome_da_Plataforma_v0_1.md` do pacote 17/10 já separava os conceitos.
+
+**[WA-22 — Revisão das outras frentes e contratos de interface](./wa22-revisao-cruzada-outras-frentes-contratos-2026-10-22.md)**: S0 (#1), OpenAI (#3), pessoas/S1 (#5), CF-OP (#7), ponte S0/OpenAI (#8/#12), interface visual e pacote histórico. Identifica fronteiras de prova de envio humano, pausa de novos leads, histórico/cutoff F03, mídia, janela Meta versus conclusão humana/C09, indicador interno de leitura, regras bancárias, ofertas/campanhas e auditoria MCP. **A leitura não transforma documentos Draft em integração implementada.**
 
 ## Política editorial
 
@@ -105,6 +111,7 @@ Arquivos abaixo permanecem pesquisáveis e preservados por fase. São histórico
 - [wa19-auditoria-documental-reconciliacao-2026-10-21.md](./wa19-auditoria-documental-reconciliacao-2026-10-21.md)
 - [wa20-identificacao-visivel-atendente-assinatura-mensagem-2026-10-21.md](./wa20-identificacao-visivel-atendente-assinatura-mensagem-2026-10-21.md)
 - [wa21-papeis-diretor-gestor-consultor-assinatura-2026-10-21.md](./wa21-papeis-diretor-gestor-consultor-assinatura-2026-10-21.md)
+- [wa22-revisao-cruzada-outras-frentes-contratos-2026-10-22.md](./wa22-revisao-cruzada-outras-frentes-contratos-2026-10-22.md)
 
 ### Índices vigentes e matrizes adicionais
 
