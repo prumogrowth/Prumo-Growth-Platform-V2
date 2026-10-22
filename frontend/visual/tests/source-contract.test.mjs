@@ -10,6 +10,7 @@ const styles = get('styles.css');
 const contract = get('cf-op-02.mjs');
 const registration = get('registration-view.mjs');
 const humanCycles = get('human-cycle-view.mjs');
+const transport = get('transport-state-view.mjs');
 const bank = get('bank-view.mjs');
 const postmark = get('postmark-view.mjs');
 const teamOps = get('team-operations.mjs');
@@ -193,7 +194,7 @@ test('G3 alertas S0 só aceitam projeção de fonte e espera observada sem cron�
 });
 
 test('Chromium smoke usa ambos módulos G3 e só lê painel depois de ativá-lo',()=>{
-  assert.match(browserSmoke, /'team-monitor\.mjs','team-monitoring\.mjs','batch-monitor\.mjs','distribution-view\.mjs','conversation-attention\.mjs','app\.mjs'/);
+  assert.match(browserSmoke, /'team-monitor\.mjs','team-monitoring\.mjs','batch-monitor\.mjs','distribution-view\.mjs','transport-state-view\.mjs','conversation-attention\.mjs','app\.mjs'/);
   assert.match(browserSmoke, /page\.locator\('#team-show-monitor'\)\.click\(\)/);
   assert.match(browserSmoke, /page\.locator\('#team-show-members'\)\.click\(\)/);
 });
@@ -212,7 +213,7 @@ test('G4 não executa uploads, edição de concessão ou mudança de status come
   assert.doesNotMatch(batchMonitor, /\bfetch\s*\(|\bXMLHttpRequest\b|\bWebSocket\b|\bFileReader\b/);
   assert.doesNotMatch(batchMonitor, /\.assignedTo\s*=(?!=)|\.shops\s*=(?!=)|\.status\s*=(?!=)/);
   assert.match(app, /Somente leitura\. Upload, aceitação de linhas, roteamento/);
-  assert.match(browserSmoke, /'batch-monitor\.mjs','distribution-view\.mjs','conversation-attention\.mjs','app\.mjs'/);
+  assert.match(browserSmoke, /'batch-monitor\.mjs','distribution-view\.mjs','transport-state-view\.mjs','conversation-attention\.mjs','app\.mjs'/);
   assert.match(browserSmoke, /page\.locator\('#team-show-batches'\)\.click\(\)/);
 });
 
@@ -267,4 +268,16 @@ test('FV-UI-019: recortes históricos S0 fictícios e nova conclusão não promo
   assert.match(humanCycles,/bankSnapshots/);
   assert.match(browserSmoke,/FV-UI-019 histórico F03/);
   assert.doesNotMatch(humanCycles,/\bfetch\s*\(|\bXMLHttpRequest\b/);
+});
+
+test('FV-UI-020: ACK e estado incerto nunca viram envio provado no navegador',()=>{
+  assert.match(app,/stageMockMessageTransport\(item,m,state\.actorId,state\.shopId\)/);
+  assert.match(app,/stageMockMessageTransport\(record,message,record\.assignedTo,record\.shopId\)\.provedSent/);
+  assert.match(transport,/hasMockCaseScope\(record,actorId,shopId\)/);
+  assert.match(transport,/api_accepted/);
+  assert.match(transport,/failed_confirmed/);
+  assert.match(transport,/message\.deliveryState==='local_demo_not_sent'/);
+  assert.match(styles,/\.message-transport-state/);
+  assert.match(browserSmoke,/FV-UI-020 fronteira de transporte/);
+  assert.doesNotMatch(transport,/fetch\s*\(|XMLHttpRequest/);
 });
