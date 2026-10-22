@@ -1,5 +1,7 @@
 # E02 v0.3 — Segurança, privacidade e gates para contrato operacional OpenAI
 
+> **Refinamento lógico de tratamento de erros [P/R]:** [E01-INT v0.4](./E01_CONTRATO_TIPADO_ADAPTADOR_FALHAS_v0_4.md) diferencia negação de autorização, versão obsoleta, recusa do modelo e validação de fonte. A precedência `DENIED` antes de expor `STALE` é princípio de não divulgação, não enum físico S0 aprovado.
+
 > **Pacote de revisão entre frentes:** [E02-REV v0.3](./E02_PACOTE_REVISAO_CRUZADA_E_GATES_v0_3.md) e as conciliações [CFI-01](./CFI_01_CONCILIACAO_PONTE_F03_INTERFRENTES_v0_3.md)/[CF-OP-02/C09](./CF_OP_02_C09_CONCILIACAO_F02_INTERFRENTES_v0_3.md). O checklist ainda depende de ratificação pelos donos, não é evidência de teste.
 
 **Data:** 22/10/2026. **Natureza:** proposta de verificação [P/R], ancorada nas decisões AL-IA de 22/10 e contratos OAI/E01 v0.3. Complementa, **não apaga**, `E02_POLITICAS_SEGURANCA_CRITERIOS_ACEITE_v0_1.md`; em conflito funcional esta v0.3 prevalece **dentro da frente OpenAI**, pendente de conciliação S0/Meta/S1. Nenhuma métrica executada ou política jurídica homologada.
