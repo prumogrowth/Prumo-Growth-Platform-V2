@@ -28,8 +28,12 @@ const build=(readState,commandState)=>Object.freeze({
  * Mesmo se os envelopes candidatos forem estruturalmente válidos,
  * o retorno é somente diagnóstico e NUNCA inclui records/outcome.
  */
-export function projectCandidateIntegrationGate({readResponse=null,readExpected=null,
-    commandResponse=null,commandExpected=null}={}){
+export function projectCandidateIntegrationGate(input={}){
+  if(!input || typeof input!=='object' || Array.isArray(input) ||
+     Object.getPrototypeOf(input)!==Object.prototype)
+    return build('untrusted','untrusted');
+  const {readResponse=null,readExpected=null,
+    commandResponse=null,commandExpected=null}=input;
   const readAsked=readResponse!=null || readExpected!=null;
   const commandAsked=commandResponse!=null || commandExpected!=null;
   if(!readAsked && !commandAsked)return build('not_connected','not_connected');
