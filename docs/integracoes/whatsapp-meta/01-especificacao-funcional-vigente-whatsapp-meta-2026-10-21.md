@@ -6,7 +6,7 @@
 
 ## 1. Identidade do produto e escopo da operação [D/H]
 
-- A **Prumo Growth** é a estrutura/gestora/plataforma que opera para concessionárias; **LiberaCred** é o produto/serviço de crédito associado ao **instituição financeira**, não o nome genérico de toda a plataforma.
+- **A plataforma de atendimento comercial ainda NÃO tem nome comercial escolhido.** É desenvolvida/operada pela gestora **Prumo** e utilizada no atendimento às concessionárias para promover/comercializar **LiberaCred, que é o produto de crédito da instituição financeira**. Até nova decisão de marca, em textos e interfaces usar **plataforma**; não chamar o software de LiberaCred nem batizá-lo de Prumo por inferência. Fonte já aprovada: `documentos/17_Identidade_e_Nome_da_Plataforma_v0_1.md`, reafirmada em 22/10; integração entre PRs descrita na [WA-22](./wa22-revisao-cruzada-outras-frentes-contratos-2026-10-22.md).
 - **Cada concessionária terá sua conta empresarial Meta, Meta App próprio, WABA separada, número WhatsApp dedicado e catálogo de templates específico**, conforme a DEC-WA-05 expressamente aprovada em 17/10 e reiterada em 20/10. Sem WABA central única da Prumo. Um mesmo cliente pode aparecer em concessionárias A e B, com históricos e direitos independentes; impedir consulta e referência cruzadas.
 - O nome e a foto do WhatsApp exibidos ao cliente correspondem à **concessionária**, e a IA conhece e representa a identidade daquela loja. Ela não precisa repetir uma autodescrição artificial a cada mensagem.
 - **Decisão de negócio já tomada [D]:** esses ativos Meta são das concessionárias e a Prumo age como integradora **mediante acesso delegado** (DEC-WA-05). **Validação externa ainda necessária [V]:** confirmar em cada conta Meta os titulares efetivos, IDs, habilitação, sistema de permissão, webhook, inscrição WABA e acesso delegado. Não confundir falta de verificação documental real com falta de definição da titularidade desejada.
@@ -160,6 +160,22 @@ O responsável deseja que a mensagem **enviada pelo operador humano** possa exib
 | Variáveis por campo permitido congeladas por versão | Sim | Contrato inicial WA-17 permite remapeamento após APPROVED: requer reparo técnico |
 | Duas falhas consecutivas e reset por sent | Sim | S0-C07 diagnóstico; regra comercial/contador ainda NÃO homologados |
 | Testes WA-16/17 | Cenários definidos | 44 testes Node escritos, 42 verificações V8 independentes; execução Node atual/PG17 WA16 **não confirmada** |
+
+## 16A. Contratos interfrentes confirmados na revisão de 22/10 [D/R/T]
+
+A [WA-22 — revisão cruzada das outras frentes](./wa22-revisao-cruzada-outras-frentes-contratos-2026-10-22.md) é o registro de origem/precedência. Ao especificar esta integração, observar:
+
+1. **Prova de humano:** consultor/gestor/diretor escrever ou clicar enviar não confirma contato. Receber evidência `human_message_sent` autenticada/correlacionada ao caso e ao autor; assinatura textual `Consultor Nome:` NÃO substitui a prova técnica. Chamadas atendidas via Meta permanecem [V].
+2. **Pausa de novos leads:** `intake_paused` NÃO deve bloquear resposta do profissional em caso que conserva; S0/S1 decide titularidade, concessão e fila. F01 não deve ter acesso à equipe/escala/disponibilidade.
+3. **F03 pós-humana:** somente comando explícito de conclusão humana pela S0 aciona F03, **não** expiração de 24h Meta. O transporte Meta fornece eventos/mensagens necessários a histórico temporal, mas não gera o ato de fechamento.
+4. **Histórico e mídias:** disponibilizar IDs, timestamp, autores, eventos e referências a mídias legalmente retidas do cliente **na mesma concessionária ao longo de conversas e ciclos**, sob `cutoff` imutável, sem misturar mensagem futura. Acesso multimodal e retenção precisam de política Meta/LGPD/Banco; não inventar guarda eterna.
+5. **Três marcos:** janela de livre resposta Meta a partir do último inbound, conclusão expressa do Consultor e janela C09 24h após `sent` do template final em caso elegível são relógios/atos independentes. Template individual versus cadeia F02 e C09 pós-humano ainda têm matriz [R].
+6. **Indicador de leitura da UI:** `COUNT/DOT/NONE` para inbound não lido/lido sem resposta/respondido pertence à **atribuição humana no S0/S1**; leitura supervisora de Gestor não marca leitura do Consultor. `read` callback da Meta indica outra coisa (leitura pelo destinatário), não equivale ao painel.
+7. **Dados cadastrais e motivos:** OpenAI AL-IA-01 de 22/10 registra que o Consultor **não edita ficha manualmente** e que a F03 pode propor perda por desistência após conclusão humana, sob guardas S0, **nunca venda**. Isso altera ou conflita com D41-04 quanto a correções humanas; coordenação deve resolver antes de qualquer UI/payload de edição. Nossa frente não decide status comercial.
+8. **Elegibilidade promocional:** catálogos de conhecimentos/condições comerciais controlados por concessionária podem servir de fontes, mas **a fonte autorizada da oferta** precisa ser definida. O pacote 17/10 não previa banco central de campanhas/marketing na S0; não criar tabela só por existir finalidade CAMPANHA nos templates.
+9. **MCP Diretor:** exige autenticação/delegação, prévia e segunda confirmação para mutações, e a **base de auditoria protegida do próprio MCP não pode ser editada/excluída por suas ferramentas**. Servidor e seus controles são de outra frente; registrar somente operações de domínio WhatsApp autorizadas.
+
+**Status:** são contratos/decisões documentais; PRs #1/#3/#5/#7/#8/#12 e frontend continuam independentes. Este guia NÃO significa implementação real dessas mudanças nem validação de Meta/Banco/LGPD. Casos pendentes e links exatos na WA-22.
 
 ## 17. Como proceder se houver conflito ou nova decisão
 
