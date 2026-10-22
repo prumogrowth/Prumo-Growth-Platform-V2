@@ -1,5 +1,7 @@
 # Conciliação entre PR #1 (núcleo S0) e PR #2 (WhatsApp/Meta) | v0.1
 
+> **IDENTIDADE DO PRODUTO — LEITURA ATUAL (22/10/2026):** a expressão histórica “plataforma LiberaCred” reproduz o título de um parecer recebido, **não é nome aprovado do software**. A plataforma de atendimento comercial segue sem marca própria; **LiberaCred é produto da instituição financeira**, e a Prumo é a gestora. Ver [WDC-01](./00-decisoes-vigentes-precedencia-documental-2026-10-21.md) e [WA-22](./wa22-revisao-cruzada-outras-frentes-contratos-2026-10-22.md).
+
 > **[LEITURA_ORIENTADA_2026_10_21] Documento de referência histórica ou de engenharia, NÃO substitui decisões funcionais recentes.** Consulte o [LEIA PRIMEIRO](./README.md), a [especificação vigente](./01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md) e o [mapa de conflitos por origem](./02-mapa-fontes-conflitos-e-emendas-2026-10-21.md). Apenas trechos expressamente substituídos perdem vigência; evidências offline não significam serviços reais homologados.
 
 **Status:** **DEC-WA-01, DEC-WA-02 e DEC-WA-03 APROVADAS pelo responsável** como diretrizes arquiteturais. Detalhamento físico permanece proposto [P]; **não há autorização para migrations, implantação, operações de canal comercial ou contratação**. DEC-WA-04 a DEC-WA-06 continuam pendentes.  
