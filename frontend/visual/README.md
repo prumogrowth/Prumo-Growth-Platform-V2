@@ -10,6 +10,8 @@
 
 > **FV-UI-021 (22/10/2026):** [preparação S0/S1 e acessibilidade](../docs/45_FV_UI_021_PREPARACAO_S0_S1_ACESSIBILIDADE_2026_10_22.md). O novo `integration-gate-view.mjs` classifica **somente estruturas candidatas**, nunca autentica, libera registros, comandos ou ações comerciais. O Frontend demonstra anúncio acessível de contexto, foco entre telas móveis, Home/End nas abas e ajustes para altura reduzida. Verificações V8 não substituem Node/Chromium/leitor de tela nativos.
 
+> **FV-UI-022 (22/10/2026):** [proteções de Escape/rascunho e smoke Chromium](../docs/46_FV_UI_022_ESCAPE_RASCUNHO_SMOKE_REGRESSAO_2026_10_22.md). O Escape móvel agora recupera foco da tela visível, cancelamento de prévia conserva o rascunho só no atendimento original, o mock trata campos como `INPUT` e o smoke exige 12 casos na supervisão Marina/Aurora. Testes V8 aprovados; **execução nativa e homologação pendentes**.
+
 **Branch proprietária:** `feat/frontend-plataforma-visual`. **Referência visual:** organização de mensageiro familiar ao WhatsApp, sem copiar sua identidade, marca ou recursos. **Situação:** demonstração local com dados 100% sintéticos; não é portal operacional.
 
 ## Abrir localmente
