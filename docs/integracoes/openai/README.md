@@ -1,5 +1,16 @@
 # Frente OpenAI — Prumo Growth | índice inicial
 
+## E02 operacional v0.3 — segurança, conhecimento e testes documentais (22/10/2026)
+
+Esta rodada avança **E01/E02 documental**, sem iniciar implementação. Fontes [DN]: AL-IA-02/03; regras candidatas [P/R] separam o que a frente OpenAI propõe do que depende de S0/S1/Meta/Prumo.
+
+- [E01-KH v0.3 — Contrato lógico de conhecimento, bases, habilidades e MCP](./E01_CONHECIMENTO_HABILIDADES_E_MCP_OPERACIONAL_v0_3.md)
+- [E02 v0.3 — Segurança, privacidade e gates operacionais](./E02_SEGURANCA_E_GATES_OPERACIONAIS_v0_3.md)
+- [E02-MT v0.3 — Matriz SYN-01..70, correções SYN-08/SYN-09 e novos cenários](./E02_MATRIZ_REGRESSAO_OPERACIONAL_v0_3.md)
+- [E02-FIX v0.3 — Dez exemplos de fixtures narrativas para posterior concretização](./E02_CADERNO_FIXTURES_DOCUMENTAIS_v0_3.md)
+
+**Situação verificável:** 70 cenários **documentados** (32 históricos + 38 novos), 10 exemplificados, **0 executados**. Não confundir testes textuais com PASS; E02-REV/FIX não estão aprovados, E04 permanece condicionado à liberação **expressa de implementação** (G-FASE-DO-PROJETO). E05 ainda requer autorização de chave, orçamento e ambiente. Os arquivos antigos permanecem rastreáveis, mas discrepâncias funcionais seguem v0.3 e AL-IA.
+
 ## Contratos operacionais v0.3 — atualização iniciada em 22/10/2026 [P/R]
 
 Foram publicadas **novas versões candidatas de implementação**, alinhadas às decisões mais recentes AL-IA. **Precedência de consulta:** AL-IA-00..08 (decisões [DN], limitações [R/V]) → versões operacionais v0.3 abaixo → versões v0.1/v0.2 históricas para rastreabilidade.
