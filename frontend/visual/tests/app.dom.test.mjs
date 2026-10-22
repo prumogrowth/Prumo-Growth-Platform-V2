@@ -631,12 +631,13 @@ test('FV-UI-018: atribuição só oferece equipe ativa e descarta intenção ap�
 
 test('FV-UI-018: caso Lia com exceção só abre A-117 em Aurora sem grant geral',()=>{
   reset();env.selectActor('lia');
-  assert.ok(get('shop-select').textContent.includes('Aurora Motos'));
+  assert.ok(get('shop-select').textContent.includes('Aurora Motos · somente caso excepcional'));
   env.selectShop('aurora');
   assert.equal(env.cards().length,1);
   env.openCase('Exemplo 19');
   assert.equal(get('message-input').disabled,false);
   assert.ok(get('thread-meta').textContent.includes('A-117'));
+  assert.match(get('workflow-bar').textContent,/Acesso excepcional: SOMENTE este caso/);
   assert.equal(env.cards().some(x=>x.textContent.includes('Exemplo 02')),false);
   env.selectShop('horizonte');
   assert.equal(get('thread-meta').textContent.includes('A-117'),false);
