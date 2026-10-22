@@ -1,3 +1,5 @@
+> **EMENDA SUPERVENIENTE — 22/10/2026 [D/E]:** para a **frente Frontend** prevalece o [FV-DOC-03 — contrato funcional vigente](./38_FV_DOC_03_CONTRATO_FUNCIONAL_FRONTEND_2026_10_22.md). **A plataforma da Prumo ainda não tem nome; LiberaCred é o produto da instituição financeira.** Papéis visíveis: **Diretor / Gestor / Consultor**. A ficha cadastral do **Consultor é integralmente não editável**, inclusive sem correção excepcional C13 na UI; pendências são esclarecidas por atendimento, e atualização autorizada é confirmada pelo S0. **F01** atende, **F02** planeja templates, **F03** extrai após conclusão humana explícita; a troca de siglas em fala recente está marcada [R-SIGLA-01]. Assinatura de mensagem humana livre deve ser `Cargo Nome:\nMensagem` com validação pelo serviço. IA de melhoria fora da primeira versão. **Descrições anteriores incompatíveis abaixo são históricas e não critérios vigentes de aceite de UI.** Nenhuma alteração de código ou das outras frentes decorre desta emenda.
+
 # FV-02 — Concluir conversa humana → extração → ficha | contrato UI ↔ S0 v0.1
 
 **Data:** 18/10/2026. **Natureza:** orientação funcional de negócio aprovada pelo responsável em 18/10; assinatura e estados de integração **candidatos [P]** até S0 conciliar [R] com OpenAI OAI-05/E01. Nenhum endpoint/API implementado nem chamada externa executada.
@@ -16,7 +18,7 @@ A extração é um serviço de retaguarda, **não a IA Vendedora conversando nov
 4. **OpenAI → S0**: devolve campos sugeridos, fontes de mensagens, ausências, contradições e incertezas, SEM SQL, banco, evento comercial ou WhatsApp.
 5. **S0**: valida os dados um a um (allowlist/catálogo, tipo, fonte, classe sensível, permissões, snapshot/hash, versão e atualização concorrente); grava automaticamente **somente campos elegíveis** com autoria técnica fiel, evento idempotente e nova versão; guarda pendências sem palpite.
 6. **Frontend**: consulta status de processamento e UQ03 autorizada; apresenta progresso técnico, ficha versão atual, proveniência permitida e pendências. Após revogação de acesso, descarta dados de tela e recusa ações.
-7. **Humano**: diante de pendência, conversa com cliente para esclarecimento ou, **excepcionalmente**, corrige caso específico segundo doc.23/C13/D41-04, política ainda a refinar; nunca restabelece a IA Vendedora.
+7. **Consultor / Gestor titular**: diante de pendência, conversa com cliente para esclarecimento e solicita processamento autorizado; **NUNCA corrige manualmente campo cadastral, nem por C13 excepcional** [decisão posterior de 22/10]. Não restabelecer a IA Vendedora após handoff. Encaminhar lacuna ao Consultor original ou, quando indisponível, ao Gestor, conforme fonte OpenAI; execução física é responsabilidade S0/S1.
 
 ## 3. Ação frontend → S0 [P; NÃO endpoint físico]
 
@@ -64,14 +66,14 @@ Dados que o cliente não declarou permanecem ausentes; declaração ambígua ou 
 ## 7. Idempotência, concorrência e falhas
 
 - Mesmo caso/evento e snapshot: evitar duas gravações/versões por clique duplo e retries, S0 é autoridade de deduplicação.
-- Mensagem nova ou correção manual excepcional posterior ao snapshot: resultado antigo NÃO substitui atualização recente; reprocessamento precisa de novo corte e autorização.
+- Mensagem nova ou atualização autorizada posterior ao snapshot (inclusive via processo administrativo do Diretor): resultado antigo NÃO substitui atualização recente; reprocessamento precisa de novo corte e autorização.
 - Atribuição revogada: UI elimina ações imediatamente; S0 recusa comando mesmo se botão ficar renderizado por atraso.
 - Falha de OpenAI/timeout/429: status técnico de falha ou pendência; manter a operação humana possível dentro das decisões, sem suspensão/autorreparo da plataforma e sem avanço do status.
 - Cliente tenta instruir IA via conversa: conteúdo é dado, nunca comando ou credencial de permissão.
 
 ## 8. Critérios de aceite futuros [P, NÃO EXECUTADOS]
 
-FV02-T01: operador não encontra edição rotineira de campos do cadastro; pode conversar e solicitar conclusão.
+FV02-T01 [D 22/10]: Consultor não encontra edição cadastral **de qualquer tipo**, nem habitual nem excepcional; pode conversar, solicitar conclusão e visualizar apenas ficha e pendências autorizadas.
 FV02-T02: pressionar 'Concluir' apenas registra pedido/conclusão técnica; não vende, não remete e não altera status comercial.
 FV02-T03: navegador nunca chama API OpenAI diretamente e não contém chave.
 FV02-T04: saída do modelo sem fonte, contraditória ou inválida não vira dado confirmado; S0 é validador/persistidor.
@@ -82,7 +84,7 @@ FV02-T08: operador sem caso atribuído/gestor não autoatribuído/loja sem conce
 FV02-T09: mesmo telefone em A e B não mistura fontes nem ficha.
 FV02-T10: áudio sem transcrição autorizada fica pendente e não é presumido.
 FV02-T11: gestor com autoatribuição válida usa poderes de operador no caso; sem ela só lê D2/visões autorizadas.
-FV02-T12: correção excepcional C13 continua distinta do fluxo normal, sujeita à norma e revisão de UX [R].
+FV02-T12 [D 22/10; substitui hipótese antiga]: **tentar editar manualmente qualquer campo cadastral pelo Consultor deve ser impossível na UI**, mesmo com lacuna/contradição ou alegação de exceção C13. Operações MCP do Diretor não são ação do Consultor.
 FV02-T13: erro do provedor não religa IA Vendedora nem suspende toda a plataforma.
 FV02-T14: caso do tipo exceção humana em `em atendimento pelo operador` não ganha status automático por extrair ficha.
 
