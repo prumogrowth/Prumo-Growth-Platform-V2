@@ -283,3 +283,17 @@ jobs:
             test "$(grep -cx "WA27-$n PASS" "$RUNNER_TEMP/wa27_evidence.log" || true)" = 1
           done
           echo 'PASS WA27: 14 PG17-to-TypeScript checks with role RLS and distinct COMMIT sessions'
+
+      - name: "WA-28: reserva e revogacao concorrentes PG17 descartavel"
+        run: |
+          set -euo pipefail
+          sql='meta/integrations/whatsapp-meta/lab'
+          psql -X -qAt -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" \
+            -f "$sql/wa28_pg17_atomic_reservation.sql" > "$RUNNER_TEMP/wa28_setup.log"
+          grep -qx 'WA28-SETUP PASS' "$RUNNER_TEMP/wa28_setup.log"
+          python3 "$sql/wa28-assert-concurrent-pg17.py" | tee "$RUNNER_TEMP/wa28_evidence.log"
+          for n in {01..20}; do
+            count="$(grep -cx "WA28-$n PASS" "$RUNNER_TEMP/wa28_evidence.log" || true)"
+            if [[ "$count" != 1 ]]; then echo "FAIL WA28-$n marker: $count" >&2; exit 1; fi
+          done
+          echo 'PASS WA28: 20 assertions with two real PostgreSQL row-lock interleavings'
