@@ -1,7 +1,7 @@
 /** FV-UI-002. Projeções de INTERFACE somente sobre fixtures sintéticas.
  * Nenhuma função autentica, valida autorização real, grava no S0 ou chama provedor.
  */
-import { getActor, visibleConversations } from './fixtures.mjs';
+import { getActor, hasMockCaseScope, visibleConversations } from './fixtures.mjs';
 
 export const DETAIL_TABS = Object.freeze([
   { id: 'overview', title: 'Resumo' },
@@ -37,8 +37,8 @@ export function summaryOf(records, actorId, shopId) {
 
 export function canWriteNote(record, actorId, shopId) {
   const actor = getActor(actorId);
-  return Boolean(actor && actor.teamState === 'active' && record && actor.shops.includes(shopId) &&
-    record.shopId === shopId && record.assignedTo === actorId);
+  return Boolean(actor && hasMockCaseScope(record,actorId,shopId) &&
+    record.assignedTo === actorId);
 }
 
 export function canSeeTeamSummary(actorId, _shopId) {
