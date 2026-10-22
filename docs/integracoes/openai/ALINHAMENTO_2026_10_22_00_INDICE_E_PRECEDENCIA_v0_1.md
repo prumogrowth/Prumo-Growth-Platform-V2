@@ -1,13 +1,13 @@
 # AL-IA-00 — Índice mestre do alinhamento funcional de IA e conhecimento
 
-**Projeto:** LiberaCred / Prumo Growth  
+**Projeto:** plataforma comercial da Prumo (sem nome definitivo). **LiberaCred** é exclusivamente o produto de crédito da instituição financeira.  
 **Data:** 22/10/2026  
 **Local no GitHub:** branch `feat/s2-openai-adapter-sintetico`, **PR #3 Draft, frente OpenAI**.  
 **Estado:** **registro documental da manifestação do responsável**, **NÃO** implementação, merge, aceite de outra frente ou autorização externa.
 
 ## Propósito
 
-Preservar integralmente em nossa **frente OpenAI** o alinhamento recente da LiberaCred sobre **atendimento F01/F02/F03, jornada humana, histórico, status comerciais, ficha, bases de conhecimento, contextos, instruções, comportamento, cache, habilidades e MCP de Diretores**, junto com a distinção de decisões históricas e pendências.
+Preservar integralmente em nossa **frente OpenAI** o alinhamento recente da plataforma sobre **atendimento F01/F02/F03, jornada humana, histórico, status comerciais, ficha, bases de conhecimento, contextos, instruções, comportamento, cache, habilidades e MCP de Diretores**, junto com a distinção de decisões históricas e pendências.
 
 O registro é **aditivo**: não apaga arquivos antigos da frente OpenAI nem os 55 documentos da cópia de Drive 17/10; não altera S0/S1/Meta, não muda código nem testa integrações. O problema de possível documentação divergente no Google Drive/projeto/GitHub pertence a **frente documental distinta**. A presença deste pacote no PR #3 não confirma que todo o conteúdo dos 55 originais esteja aqui.
 
