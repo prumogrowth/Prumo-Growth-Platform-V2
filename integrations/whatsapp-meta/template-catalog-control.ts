@@ -49,7 +49,8 @@ function freeze(t:Template):Template{
   mappings:Object.freeze(t.mappings.map(m=>Object.freeze({...m}))),
  });
 }
-/** Text and examples come exclusively from a responsible human's input. */
+/** Compatibility entrypoint: human-supplied text is allowed; AI-assisted creation
+ * belongs to WA-17B and requires the separate authenticated administrative gate. */
 export function createManualTemplate(input:ManualTemplateInput):Template{
  // The future HTTP/UI boundary must not inject access tokens, fake approval
  // flags or getters into a persisted template draft.
@@ -108,13 +109,24 @@ export function applyVerifiedMetaStatus(template:Template,providerId:string,stat
    'UNTRUSTED_STATUS_SCOPE');
  requireValid(['PENDING','APPROVED','REJECTED','PAUSED','DISABLED'].includes(status),
    'UNKNOWN_META_STATUS');
+ // WDC-09: a Meta-approved content version must already carry its exact,
+ // ordered slot-to-source snapshot. After approval it cannot be remapped.
+ if(status==='APPROVED'){
+  requireValid(template.positions.length===template.mappings.length&&
+   template.positions.every((position,i)=>template.mappings[i]?.position===position),
+   'VARIABLE_BINDINGS_REQUIRED_BEFORE_APPROVAL');
+ }
  return freeze({...template,stage:status});
 }
-/** Edits ONLY source bindings. Registry comes from an authenticated tenant backend. */
+/** Edits ONLY draft/review bindings. APPROVED (also later PAUSED/DISABLED)
+ * snapshots remain immutable for WDC-09; use a new reviewed version to change
+ * a source. Registry and version locking belong to the authenticated backend. */
 export function configureVariableSources(
  template:Template,expectedRevision:number,mappings:readonly Mapping[],
  trustedRegistry:readonly SourceDefinition[],
 ):Template{
+ requireValid(template.stage==='DRAFT'||template.stage==='IN_REVIEW',
+  'APPROVED_VERSION_BINDINGS_FROZEN');
  requireValid(expectedRevision===template.mapping_revision,'STALE_MAPPING_REVISION');
  requireValid(Array.isArray(mappings)&&mappings.length===template.positions.length,
    'INCOMPLETE_VARIABLE_BINDINGS');
@@ -144,6 +156,8 @@ export function prepareApprovedTemplateParameters(
    'TEMPLATE_NOT_APPROVED');
  requireValid(template.positions.length===template.mappings.length,
    'UNCONFIGURED_VARIABLES');
+ requireValid(template.positions.every((position,i)=>template.mappings[i]?.position===position),
+   'INVALID_FROZEN_MAPPING');
  const params=template.mappings.map(({position,source_key})=>{
   requireValid(template.positions.includes(position),'UNKNOWN_SLOT');
   requireValid(Object.hasOwn(values,source_key),'MISSING_VARIABLE_VALUE');
