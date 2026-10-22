@@ -1,6 +1,6 @@
 # WA-30 — Recuperação de envio incerto: evidência durável sem reenvio (PG17 + TypeScript)
 
-**22/10/2026 · [PR #2 Draft](https://github.com/prumogrowth/Prumo-Growth---Platform/pull/2) · Escopo exclusivo WhatsApp/Meta, laboratório isolado.** Continua [WA-29](./wa29-claim-unico-pre-despacho-revogacao-concorrente-pg17-2026-10-22.md) e a semântica [WA-16](./wa16-perda-resposta-commit-recuperacao.md) de falha de confirmação transacional, sem convertê-las em integração Meta real.
+**22/10/2026 · [PR #2 Draft](https://github.com/prumogrowth/Prumo-Growth---Platform/pull/2) · Escopo exclusivo WhatsApp/Meta, laboratório isolado.** Continua [WA-29](./wa29-claim-unico-pre-despacho-revogacao-concorrente-pg17-2026-10-22.md) e a semântica [WA-16](./wa16-commit-incerto-e-recuperacao-laboratorio-2026-10-20.md) de falha de confirmação transacional, sem convertê-las em integração Meta real.
 
 ## Evidência executada
 
