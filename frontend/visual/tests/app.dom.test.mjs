@@ -56,7 +56,7 @@ test('histórico continua legível e não permite mensagem em caso perdido', () 
 test('gestor vê equipe somente quando ativo e preserva escopo por loja', () => {
   reset();
   env.selectActor('marina');
-  assert.equal(env.cards().length, 11);
+  assert.equal(env.cards().length, 12); // inclui transferência fictícia A-117 de escopo por caso
   assert.equal(get('team-nav').hidden, false);
   get('team-nav').click();
   assert.equal(get('team-dialog')._open, true);
