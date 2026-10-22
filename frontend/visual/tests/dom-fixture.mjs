@@ -72,7 +72,13 @@ export function installMockDOM({ mobile = false } = {}) {
     'context-announcement', 'toast', 'team-nav', 'team-nav-mobile', 'team-close',
     'reset-app', 'composer', 'thread-back', 'detail-back', 'detail-close'
   ];
-  const nodes = new Map(ids.map(id => [id, new MockNode(id.endsWith('dialog') ? 'dialog' : id.includes('select') || id === 'status-filter' ? 'select' : 'div')]));
+  const nodes = new Map(ids.map(id => {
+    const tag=id.endsWith('dialog') ? 'dialog' :
+      ['search-input','message-input'].includes(id) ? 'input' :
+      id.includes('select') || ['status-filter','queue-assignee'].includes(id) ? 'select' :
+      'div';
+    return [id,new MockNode(tag)];
+  }));
   for (const [id, node] of nodes) node.id = id;
   const inbox = ['active','history'].map(value => {const n=new MockNode('button'); n.dataset.inbox=value; return n;});
   const filters = ['all','unread','mine'].map(value => {const n=new MockNode('button'); n.dataset.filter=value; return n;});
