@@ -64,8 +64,8 @@
       <div class="thread-body" id="thread-body" role="log" aria-label="Mensagens fictícias do atendimento" aria-live="off"></div>
       <div class="thread-bottom">
         <div class="workflow-bar" id="workflow-bar"></div>
-        <form class="composer" id="composer" autocomplete="off"><input id="message-input" name="message" placeholder="Escrever mensagem de demonstração…" aria-label="Mensagem sintética para a conversa" maxlength="500"><button type="submit" class="send-button" aria-label="Adicionar mensagem fictícia" title="Adicionar mensagem fictícia"><svg class="icon"><use href="#i-send"/></svg></button></form>
-        <p class="composer-note">Simulação somente no navegador · nenhuma mensagem é enviada pelo WhatsApp.</p>
+        <form class="composer" id="composer" autocomplete="off"><input id="message-input" name="message" placeholder="Escrever mensagem de demonstração…" aria-label="Mensagem sintética para a conversa" maxlength="500"><button type="submit" class="send-button" aria-label="Conferir prévia de mensagem fictícia" title="Conferir prévia de mensagem fictícia"><svg class="icon"><use href="#i-send"/></svg></button></form>
+        <p class="composer-note">Texto digitado → prévia → registro somente na demonstração. Nenhum envio pelo WhatsApp.</p>
       </div>
     </section>
 
@@ -78,18 +78,28 @@
 
 <dialog id="team-dialog" class="team-dialog" aria-labelledby="team-title">
   <div class="team-dialog-header"><div><p class="eyebrow">EQUIPE DA PRUMO · DEMONSTRAÇÃO</p><h2 id="team-title">Equipe sob gestão</h2></div><button type="button" class="icon-button" id="team-close" aria-label="Fechar visão da equipe"><svg class="icon"><use href="#i-close"/></svg></button></div>
-  <p class="team-hint team-intro">Gestão por operador, independente do filtro de loja. Ações fictícias: não alteram acesso, distribuição ou carteira.</p>
+  <p class="team-hint team-intro">Gestão por Consultor, independente do filtro de loja. Ações fictícias: não alteram acesso, distribuição ou carteira.</p>
   <details class="team-help"><summary>Entenda o alcance e os limites</summary>
-    <p>Equipe organizada por operadores da Prumo, independentemente do filtro de concessionária. Lojas são concessões somente leitura, definidas pelo responsável. Solicitar pausa ou retomada de novos leads alcança TODAS as lojas autorizadas do operador. Nenhuma solicitação desta demonstração altera disponibilidade, acesso, distribuição ou carteira; esses efeitos dependem de S0/S1-002.</p>
+    <p>Equipe organizada por Consultores da Prumo, independentemente do filtro de concessionária. Lojas são concessões somente leitura, definidas pelo Diretor. Solicitar pausa ou retomada de novos leads alcança TODAS as lojas autorizadas do Consultor. Nenhuma solicitação desta demonstração altera disponibilidade, acesso, distribuição ou carteira; esses efeitos dependem de S0/S1-002.</p>
   </details>
   <div class="team-mode" role="group" aria-label="Exibição da gestão">
-    <button type="button" id="team-show-members" class="btn btn-primary" aria-pressed="true" aria-controls="team-list">Operadores</button>
+    <button type="button" id="team-show-members" class="btn btn-primary" aria-pressed="true" aria-controls="team-list">Consultores</button>
     <button type="button" id="team-show-monitor" class="btn btn-light" aria-pressed="false" aria-controls="team-monitor">Monitoramento</button>
     <button type="button" id="team-show-batches" class="btn btn-light" aria-pressed="false" aria-controls="team-batches">Lotes</button>
   </div>
   <div id="team-list" aria-label="Equipe fictícia e casos atribuídos"></div>
-  <div id="team-monitor" aria-label="Monitoramento fictício dos operadores sob gestão" hidden></div>
+  <div id="team-monitor" aria-label="Monitoramento fictício dos Consultores sob gestão" hidden></div>
   <div id="team-batches" aria-label="Acompanhamento fictício dos lotes autorizados para a equipe" hidden></div>
+</dialog>
+<dialog id="message-preview-dialog" class="completion-dialog" aria-labelledby="message-preview-title">
+  <form method="dialog" id="message-preview-form">
+    <p class="eyebrow">MENSAGEM HUMANA · PRÉVIA SINTÉTICA</p>
+    <h2 id="message-preview-title">Conferir autoria e texto</h2>
+    <p>O cabeçalho é composto a partir do perfil fictício selecionado. O serviço S0 deverá validar a autoria real.</p>
+    <p id="message-preview-body" class="message-preview-body" aria-label="Corpo de mensagem em prévia, não enviada"></p>
+    <p class="message-preview-disclaimer">Confirmar apenas adiciona uma mensagem de exemplo à tela. Não há API Meta nem confirmação de envio, entrega ou leitura.</p>
+    <div class="dialog-actions"><button value="cancel" class="btn btn-light" type="submit">Voltar ao rascunho</button><button value="confirm" class="btn btn-primary" type="submit">Confirmar somente na simulação</button></div>
+  </form>
 </dialog>
 <dialog id="template-dialog" class="completion-dialog" aria-labelledby="template-title">
   <form method="dialog" id="template-form">
