@@ -4,6 +4,8 @@
 
 > **FV-UI-018 (22/10/2026):** adicionado [registro da fila compartilhada e case-only](../docs/42_FV_UI_018_PERMISSOES_DISTRIBUICAO_2026_10_22.md). Novo painel G2 de **fila sem titular por concessionária**, com ações fictícias sem resultado de S0; caso `A-117` demonstra acesso excepcional da Consultora Lia a **um único atendimento** de Aurora, sem acesso geral à loja. D-AL-02 de casos pausados continua separado da distribuição regular de novos leads. Testes V8 não são aceite Node/Chromium nem autorização real. Leituras históricas abaixo conservam seu contexto de época.
 
+> **FV-UI-019 (22/10/2026):** acrescentadas [conclusões sucessivas e ficha viva sintéticas](../docs/43_FV_UI_019_CONCLUSOES_F03_FICHA_VIVA_2026_10_22.md). `A-108` contém dois eventos históricos de F03 **já projetados pela fixture** e um cenário alternativo para simular um novo clique de conclusão, com cutoff **candidato, não confirmado**. `A-114` mostra ficha atualizada e remessa antiga preservada, sem inferir edição manual ou movimentação bancária. Testes V8 não são homologação nativa nem integração S0.
+
 **Branch proprietária:** `feat/frontend-plataforma-visual`. **Referência visual:** organização de mensageiro familiar ao WhatsApp, sem copiar sua identidade, marca ou recursos. **Situação:** demonstração local com dados 100% sintéticos; não é portal operacional.
 
 ## Abrir localmente
