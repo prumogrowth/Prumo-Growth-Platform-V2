@@ -1,5 +1,7 @@
 # E02-FIX v0.3 — Caderno de fixtures documentais E02, sem execução
 
+> **Ampliação documental:** [70 oráculos E02-FIX v0.4](./E02_CADERNO_70_ORACULOS_E_OBSERVAVEIS_v0_4.md), com entrada, EXPECTED, observável e negativos por cenário. Os dez casos aqui seguem como exemplos detalhados; nenhuma fixture executável ou teste foi criado.
+
 **Data:** 22/10/2026. **Status:** [P/R] artefato de preparação E02-FIX. Dados **100% inventados**. As chaves abaixo são apenas **linguagem lógica de teste**, não JSON Schema da S0, payload OpenAI, estrutura persistida nem contrato físico. Não há código, testes executados, API, custo, credenciais ou aceite bilateral.
 
 ## Convenções dos exemplos
