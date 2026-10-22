@@ -9,6 +9,9 @@ A policy S0 `casos_select_escopo`, mais as de `atribuicoes_humanas` e `conversas
 - `scripts/run-s1-002-i12-local.sh`: executa a auditoria após o baseline S0/S1 em PG17 descartável.
 - Testa Gestor 1 e 2 com grant na mesma loja, Gestor 3 sem grant mas com equipe e Consultor titular. Todas as políticas/funções/fixtures do candidato são encerradas por `ROLLBACK`, sem escrita persistente.
 
+## Evidência de execução
+[GitHub Actions PG17 #39812300342 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39812300342), teste executado com código até o commit `a91c7a5a92d074395e5d1fa4d0eb9564063567dc`, job `119941726760`. Logs verificaram `I38-RED01/02` (divergências reproduzidas), `I38-GREEN01..04` (quatro cenários de política candidata) e `I38-ROLLBACK`. O workflow incluiu regressões S0/S1 anteriores. Os RED são evidências de **falhas existentes observadas**, não testes de aceitação de produto; os GREEN validam apenas o candidato transitório no PG17.
+
 ## Limites e bloqueios
 **Não promover a política candidata sem contrato e revisão técnica S0.** Ela demonstra apenas isolamento de casos atribuídos nos objetos cobertos. Não resolve fila de lead novo sem titular, acesso a histórico completo do mesmo contato, D3/D4, relatórios por loja, diretor, grants excepcionais, anexos, RLS em funções `SECURITY DEFINER` existentes ou permissões de recursos futuros. A leitura de supervisão vigente deve preservar todos esses limites.
 
