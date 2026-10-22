@@ -192,7 +192,7 @@ test('G3 alertas S0 só aceitam projeção de fonte e espera observada sem cron�
 });
 
 test('Chromium smoke usa ambos módulos G3 e só lê painel depois de ativá-lo',()=>{
-  assert.match(browserSmoke, /'team-monitor\.mjs','team-monitoring\.mjs','batch-monitor\.mjs','conversation-attention\.mjs','app\.mjs'/);
+  assert.match(browserSmoke, /'team-monitor\.mjs','team-monitoring\.mjs','batch-monitor\.mjs','distribution-view\.mjs','conversation-attention\.mjs','app\.mjs'/);
   assert.match(browserSmoke, /page\.locator\('#team-show-monitor'\)\.click\(\)/);
   assert.match(browserSmoke, /page\.locator\('#team-show-members'\)\.click\(\)/);
 });
@@ -211,7 +211,7 @@ test('G4 não executa uploads, edição de concessão ou mudança de status come
   assert.doesNotMatch(batchMonitor, /\bfetch\s*\(|\bXMLHttpRequest\b|\bWebSocket\b|\bFileReader\b/);
   assert.doesNotMatch(batchMonitor, /\.assignedTo\s*=(?!=)|\.shops\s*=(?!=)|\.status\s*=(?!=)/);
   assert.match(app, /Somente leitura\. Upload, aceitação de linhas, roteamento/);
-  assert.match(browserSmoke, /'batch-monitor\.mjs','conversation-attention\.mjs','app\.mjs'/);
+  assert.match(browserSmoke, /'batch-monitor\.mjs','distribution-view\.mjs','conversation-attention\.mjs','app\.mjs'/);
   assert.match(browserSmoke, /page\.locator\('#team-show-batches'\)\.click\(\)/);
 });
 
