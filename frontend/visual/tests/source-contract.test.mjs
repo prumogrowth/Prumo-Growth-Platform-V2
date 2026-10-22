@@ -297,3 +297,16 @@ test('FV-UI-020: resultado técnico conservador e C13 fora das ações candidata
   assert.match(command,/C13 is historical/);
   assert.doesNotMatch(feedback,/\bfetch\s*\(|\bXMLHttpRequest\b/);
 });
+
+test('FV-UI-021: foco e contexto acessíveis, sem tocar dados ou integrações reais',()=>{
+  assert.match(markup,/id="context-announcement"/);
+  assert.match(markup,/class="sr-only" role="status" aria-live="polite"/);
+  assert.match(markup,/id="conversation-list"[^>]*tabindex="-1"/);
+  assert.match(app,/function announceCurrentContext\(detail=''/);
+  assert.match(app,/announceCurrentContext\('Perfil alterado'\)/);
+  assert.match(app,/announceCurrentContext\('Concessionária alterada'\)/);
+  assert.match(app,/\['ArrowLeft','ArrowRight','Home','End'\]/);
+  assert.match(styles,/\.sr-only\{/);
+  assert.match(styles,/\.detail-tab\{min-height:44px\}/);
+  assert.match(styles,/max-height:550px/);
+});
