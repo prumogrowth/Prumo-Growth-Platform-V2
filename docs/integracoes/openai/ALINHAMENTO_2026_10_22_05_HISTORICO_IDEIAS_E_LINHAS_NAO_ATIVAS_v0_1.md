@@ -63,7 +63,7 @@ Conforme doc 08B v4.6, na jornada **F02**:
 
 **[DA/R] Mídia (docs 06 e 08B Q67/Q69):** a arquitetura antiga preservava texto integral, transcrições/extrações e metadados autorizados, **não mídia bruta no banco operacional por padrão**. O alinhamento recente da F03 exige **disponibilidade lógica de áudio/vídeo/imagem/documento** quando necessário; essa tensão não está tecnicamente resolvida e deve ser conciliada sem perder nenhum objetivo.
 
-**[DA] WhatsApp dedicado (doc 08A Q20):** o número emissor pertence à operação Prumo e é dedicado à concessionária, não ao Consultor nem à loja como seu número próprio. A regra de múltiplos números **do cliente** não autoriza um mesmo número emissor Prumo para diferentes lojas.
+**[HS] WhatsApp dedicado (doc 08A Q20, hipótese de titularidade SUPERADA):** a redação antiga atribuía à operação Prumo a propriedade de número emissor dedicado à loja. A **decisão posterior aprovada Meta DEC-WA-05** definiu que **a concessionária é titular de sua conta/App/WABA/número e catálogo**, com Prumo integradora delegada. Mantém-se número emissor exclusivo por concessionária, distinto dos números do cliente e do número pessoal do Consultor. Esta passagem é preservada como histórico, **não regra vigente**.
 
 ## 5. Estruturas de segurança anteriores que permanecem relevantes
 
