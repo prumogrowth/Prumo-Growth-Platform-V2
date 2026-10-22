@@ -1,5 +1,8 @@
 # S1-002/I12 — Movimentação manual de atendimento na equipe
 
+> **AVISO DE PRECEDÊNCIA — 22/10/2026:** **Retificação:** transferência normal pode exigir concessão geral, mas a via aprovada excepcional é **por caso**, sem grant de loja, com direito contextual ao histórico do mesmo contato na concessionária. O destino já pausado permanece [R], e a escrita deve permanecer vinculada à titularidade atual. [Contrato funcional S1 vigente (22/10/2026)](S1_002_01_CONTRATO_FUNCIONAL_VIGENTE_2026_10_22.md) · [matriz de aderência](S1_002_02_MATRIZ_ADERENCIA_E_PENDENCIAS_2026_10_22.md).
+
+
 **Status:** prova técnica em PostgreSQL 17 descartável, sem endpoint, sem GoTrue/REST real e sem merge.
 
 **Regra [D]:** gestores administram OPERADORES supervisionados, independentemente das concessionárias. Somente os responsáveis concedem A/B/C a cada operador; o gestor não modifica essas concessões. O destino de uma movimentação precisa ser operador ativo, com autorização vigente para a concessionária do atendimento. **Hipótese prudente [P]:** o gestor só pode movimentar entre dois operadores da própria equipe; transferência entre equipes depende de contrato próprio.
