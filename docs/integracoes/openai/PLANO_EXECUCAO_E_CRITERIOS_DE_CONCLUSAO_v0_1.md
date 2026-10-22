@@ -1,5 +1,7 @@
 # Plano de execução e critérios de conclusão — Frente OpenAI | v0.1
 
+> **E01-INT v0.4 — avanço de contrato lógico (22/10/2026):** [F01/F02/F03, tipos de proposta, validação/erro e recusa segura](./E01_CONTRATO_TIPADO_ADAPTADOR_FALHAS_v0_4.md). Foi documentado **sem implementar código**, sem testar modelo e sem receber aceite S0. O gate `G-FASE-DO-PROJETO` continua íntegro; nenhuma liberação de E04/E05 foi inferida de “prossiga”.
+
 > **Atualização E02 documental v0.4 (22/10):** [70 oráculos com evidências observáveis](./E02_CADERNO_70_ORACULOS_E_OBSERVAVEIS_v0_4.md), [manifesto de evidência F03](./CFI_01_MANIFESTO_HISTORICO_F03_CANDIDATO_v0_1.md) e [sete perguntas para donos](./E02_RESUMO_DECISOES_PARA_RATIFICACAO_v0_4.md). E02-FIX continua **não fechado** sem schema ratificado/fixtures executáveis; E04 exige liberação específica. Nenhum teste OpenAI executado.
 
 > **Andamento adicional E02-REV (22/10/2026):** pacotes documentais [CFI-01 v0.3](./CFI_01_CONCILIACAO_PONTE_F03_INTERFRENTES_v0_3.md), [CF-OP-02/C09 v0.3](./CF_OP_02_C09_CONCILIACAO_F02_INTERFRENTES_v0_3.md), [E02-REV v0.3](./E02_PACOTE_REVISAO_CRUZADA_E_GATES_v0_3.md) publicados só na branch OpenAI. **Não ratificados** por S0/S1/FV/Meta; E02 não encerrado; 70 testes apenas documentados. **G-FASE-DO-PROJETO inalterado.**
