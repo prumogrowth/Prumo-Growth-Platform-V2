@@ -1,5 +1,15 @@
 # Frente OpenAI — Prumo Growth | índice inicial
 
+## Revisão cruzada E02-REV — 22/10/2026
+
+A frente OpenAI consolidou **três pacotes candidatos de revisão entre frentes**, **sem ratificação pelos proprietários**:
+
+- [CFI-01 v0.3 — F03: mapa S0/FV/S1/Meta e versões físicas pendentes](./CFI_01_CONCILIACAO_PONTE_F03_INTERFRENTES_v0_3.md).
+- [CF-OP-02/C09 v0.3 — F02: planos, três relógios, Meta e perda técnica](./CF_OP_02_C09_CONCILIACAO_F02_INTERFRENTES_v0_3.md).
+- [E02-REV v0.3 — critérios de aceite, owners, decisões abertas e gates](./E02_PACOTE_REVISAO_CRUZADA_E_GATES_v0_3.md).
+
+**Estado:** pactuação S0/S1/FV/Meta/Prumo **PENDENTE**; E02-REV não aprovado, E02-FIX não fechado; 70 SYN documentados, 0 executados. PR #12 S0 tem apenas recibo/ponte local `VERIFIED_CONTRACT_PENDING`, sem payload histórico F03 ou aplicação; **não** contar prova PG17/GoTrue S0 como integração OpenAI. Gate G-FASE-DO-PROJETO continua bloqueando implementação E04 com “prossiga” genérico.
+
 ## E02 operacional v0.3 — segurança, conhecimento e testes documentais (22/10/2026)
 
 Esta rodada avança **E01/E02 documental**, sem iniciar implementação. Fontes [DN]: AL-IA-02/03; regras candidatas [P/R] separam o que a frente OpenAI propõe do que depende de S0/S1/Meta/Prumo.
