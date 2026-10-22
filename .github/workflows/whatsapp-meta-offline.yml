@@ -311,3 +311,17 @@ jobs:
             if [[ "$count" != 1 ]]; then echo "FAIL WA29-$n marker: $count" >&2; exit 1; fi
           done
           echo 'PASS WA29: 23 PG17 checks with 3 observed lock interleavings'
+
+      - name: "WA-30: recuperacao sem retry de claim/evidencia incerta PG17"
+        run: |
+          set -euo pipefail
+          sql='meta/integrations/whatsapp-meta/lab'
+          psql -X -qAt -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" \
+            -f "$sql/wa30_pg17_unknown_outcome.sql" > "$RUNNER_TEMP/wa30_setup.log"
+          grep -qx 'WA30-SETUP PASS' "$RUNNER_TEMP/wa30_setup.log"
+          python3 "$sql/wa30-assert-uncertain-pg17.py" | tee "$RUNNER_TEMP/wa30_evidence.log"
+          for n in {01..27}; do
+            count="$(grep -cx "WA30-$n PASS" "$RUNNER_TEMP/wa30_evidence.log" || true)"
+            if [[ "$count" != 1 ]]; then echo "FAIL WA30-$n marker: $count" >&2; exit 1; fi
+          done
+          echo 'PASS WA30: 27 PG17 checks and 11 real readbacks through typed Node classifier'
