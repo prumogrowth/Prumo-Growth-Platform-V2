@@ -2,7 +2,7 @@
  * Não chamar backend, OpenAI, Meta, Banco, storage ou permitir efeito comercial.
  */
 import {
-  ACTORS, COMMERCIAL_STATUSES, getActor, getShop, visibleConversations,
+  ACTORS, COMMERCIAL_STATUSES, getActor, getShop, visibleConversations, visibleMockShops,
   canSimulateCompletion, statusTone
 } from './fixtures.mjs';
 import {
@@ -19,6 +19,7 @@ import { registrationProjectionFor, registrationStateCopy } from './registration
 import { bankProjectionFor, bankPhaseCopy } from './bank-view.mjs';
 import { postmarkViewFor, postmarkCopy, mayMockOperateContinuation } from './postmark-view.mjs';
 import { projectManagedTeam, requestMockIntake } from './team-operations.mjs';
+import { projectSharedNewLeadQueue, requestMockQueueAction } from './distribution-view.mjs';
 import { projectManagerPausePreview } from './team-pause-preview.mjs';
 import { projectManagerMonitor } from './team-monitor.mjs';
 import { projectManagerBatches } from './batch-monitor.mjs';
@@ -34,7 +35,7 @@ const list = $('conversation-items');
 const state = {
   actorId: 'rafael', shopId: 'aurora', filter: 'all', statusFilter: 'all', detailTab: 'overview', query: '',
   selectedId: 'A-102', cases: copyCFDemoFixtures(), processing: {}, followupRequests: {}, inboxView: 'active',
-  mobileView: 'list', dialogContext: { completion: null, template: null, message: null }, intakeDialogContext:null, teamRequests:{}, teamPanel:'members'
+  mobileView: 'list', dialogContext: { completion: null, template: null, message: null }, intakeDialogContext:null, queueDialogContext:null, queueRequests:{}, teamRequests:{}, teamPanel:'members'
 };
 
 function el(tag, className='', text=null) {
@@ -143,6 +144,9 @@ function consumeDialogContext(kind) {
 }
 function closeTransientDialogs() {
   clearComposerContext();
+  state.queueDialogContext=null;
+  const queueDialog=$('queue-action-dialog');queueDialog.returnValue='';
+  if(queueDialog.open)queueDialog.close();
   if(state.intakeDialogContext){state.intakeDialogContext=null;}
   const intake=$('intake-dialog');intake.returnValue='';
   if(intake.open)intake.close();
@@ -175,7 +179,7 @@ function updateSelectors() {
   $('team-nav-mobile').hidden=!showTeam;
   $('team-nav').hidden=!showTeam;
   const shopSelect = $('shop-select');
-  shopSelect.replaceChildren(...actor.shops.map(id => {
+  shopSelect.replaceChildren(...visibleMockShops(state.cases,state.actorId).map(id => {
     const shop = getShop(id); const o = el('option', '', `${shop.name} · fictícia`); o.value = id; return o;
   }));
   shopSelect.value = state.shopId;
@@ -557,17 +561,17 @@ function changeActor(actorId){
   closeTransientDialogs();
   if($('team-dialog').open)$('team-dialog').close();
   // Não deixar carteira do gestor anterior, nem mesmo oculta no DOM da demo.
-  $('team-list').replaceChildren();$('team-monitor').replaceChildren();$('team-batches').replaceChildren();
-  state.teamRequests={};state.teamPanel='members';
+  $('team-list').replaceChildren();$('team-monitor').replaceChildren();$('team-batches').replaceChildren();$('team-queue').replaceChildren();
+  state.teamRequests={};state.queueRequests={};state.teamPanel='members';
   state.actorId=actor.id;state.shopId=actor.shops[0];state.selectedId=null;state.detailTab='overview';state.statusFilter='all';state.inboxView='active';
   state.filter='all';state.query='';$('search-input').value='';goto('list');updateSelectors();render();
 }
 $('actor-select').addEventListener('change',event=>changeActor(event.target.value));
 $('shop-select').addEventListener('change',event=>{
   const actor=getActor(state.actorId);
-  if(!actor.shops.includes(event.target.value))return;
+  if(!visibleMockShops(state.cases,state.actorId).includes(event.target.value))return;
   closeTransientDialogs();
-  state.shopId=event.target.value;state.selectedId=null;state.detailTab='overview';state.statusFilter='all';state.inboxView='active';$('status-filter').value='all';state.query='';$('search-input').value='';goto('list');render();
+  state.queueRequests={};state.shopId=event.target.value;state.selectedId=null;state.detailTab='overview';state.statusFilter='all';state.inboxView='active';$('status-filter').value='all';state.query='';$('search-input').value='';goto('list');render();
 });
 $('search-input').addEventListener('input',event=>{state.query=event.target.value;renderList();});
 $('status-filter').addEventListener('change',event=>{state.statusFilter=event.target.value;renderList();});
@@ -770,23 +774,93 @@ function renderTeamBatches(){
   target.replaceChildren(title,note,summary,list,
     el('p','team-hint','Somente leitura. Upload, aceitação de linhas, roteamento, pausa e concessões de concessionárias pertencem aos comandos futuros S0/S1-002.'));
 }
+
+function renderSharedQueue(){
+  const target=$('team-queue');
+  const view=projectSharedNewLeadQueue(state.actorId,state.shopId);
+  if(view.visibility!=='shared_queue_demo'){
+    target.replaceChildren(el('p','detail-small','Fila indisponível neste perfil ou concessionária.'));return;
+  }
+  const title=el('h3','detail-label','LEADS SEM TITULAR · FILA COMPARTILHADA');
+  const description=el('p','team-hint','Fotografia sintética alternativa da fila por concessionária, NÃO carteira da equipe. Assunção, concessões e distribuição requerem confirmação atômica S0/S1.');
+  const totals=el('p','team-hint',
+    'Sem titular: '+view.summary.unassigned+' · Já assumidos: '+view.summary.claimed+' · Redistribuídos: '+view.summary.redistributed+' (estados projetados, não calculados)');
+  const list=el('div','team-queue-list');
+  if(!view.available.length)list.append(el('p','detail-small','Nenhum lead sem titular nesta projeção fictícia.'));
+  for(const row of view.available){
+    const card=el('div','team-queue-item');
+    card.append(el('strong','',row.name),el('span','',row.id+' · versão '+row.versionRef+' · fictício'));
+    const key=row.shopId+'|'+row.id;
+    if(state.queueRequests[key]){
+      card.append(el('span','', 'SOLICITADO LOCALMENTE · NÃO ATRIBUÍDO, S0 NÃO CONSULTADO'));
+    }else{
+      for(const [action,label] of [['claim','Solicitar assunção'],['assign_team','Solicitar atribuição à equipe']]){
+        if(!row.actions.includes(action))continue;
+        const button=el('button','btn btn-light',label);button.type='button';
+        button.addEventListener('click',()=>{
+          const current=projectSharedNewLeadQueue(state.actorId,state.shopId)
+            .available.find(item=>item.id===row.id && item.versionRef===row.versionRef);
+          if(!current || !current.actions.includes(action) || state.queueRequests[key])return;
+          closeTransientDialogs();
+          state.queueDialogContext={actorId:state.actorId,shopId:state.shopId,
+            caseId:row.id,versionRef:row.versionRef,action};
+          $('queue-action-title').textContent=action==='claim'?'Solicitar assunção fictícia':'Solicitar atribuição fictícia';
+          $('queue-action-copy').textContent=row.id+' · '+getShop(row.shopId).name+
+            ' · confirmação exclusivamente local, sem titular ou grant aplicado.';
+          const candidates=ACTORS.filter(person=>person.role==='operador' &&
+            person.teamState==='active' && person.managerId===state.actorId);
+          $('queue-assignee-area').hidden=action!=='assign_team';
+          $('queue-assignee').replaceChildren(...candidates.map(person=>{
+            const option=el('option','',person.name+' · somente o caso se S0 confirmar');
+            option.value=person.id;return option;
+          }));
+          if(action==='assign_team' && !candidates.length){state.queueDialogContext=null;return;}
+          const dialog=$('queue-action-dialog');dialog.returnValue='';dialog.showModal();
+        });
+        card.append(button);
+      }
+    }
+    list.append(card);
+  }
+  target.replaceChildren(title,description,totals,list);
+}
 function switchTeamPanel(panel){
   if(!canSeeTeamSummary(state.actorId,state.shopId))return;
-  state.teamPanel=['monitor','batches'].includes(panel)?panel:'members';
-  const monitoring=state.teamPanel==='monitor',batches=state.teamPanel==='batches';
-  $('team-list').hidden=monitoring||batches;
+  state.teamPanel=['monitor','batches','queue'].includes(panel)?panel:'members';
+  const monitoring=state.teamPanel==='monitor',batches=state.teamPanel==='batches',
+    queue=state.teamPanel==='queue';
+  $('team-list').hidden=monitoring||batches||queue;
   $('team-monitor').hidden=!monitoring;
   $('team-batches').hidden=!batches;
-  $('team-show-members').setAttribute('aria-pressed',String(!monitoring&&!batches));
+  $('team-queue').hidden=!queue;
+  $('team-show-members').setAttribute('aria-pressed',String(!monitoring&&!batches&&!queue));
   $('team-show-monitor').setAttribute('aria-pressed',String(monitoring));
   $('team-show-batches').setAttribute('aria-pressed',String(batches));
-  if(batches)renderTeamBatches();
+  $('team-show-queue').setAttribute('aria-pressed',String(queue));
+  if(queue)renderSharedQueue();
+  else if(batches)renderTeamBatches();
   else if(monitoring)renderTeamMonitor();
   else renderTeamSummary();
 }
 $('team-show-members').addEventListener('click',()=>switchTeamPanel('members'));
 $('team-show-monitor').addEventListener('click',()=>switchTeamPanel('monitor'));
 $('team-show-batches').addEventListener('click',()=>switchTeamPanel('batches'));
+$('team-show-queue').addEventListener('click',()=>switchTeamPanel('queue'));
+$('queue-action-dialog').addEventListener('close',()=>{
+  const confirmed=$('queue-action-dialog').returnValue==='confirm';
+  $('queue-action-dialog').returnValue='';
+  const ctx=state.queueDialogContext;state.queueDialogContext=null;
+  if(!confirmed || !ctx || ctx.actorId!==state.actorId || ctx.shopId!==state.shopId ||
+    state.teamPanel!=='queue')return;
+  const key=ctx.shopId+'|'+ctx.caseId;
+  if(state.queueRequests[key])return;
+  try{
+    const request=requestMockQueueAction(ctx.actorId,ctx.shopId,ctx.caseId,
+      ctx.versionRef,ctx.action,ctx.action==='assign_team' ? $('queue-assignee').value : null);
+    state.queueRequests[key]=request;renderSharedQueue();
+    showToast('Intenção fictícia registrada. Nenhuma atribuição ou permissão aplicada.');
+  }catch{showToast('Solicitação inelegível ou desatualizada nesta projeção.');}
+});
 
 function openTeamSummary(){
   if(!canSeeTeamSummary(state.actorId,state.shopId)){
