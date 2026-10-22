@@ -116,6 +116,16 @@ test('WA25-13 hostile accessors in scope/template/grant are not executed',()=>{
   const evilGrant={...row.grants[0]};
   Object.defineProperty(evilGrant,'actor_ref',{get(){throw Error('UNTRUSTED_GETTER');}});
   assert.equal(includes([{...row,grants:[evilGrant]}]),false);
+  const hostileCatalog=new Proxy([row],{get(t,k,r){
+    if(k==='map')throw Error('HOSTILE_CATALOG_PROXY');
+    return Reflect.get(t,k,r);
+  }});
+  assert.equal(includes(hostileCatalog),false);
+  const hostileGrants=new Proxy([...row.grants],{get(t,k,r){
+    if(k==='slice')throw Error('HOSTILE_GRANT_PROXY');
+    return Reflect.get(t,k,r);
+  }});
+  assert.equal(includes([{...row,grants:hostileGrants}]),false);
 });
 test('WA25-14 malformed grants and undeclared purpose association fail closed',()=>{
   assert.equal(includes([{...row,grants:[{...row.grants[0],
