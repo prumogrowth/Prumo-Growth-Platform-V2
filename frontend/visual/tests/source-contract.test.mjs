@@ -9,6 +9,7 @@ const markup = get('index.html');
 const styles = get('styles.css');
 const contract = get('cf-op-02.mjs');
 const registration = get('registration-view.mjs');
+const humanCycles = get('human-cycle-view.mjs');
 const bank = get('bank-view.mjs');
 const postmark = get('postmark-view.mjs');
 const teamOps = get('team-operations.mjs');
@@ -253,4 +254,17 @@ test('FV-UI-017: prévia humana, assinatura legível e nenhuma confirmação Met
   assert.match(styles,/\.message-preview-body\{white-space:pre-wrap/);
   assert.doesNotMatch(app,/deliveryState:'sent_confirmed'/);
   assert.doesNotMatch(app,/\bfetch\s*\(|\bXMLHttpRequest\b/);
+});
+
+
+test('FV-UI-019: recortes históricos S0 fictícios e nova conclusão não promovem persistência',()=>{
+  assert.match(app,/projectMockHumanCycleHistory\(item,state\.actorId,state\.shopId\)/);
+  assert.match(app,/projectMockClarificationScene\(current,state\.actorId,state\.shopId\)/);
+  assert.match(app,/stageMockRepeatCompletion\(item,state\.actorId,state\.shopId\)/);
+  assert.match(app,/candidateCutoffRef/);
+  assert.match(humanCycles,/confirmedByS0:false/);
+  assert.match(humanCycles,/persisted:false/);
+  assert.match(humanCycles,/bankSnapshots/);
+  assert.match(browserSmoke,/FV-UI-019 histórico F03/);
+  assert.doesNotMatch(humanCycles,/\bfetch\s*\(|\bXMLHttpRequest\b/);
 });
