@@ -701,14 +701,21 @@ document.querySelectorAll('[data-inbox]').forEach(button=>button.addEventListene
  announceCurrentContext(state.inboxView==='history'?'Histórico':'Atendimentos ativos');
 }));
 document.querySelectorAll('[data-filter]').forEach(button=>button.addEventListener('click',()=>{state.filter=button.dataset.filter;renderList();}));
-$('thread-back').addEventListener('click',()=>{
-  goto('list');
-  if(window.matchMedia('(max-width:760px)').matches)$('search-input').focus();
-});
-$('detail-back').addEventListener('click',()=>{
-  goto('thread');
-  if(window.matchMedia('(max-width:760px)').matches)$('detail-toggle').focus();
-});
+/** Mesmo retorno por botão e por Escape: não deixar foco em painel oculto.
+ * Apenas navegação; não altera caso, leitura, autorização ou ações.
+ */
+function mobileBackNavigation(){
+  if(!window.matchMedia('(max-width:760px)').matches)return false;
+  if(state.mobileView==='detail'){
+    goto('thread');$('detail-toggle').focus();return true;
+  }
+  if(state.mobileView==='thread'){
+    goto('list');$('search-input').focus();return true;
+  }
+  return false;
+}
+$('thread-back').addEventListener('click',()=>{mobileBackNavigation();});
+$('detail-back').addEventListener('click',()=>{mobileBackNavigation();});
 $('detail-toggle').addEventListener('click',()=>{
   if (window.matchMedia('(max-width:760px)').matches) {goto('detail');$('detail-back').focus();return;}
   const hidden=app.classList.toggle('details-hidden');$('detail-toggle').setAttribute('aria-expanded',String(!hidden));
@@ -1021,8 +1028,11 @@ document.addEventListener('keydown',event=>{
   if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='k'){
     event.preventDefault();goto('list');$('search-input').focus();
   }
-  if(event.key==='Escape'&&!inField&&!document.querySelector('dialog[open]')&&window.matchMedia('(max-width:760px)').matches){
-    if(state.mobileView==='detail')goto('thread');else if(state.mobileView==='thread')goto('list');
+  if(event.key==='Escape'&&!inField&&!document.querySelector('dialog[open]')&&
+     window.matchMedia('(max-width:760px)').matches &&
+     ['thread','detail'].includes(state.mobileView)){
+    event.preventDefault();
+    mobileBackNavigation();
   }
 });
 $('reset-app').addEventListener('click',()=>{
@@ -1046,8 +1056,13 @@ $('message-preview-dialog').addEventListener('close',()=>{
   const sameContext=consumeDialogContext('message');
   $('message-preview-body').textContent='';
   const item=selectedCase(),input=$('message-input');
-  if(!confirmed || !sameContext || !draft || !item || !canMockMessage(item) ||
-     draft.rawText!==input.value)return;
+  const validDraft=Boolean(sameContext && item && canMockMessage(item));
+  if(!confirmed){
+    // Escape/Cancelar preserva o rascunho SOMENTE no mesmo caso/titular.
+    if(validDraft && !document.querySelector('dialog[open]'))input.focus();
+    return;
+  }
+  if(!validDraft || !draft || draft.rawText!==input.value)return;
   const current=stageHumanMessagePreview(getActor(state.actorId),input.value);
   if(!current || current.previewBody!==draft.previewBody || current.authorId!==draft.authorId)return;
   item.messages.push({
@@ -1055,6 +1070,8 @@ $('message-preview-dialog').addEventListener('close',()=>{
     time:'Agora · fictício',authorId:current.authorId,deliveryState:'local_demo_not_sent'
   });
   item.updatedAt='Agora · fictício';input.value='';render();
+  if(!document.querySelector('dialog[open]') && canMockMessage(selectedCase()))
+    $('message-input').focus();
   showToast('Texto inserido somente na demonstração. NÃO enviado via WhatsApp.');
 });
 $('completion-dialog').addEventListener('close',()=>{
