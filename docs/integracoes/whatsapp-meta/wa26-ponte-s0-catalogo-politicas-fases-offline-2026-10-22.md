@@ -30,7 +30,7 @@ A leitura sequencial desses três mocks **NÃO é transação única nem evita T
 ## 4. Prova técnica e limitações
 
 - Commits iniciais de módulo e testes: `d4eef0b1158fbf9677c3bab24e4a53e3804b6bdf`, `598c1f078b2b9b3c33839bd037cfc7d0598e72a6`.
-- [GitHub Actions #39819592116](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39819592116), commit `598c1f0...`: **Node 22 567/567 testes de regressão PASS**, incluindo os novos WA26 (44/44 gate WA16/17). Jobs PG17 WA06D e WA15C são separados; registrar conclusão somente após status final dos jobs.
+- [GitHub Actions #39819592116](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39819592116), commit `598c1f0...`: **3 jobs SUCCESS**; Node 22 **567/567 testes de regressão PASS**, incluindo WA26 (44/44 WA16/17); PostgreSQL 17 WA06D **PASS** e WA15C/S0/WA16 **PASS**. Tudo em fixtures/laboratório, não em produção.
 - Testes com estados de revisão e permissão alterados são **fixtures**, não prova em produção. Nenhuma alteração em outra frente, deploy, merge ou comunicação com Meta ocorreu.
 
 **Próxima entrega sugerida:** ratificar com S0/S1 quais fontes autenticarão `resolveSelection`/política/catálogo e suas revisões; depois integrar controles transacionais com prova física em banco descartável e testes de concorrência, sem acionar Graph real.
