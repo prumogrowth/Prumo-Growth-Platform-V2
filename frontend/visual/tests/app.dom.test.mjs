@@ -493,3 +493,94 @@ test('G4: troca de perfil encerra lote anterior e retira dados da interface',()=
   assert.ok(get('team-batches').textContent.includes('L-G4-03'));
   get('team-dialog').close();
 });
+
+
+test('FV-UI-017: nomes visíveis respeitam Consultor e Gestor sem alterar roles técnicas',()=>{
+  reset();
+  assert.match(get('actor-select').textContent,/Rafael Lima · Consultor da Prumo/);
+  env.selectActor('marina');
+  assert.match(get('actor-select').textContent,/Marina Costa · Gestor da Prumo/);
+  get('team-nav').click();
+  assert.match(get('team-list').textContent,/concedidas pelo Diretor/);
+  get('team-dialog').close();
+});
+
+test('FV-UI-017: texto digitado não é enviado; prévia mostra autoria antes do aceite',()=>{
+  reset();env.openCase('Exemplo 02');
+  const before=get('thread-body').textContent;
+  get('message-input').value='Mensagem de teste';
+  get('composer').fire('submit');
+  assert.equal(get('message-preview-dialog').open,true);
+  assert.equal(get('message-preview-body').textContent,'Consultor Rafael Lima:\nMensagem de teste');
+  assert.equal(get('thread-body').textContent,before);
+  get('message-preview-dialog').close('cancel');
+  assert.equal(get('message-input').value,'Mensagem de teste');
+  assert.equal(get('thread-body').textContent,before);
+  get('composer').fire('submit');
+  get('message-preview-dialog').close('confirm');
+  assert.match(get('thread-body').textContent,/Consultor Rafael Lima:\nMensagem de teste/);
+  assert.match(get('thread-body').textContent,/NÃO ENVIADA/);
+  assert.match(get('conversation-items').textContent,/Mensagem fictícia preparada · NÃO ENVIADA/);
+  assert.equal(get('message-input').value,'');
+  assert.ok(get('conversation-items').textContent.includes('Cliente Exemplo 02'));
+});
+
+test('FV-UI-017: Gestor titular tem autoria Gestor, sem conceder envio à supervisão',()=>{
+  reset();env.selectActor('marina');
+  env.openCase('Exemplo 06');
+  get('message-input').value='Contato do Gestor';
+  get('composer').fire('submit');
+  assert.equal(get('message-preview-dialog').open,true);
+  assert.equal(get('message-preview-body').textContent,'Gestor Marina Costa:\nContato do Gestor');
+  get('message-preview-dialog').close('confirm');
+  assert.match(get('thread-body').textContent,/Gestor Marina Costa:\nContato do Gestor/);
+  env.openCase('Exemplo 02');
+  assert.equal(get('message-input').disabled,true);
+  get('message-input').value='Texto indevido';
+  get('composer').fire('submit');
+  assert.equal(get('message-preview-dialog').open,false);
+});
+
+test('FV-UI-017: mudança de caso invalida prévia e apaga rascunho anterior',()=>{
+  reset();env.openCase('Exemplo 02');
+  get('message-input').value='Texto privado do caso 02';
+  get('composer').fire('submit');
+  assert.equal(get('message-preview-dialog').open,true);
+  env.openCase('Exemplo 05');
+  assert.equal(get('message-preview-dialog').open,false);
+  assert.equal(get('message-preview-body').textContent,'');
+  assert.equal(get('message-input').value,'');
+  get('message-preview-dialog').close('confirm');
+  assert.equal(get('thread-body').textContent.includes('Texto privado do caso 02'),false);
+  env.openCase('Exemplo 02');
+  assert.equal(get('thread-body').textContent.includes('Texto privado do caso 02'),false);
+});
+
+test('FV-UI-017: mudança de ator, loja e reset descartam rascunhos; confirmação velha falha',()=>{
+  reset();env.openCase('Exemplo 02');
+  get('message-input').value='Rascunho de Rafael';
+  get('composer').fire('submit');
+  env.selectActor('marina');
+  assert.equal(get('message-input').value,'');
+  get('message-preview-dialog').close('confirm');
+  env.selectShop('horizonte');
+  assert.equal(get('message-input').value,'');
+  env.selectShop('aurora');
+  env.openCase('Exemplo 06');
+  get('message-input').value='Rascunho da loja Aurora';
+  env.selectShop('horizonte');
+  assert.equal(get('message-input').value,'');
+  get('reset-app').click();
+  assert.equal(get('message-input').value,'');
+  assert.equal(get('thread-body').textContent.includes('Rascunho de Rafael'),false);
+});
+
+test('FV-UI-017: alteração durante prévia invalida confirmação antiga',()=>{
+  reset();env.openCase('Exemplo 02');
+  get('message-input').value='Texto inicial';
+  get('composer').fire('submit');
+  get('message-input').value='Texto alterado após prévia';
+  get('message-preview-dialog').close('confirm');
+  assert.equal(get('thread-body').textContent.includes('Texto alterado após prévia'),false);
+  assert.equal(get('thread-body').textContent.includes('Texto inicial'),false);
+});
