@@ -22,4 +22,7 @@ psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_058_s
 # I39: distribui lead novo entre equipes, testa fila sem titular e disputa CAS.
 # Inclui fixture de intake I53 dentro de BEGIN/ROLLBACK (nenhum dado persiste).
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_059_novos_leads_fila_cross_team_local_only.sql
+# I40: somente banco local descartavel; funcoes I39 idênticas em 2 sessoes reais.
+# Seed COMMITADO apenas nesse PG17; runner CI descarta banco apos a suite.
+bash scripts/test_s1_002_queue_race.sh
 echo 'S1-002/I15: sessao fake ativa/revogada conferida; sem GoTrue/REST real.'
