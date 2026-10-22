@@ -30,8 +30,9 @@ A S0 deve fornecer snapshots confiáveis, com escopo, revisão de catálogo e id
 ## 4. Evidência de execução
 
 - Primeiro commit do módulo `7cb91dafb5880f8728d5bbe6690d07bcff075e35`, testes iniciais `b671b3de5bb1f40b62b716930b03c727402ba678`.
+- **Endurecimento WA25:** o seletor também retorna lista vazia, sem lançar exceções, diante de arrays com traps/Proxies hostis (`4403684ff307d98f00fcff2d56dd87cca2c4040f`); WA25-13 ganhou regressões adversariais (`b7b9aafc643c3d46ba6cdd1fd4fe4406a2e9c6ca`). Os 18 cenários originais continuam identificados.
 - A primeira rodada teve **17/18 testes WA-25 aprovados**, um teste com defeito no auxiliar de valor padrão; **corrigido o teste** em `9fd68b42383649d7f1cec5ebe82ab69449f747ba`. Não foi um defeito de produção da função testada.
-- Execução [GitHub Actions #39812930599](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39812930599): **Node 22 WA-16/17 44/44 PASS e regressão offline 541/541 PASS, zero falhas**, confirmadas em log do job `meta-offline`. PostgreSQL 17/WA15C/WA16B executam em jobs separados e são registrados somente depois de concluídos.
+- Execução [GitHub Actions #39812930599](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39812930599), HEAD `9fd68b4...`: **3 jobs SUCCESS**, com Node 22 WA-16/17 **44/44 PASS**, regressão **541/541 PASS**, PostgreSQL 17 WA06D/WA15C/WA16B **PASS**. Essa execução antecede a defesa adicional de Proxy; toda alteração posterior exige nova execução em SHA correspondente.
 - Resultado: **implementação parcial, validada em Node offline; não homologada em Meta, S0 produtivo, Banco ou LGPD.**
 
 **Propriedade:** somente pasta `integrations/whatsapp-meta/` e documentação da própria frente. Nenhum merge/deploy, nenhuma credencial, nenhum envio real.
