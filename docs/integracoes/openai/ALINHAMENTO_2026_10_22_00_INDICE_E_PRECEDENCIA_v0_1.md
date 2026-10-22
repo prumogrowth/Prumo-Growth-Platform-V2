@@ -22,8 +22,9 @@ O registro é **aditivo**: não apaga arquivos antigos da frente OpenAI nem os 5
 [TRECHO COMERCIAL INTERNO EXCLUÍDO DA VERSÃO PÚBLICA]
 | [AL-IA-06 — Auditoria de fidelidade e completude](./ALINHAMENTO_2026_10_22_06_AUDITORIA_FIDELIDADE_E_COMPLETUDE_v0_1.md) | Checklist de decisões, achados, reparos já publicados e divergências ainda não conciliadas |
 | [AL-IA-07 — Dependências das outras frentes](./ALINHAMENTO_2026_10_22_07_DEPENDENCIAS_RELEVANTES_OUTRAS_FRENTES_v0_1.md) | Leitura cruzada de S0, Meta, S1, frontend, ponte F03 e CF-OP; apenas informações que interferem na nossa integração |
+| [AL-IA-08 — Auditoria documental final](./ALINHAMENTO_2026_10_22_08_AUDITORIA_FECHAMENTO_DOCUMENTAL_FRENTE_OPENAI_v0_1.md) | Verificação de precedência, decisões, correções aplicadas, riscos e limites desta frente |
 
-**Ordem de leitura:** 00 → 01 → 02 → 03 → 04 → 05 → **06 (auditoria)**. Para esclarecer precedência, usar primeiro as etiquetas de status abaixo e conferir documento-fonte.
+**Ordem de leitura:** 00 → 01 → 02 → 03 → 04 → 05 → 06 → **07 (dependências)** → **08 (auditoria final)**. Para esclarecer precedência, usar primeiro as etiquetas de status abaixo e conferir documento-fonte.
 
 ## Regras de interpretação e precedência
 
@@ -49,6 +50,8 @@ O registro é **aditivo**: não apaga arquivos antigos da frente OpenAI nem os 5
 **Habilidades:** conhecimento associado, diretoria administra capacidades configuráveis pelo MCP; IA operacional não cria; integração executável nova requer desenvolvimento fora do MCP. Guias operacionais semânticos do **MCP** orientam o ChatGPT usado pelo Diretor e **não** são os quatro campos de instrução/comportamento das IAs internas.
 
 **MCP Diretor:** operações amplas em **dados operacionais**, com confirmação expressa antes da mutação; **não** altera software/regras, nem pode escrever/editar/excluir a **base de auditoria protegida do próprio MCP** mesmo após confirmação; consulta autorizada a registros é possível. Exceções de retenção e mecanismos físicos dependem de especificação.
+
+**Meta — operação segregada:** autorizada pela concessionária, a Prumo providencia o número, configura na estrutura empresarial Meta da loja e opera via acessos de API específicos para ela. App/WABA/emissor e dados permanecem segregados; titularidade jurídica/portabilidade do número não foram decididas neste alinhamento. Ver AL-IA-01/07.
 
 **instituição financeira:** integração/remessa direta é preferência **condicionada**, alternativa humana se não viável; responsável **não quer investigar/decidir Banco neste estágio**.
 
