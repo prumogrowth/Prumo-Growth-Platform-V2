@@ -13,6 +13,7 @@
 ## Verificações executadas nesta rodada
 - **V8 + mock DOM com código consultado diretamente no GitHub:** `app.dom.test.mjs` **56/56 PASS** após reparo das cópias de solicitação e erro.
 - **V8 com funções puras:** `transport-state-view.test.mjs` **9/9**, `operation-feedback.test.mjs` **5/5**, `s0-command-result.test.mjs` **8/8**, `s0-read-contract.test.mjs` **7/7**, total **29/29**.
+- **Regressões adicionais da interface em V8 + mock DOM:** `app.mobile.dom.test.mjs` **10/10 PASS** e `attention-integration.test.mjs` **7/7 PASS**. Total das verificações V8 mencionadas: **134/134** (56 DOM + 29 módulos de erro/contrato + 32 testes estáticos + 17 mobile/atenção); não é execução nativa Node/Chromium.
 - **Testes estáticos de fonte no V8:** `source-contract.test.mjs` **32/32**; corrigida duplicidade de declaração `transport` encontrada durante a rodada.
 - **Validação do inventário e matriz de aceitação:** **16/16 IDs** na ordem certa, referências a testes existentes e **24/24** arquivos .test.mjs registrados no runner; distribuição: **13 protótipos**, **2 parciais** e **1 dependência externa**. Esses valores são **categorias de cobertura**, não porcentagens de conclusão.
 - **Não executado aqui:** Node nativo, Playwright/Chromium, testes de teclado/leitor de tela em navegador real, servidor HTTP da aplicação, Supabase/GoTrue/RLS, Meta, F01/F02/F03, S0/S1, banco, MCP e produção.
