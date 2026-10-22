@@ -12,6 +12,7 @@
 | Qual decisão prevalece e quem decidiu | [00 — 22 regras WDC com precedência](./00-decisoes-vigentes-precedencia-documental-2026-10-21.md) | Índice de decisões com IDs, proveniência, glossário e pendências |
 | Por que documento antigo diz outra coisa | [02 — Mapa de conflitos por documento e seção](./02-mapa-fontes-conflitos-e-emendas-2026-10-21.md) | Relação da regra substituída com a atual, sem perder histórico |
 | O que outras frentes decidiram que impacta nosso contrato | [WA-22 — Revisão documental interfrentes](./wa22-revisao-cruzada-outras-frentes-contratos-2026-10-22.md) | Novos limites F03, S0/S1, evidências de contato, C09, mídias, campanhas e MCP sem presumir implementação |
+| Se a documentação da própria frente está pronta para a próxima fase | [WA-23 — Auditoria editorial final (22/10)](./wa23-auditoria-final-documentacao-propria-2026-10-22.md) | Inventário, cobertura, correções, pendências identificadas e fronteira da responsabilidade documental |
 | O que a auditoria encontrou e reparou | [WA-19 — Auditoria documental](./wa19-auditoria-documental-reconciliacao-2026-10-21.md) | Achados, limites, reparos e pendências |
 | Histórico de decisões recentes | [WA-17B](./wa17b-mcp-templates-multimidia-ia-delegada-2026-10-20.md), [WA-18](./wa18-alinhamento-decisorio-respostas-responsavel-2026-10-20.md), [WA-18B](./wa18b-alinhamento-fechamento-optout-variaveis-falhas-cadencia-2026-10-20.md), [WA-18C](./wa18c-falhas-consecutivas-taxonomia-interna-templates-2026-10-20.md) | Proveniência cronológica; partes superadas identificadas |
 | O que foi testado de verdade | [WA-16/17 — fechamento de validação](./wa16-wa17-fechamento-validacao-e-pausa-2026-10-20.md) | Distingue casos escritos, verificações V8 e CI Node/PG17 não comprovado |
@@ -113,6 +114,7 @@ Arquivos abaixo permanecem pesquisáveis e preservados por fase. São histórico
 - [wa20-identificacao-visivel-atendente-assinatura-mensagem-2026-10-21.md](./wa20-identificacao-visivel-atendente-assinatura-mensagem-2026-10-21.md)
 - [wa21-papeis-diretor-gestor-consultor-assinatura-2026-10-21.md](./wa21-papeis-diretor-gestor-consultor-assinatura-2026-10-21.md)
 - [wa22-revisao-cruzada-outras-frentes-contratos-2026-10-22.md](./wa22-revisao-cruzada-outras-frentes-contratos-2026-10-22.md)
+- [wa23-auditoria-final-documentacao-propria-2026-10-22.md](./wa23-auditoria-final-documentacao-propria-2026-10-22.md)
 
 ### Índices vigentes e matrizes adicionais
 
@@ -120,4 +122,4 @@ Arquivos abaixo permanecem pesquisáveis e preservados por fase. São histórico
 - [01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md](./01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md)
 - [02-mapa-fontes-conflitos-e-emendas-2026-10-21.md](./02-mapa-fontes-conflitos-e-emendas-2026-10-21.md)
 
-**Cobertura conferida em 22/10/2026:** **62 arquivos Markdown** da frente no PR #2 (este README + 61 documentos com link neste índice). Os documentos antigos têm aviso de precedência ou nota corretiva contextual. A contagem é retrato do PR na auditoria WA-23, não uma garantia para commits futuros. O ZIP de 55 documentos históricos de 17/10 segue preservado fora deste diretório. Essa biblioteca não contém ferramentas MCP executáveis.
+**Cobertura conferida em 22/10/2026:** **63 arquivos Markdown** da frente no PR #2 (este README + **62 documentos com links** neste índice, incluindo o relatório WA-23). Os históricos têm aviso de precedência ou nota contextual, quando necessário. A contagem reflete o PR neste corte, não garante commits futuros. O ZIP de 55 documentos históricos de 17/10 segue preservado fora deste diretório. Essa biblioteca não contém ferramentas MCP executáveis.
