@@ -59,7 +59,7 @@ A **finalidade do contato/consentimento/opt-out** é uma TERCEIRA dimensão dist
 
 - Suportar rascunhos com BODY texto e exemplos; HEADER texto, imagem, vídeo ou documento, FOOTER, botões de URL estática ou dinâmica com **rótulo visível distinto do link**, telefone, resposta rápida; recursos Meta adicionais só após contratos técnicos próprios. Nem toda combinação é válida em toda versão de API.
 - A IA administrativa pode redigir conteúdo ou obedecer literalmente ao Diretor autorizado; registro distingue autoria humana, assistência e geração por IA, **sem** mudar permissões.
-- Responsável pode solicitar submissão e consulta do status, mas **2xx/ID da Meta não equivale a APPROVED**. Somente status Meta verificável indica aprovação, e aprovação não equivale a autorização de disparo.
+- **Diretor autenticado com permissão vigente** pode solicitar submissão e consulta de status por fluxo administrativo autorizado, mas **2xx/ID da Meta não equivale a APPROVED**. Somente status Meta verificável indica aprovação, e aprovação não equivale a autorização de disparo.
 - **Edição de template que já foi aprovado não é proibida pela plataforma por princípio:** oferecer quando API/estado Meta permitir, preservando identificação, ciclo de revisão, exigência de confirmação administrativa e snapshots de versões anteriores. Se a edição exigir reaprovação, bloquear o uso da revisão até Meta confirmar.
 - Desativar LOCALMENTE o template para novos envios é diferente de pedir exclusão pela Meta. Em ambos, histórico/snapshot não são apagados e alterações administrativas têm autoria/auditoria.
 
