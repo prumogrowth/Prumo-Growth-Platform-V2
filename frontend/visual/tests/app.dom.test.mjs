@@ -714,3 +714,46 @@ test('FV-UI-019: troca de perfil limpa cenário alternativo e não migra autoriz
   assert.equal(get('message-input').disabled,true);
   assert.equal(get('workflow-bar').textContent.includes('CENÁRIO ALTERNATIVO'),false);
 });
+
+
+test('FV-UI-020: ACK da API não aparece como envio comprovado',()=>{
+  reset();env.openCase('Exemplo 02');
+  const t=get('thread-body').textContent;
+  assert.match(t,/API aceitou · envio NÃO comprovado/);
+  assert.match(t,/Sem prova de envio/);
+  assert.equal(t.includes('Entrega comprovada'),false);
+  assert.equal(t.includes('Envio comprovado · fixture'),false);
+});
+
+test('FV-UI-020: recibo de envio provado difere de estado comercial bancário',()=>{
+  reset();env.openCase('Exemplo 05');
+  const t=get('thread-body').textContent;
+  assert.match(t,/Envio comprovado · fixture/);
+  assert.match(get('workflow-bar').textContent,/cadastro enviado ao banco/);
+  assert.equal(t.includes('Entrega comprovada'),false);
+});
+
+test('FV-UI-020: mensagem incerta não zera pendência de resposta do Gestor titular',()=>{
+  reset();env.selectActor('marina');env.openCase('Exemplo 06');
+  assert.match(get('thread-body').textContent,/Resultado incerto/);
+  assert.match(get('thread-body').textContent,/Não tentar reenvio automático/);
+  assert.ok(env.cards().find(x=>x.textContent.includes('Exemplo 06')).textContent.length>0);
+  const notice=env.descendants(env.cards().find(x=>x.textContent.includes('Exemplo 06')))
+    .find(x=>x.classList.contains('attention-pending'));
+  assert.ok(notice);
+});
+
+test('FV-UI-020: supervisor não vê detalhes de transporte do Consultor titular',()=>{
+  reset();env.selectActor('marina');env.openCase('Exemplo 02');
+  assert.equal(get('thread-body').textContent.includes('API aceitou · envio NÃO comprovado'),false);
+});
+
+test('FV-UI-020: falha F03 fictícia não oferece retentativa automática nem editor',()=>{
+  reset();env.openCase('Exemplo 02');buttons('Concluir atendimento')[0].click();
+  get('completion-dialog').close('confirm');
+  const fail=env.descendants(get('detail-content')).find(x=>x.tagName==='BUTTON' && x.textContent==='Falha técnica');
+  assert.ok(fail);fail.click();
+  const t=get('detail-content').textContent;
+  assert.match(t,/não há correção manual ou retentativa automática/i);
+  assert.equal(t.includes('Corrigir dado'),false);
+});
