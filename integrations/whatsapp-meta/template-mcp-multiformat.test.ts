@@ -75,6 +75,15 @@ test('WA17B-05: variable sources include body and URL button separately',()=>{
  assert.equal(mapped.mappings['button.0.url.1'],'caso.codigo');
  assert.equal(mapped.input.body.text,base.body.text);
  assert.equal(mapped.input.buttons?.[0].label,'Saiba mais');
+ const review=prepareMcpTemplateReview(mapped,'4::synthetic_verified_handle');
+ assert.equal(review.binding_snapshot.mapping_revision,1);
+ assert.equal(review.binding_snapshot.complete,true);
+ assert.deepEqual(review.binding_snapshot.mappings,{
+  'body.1':'cliente.nome','body.2':'operador.nome',
+  'button.0.url.1':'caso.codigo',
+ });
+ assert.equal(Object.isFrozen(review.binding_snapshot.mappings),true);
+ assert.equal(prepareMcpTemplateReview(draft,'4::synthetic_verified_handle').binding_snapshot.complete,false);
  assert.throws(()=>mapMcpTemplateSources(mapped,0,{},[]),/STALE_MAPPING_REVISION/);
 });
 test('WA17B-06: values are limited to trusted scoped variable registry',()=>{
@@ -83,6 +92,14 @@ test('WA17B-06: values are limited to trusted scoped variable registry',()=>{
   'body.1':'cliente.nome','body.2':'operador.nome',
   'button.0.url.1':'process.env',
  },['cliente.nome','operador.nome','caso.codigo']),/INVALID_OR_UNAUTHORIZED_MAPPING/);
+ const hostile=Object.defineProperty({
+  'body.1':'cliente.nome','body.2':'operador.nome',
+  'button.0.url.1':'caso.codigo',
+ },'body.2',{get(){throw Error('HOSTILE_GETTER');}});
+ assert.throws(()=>mapMcpTemplateSources(draft,0,hostile,
+  ['cliente.nome','operador.nome','caso.codigo']),/UNEXPECTED_FIELDS_OR_GETTERS/);
+ assert.throws(()=>mapMcpTemplateSources({ ...draft,meta_approved:true } as any,
+  0,{},[]),/MAPPING_REQUIRES_UNAPPROVED_DRAFT/);
 });
 test('WA17B-07: missing dynamic URL example, unsafe host or credentials fail closed',()=>{
  const replaceButton=(url:string,example_suffix?:string):MultiFormatInput=>({...base,
