@@ -1,5 +1,7 @@
 # E02-MT v0.3 — Matriz operacional de regressão sintética
 
+> **Revisão posterior dos gabaritos documentais:** [E02-QA v0.1](./E02_AUDITORIA_QA_GABARITOS_70_v0_1.md) e [70 oráculos E02 v0.4 corrigidos](./E02_CADERNO_70_ORACULOS_E_OBSERVAVEIS_v0_4.md). SYN-02 (falta ESSENCIAL versus opcional), SYN-03 (conflito versus retificação), SYN-08 (cutoff histórico versus versão/autorização), SYN-09 (sem edição do Consultor) foram refinados; SYN-27/28 são protocolo transversal, SYN-29..32 têm WHEN específico, SYN-31 é n8n opcional. **IDs/contagem preservados; nenhuma execução.**
+
 **Data:** 22/10/2026. **Estado:** [P/R] revisão documental da frente OpenAI. **Nenhum destes casos foi executado, aprovado por S0 ou transformado em fixture de código.**
 
 ## 1. Referência e cardinalidade
