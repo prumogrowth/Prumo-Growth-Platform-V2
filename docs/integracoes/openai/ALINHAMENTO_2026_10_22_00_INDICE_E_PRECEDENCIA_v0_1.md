@@ -20,8 +20,9 @@ O registro é **aditivo**: não apaga arquivos antigos da frente OpenAI nem os 5
 | [AL-IA-03 — MCP de Diretores](./ALINHAMENTO_2026_10_22_03_MCP_DIRETOR_GUIAS_AUDITORIA_v0_1.md) | Ações administrativas, dupla confirmação, proibição de alterar software, base de auditoria do MCP imutável pelo próprio MCP, guias semânticos tipo skills |
 | [AL-IA-04 — Rastreabilidade](./ALINHAMENTO_2026_10_22_04_RASTREABILIDADE_DELTAS_PENDENCIAS_v0_1.md) | Deltas entre documentação antiga/novo alinhamento, conflitos, responsáveis, pendências técnicas, validações externas e propostas de testes |
 [TRECHO COMERCIAL INTERNO EXCLUÍDO DA VERSÃO PÚBLICA]
+| [AL-IA-06 — Auditoria de fidelidade e completude](./ALINHAMENTO_2026_10_22_06_AUDITORIA_FIDELIDADE_E_COMPLETUDE_v0_1.md) | Checklist de decisões, achados, reparos já publicados e divergências ainda não conciliadas |
 
-**Ordem de leitura:** 00 → 01 → 02 → 03 → 04 → 05. Para esclarecer precedência, usar primeiro as etiquetas de status abaixo e conferir documento-fonte.
+**Ordem de leitura:** 00 → 01 → 02 → 03 → 04 → 05 → **06 (auditoria)**. Para esclarecer precedência, usar primeiro as etiquetas de status abaixo e conferir documento-fonte.
 
 ## Regras de interpretação e precedência
 
