@@ -1,5 +1,12 @@
 # Frente OpenAI — Prumo Growth | índice inicial
 
+## E01/E03 — prontidão do fornecedor e aviso de descontinuação (22/10/2026)
+
+- [E01-AUDIO v0.4 — modelos de voz, descontinuações previstas para 2027 e implicações F04/F05](./E01_ATUALIZACAO_MODELOS_AUDIO_DEPRECACOES_2026_10_22_v0_4.md): a shortlist antiga foi atualizada **documentalmente**, sem decidir endpoint ou modelo de produção.
+- [E03-PRE v0.2 — conta API, controle de gastos, retenção, cache, segredos e checklist sem execução](./E03_PRONTIDAO_PRE_OPERACIONAL_SEM_CREDENCIAIS_v0_2.md): E03-A..H **permanecem adiadas**, sem criar projeto OpenAI, billing, credencial, sessão ou chamada paga.
+
+**Regra vigente:** 70 SYN apenas documentados, 0 executados; revisão interfrentes E02 pendente; E04 exige autorização **expressa de implementação**; E05 requer liberação de custo/segredo/ambiente separada. Os achados da documentação oficial da OpenAI exigem revalidação no momento do laboratório.
+
 ## Auditoria editorial do gabarito E02 (22/10/2026)
 
 [AUDITORIA E02-QA v0.1 — revisão dos 70 cenários](./E02_AUDITORIA_QA_GABARITOS_70_v0_1.md): foram corrigidos, nos [oráculos documentais v0.4](./E02_CADERNO_70_ORACULOS_E_OBSERVAVEIS_v0_4.md), os SYN-02/03/08/09 e SYN-27..32. Distribuição conferida: **70 IDs contínuos; 65 P0 e 5 P1**; **0 testes executados, 0 PASS medidos**. SYN-27/28 são testes transversais de protocolo, não apenas F01. SYN-31 (n8n) é **condicional**: rota não escolhida pede `NÃO_APLICÁVEL/JUSTIFICADO`, não PASS fictício.
