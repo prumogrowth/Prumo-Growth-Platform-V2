@@ -8,6 +8,8 @@
 
 > **FV-UI-020 (22/10/2026):** [registro de estados técnicos e matriz de aceitação](../docs/44_FV_UI_020_ERROS_TRANSPORTE_E_MATRIZ_ACEITACAO_2026_10_22.md). ACK Meta não prova envio; recibos e erros são apenas projeções sintéticas, sem reenvio automático, cadastro manual ou transição comercial. `C13` foi excluído das ações candidatas da UI. `run_acceptance.py` inventaria as 24 suítes e impede homologação sem revisão correta/Chromium. Execução V8 não substitui testes Node nativos.
 
+> **FV-UI-021 (22/10/2026):** [preparação S0/S1 e acessibilidade](../docs/45_FV_UI_021_PREPARACAO_S0_S1_ACESSIBILIDADE_2026_10_22.md). O novo `integration-gate-view.mjs` classifica **somente estruturas candidatas**, nunca autentica, libera registros, comandos ou ações comerciais. O Frontend demonstra anúncio acessível de contexto, foco entre telas móveis, Home/End nas abas e ajustes para altura reduzida. Verificações V8 não substituem Node/Chromium/leitor de tela nativos.
+
 **Branch proprietária:** `feat/frontend-plataforma-visual`. **Referência visual:** organização de mensageiro familiar ao WhatsApp, sem copiar sua identidade, marca ou recursos. **Situação:** demonstração local com dados 100% sintéticos; não é portal operacional.
 
 ## Abrir localmente
