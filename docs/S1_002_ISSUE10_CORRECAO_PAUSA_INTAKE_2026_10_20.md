@@ -1,5 +1,8 @@
 # S1-002 — alinhamento da issue #10: pausa só de novos leads e transferências seguras (20/10/2026)
 
+> **AVISO DE PRECEDÊNCIA — 22/10/2026:** **Complemento normativo de 22/10:** distinguir distribuição regular cross-team de lead NOVO, fila sem titular e redistribuição same-team de caso anteriormente atribuído ao pausado. As regras de histórico por contato, marcador por Consultor, DOT sensível a autor/entrega e conclusão/F03 estão no contrato consolidado; seção histórica de D-S0-04 não equivale à regra nova. [Contrato funcional S1 vigente (22/10/2026)](S1_002_01_CONTRATO_FUNCIONAL_VIGENTE_2026_10_22.md) · [matriz de aderência](S1_002_02_MATRIZ_ADERENCIA_E_PENDENCIAS_2026_10_22.md).
+
+
 > **[D] Atualização de nomenclatura (21/10/2026):** **diretor** substitui o nome de papel **responsável (da plataforma)**; **gestor** permanece **gestor**; **consultor** substitui **operador**. As competências permanecem iguais, e a estrutura técnica/identificadores ainda **não** foram renomeados. A terminologia antiga neste documento deve ser interpretada por esta equivalência. [Decisão normativa de nomenclatura](S1_002_DECISAO_NOMENCLATURA_PAPEIS_2026_10_21.md).
 
 
