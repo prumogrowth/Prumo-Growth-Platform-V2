@@ -1,5 +1,11 @@
 # Frente OpenAI — Prumo Growth | índice inicial
 
+## Auditoria editorial do gabarito E02 (22/10/2026)
+
+[AUDITORIA E02-QA v0.1 — revisão dos 70 cenários](./E02_AUDITORIA_QA_GABARITOS_70_v0_1.md): foram corrigidos, nos [oráculos documentais v0.4](./E02_CADERNO_70_ORACULOS_E_OBSERVAVEIS_v0_4.md), os SYN-02/03/08/09 e SYN-27..32. Distribuição conferida: **70 IDs contínuos; 65 P0 e 5 P1**; **0 testes executados, 0 PASS medidos**. SYN-27/28 são testes transversais de protocolo, não apenas F01. SYN-31 (n8n) é **condicional**: rota não escolhida pede `NÃO_APLICÁVEL/JUSTIFICADO`, não PASS fictício.
+
+**Alcance:** QA editorial desta rodada, **não** aceitação E02-REV/FIX, schema S0 ratificado ou permissão para E04/E05. As decisões dos donos nas issues #4/#6/#15 seguem abertas.
+
 ## Contrato tipado e erros da integração — E01-INT v0.4 (22/10/2026)
 
 A frente OpenAI publicou o [**E01-INT v0.4 — contrato lógico F01/F02/F03, saída tipada e falha fechada**](./E01_CONTRATO_TIPADO_ADAPTADOR_FALHAS_v0_4.md). Ele descreve o que é **entrada autorizada da S0**, o que pode ser **proposta do modelo**, o que exige **revalidação e efeito exclusivo S0**, tratamento de `DENIED` antes de divulgar `STALE` e distinção entre resultado técnico, `sent` Meta e estado comercial. **[P/R]: não é schema físico, código, teste executado nem interface aprovada.** Issues de ratificação #4/#6/#15 seguem sem resposta nova; E02-REV/FIX permanecem abertas; E04 ainda depende de autorização expressa de implementação.
