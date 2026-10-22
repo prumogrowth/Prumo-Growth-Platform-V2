@@ -31,7 +31,7 @@ WITH seeds(shop_ref,case_ref,attempt_ref) AS (
  ('shop_A','case_failed','attempt_failed'),
  ('shop_A','case_conflict','attempt_conflict'),
  ('shop_A','case_invalidated','attempt_invalidated'),
- ('shop_A','case_revoke_first','attempt_revoke_first'),
+ ('shop_A','case_revoke_first30','attempt_revoke_first30'),
  ('shop_A','case_absent','attempt_absent'),
  ('shop_A','case_rollback30','attempt_rollback30'),
  ('shop_A','case_receipt_collision','attempt_receipt_collision'),
@@ -52,7 +52,7 @@ SELECT shop_ref,case_ref,
  1,10
  FROM wa29_lab.authority WHERE case_ref IN (
  'case_unknown','case_accepted','case_sent','case_failed','case_conflict',
- 'case_invalidated','case_revoke_first','case_absent','case_rollback30',
+ 'case_invalidated','case_revoke_first30','case_absent','case_rollback30',
  'case_receipt_collision','case_race','case_b30');
 
 DO $wa30_seed$
@@ -61,7 +61,7 @@ BEGIN
  FOR r IN SELECT shop_ref,case_ref,attempt_ref,actor_ref
   FROM wa29_lab.reservations WHERE case_ref IN (
    'case_unknown','case_accepted','case_sent','case_failed','case_conflict',
-   'case_invalidated','case_revoke_first','case_rollback30',
+   'case_invalidated','case_revoke_first30','case_rollback30',
    'case_receipt_collision','case_race','case_b30')
  LOOP
   SELECT wa29_lab.claim_fixture(r.shop_ref,r.case_ref,r.actor_ref,
@@ -174,5 +174,5 @@ SELECT 'WA30-SETUP PASS' WHERE
  (SELECT count(*) FROM wa29_lab.authority WHERE case_ref LIKE 'case_%')>=12 AND
  (SELECT count(*) FROM wa29_lab.claims WHERE case_ref IN
  ('case_unknown','case_accepted','case_sent','case_failed','case_conflict',
-  'case_invalidated','case_revoke_first','case_rollback30',
+  'case_invalidated','case_revoke_first30','case_rollback30',
   'case_receipt_collision','case_race','case_b30'))=11;
