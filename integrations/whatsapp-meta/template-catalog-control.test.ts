@@ -25,8 +25,14 @@ const mappings=[
  {position:1,source_key:'cliente.nome'},
  {position:2,source_key:'operador.nome'},
 ] as const;
-const submitted=()=>recordReviewSubmission(createManualTemplate(draftInput),'456789012345678');
-const approved=()=>applyVerifiedMetaStatus(submitted(),'456789012345678','APPROVED');
+const approvedWith=(sources:readonly {position:number;source_key:string}[]=mappings)=>
+ applyVerifiedMetaStatus(recordReviewSubmission(
+  configureVariableSources(createManualTemplate(draftInput),0,sources,registry),
+  '456789012345678'),'456789012345678','APPROVED');
+const submitted=()=>recordReviewSubmission(
+ configureVariableSources(createManualTemplate(draftInput),0,mappings,registry),
+ '456789012345678');
+const approved=()=>approvedWith();
 
 test('WA17-01: humans supply body and sample values, no automatic generated text',()=>{
  const t=createManualTemplate(draftInput);
@@ -60,34 +66,38 @@ test('WA17-04: only matching template provider ID can accept status from trusted
  assert.throws(()=>applyVerifiedMetaStatus(t,'456789012345678','HACKED' as 'APPROVED'),/UNKNOWN_META_STATUS/);
  assert.equal(applyVerifiedMetaStatus(t,'456789012345678','APPROVED').stage,'APPROVED');
 });
-test('WA17-05: rejection, pause, disable and pending each block preparation',()=>{
+test('WA17-05: rejection, pause, disable and pending block preparation and remapping',()=>{
  for(const status of ['REJECTED','PAUSED','DISABLED','PENDING'] as const){
-  const t=configureVariableSources(
-   applyVerifiedMetaStatus(submitted(),'456789012345678',status),
-   0,mappings,registry);
+  const t=applyVerifiedMetaStatus(submitted(),'456789012345678',status);
   assert.throws(()=>prepareApprovedTemplateParameters(t,{
    'cliente.nome':'Cliente Fictício','operador.nome':'Operador Fictício',
   }),/TEMPLATE_NOT_APPROVED/);
+  assert.throws(()=>configureVariableSources(t,1,mappings,registry),
+   /APPROVED_VERSION_BINDINGS_FROZEN/);
  }
 });
-test('WA17-06: mapping is editable independently and preserves approved text/status',()=>{
- const t=approved();
- const first=configureVariableSources(t,0,mappings,registry);
+test('WA17-06: remap is possible before approval, frozen afterward',()=>{
+ const draft=createManualTemplate(draftInput);
+ const first=configureVariableSources(draft,0,mappings,registry);
  const changed=configureVariableSources(first,1,[
   {position:1,source_key:'cliente.nome'},
   {position:2,source_key:'caso.codigo'},
  ],registry);
  assert.equal(changed.mapping_revision,2);
- assert.equal(changed.stage,'APPROVED');
- assert.equal(changed.body,draftInput.body);
- assert.equal(changed.provider_template_id,'456789012345678');
+ assert.equal(changed.stage,'DRAFT');
+ const final=applyVerifiedMetaStatus(
+  recordReviewSubmission(changed,'456789012345678'),'456789012345678','APPROVED');
+ assert.equal(final.mappings[1].source_key,'caso.codigo');
+ assert.equal(final.mapping_revision,2);
  assert.equal(first.mappings[1].source_key,'operador.nome');
+ assert.throws(()=>configureVariableSources(final,2,mappings,registry),
+  /APPROVED_VERSION_BINDINGS_FROZEN/);
 });
 test('WA17-07: new variables can come from extensible trusted registry, not arbitrary code',()=>{
- const t=configureVariableSources(approved(),0,[
+ const t=approvedWith([
   {position:1,source_key:'cliente.nome'},
   {position:2,source_key:'caso.codigo'},
- ],registry);
+ ]);
  const result=prepareApprovedTemplateParameters(t,{
   'cliente.nome':'Pessoa de Teste','caso.codigo':'PROTOCOLO-EXEMPLO',
  });
@@ -101,7 +111,7 @@ test('WA17-07: new variables can come from extensible trusted registry, not arbi
  assert.equal(result.send_authorized,false);
 });
 test('WA17-08: missing variable values fail closed; never send raw placeholders',()=>{
- const t=configureVariableSources(approved(),0,mappings,registry);
+ const t=approved();
  assert.throws(()=>prepareApprovedTemplateParameters(t,{'cliente.nome':'Teste'}),
    /MISSING_VARIABLE_VALUE/);
  assert.throws(()=>prepareApprovedTemplateParameters(t,{
@@ -109,7 +119,7 @@ test('WA17-08: missing variable values fail closed; never send raw placeholders'
  }),/INVALID_VARIABLE_VALUE/);
 });
 test('WA17-09: cannot source values from disabled or unknown tenant registry keys',()=>{
- const t=approved();
+ const t=createManualTemplate(draftInput);
  for(const source_key of ['sistema.token','outra_loja.nome','process.env','__proto__']){
   assert.throws(()=>configureVariableSources(t,0,[
    {position:1,source_key:'cliente.nome'},{position:2,source_key},
@@ -117,7 +127,7 @@ test('WA17-09: cannot source values from disabled or unknown tenant registry key
  }
 });
 test('WA17-10: optimistic concurrency blocks stale operator mapping edits',()=>{
- const t=configureVariableSources(approved(),0,mappings,registry);
+ const t=configureVariableSources(createManualTemplate(draftInput),0,mappings,registry);
  assert.throws(()=>configureVariableSources(t,0,mappings,registry),
    /STALE_MAPPING_REVISION/);
 });
@@ -128,7 +138,7 @@ test('WA17-11: no gap/zero/missing examples in placeholders',()=>{
  assert.throws(()=>createManualTemplate({...draftInput,examples:['A']}),/MISSING_META_EXAMPLES/);
 });
 test('WA17-12: text changes create a new draft, with new version and approval cycle',()=>{
- const first=configureVariableSources(approved(),0,mappings,registry);
+ const first=approved();
  const newer=createEditedContentVersion(first,{
   ...draftInput,local_id:'f7200000-0000-4000-8000-000000000002',
   name:'contato_manual_b',body:'Mensagem alterada por responsável: {{1}}.',
@@ -159,11 +169,12 @@ test('WA17-15: validation prohibits unsupported special categories for v0',()=>{
  assert.throws(()=>createManualTemplate({...draftInput,category:'AUTHENTICATION' as 'UTILITY'}),/UNSUPPORTED_CATEGORY/);
  assert.throws(()=>createManualTemplate({...draftInput,name:'Wrong Case'}),/INVALID_TEMPLATE_NAME/);
 });
-test('WA17-16: approve alone never authorizes sending without mapping or consent gates',()=>{
+test('WA17-16: unbound approval is denied; approval alone never authorizes sending',()=>{
+ const unbound=recordReviewSubmission(createManualTemplate(draftInput),'456789012345678');
+ assert.throws(()=>applyVerifiedMetaStatus(unbound,'456789012345678','APPROVED'),
+  /VARIABLE_BINDINGS_REQUIRED_BEFORE_APPROVAL/);
  const t=approved();
- assert.throws(()=>prepareApprovedTemplateParameters(t,{}),/UNCONFIGURED_VARIABLES/);
- const mapped=configureVariableSources(t,0,mappings,registry);
- const p=prepareApprovedTemplateParameters(mapped,{
+ const p=prepareApprovedTemplateParameters(t,{
   'cliente.nome':'Pessoa Fictícia','operador.nome':'Pessoa Operadora',
  });
  assert.equal(p.send_authorized,false);
