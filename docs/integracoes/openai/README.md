@@ -1,5 +1,17 @@
 # Frente OpenAI — Prumo Growth | índice inicial
 
+## Contratos operacionais v0.3 — atualização iniciada em 22/10/2026 [P/R]
+
+Foram publicadas **novas versões candidatas de implementação**, alinhadas às decisões mais recentes AL-IA. **Precedência de consulta:** AL-IA-00..08 (decisões [DN], limitações [R/V]) → versões operacionais v0.3 abaixo → versões v0.1/v0.2 históricas para rastreabilidade.
+
+- [OAI-01 v0.3 — Porta S0↔OpenAI](./OAI_01_CONTRATO_OPERACIONAL_S0_OPENAI_v0_3.md)
+- [OAI-05 v0.3 — F03, histórico e ficha](./OAI_05_F03_CONTRATO_OPERACIONAL_v0_3.md)
+- [OAI-07 v0.3 — Desfechos, status e roteamento](./OAI_07_DESFECHO_ROTEAMENTO_CONTRATO_OPERACIONAL_v0_3.md)
+- [OAI-08 v0.3 — F02 e cadeia pós-humana](./OAI_08_F02_POS_HUMANO_CONTRATO_OPERACIONAL_v0_3.md)
+- [E01 v0.3 — Contrato funcional integrado](./E01_CONTRATO_FUNCIONAL_OPERACIONAL_v0_3.md)
+
+**Situação real:** v0.3 atualiza contratos **da frente OpenAI**, mas **não é assinatura canônica S0**, código, teste executado, gasto autorizado ou alteração de outras frentes. Ainda requer ratificação CFI-01 (issue #4), CF-OP-02/C09 (issue #6), catálogo e versões S0, mídia/Meta e privacidade. OAI-06 áudio ainda segue como proposta anterior compatível sujeita a revisão. **E01/E02 não estão encerrados; E04/E05 não iniciados.** Não abrir credenciais ou API paga. Preservar documentos antigos, sem interpretar seus trechos superados como autorização.
+
 ## Atualização documental de alinhamento [DN] — 22/10/2026
 
 O responsável pelo produto concluiu uma nova rodada de alinhamento sobre F01/F02/F03, ficha e histórico, status comerciais, MCP de Diretores, bases de conhecimento, instruções globais, comportamento F01, cache opcional, habilidades e vigência/pausa de campanhas. Esse alinhamento foi **registrado na própria frente OpenAI**, em documentação aditiva, com precedência explícita e diferenças para contratos anteriores; não altera contratos físicos nem concede autorização de deploy.
