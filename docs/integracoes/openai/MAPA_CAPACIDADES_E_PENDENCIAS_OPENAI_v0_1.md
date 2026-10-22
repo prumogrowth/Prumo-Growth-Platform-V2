@@ -1,5 +1,10 @@
 # Mapa de capacidades e pendências — Frente OpenAI | v0.1
 
+> **AVISO DE PRECEDÊNCIA — AUDITORIA DA FRENTE OPENAI, 22/10/2026.** Este documento anterior permanece preservado como **contrato candidato/histórico**; trechos conflitantes **NÃO são a direção funcional vigente**. Ler primeiro [AL-IA-00 — índice e precedência](./ALINHAMENTO_2026_10_22_00_INDICE_E_PRECEDENCIA_v0_1.md), [AL-IA-01 — jornada](./ALINHAMENTO_2026_10_22_01_JORNADA_F01_F02_F03_v0_1.md), [AL-IA-04 — deltas](./ALINHAMENTO_2026_10_22_04_RASTREABILIDADE_DELTAS_PENDENCIAS_v0_1.md), [AL-IA-07 — dependências entre frentes](./ALINHAMENTO_2026_10_22_07_DEPENDENCIAS_RELEVANTES_OUTRAS_FRENTES_v0_1.md) e [AL-IA-08 — auditoria documental](./ALINHAMENTO_2026_10_22_08_AUDITORIA_FECHAMENTO_DOCUMENTAL_FRENTE_OPENAI_v0_1.md). O texto abaixo documenta o estado de sua data original, **sem emendar código, criar autorização S0, nem corrigir documentação de outras frentes**.
+>
+> **Atenção especial:** a matriz antiga menciona correção excepcional da ficha pelo Consultor; essa permissão foi retirada na diretriz mais recente. O mapa não contém integralmente as novas bases de conhecimento, pausa agendada, cache opcional, catálogo de habilidades e governança MCP, que constam dos arquivos AL-IA.
+
+
 **Data:** 18/10/2026. Fonte: pacote auditado do projeto de 17/10 (principalmente docs 06, 08B, 11, 23, 24, 26, 40, 41) e decisão funcional nova do responsável nesta conversa. Classificação [D] normativo confirmado, [D-NEGÓCIO] manifestação funcional atual, [P] contrato proposto, [R] decisão interna pendente, [V] validação externa. Mapa não autoriza implementação, gasto, transferência de dados ou reatribuição de backlog.
 
 ## Inventário que deve sobreviver ao desenvolvimento
