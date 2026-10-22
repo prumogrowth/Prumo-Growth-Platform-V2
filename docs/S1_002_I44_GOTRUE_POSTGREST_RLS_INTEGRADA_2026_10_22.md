@@ -21,4 +21,6 @@ Esta prova usa PostgreSQL/S0 001–005 de base, mas **não testa integralmente t
 A revisão S0 deve aprovar e consolidar todos os predicados, verificar `SECURITY DEFINER` / `search_path` / owners e evitar eventuais exposições em outras tabelas e views antes de qualquer migração operacional. Não mexer em S0, banco hospedado, Meta real ou branches externas. PR #5 permanece Draft.
 
 ## Evidência
-Aguardar conclusão física do workflow I44; documentar resultados e falhas concretos antes de afirmar aprovação.
+[GitHub Actions #39872874327 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39872874327), job `120151290596`, código testado no commit `e692cae309961625247d0f1fc8ce11cedc3601bc`. Logs verificados: `PASS I44-01`, `02`, `03`, `04`, `05`, `06` e `6/6`. O token GoTrue real permitiu leitura da própria equipe e histórico contextual, restringiu envio no caso antigo e perdeu imediatamente leitura/envio após revogação do entitlement, sem modificar a titularidade S0. JWT adulterado rejeitado. Uma execução anterior [#39872625205](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39872625205) passou I44-01..03 e falhou por **falso pressuposto do teste**: PostgREST devolveu HTTP `401` à requisição anônima em vez de lista vazia. O assert foi corrigido para reconhecer o bloqueio legítimo; não houve relaxamento de políticas.
+
+A aprovação é estritamente da **stack local efêmera**, com migrations S0 001..005 e gate S1 038 mais fixtures I55 reduzidas, não da operação hospedada. PR #5 segue Draft.
