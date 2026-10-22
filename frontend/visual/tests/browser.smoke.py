@@ -54,6 +54,15 @@ with sync_playwright() as p:
         assert page.locator('.activity-item').count() > 3
         if width<=760: page.locator('#detail-back').click()
         elif width<=1040: page.locator('#detail-close').click()
+        # FV-UI-017: prévia de autoria, confirmação APENAS local e alerta não resolvido.
+        page.locator('#message-input').fill('Resposta em demonstração')
+        page.locator('#composer button').click()
+        expect(page.locator('#message-preview-dialog')).to_be_visible()
+        assert page.locator('#message-preview-body').inner_text().startswith('Consultor Rafael Lima:')
+        page.locator('#message-preview-form button[value=confirm]').click()
+        assert page.locator('#message-preview-dialog').is_hidden()
+        assert 'NÃO ENVIADA' in page.locator('.message-send-state').last.inner_text()
+        assert page.locator('.conversation-card').filter(has_text='Cliente Exemplo 02').locator('.attention-pending').count() == 1
         page.locator('#request-completion').click()
         page.locator('#completion-form button[value=confirm]').click()
         if width<=1040: page.locator('#detail-toggle').click()
