@@ -1,5 +1,7 @@
 # OAI-05 v0.3 — F03: extração pós-conclusão humana e histórico integral (candidata)
 
+> **Conciliação física pendente [R]:** ver [CFI-01 v0.3 — ponte F03 com S0/S1/FV/Meta](./CFI_01_CONCILIACAO_PONTE_F03_INTERFRENTES_v0_3.md) e [E02-REV v0.3](./E02_PACOTE_REVISAO_CRUZADA_E_GATES_v0_3.md). PR #12 S0 confirma metadados internos, **não** o histórico multimodal completo nem permissão de aplicação.
+
 **Data:** 22/10/2026. **Estado:** decisões de produto [DN/DA]; modelo de envelope [P/R]; privacidade e Banco/Meta [V]. **Sem contrato físico ratificado, IA real, migração ou aplicação de cadastro.**
 
 ## 1. Precedência
