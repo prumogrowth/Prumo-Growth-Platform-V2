@@ -1,3 +1,5 @@
+> **AVISO DE PRECEDÊNCIA S1-002 — 22/10/2026:** consultar primeiro o [índice atual](S1_002_00_LEIA_PRIMEIRO_2026_10_22.md) e o [contrato funcional vigente](S1_002_01_CONTRATO_FUNCIONAL_VIGENTE_2026_10_22.md). **A saída humana SINTÉTICA da fixture NÃO comprova entrega; ação sistêmica/IA NÃO encerra DOT; ação do Consultor exige entrega e conclusão confirma reset do segmento.** Texto, migrações e testes abaixo permanecem como registros do estágio original; não são prova de implementação da decisão mais recente. **Libera Credi é o produto da instituição financeira; o software chama-se, por enquanto, plataforma.**
+
 # S0 + S1-002 / issue #10 — indicador único de mensagens (20/10/2026)
 
 **Protótipo SQL exclusivo de sandbox**, não migration operacional, não endpoint UI, não integração Meta. Mantém branch `feat/s1-002-equipe-prumo`, PR #5 Draft; não altera Supabase hospedado nem S0 base.
