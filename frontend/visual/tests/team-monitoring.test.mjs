@@ -11,7 +11,7 @@ test('G3: Marina acompanha apenas sua equipe incluindo as duas lojas concedidas'
   assert.equal(view.visibility,'team_summary');
   assert.deepEqual(view.operators.map(x=>x.id),['rafael','lia']);
   assert.equal(view.summary.operatorCount,2);
-  assert.equal(view.summary.activeCases,13);
+  assert.equal(view.summary.activeCases,14); // inclui A-117 (caso-only da Lia)
   assert.equal(view.summary.unreadCases,3);
   assert.equal(view.summary.managerOwnedCases,1);
   assert.equal(view.summary.bankReplyPendingCases,1);
@@ -74,8 +74,8 @@ test('G3: etapas comerciais são separadas de alertas técnicos e usam os oito s
 test('G3: histórico preservado não infla casos ativos e nenhum relógio é inferido',()=>{
   const p=projectTeamMonitoring('marina',sample());
   assert.equal(p.summary.historicalCases,3);
-  assert.equal(p.summary.activeCases,13);
-  assert.equal(p.summary.activeCases+p.summary.historicalCases,16);
+  assert.equal(p.summary.activeCases,14); // inclui A-117
+  assert.equal(p.summary.activeCases+p.summary.historicalCases,17);
   assert.equal(p.summary.unreadCases,3);
   assert.equal('waitingMinutes' in p.summary,false);
   assert.equal('slaExceeded' in p.summary,false);
@@ -99,7 +99,7 @@ test('G3: casos de outra equipe, ainda na mesma concessionária, não entram em 
   });
   const marina=projectTeamMonitoring('marina',rows);
   const daniel=projectTeamMonitoring('daniel',rows);
-  assert.equal(marina.summary.activeCases,13);
+  assert.equal(marina.summary.activeCases,14);
   assert.equal(marina.summary.unreadCases,3);
   assert.equal(marina.summary.bankReplyPendingCases,1);
   assert.equal(daniel.summary.activeCases,3);
@@ -110,7 +110,7 @@ test('G3: projeções duplicadas por id não inflam contagens, sem mutar casos',
   const rows=sample(),count=rows.length;
   rows.push(rows[0]);
   const p=projectTeamMonitoring('marina',rows);
-  assert.equal(p.summary.activeCases,13);
+  assert.equal(p.summary.activeCases,14); // inclui A-117
   assert.equal(rows.length,count+1);
   assert.equal(rows[0].status,'em atendimento pelo operador');
 });
