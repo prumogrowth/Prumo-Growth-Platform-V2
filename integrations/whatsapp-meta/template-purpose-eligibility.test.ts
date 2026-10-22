@@ -147,7 +147,7 @@ test('WA25-17 a positive recheck STILL does not authorize a send',()=>{
 });
 test('WA25-18 untrusted object keys and missing catalog always deny',()=>{
   assert.equal(includes({},context),false);
-  assert.equal(includes(undefined,context),false);
+  assert.equal(selectPlannerTemplateCandidates(undefined,context).candidates.length,0);
   assert.equal(includes([null,{template_ref:'t'}],context),false);
   assert.equal(includes([{...row,grants:undefined}],context),false);
   assert.equal(includes([row],{...context,campaign_ref:undefined}),false);
