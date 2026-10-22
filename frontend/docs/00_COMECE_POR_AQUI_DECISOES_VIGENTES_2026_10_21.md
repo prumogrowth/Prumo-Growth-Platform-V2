@@ -44,6 +44,10 @@
 
 **[FV-UI-019 — eventos de conclusão, esclarecimento e versões da ficha](./43_FV_UI_019_CONCLUSOES_F03_FICHA_VIVA_2026_10_22.md)**: duas conclusões históricas F03 projetadas em fixture, nova conclusão somente candidata em cenário alternativo, dossiê vivo por cliente/loja e snapshot bancário antigo preservado. **Sem** execução real F03, S0, remessa, gravação ou homologação Node/Chromium.
 
+## Estados técnicos e gates de aceitação (22/10/2026)
+
+**[FV-UI-020 — erros, transporte de mensagens e matriz FV-22](./44_FV_UI_020_ERROS_TRANSPORTE_E_MATRIZ_ACEITACAO_2026_10_22.md)**: estados técnicos explicitamente **sintéticos**, rejeição de C13 na camada visual, 16 critérios rastreados a 24 suítes e bloqueios de integração. Não constitui homologação Node/Chromium, Meta ou S0/S1.
+
 ## Estado do trabalho
 FV-UI-015/016: demonstrações com dados sintéticos. **NÃO** declarar integração real, Auth/RLS/GoTrue, comunicações Meta ou remessas confirmadas. FV-UI-013 não homologada formalmente; **19F 69/100** como último marco. Esta consolidação é **documentação somente**. Nenhum código, migration, branch S1, dado real ou deploy foi tocado.
 
