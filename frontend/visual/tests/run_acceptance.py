@@ -109,14 +109,14 @@ def main():
     expected_tests = {
         "app.dom.test.mjs", "app.mobile.dom.test.mjs", "bank-view.test.mjs",
         "batch-monitor.test.mjs", "cf-op-02.test.mjs", "fixtures.test.mjs",
-        "postmark-view.test.mjs", "registration-view.test.mjs",
+        "postmark-view.test.mjs", "registration-view.test.mjs", "human-cycle-view.test.mjs",
         "source-contract.test.mjs", "source-module-graph.test.mjs",
         "team-monitor.test.mjs", "team-monitoring.test.mjs",
         "team-operations.test.mjs", "distribution-view.test.mjs", "view-model.test.mjs",
     }
     required_sources = {
         "index.html", "styles.css", "app.mjs", "fixtures.mjs",
-        "view-model.mjs", "cf-op-02.mjs", "registration-view.mjs",
+        "view-model.mjs", "cf-op-02.mjs", "registration-view.mjs", "human-cycle-view.mjs",
         "bank-view.mjs", "postmark-view.mjs", "team-operations.mjs",
         "team-monitor.mjs", "team-monitoring.mjs", "batch-monitor.mjs", "distribution-view.mjs",
     }
