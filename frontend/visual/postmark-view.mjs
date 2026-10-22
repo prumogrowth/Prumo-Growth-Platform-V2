@@ -2,7 +2,7 @@
  * Nunca cria ciclo, concede acesso, reativa IA Vendedora, muda status ou faz envio.
  * Casos e links são apenas fixtures fictícias; servidor decide a relação de verdade.
  */
-import { getActor, visibleConversations } from './fixtures.mjs';
+import { getActor, hasMockCaseScope, visibleConversations } from './fixtures.mjs';
 import { isInActiveInbox } from './cf-op-02.mjs';
 
 export const POSTMARK_SOURCES = Object.freeze({
@@ -33,7 +33,7 @@ function validPair(origin, continuation) {
 
 export function postmarkViewFor(record, records, actorId, shopId) {
   const actor=getActor(actorId);
-  if(!actor || actor.teamState!=='active' || !actor.shops.includes(shopId) ||
+  if(!actor || !hasMockCaseScope(record,actorId,shopId) ||
     !record || record.shopId!==shopId) {
     return {visibility:'forbidden',kind:'unavailable',relatedCaseId:null,linked:false};
   }
@@ -66,7 +66,7 @@ export function postmarkViewFor(record, records, actorId, shopId) {
  */
 export function mayMockOperateContinuation(record, records, actorId, shopId) {
   const actor=getActor(actorId);
-  if(!actor || actor.teamState!=='active' || !actor.shops.includes(shopId) ||
+  if(!actor || !hasMockCaseScope(record,actorId,shopId) ||
      record?.shopId!==shopId || record.assignedTo!==actorId ||
      !visibleConversations(records,actorId,shopId).some(x=>x===record) ||
      !isValidContinuationProjection(record)) return false;
