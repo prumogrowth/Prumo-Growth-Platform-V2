@@ -11,7 +11,7 @@ const visual = dirname(fileURLToPath(new URL('../app.mjs', import.meta.url)));
 const read = name => readFileSync(join(visual, name), 'utf8');
 const order = [
   'fixtures.mjs', 'view-model.mjs', 'cf-op-02.mjs',
-  'registration-view.mjs', 'bank-view.mjs', 'postmark-view.mjs',
+  'registration-view.mjs', 'human-cycle-view.mjs', 'bank-view.mjs', 'postmark-view.mjs',
   'team-operations.mjs', 'team-pause-preview.mjs', 'team-monitor.mjs', 'team-monitoring.mjs',
   'batch-monitor.mjs', 'distribution-view.mjs', 'conversation-attention.mjs', 'app.mjs'
 ];
