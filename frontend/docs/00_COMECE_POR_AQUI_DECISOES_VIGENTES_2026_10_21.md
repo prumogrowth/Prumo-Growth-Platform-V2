@@ -32,6 +32,10 @@
 
 **[FV-AUD-01 — auditoria estática da implementação](./40_FV_AUD_01_AUDITORIA_ESTATICA_IMPLEMENTACAO_2026_10_22.md)**: leitura do código atual, fixtures, testes e lacunas perante FV-22-01..16, com gravidade, evidências, prioridades e bloqueios. **Não substitui** FV-DOC-03 nem equivale a testes Node/Chromium executados, integração ou homologação. Consultar após o contrato funcional para orientar os reparos sem promover hipóteses históricas a regras vigentes.
 
+## Primeiro reparo visual (22/10/2026)
+
+**[FV-UI-017 — integridade de contexto e mensagens](./41_FV_UI_017_INTEGRIDADE_CONTEXTO_MENSAGENS_2026_10_22.md)**: rótulos humanos vigentes, descarte de rascunhos em trocas de contexto, prévia sintética de autoria, confirmação **apenas local** sem falso envio WhatsApp e regressões V8. **Não** é integração/aceite Node/Chromium; os demais achados da FV-AUD-01 continuam registrados.
+
 ## Estado do trabalho
 FV-UI-015/016: demonstrações com dados sintéticos. **NÃO** declarar integração real, Auth/RLS/GoTrue, comunicações Meta ou remessas confirmadas. FV-UI-013 não homologada formalmente; **19F 69/100** como último marco. Esta consolidação é **documentação somente**. Nenhum código, migration, branch S1, dado real ou deploy foi tocado.
 
