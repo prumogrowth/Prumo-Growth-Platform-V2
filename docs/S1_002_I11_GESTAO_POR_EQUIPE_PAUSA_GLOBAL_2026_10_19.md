@@ -1,5 +1,8 @@
 # S1-002/I11 — Gestores por equipe, grants pelos responsáveis e pausa global
 
+> **AVISO DE PRECEDÊNCIA — 22/10/2026:** **Importante:** a pausa `intake` é diferente de suspensão de conta; redistribuição da carteira pausada é seletiva e mesma equipe; lead NOVO regular pode atravessar equipes elegíveis e pode entrar em fila sem titular. Chefia principal única foi ratificada [D], não segue pendente como hipótese do I11. [Contrato funcional S1 vigente (22/10/2026)](S1_002_01_CONTRATO_FUNCIONAL_VIGENTE_2026_10_22.md) · [matriz de aderência](S1_002_02_MATRIZ_ADERENCIA_E_PENDENCIAS_2026_10_22.md).
+
+
 > **[D] Atualização de nomenclatura (21/10/2026):** **diretor** substitui o nome de papel **responsável (da plataforma)**; **gestor** permanece **gestor**; **consultor** substitui **operador**. As competências permanecem iguais, e a estrutura técnica/identificadores ainda **não** foram renomeados. A terminologia antiga neste documento deve ser interpretada por esta equivalência. [Decisão normativa de nomenclatura](S1_002_DECISAO_NOMENCLATURA_PAPEIS_2026_10_21.md).
 
 
