@@ -1,5 +1,7 @@
 # E03 — Projeto API, credencial e gates para laboratório | v0.1
 
+> **Complemento documental de 22/10/2026:** [E03-PRE v0.2 — retenção, custos, caching, orçamento e preparação SEM chave](./E03_PRONTIDAO_PRE_OPERACIONAL_SEM_CREDENCIAIS_v0_2.md). **E03-A..H continuam ADIADAS**, sem projeto, billing, key ou secret criados nesta frente. Alerta mensal de orçamento do projeto API é flexível; não tomar notificação como corte financeiro garantido. Sem teste ou consumo.
+
 **Data:** 18/10/2026; **decisão de sequenciamento em 19/10/2026 [D-tempo]** | **Estado:** checklist [P] preservado, execução manual E03 **deliberadamente adiada** até estrutura/testes offline autorizados estarem preparados para ensaios E05; [R] runtime/ação humana; [V] projeto/conta. **E03 NÃO CONCLUÍDO.** Nenhuma credencial, conta, cobrança, secret, API call ou ambiente foram criados/modificados por esta frente.
 
 ## Objetivo e distinção de ambientes
