@@ -1,5 +1,7 @@
 # E02 — Matriz de casos sintéticos, métricas e evidências futuras | v0.1
 
+> **Matriz operacional posterior [P/R]:** [E02-MT v0.3](./E02_MATRIZ_REGRESSAO_OPERACIONAL_v0_3.md), com **erratas SYN-08 e SYN-09**, manutenção dos 32 IDs originais e acréscimo de SYN-33..SYN-70. O texto v0.1 é **histórico**; os 70 cenários **não foram executados**.
+
 Data: 18/10/2026 | Estado: [P] projeto de testes e rubrica; NENHUM teste executado. Destino: E04 (offline) e, após gate humano de custo, E05–E07 (laboratório). A classificação de prioridade P0/P1 nesta minuta NÃO é decisão normativa do produto.
 
 ## 1. Contrato do laboratório [P]
