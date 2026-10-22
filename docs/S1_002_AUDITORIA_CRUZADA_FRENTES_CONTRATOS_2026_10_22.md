@@ -1,5 +1,8 @@
 # S1-002 — auditoria cruzada das frentes e contratos relevantes (22/10/2026)
 
+> **AVISO DE PRECEDÊNCIA — 22/10/2026:** **Consolidação interna S1 executada em 22/10:** este arquivo documenta fontes externas e descobertas, mas a **fonte funcional da S1** passa a ser o contrato consolidado e sua matriz. Nada aqui altera os contratos ou branches de outras frentes. [Contrato funcional S1 vigente (22/10/2026)](S1_002_01_CONTRATO_FUNCIONAL_VIGENTE_2026_10_22.md) · [matriz de aderência](S1_002_02_MATRIZ_ADERENCIA_E_PENDENCIAS_2026_10_22.md).
+
+
 **Tipo:** inventário de decisões e dependências documentais para a S1-002. **Não** é auditoria de código, aceite técnico, especificação SQL final, migração nem autorização para produção.  
 **Fonte principal da S1:** decisões expressas do responsável nas conversas de alinhamento de 20–22/10/2026, [issue #10](https://github.com/prumogrowth/Prumo-Growth---Platform/issues/10), documentos I11/I12/I35/I36/I37 e [decisão de nomenclatura](S1_002_DECISAO_NOMENCLATURA_PAPEIS_2026_10_21.md).  
 **Escopo da varredura:** índices e contratos recentes da frente visual, S0 base, S0/CFI-01 em duas branches Draft, frente Meta, frente OpenAI, contrato de coordenação CF-OP-02 e acervo histórico de 55 documentos de 17/10 (com exame específico de identidade, permissões, cadastro, estados e decisão D41). **Não** afirmar que todos os arquivos de código ou todos os 55 documentos foram auditados linha a linha.
