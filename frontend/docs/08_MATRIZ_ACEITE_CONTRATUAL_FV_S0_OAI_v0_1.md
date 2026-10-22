@@ -1,3 +1,5 @@
+> **EMENDA SUPERVENIENTE — 22/10/2026 [D/E]:** para a **frente Frontend** prevalece o [FV-DOC-03 — contrato funcional vigente](./38_FV_DOC_03_CONTRATO_FUNCIONAL_FRONTEND_2026_10_22.md). **A plataforma da Prumo ainda não tem nome; LiberaCred é o produto da instituição financeira.** Papéis visíveis: **Diretor / Gestor / Consultor**. A ficha cadastral do **Consultor é integralmente não editável**, inclusive sem correção excepcional C13 na UI; pendências são esclarecidas por atendimento, e atualização autorizada é confirmada pelo S0. **F01** atende, **F02** planeja templates, **F03** extrai após conclusão humana explícita; a troca de siglas em fala recente está marcada [R-SIGLA-01]. Assinatura de mensagem humana livre deve ser `Cargo Nome:\nMensagem` com validação pelo serviço. IA de melhoria fora da primeira versão. **Descrições anteriores incompatíveis abaixo são históricas e não critérios vigentes de aceite de UI.** Nenhuma alteração de código ou das outras frentes decorre desta emenda.
+
 # MAT-CFI-01 — Matriz de conformidade e aceitação sintética FV ↔ S0 ↔ OpenAI | v0.1
 
 **Data:** 18/10/2026. **Estado:** [P] cenários de teste especificados para futura execução e revisão dos donos S0/OpenAI. **NENHUM teste desta matriz foi executado**, e não existe API real certificada por esta matriz. Rastreabilidade: [CFI-01](07_CONCILIACAO_INTERFRENTES_FV_S0_OAI_v0_1.md), FV-01, FV-02, docs. 13A/21–23/26/40/41/D-ORG-01 e OpenAI OAI-05/E01.
@@ -37,14 +39,14 @@
 | CFI-T19 | S0 | Proposta parcial com dois campos elegíveis e um ausente | Se política permitir, apenas elegíveis viram versão efetiva; UI distingue aplicada/parcial/pendência conforme S0 |
 | CFI-T20 | S0 | Saída apenas PROPOSED, sem commit S0 | Frontend **não** exibe “ficha atualizada” |
 | CFI-T21 | S0 | Commit S0 confirmado com versão de ficha | UQ03 autorizado fornece versão, origem técnica e informações permitidas; UI confirma só após leitura confiável |
-| CFI-T22 | S0 | C13 humano corrigiu ficha enquanto extração estava em andamento | Resultado obsoleto rejeitado ou reprocessado; não sobrescreve correção humana |
+| CFI-T22 [REVISTO 22/10] | S0 | Dados da ficha mudaram após o snapshot por processo autorizado F01/F03/Diretor-MCP, sem edição do Consultor | Resultado obsoleto deve ser rejeitado/reprocessado por S0; não sobrescrever versão mais recente |
 | CFI-T23 | S0/OpenAI | Timeout/429/401, payload inválido ou fornecedor indisponível | Erro técnico/retentativa segura sem avanço comercial, sem perda da ficha existente |
 | CFI-T24 | S0 | Snapshot desatualizado, job repetido ou resposta fora de ordem | Sem dupla gravação e sem aplicar resultado a versão/caso divergente |
 | CFI-T25 | S0/Meta/OpenAI | Áudio sem transcrição/autorização, ou transcrição incerta | Não declarar dado comprovado; pendência conforme política aprovada |
 | CFI-T26 | Front/S0 | `em atendimento pelo operador` por exceção e conclusão F03 | Não reclassificar automaticamente como `cadastro enviado ao operador` |
 | CFI-T27 | Front/S0 | Cadastro vindo completo da IA em `cadastro enviado ao operador` | Não converter extração pós-humana em novo handoff nem invalidar checklist IA existente |
 | CFI-T28 | Front/S0 | Clicar Concluir | Não envia cadastro ao banco, não marca vendido/perdido, não cria nono status, não reativa IA Vendedora |
-| CFI-T29 | Front/S0 | Operador aciona correção excepcional C13 | Versão e autoria humana separadas de preenchimento automático; sem editor habitual |
+| CFI-T29 [REVISTO 22/10] | Front | Consultor tenta localizar/acionar correção cadastral excepcional C13 | **Nenhum campo ou comando de edição cadastral do Consultor existe**, nem excepcional; ficha é somente leitura |
 | CFI-T30 | Front/S0 | Perfil perde autorização durante navegação/atualização | Dados e ações sensíveis saem da tela; backend nega consultas e comandos |
 | CFI-T31 | S0/OpenAI | E01 retorna `extraction.field_suggestions`, OAI-05 `fields_proposed` | Não aceitar integração física enquanto não houver **uma versão canônica homologada** de request/response |
 | CFI-T32 | Front/S0 | Ficha D3 técnica exibida a gestor não autoatribuído | Apenas situação/resumo autorizado; D2 integral permitido, D3/D4 bruto não |
