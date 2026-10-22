@@ -16,4 +16,7 @@ psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_014_s
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_015_fake_gotrue_bootstrap.sql
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/migrations/202610190052_s1_verificacao_sessao_gotrue.sql
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_015_verificacao_sessao.sql
+# Auditoria I38: demonstra a divergencia S0 e ensaia policies candidatas
+# sob BEGIN/ROLLBACK. Nenhuma alteracao persiste; nao e migration.
+psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_058_supervisao_equipes_rls_local_only.sql
 echo 'S1-002/I15: sessao fake ativa/revogada conferida; sem GoTrue/REST real.'
