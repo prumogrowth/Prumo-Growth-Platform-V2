@@ -86,10 +86,22 @@
     <button type="button" id="team-show-members" class="btn btn-primary" aria-pressed="true" aria-controls="team-list">Consultores</button>
     <button type="button" id="team-show-monitor" class="btn btn-light" aria-pressed="false" aria-controls="team-monitor">Monitoramento</button>
     <button type="button" id="team-show-batches" class="btn btn-light" aria-pressed="false" aria-controls="team-batches">Lotes</button>
+    <button type="button" id="team-show-queue" class="btn btn-light" aria-pressed="false" aria-controls="team-queue">Fila compartilhada</button>
   </div>
   <div id="team-list" aria-label="Equipe fictícia e casos atribuídos"></div>
   <div id="team-monitor" aria-label="Monitoramento fictício dos Consultores sob gestão" hidden></div>
   <div id="team-batches" aria-label="Acompanhamento fictício dos lotes autorizados para a equipe" hidden></div>
+  <div id="team-queue" aria-label="Fila sintética compartilhada por gestores autorizados à concessionária selecionada" hidden></div>
+</dialog>
+<dialog id="queue-action-dialog" class="completion-dialog" aria-labelledby="queue-action-title">
+  <form method="dialog" id="queue-action-form">
+    <p class="eyebrow">FILA COMPARTILHADA · SOMENTE DEMONSTRAÇÃO</p>
+    <h2 id="queue-action-title">Solicitar assunção fictícia</h2>
+    <p id="queue-action-copy">A solicitação local não atribui o lead nem concede permissão.</p>
+    <div id="queue-assignee-area" hidden><label class="field-label" for="queue-assignee">Consultor da sua equipe (seleção fictícia)</label><select id="queue-assignee"></select></div>
+    <p>Somente o S0/S1 pode confirmar uma atribuição atômica, verificar a versão e conceder eventual acesso por caso.</p>
+    <div class="dialog-actions"><button type="submit" value="cancel" class="btn btn-light">Cancelar</button><button type="submit" value="confirm" class="btn btn-primary">Registrar intenção local</button></div>
+  </form>
 </dialog>
 <dialog id="message-preview-dialog" class="completion-dialog" aria-labelledby="message-preview-title">
   <form method="dialog" id="message-preview-form">
