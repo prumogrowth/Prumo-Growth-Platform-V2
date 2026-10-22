@@ -16,6 +16,8 @@ import {
   hasProjectedAction, hasEligibleTemplateVersion
 } from './cf-op-02.mjs';
 import { registrationProjectionFor, registrationStateCopy } from './registration-view.mjs';
+import { projectMockHumanCycleHistory, projectMockClarificationScene,
+  stageMockRepeatCompletion, projectMockCustomerDossier } from './human-cycle-view.mjs';
 import { bankProjectionFor, bankPhaseCopy } from './bank-view.mjs';
 import { postmarkViewFor, postmarkCopy, mayMockOperateContinuation } from './postmark-view.mjs';
 import { projectManagedTeam, requestMockIntake } from './team-operations.mjs';
@@ -34,7 +36,7 @@ const app = $('visual-app');
 const list = $('conversation-items');
 const state = {
   actorId: 'rafael', shopId: 'aurora', filter: 'all', statusFilter: 'all', detailTab: 'overview', query: '',
-  selectedId: 'A-102', cases: copyCFDemoFixtures(), processing: {}, followupRequests: {}, inboxView: 'active',
+  selectedId: 'A-102', cases: copyCFDemoFixtures(), processing: {}, reviewScenes: {}, followupRequests: {}, inboxView: 'active',
   mobileView: 'list', dialogContext: { completion: null, template: null, message: null }, intakeDialogContext:null, queueDialogContext:null, queueRequests:{}, teamRequests:{}, teamPanel:'members'
 };
 
@@ -50,7 +52,12 @@ function ico(name) {
   const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
   use.setAttribute('href', '#i-' + name); svg.append(use); return svg;
 }
-function selectedCase() { return accessible().find(x => x.id === state.selectedId) ?? null; }
+function selectedCase() {
+  const base=accessible().find(x=>x.id===state.selectedId)??null;
+  const staged=base && state.reviewScenes[base.id];
+  return staged && staged.shopId===base.shopId && staged.assignedTo===base.assignedTo
+    ? staged : base;
+}
 
 // Nomes exibidos; nenhum identificador técnico, role ou status é renomeado.
 const HUMAN_ROLE_LABELS = Object.freeze({
@@ -281,6 +288,8 @@ function renderThread() {
   const meta=projectedMetaWindow(item);
   bar.append(el('span','window-indicator '+(meta==='open'?'open':'closed'),meta==='open'?'Janela Meta aberta · projeção':meta==='expired'?'Janela Meta expirada · projeção':'Janela Meta não confirmada'));
   const completionState = humanCompletion(item,Boolean(state.processing[item.id]));
+  if(item.reviewSceneVersion)bar.append(el('span','status-indicator',
+    'Esclarecimento · CENÁRIO ALTERNATIVO fictício, não reaberto no S0'));
   if(completionState==='completed')
     bar.append(el('span','status-indicator','Etapa humana concluída · projeção fictícia'));
   else if(completionState==='requested_demo')
@@ -387,6 +396,13 @@ function renderDetails() {
   } else if(state.detailTab==='activity'){
     const activity=detailSection('HISTÓRICO DE EVENTOS FICTÍCIOS');
     const items=activityFor(item,state.processing[item.id]);
+    const projected=projectMockHumanCycleHistory(item,state.actorId,state.shopId);
+    for(const evt of projected.events)items.push({
+      id:evt.completionId,
+      label:'Conclusão '+evt.completionId+' · F03 '+evt.extractionState+
+        ' · recorte confirmado na fixture '+evt.cutoffMessageRef,
+      time:'Evento S0 fictício · '+evt.resultVersionRef
+    });
     for(const entry of items){const card=el('div','activity-item');
       card.append(el('strong','',entry.label),el('span','',entry.time));activity.append(card);}
     activity.append(el('p','detail-small','Linha do tempo ilustrativa, sem auditoria ou eventos reais do S0.'));
@@ -460,11 +476,74 @@ function renderDetails() {
           const button=el('button','btn btn-light',label);button.type='button';
           button.addEventListener('click',()=>{if(!canSimulateCompletion(selectedCase(),state.actorId,state.shopId))return;
             if(selectedCase()?.id!==item.id)return;
-            state.processing[item.id]={kind};render();showToast(modelExtraction(kind).title+'. Nenhuma API foi chamada.');});actions.append(button);
+            state.processing[item.id]={...state.processing[item.id],kind};render();showToast(modelExtraction(kind).title+'. Nenhuma API foi chamada.');});actions.append(button);
         }extract.append(actions);
       }
     }
-    extract.append(el('p','detail-small','Sem editor cadastral rotineiro. A OpenAI apenas propõe; S0 decidirá autorização, validação e gravação no futuro.'));
+    // Linha do tempo CONFIRMADA apenas na fixture, não inferida do estado atual.
+    const cycles=projectMockHumanCycleHistory(item,state.actorId,state.shopId);
+    if(cycles.visibility==='detail' && cycles.events.length){
+      const history=detailSection('CONCLUSÕES E EXECUÇÕES F03 · FICTÍCIAS');
+      for(const event of cycles.events){
+        const line=el('div','detail-row');
+        line.append(el('strong','',event.completionId+' · '+event.requestId),
+          el('span','','Cutoff selado na fixture: '+event.cutoffMessageRef+
+            ' · versão '+event.cutoffVersionRef+' · resultado '+event.resultVersionRef));
+        history.append(line);
+      }
+      extract.append(history);
+    }
+    const dossier=projectMockCustomerDossier(item,state.actorId,state.shopId);
+    if(dossier.visibility==='detail'){
+      const versioned=detailSection('FICHA VIVA POR CLIENTE E CONCESSIONÁRIA');
+      versioned.append(prop('Concessionária da ficha',getShop(item.shopId).name),
+        prop('Versão atual confirmada no cenário',dossier.liveFormVersionRef));
+      for(const entry of dossier.formHistory){
+        versioned.append(el('div','detail-row',
+          'Versão preservada: '+entry.versionRef+' · corte '+entry.cutoffRef));
+      }
+      if(dossier.bankSnapshots.length){
+        const banking=detailSection('REMESSAS ANTERIORES · SNAPSHOTS IMUTÁVEIS');
+        for(const snap of dossier.bankSnapshots){
+          banking.append(el('div','detail-row',
+            'Caso '+snap.submissionCaseRef+' · remessa '+snap.bankSubmissionVersionRef+
+            ' · snapshot preservado (somente fixture)'));
+        }
+        versioned.append(banking);
+      }else versioned.append(el('p','detail-small','Nenhuma remessa bancária vinculada nesta projeção.'));
+      versioned.append(el('p','detail-small',
+        'Identidade e vínculos já vêm projetados da mesma loja: navegador não associa clientes por CPF, telefone ou nome.'));
+      extract.append(versioned);
+    }
+    if(item.reviewSceneVersion){
+      extract.append(callout('Esclarecimento em cenário alternativo',
+        'O S0 fictício autorizou este retrato da conversa. A ficha anterior continua intacta e nenhuma IA foi acionada.'));
+    }else{
+      const alternate=projectMockClarificationScene(item,state.actorId,state.shopId);
+      if(alternate && !state.processing[item.id]){
+        extract.append(callout('Lacuna para esclarecer com o cliente',
+          'Somente o titular pode visualizar o retorno fictício. Não há editor cadastral ou campanha F02 automática.','warning'));
+        const button=el('button','btn btn-light','Visualizar retorno fictício de esclarecimento');
+        button.type='button';button.id='show-clarification-demo';
+        button.addEventListener('click',()=>{
+          const current=selectedCase();
+          if(!current || current.id!==item.id || state.reviewScenes[item.id])return;
+          const candidate=projectMockClarificationScene(current,state.actorId,state.shopId);
+          if(!candidate)return;
+          closeTransientDialogs();
+          state.reviewScenes[item.id]=candidate;
+          state.detailTab='extraction';render();
+          showToast('Cenário alternativo exibido; NÃO houve reabertura S0 nem extração F03.');
+        });
+        extract.append(button);
+      }
+    }
+    if(proc && proc.candidateCutoffRef){
+      extract.append(callout('Segunda solicitação · corte apenas candidato',
+        'Pedido local '+proc.requestId+' · referência '+proc.candidateCutoffRef+
+        '. Não é evento S0 confirmado, nem execução/persistência F03.','warning'));
+    }
+    extract.append(el('p','detail-small','Ficha somente leitura. Nenhum Consultor corrige campos; somente S0 pode validar e persistir propostas F03.'));
     content.append(extract);
   } else if(state.detailTab==='bank'){
     const bank=detailSection('REMESSA E RETORNO BANCÁRIO · O4');
@@ -567,7 +646,7 @@ function changeActor(actorId){
   if($('team-dialog').open)$('team-dialog').close();
   // Não deixar carteira do gestor anterior, nem mesmo oculta no DOM da demo.
   $('team-list').replaceChildren();$('team-monitor').replaceChildren();$('team-batches').replaceChildren();$('team-queue').replaceChildren();
-  state.teamRequests={};state.queueRequests={};state.teamPanel='members';
+  state.teamRequests={};state.queueRequests={};state.reviewScenes={};state.teamPanel='members';
   state.actorId=actor.id;state.shopId=actor.shops[0];state.selectedId=null;state.detailTab='overview';state.statusFilter='all';state.inboxView='active';
   state.filter='all';state.query='';$('search-input').value='';goto('list');updateSelectors();render();
 }
@@ -576,7 +655,7 @@ $('shop-select').addEventListener('change',event=>{
   const actor=getActor(state.actorId);
   if(!visibleMockShops(state.cases,state.actorId).includes(event.target.value))return;
   closeTransientDialogs();
-  state.queueRequests={};state.shopId=event.target.value;state.selectedId=null;state.detailTab='overview';state.statusFilter='all';state.inboxView='active';$('status-filter').value='all';state.query='';$('search-input').value='';goto('list');render();
+  state.queueRequests={};state.reviewScenes={};state.shopId=event.target.value;state.selectedId=null;state.detailTab='overview';state.statusFilter='all';state.inboxView='active';$('status-filter').value='all';state.query='';$('search-input').value='';goto('list');render();
 });
 $('search-input').addEventListener('input',event=>{state.query=event.target.value;renderList();});
 $('status-filter').addEventListener('change',event=>{state.statusFilter=event.target.value;renderList();});
@@ -903,7 +982,7 @@ document.addEventListener('keydown',event=>{
   }
 });
 $('reset-app').addEventListener('click',()=>{
-  state.cases=copyCFDemoFixtures();state.processing={};state.followupRequests={};changeActor('rafael');showToast('Dados de demonstração restaurados.');
+  state.cases=copyCFDemoFixtures();state.processing={};state.reviewScenes={};state.followupRequests={};changeActor('rafael');showToast('Dados de demonstração restaurados.');
 });
 $('composer').addEventListener('submit',event=>{
   event.preventDefault();
@@ -940,7 +1019,10 @@ $('completion-dialog').addEventListener('close',()=>{
   const sameContext=consumeDialogContext('completion');
   if(!isConfirm || !sameContext)return;
   const item=selectedCase(); if(!item || !canMockClose(item))return;
-  state.processing[item.id]={kind:'accepted'};state.detailTab='extraction';
+  state.processing[item.id]=item.reviewSceneVersion
+    ? stageMockRepeatCompletion(item,state.actorId,state.shopId) : {kind:'accepted'};
+  if(!state.processing[item.id])return;
+  state.detailTab='extraction';
   render();showToast('Solicitação de conclusão simulada. Nenhuma API foi chamada.');
 });
 $('template-dialog').addEventListener('close',()=>{
