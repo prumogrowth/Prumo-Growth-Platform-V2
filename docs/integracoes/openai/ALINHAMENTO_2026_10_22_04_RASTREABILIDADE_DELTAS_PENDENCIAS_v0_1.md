@@ -45,7 +45,11 @@
 | DEL-15 | Envio ao Banco | Docs 06/13A/21 e OAI preveem remessa humana atual; integração direta apenas cenário condicionado | Preferência de **envio direto no futuro se viável** por ação S0 desencadeada pela F01 ou F03; alternativa humana permanece | Banco [V] e S0 [R]; responsável expressamente **adiou verificação externa**, não fazer investigação agora |
 | DEL-16 | IA Analista | Consolidado v0.2 desenha IA separada que otimizaria F01 | Doc 06 v4.6 posterior **excluiu IA Analista autônoma**; conversa atual **não a restabeleceu** | Não criar módulo/treinamento autônomo a partir da visão histórica |
 | DEL-17 | Retorno após `vendido` | Doc 22 prevê novo caso humano sem alterar venda passada | **Confirmado**; ficha viva continua a ser atualizada após novo encerramento humano | S0/S1 mantém histórico de venda e roteamento somente humano |
-| DEL-18 | Mudança de número | Modelos antigos enfatizam telefone como identificação dentro da loja | Mesmo cliente poderá ter **múltiplos telefones** ou substituir antigo após identificação verificada; IA pode conduzir verificações, porém critérios seguros/execução S0 [R] | S0/identidade/privacidade: impedir fusão fraudulenta; não vincular só por alegação |
+| DEL-18 | Mudança de número | Docs 08A Q21/Q23 e 08C Q78/Q80 fixam **telefone como ID comercial** e unicidade por concessionária | Cliente identificado com segurança pode manter **vários telefones na mesma ficha** ou substituir número invalidado; a IA pode escolher dinamicamente uma, duas, três ou mais verificações apropriadas, sob critérios de segurança a definir | S0/identidade: **tensão explícita** entre ID de negócio telefônico e múltiplos telefones, risco de reciclagem e fraude; não fixar o desenho físico por inferência |
+| DEL-19 | Retenção x consulta multimodal | Docs 06/08B Q67/Q69 recomendam **não guardar mídia bruta no banco operacional por padrão**, só extrações/transcrições/metadados permitidos | F03 deve poder examinar áudio, vídeo, foto e documento do histórico da loja quando necessário | S0/Meta/OpenAI/LGPD: reconciliar **disponibilidade lógica** da mídia com retenção limitada, transcrição e origem autorizada; nem exigir guardar tudo para sempre nem reduzir o histórico F03 a texto por presunção |
+| DEL-20 | Retorno de `cadastro enviado ao banco` | Docs 08A Q26/Q27 e 13A dizem que retorno espontâneo/batch após banco vai **para humano** e preserva ciclo | Não houve revogação; o novo alinhamento afirma ainda que F03 pode atualizar a **ficha atual** depois de nova conclusão humana, sem reescrever remessa | S0/S1: duas dimensões, **roteamento exclusivamente humano** do novo contato e **atualização da ficha viva** independente da remessa anterior |
+| DEL-21 | Regra de falhas de F02 | Docs 08B Q52–Q59 distinguem envio final, relógios, duas falhas consecutivas e cancelamentos | As regras anteriores continuam salvo futura decisão; o novo encaminhamento de pendência F03 ao consultor/gestor não altera a cadência F02 original | Repetir explicitamente no AL-IA-01 e AL-IA-05 para não perder o critério de cancelamento e a diferença de prazos |
+| DEL-22 | Entrada e cadastros de leads | Docs 08A Q01/Q04/Q05/Q19/Q30 preservam lead com WhatsApp elegível, lote independente, dados de conversa prevalentes e atendimento que só inicia ao responder | Nada nesta conversa revogou esse modelo; a ficha cadastral única não autoriza novo lote a sobrescrever correções conversacionais | S0/entrada F01: manter distinção prospecção/primeiro envio/conversa efetiva e integridade do cadastro |
 
 ## 3. Referências normativas e documentos impactados fora desta frente
 
@@ -62,6 +66,10 @@
 | Docs Banco/Meta/LGPD | Homologação de remessas e templates, documentação multimodal, retenção e exportação massiva |
 
 **Não copiar/reescrever estes arquivos normativos nas branches alheias**: a mudança nesta frente é somente o registro fiel das decisões para revisão cruzada. Não confundir “registrado como [DN]” com “ratificado/homologado em toda a matriz física”.
+
+### Regras antigas compatíveis, antes resumidas em excesso
+
+O alinhamento de 21–22/10 não revogou: **(a)** `cadastro enviado ao banco` retornando espontaneamente ou por nova lista vai a humano; **(b)** `perdido` pode abrir novo ciclo com histórico da loja e contato permitido; **(c)** um único template inicial sem resposta não inicia atendimento ativo; **(d)** uma falha comprovada de template não cancela a próxima, **duas consecutivas** cancelam a cadeia, e o template final possui relógio de envio e espera subsequente de 24h distintos; **(e)** número WhatsApp de saída é da Prumo e dedicado à loja; **(f)** mídia bruta não era persistida no núcleo por padrão; **(g)** importação nova não substitui dados conversacionais. Esses itens são compatíveis ou **exigem reconciliação explícita** com a nova decisão, não podem desaparecer por economia de resumo.
 
 ## 4. Decisões encerradas e não reabrir sem mudança expressa
 
@@ -82,7 +90,7 @@
 
 **Catálogo e dados:**
 - Definir catálogo final de campos, tipos e obrigatórios para remessa; tratamentos especiais de documentos e mídias, dados sensíveis, consentimento, proveniência e validade.
-- Como autenticar/verificar troca de número e vinculação de telefones na mesma loja, sem criar risco de tomada de ficha por impostor.
+- Como autenticar/verificar troca de número e vinculação de telefones na mesma loja, sem criar risco de tomada de ficha por impostor; **conciliar telefone como ID comercial anterior com vários números por ficha** e a autonomia conversacional da IA na escolha de verificações.
 - Interface exata de visualização da ficha pelo Consultor; a intenção é ficha inteira, read-only, campos presentes/faltantes, mas desenho visual não foi aprovado.
 - Precisar concorrência/versionamento F01/F03/MCP, aplicação de dados incompletos, conflitos e fontes (inclusive declarações históricas).
 
@@ -102,7 +110,7 @@
 
 **Governança jurídica/técnica:**
 - Escopo de exclusão/exportação de dados pelo MCP do Diretor frente a retenção, auditoria legal e backups; proteção física dos registros MCP e verificação da segunda confirmação.
-- Consentimentos, segregação por concessionária, minimização/uso de histórico multimodal por fornecedor externo, opt-out e regras Meta/Banco.
+- Consentimentos, segregação por concessionária, minimização/uso de histórico multimodal por fornecedor externo, opt-out e regras Meta/Banco. **Distinguir disponibilidade para F03 de retenção de mídia bruta no núcleo** (DEL-19).
 - Conciliação documental entre GitHub, Drive e arquivos locais antes de excluir fontes. **Não foi confirmado que GitHub contém tudo do pacote de 55 documentos.**
 
 ## 6. Validações externas deliberadamente abertas [V]
