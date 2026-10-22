@@ -105,6 +105,17 @@ const SCENARIOS = Object.freeze([
     postmarkProjection:{direction:'continuation',source:'bank_submitted',originCaseRef:'A-105',
       confirmedCreated:true,linkedByS0:true,linkVersionRef:'cycle-bank-demo-v1',
       sellerAiSilenced:true},
+    customerDossierProjection:{
+      origin:'s0_fixture',caseId:'A-114',shopId:'aurora',identityConfirmed:true,
+      customerRef:'client15-aurora-only',liveFormVersionRef:'live-form-v2-demo',
+      authorizedCaseRefs:['A-105','A-114'],
+      formHistory:[
+        {versionRef:'live-form-v1-demo',cutoffRef:'historical-cutoff-a105',confirmedPersisted:true},
+        {versionRef:'live-form-v2-demo',cutoffRef:'historical-cutoff-a114',confirmedPersisted:true}
+      ],
+      bankSnapshots:[{origin:'s0_fixture',shopId:'aurora',
+        submissionCaseRef:'A-105',bankSubmissionVersionRef:'bank-demo-v1',frozenSnapshot:true}]
+    },
     messages:[{id:'a114-1',side:'system',body:'Novo ciclo humano fictício aberto pelo S0 após marco bancário, sem alterar o caso anterior.',time:'Hoje'},
       {id:'a114-2',side:'in',body:'Quero falar com a equipe sobre o andamento depois do envio ao banco.',time:'Hoje'}] },
   { id:'A-115', shopId:'aurora', name:'Cliente Exemplo 16', initials:'CE', assignedTo:'rafael',
@@ -134,6 +145,27 @@ const SCENARIOS = Object.freeze([
     status:'em atendimento pelo operador', unread:0, updatedAt:'10:50', tag:'Etapa humana concluída',
     inboxProjection:'active', metaWindowProjection:'open', humanCompletionProjection:'completed',
     allowedActionsProjection:[],
+    humanCycleProjection:{origin:'s0_fixture',caseId:'A-108',shopId:'aurora',
+      customerRef:'client09-aurora-only',events:[
+        {origin:'s0_fixture',completionId:'concl-a108-1',requestId:'f03-a108-1',
+         cutoffMessageRef:'a108-1',cutoffVersionRef:'case-v1-demo',
+         resultVersionRef:'v0-ficticia',extractionState:'partial_confirmed',humanCompletionConfirmed:true},
+        {origin:'s0_fixture',completionId:'concl-a108-2',requestId:'f03-a108-2',
+         cutoffMessageRef:'a108-2',cutoffVersionRef:'case-v2-demo',
+         resultVersionRef:'v1-ficticia',extractionState:'partial_confirmed',humanCompletionConfirmed:true}
+      ]},
+    clarificationProjection:{origin:'s0_fixture',confirmed:true,
+      caseId:'A-108',shopId:'aurora',assignedTo:'rafael',
+      state:'human_followup_authorized',versionRef:'review-a108-v3-demo',
+      metaWindowProjection:'open',cutoffCandidateRef:'a108-3',
+      inbound:{id:'a108-3',side:'in',
+        body:'Posso esclarecer o dado que ainda está faltando?',time:'Cenário alternativo · fictício'}},
+    customerDossierProjection:{origin:'s0_fixture',caseId:'A-108',
+      shopId:'aurora',identityConfirmed:true,customerRef:'client09-aurora-only',
+      liveFormVersionRef:'v1-ficticia',authorizedCaseRefs:['A-108'],
+      formHistory:[{versionRef:'v0-ficticia',cutoffRef:'a108-1',confirmedPersisted:true},
+        {versionRef:'v1-ficticia',cutoffRef:'a108-2',confirmedPersisted:true}],
+      bankSnapshots:[]},
     registrationProjection:{
       state:'partial',confirmedPersisted:true,formVersionRef:'v1-ficticia',
       fields:[
@@ -145,7 +177,8 @@ const SCENARIOS = Object.freeze([
       missing:['Informação demonstrativa B — ausente na conversa'],
       conflicts:['Informação demonstrativa D — fontes fictícias conflitantes']
     },
-    messages:[{id:'a108-1',side:'in',body:'Obrigado pelo atendimento. Vou analisar.',time:'10:50'}] },
+    messages:[{id:'a108-1',side:'in',body:'Obrigado pelo atendimento. Vou analisar.',time:'10:50'},
+      {id:'a108-2',side:'in',body:'Retornei para esclarecer um ponto anterior.',time:'Outro momento · fictício'}] },
   { id:'A-109', shopId:'aurora', name:'Cliente Exemplo 10', initials:'CE', assignedTo:'rafael',
     status:'em atendimento pelo operador', unread:0, updatedAt:'Ontem', tag:'Histórico preservado',
     inboxProjection:'historical', metaWindowProjection:'expired', humanCompletionProjection:'completed',
@@ -229,6 +262,9 @@ export function copyCFDemoFixtures() {
     postmarkProjection:record.postmarkProjection ? {...record.postmarkProjection} : undefined,
     bankProjection:record.bankProjection ? {...record.bankProjection} : undefined,
     caseOnlyAccessProjection:record.caseOnlyAccessProjection ? {...record.caseOnlyAccessProjection} : undefined,
+    humanCycleProjection:record.humanCycleProjection ? structuredClone(record.humanCycleProjection) : undefined,
+    clarificationProjection:record.clarificationProjection ? structuredClone(record.clarificationProjection) : undefined,
+    customerDossierProjection:record.customerDossierProjection ? structuredClone(record.customerDossierProjection) : undefined,
     registrationProjection:record.registrationProjection ? {
       ...record.registrationProjection,
       fields:(record.registrationProjection.fields??[]).map(field=>({...field})),
