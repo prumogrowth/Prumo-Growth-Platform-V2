@@ -1,3 +1,5 @@
+> **AVISO DE PRECEDÊNCIA — 22/10/2026:** **Registro histórico parcialmente superado:** o Gestor gere pessoas/equipe; os perfis atuais são Diretor, Gestor e Consultor. Não reutilizar gestão por loja e pausa por loja do texto original. Novos leads podem cruzar equipes; supervisão de casos atribuídos não. [Contrato funcional S1 vigente (22/10/2026)](S1_002_01_CONTRATO_FUNCIONAL_VIGENTE_2026_10_22.md) · [matriz de aderência](S1_002_02_MATRIZ_ADERENCIA_E_PENDENCIAS_2026_10_22.md).
+
 > **HISTÓRICO SUPERADO POR DECISÃO I11 (19/10/2026):** as seções originais abaixo descrevem hipótese antiga de "gestor por concessionária" e não são mais a regra do produto. A norma vigente está em [I11 — gestores por equipe e pausa global](S1_002_I11_GESTAO_POR_EQUIPE_PAUSA_GLOBAL_2026_10_19.md). Testes S1P provam apenas a antiga hipótese antes da migration 048; provas atuais S1T 14/14 em [CI #39242471186](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39242471186).
 
 # S1-002/I10 — Matriz de autoridade: responsável, gestor e operador
