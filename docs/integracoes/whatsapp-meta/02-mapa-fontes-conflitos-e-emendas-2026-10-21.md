@@ -59,6 +59,19 @@ A decisão mais recente altera as nomenclaturas de produto: **responsável (CARG
 
 A WA-20 documentava **exemplo provisório** `Mariana — Atendimento` e formato pendente: ambos **SUPERADOS** pela regra de produto **`Consultor Nome:\nMensagem`**, **`Gestor Nome:\nMensagem`** e **`Diretor Nome:\nMensagem`** como assinatura textual automática por humano. Para template aprovado, somente conteúdo ou slot autorizados Meta. O nome vem da conta/atribuição autenticada, não de declaração da IA. Frente S0/UX/MCP deve revisar efeitos de perfil; a alteração nesta fase é apenas documental.
 
+### Atualização interfrentes de 22/10 — novas dependências e conflitos (WA-22)
+
+O documento [WA-22](./wa22-revisao-cruzada-outras-frentes-contratos-2026-10-22.md) revisa S0 PR #1, OpenAI #3, S1 #5, CF-OP #7, S0/OpenAI #8/#12 e frontend. **Conflitos/documentos que NÃO devem ser reconciliados por inferência:**
+
+- **Marca da plataforma:** `documentos/17_Identidade_e_Nome_da_Plataforma_v0_1.md` já separava **plataforma sem nome próprio**, **Prumo gestora** e **LiberaCred produta instituição financeira**. Rótulos históricos de arquivo com “LiberaCred” não são marca da plataforma.
+- **Ficha do Consultor:** `documentos/41_Decisao_Aprovada_Matriz_Permissoes_Gestor_Operador_MCP_v1_0.md` D41-04 admitia correção humana excepcional; OpenAI `ALINHAMENTO_2026_10_22_01_JORNADA_F01_F02_F03_v0_1.md` determina que Consultor **não editará manualmente campos da ficha**. Registro de conflito com necessidade de revisão S0/S1/OpenAI/UI; não implementado por esta frente.
+- **Histórico/mídias F03:** `documentos/06`, `08B`, `09` indicavam preferência por transcrição/extração sem retenção de mídia bruta; AL-IA-01 determina F03 com acesso lógico autorizável a multimídia **até cutoff**, inclusive histórico do cliente em conversas antigas da mesma loja. Retenção, segurança e referência de mídia continuam [R/V]; não guardar tudo indefinidamente.
+- **Campanhas:** `documentos/04_Dados_Integracoes_e_MCP_v4_6.md` exclui subsistema de captação, UTM, cliques e campanhas do banco operacional; WA-18C exige elegibilidade verificável de ofertas para templates com finalidade CAMPANHA. Não criar schema de marketing sem conciliação da fonte verdadeira da oferta.
+- **Fim do humano e relógios:** CF-OP-02, PR #8 e AL-IA-01 separam `last_customer_inbound +24h` (janela Meta), `explicit_human_close` (F03) e `final_template_sent +24h` (C09 por silêncio elegível). A implementação S0/CFI-01 PR #12 só comprova recibo/gate interno efêmero, não entrega F03/mídias e não autoriza C09.
+- **Evidência de humano e leitura:** S0-044 / FV-DOC-01/ S1 issue10 exigem prova técnica de `sent` atribuída ao Consultor e distinguem leitura interna por atribuição da marca `read` da Meta. Assinatura textual WA-21 sozinha não é prova de contato.
+
+Todos os itens mantêm dono e status [D/R/P/V/T] descritos na WA-22, **sem editar documentos de outras branches**.
+
 ## 4. Divergências internas do PR #2 e sua resolução
 
 | Documento da frente | Problema | Ação de interpretação |
