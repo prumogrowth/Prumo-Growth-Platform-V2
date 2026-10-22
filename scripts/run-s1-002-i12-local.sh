@@ -28,6 +28,9 @@ psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_061_h
 # I42: excecao estrita por caso abre historico do mesmo contato/loja
 # e perde leitura/envio ao revogar. I53/I54/I55 restritos ao rollback.
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_062_excecao_historico_contato_local_only.sql
+# I43: executa policies I41 + I42 SIMULTANEAMENTE, reproduz bloqueio
+# interpolicy e valida permissao unificada + revogacao. ROLLBACK total.
+psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_063_rls_unificada_equipe_excecao_local_only.sql
 # I40: somente banco local descartavel; funcoes I39 idênticas em 2 sessoes reais.
 # Seed COMMITADO apenas nesse PG17; runner CI descarta banco apos a suite.
 bash scripts/test_s1_002_queue_race.sh
