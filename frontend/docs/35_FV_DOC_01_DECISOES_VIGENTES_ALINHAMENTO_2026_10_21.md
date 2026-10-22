@@ -1,7 +1,7 @@
 > **NOMENCLATURA VIGENTE [D-NOM-01] — 21/10/2026:** o papel anteriormente chamado **responsável** passa a chamar-se **Diretor**; **gestor** permanece **Gestor**; **operador** passa a chamar-se **Consultor**. A mudança é somente de nomes, sem alteração de alçadas, código ou permissões. Palavras genéricas como “responsável pelo caso” não mudam automaticamente. Ver [decisão de nomenclatura](./37_D_NOM_01_NOMENCLATURA_DIRETOR_GESTOR_CONSULTOR_2026_10_21.md); terminologia abaixo pode refletir a data original do texto.
 
-# FV-DOC-01 — Decisões vigentes de operação: gestores, operadores, leads, fila e IA
-**Corte:** 21/10/2026. **Natureza:** consolidação documental [D], aprovada pelo responsável nesta conversa, **não** contrato físico nem declaração de funcionalidade implantada. **Escopo:** frente visual; referências para pactuação S0/S1. Não altera Supabase, migrations, permissões, código ou integrações.
+# FV-DOC-01 — Decisões operacionais de equipes, consultores, fila e IA (histórico 21/10)
+**Corte:** 21/10/2026. **Leitura de 22/10:** aplicar primeiro [FV-DOC-03](./38_FV_DOC_03_CONTRATO_FUNCIONAL_FRONTEND_2026_10_22.md) para nomenclatura, identidade da plataforma, ficha sem edição, F01/F02/F03 e mensagens. Regras D-AL-01..10 aqui permanecem para pausa, distribuição, fila, badge e IA operacional. **Natureza:** consolidação documental [D], aprovada pelo responsável nesta conversa, **não** contrato físico nem declaração de funcionalidade implantada. **Escopo:** frente visual; referências para pactuação S0/S1. Não altera Supabase, migrations, permissões, código ou integrações.
 
 ## Legenda e precedência
 - **[D]** decisão expressa de produto; **[T]** integração/contrato técnico ainda pendente; **[V]** capacidade externa não verificada; **[H]** redação histórica substituída, preservada para auditoria.
