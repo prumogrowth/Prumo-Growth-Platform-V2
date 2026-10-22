@@ -2,6 +2,8 @@
  * D-AL-04 / FV-DOC-03 §5. Não autentica S0/Meta, não faz polling nem envio.
  * O navegador não promove ACK a SENT nem marca resposta humana comprovada.
  */
+import {hasMockCaseScope} from './fixtures.mjs';
+
 export const TRANSPORT_PRESENTATION_STATES=Object.freeze([
   'requested','api_accepted','uncertain',
   'sent_confirmed','delivered','read','failed_confirmed'
@@ -34,6 +36,7 @@ export function stageMockMessageTransport(record,message,actorId,shopId) {
   if(!isPlain(record) || !isPlain(message) || message.side!=='out' ||
     message.deliveryState==='local_demo_not_sent' ||
     record.shopId!==shopId || record.assignedTo!==actorId ||
+    !hasMockCaseScope(record,actorId,shopId) ||
     !Array.isArray(record.messages) || !record.messages.includes(message))return noProjection;
   const p=message.transportProjection;
   if(!isPlain(p) || p.source!=='s0_fixture' ||
