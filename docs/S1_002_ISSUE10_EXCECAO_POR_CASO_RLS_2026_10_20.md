@@ -1,5 +1,8 @@
 # S1-002 / issue #10 — exceção manual por atendimento, sem concessão de loja (20/10/2026)
 
+> **AVISO DE PRECEDÊNCIA — 22/10/2026:** **Escopo da prova antiga I35:** a fixture demonstrou acesso ao CASO; **não** cobriu a regra posterior de leitura do histórico completo do MESMO contato/loja, nem F03 concluído por titular com entitlement excepcional. O ciclo de revogação e exceção mantém suas decisões atuais, sem concessão de loja. [Contrato funcional S1 vigente (22/10/2026)](S1_002_01_CONTRATO_FUNCIONAL_VIGENTE_2026_10_22.md) · [matriz de aderência](S1_002_02_MATRIZ_ADERENCIA_E_PENDENCIAS_2026_10_22.md).
+
+
 **Escopo:** protótipo isolado na branch `feat/s1-002-equipe-prumo`, PR #5 Draft. Não é migração operacional, não foi implantado, não modifica o Supabase hospedado, S0 base, Meta ou clientes reais.
 
 ## Decisão de negócio e risco tratado
