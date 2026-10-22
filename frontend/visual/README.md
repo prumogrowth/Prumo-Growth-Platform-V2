@@ -2,6 +2,8 @@
 
 > **Estado mais recente (FV-UI-017, 22/10/2026):** aplicar primeiro [FV-DOC-03](../docs/38_FV_DOC_03_CONTRATO_FUNCIONAL_FRONTEND_2026_10_22.md) e [o registro do incremento](../docs/41_FV_UI_017_INTEGRIDADE_CONTEXTO_MENSAGENS_2026_10_22.md). Papéis visíveis **Diretor/Gestor/Consultor**; identificadores técnicos legados e oito estados comerciais mantidos. A ficha do Consultor **não possui edição manual, inclusive C13**. O composer agora distingue texto digitado, prévia de autoria e mensagem incluída **somente na demonstração**, nunca enviada. Ao trocar caso/ator/loja, o rascunho anterior é descartado. Testes V8 do novo incremento não equivalem a Node/Chromium ou integração real. Registros históricos deste README permanecem datados de suas versões.
 
+> **FV-UI-018 (22/10/2026):** adicionado [registro da fila compartilhada e case-only](../docs/42_FV_UI_018_PERMISSOES_DISTRIBUICAO_2026_10_22.md). Novo painel G2 de **fila sem titular por concessionária**, com ações fictícias sem resultado de S0; caso `A-117` demonstra acesso excepcional da Consultora Lia a **um único atendimento** de Aurora, sem acesso geral à loja. D-AL-02 de casos pausados continua separado da distribuição regular de novos leads. Testes V8 não são aceite Node/Chromium nem autorização real. Leituras históricas abaixo conservam seu contexto de época.
+
 **Branch proprietária:** `feat/frontend-plataforma-visual`. **Referência visual:** organização de mensageiro familiar ao WhatsApp, sem copiar sua identidade, marca ou recursos. **Situação:** demonstração local com dados 100% sintéticos; não é portal operacional.
 
 ## Abrir localmente
