@@ -1,5 +1,7 @@
 # Plano de execução e critérios de conclusão — Frente OpenAI | v0.1
 
+> **Atualização E02 documental v0.4 (22/10):** [70 oráculos com evidências observáveis](./E02_CADERNO_70_ORACULOS_E_OBSERVAVEIS_v0_4.md), [manifesto de evidência F03](./CFI_01_MANIFESTO_HISTORICO_F03_CANDIDATO_v0_1.md) e [sete perguntas para donos](./E02_RESUMO_DECISOES_PARA_RATIFICACAO_v0_4.md). E02-FIX continua **não fechado** sem schema ratificado/fixtures executáveis; E04 exige liberação específica. Nenhum teste OpenAI executado.
+
 > **Andamento adicional E02-REV (22/10/2026):** pacotes documentais [CFI-01 v0.3](./CFI_01_CONCILIACAO_PONTE_F03_INTERFRENTES_v0_3.md), [CF-OP-02/C09 v0.3](./CF_OP_02_C09_CONCILIACAO_F02_INTERFRENTES_v0_3.md), [E02-REV v0.3](./E02_PACOTE_REVISAO_CRUZADA_E_GATES_v0_3.md) publicados só na branch OpenAI. **Não ratificados** por S0/S1/FV/Meta; E02 não encerrado; 70 testes apenas documentados. **G-FASE-DO-PROJETO inalterado.**
 
 > **Registro de andamento documental (22/10/2026):** a frente OpenAI publicou OAI-01/05/07/08/E01 v0.3 e novos complementos E01-KH/E02 operacional, matriz SYN-01..70 e 10 exemplos narrativos em `README.md`. E01/E02 seguem **em revisão**, E02-FIX não ratificado, **zero ensaios executados**; E03/E04/E05 em diante **não liberados**. O gate **G-FASE-DO-PROJETO** abaixo permanece integralmente válido e não foi revogado por “prossiga com o desenvolvimento” nesta fase documental.
