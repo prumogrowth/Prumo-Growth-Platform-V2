@@ -56,7 +56,7 @@ export function projectManagerPausePreview(managerId,operatorId,records,evidence
      operator.teamState!=='active' || !Array.isArray(records) || !Array.isArray(evidence))return DENIED;
   const team=managedOperators(managerId);
   const allowedCases=new Map();
-  for(const shop of operator.shops){
+  for(const shop of manager.shops){
     for(const row of visibleConversations(records,managerId,shop)){
       if(row.assignedTo===operatorId && active(row))allowedCases.set(row.id,row);
     }
