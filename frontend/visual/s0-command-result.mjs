@@ -8,9 +8,11 @@ export const S0_COMMAND_OUTCOMES = Object.freeze([
   'APPLIED', 'ALREADY_APPLIED', 'ACCEPTED_FOR_PROCESSING',
   'PENDING_EXTERNAL', 'UNCERTAIN_EXTERNAL', 'REJECTED'
 ]);
-// Buttons to request C14/Meta/AI/MCP/admin are intentionally not exposed.
+// C13 is historical and not a Consultor UI action after FV-DOC-03 §3.
+// This boundary does not ratify any command or authorize its execution.
+// Buttons to request C14/Meta/AI/MCP/admin remain unavailable.
 export const HUMAN_COMMAND_IDS = Object.freeze([
-  'C11', 'C12', 'C13', 'C15', 'C16', 'C17', 'C18'
+  'C11', 'C12', 'C15', 'C16', 'C17', 'C18'
 ]);
 const ALLOWED_KEYS = Object.freeze([
   'contract_id', 'contract_version', 'request_id', 'correlation_id',
