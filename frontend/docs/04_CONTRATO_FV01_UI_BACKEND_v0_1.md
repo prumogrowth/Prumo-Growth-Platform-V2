@@ -1,3 +1,5 @@
+> **EMENDA SUPERVENIENTE — 22/10/2026 [D/E]:** para a **frente Frontend** prevalece o [FV-DOC-03 — contrato funcional vigente](./38_FV_DOC_03_CONTRATO_FUNCIONAL_FRONTEND_2026_10_22.md). **A plataforma da Prumo ainda não tem nome; LiberaCred é o produto da instituição financeira.** Papéis visíveis: **Diretor / Gestor / Consultor**. A ficha cadastral do **Consultor é integralmente não editável**, inclusive sem correção excepcional C13 na UI; pendências são esclarecidas por atendimento, e atualização autorizada é confirmada pelo S0. **F01** atende, **F02** planeja templates, **F03** extrai após conclusão humana explícita; a troca de siglas em fala recente está marcada [R-SIGLA-01]. Assinatura de mensagem humana livre deve ser `Cargo Nome:\nMensagem` com validação pelo serviço. IA de melhoria fora da primeira versão. **Descrições anteriores incompatíveis abaixo são históricas e não critérios vigentes de aceite de UI.** Nenhuma alteração de código ou das outras frentes decorre desta emenda.
+
 # FV-01 — Contrato conceitual da interface visual ↔ núcleo S0 | v0.1
 
 **Data:** 18/10/2026. **Estado:** [P] contrato candidato da frente visual; depende de revisão/aceite pela frente S0 [R]. **Implementação/testes:** não executados. **Fronteira:** este arquivo não cria endpoints, novos comandos C, consultas UQ, tabela, política RLS, workflow, implantação ou acesso real.
@@ -28,7 +30,7 @@ Reutilizar UQ01–UQ09 do doc.40; nenhuma UQ10 é criada. Entradas conceituais: 
 | --- | --- | --- | --- |
 | O1 Meus atendimentos | UQ01 | Nenhuma ao abrir | Somente casos atribuídos ao operador da Prumo |
 | O2 Conversa/histórico | UQ02 e UQ09 | C12 para resposta humana; **FV-02** para solicitação de conclusão humana [P/R] | Mostrar aceitação técnica ≠ mensagem entregue; não reativar IA Vendedora |
-| O3 Ficha extraída/conferência | UQ03 (necessita projeção de extração [R]) | Escrita automática exclusivamente S0 após OAI-05; C13 é **exceção normativa**, não edição normal | **Fluxo nominal somente leitura/conferência/pendências**, sem formulário de digitação cadastral; origem e versão explícitas |
+| O3 Ficha extraída/conferência | UQ03 (necessita projeção de extração [R]) | Escrita automática exclusivamente S0 após OAI-05; **NÃO oferecer C13 ao Consultor**; redação anterior superada [D 22/10] | **Fluxo nominal somente leitura/conferência/pendências**, sem formulário de digitação cadastral; origem e versão explícitas |
 | O4 Remessa e desfecho | UQ04 | C15–C18 somente humanos autorizados, com comprovação | Extração não remete/vende/recusa |
 | O5 Novo contato pós-marco | UQ05, UQ02 | C14 (evento S0), C12 | Novo caso humano sem mudar ciclo histórico |
 | G1/G2 Fila/distribuição | UQ06, UQ02 D2 por escopo | C11 | Gestor só opera como OP quando designado/autoatribuído |
@@ -49,7 +51,7 @@ A interface precisa distinguir:
 
 A **digitação rotina de nome, e-mail e demais informações** deixa de compor O2/O3. Em O3, exibir campos autorizados **que vieram da conversa e foram persistidos pelo S0**, origem, versão, pendências, contradições e indicação de conferência, respeitando D3. O operador pode voltar à conversa humana para esclarecer lacunas; isso não reativa IA Vendedora.
 
-**Conflito aparente a não resolver unilateralmente:** doc.23 [D] e D41-04 [D] permitem correção humana individual excepcional versionada via C13; a nova orientação retirou **preenchimento manual habitual**, não revogou expressamente a correção excepcional. Logo, não oferecer edição geral como fluxo nominal; mecanismo de correção pontual só sob alçada, auditoria e decisão de UX própria [R]. Revogar também a exceção exigiria nova decisão normativa.
+**[EMENDA D 22/10/2026, prevalecente somente na UI da nossa frente]** O responsável esclareceu que o Consultor **não pode editar a ficha manualmente, nem mesmo em correção pontual C13**. A antiga redação de 18/10 sobre exceção foi superada para este Frontend; O3 deverá ser integralmente somente leitura. O Consultor coleta esclarecimentos conversando com o cliente, e a atualização é aplicada pelo S0 quando um processo de IA autorizado a propuser. Diretor/MCP é via administrativa distinta. A frente S0 deverá conciliar sua própria norma/contrato; este documento **não** revoga automaticamente comandos físicos em outras branches.
 
 ## 6. Invariantes e não objetivos
 
@@ -68,7 +70,7 @@ A **digitação rotina de nome, e-mail e demais informações** deixa de compor 
 
 ## Adendo de conciliação CFI-01 — 18/10/2026 [P/R]
 
-Auditoria de compatibilidade realizada em [CFI-01](07_CONCILIACAO_INTERFRENTES_FV_S0_OAI_v0_1.md), com [36 cenários candidatos](08_MATRIZ_ACEITE_CONTRATUAL_FV_S0_OAI_v0_1.md). O conjunto C01–C24/UQ01–UQ09 dos docs 26/40 **não contém contrato físico aprovado** para conclusão humana com extração posterior. Preservar C12 (conversa humana) e C13 (correção excepcional), sem reclassificar o novo fluxo como C13 ou handoff C10. UQ03 continua fonte conceitual de ficha/versionamento, mas precisa de confirmação S0 quanto à projeção de progresso da extração.
+Auditoria de compatibilidade realizada em [CFI-01](07_CONCILIACAO_INTERFRENTES_FV_S0_OAI_v0_1.md), com [36 cenários candidatos](08_MATRIZ_ACEITE_CONTRATUAL_FV_S0_OAI_v0_1.md). O conjunto C01–C24/UQ01–UQ09 dos docs 26/40 **não contém contrato físico aprovado** para conclusão humana com extração posterior. Preservar C12 (conversa humana); C13 continua referência histórica/externa, **não ação do Consultor na UI** [emenda 22/10], sem reclassificar o novo fluxo como C13 ou handoff C10. UQ03 continua fonte conceitual de ficha/versionamento, mas precisa de confirmação S0 quanto à projeção de progresso da extração.
 
 **Dono das decisões técnicas ainda [R]:** núcleo S0 para comando de conclusão, idempotência e nova versão; S0 + OpenAI para padronização do envelope interno `human_close_extract`. A E01 atual já usa o nome `human_close_extract` como OAI-05, mas os exemplos de campos, ausências e correlação ainda diferem. Não inventar tradução automática ou API em `frontend/`. Nenhuma alteração nas normas D41/D-ORG ou permissões decorrente desta conciliação.
 
