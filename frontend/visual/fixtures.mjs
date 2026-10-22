@@ -157,7 +157,8 @@ export function visibleConversations(records, actorId, shopId) {
     if(record.assignedTo===actorId)return true; // gestor autoatribuído
     if(record.assignedTo==null)return record.teamManagerId===actorId;
     return team.some(operator=>operator.id===record.assignedTo &&
-      operator.shops.includes(record.shopId));
+      (operator.shops.includes(record.shopId) ||
+       hasMockCaseOnlyScope(record,operator.id,record.shopId)));
   });
 }
 export function canSimulateCompletion(record, actorId, shopId) {
