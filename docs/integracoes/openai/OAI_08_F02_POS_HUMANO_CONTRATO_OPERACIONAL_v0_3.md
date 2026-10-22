@@ -1,5 +1,7 @@
 # OAI-08 v0.3 — Planejamento F02 e nova cadeia pós-humana (candidata)
 
+> **Conciliação física pendente [R]:** ver [CF-OP-02/C09 v0.3 — fronteiras S0/Meta](./CF_OP_02_C09_CONCILIACAO_F02_INTERFRENTES_v0_3.md) e [E02-REV v0.3](./E02_PACOTE_REVISAO_CRUZADA_E_GATES_v0_3.md). Estados/fases de C09 e evidência de `sent` não foram ratificados nesta frente.
+
 **Data:** 22/10/2026. **Estado:** decisões de produto [DN/DA]; contrato F02, limites e C09 [P/R]; condições Meta/LGPD [V]. Sem agendamento persistido, envio ou integração executada.
 
 ## 1. Precedência e papéis
