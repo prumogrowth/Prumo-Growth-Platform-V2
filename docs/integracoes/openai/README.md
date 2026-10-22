@@ -10,6 +10,7 @@ O responsável pelo produto concluiu uma nova rodada de alinhamento sobre F01/F0
 - [AL-IA-03 — MCP Diretor, guias semânticos e auditoria protegida](./ALINHAMENTO_2026_10_22_03_MCP_DIRETOR_GUIAS_AUDITORIA_v0_1.md)
 - [AL-IA-04 — Matriz de deltas, conflitos, pendências e revisões cruzadas](./ALINHAMENTO_2026_10_22_04_RASTREABILIDADE_DELTAS_PENDENCIAS_v0_1.md)
 - [AL-IA-05 — Histórico de ideias, hipóteses e frentes não ativas](./ALINHAMENTO_2026_10_22_05_HISTORICO_IDEIAS_E_LINHAS_NAO_ATIVAS_v0_1.md)
+- [AL-IA-06 — Auditoria de fidelidade e completude (22/10/2026)](./ALINHAMENTO_2026_10_22_06_AUDITORIA_FIDELIDADE_E_COMPLETUDE_v0_1.md) — **ver achados corrigidos e pendências reais antes de implementar**
 
 **ATENÇÃO À PRECEDÊNCIA:** em especial, as novas decisões **retiram edição de ficha pelo Consultor**, exigem acesso lógico F03 ao histórico completo da própria concessionária até o cutoff, permitem transições comerciais F03 **mediante S0** (exceto `vendido`), ampliam a intenção administrativa do MCP sem liberar alteração de sua auditoria e adotam **somente quatro campos globais para IA**. As seções e contratos datados de 18/10 abaixo continuam como registros históricos/candidatos quando divergirem; qualquer mudança nas frentes S0/Meta/Frontend exige conciliação do respectivo dono. Envio direto ao Banco segue **[V] expressamente adiado**. PR #3 permanece Draft e E04/E05 não foram abertos.
 
