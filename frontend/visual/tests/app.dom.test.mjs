@@ -642,3 +642,75 @@ test('FV-UI-018: caso Lia com exceção só abre A-117 em Aurora sem grant geral
   env.selectShop('horizonte');
   assert.equal(get('thread-meta').textContent.includes('A-117'),false);
 });
+
+
+test('FV-UI-019: duas conclusões F03 fictícias têm recortes distintos, sem editor',()=>{
+  reset();env.openCase('Exemplo 09');
+  env.descendants(get('detail-content')).filter(x=>x.attrs.role==='tab')
+    .find(x=>x.textContent==='Extração').click();
+  const t=get('detail-content').textContent;
+  assert.match(t,/concl-a108-1/);assert.match(t,/f03-a108-2/);
+  assert.match(t,/a108-1/);assert.match(t,/a108-2/);
+  assert.match(t,/v1-ficticia/);
+  assert.equal(t.includes('Corrigir cadastro'),false);
+  assert.equal(env.descendants(get('detail-content')).some(x=>x.tagName==='INPUT'),false);
+});
+
+test('FV-UI-019: esclarecimento alternativo libera segunda conclusão apenas na demo',()=>{
+  reset();env.openCase('Exemplo 09');
+  env.descendants(get('detail-content')).filter(x=>x.attrs.role==='tab')
+    .find(x=>x.textContent==='Extração').click();
+  assert.equal(get('message-input').disabled,true);
+  const before=get('workflow-bar').textContent;
+  const review=env.descendants(get('detail-content')).find(x=>x.id==='show-clarification-demo');
+  assert.ok(review);review.click();
+  assert.ok(get('workflow-bar').textContent.includes('CENÁRIO ALTERNATIVO'));
+  assert.equal(get('message-input').disabled,false);
+  assert.equal(buttons('Concluir atendimento').length,1);
+  buttons('Concluir atendimento')[0].click();
+  get('completion-dialog').close('confirm');
+  const t=get('detail-content').textContent;
+  assert.match(t,/local-review-A-108-review-a108-v3-demo/);
+  assert.match(t,/corte apenas candidato/i);
+  assert.match(t,/a108-3/);
+  assert.match(t,/f03-a108-1/);
+  assert.match(t,/f03-a108-2/);
+  assert.match(t,/v1-ficticia/);
+  assert.equal(get('message-input').disabled,true);
+  assert.equal(buttons('Concluir atendimento').length,0);
+  assert.equal(t.includes('ficha gravada agora'),false);
+  assert.notEqual(before,get('workflow-bar').textContent);
+});
+
+test('FV-UI-019: Gestor supervisor não recebe histórico de F03 nem versão de cliente',()=>{
+  reset();env.selectActor('marina');env.openCase('Exemplo 09');
+  env.descendants(get('detail-content')).filter(x=>x.attrs.role==='tab')
+    .find(x=>x.textContent==='Extração').click();
+  const t=get('detail-content').textContent;
+  assert.equal(t.includes('f03-a108-1'),false);
+  assert.equal(t.includes('client09-aurora-only'),false);
+  assert.equal(t.includes('show-clarification-demo'),false);
+  assert.equal(env.descendants(get('detail-content')).some(x=>x.id==='show-clarification-demo'),false);
+});
+
+test('FV-UI-019: versões da ficha viva não modificam remessa antiga',()=>{
+  reset();env.openCase('Exemplo 15');
+  env.descendants(get('detail-content')).filter(x=>x.attrs.role==='tab')
+    .find(x=>x.textContent==='Extração').click();
+  const t=get('detail-content').textContent;
+  assert.match(t,/live-form-v2-demo/);
+  assert.match(t,/bank-demo-v1/);
+  assert.match(t,/snapshot preservado/);
+});
+
+test('FV-UI-019: troca de perfil limpa cenário alternativo e não migra autorização',()=>{
+  reset();env.openCase('Exemplo 09');
+  env.descendants(get('detail-content')).filter(x=>x.attrs.role==='tab')
+    .find(x=>x.textContent==='Extração').click();
+  env.descendants(get('detail-content')).find(x=>x.id==='show-clarification-demo').click();
+  assert.equal(get('message-input').disabled,false);
+  env.selectActor('marina');
+  env.selectActor('rafael');env.openCase('Exemplo 09');
+  assert.equal(get('message-input').disabled,true);
+  assert.equal(get('workflow-bar').textContent.includes('CENÁRIO ALTERNATIVO'),false);
+});
