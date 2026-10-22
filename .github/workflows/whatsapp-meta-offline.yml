@@ -292,8 +292,8 @@ jobs:
             -f "$sql/wa28_pg17_atomic_reservation.sql" > "$RUNNER_TEMP/wa28_setup.log"
           grep -qx 'WA28-SETUP PASS' "$RUNNER_TEMP/wa28_setup.log"
           python3 "$sql/wa28-assert-concurrent-pg17.py" | tee "$RUNNER_TEMP/wa28_evidence.log"
-          for n in {01..20}; do
+          for n in {01..21}; do
             count="$(grep -cx "WA28-$n PASS" "$RUNNER_TEMP/wa28_evidence.log" || true)"
             if [[ "$count" != 1 ]]; then echo "FAIL WA28-$n marker: $count" >&2; exit 1; fi
           done
-          echo 'PASS WA28: 20 assertions with two real PostgreSQL row-lock interleavings'
+          echo 'PASS WA28: 21 assertions with two real PostgreSQL row-lock interleavings'
