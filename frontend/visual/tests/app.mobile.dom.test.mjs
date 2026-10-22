@@ -162,3 +162,36 @@ test('FV-UI-021: foco acompanha a navegação entre telas móveis',()=>{
   get('thread-back').click();
   assert.equal(env.document.activeElement,get('search-input'));
 });
+
+
+test('FV-UI-022: Escape móvel reutiliza retorno com foco no painel visível',()=>{
+  reset();env.openCase('Exemplo 02');
+  get('detail-toggle').click();
+  assert.equal(get('visual-app').dataset.mobileView,'detail');
+  get('detail-back').focus();
+  env.document.fire('keydown',{key:'Escape'});
+  assert.equal(get('visual-app').dataset.mobileView,'thread');
+  assert.equal(env.document.activeElement,get('detail-toggle'));
+  get('thread-back').focus();
+  env.document.fire('keydown',{key:'Escape'});
+  assert.equal(get('visual-app').dataset.mobileView,'list');
+  assert.equal(env.document.activeElement,get('search-input'));
+  env.document.fire('keydown',{key:'Escape'});
+  assert.equal(get('visual-app').dataset.mobileView,'list');
+});
+
+test('FV-UI-022: Escape não navega sob modal aberto ou digitando no campo',()=>{
+  reset();env.openCase('Exemplo 02');
+  get('message-input').focus();
+  env.document.fire('keydown',{key:'Escape'});
+  assert.equal(get('visual-app').dataset.mobileView,'thread');
+  get('composer').fire('submit');
+  get('message-input').value='Rascunho válido apenas no caso';
+  get('composer').fire('submit');
+  assert.equal(get('message-preview-dialog').open,true);
+  env.document.fire('keydown',{key:'Escape'});
+  assert.equal(get('message-preview-dialog').open,true);
+  get('message-preview-dialog').close('cancel');
+  assert.equal(get('message-input').value,'Rascunho válido apenas no caso');
+  assert.equal(env.document.activeElement,get('message-input'));
+});
