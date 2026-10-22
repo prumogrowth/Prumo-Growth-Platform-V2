@@ -97,7 +97,7 @@ function demoAttentionFor(item) {
     .find(message=>message.side==='in' || (message.side==='out' &&
     message.deliveryState!=='local_demo_not_sent' &&
     (!message.transportProjection ||
-      stageMockMessageTransport(record,message,record.assignedTo,record.shopId).provedSent)));
+      stageMockMessageTransport(item,message,item.assignedTo,item.shopId).provedSent)));
   return stageConversationAttention({
     schema_version:ATTENTION_PROPOSAL_VERSION,
     unread_inbound_count:item.unread,
