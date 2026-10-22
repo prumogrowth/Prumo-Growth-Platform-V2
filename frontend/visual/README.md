@@ -6,6 +6,8 @@
 
 > **FV-UI-019 (22/10/2026):** acrescentadas [conclusões sucessivas e ficha viva sintéticas](../docs/43_FV_UI_019_CONCLUSOES_F03_FICHA_VIVA_2026_10_22.md). `A-108` contém dois eventos históricos de F03 **já projetados pela fixture** e um cenário alternativo para simular um novo clique de conclusão, com cutoff **candidato, não confirmado**. `A-114` mostra ficha atualizada e remessa antiga preservada, sem inferir edição manual ou movimentação bancária. Testes V8 não são homologação nativa nem integração S0.
 
+> **FV-UI-020 (22/10/2026):** [registro de estados técnicos e matriz de aceitação](../docs/44_FV_UI_020_ERROS_TRANSPORTE_E_MATRIZ_ACEITACAO_2026_10_22.md). ACK Meta não prova envio; recibos e erros são apenas projeções sintéticas, sem reenvio automático, cadastro manual ou transição comercial. `C13` foi excluído das ações candidatas da UI. `run_acceptance.py` inventaria as 24 suítes e impede homologação sem revisão correta/Chromium. Execução V8 não substitui testes Node nativos.
+
 **Branch proprietária:** `feat/frontend-plataforma-visual`. **Referência visual:** organização de mensageiro familiar ao WhatsApp, sem copiar sua identidade, marca ou recursos. **Situação:** demonstração local com dados 100% sintéticos; não é portal operacional.
 
 ## Abrir localmente
