@@ -40,6 +40,10 @@
 
 **[FV-UI-018 — fila compartilhada e acesso por caso](./42_FV_UI_018_PERMISSOES_DISTRIBUICAO_2026_10_22.md)**: demonstração visual de fila nova sem titular por concessionária, intents de assunção/atribuição sem efeito e caso excepcional sem grant geral. Inclui testes sintéticos e explicita dependências atômicas S0/S1. **Não** é autorização produtiva nem homologação de integração.
 
+## Conclusões sucessivas, F03 e ficha viva (22/10/2026)
+
+**[FV-UI-019 — eventos de conclusão, esclarecimento e versões da ficha](./43_FV_UI_019_CONCLUSOES_F03_FICHA_VIVA_2026_10_22.md)**: duas conclusões históricas F03 projetadas em fixture, nova conclusão somente candidata em cenário alternativo, dossiê vivo por cliente/loja e snapshot bancário antigo preservado. **Sem** execução real F03, S0, remessa, gravação ou homologação Node/Chromium.
+
 ## Estado do trabalho
 FV-UI-015/016: demonstrações com dados sintéticos. **NÃO** declarar integração real, Auth/RLS/GoTrue, comunicações Meta ou remessas confirmadas. FV-UI-013 não homologada formalmente; **19F 69/100** como último marco. Esta consolidação é **documentação somente**. Nenhum código, migration, branch S1, dado real ou deploy foi tocado.
 
