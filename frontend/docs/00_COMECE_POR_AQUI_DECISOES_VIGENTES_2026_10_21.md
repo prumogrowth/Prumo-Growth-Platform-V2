@@ -36,6 +36,10 @@
 
 **[FV-UI-017 — integridade de contexto e mensagens](./41_FV_UI_017_INTEGRIDADE_CONTEXTO_MENSAGENS_2026_10_22.md)**: rótulos humanos vigentes, descarte de rascunhos em trocas de contexto, prévia sintética de autoria, confirmação **apenas local** sem falso envio WhatsApp e regressões V8. **Não** é integração/aceite Node/Chromium; os demais achados da FV-AUD-01 continuam registrados.
 
+## Reparação de distribuição e permissões (22/10/2026)
+
+**[FV-UI-018 — fila compartilhada e acesso por caso](./42_FV_UI_018_PERMISSOES_DISTRIBUICAO_2026_10_22.md)**: demonstração visual de fila nova sem titular por concessionária, intents de assunção/atribuição sem efeito e caso excepcional sem grant geral. Inclui testes sintéticos e explicita dependências atômicas S0/S1. **Não** é autorização produtiva nem homologação de integração.
+
 ## Estado do trabalho
 FV-UI-015/016: demonstrações com dados sintéticos. **NÃO** declarar integração real, Auth/RLS/GoTrue, comunicações Meta ou remessas confirmadas. FV-UI-013 não homologada formalmente; **19F 69/100** como último marco. Esta consolidação é **documentação somente**. Nenhum código, migration, branch S1, dado real ou deploy foi tocado.
 
