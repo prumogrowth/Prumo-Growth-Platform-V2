@@ -183,7 +183,7 @@ create policy s1_62_mensagens_restrict on public.mensagens as restrictive
   caso_id is not null
   and prumo_s1_i42_test.msg_historico_autorizado(
       concessionaria_id,conversa_id,caso_id)
- ))
+ )
 );
 -- Visao de escopo minimo: contextualiza ciclo sem SELECT bruto dos demais.
 -- Usa owner no LAB sob predicado JWT+excecao valido de cada contato.
