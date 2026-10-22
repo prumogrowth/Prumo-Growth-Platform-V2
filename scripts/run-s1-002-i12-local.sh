@@ -19,4 +19,7 @@ psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_015_v
 # Auditoria I38: demonstra a divergencia S0 e ensaia policies candidatas
 # sob BEGIN/ROLLBACK. Nenhuma alteracao persiste; nao e migration.
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_058_supervisao_equipes_rls_local_only.sql
+# I39: distribui lead novo entre equipes, testa fila sem titular e disputa CAS.
+# Inclui fixture de intake I53 dentro de BEGIN/ROLLBACK (nenhum dado persiste).
+psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_059_novos_leads_fila_cross_team_local_only.sql
 echo 'S1-002/I15: sessao fake ativa/revogada conferida; sem GoTrue/REST real.'
