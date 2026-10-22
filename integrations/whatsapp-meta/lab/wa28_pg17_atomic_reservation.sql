@@ -88,7 +88,7 @@ CREATE FUNCTION wa28_lab.revoke_fixture(
 ) RETURNS text LANGUAGE plpgsql AS $$
 DECLARE a wa28_lab.authority%ROWTYPE;
 BEGIN
-  IF p_kind NOT IN ('OPT_OUT','GRANT','PAUSE') OR
+  IF p_kind IS NULL OR p_kind NOT IN ('OPT_OUT','GRANT','PAUSE') OR
      p_shop IS NULL OR p_case IS NULL THEN
     RETURN 'LAB_DENIED';
   END IF;
