@@ -21,7 +21,7 @@
 
 | ID | Regra atual e classificação | Origem/precedência |
 |---|---|---|
-| WDC-01 | [E] LiberaCred é produto da instituição financeira; Prumo é a plataforma/gestora operacional. Atendimento, banco, Meta e operador são domínios distintos. | Pacote 00A, 09, 11 e notas dos PRs; consolidação 0.2 é fotografia conceitual de 10/10 |
+| WDC-01 | [D/E] **A plataforma comercial/de atendimento AINDA NÃO TEM NOME**. A **Prumo** é a gestora/operadora, não nome comercial automaticamente atribuído ao software. **LiberaCred é SOMENTE o produto de crédito da instituição financeira** comercializado pelas concessionárias por meio da plataforma. Usar o termo **plataforma** até escolha explícita de marca. Nomes de arquivos históricos não batizam o software. | Decisão antiga já registrada em `documentos/17_Identidade_e_Nome_da_Plataforma_v0_1.md` (16/10/2026); reafirmação direta do responsável de 22/10/2026 e AL-IA-00/07 do PR #3 |
 | WDC-02 | [D] Cada concessionária terá conta empresarial Meta e Meta App próprios, WABA separada, número WhatsApp dedicado e catálogo de templates privado. A Prumo utiliza a API com delegação da concessionária; nome/foto são da loja. Não compartilhar template, lead, histórico, canal ou status entre lojas. | **DEC-WA-05**, decisão expressa em 17/10, reafirmada em WA-18, 20/10; [S parcial] fontes anteriores que atribuíam WABA/números à gestora |
 | WDC-03 | [D/V] **A titularidade prevista e o Meta App por concessionária JÁ SÃO decisão de negócio** (DEC-WA-05). Continua [V] conferir no Business Manager/Meta Developer a propriedade EFETIVA, WABA/número, habilitação, inscrição webhooks, credenciais, permissões delegadas e onboarding. A falta dessa prova não reabre a decisão funcional. | DEC-WA-05 `decisao-titularidade-meta-por-concessionaria-v1_0.md`; WA-07 e WA-18; pacote 34 META-01 |
 | WDC-04 | [E] Três registros lógicos: mensagens (uma linha por comunicação), envios_template (tentativa programada/realizada e histórico) e catalogo_templates (conteúdo, versão, aprovação). Histórico administrativo append-only separado; versão/snapshot exatos preservados em envios passados. | Pacote 09, 10; WA-17; não substituir por único JSON |
@@ -60,6 +60,10 @@
 - **SENT:** evento oficial ou evidência confiável equivalente correlacionada da transmissão. Um ACK HTTP do POST não basta para declarar envio.
 - **Versão do template:** identidade do conteúdo e mapeamento congelado naquela aprovação, com snapshot preservado mesmo se edição posterior Meta mantiver ID do provedor.
 - **IA Planejadora:** seleciona/substitui/reordena tentativas já permitidas; **IA administrativa:** cria/edita conteúdo por MCP do responsável; **IA de atendimento:** conversa/interpreta respostas; **plataforma:** valida/realiza preenchimento e transições.
+
+## Novas interfaces documentadas por outras frentes em 22/10/2026
+
+A [WA-22 — revisão cruzada documental](./wa22-revisao-cruzada-outras-frentes-contratos-2026-10-22.md) compara as branches S0 PR #1, OpenAI PR #3, equipe S1 PR #5, CF-OP PR #7, ponte S0/OpenAI PR #8/#12 e frontend. **Não se trata de alterar unilateralmente a matriz WDC**, mas de registrar decisões/interdependências novas com autoria identificada: prova de contato humano por mensagem enviada; pausa de intake distinta de titularidade; F03 somente após concluir atendimento; histórico lógico por cliente/loja até cutoff (mídias autorizadas); três relógios distintos; indicador interno de leitura diferente de `read` Meta; F03 pode propor perda comercial com gate S0 mas não venda; Consultor não edita ficha na diretriz nova (há conflito histórico); dados de campanhas/condições exigem origem confiável sem criar sistema de marketing no núcleo; auditoria própria MCP protegida contra edição. Contratos físicos, fontes de mídia, matriz C09 pós-humano e compatibilidade D41 permanecem [R/V/T], **não homologados**.
 
 ## Pendências que NÃO viraram decisões
 
