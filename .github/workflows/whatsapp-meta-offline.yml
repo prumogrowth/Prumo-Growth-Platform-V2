@@ -233,3 +233,53 @@ jobs:
           node --experimental-strip-types "$sql/wa16-assert-db-recovery.ts" \
             < "$RUNNER_TEMP/wa16_recovery_db.json"
           echo 'PASS WA16B: 11 individual SQL checks + DB-to-TS classification, no Graph or ACK'
+
+      - name: "WA-27: isolamento RLS de finalidades e revogacoes PG17"
+        run: |
+          set -euo pipefail
+          sql='meta/integrations/whatsapp-meta/lab'
+          psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" \
+            -f "$sql/wa27_pg17_setup.sql" > "$RUNNER_TEMP/wa27_setup.log"
+          grep -qx 'WA27-SETUP PASS' "$RUNNER_TEMP/wa27_setup.log"
+          capture() {
+            local stage="$1" role="$2"
+            psql -X -qAt -v ON_ERROR_STOP=1 \
+              -v "wa27_stage=$stage" -v "wa27_role=$role" \
+              "$PRUMO_TEST_DATABASE_URL" -f "$sql/wa27_pg17_read.sql" \
+              > "$RUNNER_TEMP/wa27_$stage.json"
+            python3 - "$RUNNER_TEMP/wa27_$stage.json" <<'PY'
+          import json,sys
+          snap=json.load(open(sys.argv[1],encoding='utf-8'))
+          assert isinstance(snap,dict) and snap['can_write'] is False
+          assert snap['cross_tenant_scopes']==0
+          PY
+          }
+          capture initial_a wa27_reader_shop_a
+          capture initial_b wa27_reader_shop_b
+          capture no_scope wa27_reader_shop_none
+          psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" \
+            -f "$sql/wa27_pg17_optout.sql" > /dev/null
+          capture optout wa27_reader_shop_a
+          psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" \
+            -f "$sql/wa27_pg17_pause.sql" > /dev/null
+          capture paused wa27_reader_shop_a
+          psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" \
+            -f "$sql/wa27_pg17_revoke_grant.sql" > /dev/null
+          capture grant_revoked wa27_reader_shop_a
+          psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" \
+            -f "$sql/wa27_pg17_revoke_actor.sql" > /dev/null
+          capture actor_revoked wa27_reader_shop_a
+          capture after_b wa27_reader_shop_b
+          node --experimental-strip-types "$sql/wa27-assert-pg17-ports.ts" \
+            "$RUNNER_TEMP/wa27_initial_a.json" \
+            "$RUNNER_TEMP/wa27_initial_b.json" \
+            "$RUNNER_TEMP/wa27_no_scope.json" \
+            "$RUNNER_TEMP/wa27_optout.json" \
+            "$RUNNER_TEMP/wa27_paused.json" \
+            "$RUNNER_TEMP/wa27_grant_revoked.json" \
+            "$RUNNER_TEMP/wa27_actor_revoked.json" \
+            "$RUNNER_TEMP/wa27_after_b.json" | tee "$RUNNER_TEMP/wa27_evidence.log"
+          for n in {01..14}; do
+            test "$(grep -cx "WA27-$n PASS" "$RUNNER_TEMP/wa27_evidence.log" || true)" = 1
+          done
+          echo 'PASS WA27: 14 PG17-to-TypeScript checks with role RLS and distinct COMMIT sessions'
