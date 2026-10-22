@@ -45,7 +45,7 @@ Isso altera a formulação inicial ampla “tudo que entrar pode ser deletado”
 
 ## 4. Camada semântica de guias operacionais — distinta das IAs da plataforma
 
-**[DN]** O responsável quer uma **camada semântica do MCP** que ajude o ChatGPT/agente externo conectado a entender **como executar corretamente tarefas administrativas**, semelhante conceitualmente a “skills” do ChatGPT, mas **interna ao ecossistema LiberaCred**. Nome de trabalho [P]: **guias operacionais do MCP**.
+**[DN]** O responsável quer uma **camada semântica do MCP** que ajude o ChatGPT/agente externo conectado a entender **como executar corretamente tarefas administrativas**, semelhante conceitualmente a “skills” do ChatGPT, mas **interna à plataforma comercial da Prumo**. Nome de trabalho [P]: **guias operacionais do MCP**.
 
 Um guia poderá explicar:
 - Qual é o resultado pretendido (“criar base semântica de campanha na concessionária X”).
