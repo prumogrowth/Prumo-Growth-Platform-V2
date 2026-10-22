@@ -188,7 +188,9 @@ for table in ("leads_loja", "ciclos_comerciais", "concessionarias", "canais_loja
     assert not rows(table, c3), "I44 exceptional operator gained broad access: " + table
 print("PASS I44-03: real JWT exceptional operator sees only case and same-contact history")
 
-assert cases() == set(), "I44 anon saw any case"
+status, public_rows = http("GET", "/rest/v1/casos_humanos?select=id")
+if status not in (401, 403) and not (status == 200 and public_rows == []):
+    raise AssertionError("I44 anon read cases HTTP " + str(status))
 status, _ = http("POST", "/rest/v1/mensagens", c3, {
     "concessionaria_id": LA,
     "conversa_id": obj("62770000", 1),
