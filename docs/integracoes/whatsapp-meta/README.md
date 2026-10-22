@@ -14,6 +14,7 @@
 | O que outras frentes decidiram que impacta nosso contrato | [WA-22 — Revisão documental interfrentes](./wa22-revisao-cruzada-outras-frentes-contratos-2026-10-22.md) | Novos limites F03, S0/S1, evidências de contato, C09, mídias, campanhas e MCP sem presumir implementação |
 | Se a documentação da própria frente está pronta para a próxima fase | [WA-23 — Auditoria editorial final (22/10)](./wa23-auditoria-final-documentacao-propria-2026-10-22.md) | Inventário, cobertura, correções, pendências identificadas e fronteira da responsabilidade documental |
 | Qual é o estado da auditoria técnica e dos primeiros reparos | [WA-24 — Auditoria técnica inicial e reparos (22/10)](./wa24-auditoria-tecnica-inicial-reparos-2026-10-22.md) | Inventário verificável de código, comparação WDC, evidência CI, fixes WA-17 e riscos ainda não homologados |
+| Onde está a primeira implementação offline de FINALIDADES e grants | [WA-25 — Filtro de templates por finalidade (22/10)](./wa25-finalidades-grants-filtro-candidatos-offline-2026-10-22.md) | Contrato sem envio, 18 cenários, segregação por concessionária/WABA e gates externos pendentes |
 | O que a auditoria encontrou e reparou | [WA-19 — Auditoria documental](./wa19-auditoria-documental-reconciliacao-2026-10-21.md) | Achados, limites, reparos e pendências |
 | Histórico de decisões recentes | [WA-17B](./wa17b-mcp-templates-multimidia-ia-delegada-2026-10-20.md), [WA-18](./wa18-alinhamento-decisorio-respostas-responsavel-2026-10-20.md), [WA-18B](./wa18b-alinhamento-fechamento-optout-variaveis-falhas-cadencia-2026-10-20.md), [WA-18C](./wa18c-falhas-consecutivas-taxonomia-interna-templates-2026-10-20.md) | Proveniência cronológica; partes superadas identificadas |
 | O que foi testado de verdade | [WA-16/17 — fechamento de validação](./wa16-wa17-fechamento-validacao-e-pausa-2026-10-20.md) | Distingue casos escritos, verificações V8 e CI Node/PG17 não comprovado |
@@ -117,6 +118,7 @@ Arquivos abaixo permanecem pesquisáveis e preservados por fase. São histórico
 - [wa22-revisao-cruzada-outras-frentes-contratos-2026-10-22.md](./wa22-revisao-cruzada-outras-frentes-contratos-2026-10-22.md)
 - [wa23-auditoria-final-documentacao-propria-2026-10-22.md](./wa23-auditoria-final-documentacao-propria-2026-10-22.md)
 - [wa24-auditoria-tecnica-inicial-reparos-2026-10-22.md](./wa24-auditoria-tecnica-inicial-reparos-2026-10-22.md)
+- [wa25-finalidades-grants-filtro-candidatos-offline-2026-10-22.md](./wa25-finalidades-grants-filtro-candidatos-offline-2026-10-22.md)
 
 ### Índices vigentes e matrizes adicionais
 
@@ -124,4 +126,4 @@ Arquivos abaixo permanecem pesquisáveis e preservados por fase. São histórico
 - [01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md](./01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md)
 - [02-mapa-fontes-conflitos-e-emendas-2026-10-21.md](./02-mapa-fontes-conflitos-e-emendas-2026-10-21.md)
 
-**Cobertura documental em 22/10/2026:** a auditoria editorial WA-23 conferiu **63 arquivos Markdown** (README + 62 links). Com a inclusão posterior de **WA-24**, o diretório passa a **64 Markdown** (README + **63 links**), sujeitos a commits futuros. O novo documento inicia auditoria TÉCNICA e reparos, sem significar teste nativo verde ou homologação. Os históricos têm aviso de precedência ou nota contextual, quando necessário. O ZIP de 55 documentos históricos de 17/10 segue preservado fora deste diretório. Essa biblioteca não contém ferramentas MCP executáveis.
+**Cobertura documental em 22/10/2026:** a auditoria editorial WA-23 conferiu **63 arquivos Markdown** (README + 62 links). Com a inclusão posterior de **WA-24** e **WA-25**, o diretório passa a **65 Markdown** (README + **64 links**), sujeitos a commits futuros. O novo documento inicia auditoria TÉCNICA e reparos, sem significar teste nativo verde ou homologação. Os históricos têm aviso de precedência ou nota contextual, quando necessário. O ZIP de 55 documentos históricos de 17/10 segue preservado fora deste diretório. Essa biblioteca não contém ferramentas MCP executáveis.
