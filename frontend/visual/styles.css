@@ -145,3 +145,11 @@
 .message-send-state{font-weight:750;color:#815a29;text-transform:uppercase;letter-spacing:.03em}
 .message-preview-body{white-space:pre-wrap;overflow-wrap:anywhere;background:#f3f8f7;color:#2b4650;border:1px solid #dbe8e5;border-radius:11px;padding:14px;font-size:13px;line-height:1.55;max-height:35vh;overflow-y:auto}
 .message-preview-disclaimer{font-size:12px;line-height:1.55;color:#536d75}
+
+/* FV-UI-018: fila compartilhada sintética, separada de equipe/G2. */
+.team-queue-list{display:grid;gap:10px;margin-top:12px}
+.team-queue-item{display:flex;flex-direction:column;align-items:flex-start;gap:8px;
+  border:1px solid #dce7e6;border-radius:10px;background:#f9fbfb;padding:13px}
+.team-queue-item strong{font-size:12px;color:#294a54}
+.team-queue-item span{font-size:11px;color:#526c72;line-height:1.5}
+.team-queue-item .btn{white-space:normal;min-height:44px;text-align:left}
