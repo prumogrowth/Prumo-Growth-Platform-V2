@@ -40,7 +40,11 @@ function trustedQueueRow(row,shopId){
  */
 export function projectSharedNewLeadQueue(managerId,shopId,rows=DEMO_SHARED_LEADS){
   if(!permittedManager(managerId,shopId) || !Array.isArray(rows))return FORBIDDEN;
-  const relevant=rows.filter(row=>trustedQueueRow(row,shopId));
+  const candidates=rows.filter(row=>trustedQueueRow(row,shopId));
+  // Projeções duplicadas/conflitantes de um mesmo id não viram dois claims.
+  const counts=new Map();
+  for(const row of candidates)counts.set(row.id,(counts.get(row.id)??0)+1);
+  const relevant=candidates.filter(row=>counts.get(row.id)===1);
   const available=relevant.filter(row=>row.queueState==='unassigned').map(row=>
     Object.freeze({id:row.id,shopId:row.shopId,name:row.name,versionRef:row.versionRef,
       actions:Object.freeze(['claim','assign_team'].filter(action=>
