@@ -3,14 +3,14 @@
 **Data:** 22/10/2026. **Fonte normativa:** S1-D05, D12, D13, D18, D19 (contrato funcional 2026-10-22). **Estado:** candidato [T] no PostgreSQL 17 descartável; não é migration de produção ou alteração homologada S0.
 
 ## Falha composta identificada
-As provas I41 e I42 rodavam separadamente. A RLS `RESTRICTIVE` de I41 exige o escopo próprio/de equipe, mas a exceção I42 autoriza precisamente um Consultor sem grant geral da concessionária. **Com ambas aplicadas, o AND implícito das políticas restritivas volta a negar o caso autorizado**, enquanto a view de resumo executada como dono do laboratório ainda mostra o histórico. Este estado inconsistente é testado explicitamente como `I43-RED`.
+As provas I41 e I42 rodavam separadamente. A RLS `RESTRICTIVE` de I41 exige o escopo próprio/de equipe, mas a exceção I42 autoriza precisamente um Consultor sem grant geral da concessionária. **Com ambas aplicadas, o AND implícito das políticas restritivas volta a negar o caso autorizado**, enquanto a view de resumo executada como dono do laboratório ainda mostra o histórico. Este estado inconsistente é testado explicitamente como `I43-RED`. A primeira execução integrada (#39870328769) também detectou o inverso: a `RESTRICTIVE` de mensagens de I42 negava ao Gestor sem grant geral o histórico de sua equipe, mesmo quando a regra I41 o autorizava. A composição deve substituir **as duas** policies restritivas de mensagens por uma única restrição conjunta, sem deixar uma segunda política com `AND` residual.
 
 ## Implementação e prova
 - `supabase/tests/s1_061_proto_rls_equipe_local_only.sql`: mesmas funções/policies candidatas I41, extraídas para evitar divergência entre prova isolada e integrada.
 - `supabase/tests/s1_062_setup_historico_excecao_local_only.sql`: fixture I53/I54/I55 com dados fictícios e transferência excepcional em loja A.
 - `supabase/tests/s1_062_proto_rls_excecao_local_only.sql`: as mesmas funções/policies de exceção I42 para histórico por contato.
 - Os testes I41 e I42 isolados passam a reutilizar esses arquivos; continuam `BEGIN/ROLLBACK`.
-- `supabase/tests/s1_063_rls_unificada_equipe_excecao_local_only.sql`: importa simultaneamente os dois candidatos e reproduz o conflito; depois substitui *apenas no sandbox transacional* as quatro políticas restritivas de casos/atribuições/conversas/mensagens por guardas **por linha** com `I41 autorizado OR I42 autorizado`. Os critérios já existentes, atribuição atual, `auth.uid()`, concessionária, chefia, revogação e correlação mensagem-caso permanecem aplicados em cada ramo. 
+- `supabase/tests/s1_063_rls_unificada_equipe_excecao_local_only.sql`: importa simultaneamente os dois candidatos e reproduz o conflito; depois substitui *apenas no sandbox transacional* as restrições de casos/atribuições/conversas e **ambas** as restrições de mensagens por guardas **por linha** com `I41 autorizado OR I42 autorizado`. Os critérios já existentes, atribuição atual, `auth.uid()`, concessionária, chefia, revogação e correlação mensagem-caso permanecem aplicados em cada ramo. 
 - O runner `scripts/run-s1-002-i12-local.sh` executa I43 na suíte PG17, sem alterar o S0 histórico nem dados reais.
 
 ## Aceites do I43
