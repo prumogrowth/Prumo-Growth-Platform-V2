@@ -1,5 +1,11 @@
 # Frente OpenAI — Prumo Growth | índice inicial
 
+## E02: avanço documental de oráculos e evidências (22/10/2026)
+
+**Novas referências da frente OpenAI:** [CFI-01E — manifesto lógico de histórico F03](./CFI_01_MANIFESTO_HISTORICO_F03_CANDIDATO_v0_1.md), [E02-FIX v0.4 — 70 oráculos com observáveis e negativos](./E02_CADERNO_70_ORACULOS_E_OBSERVAVEIS_v0_4.md), [E02-REV v0.4 — sete decisões objetivas a ratificar](./E02_RESUMO_DECISOES_PARA_RATIFICACAO_v0_4.md).
+
+**Status:** 70 casos com EXPECTED textual e exigência de observabilidade, **0 testes executados**, nenhuma nova decisão interfrentes ratificada, nenhum schema físico implantado. Questões #4/#6/#15 permanecem abertas. A verificação documental **não** autoriza E04/E05 nem garante que a S0 já disponibiliza o histórico multimodal.
+
 ## Revisão cruzada E02-REV — 22/10/2026
 
 A frente OpenAI consolidou **três pacotes candidatos de revisão entre frentes**, **sem ratificação pelos proprietários**:
