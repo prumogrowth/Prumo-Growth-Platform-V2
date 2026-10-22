@@ -584,3 +584,60 @@ test('FV-UI-017: alteração durante prévia invalida confirmação antiga',()=>
   assert.equal(get('thread-body').textContent.includes('Texto alterado após prévia'),false);
   assert.equal(get('thread-body').textContent.includes('Texto inicial'),false);
 });
+
+
+test('FV-UI-018: Marina e Daniel enxergam fila compartilhada da loja, sem herdar carteira rival',()=>{
+  reset();env.selectActor('marina');get('team-nav').click();
+  get('team-show-queue').click();
+  assert.equal(get('team-queue').hidden,false);
+  assert.ok(get('team-queue').textContent.includes('FILA-A-01'));
+  assert.equal(get('team-queue').textContent.includes('FILA-H-01'),false);
+  get('team-dialog').close();
+  env.selectActor('daniel');get('team-nav').click();get('team-show-queue').click();
+  assert.ok(get('team-queue').textContent.includes('FILA-A-01'));
+  assert.equal(env.cards().some(x=>x.textContent.includes('Exemplo 02')),false);
+  get('team-dialog').close();
+});
+
+test('FV-UI-018: claim exige confirmação mas não reatribui nem concede case grant',()=>{
+  reset();env.selectActor('marina');get('team-nav').click();get('team-show-queue').click();
+  const buttons=env.descendants(get('team-queue')).filter(x=>x.tagName==='BUTTON');
+  buttons.find(x=>x.textContent==='Solicitar assunção').click();
+  assert.equal(get('queue-action-dialog').open,true);
+  get('queue-action-dialog').close('cancel');
+  assert.ok(get('team-queue').textContent.includes('Solicitar assunção'));
+  buttons.find(x=>x.textContent==='Solicitar assunção').click();
+  get('queue-action-dialog').close('confirm');
+  assert.match(get('team-queue').textContent,/SOLICITADO LOCALMENTE · NÃO ATRIBUÍDO/);
+  assert.equal(get('team-queue').textContent.includes('Solicitar assunção'),false);
+  get('team-dialog').close();
+});
+
+test('FV-UI-018: atribuição só oferece equipe ativa e descarta intenção após troca de perfil',()=>{
+  reset();env.selectActor('marina');get('team-nav').click();get('team-show-queue').click();
+  const btn=env.descendants(get('team-queue')).find(x=>x.tagName==='BUTTON' &&
+    x.textContent==='Solicitar atribuição à equipe');
+  btn.click();
+  assert.equal(get('queue-action-dialog').open,true);
+  assert.match(get('queue-assignee').textContent,/Rafael Lima/);
+  assert.equal(get('queue-assignee').textContent.includes('Bianca Rocha'),false);
+  env.selectActor('daniel');
+  assert.equal(get('queue-action-dialog').open,false);
+  get('queue-action-dialog').close('confirm');
+  get('team-nav').click();get('team-show-queue').click();
+  assert.ok(get('team-queue').textContent.includes('Solicitar atribuição à equipe'));
+  get('team-dialog').close();
+});
+
+test('FV-UI-018: caso Lia com exceção só abre A-117 em Aurora sem grant geral',()=>{
+  reset();env.selectActor('lia');
+  assert.ok(get('shop-select').textContent.includes('Aurora Motos'));
+  env.selectShop('aurora');
+  assert.equal(env.cards().length,1);
+  env.openCase('Exemplo 19');
+  assert.equal(get('message-input').disabled,false);
+  assert.ok(get('thread-meta').textContent.includes('A-117'));
+  assert.equal(env.cards().some(x=>x.textContent.includes('Exemplo 02')),false);
+  env.selectShop('horizonte');
+  assert.equal(get('thread-meta').textContent.includes('A-117'),false);
+});
