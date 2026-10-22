@@ -15,6 +15,9 @@
 3. Gestor sem grant daquela concessionária não assume o lead remanescente.
 4. Invariantes após ambos: dois casos com **um titular ativo cada**, terceiro segue `PENDENTE` sem titular, versões de fila corretas, conta ativa.
 
+## Execução confirmada
+[GitHub Actions PG17 #39856679877](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39856679877): job `120097068962`, teste I40 executado sobre SHA `a6ab69e981cd19ae7474a1ea0411b1fc2dfc1007`. Logs: `PASS I40-01`, `PASS I40-02`, `PASS I40-03/04`, `PASS I40`; ambos os competidores realmente bloquearam (`pg_stat_activity.wait_event_type='Lock'`) e o perdedor recebeu `FILA_CAS_OBSOLETO`. I38-GREEN01–04 e I39-01–08 permaneceram aprovados. Execução prova apenas o fixture PG17; nenhuma homologação S0/Meta/GoTrue de produto.
+
 ## Limites de homologação
 A fila `s1_fila_novos_59` é uma **fixture de laboratório** criada em DB descartável; não define o modelo de domínio final, não é fila canônica S0, não aplica autenticação GoTrue ou integra Meta. `postgres` como executor da função não substitui identidade/capacidade autenticada. Concorrem sessões PostgreSQL reais, mas sem cliente REST e sem carga distribuída/stress/isolamento serializable. A validação garante comportamento apenas na implementação simulada e na corrida observada, não garante propriedades de produção de S0.
 
