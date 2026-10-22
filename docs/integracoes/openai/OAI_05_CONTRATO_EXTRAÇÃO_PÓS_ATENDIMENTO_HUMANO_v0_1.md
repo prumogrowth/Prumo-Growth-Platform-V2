@@ -1,5 +1,10 @@
 # OAI-05 — Extração de cadastro após encerramento do atendimento humano | contrato v0.1
 
+> **AVISO DE PRECEDÊNCIA — AUDITORIA DA FRENTE OPENAI, 22/10/2026.** Este documento anterior permanece preservado como **contrato candidato/histórico**; trechos conflitantes **NÃO são a direção funcional vigente**. Ler primeiro [AL-IA-00 — índice e precedência](./ALINHAMENTO_2026_10_22_00_INDICE_E_PRECEDENCIA_v0_1.md), [AL-IA-01 — jornada](./ALINHAMENTO_2026_10_22_01_JORNADA_F01_F02_F03_v0_1.md), [AL-IA-04 — deltas](./ALINHAMENTO_2026_10_22_04_RASTREABILIDADE_DELTAS_PENDENCIAS_v0_1.md), [AL-IA-07 — dependências entre frentes](./ALINHAMENTO_2026_10_22_07_DEPENDENCIAS_RELEVANTES_OUTRAS_FRENTES_v0_1.md) e [AL-IA-08 — auditoria documental](./ALINHAMENTO_2026_10_22_08_AUDITORIA_FECHAMENTO_DOCUMENTAL_FRENTE_OPENAI_v0_1.md). O texto abaixo documenta o estado de sua data original, **sem emendar código, criar autorização S0, nem corrigir documentação de outras frentes**.
+>
+> **Atenção especial:** a antiga exceção de edição cadastral pelo Consultor foi expressamente retirada; a F03 dispõe de histórico lógico integral do cliente na mesma concessionária até o corte, inclusive novas conclusões humanas; pode produzir propostas de transições permitidas pela S0, inclusive perda por desistência, mas nunca venda. O contrato físico precisa ser revisto.
+
+
 **Data:** 18/10/2026 | **Estado:** [D-NEGÓCIO] orientação funcional expressa do responsável nesta conversa: preenchimento cadastral normal realizado por IA após conclusão da conversa humana, e não digitado rotineiramente pelo operador; **[P]** envelope, estratégia de gravação, parâmetros, gates e eventos; **[R]** revisão do contrato físico S0, enumeração dos campos cadastrais e definição de "atendimento concluído"; **[V]** dados pessoais/áudio/condições Banco–LGPD–Meta.
 
 ## 1. Fronteiras e compatibilidade
