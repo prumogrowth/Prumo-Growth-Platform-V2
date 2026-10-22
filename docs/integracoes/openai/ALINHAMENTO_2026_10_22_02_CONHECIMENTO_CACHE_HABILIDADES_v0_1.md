@@ -5,7 +5,7 @@
 
 ## 1. Objetivo e fontes de autoridade
 
-**[DN]** A LiberaCred precisa oferecer às IAs conhecimento recuperável de modo controlado, econômico e coerente com suas responsabilidades, preservando a segregação integral entre concessionárias. **Não é obrigatório usar prompt caching**, não foi escolhido modelo de embeddings, vector store, banco de dados nem SDK. A escolha futura deve considerar **qualidade, latência, custo, atualização, auditabilidade e isolamento**.
+**[DN]** A plataforma precisa oferecer às IAs conhecimento recuperável de modo controlado, econômico e coerente com suas responsabilidades, preservando a segregação integral entre concessionárias. **Não é obrigatório usar prompt caching**, não foi escolhido modelo de embeddings, vector store, banco de dados nem SDK. A escolha futura deve considerar **qualidade, latência, custo, atualização, auditabilidade e isolamento**.
 
 **[DN]** A capacidade da API OpenAI de pesquisar a web foi entendida, mas o responsável **não quer pesquisa aberta na internet como padrão da F01/F02/F03**. Informação para financiar, cadastrar, ofertar ou decidir status deve vir do ambiente controlado, fontes aprovadas e S0. Qualquer pesquisa externa futura depende de função/fonte/finalidade autorizada, não de liberdade genérica do modelo.
 
@@ -29,7 +29,7 @@ As seguintes **camadas lógicas** foram aceitas como orientação de planejament
 | Camada | Conteúdo | Autoridade / acesso |
 |---|---|---|
 | Estrutural | Fluxos técnicos obrigatórios, RLS, políticas de acesso, limites, validação de status, evidências | S0/backend/segurança; **não** recuperável como autorização editável por IA |
-| Institucional compartilhável | Informações oficiais LiberaCred/Prumo e temas comuns apropriados | Conteúdo aprovado e versionado pela Prumo; sem transpor dados privados de concessionárias |
+| Institucional compartilhável | Informações oficiais sobre a plataforma, sobre o produto LiberaCred quando aprovadas pela fonte competente, e temas comuns apropriados | Conteúdo aprovado e versionado pela Prumo; sem transpor dados privados de concessionárias |
 | Específica de concessionária | Informações da loja, campanhas, condições aprovadas, anexos e conhecimentos extras | **Isolamento absoluto por concessionária** na busca, exibição e geração |
 | Funcional por IA | Instruções/configurações e conhecimentos elegíveis à tarefa F01/F02/F03 | Respeita função da IA; não concede privilégio |
 | Histórico e ficha do cliente | Conversa, mídias, autores, carimbos de tempo, cadastro, eventos e provas daquela loja | Fonte transacional/autorizada; **não tratar declarações do cliente como fatos institucionais** |
