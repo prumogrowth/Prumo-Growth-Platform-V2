@@ -194,6 +194,6 @@ p=subprocess.run(["node","--experimental-strip-types",runner],
  input=payload,capture_output=True,text=True,
  env={**env,"NODE_OPTIONS":"","NODE_PATH":""},timeout=15,check=False)
 assert p.returncode==0,p.stderr[-500:]
-assert p.stdout.strip()=="WA31-TSDB PASS: 11 PG17 readbacks classified fail-closed",p.stdout
+assert p.stdout.strip()=="WA31-TSDB PASS: 12 PG17 readbacks classified fail-closed",p.stdout
 mark(31)
-print("PASS WA31: 31 PG17 checks, two blocked lock races, 11 typed readbacks, NO Meta",flush=True)
+print("PASS WA31: 31 PG17 checks, two blocked lock races, 12 typed readbacks, NO Meta",flush=True)
