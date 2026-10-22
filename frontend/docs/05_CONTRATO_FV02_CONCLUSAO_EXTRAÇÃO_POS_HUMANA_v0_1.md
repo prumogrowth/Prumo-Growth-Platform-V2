@@ -6,7 +6,7 @@
 
 ## 1. Nova regra de fluxo [D-direção]
 
-**O operador da Prumo NÃO preencherá normalmente campos como nome, e-mail e demais dados de cliente na plataforma.** Sua ação principal é conversar no atendimento humano e, no momento correto, clicar **Concluir atendimento** (rótulo provisório [P]). Isso solicita ao S0 finalizar a etapa de conversa e iniciar o processamento de extração pela OpenAI. A proposta estruturada retornada pela OpenAI será validada e, apenas quando elegível e autorizada, **persistida automaticamente pelo backend S0** em versão auditada da ficha. O operador vê o resultado e eventuais pendências; não precisa transcrever manualmente a conversa.
+**[D posterior 22/10] O Consultor da Prumo NÃO editará em hipótese alguma campos cadastrais como nome, e-mail ou outros na interface, inclusive como correção excepcional.** Sua ação principal é conversar no atendimento humano e, no momento correto, clicar **Concluir atendimento** (rótulo provisório [P]). Isso solicita ao S0 finalizar a etapa de conversa e iniciar o processamento de extração pela OpenAI. A proposta estruturada retornada pela OpenAI será validada e, apenas quando elegível e autorizada, **persistida automaticamente pelo backend S0** em versão auditada da ficha. O operador vê o resultado e eventuais pendências; não precisa transcrever manualmente a conversa.
 
 A extração é um serviço de retaguarda, **não a IA Vendedora conversando novamente**. Nenhuma mensagem automática, remessa bancária ou transição comercial decorre desse clique.
 
