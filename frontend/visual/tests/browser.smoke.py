@@ -80,7 +80,7 @@ with sync_playwright() as p:
     page.set_content(html); page.add_script_tag(content=script)
     assert not errors_main, 'Erro JavaScript no bootstrap da gestão'
     page.locator('#actor-select').select_option('marina')
-    assert page.locator('.conversation-card').count() == 11
+    assert page.locator('.conversation-card').count() == 12  # A-117 da equipe Marina, case-only da Lia
     # Supervisor acessa D2 sem zerar as não lidas do operador.
     assert page.get_by_role('button',name='Abrir conversa Cliente Exemplo 02',exact=False).locator('.attention-unread').inner_text() == '2'
     page.get_by_role('button',name='Abrir conversa Cliente Exemplo 02',exact=False).click()
@@ -362,4 +362,30 @@ with sync_playwright() as p:
     assert short_page.evaluate('document.querySelector(".visual-app").getBoundingClientRect().height <= innerHeight')
     short_page.close()
     print('FV-UI-021 foco móvel, anúncio, Home End e viewport baixa: PASS')
+    # FV-UI-022: Escape move foco ao painel visível; cancelar mensagem não envia.
+    focus_page=browser.new_page(viewport={'width':390,'height':844})
+    focus_page.set_content(html)
+    focus_page.add_script_tag(content=script)
+    focus_page.get_by_role('button',name='Abrir conversa Cliente Exemplo 02',exact=False).click()
+    focus_page.locator('#message-input').fill('Rascunho de teste não enviado')
+    focus_page.locator('#composer button').click()
+    assert focus_page.locator('#message-preview-dialog').is_visible()
+    focus_page.keyboard.press('Escape')
+    assert focus_page.locator('#message-preview-dialog').is_hidden()
+    assert focus_page.locator('#message-input').input_value() == 'Rascunho de teste não enviado'
+    assert focus_page.evaluate('document.activeElement.id') == 'message-input'
+    assert 'Rascunho de teste não enviado' not in focus_page.locator('#thread-body').inner_text()
+    focus_page.locator('#thread-back').focus()
+    focus_page.keyboard.press('Escape')
+    assert focus_page.locator('#visual-app').get_attribute('data-mobile-view') == 'list'
+    assert focus_page.evaluate('document.activeElement.id') == 'search-input'
+    focus_page.get_by_role('button',name='Abrir conversa Cliente Exemplo 02',exact=False).click()
+    assert focus_page.locator('#message-input').input_value() == ''
+    focus_page.locator('#detail-toggle').click()
+    focus_page.locator('#detail-back').focus()
+    focus_page.keyboard.press('Escape')
+    assert focus_page.locator('#visual-app').get_attribute('data-mobile-view') == 'thread'
+    assert focus_page.evaluate('document.activeElement.id') == 'detail-toggle'
+    focus_page.close()
+    print('FV-UI-022 Escape mobile, contexto de mensagem e foco: PASS')
     browser.close()
