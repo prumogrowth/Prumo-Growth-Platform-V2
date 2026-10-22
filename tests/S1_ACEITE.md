@@ -1,5 +1,8 @@
 # S1 — Registro de aceite e limites
 
+> **PRECEDÊNCIA DOCUMENTAL S1-002 (22/10/2026):** os resultados PASS abaixo são provas históricas dos comportamentos ensaiados e **não homologam automaticamente regras de negócio ratificadas depois**, especialmente I11 (pausa), I35 (histórico do contato), I36 (origem sistêmica/humana, entrega Meta, leitura e reset por finalização) e I37 (novos leads, fila e F03). Para os requisitos vigentes consultar [índice S1](../docs/S1_002_00_LEIA_PRIMEIRO_2026_10_22.md), [contrato funcional](../docs/S1_002_01_CONTRATO_FUNCIONAL_VIGENTE_2026_10_22.md) e [matriz de gaps](../docs/S1_002_02_MATRIZ_ADERENCIA_E_PENDENCIAS_2026_10_22.md). Nenhuma alteração de código, teste ou ambiente foi executada nesta consolidação.
+
+
 ## S1-001 — Central de operações humana sintética (18/10/2026 UTC)
 
 **Resultado:** [GitHub Actions S1 #39133454184 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39133454184). Commit testado `6bd187148da74da6906493b0e2a97d817ffe84ba`, workflow `.github/workflows/s1-synthetic-ui.yml`. Foram executados `node --check`, **24 testes Node 22 (18 de domínio, 6 de montagem fake-DOM), 24 PASS e 0 FAIL**, e verificações de arquivos HTML/CSS/README. Antes dos smoke tests, [#39133175311 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39133175311) passou nos 18 primeiros testes. O workflow foi restringido a PR/manual para evitar duas rodadas por commit.
