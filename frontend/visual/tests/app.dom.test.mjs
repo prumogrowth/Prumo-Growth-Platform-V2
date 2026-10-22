@@ -789,3 +789,28 @@ test('FV-UI-021: Home e End alcançam extremos das abas sem perder roving tabind
   assert.equal(env.document.activeElement,selected);
   assert.equal(tabs().filter(x=>x.attrs.tabindex==='0').length,1);
 });
+
+
+test('FV-UI-022: cancelar prévia conserva texto e devolve foco somente no mesmo contexto',()=>{
+  reset();env.openCase('Exemplo 02');
+  get('message-input').value='Não enviar ainda';
+  get('composer').fire('submit');
+  assert.equal(get('message-preview-dialog').open,true);
+  get('message-preview-dialog').close('cancel');
+  assert.equal(get('message-input').value,'Não enviar ainda');
+  assert.equal(env.document.activeElement,get('message-input'));
+  assert.equal(get('thread-body').textContent.includes('Não enviar ainda'),false);
+});
+
+test('FV-UI-022: prévia antiga fechada após trocar ator não rouba foco de outra sessão',()=>{
+  reset();env.openCase('Exemplo 02');
+  get('message-input').value='Mensagem para Rafael';
+  get('composer').fire('submit');
+  assert.equal(get('message-preview-dialog').open,true);
+  env.selectActor('marina');
+  get('search-input').focus();
+  get('message-preview-dialog').close('cancel');
+  assert.equal(env.document.activeElement,get('search-input'));
+  assert.equal(get('message-input').value,'');
+  assert.equal(get('thread-body').textContent.includes('Mensagem para Rafael'),false);
+});
