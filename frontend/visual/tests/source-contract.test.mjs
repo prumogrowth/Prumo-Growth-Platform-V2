@@ -23,6 +23,7 @@ const teamMonitor = get('team-monitor.mjs');
 const batchMonitor = get('batch-monitor.mjs');
 const fixtureTeam = get('fixtures.mjs');
 const browserSmoke = get('tests/browser.smoke.py');
+const domMock = get('tests/dom-fixture.mjs');
 
 test('três áreas adaptativas e controle de histórico existem', () => {
   for (const fragment of ['id="conversation-items"', 'id="thread-pane"', 'id="detail-pane"',
@@ -322,4 +323,15 @@ test('FV-UI-021: gate não aciona rede e nunca autoriza efeito ou dados',()=>{
   assert.match(integrationGate,/canChangeCommercialStatus:false/);
   assert.match(browserSmoke,/FV-UI-021 foco móvel/);
   assert.doesNotMatch(integrationGate,/\bfetch\s*\(|XMLHttpRequest|WebSocket/);
+});
+
+test('FV-UI-022: smoke tem carteira atual, retorno de Escape e mock de campo real',()=>{
+  assert.match(browserSmoke,/conversation-card'\)\.count\(\) == 12\s+# A-117/);
+  assert.doesNotMatch(browserSmoke,/conversation-card'\)\.count\(\) == 11/);
+  assert.match(browserSmoke,/FV-UI-022 Escape mobile/);
+  assert.match(browserSmoke,/Rascunho de teste não enviado/);
+  assert.match(app,/function mobileBackNavigation\(\)/);
+  assert.match(app,/event\.preventDefault\(\);\s*mobileBackNavigation\(\)/);
+  assert.match(app,/if\(validDraft && !document\.querySelector\('dialog\[open\]'\)\)input\.focus\(\)/);
+  assert.match(domMock,/\['search-input','message-input'\]\.includes\(id\) \? 'input'/);
 });
