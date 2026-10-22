@@ -15,6 +15,9 @@
 5. Mesmo número telefônico em concessionária diferente permanece isolado: identidade lógica de contato é `(concessionaria_id,lead_id)`.
 6. Gestor observador não pode enviar mensagem em caso de seu Consultor; o Consultor atual pode enviar somente via validação de atribuição S0 no fixture simulado.
 
+## Evidência de execução
+[GitHub Actions PG17 #39865261939 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39865261939); job `120126214863`; executou os arquivos I41 até SHA `a1dcdcdfaff233c042f2a633d8263200b684bb33`. Logs: `OBSERVED I41-RED` (defeitos da S0 atual reproduzidos), `PASS I41-01..07` e `I41-ROLLBACK`. Os testes históricos I38/I39 e as duas corridas I40 permaneceram aprovados. **SUCCESS** significa validação da fixture em PostgreSQL descartável, não homologação de RLS de produção.
+
 ## Limites e necessidade de pactuação com a S0
 **Não aplicar policies sem revisão conjunta com S0.** A prova tem escopo de SELECT nos objetos S0 `casos_humanos`, `atribuicoes_humanas`, `conversas`, `mensagens`. NÃO fecha segurança de `leads_loja`, `ciclos_comerciais`, relatórios, anexos D3/D4, `canais_loja`, lote/importação, `SECURITY DEFINER` e serviços fora do PG17. Visibilidade do Gestor baseada em atribuições históricas da equipe atual precisa de validação formal do S0 para trocas de chefia e retenção.
 
