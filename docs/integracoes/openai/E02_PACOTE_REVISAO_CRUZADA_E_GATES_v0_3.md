@@ -1,5 +1,7 @@
 # E02-REV v0.3 — Pacote de revisão cruzada, decisões e gate de aceite
 
+> **Novo apoio à ratificação:** [resumo de sete decisões por frente](./E02_RESUMO_DECISOES_PARA_RATIFICACAO_v0_4.md), [manifesto de evidências F03](./CFI_01_MANIFESTO_HISTORICO_F03_CANDIDATO_v0_1.md) e [70 oráculos E02 v0.4](./E02_CADERNO_70_ORACULOS_E_OBSERVAVEIS_v0_4.md). Revisores **não** homologaram campos/ACL nem liberaram implementação por esses textos.
+
 **Elaborado em:** 22/10/2026. **Status real:** **PACOTE DOCUMENTAL PREPARADO; E02-REV NÃO RATIFICADO; E02-FIX PARCIAL DOCUMENTAL; 0 TESTES OPENAI EXECUTADOS.** Isto é checklist de decisão, **não** pedido de autorização de implementação, merge, acesso a segredos, transferência de dados ou gasto. Todas as pendências [R/V] continuam abertas até prova expressa da frente titular.
 
 ## 1. Quadro executivo para revisores
