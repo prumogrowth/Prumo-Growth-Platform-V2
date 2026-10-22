@@ -6,7 +6,7 @@
 
 ## 1. Fonte normativa e hierarquia
 
-Aplicar as decisões aprovadas 13A, 21–23 e 41 (D41-01..06), D-ORG-01 de 18/10 (equipe profissional da Prumo), e a nova orientação de 18/10: **operador não digita rotineiramente os dados do cadastro**, pois a conclusão da conversa humana aciona extração pela OpenAI com gravação validada pelo S0. Docs. 24, 26 e 40 são contratos/projeções [P] existentes. A frente OpenAI já possui OAI-05 e E01 v0.2; não substituir sua porta interna.
+Aplicar as decisões aprovadas 13A, 21–23 e 41 (D41-01..06), D-ORG-01 de 18/10 (equipe profissional da Prumo), e a nova orientação de 18/10: **Consultor não edita dados cadastrais nem rotineiramente nem excepcionalmente** [emenda posterior 22/10], pois a conclusão da conversa humana aciona extração pela OpenAI com gravação validada pelo S0. Docs. 24, 26 e 40 são contratos/projeções [P] existentes. A frente OpenAI já possui OAI-05 e E01 v0.2; não substituir sua porta interna.
 
 Princípios imutáveis: oito status comerciais exatos; nenhuma ação visual efetiva autorização; gestor lê D2 completo em lojas concedidas mas não herda D3/D4 bruto; gestor autoatribuído atua como operador apenas no caso; identidade profissional é da Prumo; isolamento entre concessionárias; resposta humana e atos bancários sob alçada; remessa/venda/negativa comprovadas e humanas; retorno após banco/vendido para humano sem reativar IA Vendedora.
 
