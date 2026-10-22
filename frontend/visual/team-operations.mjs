@@ -9,7 +9,7 @@ export function projectManagedTeam(managerId, records) {
   if(manager?.role!=='gestor' || manager.teamState!=='active')return [];
   return managedOperators(managerId).map(operator=>{
     // O número é somente demonstração e respeita a concessão A/B do próprio operador.
-    const cases=operator.shops.flatMap(shop=>visibleConversations(records,managerId,shop)
+    const cases=manager.shops.flatMap(shop=>visibleConversations(records,managerId,shop)
       .filter(row=>row.assignedTo===operator.id));
     const available=operator.teamState==='active';
     const intake=available && operator.leadIntakeProjection==='paused_confirmed' ? 'paused_confirmed'
