@@ -1,3 +1,5 @@
+> **ATUALIZAÇÃO DE REFERÊNCIA — 22/10/2026:** esta fonte documenta uma etapa anterior. Consultar o [contrato funcional vigente da nossa frente](./38_FV_DOC_03_CONTRATO_FUNCIONAL_FRONTEND_2026_10_22.md): **plataforma sem nome**, distinta do **LiberaCred (produta instituição financeira)**; **Diretor/Gestor/Consultor**; ficha do Consultor **sem nenhuma edição manual**; F01/F02/F03 com funções distintas; assinatura humana WhatsApp; IA de melhoria fora da primeira versão. Regras de equipe/fila continuam em [D-AL-01..10](./35_FV_DOC_01_DECISOES_VIGENTES_ALINHAMENTO_2026_10_21.md). **Informações antigas abaixo são históricas quando conflitarem; sem mudança em código ou outras frentes.**
+
 # 03 — Materiais de referência e critérios de preparação
 
 **Data:** 18/10/2026. **Objetivo:** deixar fontes e prioridades explícitas antes de iniciar o código visual. Materiais auditados são consultados, mas **não replicados integralmente** no repositório para evitar cópias divergentes.
