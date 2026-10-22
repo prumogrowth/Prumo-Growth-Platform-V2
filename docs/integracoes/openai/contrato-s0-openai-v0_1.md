@@ -1,5 +1,8 @@
 # OAI-01 — Contrato candidato S0 ↔ OpenAI | v0.1
 
+> **Versão operacional posterior:** [OAI_01_CONTRATO_OPERACIONAL_S0_OPENAI_v0_3.md](./OAI_01_CONTRATO_OPERACIONAL_S0_OPENAI_v0_3.md) — candidata [P/R] de 22/10/2026, coerente com AL-IA. O presente arquivo permanece **histórico** para rastreabilidade; em divergências não aplicar sua redação anterior. A nova versão não equivale a aceite físico S0, testes ou implementação.
+
+
 > **AVISO DE PRECEDÊNCIA — AUDITORIA DA FRENTE OPENAI, 22/10/2026.** Este documento anterior permanece preservado como **contrato candidato/histórico**; trechos conflitantes **NÃO são a direção funcional vigente**. Ler primeiro [AL-IA-00 — índice e precedência](./ALINHAMENTO_2026_10_22_00_INDICE_E_PRECEDENCIA_v0_1.md), [AL-IA-01 — jornada](./ALINHAMENTO_2026_10_22_01_JORNADA_F01_F02_F03_v0_1.md), [AL-IA-04 — deltas](./ALINHAMENTO_2026_10_22_04_RASTREABILIDADE_DELTAS_PENDENCIAS_v0_1.md), [AL-IA-07 — dependências entre frentes](./ALINHAMENTO_2026_10_22_07_DEPENDENCIAS_RELEVANTES_OUTRAS_FRENTES_v0_1.md) e [AL-IA-08 — auditoria documental](./ALINHAMENTO_2026_10_22_08_AUDITORIA_FECHAMENTO_DOCUMENTAL_FRENTE_OPENAI_v0_1.md). O texto abaixo documenta o estado de sua data original, **sem emendar código, criar autorização S0, nem corrigir documentação de outras frentes**.
 >
 > **Atenção especial:** a porta anterior preservava escrita cadastral excepcional do Consultor e vedava resultados comerciais decorrentes da F03; as decisões funcionais atuais retiram essa escrita, ampliam o histórico lógico até o corte e autorizam transições específicas pela S0. O payload físico CFI-01 segue não homologado; não inferir versões ausentes da S0.
