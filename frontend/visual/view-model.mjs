@@ -64,8 +64,9 @@ export function modelExtraction(kind) {
   const statuses = {
     accepted: { title: 'Solicitação registrada — simulação', explanation: 'Somente o pedido foi representado. Nenhuma chamada ou gravação ocorreu.' },
     partial: { title: 'Proposta parcial — simulação', explanation: 'Há valores propostos e pendências fictícias. Nenhuma ficha foi persistida.' },
-    failed: { title: 'Falha técnica — simulação', explanation: 'A extração fictícia falhou; o caso e o status comercial permanecem inalterados.' },
-    stale: { title: 'Versão desatualizada — simulação', explanation: 'O resultado seria descartado pelo S0 se mensagens/versões tivessem mudado.' }
+    failed: { title: 'Falha técnica — simulação', explanation: 'Extração fictícia falhou; status e ficha permanecem intactos. Consulte o núcleo S0; não há correção manual ou retentativa automática.' },
+    stale: { title: 'Versão desatualizada — simulação', explanation: 'Corte/versão fictícios divergentes. O S0 deve revalidar o estado antes de novo processamento; não aplicar resultado antigo.' }
   };
-  return Object.freeze({ kind, ...statuses[kind], persisted: false, commercialTransition: false });
+  return Object.freeze({ kind, ...statuses[kind], persisted: false,
+    commercialTransition: false, automaticRetry: false, requiresS0: true });
 }
