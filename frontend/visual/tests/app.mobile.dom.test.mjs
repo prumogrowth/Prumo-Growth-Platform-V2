@@ -150,3 +150,15 @@ test('mobile G3/G4: alternância entre gestores apaga painel anterior antes de m
   assert.equal(get('team-batches').textContent,'');
   assert.equal(get('team-nav-mobile').hidden,true);
 });
+
+test('FV-UI-021: foco acompanha a navegação entre telas móveis',()=>{
+  reset();env.openCase('Exemplo 02');
+  assert.equal(env.document.activeElement,get('thread-back'));
+  assert.match(get('context-announcement').textContent,/Caso A-102 aberto/);
+  get('detail-toggle').click();
+  assert.equal(env.document.activeElement,get('detail-back'));
+  get('detail-back').click();
+  assert.equal(env.document.activeElement,get('detail-toggle'));
+  get('thread-back').click();
+  assert.equal(env.document.activeElement,get('search-input'));
+});
