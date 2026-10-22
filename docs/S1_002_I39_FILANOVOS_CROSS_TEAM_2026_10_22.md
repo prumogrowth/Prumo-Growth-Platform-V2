@@ -15,6 +15,9 @@
 5. Gestor autorizado assume lead com CAS versionado. Versão desatualizada é recusada; só pode existir um titular ativo no S0.
 6. Ao retomar a elegibilidade, apenas o lead que segue sem titular volta à distribuição; caso já assumido não muda.
 
+## Evidência PG17 executada
+[GitHub Actions #39818859144 — SUCCESS](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39818859144). Job `119964948834` executou o script I39 incluído no commit `3e726ba144c3eab93bdbec63ef06428787492538`: logs `PASS I39-01/02`, `03`, `04`, `05`, `06`, `07`, `08/ROLLBACK`. Não há prova de duas sessões simultâneas neste incremento: o CAS testado é sequencial. Essa execução também manteve `I38-GREEN01..04` aprovados.
+
 ## Limites para integração
 Não implementar como migration S1. S0 deve ratificar produtor/evento de criação de caso/lead, fila canônica e recibo, autorização comprovada de Gerente/Gestor, ordem de locks, idempotência de evento externo e a prova de concorrência em **sessões independentes**. A rotina atual testa CAS obsoleto sequencial e usa executor `postgres`, não autenticação GoTrue real.
 
