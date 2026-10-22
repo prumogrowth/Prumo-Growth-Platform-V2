@@ -242,8 +242,20 @@ export function prepareMcpTemplateReview(
         ...(b.example_suffix?{example:[b.url.replace('{{1}}',b.example_suffix)]}:{})};
     })});
   }
+  // WDC-09: review output carries a point-in-time copy of the positional
+  // binding snapshot. The future authenticated service MUST recheck this
+  // revision against the persisted version when it records Meta approval;
+  // this preview neither submits nor grants approval.
+  const slotKeys=draft.slots.map(slot=>slot.slot_key);
+  const bindingsComplete=slotKeys.every(key=>
+    Object.hasOwn(draft.mappings,key)&&typeof draft.mappings[key]==='string');
+  const bindingCopy=Object.freeze(Object.fromEntries(slotKeys
+    .filter(key=>Object.hasOwn(draft.mappings,key))
+    .map(key=>[key,draft.mappings[key]])));
   return Object.freeze({operation:'PREPARE_META_REVIEW' as const,
     waba_ref:i.waba_ref,content_version:draft.content_version,
+    binding_snapshot:Object.freeze({mapping_revision:draft.mapping_revision,
+      complete:bindingsComplete,mappings:bindingCopy}),
     payload:Object.freeze({name:i.name,language:i.language,
       category:i.category,components:Object.freeze(components)}),
     requires_mcp_service_auth:true as const,network_performed:false as const,
@@ -255,8 +267,16 @@ export function mapMcpTemplateSources(
   mappings:Readonly<Record<string,string>>,
   trustedSources:readonly string[],
 ):MultiFormatDraft{
+  demand(draft?.stage==='DRAFT'&&draft.meta_approved===false,
+    'MAPPING_REQUIRES_UNAPPROVED_DRAFT');
   demand(revision===draft.mapping_revision,'STALE_MAPPING_REVISION');
   const slots=draft.slots.map(x=>x.slot_key);
+  // Do not execute user-defined getters or inherit keys from a hostile
+  // mapping object. Values must originate from the trusted scoped registry.
+  keys(mappings,slots);
+  demand(Array.isArray(trustedSources)&&
+    trustedSources.every(x=>typeof x==='string'&&SOURCE.test(x)),
+    'INVALID_SOURCE_REGISTRY');
   demand(Object.keys(mappings).length===slots.length&&
     slots.every(x=>Object.hasOwn(mappings,x)&&
       SOURCE.test(mappings[x])&&trustedSources.includes(mappings[x])),
