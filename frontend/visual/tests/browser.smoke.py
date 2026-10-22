@@ -16,7 +16,7 @@ assert html.count(css_link) == 1, 'Link CSS duplicado ou inexistente'
 assert html.count(module_tag) == 1, 'Script de entrada duplicado ou inexistente'
 html = html.replace(css_link, '<style>'+css+'</style>')
 html = html.replace(module_tag, '')
-script = '\n'.join((base / name).read_text(encoding='utf-8') for name in ('fixtures.mjs','view-model.mjs','cf-op-02.mjs','registration-view.mjs','human-cycle-view.mjs','operation-feedback.mjs','bank-view.mjs','postmark-view.mjs','team-operations.mjs','team-pause-preview.mjs','team-monitor.mjs','team-monitoring.mjs','batch-monitor.mjs','distribution-view.mjs','conversation-attention.mjs','app.mjs'))
+script = '\n'.join((base / name).read_text(encoding='utf-8') for name in ('fixtures.mjs','view-model.mjs','cf-op-02.mjs','registration-view.mjs','human-cycle-view.mjs','operation-feedback.mjs','bank-view.mjs','postmark-view.mjs','team-operations.mjs','team-pause-preview.mjs','team-monitor.mjs','team-monitoring.mjs','batch-monitor.mjs','distribution-view.mjs','transport-state-view.mjs','conversation-attention.mjs','app.mjs'))
 script = re.sub(r'(?ms)^import \{.*?\} from ["\']\./[^"\']+["\'];\s*', '', script)
 script = re.sub(r'(?m)^export ', '', script)
 assert 'import {' not in script and 'export ' not in script, 'Módulo não concatenado com segurança'
@@ -317,4 +317,18 @@ with sync_playwright() as p:
     assert 'f03-a108-1' not in cycle_page.locator('#detail-content').inner_text()
     cycle_page.close()
     print('FV-UI-019 histórico F03, reextração candidata e snapshot preservado: PASS')
+    # FV-UI-020: ACK incerto não equivale a envio; prova sintética não altera comércio.
+    technical=browser.new_page(viewport={'width':900,'height':780})
+    technical.set_content(html)
+    technical.add_script_tag(content=script)
+    technical.get_by_role('button',name='Abrir conversa Cliente Exemplo 02',exact=False).click()
+    assert 'API aceitou · envio NÃO comprovado' in technical.locator('#thread-body').inner_text()
+    assert 'Não tentar reenvio automático' in technical.locator('#thread-body').inner_text()
+    technical.get_by_role('button',name='Abrir conversa Cliente Exemplo 05',exact=False).click()
+    assert 'Envio comprovado · fixture' in technical.locator('#thread-body').inner_text()
+    technical.locator('#actor-select').select_option('marina')
+    technical.get_by_role('button',name='Abrir conversa Cliente Exemplo 02',exact=False).click()
+    assert 'API aceitou · envio NÃO comprovado' not in technical.locator('#thread-body').inner_text()
+    technical.close()
+    print('FV-UI-020 fronteira de transporte e supervisão: PASS')
     browser.close()
