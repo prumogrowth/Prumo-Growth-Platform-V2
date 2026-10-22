@@ -256,4 +256,20 @@ assert_sql(
     "2",
 )
 ok(20)
-print("PASS WA28: 20 checks, two observed blocking races, separate COMMIT/ROLLBACK", flush=True)
+# Malformed revocation action must never mutate case/version or cancel B.
+assert_sql(
+    "SELECT wa28_lab.revoke_fixture('shop_B','case_control',NULL)",
+    "LAB_DENIED",
+)
+assert_sql(
+    "SELECT version FROM wa28_lab.authority "
+    "WHERE shop_ref='shop_B' AND case_ref='case_control'",
+    "1",
+)
+assert_sql(
+    "SELECT status FROM wa28_lab.reservations "
+    "WHERE shop_ref='shop_B' AND case_ref='case_control'",
+    "LAB_RESERVED",
+)
+ok(21)
+print("PASS WA28: 21 checks, two observed blocking races, separate COMMIT/ROLLBACK", flush=True)
