@@ -16,6 +16,7 @@ import {
   hasProjectedAction, hasEligibleTemplateVersion
 } from './cf-op-02.mjs';
 import { registrationProjectionFor, registrationStateCopy } from './registration-view.mjs';
+import { stageMockMessageTransport } from './transport-state-view.mjs';
 import { projectMockHumanCycleHistory, projectMockClarificationScene,
   stageMockRepeatCompletion, projectMockCustomerDossier } from './human-cycle-view.mjs';
 import { bankProjectionFor, bankPhaseCopy } from './bank-view.mjs';
@@ -92,7 +93,10 @@ function clearComposerContext() {
  */
 function demoAttentionFor(item) {
   const lastHumanRelevant=[...(item.messages??[])].reverse()
-    .find(message=>message.side==='in' || (message.side==='out' && message.deliveryState!=='local_demo_not_sent'));
+    .find(message=>message.side==='in' || (message.side==='out' &&
+    message.deliveryState!=='local_demo_not_sent' &&
+    (!message.transportProjection ||
+      stageMockMessageTransport(record,message,record.assignedTo,record.shopId).provedSent)));
   return stageConversationAttention({
     schema_version:ATTENTION_PROPOSAL_VERSION,
     unread_inbound_count:item.unread,
@@ -272,7 +276,19 @@ function renderThread() {
   for (const m of item.messages) {
     const bubble = el('div', 'message ' + m.side);
     bubble.append(el('p','', m.body), el('small','',m.time));
-    if(m.deliveryState==='local_demo_not_sent') bubble.append(el('small','message-send-state','Somente simulação · NÃO ENVIADA'));
+    if(m.deliveryState==='local_demo_not_sent') {
+      bubble.append(el('small','message-send-state','Somente simulação · NÃO ENVIADA'));
+    } else if(m.side==='out') {
+      const transport=stageMockMessageTransport(item,m,state.actorId,state.shopId);
+      if(transport.visibility==='synthetic'){
+        const label=el('small','message-transport-state',transport.label+' · SIMULAÇÃO');
+        label.setAttribute('aria-label','Transporte ilustrativo: '+transport.label);
+        bubble.append(label);
+        if(transport.state==='uncertain' || transport.state==='api_accepted')
+          bubble.append(el('small','message-transport-hint',
+            'Sem prova de envio. Não tentar reenvio automático pelo navegador.'));
+      }
+    }
     children.push(bubble);
   }
   body.replaceChildren(...children);
