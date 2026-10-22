@@ -757,3 +757,35 @@ test('FV-UI-020: falha F03 fictícia não oferece retentativa automática nem ed
   assert.match(t,/não há correção manual ou retentativa automática/i);
   assert.equal(t.includes('Corrigir dado'),false);
 });
+
+test('FV-UI-021: contexto anunciado muda com perfil, loja e caso sem resíduo anterior',()=>{
+  reset();
+  assert.match(get('context-announcement').textContent,/Consultor fictício/);
+  env.openCase('Exemplo 02');
+  assert.match(get('context-announcement').textContent,/Caso A-102 aberto/);
+  env.selectActor('marina');
+  assert.match(get('context-announcement').textContent,/Gestor fictício/);
+  assert.equal(get('context-announcement').textContent.includes('A-102'),false);
+  env.selectShop('horizonte');
+  assert.match(get('context-announcement').textContent,/Concessionária Horizonte/);
+  assert.equal(get('context-announcement').textContent.includes('Aurora'),false);
+  env.inbox[1].click();
+  assert.match(get('context-announcement').textContent,/Histórico/);
+});
+
+test('FV-UI-021: Home e End alcançam extremos das abas sem perder roving tabindex',()=>{
+  reset();env.openCase('Exemplo 02');get('detail-toggle').click();
+  const tabs=()=>env.descendants(get('detail-content')).filter(x=>x.attrs.role==='tab');
+  const first=tabs()[0],last=tabs().at(-1);
+  first.fire('keydown',{key:'End'});
+  let selected=tabs().find(x=>x.attrs['aria-selected']==='true');
+  assert.equal(selected.textContent,last.textContent);
+  assert.equal(selected.attrs.tabindex,'0');
+  assert.equal(env.document.activeElement,selected);
+  selected.fire('keydown',{key:'Home'});
+  selected=tabs().find(x=>x.attrs['aria-selected']==='true');
+  assert.equal(selected.textContent,first.textContent);
+  assert.equal(selected.attrs.tabindex,'0');
+  assert.equal(env.document.activeElement,selected);
+  assert.equal(tabs().filter(x=>x.attrs.tabindex==='0').length,1);
+});
