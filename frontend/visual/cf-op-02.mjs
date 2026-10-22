@@ -1,7 +1,7 @@
 /** CF-OP-02 / FV-03: somente projeções sintéticas recebidas como dados.
  * A janela Meta e os prazos C09 são autoritativos do S0, JAMAIS Date.now() no browser.
  */
-import { getActor, visibleConversations, copyFixtures } from './fixtures.mjs';
+import { getActor, visibleConversations, hasMockCaseScope, copyFixtures } from './fixtures.mjs';
 
 export const DEMO_TEMPLATES = Object.freeze([
   { id: 'modelo_continuidade_demo', version: 'v1-demo', title: 'Retomar conversa', eligibility: 'Exemplo fictício' },
@@ -36,8 +36,8 @@ export function humanCompletion(record, simulatedCompletion = false) {
 
 function currentlyAssigned(record, actorId, shopId) {
   const actor = getActor(actorId);
-  return Boolean(record && actor && actor.teamState === 'active' &&
-    actor.shops.includes(shopId) && record.shopId === shopId && record.assignedTo === actorId);
+  return Boolean(record && actor && hasMockCaseScope(record,actorId,shopId) &&
+    record.assignedTo === actorId);
 }
 
 export function isPriorCycleLocked(record) {
@@ -90,6 +90,14 @@ export function isSyntheticBankProtected(record) {
 
 /** Cenários visuais pré-projetados como se fossem vindos de S0; não são regras de S0. */
 const SCENARIOS = Object.freeze([
+  { id:'A-117',shopId:'aurora',name:'Cliente Exemplo 19',initials:'CE',
+    assignedTo:'lia',status:'em atendimento pelo operador',unread:0,
+    updatedAt:'Hoje · fictício',tag:'Transferência excepcional somente por caso',
+    inboxProjection:'active',metaWindowProjection:'open',humanCompletionProjection:'pending',
+    allowedActionsProjection:['free_text','complete'],
+    caseOnlyAccessProjection:{origin:'s0_fixture',confirmed:true,scope:'case_only',
+      reason:'manual_team_transfer',actorId:'lia',caseId:'A-117',shopId:'aurora',versionRef:'transfer-a117-v1'},
+    messages:[{id:'a117-1',side:'system',body:'Transferência fictícia autorizada somente para este caso; nenhuma concessão geral de Aurora.',time:'Hoje'}]},
   { id:'A-114', shopId:'aurora', name:'Cliente Exemplo 15', initials:'CE', assignedTo:'rafael',
     status:'em atendimento pelo operador', unread:0, updatedAt:'Hoje · fictício',
     tag:'Novo ciclo pós-remessa',inboxProjection:'active',metaWindowProjection:'open',
@@ -220,6 +228,7 @@ export function copyCFDemoFixtures() {
     eligibleTemplatesProjection:[...(record.eligibleTemplatesProjection??[])],
     postmarkProjection:record.postmarkProjection ? {...record.postmarkProjection} : undefined,
     bankProjection:record.bankProjection ? {...record.bankProjection} : undefined,
+    caseOnlyAccessProjection:record.caseOnlyAccessProjection ? {...record.caseOnlyAccessProjection} : undefined,
     registrationProjection:record.registrationProjection ? {
       ...record.registrationProjection,
       fields:(record.registrationProjection.fields??[]).map(field=>({...field})),
