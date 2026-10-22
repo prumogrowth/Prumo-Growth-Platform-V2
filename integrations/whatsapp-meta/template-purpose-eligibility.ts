@@ -166,6 +166,9 @@ function validForContext(t:PurposeTemplateSnapshot,c:TrustedSelectionContext):bo
 export function selectPlannerTemplateCandidates(
   rawTemplates:unknown,rawContext:unknown,
 ):FilterResult{
+  // Even array proxies and hostile element methods must fail closed rather
+  // than throwing into a planner or dispatch orchestrator.
+  try{
   const c=trustedContext(rawContext);
   if(!c||!Array.isArray(rawTemplates)||rawTemplates.length>10000)return EMPTY;
   const checked=rawTemplates.map(checkedTemplate);
@@ -184,6 +187,7 @@ export function selectPlannerTemplateCandidates(
     }));
   }
   return Object.freeze({...EMPTY,candidates:Object.freeze(candidates)});
+  }catch{return EMPTY;}
 }
 
 /**
