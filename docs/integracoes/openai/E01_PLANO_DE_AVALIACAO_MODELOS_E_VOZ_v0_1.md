@@ -1,5 +1,7 @@
 # E01 — Plano de avaliação de modelos e áudio OpenAI | v0.1
 
+> **ALERTA DE ATUALIZAÇÃO TÉCNICA — 22/10/2026:** consulte [E01-AUDIO v0.4 — descontinuações e roteiro de voz](./E01_ATUALIZACAO_MODELOS_AUDIO_DEPRECACOES_2026_10_22_v0_4.md). A shortlist deste plano de 18/10 é **histórica**, não escolha atual: `gpt-4o-mini-tts` e antigos modelos de STT estão marcados para descontinuação em 2027, com diferenças de endpoint/protocolo no substituto TTS. Para F04/F05, verificar documento oficial e disponibilidade real **antes** de qualquer E04/E05. Nenhum benchmark foi realizado.
+
 **Data:** 18/10/2026 | **Estado:** [P] shortlist metodológica, sem escolha vinculante de modelo, preço, voz ou arquitetura. Sem chamada de API, consumo ou resultados de benchmark. Complementa E01_CONTRATO_FUNCIONAL_MULTI_CAPACIDADE_v0_2.md.
 
 ## 1. Uma tarefa ≠ um modelo obrigatório
