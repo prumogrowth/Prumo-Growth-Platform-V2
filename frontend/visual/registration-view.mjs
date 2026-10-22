@@ -2,7 +2,7 @@
  * O S0 deverá filtrar e autorizar tudo no servidor; este filtro local NÃO é segurança.
  * Nenhum rótulo de campo de exemplo define o catálogo oficial do cadastro.
  */
-import { getActor, visibleConversations } from './fixtures.mjs';
+import { getActor, hasMockCaseScope, visibleConversations } from './fixtures.mjs';
 import { isInActiveInbox } from './cf-op-02.mjs';
 
 export const REGISTRATION_OUTCOMES = Object.freeze([
@@ -12,15 +12,14 @@ const EMPTY = Object.freeze([]);
 
 export function mayViewMockRegistrationDetail(record, actorId, shopId) {
   const actor = getActor(actorId);
-  return Boolean(actor && actor.teamState === 'active' &&
-    record && record.shopId === shopId && actor.shops.includes(shopId) &&
+  return Boolean(actor && hasMockCaseScope(record,actorId,shopId) &&
     record.assignedTo === actorId && isInActiveInbox(record));
 }
 
 export function registrationProjectionFor(record, actorId, shopId) {
   const actor = getActor(actorId);
   if (!record || !actor || actor.teamState !== 'active' ||
-      !actor.shops.includes(shopId) || record.shopId !== shopId ||
+      !hasMockCaseScope(record,actorId,shopId) ||
       !visibleConversations([record],actorId,shopId).includes(record)) {
     return Object.freeze({ visibility: 'forbidden', state: 'unavailable', confirmedPersisted: false,
       fields: EMPTY, missing: EMPTY, conflicts: EMPTY });
