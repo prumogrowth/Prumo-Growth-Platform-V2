@@ -195,3 +195,20 @@ test('FV-UI-022: Escape não navega sob modal aberto ou digitando no campo',()=>
   assert.equal(get('message-input').value,'Rascunho válido apenas no caso');
   assert.equal(env.document.activeElement,get('message-input'));
 });
+
+
+test('FV-UI-028: aria-expanded acompanha painel realmente visível e troca de contexto',()=>{
+  reset();
+  assert.equal(get('detail-toggle').getAttribute('aria-expanded'),'false');
+  env.openCase('Exemplo 02');
+  assert.equal(get('detail-toggle').getAttribute('aria-expanded'),'false');
+  get('detail-toggle').click();
+  assert.equal(get('visual-app').dataset.mobileView,'detail');
+  assert.equal(get('detail-toggle').getAttribute('aria-expanded'),'true');
+  get('detail-back').click();
+  assert.equal(get('detail-toggle').getAttribute('aria-expanded'),'false');
+  get('detail-toggle').click();
+  env.selectActor('marina');
+  assert.equal(get('visual-app').dataset.mobileView,'list');
+  assert.equal(get('detail-toggle').getAttribute('aria-expanded'),'false');
+});
