@@ -1,5 +1,7 @@
 # E04/S0 F03 — Vetores independentes e reserva CAS consultiva (23/10/2026)
 
+> **Diagnóstico adicional — falha transversal dos runners:** um workflow independente da frente Meta, [WA39 #40038431638](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/40038431638), também foi marcado `failure` com **`runner_id=0` e `steps=[]`**, em horário próximo. Isso reforça impedimento compartilhado do GitHub Actions (runner/cotas/política/conta), mas **não demonstra qual causa específica**. A configuração de conta e as anotações do job precisam ser vistas pelo responsável no GitHub. Não modificar a frente Meta nem afirmar que o CAS passou testes físicos.
+
 **Situação:** código de laboratório implementado no PR #16, ainda **não homologado no PostgreSQL 17** nesta rodada porque o GitHub Actions não iniciou o runner. Este incremento permanece estritamente sintético; não altera fichas, campos, catálogo real, status comercial, banco ou API OpenAI.
 
 ## Objetivo e escopo real
