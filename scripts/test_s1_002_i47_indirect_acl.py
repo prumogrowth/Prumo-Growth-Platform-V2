@@ -72,12 +72,18 @@ for token in (m1,m4):
     assert rows("pendencias_inbound_simulado",token) == {IB}
 print("PASS I47-01: real JWT reproduces store-wide S0 plans, sends, callbacks and ambiguous inbox")
 
-# S1 038 is a one-time DDL gate, not coverage for subsequent CREATE TABLE.
+# S1 038 did not create a DIRECT gate on late tables; however current
+# store-grant policy consults vinculos_papel_escopo, itself restricted by S1 038.
+# Therefore inactive actors are ALREADY denied indirectly; do not claim a leak.
+no_direct_gate=sql("select count(*) from pg_catalog.pg_policies "
+  "where schemaname='public' and policyname='s1_equipe_ativa_gate' "
+  "and tablename in ('planos_recontato_sinteticos','eventos_callback_sinteticos')")
+assert no_direct_gate=="0", "I47 S1 038 unexpectedly protected later tables directly"
 sql(f"update public.equipe_prumo_s1 set estado='suspenso' where ator_id='{M1}'::uuid")
-assert rows("planos_recontato_sinteticos",m1) == {P1,P2,P5}
-assert rows("eventos_callback_sinteticos",m1) == {B1,B2,B5,B0}
+assert rows("planos_recontato_sinteticos",m1) == set()
+assert rows("eventos_callback_sinteticos",m1) == set()
 sql(f"update public.equipe_prumo_s1 set estado='ativo' where ator_id='{M1}'::uuid")
-print("PASS I47-02: S0 tables created after S1 038 omit team-active gate (reproduced)")
+print("PASS I47-02: late objects lack DIRECT gate; nested vinculos RLS blocks inactive JWT")
 
 sql(file="supabase/tests/s1_069_proto_indirect_acl_local_only.sql")
 assert rows("planos_recontato_sinteticos",m1) == {P2}
