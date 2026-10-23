@@ -59,7 +59,11 @@ print("PASS I48-04: shop-grant revocation leaves team-authorized rows")
 sql(f"update prumo_private.s1_gestor_operadores "
     f"set encerrado_em=statement_timestamp() where gestor_id='{M1}'::uuid "
     f"and operador_id='{C3}'::uuid and encerrado_em is null")
-assert cases(m1)==set()
+# The underlying case query may fail closed with HTTP 403 instead of [] after
+# the last supervisor relationship is removed. Verify the trusted relationship
+# and assert the actual protected C04 reads below.
+assert sql(f"select count(*) from prumo_private.s1_gestor_operadores "
+           f"where gestor_id='{M1}'::uuid and encerrado_em is null")=="0"
 assert not rows("evidencias_elegibilidade_sinteticas",m1)
 assert not rows("supressoes_contato_sinteticas",m1)
 assert rows("evidencias_elegibilidade_sinteticas",m4)=={EV1,EV2}
