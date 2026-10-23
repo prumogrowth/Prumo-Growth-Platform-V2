@@ -1,5 +1,13 @@
 # Frente OpenAI — Prumo Growth | índice inicial
 
+## E04 AUTORIZADA E INICIADA — implementação offline isolada (22/10/2026)
+
+**Autorização expressa do responsável, nesta conversa:** iniciar desenvolvimento de código e testes **offline** com dados 100% fictícios, apenas na frente OpenAI/PR #3. A trava `G-FASE-DO-PROJETO` de **implementação E04** fica liberada **somente para este escopo**; não implica ratificação S0/Meta, E05, API pagas, credenciais, dados reais, deploy, migração, outros PRs ou merge.
+
+**Primeira entrega de código:** [laboratório executável E04 — Node.js, sem dependências](./e04_offline_lab/README.md), [validador offline `core.mjs`](./e04_offline_lab/core.mjs) e [50 testes sintéticos `node:test`](./e04_offline_lab/tests/offline.test.mjs). A lógica e as mesmas 50 funções de teste foram executadas em V8 isolado **50/50 PASS** nesta sessão; **execução nativa `node --test` ainda não verificada**. Evidência limitada a validadores puros sem integração física/modelo.
+
+**Métricas distintas:** 70 cenários SYN documentais da E02 **continuam sem execução/homologação como suíte original**; os 50 casos E04 são **testes unitários sintéticos novos sobre subconjunto de guardas**, não equivalentes a 50/70 SYN aprovados. E02-REV física permanece [R], E03-A..H adiadas, E05 bloqueada.
+
 ## Governança de conhecimento e MCP — pacote adversarial (22/10/2026)
 
 - [E01-KH/MCP v0.4 — matriz de autoridade da Prumo, fontes, operações e oito gates pendentes](./E01_GOVERNANCA_CONHECIMENTO_MCP_PORTOES_v0_4.md).
