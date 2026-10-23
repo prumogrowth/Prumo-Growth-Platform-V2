@@ -1,5 +1,11 @@
 # E04 — Laboratório offline isolado OpenAI (v0.1)
 
+> **Incremento E04/Meta — 22/10/2026:** [`transport-evidence.mjs`](./transport-evidence.mjs) e [28 testes `node:test`](./tests/transport-evidence.test.mjs) adicionados à mesma suíte do `package.json`. O código recuperado do GitHub foi comparado pelo hash de blob Git com o código testado localmente; **28/28 PASS em Node.js 22.16.0** para este novo módulo. Os **50 testes anteriores** tiveram **50/50 PASS no runtime V8 isolado**, mas a execução deles em Node/CI ainda não foi verificada nesta rodada. **Não somar 78 como 78 testes Node comprovados.**
+
+**Função nova:** normalização determinística de evidências sintéticas de transporte Meta: `api_accepted`, `queued` e `unknown` não são `sent`; confirmação final com `verified=true` preserva timestamp; falhas `definitive_failed` de tentativas distintas contam de modo consecutivo até um `sent` comprovado resetar; colisão/replay/contradição/alegação de evento sem prova ⇒ `REVIEW_REQUIRED` ou outra recusa segura. **Somente `EVIDENCE_ONLY` e `twoFailureReviewCandidate`, nunca mutação `perdido`/C09 ou envio.**
+
+**Atenção:** o `verified=true` é **afirmação de fixture S0 confiável**, não verificação real de assinatura Meta; a sequência de eventos é sintética. A elegibilidade estado/fase C09, recibo real, clocks, autenticação e integração física são [R/V] da S0/Meta.
+
 **Início autorizado pelo responsável:** 22/10/2026, solicitação expressa para implementar E04 offline com dados fictícios, na branch `feat/s2-openai-adapter-sintetico` / PR #3. **Esta autorização substitui o bloqueio E04 anterior apenas neste escopo.** Não autoriza E05, billing/chaves, chamadas remotas, Meta/Banco, dados reais, deploy, migração S0, outros PRs nem merge.
 
 ## O que foi implementado
