@@ -19,4 +19,12 @@ O I54 criou a fila na S0, mas ela ainda não dispunha de API autenticada. I55 ac
 
 ## Evidências
 
-Aguardando a conferência dos logs do CI nesta revisão; não interpretar conclusão de compilação como passagem E2E.
+**Código entregue e ainda NÃO homologado**, 23/10/2026:
+
+- Commit de implementação `0560175332668d1c2c0cb6dfcc0388f7923b4dd5`, seguido de `4aa8cfa30e75b2f2ff04b854a1035a9c5bdab97c` (consulta da fila com `FOR SHARE` na equipe, concessão e loja, serializando revogação durante leitura; rejeição explícita de HMAC nula).
+- [GoTrue/E2E #40039146985](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/40039146985) e [PG17 #40039147068](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/40039147068): **FAILURE sem qualquer etapa registrada nos jobs e logs do job indisponíveis (404 BlobNotFound)**. Reexecução via API solicitada, mas novamente não houve passos com evidência. Não se pode inferir falha ou êxito da implementação.
+- Após correção pontual, [E2E #40039422379](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/40039422379) e [PG17 #40039422319](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/40039422319) também **FAILURE antes de qualquer etapa**. Isto caracteriza bloqueio de validação por infraestrutura/execução do Actions ou outra causa ainda não identificada, **não uma regressão de negócio comprovada**.
+- Testes escritos e conectados ao workflow: `tests/test_s1_002_i55_queue_gateway.py` (8 unitários de esquema/assinatura) e `scripts/test_s1_002_i55_signed_queue_e2e.py` (8 cenários GoTrue reais locais). **Não declarar 8/8 aprovado** até obter saídas individuais e conclusão SUCCESS do CI.
+- I54 permanece a última camada **de fila** com validação positiva (8+2 testes PG17, 16/16 workflows na evidência I54). I55 é uma implementação adicional sujeita à execução e auditoria de segurança. Não houve merge, deploy ou acesso a Meta/Banco.
+
+**Próxima atividade do mesmo responsável S0/S1:** recuperar a execução dos runners GitHub Actions e confirmar a ponte assinada no GoTrue efêmero; depois finalizar reconciliação de filas obsoletas, hardening de sessão/revogação e UI.
