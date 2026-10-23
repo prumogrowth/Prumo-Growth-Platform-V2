@@ -34,7 +34,7 @@ jobs:
       - name: Cliente PostgreSQL
         run: command -v psql || (sudo apt-get update -qq && sudo apt-get install -y postgresql-client)
       - name: Instalar driver SQL pinado para gateway efemero
-        run: python3 -m pip install --user 'psycopg[binary]==3.2.6'
+        run: python3 -m pip install --user 'psycopg[binary]==3.2.13'
       - name: Subir GoTrue e PostgREST completamente descartaveis
         shell: bash
         run: |
