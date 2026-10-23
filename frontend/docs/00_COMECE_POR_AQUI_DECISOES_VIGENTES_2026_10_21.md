@@ -100,6 +100,10 @@
 
 **[FV-UI-032 — evidência de Python, Node e Chromium em ZIP verificado](./57_FV_UI_032_VALIDACAO_NATIVA_ZIP_2026_10_23.md)**: 57/57 hashes, **20/20 Python**, **334/334 Node** e **Chromium PASS** no snapshot do commit `138bf641`. **Não** é homologação de checkout Git, de sistemas externos ou produto.
 
+## FV-UI-033 — foco preservado sob reflow (23/10/2026)
+
+**[FV-UI-033 — transição de breakpoint com foco e painel consistentes](./58_FV_UI_033_REFLOW_FOCO_BREAKPOINT_2026_10_23.md)**: corrige a perda de foco reproduzida ao encolher desktop→móvel com aba Detalhes selecionada e evita que ela desapareça no caminho inverso. Roteiro Chromium inclui 1440→360→1440, 320→1440 e navegação Home/End. Escopo visual fictício, sem homologação S0/S1, redes ou checkout.
+
 ## Estado do trabalho
 FV-UI-015/016: demonstrações com dados sintéticos. **NÃO** declarar integração real, Auth/RLS/GoTrue, comunicações Meta ou remessas confirmadas. FV-UI-013 não homologada formalmente; **19F 69/100** como último marco. Esta consolidação é **documentação somente**. Nenhum código, migration, branch S1, dado real ou deploy foi tocado.
 

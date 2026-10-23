@@ -452,6 +452,62 @@ with sync_playwright() as p:
         assert not zoom_page.evaluate('document.documentElement.scrollWidth > innerWidth')
         assert not zoom_errors, zoom_label + ': ' + repr(zoom_errors)
         zoom_page.close()
+    # FV-UI-033: a mudança de breakpoint é diferente de abrir caso em viewport já estreito.
+    # Teste real de reflow em Chromium (CSS pixels equivalentes a 200/400%).
+    dynamic=browser.new_page(viewport={'width':1440,'height':900})
+    dynamic.set_default_timeout(4500)
+    dynamic_errors=[]
+    dynamic.on('pageerror',lambda error:dynamic_errors.append(str(error)))
+    dynamic.set_content(html);dynamic.add_script_tag(content=script)
+    dynamic.get_by_role('button',name='Abrir conversa Cliente Exemplo 02',exact=False).click()
+    detail_tab=dynamic.locator('#case-tab-overview')
+    detail_tab.focus()
+    expect(detail_tab).to_be_focused()
+    dynamic.set_viewport_size({'width':360,'height':500})
+    assert dynamic.locator('#visual-app').get_attribute('data-mobile-view')=='detail'
+    expect(detail_tab).to_be_visible()
+    expect(detail_tab).to_be_focused()
+    assert not dynamic.evaluate('document.documentElement.scrollWidth > innerWidth')
+    dynamic.keyboard.press('End')
+    expect(dynamic.locator('#case-tab-followup')).to_be_focused()
+    dynamic.keyboard.press('Home')
+    expect(detail_tab).to_be_focused()
+    dynamic.set_viewport_size({'width':1440,'height':900})
+    expect(detail_tab).to_be_visible()
+    expect(detail_tab).to_be_focused()
+    assert dynamic.locator('#detail-toggle').get_attribute('aria-expanded')=='true'
+    assert not dynamic_errors,repr(dynamic_errors)
+    dynamic.close()
+
+    # Caso inverso: aba Detalhes iniciada em 400%-equivalente (320px) não
+    # pode desaparecer quando a viewport volta ao modo desktop em zoom 100%.
+    narrow=browser.new_page(viewport={'width':320,'height':480})
+    narrow.set_content(html);narrow.add_script_tag(content=script)
+    narrow.get_by_role('button',name='Abrir conversa Cliente Exemplo 02',exact=False).click()
+    narrow.locator('#detail-toggle').click()
+    narrow.locator('#case-tab-overview').focus()
+    narrow.set_viewport_size({'width':1440,'height':900})
+    expect(narrow.locator('#case-tab-overview')).to_be_visible()
+    expect(narrow.locator('#case-tab-overview')).to_be_focused()
+    assert narrow.locator('#detail-toggle').get_attribute('aria-expanded')=='true'
+    narrow.close()
+
+    # A lista e o compositor não devem saltar arbitrariamente para outra aba
+    # quando o usuário altera o zoom sem abrir Detalhes.
+    for source,target in [('list','list'),('thread','thread')]:
+        responsive=browser.new_page(viewport={'width':1440,'height':900})
+        responsive.set_content(html);responsive.add_script_tag(content=script)
+        if source=='thread':
+            responsive.get_by_role('button',name='Abrir conversa Cliente Exemplo 02',exact=False).click()
+            responsive.locator('#message-input').focus()
+        else: responsive.locator('#search-input').focus()
+        responsive.set_viewport_size({'width':320,'height':480})
+        assert responsive.locator('#visual-app').get_attribute('data-mobile-view')==target
+        expect(responsive.locator('#message-input' if target=='thread' else '#search-input')).to_be_focused()
+        assert not responsive.evaluate('document.documentElement.scrollWidth > innerWidth')
+        responsive.close()
+    print('FV-UI-033 foco e reflow na transição de breakpoints: PASS')
+
     print('FV-UI-027 reflow responsivo, rolagem e movimento reduzido: PASS')
     # FV-UI-028: aria-expanded acompanha o painel visível; foco de teclado contrastante.
     for viewport in ({'width':390,'height':844},{'width':320,'height':640}):

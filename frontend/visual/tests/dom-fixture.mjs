@@ -99,7 +99,13 @@ export function installMockDOM({ mobile = false } = {}) {
     fire(k,opts={}) { for(const fn of this.events[k]??[])fn({preventDefault(){}, ...opts}); }
   };
   globalThis.document = document;
-  globalThis.window = {matchMedia(query) {return {matches:mobile && /max-width/.test(query)};}};
+  // Mock de eventos do viewport: testes DOM não simulam layout nem reflow real.
+  // O comportamento de foco sob resize é verificado no Chromium.
+  globalThis.window = {
+    events:{},
+    matchMedia(query) {return {matches:mobile && /max-width/.test(query)};},
+    addEventListener(k,fn) { (this.events[k] ??= []).push(fn); }
+  };
   return {
     document, nodes, inbox, filters, descendants,
     get:id=>nodes.get(id),

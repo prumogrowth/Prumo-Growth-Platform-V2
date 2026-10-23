@@ -1137,5 +1137,57 @@ $('template-dialog').addEventListener('close',()=>{
     state.detailTab='followup';render();showToast('Pedido fictício de template recebido. Envio não confirmado.');}
   catch(error){showToast('Template indisponível neste contexto.');}
 });
+// FV-UI-033: zoom/reflow pode atravessar o breakpoint com foco no painel de detalhes.
+// Registrar o último controle útil antes de o navegador ocultá-lo por CSS; não
+// restaurar foco de diálogos ou de outro contexto ao redimensionar.
+let wasMobileViewport=window.matchMedia('(max-width:760px)').matches;
+let lastResponsiveFocus={region:null,node:null};
+document.addEventListener('focusin',event=>{
+  if(document.querySelector('dialog[open]'))return;
+  const node=event.target;
+  const region=$('detail-pane').contains(node)?'detail':
+    $('thread-pane').contains(node)?'thread':
+    $('conversation-list').contains(node)?'list':null;
+  lastResponsiveFocus={region,node:region?node:null};
+});
+window.addEventListener('resize',()=>{
+  const isMobile=window.matchMedia('(max-width:760px)').matches;
+  if(isMobile===wasMobileViewport)return;
+  wasMobileViewport=isMobile;
+  if(!isMobile){
+    // No móvel, a aba Detalhes pode ter sido aberta mesmo que o painel desktop
+    // estivesse inicialmente recolhido. Não ocultá-la na volta ao desktop.
+    if(state.mobileView==='detail' && selectedCase()){
+      app.classList.remove('details-hidden');
+      $('detail-toggle').setAttribute('aria-expanded','true');
+    }
+    return;
+  }
+  const dialog=document.querySelector('dialog[open]');
+  if(dialog){
+    // Modais continuam com foco próprio; só preparar o painel subjacente.
+    goto(['team-dialog','intake-dialog','queue-action-dialog'].includes(dialog.id)?'list':'thread');
+    return;
+  }
+  const current=document.activeElement;
+  const region=$('detail-pane').contains(current)?'detail':
+    $('thread-pane').contains(current)?'thread':
+    $('conversation-list').contains(current)?'list':lastResponsiveFocus.region;
+  const canShowDetail=region==='detail' && selectedCase() &&
+    !app.classList.contains('details-hidden');
+  const targetView=canShowDetail?'detail':
+    region==='thread' && selectedCase()?'thread':'list';
+  goto(targetView);
+  const pane=targetView==='detail'?$('detail-pane'):
+    targetView==='thread'?$('thread-pane'):$('conversation-list');
+  // A troca de display pode fazer o browser zerar activeElement para BODY.
+  const remembered=lastResponsiveFocus.region===targetView ? lastResponsiveFocus.node:null;
+  const destination=remembered?.isConnected && pane.contains(remembered)?remembered:
+    targetView==='detail' ? $('detail-back'):
+    targetView==='thread' ? $('thread-back'):$('search-input');
+  if(!pane.contains(document.activeElement) || document.activeElement!==destination)
+    destination.focus();
+});
+
 if(window.matchMedia('(max-width:1040px)').matches){app.classList.add('details-hidden');$('detail-toggle').setAttribute('aria-expanded','false');}
 updateSelectors();render();announceCurrentContext('Demonstração local iniciada');

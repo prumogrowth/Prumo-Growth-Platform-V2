@@ -166,3 +166,7 @@ Ao incluir nota na aba **Notas**, o formulário é reconstruído e o foco retorn
 ## FV-UI-032 — Navegação acessível na Extração e no vínculo O5 (23/10/2026)
 
 Na aba **Extração**, resultados técnicos fictícios e esclarecimento que recriam controles restauram o foco na aba ativa, com aviso de contexto. A navegação O5 para caso já projetado restaura foco na conversa do destino em desktop/tablet e no botão Voltar no celular. Não cria caso ou execução F03, nem concede acesso novo. Testes DOM, mobile e roteiro Chromium receberam regressões. [FV-UI-032](../docs/56_FV_UI_032_FOCO_EXTRACAO_NAVEGACAO_O5_2026_10_23.md).
+
+## FV-UI-033 — Zoom/reflow com foco estável ao alternar desktop e celular (23/10/2026)
+
+O listener de transição de breakpoint preserva o painel que continha o foco (Lista, Conversa ou Detalhes). Se a tela encolher enquanto um controle de Detalhes estiver ativo, o aplicativo mantém a aba visível e recupera o foco antes perdido; ao expandir a viewport, uma aba Detalhes aberta no móvel permanece acessível no desktop mesmo quando o painel lateral estava recolhido originalmente. Modais retêm o próprio foco; não há mudança de atribuição, dado ou autorização. Teste Chromium inclui 1440→360→1440, 320→1440, foco em busca/compositor e teclado Home/End. Valores de viewport representam **reflow equivalente**, não comprovam zoom real no navegador. [FV-UI-033](../docs/58_FV_UI_033_REFLOW_FOCO_BREAKPOINT_2026_10_23.md).

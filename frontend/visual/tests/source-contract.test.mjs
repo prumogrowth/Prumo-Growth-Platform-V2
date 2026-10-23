@@ -419,3 +419,14 @@ test('FV-UI-032: foco de extração e navegação O5 têm contratos de origem',(
   assert.match(browserSmoke,/FV-UI-032: resultado recria o DOM/);
   assert.match(browserSmoke,/FV-UI-032: a navegação O5 móvel/);
 });
+ 
+test('FV-UI-033: foco não desaparece ao atravessar breakpoint no zoom',()=>{
+  assert.match(app,/let wasMobileViewport=window\.matchMedia/);
+  assert.match(app,/document\.addEventListener\('focusin'/);
+  assert.match(app,/window\.addEventListener\('resize'/);
+  assert.match(app,/const canShowDetail=region==='detail' && selectedCase\(\)/);
+  assert.match(app,/lastResponsiveFocus\.region===targetView/);
+  assert.match(browserSmoke,/FV-UI-033 foco e reflow na transição de breakpoints: PASS/);
+  assert.match(browserSmoke,/set_viewport_size\(\{'width':360,'height':500\}\)/);
+  assert.match(browserSmoke,/set_viewport_size\(\{'width':1440,'height':900\}\)/);
+});
