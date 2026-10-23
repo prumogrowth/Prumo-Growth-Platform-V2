@@ -105,16 +105,26 @@ def main():
                     dest.write_bytes(raw)
                 visual=root/"frontend"/"visual"
                 tests=sorted(str(f) for f in (visual/"tests").glob("*.test.mjs"))
-                report["runs"]["zip_security_python"]=execute(
+                security=execute(
                     [sys.executable,"-m","unittest","discover",
                      "-s",str(visual/"tests"),"-p","test_offline_export.py"],
                     visual)
-                report["runs"]["node"]=execute(["node","--test",*tests],visual)
-                report["runs"]["chromium"]=execute(
-                    [sys.executable,str(visual/"tests"/"browser.smoke.py")],visual)
+                report["runs"]["zip_security_python"]=security
+                if security["executed"] and security["passed"]:
+                    report["runs"]["node"]=execute(["node","--test",*tests],visual)
+                    report["runs"]["chromium"]=execute(
+                        [sys.executable,str(visual/"tests"/"browser.smoke.py")],visual)
+                else:
+                    # Não iniciar código JS/browser depois de falha na prova
+                    # adversarial do próprio verificador.
+                    for gate in ("node","chromium"):
+                        report["runs"][gate]={
+                            "executed":False,"passed":False,
+                            "error":"blocked by ZIP verifier security regression"
+                        }
                 report["native_snapshot_pass"]=all(
-                    result["executed"] and result["passed"]
-                    for result in report["runs"].values())
+                    report["runs"][gate]["executed"] and report["runs"][gate]["passed"]
+                    for gate in ("zip_security_python","node","chromium"))
                 print("Native verified-ZIP diagnostic:",
                       "PASS" if report["native_snapshot_pass"] else "FAIL")
         else:
