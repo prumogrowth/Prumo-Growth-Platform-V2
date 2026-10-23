@@ -339,3 +339,17 @@ jobs:
             if [[ "$count" != 1 ]]; then echo "FAIL WA31-$n marker: $count" >&2; exit 1; fi
           done
           echo 'PASS WA31: 31 PG17 checks, two real lock races, 12 TS readbacks'
+
+      - name: "WA-32: webhook HMAC real com claim PG17 escopada (offline)"
+        run: |
+          set -euo pipefail
+          sql='meta/integrations/whatsapp-meta/lab'
+          psql -X -qAt -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" \
+            -f "$sql/wa32_pg17_scoped_binding_read.sql" > "$RUNNER_TEMP/wa32_claims.json"
+          node --experimental-strip-types "$sql/wa32-assert-signed-pg17.ts" \
+            "$RUNNER_TEMP/wa32_claims.json" | tee "$RUNNER_TEMP/wa32_evidence.log"
+          for n in {01..18}; do
+            count="$(grep -cx "WA32-$n PASS" "$RUNNER_TEMP/wa32_evidence.log" || true)"
+            if [[ "$count" != 1 ]]; then echo "FAIL WA32-$n marker: $count" >&2; exit 1; fi
+          done
+          echo 'PASS WA32: 18 signed-route PG17-to-TypeScript scoped forensic correlations'
