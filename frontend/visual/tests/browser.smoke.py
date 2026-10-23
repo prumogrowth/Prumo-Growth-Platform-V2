@@ -373,7 +373,7 @@ with sync_playwright() as p:
     focus_page.keyboard.press('Escape')
     assert focus_page.locator('#message-preview-dialog').is_hidden()
     assert focus_page.locator('#message-input').input_value() == 'Rascunho de teste não enviado'
-    assert focus_page.evaluate('document.activeElement.id') == 'message-input'
+    expect(focus_page.locator('#message-input')).to_be_focused()
     assert 'Rascunho de teste não enviado' not in focus_page.locator('#thread-body').inner_text()
     focus_page.locator('#thread-back').focus()
     focus_page.keyboard.press('Escape')
