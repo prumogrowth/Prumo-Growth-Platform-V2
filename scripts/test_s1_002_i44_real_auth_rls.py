@@ -262,3 +262,9 @@ print("S1-002/I44: real GoTrue+PostgREST per-case RLS 6/6 scenarios in disposabl
 from pathlib import Path
 _i45 = Path("scripts/test_s1_002_i45_scope_audit.py")
 exec(compile(_i45.read_text(encoding="utf-8"), str(_i45), "exec"), globals())
+
+
+# I46: independent indirect-D2 ACL regression with same local GoTrue identities.
+from pathlib import Path
+_i46 = Path("scripts/test_s1_002_i46_acl_surface.py")
+exec(compile(_i46.read_text(encoding="utf-8"), str(_i46), "exec"), globals())
