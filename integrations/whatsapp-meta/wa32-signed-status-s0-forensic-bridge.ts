@@ -39,7 +39,7 @@ export type Wa32S0FixturePort = Readonly<{
 }>;
 export type Wa32ForensicDecision=Readonly<{
   decision:
-    | 'LAB_FORNSIC_SCOPED' | 'LAB_ROUTING_DENIED' | 'LAB_UNSUPPORTED_BATCH'
+    | 'LAB_FORENSIC_SCOPED' | 'LAB_ROUTING_DENIED' | 'LAB_UNSUPPORTED_BATCH'
     | 'LAB_S0_BINDING_DENIED' | 'LAB_STALE_OR_CHANGED' | 'LAB_PORT_UNAVAILABLE';
   scoped_event_count: number;
   invalidated_attempts: number;
@@ -167,7 +167,7 @@ export async function inspectWa32SignedStatusForensicFixture(
         (item.scope as unknown as Record<string,string>)[k]))
         return out('LAB_STALE_OR_CHANGED');
     }
-    return out('LAB_FORNSIC_SCOPED',items.length,
+    return out('LAB_FORENSIC_SCOPED',items.length,
       lookup.filter(x=>x.claim_state==='LAB_INVALIDATED').length);
   }catch{return out('LAB_PORT_UNAVAILABLE');}
 }
