@@ -166,6 +166,7 @@ class OfflineExportIntegrityTests(unittest.TestCase):
                          "security, Node, Chromium execute in that order")
         commands = [call.args[0] for call in run.call_args_list]
         self.assertIn("unittest", commands[0])
+        self.assertIn("-B", commands[0], "Do not write __pycache__ in verified tree")
         self.assertIn("--test", commands[1])
         self.assertTrue(str(commands[2][-1]).endswith("browser.smoke.py"))
 
