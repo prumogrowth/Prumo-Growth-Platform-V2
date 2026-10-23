@@ -134,7 +134,8 @@
       "tests": [
         "source-contract.test.mjs",
         "s0-command-result.test.mjs",
-        "offline-export-manifest.test.mjs"
+        "offline-export-manifest.test.mjs",
+        "validation-layers.test.mjs"
       ]
     }
   ]
