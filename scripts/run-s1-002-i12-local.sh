@@ -37,4 +37,8 @@ psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_075_a
 # I40: somente banco local descartavel; funcoes I39 idênticas em 2 sessoes reais.
 # Seed COMMITADO apenas nesse PG17; runner CI descarta banco apos a suite.
 bash scripts/test_s1_002_queue_race.sh
+# I52: genuine incremental S0 assignment boundary + versioned S1 intake state.
+# Execute only after historical S0/S1 migrations and all legacy tests.
+psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/migrations/202610190053_s0_s1_intake_atribuicao_guard.sql
+psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_076_integracao_intake_canonico_aceite.sql
 echo 'S1-002/I15: sessao fake ativa/revogada conferida; sem GoTrue/REST real.'
