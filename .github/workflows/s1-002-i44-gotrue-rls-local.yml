@@ -13,6 +13,8 @@ on:
       - 'scripts/test_s1_002_i46_acl_surface.py'
       - 'scripts/test_s1_002_i47_indirect_acl.py'
       - 'scripts/test_s1_002_i48_optout_acl.py'
+      - 'scripts/test_s1_002_i49_fila_concorrencia.py'
+      - 'supabase/tests/s1_072_fila_minima_local_only.sql'
       - 'supabase/tests/s1_070_optout_escopo_local_only.sql'
       - 'supabase/migrations/202610170016_c04_elegibilidade_optout_sintetico.sql'
       - 'supabase/tests/s1_065_proto_scope_local_only.sql'

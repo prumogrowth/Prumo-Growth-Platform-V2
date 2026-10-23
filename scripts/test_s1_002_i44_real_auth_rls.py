@@ -279,3 +279,9 @@ exec(compile(_i47.read_text(encoding="utf-8"), str(_i47), "exec"), globals())
 # I48: real-auth eligibility and case-less negative regressions, same ephemeral stack.
 import runpy
 runpy.run_path('scripts/test_s1_002_i48_optout_acl.py', init_globals=globals())
+
+
+# I49: explicit S0 queue mock projection, real JWT and two-session SQL race.
+from pathlib import Path
+_i49 = Path("scripts/test_s1_002_i49_fila_concorrencia.py")
+exec(compile(_i49.read_text(encoding="utf-8"), str(_i49), "exec"), globals())
