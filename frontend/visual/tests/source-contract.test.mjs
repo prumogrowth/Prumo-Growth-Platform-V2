@@ -430,3 +430,13 @@ test('FV-UI-033: foco não desaparece ao atravessar breakpoint no zoom',()=>{
   assert.match(browserSmoke,/set_viewport_size\(\{'width':360,'height':500\}\)/);
   assert.match(browserSmoke,/set_viewport_size\(\{'width':1440,'height':900\}\)/);
 });
+
+
+test('FV-UI-034: fechamento do painel tablet não perde foco ou fecha modal',()=>{
+  assert.match(app,/function closeFloatingDetails\(\)/);
+  assert.match(app,/document\.querySelector\('dialog\[open\]'\)\)return false/);
+  assert.match(app,/\$\('detail-toggle'\)\.focus\(\)/);
+  assert.match(app,/\$\('detail-pane'\)\.contains\(document\.activeElement\)/);
+  assert.match(domMock,/tablet = false/);
+  assert.match(browserSmoke,/FV-UI-034 Escape tablet e foco ao fechar detalhes: PASS/);
+});

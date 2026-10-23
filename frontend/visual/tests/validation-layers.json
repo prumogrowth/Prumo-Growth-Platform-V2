@@ -33,6 +33,7 @@
       "node_tests": [
         "app.dom.test.mjs",
         "app.mobile.dom.test.mjs",
+        "app.tablet.dom.test.mjs",
         "attention-integration.test.mjs"
       ]
     },

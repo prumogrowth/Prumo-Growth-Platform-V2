@@ -30,7 +30,7 @@ test('FV-UI-030: comportamento fica distinguível de CSS e smoke continua obriga
     for(const file of layers[group].node_tests)
       assert.match(file,/^[a-z0-9]+(?:[.-][a-z0-9]+)*\.test\.mjs$/);
   }
-  for(const file of ['app.dom.test.mjs','app.mobile.dom.test.mjs','attention-integration.test.mjs'])
+  for(const file of ['app.dom.test.mjs','app.mobile.dom.test.mjs','app.tablet.dom.test.mjs','attention-integration.test.mjs'])
     assert.ok(layers.interaction.node_tests.includes(file),file);
   for(const file of ['source-contract.test.mjs','source-module-graph.test.mjs','offline-export-manifest.test.mjs'])
     assert.ok(layers.source.node_tests.includes(file),file);

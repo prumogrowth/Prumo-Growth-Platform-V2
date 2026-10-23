@@ -1,7 +1,7 @@
 /** DOM mínimo para testar INTERAÇÃO de UI em Node sem dependências.
  * Não emula CSS/layout, navegador real, segurança ou acessibilidade de leitor de tela.
  */
-export function installMockDOM({ mobile = false } = {}) {
+export function installMockDOM({ mobile = false, tablet = false } = {}) {
   class MockNode {
     constructor(tag = 'div') {
       this.tagName = tag.toUpperCase(); this.children = []; this.parent = null;
@@ -51,6 +51,10 @@ export function installMockDOM({ mobile = false } = {}) {
     close(value) { if (value !== undefined) this.returnValue = value; this._open = false; this.fire('close'); }
     get open() { return this._open; }
     get options() { return this.children; }
+    contains(node) {
+      for (let cursor=node; cursor; cursor=cursor.parent) if(cursor===this) return true;
+      return false;
+    }
     querySelector(selector) {
       if (selector === '.detail-tab.active') return descendants(this).find(n =>
         n.classList.contains('detail-tab') && n.classList.contains('active')) ?? null;
@@ -81,6 +85,8 @@ export function installMockDOM({ mobile = false } = {}) {
     return [id,new MockNode(tag)];
   }));
   for (const [id, node] of nodes) node.id = id;
+  // Fiel à árvore básica do painel para testes de foco/contains em tablet.
+  nodes.get('detail-pane').append(nodes.get('detail-content'));
   const inbox = ['active','history'].map(value => {const n=new MockNode('button'); n.dataset.inbox=value; return n;});
   const filters = ['all','unread','mine'].map(value => {const n=new MockNode('button'); n.dataset.filter=value; return n;});
   const send = new MockNode('button'); send.className = 'send-button';
@@ -103,7 +109,10 @@ export function installMockDOM({ mobile = false } = {}) {
   // O comportamento de foco sob resize é verificado no Chromium.
   globalThis.window = {
     events:{},
-    matchMedia(query) {return {matches:mobile && /max-width/.test(query)};},
+    matchMedia(query) {
+      if (query.includes('760px')) return {matches:mobile};
+      return {matches:(mobile || tablet) && /max-width/.test(query)};
+    },
     addEventListener(k,fn) { (this.events[k] ??= []).push(fn); }
   };
   return {

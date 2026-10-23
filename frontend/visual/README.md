@@ -170,3 +170,7 @@ Na aba **Extração**, resultados técnicos fictícios e esclarecimento que recr
 ## FV-UI-033 — Zoom/reflow com foco estável ao alternar desktop e celular (23/10/2026)
 
 O listener de transição de breakpoint preserva o painel que continha o foco (Lista, Conversa ou Detalhes). Se a tela encolher enquanto um controle de Detalhes estiver ativo, o aplicativo mantém a aba visível e recupera o foco antes perdido; ao expandir a viewport, uma aba Detalhes aberta no móvel permanece acessível no desktop mesmo quando o painel lateral estava recolhido originalmente. Modais retêm o próprio foco; não há mudança de atribuição, dado ou autorização. Teste Chromium inclui 1440→360→1440, 320→1440, foco em busca/compositor e teclado Home/End. Valores de viewport representam **reflow equivalente**, não comprovam zoom real no navegador. [FV-UI-033](../docs/58_FV_UI_033_REFLOW_FOCO_BREAKPOINT_2026_10_23.md).
+
+## FV-UI-034 — Fechamento acessível do painel Detalhes em tablet (23/10/2026)
+
+Em largura intermediária (761–1040 CSS px), o botão **Fechar detalhes** e a tecla **Escape** no painel flutuante agora fecham somente o painel visual e devolvem o foco ao botão **Mostrar detalhes**. Escape dentro do compositor/editor de nota não fecha o painel; diálogos nativos não são interceptados. Caso selecionado, conteúdo de ficha, papel e autorização não mudam. Cobertura: testes DOM com fixture tablet, regressão estática e Chromium em 900/1024 px. [FV-UI-034](../docs/60_FV_UI_034_FOCO_FECHAR_DETALHES_TABLET_2026_10_23.md).

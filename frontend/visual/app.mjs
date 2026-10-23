@@ -746,7 +746,20 @@ $('detail-toggle').addEventListener('click',()=>{
   if (window.matchMedia('(max-width:760px)').matches) {goto('detail');$('detail-back').focus();return;}
   const hidden=app.classList.toggle('details-hidden');$('detail-toggle').setAttribute('aria-expanded',String(!hidden));
 });
-$('detail-close').addEventListener('click',()=>{app.classList.add('details-hidden');$('detail-toggle').setAttribute('aria-expanded','false');});
+/** FV-UI-034: fechar o painel flutuante nunca deixa foco no botão oculto.
+ * Não mexer no caso, na aba, no estado comercial nem em diálogos ativos.
+ */
+function closeFloatingDetails(){
+  if(!window.matchMedia('(max-width:1040px)').matches ||
+     window.matchMedia('(max-width:760px)').matches ||
+     app.classList.contains('details-hidden') ||
+     document.querySelector('dialog[open]'))return false;
+  app.classList.add('details-hidden');
+  $('detail-toggle').setAttribute('aria-expanded','false');
+  $('detail-toggle').focus();
+  return true;
+}
+$('detail-close').addEventListener('click',()=>{closeFloatingDetails();});
 function renderTeamMonitoring(){
   const target=$('team-monitor');
   const view=projectTeamMonitoring(state.actorId,state.cases);
@@ -1067,6 +1080,16 @@ document.addEventListener('keydown',event=>{
   const inField=['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName);
   if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='k'){
     event.preventDefault();goto('list');$('search-input').focus();
+  }
+  // FV-UI-034: Escape atua somente quando o foco está no painel
+  // flutuante de Detalhes; nunca fecha diálogos nem editor de nota.
+  if(event.key==='Escape'&&!inField &&
+     window.matchMedia('(max-width:1040px)').matches &&
+     !window.matchMedia('(max-width:760px)').matches &&
+     $('detail-pane').contains(document.activeElement) &&
+     closeFloatingDetails()){
+    event.preventDefault();
+    return;
   }
   if(event.key==='Escape'&&!inField&&!document.querySelector('dialog[open]')&&
      window.matchMedia('(max-width:760px)').matches &&

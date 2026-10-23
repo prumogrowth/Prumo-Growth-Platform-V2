@@ -508,6 +508,40 @@ with sync_playwright() as p:
         responsive.close()
     print('FV-UI-033 foco e reflow na transição de breakpoints: PASS')
 
+    # FV-UI-034: Escape e Fechar no overlay de 761..1040 px não podem
+    # deixar o teclado sobre controle invisível nem interferir no compositor.
+    for width in (900,1024):
+        overlay=browser.new_page(viewport={'width':width,'height':780})
+        overlay.set_default_timeout(4500)
+        overlay_errors=[]
+        overlay.on('pageerror',lambda error:overlay_errors.append(str(error)))
+        overlay.set_content(html);overlay.add_script_tag(content=script)
+        overlay.get_by_role('button',name='Abrir conversa Cliente Exemplo 02',exact=False).click()
+        overlay.locator('#detail-toggle').click()
+        expect(overlay.locator('#detail-pane')).to_be_visible()
+        overlay.locator('#detail-close').focus()
+        overlay.keyboard.press('Enter')
+        expect(overlay.locator('#detail-pane')).to_be_hidden()
+        expect(overlay.locator('#detail-toggle')).to_be_focused()
+        expect(overlay.locator('#detail-toggle')).to_have_attribute('aria-expanded','false')
+        assert 'Caso A-102' in overlay.locator('#thread-meta').inner_text()
+        overlay.locator('#detail-toggle').click()
+        overlay.locator('#case-tab-overview').focus()
+        overlay.keyboard.press('Escape')
+        expect(overlay.locator('#detail-pane')).to_be_hidden()
+        expect(overlay.locator('#detail-toggle')).to_be_focused()
+        overlay.locator('#detail-toggle').click()
+        overlay.locator('#case-tab-notes').click()
+        overlay.locator('#note-text').fill('Rascunho de nota local')
+        overlay.keyboard.press('Escape')
+        expect(overlay.locator('#detail-pane')).to_be_visible()
+        expect(overlay.locator('#note-text')).to_be_focused()
+        assert 'Rascunho de nota local' == overlay.locator('#note-text').input_value()
+        assert not overlay.evaluate('document.documentElement.scrollWidth > innerWidth')
+        assert not overlay_errors,repr(overlay_errors)
+        overlay.close()
+    print('FV-UI-034 Escape tablet e foco ao fechar detalhes: PASS')
+
     print('FV-UI-027 reflow responsivo, rolagem e movimento reduzido: PASS')
     # FV-UI-028: aria-expanded acompanha o painel visível; foco de teclado contrastante.
     for viewport in ({'width':390,'height':844},{'width':320,'height':640}):
