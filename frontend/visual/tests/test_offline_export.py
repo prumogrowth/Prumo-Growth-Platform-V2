@@ -3,6 +3,9 @@ Executar: python3 -m unittest discover -s frontend/visual/tests -p test_offline_
 Fixtures são bytes inventados; não são dados de clientes ou arquivos reais.
 """
 import importlib.util
+import contextlib
+import io
+import sys
 from pathlib import Path
 import stat
 import tempfile
@@ -129,6 +132,42 @@ class OfflineExportIntegrityTests(unittest.TestCase):
         self.archive.write_bytes(b"not zip")
         with self.assertRaises(BadZipFile):
             verifier.load_verified(self.archive)
+
+    def _run_main_with_fake_verified_snapshot(self, security_result):
+        # Isola somente a sequência dos gates, sem executar Node/Chromium.
+        fake_files = {DATA_PATH: self.payload, VERIFY_PATH: self.verifier_bytes}
+        args = ["verify_offline_export.py", "--archive", str(self.archive),
+                "--run-native"]
+        with patch.object(verifier, "load_verified", return_value=fake_files), \
+             patch.object(verifier, "execute", return_value=security_result) as run, \
+             patch.object(sys, "argv", args), \
+             contextlib.redirect_stdout(io.StringIO()):
+            result = verifier.main()
+        return result, run
+
+    def test_native_gates_block_after_security_failure(self):
+        result, run = self._run_main_with_fake_verified_snapshot(
+            {"executed": True, "passed": False, "exit_code": 1})
+        self.assertEqual(result, 1)
+        self.assertEqual(run.call_count, 1, "Node/Chromium must not start")
+        self.assertIn("test_offline_export.py", str(run.call_args_list[0]))
+
+    def test_native_gates_block_if_python_security_not_executed(self):
+        result, run = self._run_main_with_fake_verified_snapshot(
+            {"executed": False, "passed": False, "error": "unavailable"})
+        self.assertEqual(result, 1)
+        self.assertEqual(run.call_count, 1, "Node/Chromium must not start")
+
+    def test_native_gates_run_only_after_python_security_passes(self):
+        result, run = self._run_main_with_fake_verified_snapshot(
+            {"executed": True, "passed": True, "exit_code": 0})
+        self.assertEqual(result, 0, "Mocked gates all passed")
+        self.assertEqual(run.call_count, 3,
+                         "security, Node, Chromium execute in that order")
+        commands = [call.args[0] for call in run.call_args_list]
+        self.assertIn("unittest", commands[0])
+        self.assertIn("--test", commands[1])
+        self.assertTrue(str(commands[2][-1]).endswith("browser.smoke.py"))
 
     def test_manifest_pinning_is_git_blob_hash_not_plain_sha(self):
         self.assertEqual(len(verifier.blob_sha(self.payload)), 40)
