@@ -72,6 +72,10 @@
 
 **[FV-UI-026 — Python, Node e Chromium em ambiente nativo](./50_FV_UI_026_EXECUCAO_NATIVA_DIAGNOSTICO_2026_10_22.md)**: ZIP do commit `83d5f4df` com 54/54 hashes corretos; Python 20/20; Node 316/317 identificou regex defeituosa da matriz; smoke Chromium após correção local revelou teste de foco prematuro. Após corrigir os dois testes e repinar o manifesto em **ZIP derivado local**, diagnóstico nativo 20/20 Python, 317/317 Node e smoke Chromium completo. Continua **sem homologação de checkout Git, serviços externos ou produção**.
 
+## Reflow de interface e movimento reduzido (23/10/2026)
+
+**[FV-UI-027 — janelas baixas, rolagem e Chromium](./51_FV_UI_027_REFLOW_REDUCED_MOTION_CROMIUM_2026_10_23.md)**: correção de lista inacessível a 360×500 CSS px; teste de reflow em 720/360/320 px, foco após navegação e preferência por movimento reduzido. **Cópia local derivada:** 20/20 Python, 318/318 Node e Chromium PASS, com ZIP íntegro. **Sem homologação Git ou de integrações reais.**
+
 ## Estado do trabalho
 FV-UI-015/016: demonstrações com dados sintéticos. **NÃO** declarar integração real, Auth/RLS/GoTrue, comunicações Meta ou remessas confirmadas. FV-UI-013 não homologada formalmente; **19F 69/100** como último marco. Esta consolidação é **documentação somente**. Nenhum código, migration, branch S1, dado real ou deploy foi tocado.
 
