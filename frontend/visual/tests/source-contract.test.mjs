@@ -382,3 +382,12 @@ test('FV-UI-027: lista rola em viewport baixo e teste real mede reflow',()=>{
   assert.match(browserSmoke,/zoom_height<=700/);
   assert.match(browserSmoke,/scroll_into_view_if_needed\(\)/);
 });
+
+
+test('FV-UI-028: aria-expanded móvel e foco contrastante têm contrato de origem',()=>{
+  assert.match(app,/String\(view==='detail'\)/);
+  assert.match(app,/if\(window\.matchMedia\('\(max-width:760px\)'\)\.matches\)/);
+  assert.match(styles,/\.workspace :is\(button,input,select,textarea,summary\):focus-visible/);
+  assert.match(styles,/outline:3px solid #11685d/);
+  assert.match(browserSmoke,/FV-UI-028 acessibilidade teclado/);
+});
