@@ -1,5 +1,7 @@
 # E01-KH v0.3 — Contrato lógico de conhecimento, habilidades e MCP do Diretor
 
+> **Complemento de governança [P/R]:** [E01-KH/MCP v0.4 — autoridade, publicação, MCP e oito gates](./E01_GOVERNANCA_CONHECIMENTO_MCP_PORTOES_v0_4.md) e [E02-KH/MCP-AX — 24 variações adversariais](./E02_MATRIZ_ADVERSARIAL_CONHECIMENTO_MCP_v0_1.md). **Decisões [DN] do AL-IA-02/03:** apenas Prumo administra bases/fatos (a concessionária só envia materiais para avaliação), F01/F02/F03 não pesquisam internet aberta por padrão, e uma guia textual MCP não cria nenhuma tool. Estes complementos não constituem permissão da S0 nem execução.
+
 **Data:** 22/10/2026. **Classe:** [DN] regras funcionais AL-IA-02/03; [P/R] campos, operações e arquitetura a pactuar. **Candidato documental, não tabela SQL, endpoint MCP, tool executável ou homologação.** Complementa E01/OAI-01 v0.3, AL-IA-02, AL-IA-03 e E02 v0.3. Não altera S0, S1, Meta ou Frontend.
 
 ## 1. Fronteiras de confiança e níveis
