@@ -358,11 +358,16 @@ test('FV-UI-025: falha de segurança bloqueia efetivamente execução nativa pos
   assert.match(offlineExport,/\[sys\.executable,"-B","-m","unittest"/);
   assert.match(offlineRunner,/security_ok=security_step\["passed"\] and security_step\["executed"\]/);
   assert.match(offlineRunner,/not inventory_ok or not node or not revision_ok or not security_ok/);
-  assert.match(offlineRunner,/elif not inventory_ok or not revision_ok or not security_ok/);
+  assert.match(offlineRunner,/elif not inventory_ok or not revision_ok or not security_ok or not node_ok/);
+  assert.match(offlineRunner,/node_ok=node_step\["passed"\] and node_step\["executed"\]/);
+  assert.match(offlineExport,/if node_step\["executed"\] and node_step\["passed"\]:/);
+  assert.match(offlineExport,/blocked by Node ESM regression/);
   assert.match(offlineRunner,/\[sys\.executable,"-B","-m","unittest"/);
   for(const name of [
     'test_native_gates_block_after_security_failure',
     'test_native_gates_block_if_python_security_not_executed',
-    'test_native_gates_run_only_after_python_security_passes'
+    'test_native_gates_run_only_after_python_security_passes',
+    'test_native_gates_block_chromium_after_node_failure',
+    'test_native_gates_block_chromium_if_node_not_executed'
   ])assert.ok(offlineAdversarial.includes('def '+name+'('),name);
 });
