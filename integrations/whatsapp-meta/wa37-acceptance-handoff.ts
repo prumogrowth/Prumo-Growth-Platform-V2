@@ -8,7 +8,7 @@
  */
 import {WA36_REQUIREMENTS} from './wa36-ratification-gate.ts';
 
-export const WA37_CHECKS=Object.freeze([
+export const WA37_CHECKS=Object.freeze(([
  {id:'WA36-M2M-IDENTITY',owner:'S0_INFRA',positive:'WA37-P01',negative:'WA37-N01',
   criterion:'Service principal independently authenticated at S0 boundary; synthetic issuer and human GoTrue denied'},
  {id:'WA36-META-PROVENANCE',owner:'META_S0',positive:'WA37-P02',negative:'WA37-N02',
@@ -33,7 +33,7 @@ export const WA37_CHECKS=Object.freeze([
   criterion:'Forensic minimization, access audit and retention formally approved; raw PII and secret leak denied'},
  {id:'WA36-REVOCATION',owner:'S0_S1_META',positive:'WA37-P12',negative:'WA37-N12',
   criterion:'Late technical evidence can be archived after revoke but consent/claim/send authority never reopens'},
-] as const);
+] as const).map(x=>Object.freeze(x)));
 export type Wa37CheckId=(typeof WA37_CHECKS)[number]['id'];
 export type Wa37PacketRow=Readonly<{
  id:Wa37CheckId;
@@ -102,8 +102,9 @@ export function evaluateWa37ReviewPacket(raw:unknown):Wa37ReviewResult{
    if(!expected||row.requested_owner!==expected.owner||
       row.positive_probe!==expected.positive||
       row.negative_probe!==expected.negative||
+      typeof row.evidence_state!=='string'||
       !['NOT_PROVIDED','LAB_FIXTURE_ONLY','OTHER_FRONT_DRAFT']
-        .includes(String(row.evidence_state))||
+        .includes(row.evidence_state)||
       row.ratification!=='AWAITING_OWNER_DECISION')
     return result('INVALID_REVIEW_PACKET',0);
    seen.add(row.id);
