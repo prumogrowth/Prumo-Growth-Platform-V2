@@ -111,9 +111,17 @@ def main():
                     visual)
                 report["runs"]["zip_security_python"]=security
                 if security["executed"] and security["passed"]:
-                    report["runs"]["node"]=execute(["node","--test",*tests],visual)
-                    report["runs"]["chromium"]=execute(
-                        [sys.executable,str(visual/"tests"/"browser.smoke.py")],visual)
+                    node_step=execute(["node","--test",*tests],visual)
+                    report["runs"]["node"]=node_step
+                    if node_step["executed"] and node_step["passed"]:
+                        report["runs"]["chromium"]=execute(
+                            [sys.executable,str(visual/"tests"/"browser.smoke.py")],
+                            visual)
+                    else:
+                        report["runs"]["chromium"]={
+                            "executed":False,"passed":False,
+                            "error":"blocked by Node ESM regression"
+                        }
                 else:
                     # Não iniciar código JS/browser depois de falha na prova
                     # adversarial do próprio verificador.
