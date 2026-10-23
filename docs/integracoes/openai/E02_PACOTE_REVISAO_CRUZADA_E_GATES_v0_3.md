@@ -1,5 +1,7 @@
 # E02-REV v0.3 — Pacote de revisão cruzada, decisões e gate de aceite
 
+> **Nova evidência E04 isolada, não ratificação E02:** [normalizador sintético `sent`/falhas Meta](./e04_offline_lab/transport-evidence.mjs) testado por [28 casos em Node](./e04_offline_lab/tests/transport-evidence.test.mjs), 28 PASS/0 FAIL. Complementa SYN-50..54 e cenários correlatos, mas **não** prova webhooks, recibos ou elegibilidade estado/fase da S0/Meta. E02-REV e as issues #6/#15 permanecem abertas.
+
 > **Portões de conhecimento e MCP explicitados:** [KH-R01..KH-R08](./E01_GOVERNANCA_CONHECIMENTO_MCP_PORTOES_v0_4.md) e [24 controles adversariais AX](./E02_MATRIZ_ADVERSARIAL_CONHECIMENTO_MCP_v0_1.md). Nenhum foi homologado pela S0/Prumo; seus EXPECTED são revisões documentais, **não** resultados de teste.
 
 > **QA interna documental:** [E02-QA v0.1 — 70 casos, 65 P0/5 P1 e 7 achados editoriais corrigidos](./E02_AUDITORIA_QA_GABARITOS_70_v0_1.md). A auditoria **não fecha** E02-REV nem E02-FIX: seguem pendentes donos de interfaces, schema, provas e autorização E04.
