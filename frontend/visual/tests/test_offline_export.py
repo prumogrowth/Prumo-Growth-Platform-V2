@@ -139,7 +139,9 @@ class OfflineExportIntegrityTests(unittest.TestCase):
         args = ["verify_offline_export.py", "--archive", str(self.archive),
                 "--run-native"]
         with patch.object(verifier, "load_verified", return_value=fake_files), \
-             patch.object(verifier, "execute", return_value=security_result) as run, \
+             patch.object(verifier, "execute",
+                          return_value=security_result if not isinstance(security_result, list) else None,
+                          side_effect=security_result if isinstance(security_result, list) else None) as run, \
              patch.object(sys, "argv", args), \
              contextlib.redirect_stdout(io.StringIO()):
             result = verifier.main()
@@ -157,6 +159,23 @@ class OfflineExportIntegrityTests(unittest.TestCase):
             {"executed": False, "passed": False, "error": "unavailable"})
         self.assertEqual(result, 1)
         self.assertEqual(run.call_count, 1, "Node/Chromium must not start")
+
+    def test_native_gates_block_chromium_after_node_failure(self):
+        result, run = self._run_main_with_fake_verified_snapshot([
+            {"executed": True, "passed": True, "exit_code": 0},
+            {"executed": True, "passed": False, "exit_code": 1},
+        ])
+        self.assertEqual(result, 1)
+        self.assertEqual(run.call_count, 2, "Chromium must not start")
+        self.assertIn("--test", run.call_args_list[1].args[0])
+
+    def test_native_gates_block_chromium_if_node_not_executed(self):
+        result, run = self._run_main_with_fake_verified_snapshot([
+            {"executed": True, "passed": True, "exit_code": 0},
+            {"executed": False, "passed": False, "error": "no node"},
+        ])
+        self.assertEqual(result, 1)
+        self.assertEqual(run.call_count, 2)
 
     def test_native_gates_run_only_after_python_security_passes(self):
         result, run = self._run_main_with_fake_verified_snapshot(
