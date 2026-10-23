@@ -41,4 +41,11 @@ Estas provas não aplicam migrations operacionais S0, não usam autenticação d
 
 ## Evidências
 
-Somente anexar links e resultados de CI conferidos, indicando separadamente commit de código testado e commit de documentação.
+**CI conferido em 23/10/2026.** Código em `287792e8cba15b2aa7378e4e686ada58c28f306e`:
+
+- [GoTrue/PostgREST real local, run #39942963303](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39942963303), job `120379274711`: **SUCCESS**. Logs abertos e conferidos: **`PASS I50-01` até `PASS I50-06` (6/6)**; também `PASS I49-01..06` na mesma execução. A confirmação de espera no lock e a revogação concorrente são duas provas de bancada, não certificação do serviço produtivo.
+- [Regressão completa PG17 S0/S1, run #39942925177](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39942925177): **SUCCESS** em `61a2f7f948ad9f98f62ca210d398ba0d94eb7547` (commit com os arquivos base I50, **anterior** à ligação I50 no runner GoTrue). A validação **específica I50** vem do run GoTrue acima; o PG17 isoladamente não executa a nova rotina de teste.
+- [Run #39942943913](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39942943913) cancelado pela concorrência do workflow após o commit mais recente; não contabilizado como falha nem aceite.
+- PR #5 preservado **Draft**, sem merge, deploy ou mudança nas migrations S0. É necessário consolidar com o owner S0 e homologar contratos D3/D4, F03 e evidências externas quando pertinentes.
+
+**Próxima etapa possível:** pactuar o produtor verdadeiro de evento de fila com a S0 e validar o contrato de CAS/revogação em serviço integrado, não aumentar indefinidamente os mocks. O checklist de G1–G6 acima é a referência para declarar a frente concluída.
