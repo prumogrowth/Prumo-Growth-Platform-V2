@@ -16,10 +16,10 @@ insert into prumo_private.meta_canais_fixture_s0(
  app_ref,concessionaria_id,canal_id,waba_ref,phone_number_ref,
  waba_technical_ref,phone_technical_ref) values
  ('FIXTURE_WA39_A','f6200000-0000-4000-8000-000000000001',
-  'f6300000-0000-4000-8000-000000000001','WABA_WA39_A','PHONE_WA39_A',
+  'f6300000-0000-4000-8000-000000000001','FIXTURE_WA39_WABA_A','FIXTURE_WA39_PHONE_A',
   '22345000001','32345000001'),
  ('FIXTURE_WA39_B','f6200000-0000-4000-8000-000000000002',
-  'f6300000-0000-4000-8000-000000000002','WABA_WA39_B','PHONE_WA39_B',
+  'f6300000-0000-4000-8000-000000000002','FIXTURE_WA39_WABA_B','FIXTURE_WA39_PHONE_B',
   '22345000002','32345000002');
 insert into prumo_private.outbox_intencoes_s0(
  id,concessionaria_id,canal_id,contrato,chave_idempotencia,
