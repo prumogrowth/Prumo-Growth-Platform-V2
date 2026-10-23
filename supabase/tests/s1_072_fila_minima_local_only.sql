@@ -70,7 +70,7 @@ begin
  or not exists(select 1 from public.vinculos_papel_escopo v
    where v.ator_id=p_gestor and v.concessionaria_id=p_loja
    and v.papel='gestor' and v.valido_desde<=pg_catalog.statement_timestamp()
-   and (v.valido_ate is null or v.valido_ate>pg_catalog.statement_timestamp())
+   and (v.valido_ate is null or v.valido_ate>pg_catalog.statement_timestamp()))
  then return 'REJECTED_SCOPE'; end if;
  -- Time window makes two independent psql sessions overlap in CI.
  perform pg_catalog.pg_sleep(0.4);
