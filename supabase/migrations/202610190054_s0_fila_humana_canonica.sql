@@ -100,12 +100,15 @@ begin
   where f.concessionaria_id=p_loja and f.ciclo_id=p_ciclo for update of f;
  if q.estado<>'pendente' or q.versao<>p_versao then
   return pg_catalog.jsonb_build_object('outcome','CONFLICT');end if;
- -- Lock manager, store and grant AFTER the lead; protect against revocation.
+ -- Revalidate manager/store/grant AFTER waiting for lead lock. Use CURRENT
+ -- wall clock (not statement_timestamp captured before a potentially long wait)
+ -- or a grant revoked during the wait would still look valid.
+ -- Hold grant+team rows FOR SHARE until commit.
  perform 1 from public.equipe_prumo_s1 e
  join public.vinculos_papel_escopo v on v.ator_id=e.ator_id
   and v.concessionaria_id=p_loja and v.papel='gestor'
-  and v.valido_desde<=pg_catalog.statement_timestamp()
-  and (v.valido_ate is null or v.valido_ate>pg_catalog.statement_timestamp())
+  and v.valido_desde<=pg_catalog.clock_timestamp()
+  and (v.valido_ate is null or v.valido_ate>pg_catalog.clock_timestamp())
  join public.concessionarias l on l.id=v.concessionaria_id and l.ativo
  where e.ator_id=p_gestor and e.estado='ativo'
  for share of e,v,l;
@@ -169,6 +172,7 @@ begin
   and c.status_comercial in
    ('em atendimento pelo operador','cadastro enviado ao operador'))
  then raise exception 'S0_FILA_SINAL_EXPIRADO' using errcode='23514';end if;
+ -- Validate grant expiry against wall clock AFTER wait, as for manual claim.
  select e.ator_id into v_destino from public.equipe_prumo_s1 e
  join prumo_private.s1_gestor_operadores g on g.operador_id=e.ator_id
   and g.encerrado_em is null
@@ -176,8 +180,8 @@ begin
   and chefe.estado='ativo'
  join public.vinculos_papel_escopo v on v.ator_id=e.ator_id
   and v.concessionaria_id=p_loja and v.papel='operador'
-  and v.valido_desde<=pg_catalog.statement_timestamp()
-  and (v.valido_ate is null or v.valido_ate>pg_catalog.statement_timestamp())
+  and v.valido_desde<=pg_catalog.clock_timestamp()
+  and (v.valido_ate is null or v.valido_ate>pg_catalog.clock_timestamp())
  join public.concessionarias l on l.id=p_loja and l.ativo
  left join prumo_private.s1_intake_estado d on d.operador_id=e.ator_id
  where e.estado='ativo' and coalesce(d.pausado,false)=false
