@@ -110,8 +110,8 @@ def _sign_with_verified_identity(payload, keys, verifier):
                     or str(uuid.UUID(parts[8])) != parts[8]
                     or parts[9] != "-"):
                 return {"status": "DENIED"}
-        elif parts[1] == "INTAKE":
-            # I37: same proven I22 canonical material and custody; the
+        elif parts[1] in ("INTAKE","INTAKE53"):
+            # I37/I53: only validated intake contracts; separate signed domains; the
             # action + CAS revision are included in the signed HMAC,
             # never taken from unsigned HTTP headers or session claims.
             if (parts[4:8] != ["-"] * 4
