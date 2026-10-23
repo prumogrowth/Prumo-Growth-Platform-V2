@@ -116,6 +116,12 @@
 
 **[FV-UI-034 — relatório do gate sequencial](./61_FV_UI_034_GATE_NATIVO_SNAPSHOT_2026_10_23.md)**: 58/58 blobs Git, Python **20/20**, Node **340/340** e Chromium/Playwright **PASS** em ZIP derivado do código publicado no commit `0deae33`. Apenas diagnóstico visual fictício: sem checkout Git autenticado, sistemas S0/S1 ou homologação.
 
+## FV-UI-035 — foco na ampliação de viewport móvel (23/10/2026)
+
+**[FV-UI-035 — correção de foco mobile→desktop/tablet](./62_FV_UI_035_FOCO_MOBILE_PARA_DESKTOP_2026_10_23.md)**: o botão Voltar, oculto ao cruzar 760px, deixa de provocar perda de foco. O teclado recebe a região de conversa ou a aba ativa de Detalhes, conforme o estado do atendimento fictício.
+
+**[FV-UI-035 — diagnóstico nativo do snapshot](./63_FV_UI_035_GATE_NATIVO_SNAPSHOT_2026_10_23.md)**: **58/58** blobs, **20/20 Python**, **341/341 Node** e **Chromium PASS** em ZIP visual derivado com hashes conferidos no GitHub. Não comprova checkout Git autenticado nem homologação.
+
 ## Estado do trabalho
 FV-UI-015/016: demonstrações com dados sintéticos. **NÃO** declarar integração real, Auth/RLS/GoTrue, comunicações Meta ou remessas confirmadas. FV-UI-013 não homologada formalmente; **19F 69/100** como último marco. Esta consolidação é **documentação somente**. Nenhum código, migration, branch S1, dado real ou deploy foi tocado.
 
