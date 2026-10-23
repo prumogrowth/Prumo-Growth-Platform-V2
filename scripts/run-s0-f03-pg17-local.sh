@@ -29,4 +29,5 @@ psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s0_f03_v
 python3 -m unittest backend.tests.test_s0_f03_history_manifest_local \
   backend.tests.test_s0_f03_history_seal_local \
   backend.tests.test_s0_f03_bound_content_seal_local \
+  backend.tests.test_s0_f03_version_reservation_local \
   backend.tests.test_s0_f03_pg17_integration -v
