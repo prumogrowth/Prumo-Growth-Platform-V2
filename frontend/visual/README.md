@@ -20,6 +20,8 @@
 
 > **FV-UI-026 (22/10/2026):** [primeiro diagnóstico nativo Python/Node/Chromium](../docs/50_FV_UI_026_EXECUCAO_NATIVA_DIAGNOSTICO_2026_10_22.md). O ZIP original com 54 blobs verificados obteve 20/20 Python e 316/317 Node; o Chromium foi bloqueado pelo gate. Duas correções nos **testes** (regex da matriz FV-22 e espera de foco no Chromium) permitiram **20/20 Python, 317/317 Node e smoke Chromium PASS** em cópia local derivada com manifesto atualizado. Isto **não** homologa checkout Git nem serviços reais. Repetir sobre nova exportação pinada da branch.
 
+> **FV-UI-027 (23/10/2026):** [reflow, rolagem em janela baixa e movimento reduzido](../docs/51_FV_UI_027_REFLOW_REDUCED_MOTION_CROMIUM_2026_10_23.md). Em viewport curto (até 700px de altura e 760px de largura), a lista de conversas agora rola inteira, tornando o rodapé e casos acessíveis sem overflow horizontal. Smoke Chromium passa a testar 720×850, 360×500 e 320×640 CSS px, foco móvel, conteúdo alcançável e `reduced_motion='reduce'`. Diagnóstico em cópia local derivada: **20/20 Python, 318/318 Node, Chromium PASS**. Não representa zoom de navegador real, leitor de tela nem homologação de checkout Git.
+
 **Branch proprietária:** `feat/frontend-plataforma-visual`. **Referência visual:** organização de mensageiro familiar ao WhatsApp, sem copiar sua identidade, marca ou recursos. **Situação:** demonstração local com dados 100% sintéticos; não é portal operacional.
 
 ## Abrir localmente
