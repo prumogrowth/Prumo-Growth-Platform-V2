@@ -94,8 +94,11 @@ def _mapped(state: S0F03BridgeState) -> HistoryState:
     }.get(state, HistoryState.DENIED)
 
 
-class S0F03LocalPostgresHistoryReader(S0LocalClosureStore):
-    """Uses the same local-only DSN guard as existing S0. No hosted database."""
+class S0F03LocalPostgresHistoryReader:
+    """Uses the existing S0 local DSN guard without inheriting write methods."""
+
+    def __init__(self, dsn: str):
+        self._dsn = S0LocalClosureStore(dsn)._dsn
 
     def load(self, receipt: object) -> HistoricalRead | None:
         from backend.s0_cfi01_atomic_commands_local import S0InternalReceiptLocal
