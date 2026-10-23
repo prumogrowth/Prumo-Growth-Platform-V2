@@ -23,10 +23,21 @@ Na direção inversa, uma aba aberta no celular podia tornar-se invisível no de
 - `frontend/visual/tests/dom-fixture.mjs`: suporte mínimo a assinatura de evento resize; a fixture **não simula CSS/viewport** e a prova de reflow depende de Chromium.
 - `frontend/visual/app.mjs`: tratamento de transição de breakpoint sem atualização de regras ou integrações.
 
-## Evidências e limitações
+## Evidências nativas posteriores ao repin
 
-Durante desenvolvimento, o novo smoke completo Chromium retornou **PASS**, incluindo os testes originais. Testes Node focados (`app.dom`, `app.mobile.dom`, `attention-integration`, `source-contract`) retornaram **132/132 PASS**. A suíte Node completa depende de repin do manifesto do novo snapshot: antes do repin, falha **intencionalmente** na comparação de SHA/tamanho, pois os arquivos alterados já não correspondem à versão anterior.
+O diagnóstico definitivo foi executado sobre **ZIP derivado da exportação entregue anteriormente**, contendo os 58 arquivos de `frontend/visual/` com bytes correspondentes aos blobs publicados, inclusive o verificador atualizado. **Não foi checkout Git autenticado nem foi exportado um novo ZIP oficial pelo GitHub.**
 
-Os tamanhos simulam **reflow por CSS pixels equivalentes a 200/400%**; o ensaio não estabelece sucesso em zoom real de interface do navegador, tecnologia assistiva humana ou WCAG completo. A execução sobre ZIP derivado e a integridade do SHA final precisam ser documentadas separadamente após o repin. Mesmo com gates nativos, **não equivale a checkout Git autenticado ou homologação FV-22**.
+- Inventário do manifesto: **57/57 blobs válidos**; o 58º arquivo é o próprio verificador, confrontado byte a byte e não autopinado.
+- `source_head` pinado: `6eb2df3433e88375317e682cdbdc279b6f4f5c38`; commit com repin: `ebd7f60e34ca9a786d156985a08ec813c92ba4b9`.
+- Gate Python de testes adversariais do ZIP: **20/20 PASS**.
+- Gate Node nativo: **335/335 PASS**, incluindo o contrato estático de FV-UI-033.
+- Gate Playwright/Chromium real: **PASS**, incluindo as transições entre breakpoints e navegação por teclado.
+- `native_snapshot_pass = true`, mas `git_checkout_verified = false` e `full_acceptance = false`.
+
+Uma primeira execução sequencial havia identificado uma asserção imediata antes da entrega do evento `resize`, corrigida com espera por estado no Playwright. A repetição revelou ainda foco perdido na transição inversa móvel→desktop; a implementação e o teste foram corrigidos e **o gate completo foi repetido e aprovado**. Não foi ocultado resultado negativo ou classificado como sucesso antes do segundo ajuste.
+
+A simulação de viewport de **360/320 pixels** representa reflow compatível com larguras efetivas reduzidas por zoom, **não teste manual de zoom do navegador, tecnologia assistiva ou WCAG integral**. Não testa S0/S1, Meta/WhatsApp, OpenAI, banco, persistência ou autenticação.
+
+**[Registro detalhado do diagnóstico FV-UI-033](./59_FV_UI_033_GATE_NATIVO_SNAPSHOT_2026_10_23.md)**.
 
 **Referência anterior:** [FV-UI-032](./57_FV_UI_032_VALIDACAO_NATIVA_ZIP_2026_10_23.md).

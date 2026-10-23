@@ -104,6 +104,10 @@
 
 **[FV-UI-033 — transição de breakpoint com foco e painel consistentes](./58_FV_UI_033_REFLOW_FOCO_BREAKPOINT_2026_10_23.md)**: corrige a perda de foco reproduzida ao encolher desktop→móvel com aba Detalhes selecionada e evita que ela desapareça no caminho inverso. Roteiro Chromium inclui 1440→360→1440, 320→1440 e navegação Home/End. Escopo visual fictício, sem homologação S0/S1, redes ou checkout.
 
+## FV-UI-033 — diagnóstico nativo concluído em snapshot derivado (23/10/2026)
+
+**[Resultado nativo FV-UI-033](./59_FV_UI_033_GATE_NATIVO_SNAPSHOT_2026_10_23.md)**: 57/57 hashes, Python **20/20**, Node **335/335** e Chromium **PASS** após correções de reflow; commit técnico `ebd7f60`. **Sem** checkout Git autenticado, zoom manual, leitores de tela reais ou homologação S0/S1.
+
 ## Estado do trabalho
 FV-UI-015/016: demonstrações com dados sintéticos. **NÃO** declarar integração real, Auth/RLS/GoTrue, comunicações Meta ou remessas confirmadas. FV-UI-013 não homologada formalmente; **19F 69/100** como último marco. Esta consolidação é **documentação somente**. Nenhum código, migration, branch S1, dado real ou deploy foi tocado.
 
