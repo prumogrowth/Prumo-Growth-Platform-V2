@@ -56,3 +56,20 @@ test('withdrawal without explicit S0-verified claim refused',()=>check('SOURCE_I
 test('proposal cannot claim applied status',()=>check('SCHEMA_INVALID',x=>{x.proposal={...x.proposal};delete x.proposal.advisory;}));
 test('source unavailable cannot be made up by the model',()=>check('SOURCE_INVALID',x=>x.proposal.fields[0].sourceId='imaginary'));
 test('result has no mutation, sends or bank proof',()=>{const out=gate(fixture());for(const key of ['applied','sent','commercialStatus','bankReceipt','databaseWrite']) assert.equal(key in out,false);});
+
+ // Extra adversarial cases: hidden contradictions cannot be trusted to F03's self-report.
+test('hidden income conflict across historical cases requires human review',()=>check('HUMAN_REVIEW_REQUIRED',x=>x.cutoff.sources[0].claims.push({code:'renda',value:2400,explicit:true})));
+test('equal explicit income in both cases is not automatically a contradiction',()=>check('S0_RECHECK_ONLY',x=>x.cutoff.sources[0].claims.push({code:'renda',value:3500,explicit:true})));
+test('conflict in optional field also requests review',()=>check('HUMAN_REVIEW_REQUIRED',x=>x.cutoff.sources[1].claims.push({code:'cor',value:'vermelho',explicit:true})));
+test('hypothetical or nonexplicit old value is not a conflicting fact',()=>check('S0_RECHECK_ONLY',x=>x.cutoff.sources[0].claims.push({code:'renda',value:2400,explicit:false})));
+test('identical explicit value from more than one case is allowed',()=>check('S0_RECHECK_ONLY',x=>x.cutoff.sources[0].claims.push({code:'renda',value:3500,explicit:true})));
+test('two different explicit claims within one source require review',()=>check('HUMAN_REVIEW_REQUIRED',x=>x.cutoff.sources[1].claims.push({code:'renda',value:4000,explicit:true})));
+test('unknown claim payload key is rejected even if not proposed',()=>check('SOURCE_INVALID',x=>x.cutoff.sources[1].claims.push({code:'unknown',value:'x',explicit:true,systemOverride:true})));
+test('object value in unused claim cannot be treated as verified',()=>check('SOURCE_INVALID',x=>x.cutoff.sources[1].claims.push({code:'unknown',value:{nested:'x'},explicit:true})));
+test('nonfinite numeric claim cannot become evidence',()=>check('SOURCE_INVALID',x=>x.cutoff.sources[1].claims.push({code:'renda',value:Infinity,explicit:true})));
+test('blank string claim cannot become evidence',()=>check('SOURCE_INVALID',x=>x.cutoff.sources[1].claims.push({code:'cor',value:'  ',explicit:true})));
+test('historical zero and nonzero produce conflict, including falsey first value',()=>check('HUMAN_REVIEW_REQUIRED',x=>{x.cutoff.sources[0].claims.push({code:'renda',value:0,explicit:true});}));
+test('falsy boolean first value still participates in conflicts',()=>check('HUMAN_REVIEW_REQUIRED',x=>{x.cutoff.sources[0].claims.push({code:'cor',value:false,explicit:true});}));
+test('unverified alternate evidence is not a verified contradiction',()=>check('S0_RECHECK_ONLY',x=>{x.proposal.fields.pop();x.cutoff.sources[0].s0Verified=false;x.cutoff.sources[0].claims=[{code:'renda',value:1000,explicit:true}];}));
+test('unavailable alternate evidence cannot determine the true value',()=>check('S0_RECHECK_ONLY',x=>{x.proposal.fields.pop();x.cutoff.sources[0].available=false;x.cutoff.sources[0].claims=[{code:'renda',value:1000,explicit:true}];}));
+test('withdrawal evidence excluded from catalogue conflict, advisory is review only',()=>check('COMMERCIAL_ADVISORY_REVIEW',x=>{x.cutoff.sources[0].claims.push({code:'customer_withdrawal',value:false,explicit:true});x.proposal.advisory={kind:'perdido',sourceId:'new'};}));
