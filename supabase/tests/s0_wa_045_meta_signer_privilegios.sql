@@ -52,15 +52,15 @@ begin
  then raise exception 'WA41-08 wrapper cannot call verifier';end if;
  raise notice 'WA41-08 PASS';
 
- if not pg_catalog.has_table_privilege(v_signer,'prumo_private.meta_servico_chaves_fixture_s0','SELECT')
+ if not pg_catalog.has_column_privilege(v_signer,'prumo_private.meta_servico_chaves_fixture_s0','segredo','SELECT')
   or pg_catalog.has_table_privilege(v_signer,'prumo_private.meta_servico_chaves_fixture_s0','UPDATE')
   or pg_catalog.has_table_privilege(v_signer,'prumo_private.meta_servico_chaves_fixture_s0','DELETE')
   or pg_catalog.has_table_privilege(v_signer,'prumo_private.meta_servico_chaves_fixture_s0','INSERT')
  then raise exception 'WA41-09 key privileges too wide';end if;
  raise notice 'WA41-09 PASS';
 
- if not pg_catalog.has_table_privilege(v_signer,'prumo_private.meta_servico_nonces_fixture_s0','INSERT')
-  or not pg_catalog.has_table_privilege(v_signer,'prumo_private.meta_servico_nonces_fixture_s0','SELECT')
+ if not pg_catalog.has_column_privilege(v_signer,'prumo_private.meta_servico_nonces_fixture_s0','nonce','INSERT')
+  or not pg_catalog.has_column_privilege(v_signer,'prumo_private.meta_servico_nonces_fixture_s0','nonce','SELECT')
   or pg_catalog.has_table_privilege(v_signer,'prumo_private.meta_servico_nonces_fixture_s0','UPDATE')
   or pg_catalog.has_table_privilege(v_signer,'prumo_private.meta_servico_nonces_fixture_s0','DELETE')
  then raise exception 'WA41-10 nonce privileges too wide';end if;
