@@ -74,6 +74,15 @@ class OfflineExportIntegrityTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Unpinned or missing"):
             verifier.load_verified(self.make_zip(extras=[(extra, b"alert(1)")]))
     
+    def test_total_uncompressed_frontend_budget_is_bounded(self):
+        # Dados altamente compressíveis: verifica tamanho declarado descompactado.
+        big = b"Z" * 13_000_000
+        with self.assertRaisesRegex(ValueError, "uncompressed budget exceeded"):
+            verifier.load_verified(self.make_zip(extras=[
+                (PREFIX + "frontend/visual/large-1.bin", big),
+                (PREFIX + "frontend/visual/large-2.bin", big),
+            ]))
+
     def test_missing_required_member_rejected(self):
         with ZipFile(self.archive, "w", ZIP_DEFLATED) as z:
             z.writestr(PREFIX + VERIFY_PATH, self.verifier_bytes)
