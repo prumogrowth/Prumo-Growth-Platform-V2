@@ -56,11 +56,11 @@ A [WA37](./wa37-contrato-aceite-interfrentes-m2m-2026-10-23.md) mapeia os seguin
 
 | Área | IDs WA36 | Provas mínimas externas |
 |---|---|---|
-| Identidade de máquina e ingressão confiável | `WA36-M2M-IDENTITY`, `WA36-META-PROVENANCE` | `WA37-P01/N01`, `WA37-P02/N02` |
-| Gestão de credenciais e escopo por tenant | `WA36-KEY-SEPARATION`, `WA36-SCOPE-BINDING` | `WA37-P03/N03`, `WA37-P04/N04` |
-| Permissão do serviço, atomicidade, locks e RLS | `WA36-MACHINE-ROLE`, `WA36-NONCE-ATOMICITY`, `WA36-LOCK-ORDER`, `WA36-RLS-MIN-PRIVILEGE` | `WA37-P05/N05`, `WA37-P06/N06`, `WA37-P07/N07`, `WA37-P08/N08` |
-| Repetição/ACK/contabilização | `WA36-CALLBACK-DEDUPE`, `WA36-ACK-RETRY` | `WA37-P09/N09`, `WA37-P10/N10` |
-| Dados mínimos e revogação | `WA36-RETENTION-LGPD`, `WA36-REVOCATION` | `WA37-P11/N11`, `WA37-P12/N12` |
+| Identidade de máquina e ingressão confiável | `WA36-M2M-IDENTITY`, `WA36-META-PROVENANCE` | `WA37-P01 / WA37-N01`, `WA37-P02 / WA37-N02` |
+| Gestão de credenciais e escopo por tenant | `WA36-KEY-SEPARATION`, `WA36-SCOPE-BINDING` | `WA37-P03 / WA37-N03`, `WA37-P04 / WA37-N04` |
+| Permissão do serviço, atomicidade, locks e RLS | `WA36-MACHINE-ROLE`, `WA36-NONCE-ATOMICITY`, `WA36-LOCK-ORDER`, `WA36-RLS-MIN-PRIVILEGE` | `WA37-P05 / WA37-N05`, `WA37-P06 / WA37-N06`, `WA37-P07 / WA37-N07`, `WA37-P08 / WA37-N08` |
+| Repetição/ACK/contabilização | `WA36-CALLBACK-DEDUPE`, `WA36-ACK-RETRY` | `WA37-P09 / WA37-N09`, `WA37-P10 / WA37-N10` |
+| Dados mínimos e revogação | `WA36-RETENTION-LGPD`, `WA36-REVOCATION` | `WA37-P11 / WA37-N11`, `WA37-P12 / WA37-N12` |
 
 ## O que caracteriza uma resposta válida
 
