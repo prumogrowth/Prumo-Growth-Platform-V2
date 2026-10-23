@@ -1,5 +1,7 @@
 # Plano de execução e critérios de conclusão — Frente OpenAI | v0.1
 
+> **Revisão KH/MCP de 22/10/2026:** [governança e gates KH-R01..08](./E01_GOVERNANCA_CONHECIMENTO_MCP_PORTOES_v0_4.md) mais [24 variações adversariais AX](./E02_MATRIZ_ADVERSARIAL_CONHECIMENTO_MCP_v0_1.md), exclusivamente **documentais e não executadas**. O total de 70 SYN (65 P0/5 P1) continua inalterado. E02-REV/FIX e autorização expressa E04 permanecem **pendentes**.
+
 > **Atualização de risco externo 22/10/2026:** [E01-AUDIO v0.4](./E01_ATUALIZACAO_MODELOS_AUDIO_DEPRECACOES_2026_10_22_v0_4.md) registra descontinuações de modelos STT/TTS previstas para 2027; [E03-PRE v0.2](./E03_PRONTIDAO_PRE_OPERACIONAL_SEM_CREDENCIAIS_v0_2.md) registra controles atuais de orçamento, retenção, cache e credenciais **sem operar a conta**. E03-A..H permanecem **ADIADAS**. **Nenhuma** decisão técnica de runtime/codec, E04, E05, gasto ou produção foi aprovada.
 
 > **Auditoria editorial E02-QA (22/10/2026):** [registro dos achados corrigidos e pendências](./E02_AUDITORIA_QA_GABARITOS_70_v0_1.md). O livro de oráculos tem **70 cenários, 65 P0, 5 P1 e 0 executados**. Regras G-FASE-DO-PROJETO, E02-REV/FIX e aprovação específica E04 **não foram alteradas**.
