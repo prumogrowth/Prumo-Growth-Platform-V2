@@ -273,5 +273,42 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
         self.assertIs(self._save(),SealState.ALREADY_SEALED_REVIEW_ONLY)
         # F03 remains blocked from consuming content by contract.
 
+    def test_12_content_hmac_detects_changed_old_case_text(self):
+        from backend.s0_f03_content_integrity_local import (
+            S0F03LocalContentIntegrityReader, _equal_proof, ContentState,
+        )
+        # Fixture key only, NEVER a hosted credential or production signing key.
+        key=b'f03-test-only-32-bytes-local-not-for-production!'
+        reader=S0F03LocalContentIntegrityReader(DB)
+        original=reader.compute(self.receipt,key)
+        self.assertIsNotNone(original)
+        with self.pg.connect(DB) as con:
+            con.execute('update public.mensagens set conteudo_sintetico=%s where id=%s',
+                        ('renda manipulada no caso anterior',self.old_message))
+        updated=reader.compute(self.receipt,key)
+        self.assertIsNotNone(updated)
+        self.assertEqual(original.metadata_sha256,updated.metadata_sha256)
+        self.assertNotEqual(original.content_mac_sha256,updated.content_mac_sha256)
+        self.assertIs(_equal_proof(original,updated),ContentState.CHANGED_REVIEW_REQUIRED)
+
+    def test_13_hmac_same_content_matches_and_different_key_rejects(self):
+        from backend.s0_f03_content_integrity_local import (
+            S0F03LocalContentIntegrityReader, _equal_proof, ContentState,
+        )
+        reader=S0F03LocalContentIntegrityReader(DB)
+        first=reader.compute(self.receipt,b'f03-test-only-32-bytes-local-not-for-production!')
+        second=reader.compute(self.receipt,b'f03-test-only-32-bytes-local-not-for-production!')
+        other=reader.compute(self.receipt,b'completely-different-local-test-only-key!')
+        self.assertIsNotNone(first)
+        self.assertIs(_equal_proof(first,second),ContentState.MATCHES_REVIEW_ONLY)
+        self.assertIs(_equal_proof(first,other),ContentState.CHANGED_REVIEW_REQUIRED)
+        self.assertEqual(first.count,2)
+        self.assertEqual(first.case_count,2)
+
+    def test_14_content_hmac_rejects_short_key_without_database_read(self):
+        from backend.s0_f03_content_integrity_local import S0F03LocalContentIntegrityReader
+        reader=S0F03LocalContentIntegrityReader(DB)
+        self.assertIsNone(reader.compute(self.receipt,b'weak'))
+
 if __name__=='__main__':
     unittest.main()
