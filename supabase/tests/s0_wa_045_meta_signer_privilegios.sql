@@ -27,7 +27,8 @@ begin
  raise notice 'WA41-03 PASS';
 
  if not (select p.prosecdef from pg_catalog.pg_proc p where p.oid=v_verifier)
-   or position('search_path=' in pg_catalog.pg_get_functiondef(v_verifier))=0
+   or not exists(select 1 from pg_catalog.pg_proc p where p.oid=v_verifier
+       and 'search_path='=any(p.proconfig))
  then raise exception 'WA41-04 not restricted definer';end if;
  raise notice 'WA41-04 PASS';
 
