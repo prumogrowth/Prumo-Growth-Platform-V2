@@ -9,6 +9,18 @@ on:
       - 'supabase/tests/s1_061_proto_rls_equipe_local_only.sql'
       - 'supabase/tests/s1_062_proto_rls_excecao_local_only.sql'
       - 'supabase/tests/s1_063_proto_rls_unificada_local_only.sql'
+      - 'scripts/test_s1_002_i45_scope_audit.py'
+      - 'scripts/test_s1_002_i46_acl_surface.py'
+      - 'scripts/test_s1_002_i47_indirect_acl.py'
+      - 'supabase/tests/s1_065_proto_scope_local_only.sql'
+      - 'supabase/tests/s1_066_proto_d2_surface_local_only.sql'
+      - 'supabase/tests/s1_068_setup_indirect_acl_local_only.sql'
+      - 'supabase/tests/s1_069_proto_indirect_acl_local_only.sql'
+      - 'supabase/migrations/202610170006_s0_transactional_simulation.sql'
+      - 'supabase/migrations/202610170011_s0_c02_ambiguous_inbox.sql'
+      - 'supabase/migrations/202610170012_s0_recontatos_sinteticos.sql'
+      - 'supabase/migrations/202610170019_c07_callbacks_sinteticos.sql'
+      - 'supabase/migrations/202610170020_c07_reconciliacao_falhas_sintetica.sql'
   workflow_dispatch:
 permissions:
   contents: read
