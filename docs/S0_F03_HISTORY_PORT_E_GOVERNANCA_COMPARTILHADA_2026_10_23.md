@@ -16,14 +16,14 @@ O recibo S0 existente `backend/s0_cfi01_f03_receipt_bridge_local.py` prova, apó
 
 - `backend/s0_f03_history_manifest_local.py`: porta S0 local que exige **duas** verificações do recibo atual via `S0CFI01F03ReceiptBridgeLocal.recheck`, antes/depois da consulta. Busca `lead_id` e o corte `registrado_em` **do banco**, associados ao evento e ao hash original, sem aceitar identidade/loja/corte do cliente ou modelo.
 - Consulta delimitada por `m.concessionaria_id`, `v.lead_id` e `m.criada_em <= e.registrado_em`, incluindo casos diferentes da mesma pessoa **naquela loja**; ordena por timestamp e ID, recusa registros duplicados, fora do corte, não verificados ou com watermark do fechamento ausente.
-- Utiliza o **mesmo bloqueio de DSN PostgreSQL descartável local** da S0 existente. Transação de leitura `REPEATABLE READ READ ONLY`, sem SQL de atualização, migrations, credenciais ou chamadas OpenAI.
+- Utiliza o **mesmo bloqueio de DSN PostgreSQL descartável local** da S0 existente, por composição: não herda métodos de captura/escrita do backend. Transação de leitura `REPEATABLE READ READ ONLY`, sem SQL de atualização, migrations, credenciais ou chamadas OpenAI.
 - Retorna **somente metadados agregados** (quantidade de mensagens, casos e hash SHA256 dos IDs/proveniência), sem conteúdo de clientes. Sempre `REVIEW_ONLY_NOT_FROZEN` quando elegível: **isso NÃO autoriza F03 real nem aplicação da ficha**.
 - Rejeita consulta sem recheck autenticado e restringe acesso ao leitor S0 concreto, evitando usar dados arbitrários enviados pelo modelo como autorização.
-- `backend/tests/test_s0_f03_history_manifest_local.py`: **20 cenários unitários** cobrindo vínculo multi-casos, autorização, revogação, cutoff, ausência de watermark, duplicidade, cronologia, isolamento e segurança do leitor.
+- `backend/tests/test_s0_f03_history_manifest_local.py`: **24 cenários unitários** cobrindo vínculo multi-casos, autorização, revogação, cutoff, ausência de watermark, duplicidade, cronologia, isolamento e segurança do leitor.
 
 ## Evidências e limites
 
-**20/20 testes locais aprovados em Python 3.13**, com **fac-símiles estritamente de teste** das classes S0 importadas; a implementação e os testes publicados tiveram seus hashes Git comparados byte a byte com os arquivos executados. **Os testes ainda precisam rodar dentro do checkout completo S0 com suas classes reais e em PostgreSQL 17 descartável.** Não afirmar CI, PG17 ou GoTrue real nesta rodada.
+**24/24 testes locais aprovados em Python 3.13**, com **fac-símiles estritamente de teste** das classes S0 importadas; quatro dos cenários exercitam a execução de consulta via driver PostgreSQL simulado; a implementação e os testes publicados tiveram seus hashes Git comparados byte a byte com os arquivos executados. **Os testes ainda precisam rodar dentro do checkout completo S0 com suas classes reais e em PostgreSQL 17 descartável.** Não afirmar CI, PG17 ou GoTrue real nesta rodada.
 
 A seleção feita por timestamp em transação de leitura não congela de forma durável **todos os casos**: uma nova inserção retrodatada pode alterar seleção histórica. Assim, mesmo com 2 rechecks a porta **não afirma `historyComplete` nem libera conteúdo**. Para promover a F03 é preciso evento imutável de manifesto multi-casos (evidências+hash+cutoff), acesso autorizado a texto/mídia, versão da ficha/catálogo/caso/identidade distintas, retenção e política física de aplicação idempotente com lock/compare-and-swap na S0. O resultado `REVIEW_ONLY_NOT_FROZEN` é explícito, nunca `VERIFIED_FULL_HISTORY`.
 
