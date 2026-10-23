@@ -25,4 +25,10 @@ O fixture `s1_053_issue10_disponibilidade_local_only.sql` já instalava `s1_10_g
 
 ## Evidências
 
-Registrar commit testado, resultados do CI e limites depois da execução.
+**Evidência verificada em 23/10/2026:**
+
+- [PG17 completo — GitHub Actions #39982946724](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39982946724), job `120514688377`, **SUCCESS** sobre o commit `dc2175a3c62f59fe738741d3005ac0df8ac656a6`. Logs inspecionados: `PASS I51-01`, `02`, `03`, `04`, `05`, `06` — **6/6** com SQL transacional e rollback. O teste comprova recusa de transferência excepcional e comum para destino pausado, preservação do caso original e retorno à elegibilidade só após retomada.
+- O runner `scripts/run-s1-002-i12-local.sh` passa a executar `s1_075_a2_transferencia_pausado_local_only.sql` junto com os contratos e regressões antigas. Nenhuma migration S0 alterada; não se trata de integração real de serviço nem de teste GoTrue/Meta.
+- Contrato 01, matriz 02 e índice 00 atualizados para marcar **S1-D14/A2 como [D] FECHADA**, explicitando diferença entre bloqueio de **novas atribuições** e permanência de autorização em casos já atribuídos.
+
+**Pendente [R/T] técnico:** os serviços do núcleo S0 devem consumir estado de intake do destino com prova de versão/lock em todos os comandos de atribuição, antes do commit, inclusive concorrência de pausa e transferência. Os testes PG17 de fixture não homologam o backend produtivo, a fila S0 real, o WhatsApp nem a operação da plataforma.
