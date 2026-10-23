@@ -1,5 +1,11 @@
 # Frente OpenAI — Prumo Growth | índice inicial
 
+## E04 — ciclo de vida F02 e concorrência (23/10/2026)
+
+Implementado o [avaliador offline de ciclo de plano F02](./e04_offline_lab/plan-lifecycle.mjs), acompanhado de [53 testes `node:test`](./e04_offline_lab/tests/plan-lifecycle.test.mjs) e [evidência técnica de execução](./E04_F02_LIFECYCLE_CONCORRENCIA_EVIDENCIAS_2026_10_23_v0_1.md). **53/53 PASS em Node.js 22.16.0**, arquivos publicados com os mesmos hashes dos executados. Valida versões de caso/catálogo/cadeia, limites de posse/handoff e opt-out, eventos repetidos/contraditórios, `sent` terminal, `unknown/queued/api_accepted` e hold 131049. Qualquer indicação de próxima tentativa significa apenas **pedido de rechecagem S0**, nunca autorização de envio, confirmação Meta ou alteração comercial.
+
+**Medição:** estes são **53 novos testes isolados**, além dos 66 testes de frequência/recibos medidos em Node na rodada anterior. Os 50 testes F01/F02/F03 foram executados anteriormente em V8; não houve execução completa do comando `npm test` nesta rodada. Os 70 oráculos SYN da E02 seguem sem execução integral própria. E04 offline continua liberada, E05 não.
+
 ## E04/F02 — frequency capping Meta e erro 131049 (22/10/2026)
 
 O responsável levantou a hipótese de **“dois templates por pessoa a cada dia sem resposta”**. A pesquisa confirmou limitações Meta adaptativas de **MARKETING** e rejeição **131049**, mas **não** confirmou limite numérico universal de dois templates diários. Ver [análise e conciliação CF-OP-02/FREQ v0.1](./CF_OP_02_META_FREQUENCY_CAPPING_F02_2026_10_22_v0_1.md).
