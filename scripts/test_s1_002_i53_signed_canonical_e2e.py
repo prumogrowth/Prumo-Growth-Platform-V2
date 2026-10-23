@@ -172,6 +172,9 @@ try:
     print("PASS S1CANON-156: private command and obsolete HTTP routes closed to clients")
     # I37-147/148 must survive cutover, but against the canonical signed
     # route: the old v37 bridge is deliberately disabled to avoid split brain.
+    # I55 real S0 queue + GoTrue/HMAC before I53 revokes signer key.
+    _i55=Path("scripts/test_s1_002_i55_signed_queue_e2e.py")
+    exec(compile(_i55.read_text(encoding="utf-8"),str(_i55),"exec"),globals())
     signer.revoke(new_key)
     status,_=intake53(token53,o3,True,7)
     if status!=403:

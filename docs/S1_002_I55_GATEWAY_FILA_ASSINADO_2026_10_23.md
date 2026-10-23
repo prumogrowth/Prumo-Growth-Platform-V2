@@ -1,0 +1,22 @@
+# S0 + S1-002 / I55 — API assinada de consulta e assunção da fila
+
+**23/10/2026.** Continuidade do I54; S0 e S1 são implementadas pela mesma frente. Ambiente de teste **somente CI local descartável**, sem deploy, merge, WhatsApp, cliente real ou bancos externos.
+
+## Integração
+
+O I54 criou a fila na S0, mas ela ainda não dispunha de API autenticada. I55 acrescenta um gateway HTTP de loopback em `backend/s1_gateway_fila_canonical_local.py`, que valida Bearer de GoTrue e só aceita dois comandos, ambos POST:
+
+- `/s1/fila`, corpo exatamente `{"loja_id":"<UUID>"}`: retorna no máximo 25 itens pendentes com **apenas** `concessionaria_id`, `lead_id`, `ciclo_id` e `versao`. Não retorna telefones, mensagens ou casos de outras equipes; Gestor deve estar ativo e possuir grant vigente para aquela concessionária.
+- `/s1/assumir_fila`, corpo `{"loja_id":"<UUID>","ciclo_id":"<UUID>","versao_esperada":1}`: registra assunção **no comando S0 canônico**, com lock no lead, versão CAS, novo caso e atribuição em transação e trilha de auditoria. `CONFLICT` ou caso já criado respondem HTTP 409. Nunca delega um papel administrativo, destinatário ou ator a partir do corpo HTTP.
+
+**Assinatura e autoridade:** domínios separados `FILA55L` e `FILA55C` com identidade ator/sessão verificada independentemente pelo assinador, loja/ciclo/versão assinados, HMAC conferido exclusivamente no custodiante I22 e nonce consumido pelo executor I21 (role NOLOGIN). A ponte PostgreSQL, owned por postgres, confere novamente `auth.sessions` viva, ator cadastrado, alçada de Gestor e delega a assunção ao `prumo_private.s0_fila_assumir` do I54. A sessão ou chave revogada impede nova operação; sem concessão da loja não há listagem nem assunção. Funções internas e tabela de fila permanecem fora de `authenticated` e do login SQL do gateway.
+
+## Limites e validação
+
+`supabase/tests/s1_079_fila_assinada_canonica_local_only.sql` instala o **protótipo de serviço assinado I55** dentro da stack Supabase CLI efêmera, após migrations S0/S1 053 e 054; não é migration pública em produção. A suíte `scripts/test_s1_002_i55_signed_queue_e2e.py` usa o gateway GoTrue/HMAC I37/I53 com oito cenários de aceitação: evento S0; projeção mínima; escopo multi-loja; schema HTTP estrito; claim/CAS e owner único; nonce; revogação de grant no mesmo JWT; impossibilidade de SELECT/RPC direto. `tests/test_s1_002_i55_queue_gateway.py` inspeciona assinaturas e entrada HTTP.
+
+**Ainda não homologado:** implementação distribuída e HTTPS da borda, sessão persistente e KMS/isolamento de hosts, reconciliação de pendência quando outro produtor cria caso, comprovação de primeiro contato/delivery, UI, D2/D3/D4, F03, produção Meta/Banco e aprovação LGPD. Os resultados dos testes serão adicionados após validação no GitHub Actions. A2 segue fechada: Consultor pausado jamais recebe novo atendimento, inclusive manual.
+
+## Evidências
+
+Aguardando a conferência dos logs do CI nesta revisão; não interpretar conclusão de compilação como passagem E2E.

@@ -23,7 +23,7 @@ from backend.s1_gateway_local import _fields
 from backend.s1_gateway_signed_local import _COMMAND, _action_args, _proof_material, _SQL_SIGNED
 
 _MATERIAL = re.compile(
-    rb"prumo-s1-i20-v1\|(MOVER|PAUSAR|REATIVAR|INTAKE53|INTAKE)\|"
+    rb"prumo-s1-i20-v1\|(MOVER|PAUSAR|REATIVAR|INTAKE53|INTAKE|FILA55L|FILA55C)\|"
     rb"[0-9a-f-]{36}\|[0-9a-f-]{36}\|[A-Z0-9a-f|_:\-]{5,350}"
 )
 _MAX_MATERIAL = 600
@@ -119,6 +119,17 @@ def _worker(operations, control, independent_auth=None):
                             or str(uuid.UUID(parts[8])) != parts[8]
                             or re.fullmatch(r"[PR]:[1-9][0-9]{0,18}",parts[9]) is None
                             or int(parts[9][2:]) > 9223372036854775807):
+                            raise ValueError()
+                    elif parts[1] in ("FILA55L", "FILA55C"):
+                        if (str(uuid.UUID(parts[4])) != parts[4]
+                           or parts[6:9] != ["-"] * 3):
+                            raise ValueError()
+                        if parts[1] == "FILA55L":
+                            if parts[5] != "-" or parts[9] != "L":
+                                raise ValueError()
+                        elif (str(uuid.UUID(parts[5])) != parts[5]
+                              or re.fullmatch(r"C:[1-9][0-9]{0,18}",parts[9]) is None
+                              or int(parts[9][2:]) > 9223372036854775807):
                             raise ValueError()
                     else:
                         raise ValueError()
