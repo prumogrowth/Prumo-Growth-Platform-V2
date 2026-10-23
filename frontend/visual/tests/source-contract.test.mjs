@@ -391,3 +391,14 @@ test('FV-UI-028: aria-expanded móvel e foco contrastante têm contrato de orige
   assert.match(styles,/outline:3px solid #11685d/);
   assert.match(browserSmoke,/FV-UI-028 acessibilidade teclado/);
 });
+
+
+test('FV-UI-029: confirmação de modais aninhados anuncia sem perder foco',()=>{
+  assert.match(markup,/id="team-action-announcement"[^>]*role="status" aria-live="polite"/);
+  assert.match(domMock,/'team-action-announcement'/);
+  assert.match(app,/function announceTeamActionAndRestoreFocus\(tabId,announcement\)/);
+  assert.match(app,/announceTeamActionAndRestoreFocus\('team-show-members'/);
+  assert.match(app,/announceTeamActionAndRestoreFocus\('team-show-queue'/);
+  assert.match(app,/if\(!\$\('team-dialog'\)\.open \|\| !canSeeTeamSummary/);
+  assert.match(browserSmoke,/FV-UI-029 confirmação, anúncio e retorno do foco/);
+});
