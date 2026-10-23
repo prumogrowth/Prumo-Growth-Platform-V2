@@ -41,4 +41,6 @@ bash scripts/test_s1_002_queue_race.sh
 # Execute only after historical S0/S1 migrations and all legacy tests.
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/migrations/202610190053_s0_s1_intake_atribuicao_guard.sql
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_076_integracao_intake_canonico_aceite.sql
+# I52: serialize pause vs canonical insert, under two independent SQL sessions.
+bash scripts/test_s1_002_i52_intake_race.sh
 echo 'S1-002/I15: sessao fake ativa/revogada conferida; sem GoTrue/REST real.'
