@@ -1,5 +1,11 @@
 # Plano de execução e critérios de conclusão — Frente OpenAI | v0.1
 
+## E04/S0-F03 — HMAC persistido e 177 testes aprovados no PG17 (23/10/2026)
+
+A frente OpenAI implementou diretamente na S0 compartilhada [prova HMAC persistente e vinculada ao manifesto F03](https://github.com/prumogrowth/Prumo-Growth---Platform/blob/feat/oai-s0-f03-history-port-20261023/backend/s0_f03_bound_content_seal_local.py), com locks transacionais na leitura do histórico, versão de chave explícita, idempotência e rechecagem de autorização. [GitHub Actions #40032787969](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/40032787969) **SUCCESS — 177/177 testes**, 84 de S0 e 93 de F03, inclusive **23 físicos PG17.11 e 15 da barreira S0 de autorização**. [Relatório técnico detalhado no PR #16](https://github.com/prumogrowth/Prumo-Growth---Platform/blob/feat/oai-s0-f03-history-port-20261023/docs/S0_F03_HMAC_PERSISTIDO_PG17_177_TESTES_2026_10_23.md).
+
+**Limite:** a prova HMAC refere-se ao texto sintético e vínculo de mensagens cobertas, não à integridade de mídia, à completude de histórico sob todos os escritores, à segurança/rotação de chave real, às versões independentes de ficha/caso/catálogo ou ao grant de conteúdo. **Nada de acesso OpenAI a texto real, escrita de ficha, deploy ou merge**; estados somente `REVIEW_ONLY`. Não há necessidade de instalar PostgreSQL ou providenciar credenciais nesta E04.
+
 ## E04/S0-F03 — Testes físicos realizados em GitHub Actions (23/10/2026)
 
 **Impedimento anterior de PostgreSQL 17 RESOLVIDO** mediante autorização do responsável para usar GitHub Actions: [execução PG17 #40027116504](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/40027116504) **150/150 PASS**; [execução PG17 #40027635632](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/40027635632) **153/153 PASS** (84 S0, 24 leitor F03, 31 selo F03 e **14 testes físicos F03**). Logs confirmam PostgreSQL **17.11**, gatilhos, ACL e reprocessamento real no banco descartável.
