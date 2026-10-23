@@ -66,7 +66,7 @@ export function installMockDOM({ mobile = false } = {}) {
     'message-preview-body', 'completion-dialog',
     'completion-form', 'template-dialog', 'template-select', 'intake-dialog',
     'intake-dialog-title', 'intake-dialog-copy', 'team-dialog',
-    'team-list', 'team-monitor', 'team-batches', 'team-queue',
+    'team-list', 'team-monitor', 'team-batches', 'team-queue', 'team-action-announcement',
     'queue-action-dialog', 'queue-action-title', 'queue-action-copy', 'queue-assignee-area', 'queue-assignee', 'team-show-queue',
     'team-show-members', 'team-show-monitor', 'team-show-batches',
     'context-announcement', 'toast', 'team-nav', 'team-nav-mobile', 'team-close',
