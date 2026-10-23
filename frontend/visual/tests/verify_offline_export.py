@@ -106,7 +106,7 @@ def main():
                 visual=root/"frontend"/"visual"
                 tests=sorted(str(f) for f in (visual/"tests").glob("*.test.mjs"))
                 security=execute(
-                    [sys.executable,"-m","unittest","discover",
+                    [sys.executable,"-B","-m","unittest","discover",
                      "-s",str(visual/"tests"),"-p","test_offline_export.py"],
                     visual)
                 report["runs"]["zip_security_python"]=security
