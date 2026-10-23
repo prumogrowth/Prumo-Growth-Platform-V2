@@ -1,5 +1,11 @@
 # Frente OpenAI — Prumo Growth | índice inicial
 
+## E04 — redutor de recibos Meta implementado offline (22/10/2026)
+
+A suíte E04 ganhou [normalizador determinístico de recibos de transporte](./e04_offline_lab/transport-evidence.mjs) e [28 testes `node:test`](./e04_offline_lab/tests/transport-evidence.test.mjs). **28/28 passaram em Node.js 22.16.0 com os mesmos blobs publicados no GitHub.** Esse incremento não executa webhook real, envio, C09, mudança de status, banco ou chamada OpenAI. `sent` requer prova no modelo sintético; `queued/accepted/unknown` não contam como envio; duas falhas definitivas são **apenas sinalização de revisão S0**, sem concluir perda comercial.
+
+**Métricas não intercambiáveis:** os 50 testes anteriores de guardas F01/F02/F03 passaram em V8 isolado (runner Node ainda não comprovado); os 28 testes novos passaram em Node real; os **70 SYN originais** continuam oráculos documentais, não resultados homologados. A autorização específica E04 offline permanece vigente, E05 e efeitos externos seguem bloqueados.
+
 ## E04 AUTORIZADA E INICIADA — implementação offline isolada (22/10/2026)
 
 **Autorização expressa do responsável, nesta conversa:** iniciar desenvolvimento de código e testes **offline** com dados 100% fictícios, apenas na frente OpenAI/PR #3. A trava `G-FASE-DO-PROJETO` de **implementação E04** fica liberada **somente para este escopo**; não implica ratificação S0/Meta, E05, API pagas, credenciais, dados reais, deploy, migração, outros PRs ou merge.
