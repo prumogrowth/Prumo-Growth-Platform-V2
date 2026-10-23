@@ -1,5 +1,7 @@
 # E04/S0 — HMAC de conteúdo persistido e vinculado ao manifesto F03 (23/10/2026)
 
+> **ETAPA SEGUINTE — 23/10/2026:** foi implementada uma [reserva consultiva com vetores independentes de ficha/catálogo/caso/atribuição/identidade](./S0_F03_VERSIONES_CAS_RESERVA_PG17_PENDENTE_2026_10_23.md). **18 testes unitários e 18 novos testes físicos preparados, mas não aprovados:** o GitHub Actions começou a falhar antes de iniciar runner (`steps=[]`; motivo exato ainda não recuperável via conector). **177/177** é o último sucesso **anterior** a este incremento; o novo código não escreve a ficha nem está homologado.
+
 **Estado: implementado e testado em PostgreSQL 17.11 descartável no GitHub Actions.** A frente OpenAI implementou a adaptação diretamente na S0 compartilhada, exclusivamente offline. PR #16 permanece Draft, empilhado sobre PR #12 sem alteração de sua branch; sem API OpenAI/Meta, dado real, deploy, migração hospedada ou merge.
 
 ## Evidência física — fonte de verdade dos resultados
