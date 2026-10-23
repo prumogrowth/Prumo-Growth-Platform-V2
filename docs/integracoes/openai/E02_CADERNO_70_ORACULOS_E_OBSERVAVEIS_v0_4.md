@@ -1,5 +1,7 @@
 # E02-FIX/ORÁCULOS v0.4 — 70 contratos documentais de observação
 
+> **Variações transversais:** os testes de conhecimento e MCP desta matriz têm [24 variantes adversariais AX](./E02_MATRIZ_ADVERSARIAL_CONHECIMENTO_MCP_v0_1.md). Permanecem **70** testes SYN documentais, **0 executados**. Não somar AX a SYN, nem contar decisão do modelo como permissão de mutação.
+
 **Data:** 22/10/2026. **Estado:** [P/R], preparação de E02. **NÃO são arquivos executáveis, teste rodado, fixture JSON de S0, aceite interfrentes ou liberação de E04.** O conjunto sintetiza os 32 casos da matriz histórica e os 38 casos novos da E02-MT v0.3, com evidências observáveis e efeitos proibidos. Mantém a origem e o gabarito existentes, mas corrige explicitamente SYN-02/03/08/09/16 conforme AL-IA e E02-MT. **ACTUAL = NÃO EXECUTADO em todos os 70.**
 
 ## Como usar numa futura revisão
