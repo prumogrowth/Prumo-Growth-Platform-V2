@@ -907,3 +907,18 @@ test('FV-UI-032: O5 desktop foca região do novo caso autorizado',()=>{
   assert.match(get('context-announcement').textContent,/Caso A-114 aberto por vínculo fictício autorizado/);
   assert.match(get('workflow-bar').textContent,/em atendimento pelo operador/);
 });
+
+
+test('FV-UI-036: tema claro/escuro alterna sem perder o caso selecionado', () => {
+  reset();
+  assert.equal(get('visual-app').dataset.theme, 'light');
+  get('theme-dark').click();
+  assert.equal(get('visual-app').dataset.theme, 'dark');
+  assert.equal(get('theme-dark').getAttribute('aria-pressed'), 'true');
+  assert.equal(get('theme-light').getAttribute('aria-pressed'), 'false');
+  env.openCase('Exemplo 02');
+  get('theme-light').click();
+  assert.equal(get('visual-app').dataset.theme, 'light');
+  assert.equal(get('theme-light').getAttribute('aria-pressed'), 'true');
+  assert.match(get('thread-title').textContent, /Cliente Exemplo 02/);
+});

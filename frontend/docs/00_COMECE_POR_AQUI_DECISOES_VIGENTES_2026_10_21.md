@@ -122,6 +122,12 @@
 
 **[FV-UI-035 — diagnóstico nativo do snapshot](./63_FV_UI_035_GATE_NATIVO_SNAPSHOT_2026_10_23.md)**: **58/58** blobs, **20/20 Python**, **341/341 Node** e **Chromium PASS** em ZIP visual derivado com hashes conferidos no GitHub. Não comprova checkout Git autenticado nem homologação.
 
+## FV-UI-036 — tema claro e escuro, base visual neutra (23/10/2026)
+
+**[FV-UI-036 — design e implementação](./64_FV_UI_036_BASE_VISUAL_TEMA_CLARO_ESCURO_2026_10_23.md)**: visual de mensageria próprio, paleta neutra e escolha Claro/Escuro, incluindo modais, sem integrações ou persistência externa.
+
+**[FV-UI-036 — testes nativos](./65_FV_UI_036_GATE_NATIVO_LOCAL_2026_10_23.md)**: provas sobre snapshot derivado; checkout autenticado e aceite FV-22 continuam pendentes.
+
 ## Estado do trabalho
 FV-UI-015/016: demonstrações com dados sintéticos. **NÃO** declarar integração real, Auth/RLS/GoTrue, comunicações Meta ou remessas confirmadas. FV-UI-013 não homologada formalmente; **19F 69/100** como último marco. Esta consolidação é **documentação somente**. Nenhum código, migration, branch S1, dado real ou deploy foi tocado.
 

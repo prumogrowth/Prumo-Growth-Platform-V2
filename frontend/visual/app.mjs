@@ -39,7 +39,8 @@ const list = $('conversation-items');
 const state = {
   actorId: 'rafael', shopId: 'aurora', filter: 'all', statusFilter: 'all', detailTab: 'overview', query: '',
   selectedId: 'A-102', cases: copyCFDemoFixtures(), processing: {}, reviewScenes: {}, followupRequests: {}, inboxView: 'active',
-  mobileView: 'list', dialogContext: { completion: null, template: null, message: null }, intakeDialogContext:null, queueDialogContext:null, queueRequests:{}, teamRequests:{}, teamPanel:'members'
+  mobileView: 'list', theme: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light',
+  dialogContext: { completion: null, template: null, message: null }, intakeDialogContext:null, queueDialogContext:null, queueRequests:{}, teamRequests:{}, teamPanel:'members'
 };
 
 function el(tag, className='', text=null) {
@@ -172,6 +173,19 @@ function showToast(message) {
   const node = $('toast'); node.textContent = message; node.hidden = false;
   clearTimeout(showToast.timer);
   showToast.timer = setTimeout(() => { node.hidden = true; }, 3700);
+}
+function applyTheme(theme) {
+  if(!['light','dark'].includes(theme)) return false;
+  state.theme = theme;
+  app.dataset.theme = theme;
+  // Diálogos nativos ficam fora de #visual-app; acompanhar também no body.
+  if(document.body) document.body.dataset.theme = theme;
+  [['theme-light','light'],['theme-dark','dark']].forEach(([id,value]) => {
+    const active = theme === value;
+    $(id).classList.toggle('selected', active);
+    $(id).setAttribute('aria-pressed', String(active));
+  });
+  return true;
 }
 function announceCurrentContext(detail=''){
   // Apenas identificadores visuais do cenário sintético, nunca dados D3/D4.
@@ -742,6 +756,8 @@ function mobileBackNavigation(){
 }
 $('thread-back').addEventListener('click',()=>{mobileBackNavigation();});
 $('detail-back').addEventListener('click',()=>{mobileBackNavigation();});
+$('theme-light').addEventListener('click',()=>{applyTheme('light');});
+$('theme-dark').addEventListener('click',()=>{applyTheme('dark');});
 $('detail-toggle').addEventListener('click',()=>{
   if (window.matchMedia('(max-width:760px)').matches) {goto('detail');$('detail-back').focus();return;}
   const hidden=app.classList.toggle('details-hidden');$('detail-toggle').setAttribute('aria-expanded',String(!hidden));
@@ -1230,4 +1246,5 @@ window.addEventListener('resize',()=>{
 });
 
 if(window.matchMedia('(max-width:1040px)').matches){app.classList.add('details-hidden');$('detail-toggle').setAttribute('aria-expanded','false');}
+applyTheme(state.theme);
 updateSelectors();render();announceCurrentContext('Demonstração local iniciada');

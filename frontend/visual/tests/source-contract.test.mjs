@@ -451,3 +451,18 @@ test('FV-UI-035: retorno do foco dos controles mobile após ampliar viewport',()
   assert.match(browserSmoke,/FV-UI-035 retorno de foco ao ampliar mobile para desktop\/tablet: PASS/);
   assert.match(browserSmoke,/for destination_width in \(900,1440\)/);
 });
+
+
+test('FV-UI-036: temas claro e escuro têm contrato visual e de controle',()=>{
+  assert.match(markup,/id="theme-light"/);
+  assert.match(markup,/id="theme-dark"/);
+  assert.match(app,/theme: window\.matchMedia\('\(prefers-color-scheme: dark\)'\)\.matches \? 'dark' : 'light'/);
+  assert.match(app,/function applyTheme\(theme\)/);
+  assert.match(app,/document\.body\) document\.body\.dataset\.theme = theme/);
+  assert.match(styles,/body\[data-theme=\"dark\"\] dialog/);
+  assert.match(app,/\$\('theme-light'\)\.addEventListener\('click'/);
+  assert.match(app,/\$\('theme-dark'\)\.addEventListener\('click'/);
+  assert.match(styles,/\.theme-switch/);
+  assert.match(styles,/\.visual-app\[data-theme="dark"\]/);
+  assert.match(browserSmoke,/FV-UI-036 tema claro\/escuro e superfícies neutras: PASS/);
+});

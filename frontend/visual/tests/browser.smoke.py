@@ -37,6 +37,19 @@ with sync_playwright() as p:
         page.set_content(html)
         page.add_script_tag(content=script)
         assert page.locator('.conversation-card').count() == 8
+        expect(page.locator('#visual-app')).to_have_attribute('data-theme', 'light')
+        light_workspace = page.locator('.workspace').evaluate("node => getComputedStyle(node).backgroundColor")
+        light_message = page.locator('.message').first.evaluate("node => getComputedStyle(node).backgroundColor")
+        page.locator('#theme-dark').click()
+        expect(page.locator('#visual-app')).to_have_attribute('data-theme', 'dark')
+        expect(page.locator('#theme-dark')).to_have_attribute('aria-pressed','true')
+        dark_workspace = page.locator('.workspace').evaluate("node => getComputedStyle(node).backgroundColor")
+        dark_message = page.locator('.message').first.evaluate("node => getComputedStyle(node).backgroundColor")
+        assert light_workspace != dark_workspace
+        assert light_message != dark_message
+        page.locator('#theme-light').click()
+        expect(page.locator('#visual-app')).to_have_attribute('data-theme', 'light')
+        expect(page.locator('#theme-light')).to_have_attribute('aria-pressed','true')
         # Um único indicador: numérico sem leitura, sem número após leitura por titular.
         assert page.get_by_role('button',name='Abrir conversa Cliente Exemplo 02',exact=False).locator('.attention-unread').inner_text() == '2'
         assert not errors
@@ -78,7 +91,22 @@ with sync_playwright() as p:
         assert not errors, 'Erros JavaScript durante jornada: '+repr(errors)
         assert not page.evaluate('document.documentElement.scrollWidth > innerWidth'), 'Overflow horizontal após interação'
         print(f'FV-UI-002 {width}x{height}: PASS')
+        print('FV-UI-036 tema claro/escuro e superfícies neutras: PASS')
         page.close()
+    dark_preference=browser.new_page(viewport={'width':1366,'height':768}, color_scheme='dark')
+    dark_preference.set_content(html)
+    dark_preference.add_script_tag(content=script)
+    expect(dark_preference.locator('#visual-app')).to_have_attribute('data-theme','dark')
+    expect(dark_preference.locator('body')).to_have_attribute('data-theme','dark')
+    dark_preference.locator('#actor-select').select_option('marina')
+    dark_preference.locator('#team-nav').click()
+    modal_surface=dark_preference.locator('#team-dialog').evaluate("node => getComputedStyle(node).backgroundColor")
+    assert modal_surface=='rgb(20, 30, 37)',modal_surface
+    dark_preference.locator('#team-close').click()
+    dark_preference.locator('#theme-light').click()
+    expect(dark_preference.locator('body')).to_have_attribute('data-theme','light')
+    dark_preference.close()
+    print('FV-UI-036 preferência nativa escura e modais externos: PASS')
     page = browser.new_page(viewport={'width':1366,'height':768})
     errors_main = []
     page.on('pageerror', lambda error: errors_main.append(str(error)))

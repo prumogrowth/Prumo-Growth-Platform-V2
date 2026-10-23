@@ -181,3 +181,65 @@
 dialog :is(button,input,select,textarea,summary):focus-visible{
   outline:3px solid #11685d;outline-offset:2px
 }
+
+/* FV-UI-036: visual neutro e limpo; referências de mensageria, sem copiar marcas. */
+.theme-switch{display:inline-flex;gap:3px;border:1px solid #d8e2e6;padding:4px;border-radius:30px;background:#f1f5f6}
+.theme-option{border:0;background:transparent;border-radius:24px;padding:7px 11px;font-size:11px;font-weight:750;color:#536974}
+.theme-option[aria-pressed="true"]{background:#fff;color:#173e49;box-shadow:0 1px 5px #152b3619}
+.visual-app{background:#e8edef}
+.workspace{background:#fff;border:1px solid #dce6e8;box-shadow:0 16px 48px #102b391a}
+.list-pane,.detail-pane,.thread-heading,.thread-bottom{background:#fcfdfd}
+.thread-body{background-color:#eef3f1;background-image:radial-gradient(#d8e3e0 .7px,transparent .7px)}
+.conversation-card{border-radius:12px}
+.message{border:1px solid #e7edee;box-shadow:0 6px 18px #102a3210}
+.message.out{background:#e0f1e9;border-color:#d1e6de}
+.btn-primary,.send-button{background:#1d766f}
+@media(max-width:760px){.list-header-actions{align-items:flex-start;flex-wrap:wrap}.theme-switch{order:-1}}
+.visual-app[data-theme="dark"]{color-scheme:dark;background:#0e151a;color:#e9f1f4}
+.visual-app[data-theme="dark"] .workspace{background:#121b21;border-color:#293943;box-shadow:0 14px 48px #0007}
+.visual-app[data-theme="dark"] .rail{background:#0b1116}
+.visual-app[data-theme="dark"] :is(.list-pane,.detail-pane,.thread-heading,.thread-bottom){background:#141e25;color:#e9f1f4;border-color:#30404b}
+.visual-app[data-theme="dark"] .thread-pane{background:#10181e}
+.visual-app[data-theme="dark"] .thread-body{background-color:#0f161b;background-image:radial-gradient(#243239 .7px,transparent .7px)}
+.visual-app[data-theme="dark"] :is(.queue-heading,.list-footer,.detail-heading,.inbox-mode,.detail-row,.team-member,.team-monitor-section){border-color:#2d3e48}
+.visual-app[data-theme="dark"] :is(.item-title,.thread-name,.detail-heading h2,.detail-row strong,.detail-value,.team-member strong,.team-monitor-card strong,.team-monitor-metric strong,.team-monitor-tile strong,.team-batch-card strong,.team-monitor-heading){color:#ecf5f7}
+.visual-app[data-theme="dark"] :is(.item-preview,.item-time,.queue-sub,.thread-meta,.list-footer,.composer-note,.tiny-note,.detail-small,.detail-label,.team-hint,.team-help,.message small,.window-mini,.team-member span,.team-monitor-states,.team-monitor-stage){color:#a8bbc5}
+.visual-app[data-theme="dark"] :is(.select-wrap select,#template-select,.search-box,.composer input,.theme-switch){background:#1d2932;border-color:#374954;color:#e9f2f5}
+.visual-app[data-theme="dark"] :is(.search-box input,.composer input){color:#e9f2f5}
+.visual-app[data-theme="dark"] :is(.search-box input,.composer input)::placeholder{color:#a5b8c1}
+.visual-app[data-theme="dark"] .theme-option{color:#c2d2d9}
+.visual-app[data-theme="dark"] .theme-option[aria-pressed="true"]{background:#344651;color:#fff;box-shadow:none}
+.visual-app[data-theme="dark"] :is(.filter-chip,.micro-tag,.status-indicator,.btn-light){background:#24343d;color:#dce9ee;border-color:#324550}
+.visual-app[data-theme="dark"] :is(.inbox-tab,.inbox-tab.selected){background:transparent;color:#b8cbd3;border-color:#344752}
+.visual-app[data-theme="dark"] .inbox-tab.selected{color:#96dbca;border-color:#4ba99a}
+.visual-app[data-theme="dark"] .filter-chip.selected{background:#21413c;color:#b5e8d9}
+.visual-app[data-theme="dark"] .conversation-card{background:#152028;border-color:#263944;color:#eaf3f6}
+.visual-app[data-theme="dark"] .conversation-card:hover{background:#1c2b34}
+.visual-app[data-theme="dark"] .conversation-card.is-selected{background:#244139}
+.visual-app[data-theme="dark"] .avatar{background:#27483e;color:#e1f6ee}
+.visual-app[data-theme="dark"] .avatar.a2{background:#463726;color:#f5e1b7}
+.visual-app[data-theme="dark"] .avatar.a3{background:#343655;color:#e1e3ff}
+.visual-app[data-theme="dark"] .avatar.a4{background:#45324c;color:#f1dff6}
+.visual-app[data-theme="dark"] .message{background:#1c2a32;color:#edf5f7;border-color:#344650;box-shadow:0 9px 24px #0005}
+.visual-app[data-theme="dark"] .message.out{background:#214438;border-color:#30604e}
+.visual-app[data-theme="dark"] .message.ai{background:#302843;border-color:#4b4062}
+.visual-app[data-theme="dark"] .message.system{background:#473c26;color:#f3e4bb;border-color:#5b4a2b}
+.visual-app[data-theme="dark"] :is(.detail-card,.summary-tile,.team-monitor-card,.team-monitor-tile,.team-monitor-metric,.team-batch-card,.team-queue-item,.team-pause-preview){background:#1b2a32;color:#eaf3f6;border-color:#344852}
+.visual-app[data-theme="dark"] :is(.btn-primary,.send-button){background:#318f82;color:#fff}
+.visual-app[data-theme="dark"] :is(.btn-primary,.send-button):hover:not(:disabled){background:#3da293}
+.visual-app[data-theme="dark"] .window-indicator{background:#403520;color:#f0d69b}
+.visual-app[data-theme="dark"] .window-indicator.open{background:#1b3a31;color:#b0e9d9}
+.visual-app[data-theme="dark"] .window-indicator.closed{background:#40321e;color:#f0d69b}
+.visual-app[data-theme="dark"] :is(.icon-button,.search-box,.select-wrap svg){color:#b5c7d0}
+.visual-app[data-theme="dark"] .workspace :is(button,input,select,textarea,summary):focus-visible{outline-color:#83dac9}
+.visual-app[data-theme="dark"] .attention-pending{border-color:#141e25}
+/* Diálogos nativos ficam fora do container visual; sincronizar pelo body. */
+body[data-theme="dark"]{color-scheme:dark}
+body[data-theme="dark"] dialog{background:#141e25;color:#eaf3f6;border:1px solid #354852;box-shadow:0 24px 70px #000a}
+body[data-theme="dark"] dialog :is(h2,h3,h4,strong,label){color:#edf5f7}
+body[data-theme="dark"] dialog :is(.team-hint,.detail-small,.detail-label,.team-help,.team-member span){color:#b4c5cd}
+body[data-theme="dark"] dialog :is(input,select,textarea){background:#1d2b33;color:#edf5f7;border-color:#425762}
+body[data-theme="dark"] dialog :is(.team-monitor-card,.team-monitor-metric,.team-monitor-tile,.team-batch-card,.team-queue-item,.team-pause-preview,.message-preview-body){background:#1c2b33;color:#eaf3f6;border-color:#354b56}
+body[data-theme="dark"] dialog .btn-light{background:#2b404b;color:#eaf3f6}
+body[data-theme="dark"] dialog .btn-primary{background:#318f82;color:#fff}
+body[data-theme="dark"] dialog :is(button,input,select,textarea,summary):focus-visible{outline:3px solid #83dac9;outline-offset:2px}

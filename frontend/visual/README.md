@@ -178,3 +178,8 @@ Em largura intermediária (761–1040 CSS px), o botão **Fechar detalhes** e a 
 ## FV-UI-035 — Foco após ampliar viewport móvel para tablet/desktop (23/10/2026)
 
 O controle **Voltar** existe somente no layout móvel e desaparece ao ampliar a janela. Na transição de 390 para 900/1440 CSS pixels, quando esse botão estava focado, o foco agora vai à região nomeada da **Conversa** (`#thread-pane`) ou à aba ativa de **Detalhes** ainda autorizada e visível. O tratamento não muda caso, atendimento, permissão, rascunho ou evento comercial, e não interfere no foco de diálogo modal. O teste Chromium cobre os dois destinos, incluindo reflow e ausência de overflow; **não substitui zoom manual ou leitor de tela humano**. [FV-UI-035](../docs/62_FV_UI_035_FOCO_MOBILE_PARA_DESKTOP_2026_10_23.md).
+
+
+## FV-UI-036 — Base visual limpa com tema claro/escuro
+
+Introduzimos um controle local de tema com duas opções neutras, **Claro** e **Escuro**, sem qualquer persistência externa, autenticação ou integração. A linguagem visual segue uma referência de mensageria moderna: superfícies limpas, contraste suave, trilho lateral sóbrio, bolhas de conversa mais discretas e diferenciação segura entre áreas de lista, conversa e detalhes. A troca de tema não altera o caso selecionado, permissões fictícias ou ações demonstrativas.
