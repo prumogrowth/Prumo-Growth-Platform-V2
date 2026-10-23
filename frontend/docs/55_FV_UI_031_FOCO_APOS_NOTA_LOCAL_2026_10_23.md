@@ -21,7 +21,9 @@ O índice vigente, o README visual e este relatório foram atualizados. O manife
 ## Evidências e limitações
 
 - Conferência estática de patch, presença das regressões e escopo `frontend/`: executada na preparação dos objetos Git.
-- **Node, Python e Chromium da revisão FV-UI-031: não executados.** O checkout autenticado não está presente no ambiente local; `git ls-remote` não pôde acessar GitHub por falta de DNS, embora o conector GitHub funcione. Os resultados FV-UI-029 são apenas históricos.
+- **Regressão sintética V8 de código publicado:** 64/64 cenários de `app.dom.test.mjs` e 14/14 de `app.mobile.dom.test.mjs` aprovados em executor V8 adaptado. Os 17 módulos da interface foram concatenados sem imports/exports e executados contra `dom-fixture.mjs`, com substitutos de `structuredClone` e temporizadores. Esse executor reutiliza as funções de teste, mas **não é o `node --test` nativo**.
+- **Verificações V8 adicionais dirigidas ao FV-UI-031:** 7/7 aprovadas: campo recriado, foco restaurado, editor vazio, nota visível, aviso local, callback obsoleto sem roubo de foco e sem contaminação de caso.
+- **Node, Python e Chromium da revisão FV-UI-031: não executados nativamente.** O checkout autenticado não está presente no ambiente local; `git ls-remote` não pôde acessar GitHub por falta de DNS, embora o conector GitHub funcione. Os resultados FV-UI-029 são apenas históricos.
 - A prova de comportamento em DOM real, leitores de tela e zoom é **pendente**: a asserção Playwright foi registrada, não executada. Não equivale a homologação, release, merge nem aceite de FV-22.
 - Para diagnóstico futuro: executar camadas `interaction` e `source`, depois Chromium; repetir todas as camadas se o redesign alterar DOM/fluxos. Checkout Git autenticado permanece gate formal separado.
 
