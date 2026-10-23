@@ -1,5 +1,11 @@
 # Frente OpenAI — Prumo Growth | índice inicial
 
+## E04 — jornada integrada offline F01 → humano → F03 → F02 (23/10/2026)
+
+[Código de orquestração pura](./e04_offline_lab/journey.mjs), [43 testes de integração sintética](./e04_offline_lab/tests/journey.test.mjs) e [relatório de fronteiras/evidências](./E04_FLUXO_INTEGRADO_F01_HUMANO_F03_F02_2026_10_23_v0_1.md) publicados somente nesta branch. A jornada exige handoff e conclusão humana expressos, F03 por histórico autorizado da mesma pessoa/loja, nova autorização **separada** da S0 para F02 e rechecagem final de categorias/limite local/recibos. Não envia, não grava, não devolve F01 ao caso humano.
+
+**Regressão conjunta realizada em runtime V8 isolado com arquivos da branch:** **212/212 PASS** (50 guardas, 33 transporte, 33 frequência, 53 ciclo F02, 43 jornada); **não** é execução integral `npm test` no Node/CI, que permanece como verificação separada. Os **70 oráculos originais SYN da E02** continuam sem execução/homologação por seu protocolo. E04 offline autorizada; E05/chaves/custo/Meta real não.
+
 ## E04 — ciclo de vida F02 e concorrência (23/10/2026)
 
 Implementado o [avaliador offline de ciclo de plano F02](./e04_offline_lab/plan-lifecycle.mjs), acompanhado de [53 testes `node:test`](./e04_offline_lab/tests/plan-lifecycle.test.mjs) e [evidência técnica de execução](./E04_F02_LIFECYCLE_CONCORRENCIA_EVIDENCIAS_2026_10_23_v0_1.md). **53/53 PASS em Node.js 22.16.0**, arquivos publicados com os mesmos hashes dos executados. Valida versões de caso/catálogo/cadeia, limites de posse/handoff e opt-out, eventos repetidos/contraditórios, `sent` terminal, `unknown/queued/api_accepted` e hold 131049. Qualquer indicação de próxima tentativa significa apenas **pedido de rechecagem S0**, nunca autorização de envio, confirmação Meta ou alteração comercial.
