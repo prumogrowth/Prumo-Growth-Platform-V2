@@ -1,0 +1,54 @@
+{
+  "schema": "frontend-validation-layers/1",
+  "scope": "synthetic_frontend_only",
+  "full_acceptance": false,
+  "warning": "Diagnosticos por camada nao homologam produto nem comprovam S0/S1, integracao, navegador ou checkout Git.",
+  "layers": {
+    "domain": {
+      "description": "Regras e projeções sintéticas sem depender do CSS para execução.",
+      "node_tests": [
+        "bank-view.test.mjs",
+        "batch-monitor.test.mjs",
+        "cf-op-02.test.mjs",
+        "conversation-attention.test.mjs",
+        "distribution-view.test.mjs",
+        "fixtures.test.mjs",
+        "human-cycle-view.test.mjs",
+        "integration-gate-view.test.mjs",
+        "operation-feedback.test.mjs",
+        "postmark-view.test.mjs",
+        "registration-view.test.mjs",
+        "s0-command-result.test.mjs",
+        "s0-read-contract.test.mjs",
+        "team-monitor.test.mjs",
+        "team-monitoring.test.mjs",
+        "team-operations.test.mjs",
+        "team-pause-preview.test.mjs",
+        "transport-state-view.test.mjs",
+        "view-model.test.mjs"
+      ]
+    },
+    "interaction": {
+      "description": "Ações, navegação, permissões visíveis e foco simulados; mudanças estruturais de DOM podem exigir atualização.",
+      "node_tests": [
+        "app.dom.test.mjs",
+        "app.mobile.dom.test.mjs",
+        "attention-integration.test.mjs"
+      ]
+    },
+    "source": {
+      "description": "Contratos de origem, CSS, markup, integridade do snapshot e inventário; requer revisão durante redesign.",
+      "node_tests": [
+        "acceptance-matrix.test.mjs",
+        "offline-export-manifest.test.mjs",
+        "source-contract.test.mjs",
+        "source-module-graph.test.mjs",
+        "validation-layers.test.mjs"
+      ]
+    },
+    "browser": {
+      "description": "Playwright/Chromium real, contém tanto interações quanto responsividade/estilos; executar novamente depois de mudar o layout.",
+      "python_script": "browser.smoke.py"
+    }
+  }
+}
