@@ -24,6 +24,7 @@ const batchMonitor = get('batch-monitor.mjs');
 const fixtureTeam = get('fixtures.mjs');
 const browserSmoke = get('tests/browser.smoke.py');
 const domMock = get('tests/dom-fixture.mjs');
+const offlineExport = get('tests/verify_offline_export.py');
 
 test('três áreas adaptativas e controle de histórico existem', () => {
   for (const fragment of ['id="conversation-items"', 'id="thread-pane"', 'id="detail-pane"',
@@ -334,4 +335,16 @@ test('FV-UI-022: smoke tem carteira atual, retorno de Escape e mock de campo rea
   assert.match(app,/event\.preventDefault\(\);\s*mobileBackNavigation\(\)/);
   assert.match(app,/if\(validDraft && !document\.querySelector\('dialog\[open\]'\)\)input\.focus\(\)/);
   assert.match(domMock,/\['search-input','message-input'\]\.includes\(id\) \? 'input'/);
+});
+
+test('FV-UI-023: verificador de ZIP usa somente fontes pinadas e rejeita script diferente',()=>{
+  assert.match(offlineExport,/exported_paths!=expected_paths/);
+  assert.match(offlineExport,/archived_verifier!=Path\(__file__\)\.read_bytes\(\)/);
+  assert.match(offlineExport,/len\(names\)!=len\(set\(names\)\)/);
+  assert.match(offlineExport,/stat\.S_ISLNK\(mode\)/);
+  assert.match(offlineExport,/blob_sha\(raw\)!=info\["sha"\]/);
+  assert.match(offlineExport,/\["node","--test",\*tests\]/);
+  assert.match(offlineExport,/\["chromium"\]/);
+  assert.match(offlineExport,/full_acceptance":False/);
+  assert.doesNotMatch(offlineExport,/git clone|curl|urllib|requests\.get/);
 });
