@@ -80,6 +80,10 @@
 
 **[FV-UI-028 — aria-expanded e foco visível](./52_FV_UI_028_ARIA_EXPANDED_FOCO_TECLADO_2026_10_23.md)**: corrigido `aria-expanded` incorreto ao abrir detalhes na viewport móvel e reforçado o contraste do foco nas superfícies claras. Em cópia local derivada: **20/20 Python, 320/320 Node, Chromium PASS** (390 e 320 px, Escape e Tab). Sem homologação de checkout Git ou de integrações produtivas.
 
+## Foco e anúncio em confirmações fictícias de equipe (23/10/2026)
+
+**[FV-UI-029 — retorno do foco em modais aninhados](./53_FV_UI_029_RETORNO_FOCO_MODAIS_ANINHADOS_2026_10_23.md)**: corrigido o foco perdido após confirmar pausa de novos leads e intenção na fila compartilhada, sem alterar permissões. Diagnóstico de **cópia ZIP derivada**: **20/20 Python, 323/323 Node e Chromium PASS** (390px e 1366px). Ainda sem homologação de checkout Git ou de integrações reais.
+
 ## Estado do trabalho
 FV-UI-015/016: demonstrações com dados sintéticos. **NÃO** declarar integração real, Auth/RLS/GoTrue, comunicações Meta ou remessas confirmadas. FV-UI-013 não homologada formalmente; **19F 69/100** como último marco. Esta consolidação é **documentação somente**. Nenhum código, migration, branch S1, dado real ou deploy foi tocado.
 
