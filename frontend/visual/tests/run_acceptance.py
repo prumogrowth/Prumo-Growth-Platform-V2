@@ -143,21 +143,26 @@ def main():
         "executed": True, "missing": missing,
         "expected_node_tests": len(expected_tests),
     })
-    # Segurança do ZIP executável é parte obrigatória do gate de aceite.
+    # Falha fechada: código de interface e Chromium não rodam quando a
+    # regressão de segurança do pacote falha, mesmo em checkout válido.
     if not inventory_ok or not revision_ok:
-        report["steps"].append({"name": "Offline ZIP verifier adversarial regression",
-                                "passed": False, "executed": False,
-                                "error": "incomplete or unverified checkout"})
+        security_step={"name": "Offline ZIP verifier adversarial regression",
+                       "passed": False, "executed": False,
+                       "error": "incomplete or unverified checkout"}
     else:
-        report["steps"].append(run_step(
+        security_step=run_step(
             "Offline ZIP verifier adversarial regression",
             [sys.executable,"-m","unittest","discover","-s",str(TESTS),
-             "-p","test_offline_export.py"],timeout=45))
+             "-p","test_offline_export.py"],timeout=45)
+    report["steps"].append(security_step)
+    security_ok=security_step["passed"] and security_step["executed"]
     node = shutil.which("node")
     suite = sorted(str(file) for file in TESTS.glob("*.test.mjs"))
-    if not inventory_ok or not node or not revision_ok:
+    if not inventory_ok or not node or not revision_ok or not security_ok:
         error = ("incomplete checkout" if not inventory_ok else
-                 "unverified checkout revision" if not revision_ok else "node unavailable")
+                 "unverified checkout revision" if not revision_ok else
+                 "ZIP verifier security regression failed" if not security_ok else
+                 "node unavailable")
         report["steps"].append({"name": "Node ESM regression", "passed": False,
                                 "executed": False, "error": error})
     else:
@@ -168,8 +173,10 @@ def main():
                                 "executed": False, "passed": False,
                                 "error": "explicitly skipped"})
         print("Chromium SKIPPED — diagnóstico parcial, não homologação.", flush=True)
-    elif not inventory_ok or not revision_ok:
-        error = "incomplete checkout" if not inventory_ok else "unverified checkout revision"
+    elif not inventory_ok or not revision_ok or not security_ok:
+        error = ("incomplete checkout" if not inventory_ok else
+                 "unverified checkout revision" if not revision_ok else
+                 "ZIP verifier security regression failed")
         report["steps"].append({"name": "Chromium Playwright smoke",
                                 "executed": False, "passed": False, "error": error})
         print("Chromium BLOCKED — " + error, flush=True)
