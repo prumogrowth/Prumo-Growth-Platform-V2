@@ -21,8 +21,12 @@ Nas larguras de **900 e 1024 CSS pixels**, abrir o caso fictício A-102 e a late
 - Antes da correção, Chromium confirmou foco oculto e Escape sem ação em **900/1024px**.
 - Após correção, smoke completo Chromium local: **PASS**, inclusive as novas jornadas.
 - Node nativo direcionado: **130/130 PASS** em `app.dom`, `app.mobile.dom`, `app.tablet.dom` e `source-contract`.
-- Node nativo, excluindo somente a suíte offline ainda não repinada: **336/336 PASS** após atualizar a taxonomia de camadas. A validação integral sobre snapshot final é uma etapa separada posterior ao repin.
+- Node nativo, excluindo somente a suíte offline ainda não repinada: **336/336 PASS** após atualizar a taxonomia de camadas. O gate sequencial integral foi posteriormente **executado e aprovado**; ver relatório complementar de evidências abaixo.
 - A persistência do estado `details-hidden` entre testes do mock exigiu abrir condicionalmente o painel em cada caso da nova suíte; isso é isolamento de regressão, não mudança comercial.
 - Nenhum S0/S1, banco, Meta, WhatsApp, OpenAI, Supabase, autorização real, envio ou remessa foi executado. Snapshot ZIP derivado e checkout Git autenticado têm procedências diferentes. Sem aceite FV-22, deploy ou merge.
+
+## Adendo — gate nativo após último repin
+
+O snapshot visual do FV-UI-034 foi verificado **58/58 blobs** perante o manifesto pinado e aprovou os gates sequenciais **20/20 Python**, **340/340 Node nativo** e **Chromium/Playwright PASS**. O arquivo do próprio verificador foi conferido por hash Git, sem fazer parte dos 58 blobs que ele pinou. Consulte o **[relatório de validação FV-UI-034](./61_FV_UI_034_GATE_NATIVO_SNAPSHOT_2026_10_23.md)** para procedência, ressalvas e identificação dos commits. Permanecem pendentes checkout Git autenticado, zoom manual e leitores de tela reais.
 
 **Anterior:** [FV-UI-033](./59_FV_UI_033_GATE_NATIVO_SNAPSHOT_2026_10_23.md).

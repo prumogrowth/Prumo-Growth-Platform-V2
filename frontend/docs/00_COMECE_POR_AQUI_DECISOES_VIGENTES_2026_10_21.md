@@ -112,6 +112,10 @@
 
 **[FV-UI-034 — Escape e Fechar devolvem foco à abertura de Detalhes](./60_FV_UI_034_FOCO_FECHAR_DETALHES_TABLET_2026_10_23.md)**: corrige controles ocultos ainda focados ao fechar a lateral de 761–1040px; teste de Escape em painel versus campo de nota, proteção a diálogos, mock tablet e Chromium nas larguras 900/1024px. Sem comunicação S0/S1, merge ou deploy.
 
+## FV-UI-034 — execução nativa integral em snapshot verificado (23/10/2026)
+
+**[FV-UI-034 — relatório do gate sequencial](./61_FV_UI_034_GATE_NATIVO_SNAPSHOT_2026_10_23.md)**: 58/58 blobs Git, Python **20/20**, Node **340/340** e Chromium/Playwright **PASS** em ZIP derivado do código publicado no commit `0deae33`. Apenas diagnóstico visual fictício: sem checkout Git autenticado, sistemas S0/S1 ou homologação.
+
 ## Estado do trabalho
 FV-UI-015/016: demonstrações com dados sintéticos. **NÃO** declarar integração real, Auth/RLS/GoTrue, comunicações Meta ou remessas confirmadas. FV-UI-013 não homologada formalmente; **19F 69/100** como último marco. Esta consolidação é **documentação somente**. Nenhum código, migration, branch S1, dado real ou deploy foi tocado.
 
