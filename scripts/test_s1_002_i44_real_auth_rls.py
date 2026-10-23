@@ -256,3 +256,9 @@ print("PASS I44-06: REST rejected tampered real GoTrue JWT")
 
 # No identity token, password or key appears in CI output.
 print("S1-002/I44: real GoTrue+PostgREST per-case RLS 6/6 scenarios in disposable local stack.")
+
+
+# I45 runs only after I44's successful six checks on this disposable stack.
+from pathlib import Path
+_i45 = Path("scripts/test_s1_002_i45_scope_audit.py")
+exec(compile(_i45.read_text(encoding="utf-8"), str(_i45), "exec"), globals())
