@@ -18,12 +18,13 @@ export function summarizeTransportEvidence(scope, events) {
   const ids = new Map();
   const sequences = new Map();
   for (const e of events) {
-    if (!strict(e, ['eventId', 'storeId', 'caseId', 'chainId', 'attemptId', 'sequence', 'at', 'status', 'verified', 'isFinal'])) return error('INVALID_INPUT');
+    if (!strict(e, ['eventId', 'storeId', 'caseId', 'chainId', 'attemptId', 'sequence', 'at', 'status', 'verified', 'isFinal', 'errorCode'])) return error('INVALID_INPUT');
     if (![e.eventId, e.storeId, e.caseId, e.chainId, e.attemptId].every(validId) ||
         e.storeId !== scope.storeId || e.caseId !== scope.caseId || e.chainId !== scope.chainId ||
         !Number.isSafeInteger(e.sequence) || e.sequence < 0 || !validInstant(e.at) ||
         !statusTypes.has(e.status) || typeof e.verified !== 'boolean' || typeof e.isFinal !== 'boolean' ||
-        (e.status !== 'sent' && e.isFinal)) return error('INVALID_INPUT');
+        (e.status !== 'sent' && e.isFinal) ||
+        ('errorCode' in e && (e.status !== 'definitive_failed' || !Number.isSafeInteger(e.errorCode)))) return error('INVALID_INPUT');
     const identity = JSON.stringify(e);
     if (ids.has(e.eventId)) {
       if (ids.get(e.eventId) !== identity) return error('REVIEW_REQUIRED');
@@ -40,6 +41,13 @@ export function summarizeTransportEvidence(scope, events) {
   let uncertainProof = false;
   for (const e of ordered) {
     if (e.status !== 'sent' && e.status !== 'definitive_failed') continue;
+    // 131049 = ecosystem-engagement suppression, NOT a proved customer withdrawal.
+    // For other explicit provider codes, S0/Meta must classify before technical-loss counting.
+    if (e.status === 'definitive_failed' && 'errorCode' in e) {
+      if (!e.verified) return error('REVIEW_REQUIRED');
+      if (e.errorCode === 131049) return error('META_ECOSYSTEM_REVIEW');
+      return error('REVIEW_REQUIRED');
+    }
     if (!e.verified) { uncertainProof = true; continue; }
     const previous = terminalByAttempt.get(e.attemptId);
     if (previous && previous !== e.status) return error('REVIEW_REQUIRED');
