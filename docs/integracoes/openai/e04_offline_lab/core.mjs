@@ -20,7 +20,7 @@ export function versionGate(ctx){
 
 export function validateF01(req,proposal){
   const gate=versionGate(req?.scope);if(gate.status!=="READY")return gate;
-  if(req.owner!=="ai"||req.handoff===true||req.humanized===true)return verdict("DENIED");
+  if(req.owner!=="ai"||req.handoff!==false||req.humanized!==false)return verdict("DENIED");
   if("staffRoster" in req || "consultantNames" in req || "staffAvailability" in req)return verdict("INVALID_INPUT");
   if(!Array.isArray(req.sources))return verdict("INVALID_INPUT");
   const seen=new Set();
@@ -39,7 +39,7 @@ export function validTime(x){return typeof x==="string" && /(Z|[+-]\d{2}:\d{2})$
 
 export function validateF02(req,proposal){
   const gate=versionGate(req?.scope);if(gate.status!=="READY")return gate;
-  if(req.explicitS0Request!==true||req.optOut===true||req.handoffPlanReuse===true)return verdict("DENIED");
+  if(req.explicitS0Request!==true||req.optOut!==false||req.handoffPlanReuse===true||!["human","seller_ai"].includes(req.ownerRoute)||(req.purpose==="post_human"&&req.ownerRoute!=="human"))return verdict("DENIED");
   if(!isId(req.purpose)||!Array.isArray(req.allowedTemplates)||!Number.isSafeInteger(req.maxAttempts)||req.maxAttempts<0||!validTime(req.windowStart)||!validTime(req.windowEnd)||Date.parse(req.windowStart)>=Date.parse(req.windowEnd))return verdict("INVALID_INPUT");
   const templates=new Map();
   for(const t of req.allowedTemplates){
@@ -63,6 +63,7 @@ export function validateF02(req,proposal){
 export function prepareF03History(req){
   const gate=versionGate(req?.scope);if(gate.status!=="READY")return gate;
   if(req.humanClosed!==true||req.closureAuthenticated!==true||!isId(req.closureId))return verdict("DENIED");
+  if(["case","cycle","form","catalog","assignment"].some(k=>!(k in req.scope.expected)))return verdict("INVALID_INPUT");
   if(!isId(req.personId)||!Number.isSafeInteger(req.cutoffSequence)||req.cutoffSequence<0||!Array.isArray(req.records))return verdict("INVALID_INPUT");
   const ids=new Set(),snapshot=[];
   for(const r of req.records){
@@ -75,12 +76,12 @@ export function prepareF03History(req){
     snapshot.push({id:r.id,caseId:r.caseId,sequence:r.sequence,author:r.author,kind:r.kind,available:r.available});
   }
   snapshot.sort((a,b)=>a.sequence-b.sequence||a.id.localeCompare(b.id));
-  return {status:"READY",closureId:req.closureId,storeId:req.scope.storeId,personId:req.personId,cutoffSequence:req.cutoffSequence,sources:snapshot};
+  return {status:"READY",closureId:req.closureId,storeId:req.scope.storeId,personId:req.personId,cutoffSequence:req.cutoffSequence,expectedVersions:{...req.scope.expected},sources:snapshot};
 }
 
 export function validateF03Proposal(req,snapshot,proposal){
   const gate=versionGate(req?.scope);if(gate.status!=="READY")return gate;
-  if(!isRecord(snapshot)||snapshot.status!=="READY"||snapshot.closureId!==req.closureId||snapshot.storeId!==req.scope.storeId||snapshot.personId!==req.personId||snapshot.cutoffSequence!==req.cutoffSequence)return verdict("INVALID_INPUT");
+  if(!isRecord(snapshot)||snapshot.status!=="READY"||snapshot.closureId!==req.closureId||snapshot.storeId!==req.scope.storeId||snapshot.personId!==req.personId||snapshot.cutoffSequence!==req.cutoffSequence||JSON.stringify(snapshot.expectedVersions)!==JSON.stringify(req.scope.expected))return verdict("INVALID_INPUT");
   if(!Array.isArray(req.catalog)||!Array.isArray(snapshot.sources))return verdict("INVALID_INPUT");
   const catalog=new Map();for(const f of req.catalog){if(!onlyKeys(f,["code","essential"])||!isId(f.code)||typeof f.essential!=="boolean"||catalog.has(f.code))return verdict("INVALID_INPUT");catalog.set(f.code,f);}
   const sources=new Map(snapshot.sources.map(s=>[s.id,s]));
