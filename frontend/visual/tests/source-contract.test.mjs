@@ -371,3 +371,14 @@ test('FV-UI-025: falha de segurança bloqueia efetivamente execução nativa pos
     'test_native_gates_block_chromium_if_node_not_executed'
   ])assert.ok(offlineAdversarial.includes('def '+name+'('),name);
 });
+
+test('FV-UI-027: lista rola em viewport baixo e teste real mede reflow',()=>{
+  assert.match(styles,/@media\(max-width:760px\) and \(max-height:700px\)/);
+  assert.match(styles,/\.list-pane\{overflow-y:auto;overscroll-behavior-y:contain\}/);
+  assert.match(styles,/\.conversation-items\{flex:0 0 auto;min-height:170px;overflow:visible\}/);
+  assert.match(styles,/@media\(prefers-reduced-motion:reduce\)/);
+  assert.match(browserSmoke,/FV-UI-027 reflow responsivo/);
+  assert.match(browserSmoke,/reduced_motion='reduce'/);
+  assert.match(browserSmoke,/zoom_height<=700/);
+  assert.match(browserSmoke,/scroll_into_view_if_needed\(\)/);
+});
