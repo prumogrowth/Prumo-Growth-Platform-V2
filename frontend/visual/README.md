@@ -12,6 +12,8 @@
 
 > **FV-UI-022 (22/10/2026):** [proteções de Escape/rascunho e smoke Chromium](../docs/46_FV_UI_022_ESCAPE_RASCUNHO_SMOKE_REGRESSAO_2026_10_22.md). O Escape móvel agora recupera foco da tela visível, cancelamento de prévia conserva o rascunho só no atendimento original, o mock trata campos como `INPUT` e o smoke exige 12 casos na supervisão Marina/Aurora. Testes V8 aprovados; **execução nativa e homologação pendentes**.
 
+> **FV-UI-023 (22/10/2026):** [validação offline de ZIP autenticado por hashes](../docs/47_FV_UI_023_MANIFESTO_ZIP_OFFLINE_NATIVO_2026_10_22.md). O pacote da branch pode ser baixado manualmente pelo GitHub e validado sem clone: `verify_offline_export.py` exige hashes Git de todos os arquivos da frente, teste de manifesto e o mesmo verificador do pacote, sem aceitar arquivos extras. O verificador executa Node/Chromium **somente** após conferir integralmente os arquivos; isso é diagnóstico do snapshot, não homologação de checkout Git nem integração S0/S1.
+
 **Branch proprietária:** `feat/frontend-plataforma-visual`. **Referência visual:** organização de mensageiro familiar ao WhatsApp, sem copiar sua identidade, marca ou recursos. **Situação:** demonstração local com dados 100% sintéticos; não é portal operacional.
 
 ## Abrir localmente
