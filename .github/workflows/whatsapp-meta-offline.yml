@@ -367,3 +367,17 @@ jobs:
             if [[ "$count" != 1 ]]; then echo "FAIL WA33-$n marker: $count" >&2; exit 1; fi
           done
           echo 'PASS WA33: 30 PG17 assertions and four observed row-lock interleavings'
+
+      - name: "WA-34: consumo de nonce S0 ficticio e revogacao concorrente PG17"
+        run: |
+          set -euo pipefail
+          sql='meta/integrations/whatsapp-meta/lab'
+          psql -X -qAt -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" \
+            -f "$sql/wa34_pg17_nonce_consume.sql" > "$RUNNER_TEMP/wa34_setup.log"
+          grep -qx 'WA34-SETUP PASS' "$RUNNER_TEMP/wa34_setup.log"
+          python3 "$sql/wa34-assert-nonce-consume-pg17.py" | tee "$RUNNER_TEMP/wa34_evidence.log"
+          for n in {01..29}; do
+            count="$(grep -cx "WA34-$n PASS" "$RUNNER_TEMP/wa34_evidence.log" || true)"
+            if [[ "$count" != 1 ]]; then echo "FAIL WA34-$n marker: $count" >&2; exit 1; fi
+          done
+          echo 'PASS WA34: 29 PG17 nonce checks and three observed lock interleavings'
