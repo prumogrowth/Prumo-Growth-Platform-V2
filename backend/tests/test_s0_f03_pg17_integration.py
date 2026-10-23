@@ -218,5 +218,60 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
         # Existing valid row remains untouched.
         self.assertEqual(self.seal.lookup(self.binding)[5],2)
 
+    def test_09_other_store_message_not_in_history(self):
+        other_shop, other_lead, other_channel = uuid.uuid4(), uuid.uuid4(), uuid.uuid4()
+        other_conversation, other_message = uuid.uuid4(), uuid.uuid4()
+        with self.pg.connect(DB) as con:
+            con.execute("insert into public.concessionarias(id,nome_operacional) "
+                        "values (%s,'OTHER LAB SHOP')",(other_shop,))
+            con.execute('insert into public.leads_loja('
+                        'id,concessionaria_id,telefone_cliente_normalizado) '
+                        "values (%s,%s,'+5511966665555')",(other_lead,other_shop))
+            con.execute('insert into public.canais_loja('
+                        'id,concessionaria_id,identificador_emissor) '
+                        'values (%s,%s,%s)',(other_channel,other_shop,str(other_channel)))
+            con.execute('insert into public.conversas('
+                        'id,concessionaria_id,lead_id,canal_id) values (%s,%s,%s,%s)',
+                        (other_conversation,other_shop,other_lead,other_channel))
+            con.execute('insert into public.mensagens('
+                        'id,concessionaria_id,conversa_id,canal_id,'
+                        'direcao,origem,conteudo_sintetico,id_externo,criada_em) '
+                        "values (%s,%s,%s,%s,'entrada','simulado','separado',%s,"
+                        "statement_timestamp()-interval '2 days')",
+                        (other_message,other_shop,other_conversation,other_channel,str(other_message)))
+        data=self._read()
+        self.assertEqual(len(data.rows),2)
+        self.assertNotIn(str(other_message),[m.message_ref for m in data.rows])
+
+    def test_10_other_person_same_shop_not_in_history(self):
+        other_lead,other_conversation,other_message=uuid.uuid4(),uuid.uuid4(),uuid.uuid4()
+        with self.pg.connect(DB) as con:
+            con.execute('insert into public.leads_loja('
+                        'id,concessionaria_id,telefone_cliente_normalizado) '
+                        "values (%s,%s,'+5511955554444')",(other_lead,self.shop))
+            con.execute('insert into public.conversas('
+                        'id,concessionaria_id,lead_id,canal_id) values (%s,%s,%s,%s)',
+                        (other_conversation,self.shop,other_lead,self.channel))
+            con.execute('insert into public.mensagens('
+                        'id,concessionaria_id,conversa_id,canal_id,'
+                        'direcao,origem,conteudo_sintetico,id_externo,criada_em) '
+                        "values (%s,%s,%s,%s,'entrada','simulado','outra pessoa',%s,"
+                        "statement_timestamp()-interval '2 days')",
+                        (other_message,self.shop,other_conversation,self.channel,str(other_message)))
+        data=self._read()
+        self.assertEqual(len(data.rows),2)
+        self.assertNotIn(str(other_message),[m.message_ref for m in data.rows])
+
+    def test_11_content_edit_is_not_detected_by_membership_only_seal(self):
+        # Deliberately shows an OPEN GAP, not evidence of content integrity.
+        self.assertIs(self._save(),SealState.SEALED_REVIEW_ONLY)
+        original=_snapshot(self._read())[0]
+        with self.pg.connect(DB) as con:
+            con.execute('update public.mensagens set conteudo_sintetico=%s where id=%s',
+                        ('texto alterado apos encerramento',self.old_message))
+        self.assertEqual(_snapshot(self._read())[0],original)
+        self.assertIs(self._save(),SealState.ALREADY_SEALED_REVIEW_ONLY)
+        # F03 remains blocked from consuming content by contract.
+
 if __name__=='__main__':
     unittest.main()
