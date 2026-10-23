@@ -8,7 +8,7 @@ function defineCases(api,assert,test){
   const base=()=>({authenticated:true,authorized:true,tenantAllowed:true,storeId:"FAKE_A",caseId:"K1",expected:{case:1,cycle:2,form:3,catalog:4,assignment:5},current:{case:1,cycle:2,form:3,catalog:4,assignment:5}});
   const f01=()=>({scope:base(),owner:"ai",handoff:false,humanized:false,nowMs:1700000000000,sources:[{id:"fA",storeId:"FAKE_A",approved:true,active:true,mode:"current"}]});
   const p01=()=>({text:"Preço sujeito a confirmação.",commercial:true,sourceIds:["fA"],modality:"text"});
-  const f02=()=>({scope:base(),explicitS0Request:true,optOut:false,handoffPlanReuse:false,purpose:"post_human",maxAttempts:2,windowStart:"2026-11-01T10:00:00-03:00",windowEnd:"2026-11-10T10:00:00-03:00",allowedTemplates:[{id:"templ",version:"v1",storeId:"FAKE_A",purpose:"post_human",active:true}]});
+  const f02=()=>({scope:base(),explicitS0Request:true,optOut:false,handoffPlanReuse:false,ownerRoute:"human",purpose:"post_human",maxAttempts:2,windowStart:"2026-11-01T10:00:00-03:00",windowEnd:"2026-11-10T10:00:00-03:00",allowedTemplates:[{id:"templ",version:"v1",storeId:"FAKE_A",purpose:"post_human",active:true}]});
   const p02=()=>({attempts:[{templateId:"templ",version:"v1",purpose:"post_human",at:"2026-11-02T10:00:00-03:00"}],finalTemplate:{templateId:"templ",version:"v1",purpose:"post_human",at:"2026-11-05T10:00:00-03:00"}});
   const f03=()=>({scope:base(),humanClosed:true,closureAuthenticated:true,closureId:"E1",personId:"P1",cutoffSequence:7,records:[{id:"m1",storeId:"FAKE_A",personId:"P1",caseId:"K0",sequence:1,author:"customer",kind:"text",available:true,contentAuthorized:true},{id:"m7",storeId:"FAKE_A",personId:"P1",caseId:"K1",sequence:7,author:"customer",kind:"text",available:true,contentAuthorized:true},{id:"m8",storeId:"FAKE_A",personId:"P1",caseId:"K1",sequence:8,author:"customer",kind:"text",available:true,contentAuthorized:true}],catalog:[{code:"renda",essential:true},{code:"cor",essential:false}],verifiedWithdrawalSourceIds:["m7"]});
   const p03=()=>({fields:[{code:"renda",value:3500,sourceId:"m7"},{code:"cor",value:"azul",sourceId:"m1"}],conflicts:[],commercialAdvisory:null});
@@ -56,6 +56,12 @@ function defineCases(api,assert,test){
   test("F03_16_conflict_requires_review",()=>{let x=f03(),h=prepareF03History(x),p=p03();p.conflicts=[{code:"renda",sourceIds:["m1","m7"]}];assert.equal(validateF03Proposal(x,h,p).status,"REVIEW_REQUIRED");});
   test("F03_17_stale_apply_blocked",()=>{let x=f03(),h=prepareF03History(x);x.scope.current.form=7;assert.equal(validateF03Proposal(x,h,p03()).status,"STALE");});
   test("F03_18_revocation_precedes_stale",()=>{let x=f03(),h=prepareF03History(x);x.scope.current.form=7;x.scope.authorized=false;assert.deepEqual(validateF03Proposal(x,h,p03()),{status:"DENIED"});});
+
+  test("F01_10_missing_handoff_is_denied",()=>{let x=f01();delete x.handoff;assert.equal(validateF01(x,p01()).status,"DENIED");});
+  test("F02_12_missing_optout_is_denied",()=>{let x=f02();delete x.optOut;assert.equal(validateF02(x,p02()).status,"DENIED");});
+  test("F02_13_posthuman_requires_human_route",()=>{let x=f02();x.ownerRoute="seller_ai";assert.equal(validateF02(x,p02()).status,"DENIED");});
+  test("F03_20_five_version_domains_required",()=>{let x=f03();delete x.scope.expected.form;delete x.scope.current.form;assert.equal(prepareF03History(x).status,"INVALID_INPUT");});
+  test("F03_21_cutoff_snapshot_binds_versions",()=>{let x=f03(),h=prepareF03History(x);x.scope.expected.form=9;x.scope.current.form=9;assert.equal(validateF03Proposal(x,h,p03()).status,"INVALID_INPUT");});
   test("F03_19_no_mutation_claim",()=>{let x=f03(),h=prepareF03History(x),p=p03();p.applied=true;assert.equal(validateF03Proposal(x,h,p).status,"SCHEMA_INVALID");});
 }
 
