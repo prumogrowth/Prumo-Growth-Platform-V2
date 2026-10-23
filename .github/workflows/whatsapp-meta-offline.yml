@@ -396,3 +396,17 @@ jobs:
             if [[ "$count" != 1 ]]; then echo "FAIL WA35-$n marker: $count" >&2; exit 1; fi
           done
           echo 'PASS WA35: 16 signed HMAC to internal MAC to PG17 nonce checks'
+
+      - name: "WA-36: prova PG17 de negacao de privilegios para papeis ficticios"
+        run: |
+          set -euo pipefail
+          sql='meta/integrations/whatsapp-meta/lab'
+          psql -X -qAt -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" \
+            -f "$sql/wa36_pg17_least_privilege.sql" > "$RUNNER_TEMP/wa36_setup.log"
+          grep -qx 'WA36-SETUP PASS' "$RUNNER_TEMP/wa36_setup.log"
+          python3 "$sql/wa36-assert-least-privilege-pg17.py" | tee "$RUNNER_TEMP/wa36_evidence.log"
+          for n in {01..20}; do
+            count="$(grep -cx "WA36-$n PASS" "$RUNNER_TEMP/wa36_evidence.log" || true)"
+            if [[ "$count" != 1 ]]; then echo "FAIL WA36-$n marker: $count" >&2; exit 1; fi
+          done
+          echo 'PASS WA36: 20 PG17 privilege negatives; no production S0 service access'
