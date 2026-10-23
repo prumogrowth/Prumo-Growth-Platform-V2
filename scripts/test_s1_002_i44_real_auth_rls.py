@@ -285,3 +285,9 @@ runpy.run_path('scripts/test_s1_002_i48_optout_acl.py', init_globals=globals())
 from pathlib import Path
 _i49 = Path("scripts/test_s1_002_i49_fila_concorrencia.py")
 exec(compile(_i49.read_text(encoding="utf-8"), str(_i49), "exec"), globals())
+
+
+# I50: verify pending claim vs concurrent team/store revocations in local CI.
+from pathlib import Path
+_i50 = Path("scripts/test_s1_002_i50_fila_revalidacao.py")
+exec(compile(_i50.read_text(encoding="utf-8"), str(_i50), "exec"), globals())
