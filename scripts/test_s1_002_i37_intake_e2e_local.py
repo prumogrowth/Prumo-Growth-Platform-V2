@@ -2148,16 +2148,8 @@ if __name__ == '__main__':
             _i53 = Path("scripts/test_s1_002_i53_signed_canonical_e2e.py")
             exec(compile(_i53.read_text(encoding="utf-8"), str(_i53), "exec"), globals())
 
-            status,data=call_intake(token,o3,True,4)
-            ok(status,data,"ALREADY_APPLIED")
-            signer.revoke(new_key)
-            status,data=call_intake(token,o3,False,4)
-            if status!=403:raise AssertionError("I37 revoked signer key used")
-            print("PASS S1INTAKE-147: signer HMAC key revocation blocks new requests")
-            signer.close()
-            status,data=call_intake(token,o3,False,4)
-            if status!=503:raise AssertionError("I37 signer down not fail-closed")
-            print("PASS S1INTAKE-148: signer unavailable means HTTP 503")
+            # I53 above owns signed-key revocation/offline checks 147–148 on
+            # the canonical route. Legacy v37 is retired after cutover.
         finally:
             server.shutdown()
             server.server_close()

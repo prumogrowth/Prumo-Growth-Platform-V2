@@ -170,6 +170,18 @@ try:
        "where n.nspname='prumo_private' and p.proname='s1_definir_intake' "
        "and pg_catalog.has_function_privilege('authenticated',p.oid,'EXECUTE')")=="0"
     print("PASS S1CANON-156: private command and obsolete HTTP routes closed to clients")
+    # I37-147/148 must survive cutover, but against the canonical signed
+    # route: the old v37 bridge is deliberately disabled to avoid split brain.
+    signer.revoke(new_key)
+    status,_=intake53(token53,o3,True,7)
+    if status!=403:
+        raise AssertionError("I53 revoked HMAC signer key was accepted")
+    print("PASS S1INTAKE-147: canonical signed intake denies revoked signer key")
+    signer.close()
+    status,_=intake53(token53,o3,True,7)
+    if status!=503:
+        raise AssertionError("I53 offline signer did not fail closed")
+    print("PASS S1INTAKE-148: canonical signed intake unavailable without signer")
 finally:
     server53.shutdown()
     server53.server_close()
