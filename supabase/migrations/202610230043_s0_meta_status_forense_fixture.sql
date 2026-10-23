@@ -4,7 +4,7 @@
 -- Run only in disposable PostgreSQL 17, never in hosted Supabase.
 create table prumo_private.meta_status_forense_fixture_s0 (
  id uuid primary key default gen_random_uuid(),
- vinculo_id uuid not null references prumo_private.meta_vinculos_tentativa_fixture_s0(id),
+ vinculo_id uuid not null,
  event_ref text not null check(event_ref ~ '^[A-Za-z0-9_.:-]{1,128}$'),
  body_sha256 text not null check(body_sha256 ~ '^[0-9a-f]{64}$'),
  provider_status text not null
@@ -23,7 +23,7 @@ create table prumo_private.meta_status_forense_fixture_s0 (
 );
 create table prumo_private.meta_status_conflitos_fixture_s0 (
  id uuid primary key default gen_random_uuid(),
- vinculo_id uuid not null references prumo_private.meta_vinculos_tentativa_fixture_s0(id),
+ vinculo_id uuid not null,
  event_ref text not null check(event_ref ~ '^[A-Za-z0-9_.:-]{1,128}$'),
  body_sha256 text not null check(body_sha256 ~ '^[0-9a-f]{64}$'),
  reported_kind text not null
@@ -32,6 +32,30 @@ create table prumo_private.meta_status_conflitos_fixture_s0 (
  observado_em timestamptz not null default clock_timestamp(),
  unique(vinculo_id,event_ref,body_sha256,reported_kind)
 );
+-- Existing S0/041 regression intentionally exercises TRUNCATE's own
+-- immutable-ledger trigger and expects SQLSTATE 42501. A referencing FK
+-- would cause PostgreSQL to preempt this existing guard with 0A000. Use
+-- an INSERT constraint trigger instead: validate+lock the immutable
+-- source binding, preserving old regression and denying orphan records.
+create function prumo_private.validar_meta_status_vinculo_fixture_s0()
+returns trigger language plpgsql security invoker set search_path='' as $wa39_fk$
+begin
+ perform 1 from prumo_private.meta_vinculos_tentativa_fixture_s0
+  where id=new.vinculo_id for key share;
+ if not found then
+  raise exception 'UNKNOWN_META_STATUS_BINDING' using errcode='23503';
+ end if;
+ return new;
+end $wa39_fk$;
+create trigger meta_status_forense_validate_binding_s0
+ before insert on prumo_private.meta_status_forense_fixture_s0
+ for each row execute function prumo_private.validar_meta_status_vinculo_fixture_s0();
+create trigger meta_status_conflitos_validate_binding_s0
+ before insert on prumo_private.meta_status_conflitos_fixture_s0
+ for each row execute function prumo_private.validar_meta_status_vinculo_fixture_s0();
+revoke all on function prumo_private.validar_meta_status_vinculo_fixture_s0()
+ from public,anon,authenticated,service_role,prumo_s0_gateway,prumo_s0_signer;
+
 -- Preserve all evidence, including after opt-out, without mutating original rows.
 create trigger meta_status_forense_block_update_delete_s0
  before update or delete on prumo_private.meta_status_forense_fixture_s0
