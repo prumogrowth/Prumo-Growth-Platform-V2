@@ -1,5 +1,11 @@
 # Frente OpenAI — Prumo Growth | índice inicial
 
+## E04 — conflitos históricos F03 corrigidos (23/10/2026)
+
+[Correção no pré-validador F03](./e04_offline_lab/f03-commit-gate.mjs), [15 cenários adversariais novos](./e04_offline_lab/tests/f03-commit-gate.test.mjs) e [relatório de investigação e execução](./E04_F03_CONFLITOS_HISTORICOS_TESTES_2026_10_23_v0_1.md). A F03 não pode mais ocultar divergência explícita de valores do mesmo campo entre atendimentos autorizados: o laboratório compara as evidências **independentemente do que o modelo declare em `conflicts`** e encaminha a revisão humana, sem sobrescrever ficha. Não escolhe o valor mais recente automaticamente.
+
+**Provas distintas:** **110/110** aprovados no Node 22.16.0 local (57 F03 + 53 ciclo F02); **269/269** aprovados em V8 isolado sobre os 6 arquivos de teste recuperados do GitHub (imports nativos adaptados), **não** `npm test` completo no Node/CI. Os 70 SYN originais E02 continuam sem homologação de execução; E04 offline autorizada, E05 não autorizada.
+
 ## E04 — proteção F03 contra sobrescrita, replay e fonte inválida (23/10/2026)
 
 Implementados [pré-validador puro F03](./e04_offline_lab/f03-commit-gate.mjs), [42 casos de teste](./e04_offline_lab/tests/f03-commit-gate.test.mjs) e [relatório de evidência](./E04_F03_PRECHECK_CONCORRENCIA_NODE_2026_10_23_v0_1.md). **Node.js 22.16.0:** 42/42 novos casos F03 aprovados e 95/95 com os 53 F02 presentes no diretório local. **Regressão de 6 suítes completas, sobre fontes reobtidas do GitHub:** 254/254 aprovados em **V8 isolado com adaptação de imports Node** — não é `npm test` completo no Node/CI. Nenhum resultado concede mutação, envio, prova do Banco ou homologação S0.
