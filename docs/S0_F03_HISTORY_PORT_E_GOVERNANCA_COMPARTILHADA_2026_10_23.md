@@ -1,5 +1,7 @@
 # S0 compartilhada — adaptação necessária à F03, sem bloquear na ausência de equipe exclusiva
 
+> **VERSÕES F03 (23/10/2026):** a frente OpenAI adicionou [fontes sintéticas independentes de versões e reserva CAS consultiva na S0](./S0_F03_VERSIONES_CAS_RESERVA_PG17_PENDENTE_2026_10_23.md). A implementação prevê 18 testes físicos e 18 unitários adicionais; o GitHub Actions está **bloqueado antes de iniciar as etapas**, sem prova de falha de código ou do motivo da falha de inicialização. A última execução PG17 homologada continua **177/177** da etapa anterior; nenhuma aplicação de ficha ou transição de status foi habilitada.
+
 > **Incremento posterior — selo persistente local (23/10/2026):** [documentação do módulo append-only](./S0_F03_HISTORY_SEAL_APPEND_ONLY_2026_10_23.md), [código](../backend/s0_f03_history_seal_local.py), [31 testes](../backend/tests/test_s0_f03_history_seal_local.py) e [fixture SQL local](../supabase/tests/s0_f03_history_seal_local_only.sql). O novo registro conserva metadados de pertencimento das mensagens com rechecagens S0 antes e depois, sem conteúdo e sem autorização de execução F03. **31 testes Python locais aprovados com dublês S0/PG; nenhuma validação PG17 física**. A evolução é autorada pela frente OpenAI na S0 compartilhada, em PR #16 independente.
 
 **Data:** 23/10/2026. **Origem:** esclarecimento e autorização expressa do responsável. **Estado:** implementação offline em branch própria empilhada sobre o PR #12; não foi efetuado merge, deploy, migração nem intervenção na branch de outra frente.
