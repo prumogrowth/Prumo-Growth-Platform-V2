@@ -46,7 +46,7 @@ const invariantKeys=['ack_allowed','send_authorized','retry_external',
  'production_authorized','case_transition_authorized',
  'definitive_failure_count_increment'] as const;
 const decision=(result:Wa34HandoffDecision['decision']):Wa34HandoffDecision=>
- Object.freeze({decision,ack_allowed:false,send_authorized:false,
+ Object.freeze({decision:result,ack_allowed:false,send_authorized:false,
    retry_external:false,production_authorized:false,
    case_transition_authorized:false,definitive_failure_count_increment:false});
 const identifier=(x:unknown):x is string=>
