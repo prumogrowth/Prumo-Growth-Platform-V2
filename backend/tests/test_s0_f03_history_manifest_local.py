@@ -1,6 +1,8 @@
 """Lab-only S0-F03 metadata port tests; no network, hosted database or F03 model."""
 from __future__ import annotations
 import unittest
+import sys
+import types
 from unittest.mock import patch
 from uuid import UUID
 from datetime import datetime, timezone, timedelta
@@ -149,5 +151,62 @@ class Tests(unittest.TestCase):
         a,_,_=self.execute()
         b,_,_=self.execute()
         self.assertEqual(a.metadata_sha256,b.metadata_sha256)
+
+
+    def test_21_reader_queries_authorized_local_context_and_history(self):
+        receipt=target().receipt
+        queries=[]
+        class Cursor:
+            def __init__(self):self.n=0
+            def execute(self,sql,args=None):queries.append((sql,args))
+            def fetchall(self):return [(UUID(PERSON),DT)]
+            def fetchmany(self,count):
+                self.n=count
+                return [
+                    (UUID(OLDMESSAGE),UUID(OLD),UUID(CONVERSATION),DT-timedelta(hours=1),'entrada','simulado',None),
+                    (UUID(WATERMARK),UUID(CASE),UUID(CONVERSATION),DT,'saida','simulado',UUID(ASSIGN)),
+                ]
+            def __enter__(self):return self
+            def __exit__(self,*args):return False
+        class Connection:
+            def cursor(self):return Cursor()
+            def __enter__(self):return self
+            def __exit__(self,*args):return False
+        fake=types.SimpleNamespace(connect=lambda _dsn,**_kwargs:Connection())
+        with patch.dict(sys.modules,{'psycopg':fake}):
+            reader=S0F03LocalPostgresHistoryReader('postgresql://postgres:pw@localhost/prumo_s0_test_history')
+            answer=reader.load(receipt)
+        self.assertEqual(answer.lead_ref,PERSON)
+        self.assertEqual(len(answer.rows),2)
+        self.assertEqual(answer.rows[0].case_ref,OLD)
+        self.assertEqual(queries[1][1][0],EVENT)
+        self.assertEqual(queries[1][1][1],SHOP)
+        self.assertEqual(queries[2][1],(SHOP,UUID(PERSON),DT))
+        self.assertIn('repeatable read read only',queries[0][0])
+        self.assertNotIn('conteudo_sintetico',queries[2][0])
+
+    def test_22_reader_cannot_inherit_s0_capture_writer(self):
+        reader=S0F03LocalPostgresHistoryReader('postgresql://postgres:pw@localhost/prumo_s0_test_history')
+        self.assertFalse(hasattr(reader,'capture'))
+
+    def test_23_reader_missing_closure_returns_none(self):
+        class Cursor:
+            def execute(self,*args):pass
+            def fetchall(self):return []
+            def __enter__(self):return self
+            def __exit__(self,*args):return False
+        class Connection:
+            def cursor(self):return Cursor()
+            def __enter__(self):return self
+            def __exit__(self,*args):return False
+        with patch.dict(sys.modules,{'psycopg':types.SimpleNamespace(connect=lambda *a,**k:Connection())}):
+            reader=S0F03LocalPostgresHistoryReader('postgresql://postgres:pw@localhost/prumo_s0_test_history')
+            self.assertIsNone(reader.load(target().receipt))
+
+    def test_24_only_read_statements_in_history_reader(self):
+        self.assertIn('select m.id',_HISTORY_SQL)
+        self.assertIn('select h.lead_id',_CONTEXT_SQL)
+        self.assertNotIn('insert into',_HISTORY_SQL.lower())
+        self.assertNotIn('update public',_HISTORY_SQL.lower())
 
 if __name__=='__main__': unittest.main()
