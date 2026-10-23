@@ -65,7 +65,7 @@ BEGIN
      p_app !~ '^[A-Za-z0-9_.:-]{1,128}$' OR
      p_waba !~ '^[A-Za-z0-9_.:-]{1,128}$' OR
      p_phone !~ '^[0-9]{5,25}$' OR
-     p_wamid !~ '^wamid[.][A-Za-z0-9_.:-]{1,128}
+     p_wamid !~ '^wamid[.][A-Za-z0-9_.:-]{1,128}$' OR
      p_recipient !~ '^[0-9]{8,15}$' OR
      p_event !~ '^[A-Za-z0-9_.:-]{1,128}$' OR
      p_kind NOT IN ('SENT_REPORTED','DELIVERED_REPORTED','READ_REPORTED','FAILED_REPORTED') OR
