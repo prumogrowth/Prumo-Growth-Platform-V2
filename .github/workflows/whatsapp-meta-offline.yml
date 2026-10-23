@@ -353,3 +353,17 @@ jobs:
             if [[ "$count" != 1 ]]; then echo "FAIL WA32-$n marker: $count" >&2; exit 1; fi
           done
           echo 'PASS WA32: 18 signed-route PG17-to-TypeScript scoped forensic correlations'
+
+      - name: "WA-33: handoff transacional forense concorrente PG17 descartavel"
+        run: |
+          set -euo pipefail
+          sql='meta/integrations/whatsapp-meta/lab'
+          psql -X -qAt -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" \
+            -f "$sql/wa33_pg17_atomic_forensic_handoff.sql" > "$RUNNER_TEMP/wa33_setup.log"
+          grep -qx 'WA33-SETUP PASS' "$RUNNER_TEMP/wa33_setup.log"
+          python3 "$sql/wa33-assert-atomic-handoff-pg17.py" | tee "$RUNNER_TEMP/wa33_evidence.log"
+          for n in {01..30}; do
+            count="$(grep -cx "WA33-$n PASS" "$RUNNER_TEMP/wa33_evidence.log" || true)"
+            if [[ "$count" != 1 ]]; then echo "FAIL WA33-$n marker: $count" >&2; exit 1; fi
+          done
+          echo 'PASS WA33: 30 PG17 assertions and four observed row-lock interleavings'
