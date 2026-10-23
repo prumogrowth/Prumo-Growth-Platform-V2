@@ -464,7 +464,7 @@ with sync_playwright() as p:
     detail_tab.focus()
     expect(detail_tab).to_be_focused()
     dynamic.set_viewport_size({'width':360,'height':500})
-    assert dynamic.locator('#visual-app').get_attribute('data-mobile-view')=='detail'
+    expect(dynamic.locator('#visual-app')).to_have_attribute('data-mobile-view','detail')
     expect(detail_tab).to_be_visible()
     expect(detail_tab).to_be_focused()
     assert not dynamic.evaluate('document.documentElement.scrollWidth > innerWidth')
@@ -502,7 +502,7 @@ with sync_playwright() as p:
             responsive.locator('#message-input').focus()
         else: responsive.locator('#search-input').focus()
         responsive.set_viewport_size({'width':320,'height':480})
-        assert responsive.locator('#visual-app').get_attribute('data-mobile-view')==target
+        expect(responsive.locator('#visual-app')).to_have_attribute('data-mobile-view',target)
         expect(responsive.locator('#message-input' if target=='thread' else '#search-input')).to_be_focused()
         assert not responsive.evaluate('document.documentElement.scrollWidth > innerWidth')
         responsive.close()

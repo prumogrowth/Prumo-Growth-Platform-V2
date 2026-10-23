@@ -1160,6 +1160,13 @@ window.addEventListener('resize',()=>{
     if(state.mobileView==='detail' && selectedCase()){
       app.classList.remove('details-hidden');
       $('detail-toggle').setAttribute('aria-expanded','true');
+      if(!document.querySelector('dialog[open]') &&
+         !$('detail-pane').contains(document.activeElement)){
+        const remembered=lastResponsiveFocus.region==='detail'?lastResponsiveFocus.node:null;
+        const destination=remembered?.isConnected && $('detail-pane').contains(remembered)?
+          remembered:$('detail-toggle');
+        destination.focus();
+      }
     }
     return;
   }
