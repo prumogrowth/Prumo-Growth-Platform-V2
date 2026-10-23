@@ -58,4 +58,8 @@ jobs:
             count="$(grep -c "WA40-$n PASS" "$RUNNER_TEMP/wa39.log" || true)"
             if [[ "$count" != 1 ]]; then echo "WA40-$n marker invalid: $count" >&2; exit 1; fi
           done
-          echo "WA39 18/18 and WA40 25/25 PASS - PG17 disposable, no Meta token, no Supabase hosted"
+          for n in {01..16}; do
+            count="$(grep -c "WA41-$n PASS" "$RUNNER_TEMP/wa39.log" || true)"
+            if [[ "$count" != 1 ]]; then echo "WA41-$n marker invalid: $count" >&2; exit 1; fi
+          done
+          echo "WA39 18/18, WA40 25/25, WA41 16/16 PASS - PG17 disposable, no Meta token or Supabase hosted"
