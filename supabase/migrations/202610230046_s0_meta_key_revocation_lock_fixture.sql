@@ -40,9 +40,9 @@ begin
  uuid,text,text,text,uuid,uuid,text,text,text,text,text,text,text,bigint,uuid,text)'::regprocedure)
    <>'prumo_s0_meta_signer_lab'
  then raise exception 'WA42_SIGNER_OWNER_MISMATCH' using errcode='42501';end if;
- execute 'grant create on schema prumo_private to prumo_s0_meta_signer_lab';
- execute 'set local role prumo_s0_meta_signer_lab';
 end $wa42_owner$;
+grant create on schema prumo_private to prumo_s0_meta_signer_lab;
+set role prumo_s0_meta_signer_lab;
 
 create or replace function prumo_private.meta_verificar_handoff_fixture_s0(
  p_chave uuid,p_app text,p_waba text,p_phone text,p_canal uuid,
@@ -94,12 +94,7 @@ begin
   raise exception 'META_HANDOFF_REPLAY' using errcode='42501';end if;
 end $wa41_v$;
 
-do $wa42_cleanup$
-begin
- if current_user<>'prumo_s0_meta_signer_lab' then
-  raise exception 'WA42_NOT_SIGNER' using errcode='42501';end if;
- execute 'reset role';
- execute 'revoke create on schema prumo_private from prumo_s0_meta_signer_lab';
-end $wa42_cleanup$;
+reset role;
+revoke create on schema prumo_private from prumo_s0_meta_signer_lab;
 -- The wrapper/nonce/forensics interface remains unchanged: no Graph,
 -- webhook HTTP ACK, machine LOGIN or production authorization.
