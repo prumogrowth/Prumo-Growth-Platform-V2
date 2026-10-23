@@ -440,3 +440,14 @@ test('FV-UI-034: fechamento do painel tablet não perde foco ou fecha modal',()=
   assert.match(domMock,/tablet = false/);
   assert.match(browserSmoke,/FV-UI-034 Escape tablet e foco ao fechar detalhes: PASS/);
 });
+
+
+test('FV-UI-035: retorno do foco dos controles mobile após ampliar viewport',()=>{
+  assert.match(app,/const lastMobileBack=lastResponsiveFocus\.node\?\.id/);
+  assert.match(app,/lastMobileBack==='detail-back'/);
+  assert.match(app,/lastMobileBack==='thread-back'/);
+  assert.match(app,/\$\('detail-content'\)\.querySelector\('\.detail-tab\.active'\)/);
+  assert.match(app,/\$\('thread-pane'\)\.focus\(\)/);
+  assert.match(browserSmoke,/FV-UI-035 retorno de foco ao ampliar mobile para desktop\/tablet: PASS/);
+  assert.match(browserSmoke,/for destination_width in \(900,1440\)/);
+});

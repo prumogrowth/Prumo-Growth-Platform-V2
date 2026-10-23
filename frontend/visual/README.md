@@ -174,3 +174,7 @@ O listener de transição de breakpoint preserva o painel que continha o foco (L
 ## FV-UI-034 — Fechamento acessível do painel Detalhes em tablet (23/10/2026)
 
 Em largura intermediária (761–1040 CSS px), o botão **Fechar detalhes** e a tecla **Escape** no painel flutuante agora fecham somente o painel visual e devolvem o foco ao botão **Mostrar detalhes**. Escape dentro do compositor/editor de nota não fecha o painel; diálogos nativos não são interceptados. Caso selecionado, conteúdo de ficha, papel e autorização não mudam. Cobertura: testes DOM com fixture tablet, regressão estática e Chromium em 900/1024 px. [FV-UI-034](../docs/60_FV_UI_034_FOCO_FECHAR_DETALHES_TABLET_2026_10_23.md).
+
+## FV-UI-035 — Foco após ampliar viewport móvel para tablet/desktop (23/10/2026)
+
+O controle **Voltar** existe somente no layout móvel e desaparece ao ampliar a janela. Na transição de 390 para 900/1440 CSS pixels, quando esse botão estava focado, o foco agora vai à região nomeada da **Conversa** (`#thread-pane`) ou à aba ativa de **Detalhes** ainda autorizada e visível. O tratamento não muda caso, atendimento, permissão, rascunho ou evento comercial, e não interfere no foco de diálogo modal. O teste Chromium cobre os dois destinos, incluindo reflow e ausência de overflow; **não substitui zoom manual ou leitor de tela humano**. [FV-UI-035](../docs/62_FV_UI_035_FOCO_MOBILE_PARA_DESKTOP_2026_10_23.md).

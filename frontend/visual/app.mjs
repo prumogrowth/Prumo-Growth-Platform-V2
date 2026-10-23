@@ -1178,18 +1178,28 @@ window.addEventListener('resize',()=>{
   if(isMobile===wasMobileViewport)return;
   wasMobileViewport=isMobile;
   if(!isMobile){
-    // No móvel, a aba Detalhes pode ter sido aberta mesmo que o painel desktop
-    // estivesse inicialmente recolhido. Não ocultá-la na volta ao desktop.
+    // FV-UI-035: os botões mobile Voltar deixam de existir visualmente ao
+    // ampliar para tablet/desktop. Não restaurar foco em um botão oculto.
+    // Guardar a região do mesmo caso e orientar o teclado para destino visível.
+    const dialogOpen=Boolean(document.querySelector('dialog[open]'));
+    const lastMobileBack=lastResponsiveFocus.node?.id;
     if(state.mobileView==='detail' && selectedCase()){
       app.classList.remove('details-hidden');
       $('detail-toggle').setAttribute('aria-expanded','true');
-      if(!document.querySelector('dialog[open]') &&
-         !$('detail-pane').contains(document.activeElement)){
+      if(!dialogOpen &&
+         (lastMobileBack==='detail-back' ||
+          !$('detail-pane').contains(document.activeElement))){
         const remembered=lastResponsiveFocus.region==='detail'?lastResponsiveFocus.node:null;
-        const destination=remembered?.isConnected && $('detail-pane').contains(remembered)?
-          remembered:$('detail-toggle');
+        const destination=lastMobileBack==='detail-back'?
+          $('detail-content').querySelector('.detail-tab.active') ?? $('detail-toggle'):
+          remembered?.isConnected && $('detail-pane').contains(remembered)?
+            remembered:$('detail-toggle');
         destination.focus();
       }
+    }else if(!dialogOpen && state.mobileView==='thread' && selectedCase() &&
+             lastMobileBack==='thread-back'){
+      // A região de conversa já possui tabindex=-1 e nome acessível.
+      $('thread-pane').focus();
     }
     return;
   }

@@ -506,6 +506,29 @@ with sync_playwright() as p:
         expect(responsive.locator('#message-input' if target=='thread' else '#search-input')).to_be_focused()
         assert not responsive.evaluate('document.documentElement.scrollWidth > innerWidth')
         responsive.close()
+    # FV-UI-035: o botão Voltar existe só no layout mobile. Quando a viewport
+    # aumenta, o foco não deve desaparecer nem ficar no BODY/controle oculto.
+    for destination_width in (900,1440):
+        for view in ('thread','detail'):
+            backflow=browser.new_page(viewport={'width':390,'height':844})
+            backflow.set_default_timeout(4500)
+            backflow_errors=[]
+            backflow.on('pageerror',lambda error:backflow_errors.append(str(error)))
+            backflow.set_content(html);backflow.add_script_tag(content=script)
+            backflow.get_by_role('button',name='Abrir conversa Cliente Exemplo 02',exact=False).click()
+            if view=='detail':backflow.locator('#detail-toggle').click()
+            backflow.locator('#'+view+'-back').focus()
+            expect(backflow.locator('#'+view+'-back')).to_be_focused()
+            backflow.set_viewport_size({'width':destination_width,'height':780})
+            target='#thread-pane' if view=='thread' else '#case-tab-overview'
+            expect(backflow.locator(target)).to_be_focused()
+            expect(backflow.locator(target)).to_be_visible()
+            assert 'Caso A-102' in backflow.locator('#thread-meta').inner_text()
+            assert not backflow.evaluate('document.documentElement.scrollWidth > innerWidth')
+            assert not backflow_errors,repr(backflow_errors)
+            backflow.close()
+    print('FV-UI-035 retorno de foco ao ampliar mobile para desktop/tablet: PASS')
+
     print('FV-UI-033 foco e reflow na transição de breakpoints: PASS')
 
     # FV-UI-034: Escape e Fechar no overlay de 761..1040 px não podem
