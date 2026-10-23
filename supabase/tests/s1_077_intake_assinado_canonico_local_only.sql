@@ -81,7 +81,7 @@ begin
  v_resultado:=prumo_private.s1_apply_intake_signed_v53(
   p_ator,p_sessao,p_operador,p_pausar,p_versao);
  if v_resultado->>'outcome' not in ('INTAKE_PAUSED','INTAKE_RESUMED','ALREADY_APPLIED','CONFLICT')
-   or (v_resultado->>'outcome'<>'CONFLICT'
+   or (v_resultado->>'outcome' in ('INTAKE_PAUSED','INTAKE_RESUMED')
     and v_resultado->>'redistribution' is distinct from 'DEFERRED_S0_HUMAN_PROOF')
  then raise exception 'I53_INVALID_RESULT' using errcode='42501';end if;
  return v_resultado;
