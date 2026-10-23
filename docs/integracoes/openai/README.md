@@ -1,5 +1,11 @@
 # Frente OpenAI — Prumo Growth | índice inicial
 
+## E04/F02 — frequency capping Meta e erro 131049 (22/10/2026)
+
+O responsável levantou a hipótese de **“dois templates por pessoa a cada dia sem resposta”**. A pesquisa confirmou limitações Meta adaptativas de **MARKETING** e rejeição **131049**, mas **não** confirmou limite numérico universal de dois templates diários. Ver [análise e conciliação CF-OP-02/FREQ v0.1](./CF_OP_02_META_FREQUENCY_CAPPING_F02_2026_10_22_v0_1.md).
+
+**E04 entregou código offline:** [pré-verificação de frequência local configurável](./e04_offline_lab/template-frequency.mjs), [33 casos de frequência](./e04_offline_lab/tests/template-frequency.test.mjs), além de **5 regressões novas** na [suíte de recibos Meta](./e04_offline_lab/tests/transport-evidence.test.mjs), agora com **33 casos**. As duas suítes totalizam **66/66 PASS reais no Node 22.16.0**, com hashes dos quatro arquivos idênticos aos blobs testados no GitHub; nenhuma API real. Os 50 testes anteriores seguem medidos separadamente em V8. **Os 70 SYN E02 não foram executados como oráculos originais.** 131049 causa revisão, não perda comercial automática; definição física pertence S0/Meta [R].
+
 ## E04 — redutor de recibos Meta implementado offline (22/10/2026)
 
 A suíte E04 ganhou [normalizador determinístico de recibos de transporte](./e04_offline_lab/transport-evidence.mjs) e [28 testes `node:test`](./e04_offline_lab/tests/transport-evidence.test.mjs). **28/28 passaram em Node.js 22.16.0 com os mesmos blobs publicados no GitHub.** Esse incremento não executa webhook real, envio, C09, mudança de status, banco ou chamada OpenAI. `sent` requer prova no modelo sintético; `queued/accepted/unknown` não contam como envio; duas falhas definitivas são **apenas sinalização de revisão S0**, sem concluir perda comercial.
