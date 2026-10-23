@@ -1,5 +1,7 @@
 # E02-QA v0.1 — Auditoria de consistência dos 70 cenários documentais
 
+> **Atualização de execução distinta — 22/10/2026:** o responsável autorizou **E04 offline** e foi iniciado [um laboratório executável isolado](./e04_offline_lab/README.md) com **50 testes unitários sintéticos sobre validadores de guardas**, aprovados no runner V8 desta sessão. Isso **não** equivale a executar os 70 casos SYN da matriz (que seguem 0 executados no seu protocolo original), nem a aprovação E02 física/S0/Meta. A redação histórica abaixo de “E04 não autorizada” reflete a situação **anterior** à liberação expressa.
+
 **Data:** 22/10/2026. **Abrangência:** [E02-MT v0.3](./E02_MATRIZ_REGRESSAO_OPERACIONAL_v0_3.md), [70 oráculos v0.4](./E02_CADERNO_70_ORACULOS_E_OBSERVAVEIS_v0_4.md), [caderno de dez exemplos](./E02_CADERNO_FIXTURES_DOCUMENTAIS_v0_3.md), [contrato E01-INT v0.4](./E01_CONTRATO_TIPADO_ADAPTADOR_FALHAS_v0_4.md), AL-IA-01/02/03, CFI-01/CF-OP-02 e pacotes E02-REV. **Revisão editorial do corpus**, não inspeção de código executável, parecer jurídico, homologação interfrentes ou teste de modelo.
 
 ## 1. Resultado quantitativo verificável desta auditoria documental
