@@ -1,5 +1,7 @@
 # OAI-01 v0.3 — Porta operacional S0 ↔ OpenAI (candidata)
 
+> **Governança atualizada em 23/10/2026:** [S0 é infraestrutura compartilhada, sem frente proprietária exclusiva ativa](./DECISAO_S0_COMPARTILHADA_EDICAO_POR_FRENTES_2026_10_23_v0_1.md). A frente OpenAI desenvolve F01/F02/F03 e implementa na própria S0 as interfaces de backend que precisar, por alterações isoladas e compatíveis. Ratificação física e testes continuam exigidos, mas a ausência de uma frente S0 não é condição de espera. Primeira adaptação direta: [PR #16](https://github.com/prumogrowth/Prumo-Growth---Platform/pull/16), ainda Draft e offline.
+
 **Data:** 22/10/2026. **Estado:** [DN/DA] funções aprovadas em alinhamento de produto; [P/R] interface física ainda candidata; [V] homologações externas. **NÃO É** endpoint implementado, aceite conjunto, permissão de execução, nem autorização de custo/deploy.
 
 ## 1. Precedência e relação com versões anteriores
