@@ -28,7 +28,8 @@ begin
 
  if not (select p.prosecdef from pg_catalog.pg_proc p where p.oid=v_verifier)
    or not exists(select 1 from pg_catalog.pg_proc p where p.oid=v_verifier
-       and 'search_path='=any(p.proconfig))
+       and exists(select 1 from pg_catalog.unnest(p.proconfig) cfg
+        where cfg like 'search_path=%'))
  then raise exception 'WA41-04 not restricted definer';end if;
  raise notice 'WA41-04 PASS';
 
