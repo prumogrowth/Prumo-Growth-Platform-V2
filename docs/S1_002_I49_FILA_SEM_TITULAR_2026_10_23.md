@@ -31,4 +31,11 @@ O S0 deve comprovar: evento real e durável de entrada/saída da fila, estágio 
 
 ## Evidências
 
-Verificar logs e SHA de Actions antes de atribuir PASS; registrar no encerramento.
+**Verificado em 23/10/2026**:
+
+- **GoTrue/PostgREST — [Actions #39940647822](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39940647822)**: **SUCCESS**, job `120370951728`, código testado em `9b2f81464562580b32ac2c65073786eeffd6332d`. Logs efetivamente examinados: `PASS I49-01` a `PASS I49-06`, **6/6**. A disputa em **duas sessões PostgreSQL independentes** resultou em `APPLIED` e `ALREADY_CLAIMED`, com um caso e uma atribuição ativa no mock, e desaparecimento do item da projeção após commit.
+- **PG17 S0/S1 — [Actions #39940647789](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39940647789)**: **SUCCESS** sobre o mesmo commit `9b2f814`; inclui regressões e auditorias I46/I48 anteriores.
+- **Correção necessária:** a [primeira execução I49 #39940366214](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39940366214) falhou **na sintaxe da fixture** por fechamento incompleto de `NOT EXISTS` na função `assumir_mock`. Corrigido no commit [9b2f814](https://github.com/prumogrowth/Prumo-Growth---Platform/commit/9b2f81464562580b32ac2c65073786eeffd6332d), sem relaxar as regras de acesso. O CI verde posterior foi conferido.
+- **Alcance limitado:** `s1_i49_fila_resumo_mock` e `assumir_mock` são exercícios de autorização e atomicidade **somente em Supabase CLI/PG17 descartáveis**. A execução não comprova que os endpoints, eventos, o handoff, o controle de concorrência nem as migrations da S0 em produção já implementem essa solução. O marcador não é um evento real emitido pela S0.
+
+**Próximo incremento I50 [P]:** reforçar a matriz de invariantes de concorrência em leituras de fila, troca de responsável e exclusividade de primeiro commit, mapear a ausência de fonte física do marcador/versão S0 e pactuar contrato de projeção por loja sem D2/D3/D4. Não elevar o mock a API pública nem tocar na branch S0; A2 permanece [R].
