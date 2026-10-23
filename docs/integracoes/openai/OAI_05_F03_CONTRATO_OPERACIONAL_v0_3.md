@@ -1,5 +1,7 @@
 # OAI-05 v0.3 — F03: extração pós-conclusão humana e histórico integral (candidata)
 
+> **Propriedade corrigida em 23/10/2026:** **F03 pertence integralmente à frente OpenAI**; S0 não possui frente exclusiva ativa. A frente OpenAI deve adaptar diretamente a S0 para fornecer histórico, versões e grants necessários, mediante PR isolado e regressões — [decisão de governança](./DECISAO_S0_COMPARTILHADA_EDICAO_POR_FRENTES_2026_10_23_v0_1.md). Primeiro incremento concreto em [PR #16](https://github.com/prumogrowth/Prumo-Growth---Platform/pull/16), metadados multi-casos `REVIEW_ONLY_NOT_FROZEN` na S0. Não interpretar como histórico completo já homologado.
+
 > **Manifesto histórico F03 [P/R]:** [CFI-01E — evidência multi-casos, cutoff e revalidação](./CFI_01_MANIFESTO_HISTORICO_F03_CANDIDATO_v0_1.md). Não confundir o recibo físico da S0 do PR #12 com payload multimodal/cliente/loja já autorizado.
 
 > **Conciliação física pendente [R]:** ver [CFI-01 v0.3 — ponte F03 com S0/S1/FV/Meta](./CFI_01_CONCILIACAO_PONTE_F03_INTERFRENTES_v0_3.md) e [E02-REV v0.3](./E02_PACOTE_REVISAO_CRUZADA_E_GATES_v0_3.md). PR #12 S0 confirma metadados internos, **não** o histórico multimodal completo nem permissão de aplicação.
