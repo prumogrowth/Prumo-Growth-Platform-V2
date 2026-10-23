@@ -268,3 +268,9 @@ exec(compile(_i45.read_text(encoding="utf-8"), str(_i45), "exec"), globals())
 from pathlib import Path
 _i46 = Path("scripts/test_s1_002_i46_acl_surface.py")
 exec(compile(_i46.read_text(encoding="utf-8"), str(_i46), "exec"), globals())
+
+
+# I47: audit post-038 objects with same loopback stack and real GoTrue JWTs.
+from pathlib import Path
+_i47 = Path("scripts/test_s1_002_i47_indirect_acl.py")
+exec(compile(_i47.read_text(encoding="utf-8"), str(_i47), "exec"), globals())
