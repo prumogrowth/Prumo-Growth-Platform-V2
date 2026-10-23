@@ -8,7 +8,7 @@ import re
 root=Path(__file__).resolve().parent.parent
 files=[]
 for p in sorted((root/"supabase/migrations").glob("*.sql")):
-    m=re.match(r"20\d{10}(\d{3})_",p.name)
+    m=re.match(r"20\d{6}(\d{4})_",p.name)
     if m and 13<=int(m.group(1))<=37 and "_s1_" not in p.name:
         files.append(p)
 if len(files)<20:
