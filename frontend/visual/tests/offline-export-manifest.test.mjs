@@ -53,3 +53,22 @@ test('FV-UI-023: tamanho e Git blob SHA-1 do manifesto coincidem com checkout',(
     assert.equal(shaGit(data),entry.sha,path+' blob');
   }
 });
+
+test('FV-UI-024: proteção adversarial Python integra ambos os diagnósticos nativos',()=>{
+  const acceptance=readFileSync(join(here,'run_acceptance.py'),'utf8');
+  const security=readFileSync(join(here,'test_offline_export.py'),'utf8');
+  assert.match(acceptance,/Offline ZIP verifier adversarial regression/);
+  assert.match(acceptance,/test_offline_export\.py/);
+  assert.match(verifier,/\["zip_security_python"\]/);
+  assert.match(verifier,/uncompressed budget exceeded/);
+  assert.match(verifier,/\["native_snapshot_pass"\]/);
+  const tests=[...security.matchAll(/^    def (test_[a-z0-9_]+)\(/gm)].map(m=>m[1]);
+  assert.ok(tests.length>=15,'Missing negative ZIP fixture tests');
+  assert.equal(new Set(tests).size,tests.length);
+  for(const subject of ['modified_blob','same_size_tampered','extra_frontend_file',
+    'missing_required_member','duplicate_archive_member','changed_verifier',
+    'path_traversal','absolute_path','symlink','multiple_frontend_roots',
+    'total_uncompressed','manifest_pinning']) {
+    assert.ok(tests.some(name=>name.includes(subject)),subject);
+  }
+});
