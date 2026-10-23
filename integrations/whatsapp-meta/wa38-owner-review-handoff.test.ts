@@ -51,6 +51,6 @@ test('WA38-16 questions cover S0 S1 Meta Infra explicitly',()=>{
 test('WA38-17 no local report can represent an external signoff',()=>{
  assert.ok(doc.includes('nenhuma revisão externa é assumida'));
  assert.ok(doc.includes('não é, por si, ratificação'));
- assert.ok(doc.includes('não foram executados em ambiente homologado'));
+ assert.ok(doc.includes('ainda não executados em ambiente homologado'));
  assert.ok(doc.includes('PR #2 permanece **Draft**'));
 });
