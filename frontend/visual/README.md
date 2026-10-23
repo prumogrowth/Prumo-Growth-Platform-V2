@@ -14,6 +14,8 @@
 
 > **FV-UI-023 (22/10/2026):** [validação offline de ZIP autenticado por hashes](../docs/47_FV_UI_023_MANIFESTO_ZIP_OFFLINE_NATIVO_2026_10_22.md). O pacote da branch pode ser baixado manualmente pelo GitHub e validado sem clone: `verify_offline_export.py` exige hashes Git de todos os arquivos da frente, teste de manifesto e o mesmo verificador do pacote, sem aceitar arquivos extras. O verificador executa Node/Chromium **somente** após conferir integralmente os arquivos; isso é diagnóstico do snapshot, não homologação de checkout Git nem integração S0/S1.
 
+> **FV-UI-024 (22/10/2026):** [testes adversariais e gate do pacote offline](../docs/48_FV_UI_024_TESTES_ADVERSARIAIS_ZIP_E_GATE_NATIVO_2026_10_22.md). A validação do ZIP passa a exigir 15 cenários Python sintéticos (`test_offline_export.py`) contra adulteração/arquivos duplicados, caminhos, symlink e troca de verificador. O check nativo offline e o checkout Git exigem essa suíte, além de Node/Chromium. Manifesto Git é atualizado ao final das alterações para não misturar revisões. **Nenhum teste nativo/Chromium foi executado nesta conversa.**
+
 **Branch proprietária:** `feat/frontend-plataforma-visual`. **Referência visual:** organização de mensageiro familiar ao WhatsApp, sem copiar sua identidade, marca ou recursos. **Situação:** demonstração local com dados 100% sintéticos; não é portal operacional.
 
 ## Abrir localmente
