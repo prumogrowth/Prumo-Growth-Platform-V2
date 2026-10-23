@@ -1,5 +1,7 @@
 # E02 v0.3 — Segurança, privacidade e gates para contrato operacional OpenAI
 
+> **Extensão adversarial documental [P/R]:** [24 variações AX de conhecimento e MCP](./E02_MATRIZ_ADVERSARIAL_CONHECIMENTO_MCP_v0_1.md) e [matriz de autoridade v0.4](./E01_GOVERNANCA_CONHECIMENTO_MCP_PORTOES_v0_4.md). AXs **não** ampliam a contagem SYN-01..70; controles de cache, busca, mutação, confirmação e auditoria continuam sujeitos à S0.
+
 > **Refinamento lógico de tratamento de erros [P/R]:** [E01-INT v0.4](./E01_CONTRATO_TIPADO_ADAPTADOR_FALHAS_v0_4.md) diferencia negação de autorização, versão obsoleta, recusa do modelo e validação de fonte. A precedência `DENIED` antes de expor `STALE` é princípio de não divulgação, não enum físico S0 aprovado.
 
 > **Pacote de revisão entre frentes:** [E02-REV v0.3](./E02_PACOTE_REVISAO_CRUZADA_E_GATES_v0_3.md) e as conciliações [CFI-01](./CFI_01_CONCILIACAO_PONTE_F03_INTERFRENTES_v0_3.md)/[CF-OP-02/C09](./CF_OP_02_C09_CONCILIACAO_F02_INTERFRENTES_v0_3.md). O checklist ainda depende de ratificação pelos donos, não é evidência de teste.
