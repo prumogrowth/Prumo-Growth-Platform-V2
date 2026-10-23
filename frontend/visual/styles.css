@@ -174,3 +174,10 @@
   .list-heading,.queue-heading,.list-footer{flex:none}
   .conversation-items{flex:0 0 auto;min-height:170px;overflow:visible}
 }
+
+/* FV-UI-028: foco perceptível em superfícies claras também para textarea e summary.
+   O trilho escuro mantém o anel claro global já existente. */
+.workspace :is(button,input,select,textarea,summary):focus-visible,
+dialog :is(button,input,select,textarea,summary):focus-visible{
+  outline:3px solid #11685d;outline-offset:2px
+}
