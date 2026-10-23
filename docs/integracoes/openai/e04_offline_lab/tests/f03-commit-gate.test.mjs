@@ -57,7 +57,7 @@ test('proposal cannot claim applied status',()=>check('SCHEMA_INVALID',x=>{x.pro
 test('source unavailable cannot be made up by the model',()=>check('SOURCE_INVALID',x=>x.proposal.fields[0].sourceId='imaginary'));
 test('result has no mutation, sends or bank proof',()=>{const out=gate(fixture());for(const key of ['applied','sent','commercialStatus','bankReceipt','databaseWrite']) assert.equal(key in out,false);});
 
- // Extra adversarial cases: hidden contradictions cannot be trusted to F03's self-report.
+// Extra adversarial cases: hidden contradictions cannot be trusted to F03's self-report.
 test('hidden income conflict across historical cases requires human review',()=>check('HUMAN_REVIEW_REQUIRED',x=>x.cutoff.sources[0].claims.push({code:'renda',value:2400,explicit:true})));
 test('equal explicit income in both cases is not automatically a contradiction',()=>check('S0_RECHECK_ONLY',x=>x.cutoff.sources[0].claims.push({code:'renda',value:3500,explicit:true})));
 test('conflict in optional field also requests review',()=>check('HUMAN_REVIEW_REQUIRED',x=>x.cutoff.sources[1].claims.push({code:'cor',value:'vermelho',explicit:true})));
