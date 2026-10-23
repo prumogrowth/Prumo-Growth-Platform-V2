@@ -205,8 +205,8 @@ begin
   where x.atribuicao_id=p_atribuicao_esperada and x.revogada_em is null
     and x.operador_id=v_origem and x.concessionaria_id=p_loja and x.caso_id=p_caso
  ) then raise exception 'ORIGEM_SEM_TITULARIDADE_AUTORIZADA' using errcode='42501';end if;
- -- Até a decisão de produto sobre transferência manual para operador
- -- pausado, negar como opção conservadora na exceção.
+ -- Decisão A2 [D], 23/10/2026: destino pausado é SEMPRE proibido
+ -- inclusive por exceção por caso. Modelo apenas local, sem integração S0.
  if exists(select 1 from prumo_private.s1_disponibilidade_leads_10 d
    where d.operador_id=p_destino and d.pausado)
  then raise exception 'DESTINO_COM_INTAKE_PAUSADO' using errcode='42501';end if;

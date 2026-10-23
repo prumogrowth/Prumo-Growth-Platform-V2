@@ -1,5 +1,7 @@
 # S1-002 / I50 — CAS, revogação em voo e mapa de encerramento
 
+**Atualização vinculante pós-I50, 23/10/2026:** A2 foi fechada [D]: transferência/atribuição nova para Consultor com intake pausado é proibida, inclusive manual ou por exceção. Ver [I51](S1_002_I51_DECISAO_A2_TRANSFERENCIA_2026_10_23.md). A referência histórica a A2 [R] neste documento registra somente o estado anterior à decisão.
+
 **Data:** 23/10/2026. **Classificação:** laboratório [T/P], decisões de negócio [D]/[DN], integrações e aceites externos [R]/[V]. Não utilizar como migration operacional. Branch `feat/s1-002-equipe-prumo`, PR #5 Draft.
 
 ## I50: questão técnica

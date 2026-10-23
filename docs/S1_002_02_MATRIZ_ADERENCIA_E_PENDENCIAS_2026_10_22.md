@@ -1,5 +1,5 @@
 # S1-002 — matriz de aderência documental, precedência e gates
-**Data: 22/10/2026 | Escopo: revisão da própria frente S1-002; documentação, sem alteração funcional.** Ler com [contrato vigente](S1_002_01_CONTRATO_FUNCIONAL_VIGENTE_2026_10_22.md). "Coberto no contrato" significa apenas **escrito corretamente na S1**, não implementado.
+**Base: 22/10/2026; A2 atualizada em 23/10/2026 (I51) | Escopo: revisão da própria frente S1-002; documentação, sem alteração funcional.** Ler com [contrato vigente](S1_002_01_CONTRATO_FUNCIONAL_VIGENTE_2026_10_22.md). "Coberto no contrato" significa apenas **escrito corretamente na S1**, não implementado.
 
 ## A. Rastreabilidade das decisões
 
@@ -18,7 +18,7 @@
 | S1-D11 | Contato humano inicia com interação de humano confirmada; não pela IA/abertura; não aceitar ligação manual como prova | FV D-AL-04; S0-044 | 01 §5 | **Coberto [DN]**; produtor/critério físico pendentes |
 | S1-D12 | Manual dentro da equipe sem grant da loja exige exceção revogável **por caso** | Issue #10; FV D-AL-03; I35 | 01 §5 | **Coberto [D]**; caso especial, anexos e GoTrue não homologados |
 | S1-D13 | Exceção encerra na troca de titular, saída/bloqueio, revogação emergencial; conclusão isolada não corta leitura enquanto autorizado | B1 aprovada na conversa S1 | 01 §5 | **Coberto [D]**; recuperação pós-revogação e prazo físico [R] |
-| S1-D14 | **A2**: transferir para Consultor com intake pausado | Documento I35 mantém recusa conservadora | 01 §5, §11 | **[R] NÃO resolvido**; não inventar resposta por semelhança |
+| S1-D14 | **A2**: **proibido** transferir ou atribuir novo lead/atendimento a Consultor com intake pausado, em qualquer caminho | Decisão direta do responsável 23/10/2026 (I51) | 01 §§3–5,11 | **[D] FECHADA**; I35 já negava experimentalmente, testar normal/excepcional, concorrência e S0 real [R/T] |
 | S1-D15 | Indicador único COUNT/DOT/NONE; leitura individual por novo titular e gestor independente | C1, C2; Issue #10; I36 | 01 §6 | **Coberto [D]**; I36 antiga ainda não modela regra inteira |
 | S1-D16 | **Template sistêmico NÃO limpa** o alerta; novo inbound acumula; saída iniciada pelo Consultor (inclusive template), **entregue**, encerra pendência | Correção direta do responsável na conversa S1, 21/10 | 01 §6 | **Coberto [D]**; conflito com I36 que usa saída humana sintética |
 | S1-D17 | Encerramento humano confirmado reseta atenção do segmento; retorno inicia acompanhamento novo, histórico intocado | Correção direta do responsável na conversa S1 | 01 §§6,8 | **Coberto [D]**; evento/segmentação S0↔S1 [R/T] |
@@ -40,12 +40,12 @@
 | --- | --- |
 | I10 — matriz de autoridades por loja (19/10) | Histórico parcialmente superado por I11/Issue #10 e pelo contrato 01: gestor por equipe, não por loja; nomenclatura nova |
 | I11 — pausa global 048 (19/10) | **Não** aplicar descrição de conta suspensa, redistribuição de TODOS os casos ou perda de leitura à pausa intake. Migração/testes antigos seguem evidência histórica |
-| I12 — transferência comum 049/050 (19/10) | Exigência de grant geral vale para via **normal**; via excepcional por caso exige gate e isolamento específicos. Exceção I35 apenas sandbox |
-| I35 — exceção RLS por caso | Prova exclusivamente do **caso atribuído**; não prova autorização de ler todo o histórico do **mesmo contato**. A2 ainda [R]; revogação e visibilidade pós-fecho exigem contratos |
+| I12 — transferência comum 049/050 (19/10) | Exigência de grant geral vale para via **normal**; via excepcional por caso exige gate e isolamento específicos. Exceção I35 apenas sandbox; destino pausado sempre inelegível [D/A2] |
+| I35 — exceção RLS por caso | Prova exclusivamente do **caso atribuído**; não prova autorização de ler todo o histórico do **mesmo contato**. A2 fechada [D] proibindo destino pausado; revogação e visibilidade pós-fecho exigem contratos |
 | I36 — indicador único | **Regra antiga**: DOT some com saída humana inserida em fixture; agora **origem humana efetiva + entrega**, nenhuma mensagem sistêmica resolve, segmento encerrado reseta, novo titular tem leitura própria |
 | I37 — gateway intake assinado | Apenas novo comando intake na instância de teste e CAS/GoTrue local; não demonstra fila cross-team, contato Meta real, recontato, F03 nem produto implantado |
 | Testes/S1_ACEITE.md | Registra ensaios e SHAs; **não** serve para revogar decisão de negócio posterior nem comprovar funções externas ou produção |
-| Marco de pausa 20/10 | Tem perguntas A1, C1, C2 e D1 **históricas**; foram respondidas depois. A2 segue aberta até evidência contrária; usar o índice 00 e contrato 01 para saber estado atual |
+| Marco de pausa 20/10 | Tem perguntas A1, C1, C2 e D1 **históricas**; foram respondidas depois. A2 foi fechada por decisão direta posterior em 23/10 (I51); usar o índice 00 e contrato 01 para saber estado atual |
 | Auditoria cruzada 22/10 | É **inventário de origem**; seus alertas agora estão preservados em contrato normativo S1 e esta matriz. Não declara validação das outras frentes |
 
 ## C. Gates mínimos para próxima auditoria TÉCNICA (nenhum homologado por esta matriz)
@@ -63,7 +63,7 @@
 **G6 — Comprovação e status:** não declarar versão I35/36/37 e S0 CFI-01 como migration, UI produtiva, Meta validada ou contrato comercial Banco homologado; todas as branches mantidas isoladas em Draft, sem merge/deploy/Supabase hospedado.
 
 ## D. Lacunas registradas [R] — sem novas decisões presumidas
-- A2 transferência manual para Consultor com entrada de leads pausada; como diferenciar recebimento manual de **caso existente** versus lead novo.
+- Implementar tecnicamente **A2 já decidida**: barrar nova atribuição e transferência, inclusive manual/por exceção, para Consultor pausado, com rechecagem sob lock da elegibilidade e integração S0. Manter leitura/resposta em casos previamente atribuídos.
 - Confirmação física do primeiro contato humano; se o primeiro ato for template acionado pelo Consultor; fonte de prova negativa e bloqueio simultâneo.
 - Formulação precisa de `DELIVERED` ou prova de entrega equivalente e política de status atrasado/incerto.
 - Persistência do reset de segmento, titularidade pós-conclusão, novo inbound após fechamento e tela de acompanhamento.

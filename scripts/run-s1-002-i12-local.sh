@@ -31,6 +31,9 @@ psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_062_e
 # I43: executa policies I41 + I42 SIMULTANEAMENTE, reproduz bloqueio
 # interpolicy e valida permissao unificada + revogacao. ROLLBACK total.
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_063_rls_unificada_equipe_excecao_local_only.sql
+# I51/A2 decisao [D] 23/10: impedir qualquer transferencia manual para Consultor
+# pausado, tanto caminho I12 normal quanto I35 por caso. BEGIN/ROLLBACK.
+psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_075_a2_transferencia_pausado_local_only.sql
 # I40: somente banco local descartavel; funcoes I39 idênticas em 2 sessoes reais.
 # Seed COMMITADO apenas nesse PG17; runner CI descarta banco apos a suite.
 bash scripts/test_s1_002_queue_race.sh
