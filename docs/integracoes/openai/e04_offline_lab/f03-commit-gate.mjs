@@ -51,7 +51,30 @@ export function evaluateF03CommitCandidate({scope,cutoff,proposal,catalog,curren
         !Number.isSafeInteger(s.sequence) || s.sequence<0 || s.sequence>cutoff.watermark ||
         typeof s.available!=='boolean' || typeof s.s0Verified!=='boolean' || !Array.isArray(s.claims))
       return fail('SOURCE_INVALID');
+    // Every claim exposed by a trusted history fixture must be typed and bounded.
+    // The actual provenance/semantics still require S0 validation in production.
+    for (const claim of s.claims) {
+      if (!allowed(claim,['code','value','explicit']) || !id(claim.code) ||
+          typeof claim.explicit!=='boolean' ||
+          !['string','number','boolean'].includes(typeof claim.value) ||
+          typeof claim.value==='string' && !claim.value.trim() ||
+          typeof claim.value==='number' && !Number.isFinite(claim.value)) return fail('SOURCE_INVALID');
+    }
     sources.set(s.id,s);
+  }
+  // A model may omit conflicts from its proposal. Independent, explicitly
+  // attested historical claims must not silently pick the newest value.
+  // Semantic resolution by S0 is not implemented; conservatively route to human.
+  const explicitByField = new Map();
+  let historicalConflict = false;
+  for (const source of sources.values()) {
+    if (!source.available || !source.s0Verified) continue;
+    for (const claim of source.claims) {
+      if (claim.explicit!==true || !known.has(claim.code)) continue;
+      const seen = explicitByField.get(claim.code);
+      if (explicitByField.has(claim.code) && !sameValue(seen,claim.value)) historicalConflict = true;
+      else if (!explicitByField.has(claim.code)) explicitByField.set(claim.code,claim.value);
+    }
   }
   const proposed = new Set();
   for (const f of proposal.fields) {
@@ -78,7 +101,7 @@ export function evaluateF03CommitCandidate({scope,cutoff,proposal,catalog,curren
         c.explicit===true && c.value===true)) return fail('SOURCE_INVALID');
     return fail('COMMERCIAL_ADVISORY_REVIEW');
   }
-  if (proposal.conflicts.length>0 || [...known.values()].some(f=>f.essential&&!proposed.has(f.code)))
+  if (historicalConflict || proposal.conflicts.length>0 || [...known.values()].some(f=>f.essential&&!proposed.has(f.code)))
     return fail('HUMAN_REVIEW_REQUIRED');
   // No customer values, SQL commands or commercial statuses in the result.
   return Object.freeze({status:'S0_RECHECK_ONLY',fieldCodes:[...proposed].sort(),snapshotRef:cutoff.snapshotRef});
