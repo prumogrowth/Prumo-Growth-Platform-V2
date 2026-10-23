@@ -27,6 +27,7 @@
 | Como correlacionar HMAC Meta, binding S0 fictício, MAC interna e nonce no mesmo runner | [WA-35 — Ponte Meta→S0 PG17 (23/10)](./wa35-ponte-hmac-meta-envelope-s0-pg17-offline-2026-10-23.md) | 26 testes Node e 16 físicos com assinatura fictícia, sem serviço S0 real |
 | O que S0/S1/Infra precisam ratificar antes de qualquer serviço Meta | [WA-36 — Matriz interfrentes e privilégio mínimo (23/10)](./wa36-matriz-ratificacao-interfrentes-e-privilegios-minimos-2026-10-23.md) | 12 decisões pendentes, testes de bloqueio e prova negativa PG17; nenhum aceite externo |
 | Como preparar o aceite formal da interface Meta→S0 sem atribuir autorizações fictícias | [WA-37 — Contrato de aceite S0/S1/Meta (23/10)](./wa37-contrato-aceite-interfrentes-m2m-2026-10-23.md) | 12 critérios e pares P/N propostos, 27 testes de manifesto; aceite externo pendente |
+| Quais perguntas e evidências compartilhar com S0/S1/Meta/Infra para obter revisão explícita | [WA-38 — Pedido de revisão interfrentes (23/10)](./wa38-handoff-revisao-s0-s1-meta-infra-2026-10-23.md) | 11 perguntas, 12 decisões e 24 probes futuros; nenhuma ratificação presumida |
 | O que a auditoria encontrou e reparou | [WA-19 — Auditoria documental](./wa19-auditoria-documental-reconciliacao-2026-10-21.md) | Achados, limites, reparos e pendências |
 | Histórico de decisões recentes | [WA-17B](./wa17b-mcp-templates-multimidia-ia-delegada-2026-10-20.md), [WA-18](./wa18-alinhamento-decisorio-respostas-responsavel-2026-10-20.md), [WA-18B](./wa18b-alinhamento-fechamento-optout-variaveis-falhas-cadencia-2026-10-20.md), [WA-18C](./wa18c-falhas-consecutivas-taxonomia-interna-templates-2026-10-20.md) | Proveniência cronológica; partes superadas identificadas |
 | O que foi testado de verdade | [WA-16/17 — fechamento de validação](./wa16-wa17-fechamento-validacao-e-pausa-2026-10-20.md) | Distingue casos escritos, verificações V8 e CI Node/PG17 não comprovado |
@@ -143,6 +144,7 @@ Arquivos abaixo permanecem pesquisáveis e preservados por fase. São histórico
 - [wa35-ponte-hmac-meta-envelope-s0-pg17-offline-2026-10-23.md](./wa35-ponte-hmac-meta-envelope-s0-pg17-offline-2026-10-23.md)
 - [wa36-matriz-ratificacao-interfrentes-e-privilegios-minimos-2026-10-23.md](./wa36-matriz-ratificacao-interfrentes-e-privilegios-minimos-2026-10-23.md)
 - [wa37-contrato-aceite-interfrentes-m2m-2026-10-23.md](./wa37-contrato-aceite-interfrentes-m2m-2026-10-23.md)
+- [wa38-handoff-revisao-s0-s1-meta-infra-2026-10-23.md](./wa38-handoff-revisao-s0-s1-meta-infra-2026-10-23.md)
 
 ### Índices vigentes e matrizes adicionais
 
@@ -150,4 +152,4 @@ Arquivos abaixo permanecem pesquisáveis e preservados por fase. São histórico
 - [01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md](./01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md)
 - [02-mapa-fontes-conflitos-e-emendas-2026-10-21.md](./02-mapa-fontes-conflitos-e-emendas-2026-10-21.md)
 
-**Cobertura documental em 22/10/2026:** a auditoria editorial WA-23 conferiu **63 arquivos Markdown** (README + 62 links). Com a inclusão posterior de **WA-24**, **WA-25**, **WA-26**, **WA-27**, **WA-28**, **WA-29**, **WA-30**, **WA-31**, **WA-32**, **WA-33**, **WA-34**, **WA-35**, **WA-36** e **WA-37**, o diretório passa a **77 Markdown** (README + **76 links**), sujeitos a commits futuros. O novo documento inicia auditoria TÉCNICA e reparos, sem significar teste nativo verde ou homologação. Os históricos têm aviso de precedência ou nota contextual, quando necessário. O ZIP de 55 documentos históricos de 17/10 segue preservado fora deste diretório. Essa biblioteca não contém ferramentas MCP executáveis.
+**Cobertura documental em 22/10/2026:** a auditoria editorial WA-23 conferiu **63 arquivos Markdown** (README + 62 links). Com a inclusão posterior de **WA-24**, **WA-25**, **WA-26**, **WA-27**, **WA-28**, **WA-29**, **WA-30**, **WA-31**, **WA-32**, **WA-33**, **WA-34**, **WA-35**, **WA-36**, **WA-37** e **WA-38**, o diretório passa a **78 Markdown** (README + **77 links**), sujeitos a commits futuros. O novo documento inicia auditoria TÉCNICA e reparos, sem significar teste nativo verde ou homologação. Os históricos têm aviso de precedência ou nota contextual, quando necessário. O ZIP de 55 documentos históricos de 17/10 segue preservado fora deste diretório. Essa biblioteca não contém ferramentas MCP executáveis.
