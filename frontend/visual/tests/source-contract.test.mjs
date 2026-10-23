@@ -419,7 +419,7 @@ test('FV-UI-032: foco de extração e navegação O5 têm contratos de origem',(
   assert.match(browserSmoke,/FV-UI-032: resultado recria o DOM/);
   assert.match(browserSmoke,/FV-UI-032: a navegação O5 móvel/);
 });
- 
+
 test('FV-UI-033: foco não desaparece ao atravessar breakpoint no zoom',()=>{
   assert.match(app,/let wasMobileViewport=window\.matchMedia/);
   assert.match(app,/document\.addEventListener\('focusin'/);
