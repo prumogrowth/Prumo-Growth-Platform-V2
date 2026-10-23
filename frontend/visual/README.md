@@ -26,6 +26,8 @@
 
 > **FV-UI-029 (23/10/2026):** [foco e anúncio em confirmações aninhadas de equipe](../docs/53_FV_UI_029_RETORNO_FOCO_MODAIS_ANINHADOS_2026_10_23.md). Confirmações de pausa/retomada e fila compartilhada deixam de perder o foco após o rerender do botão que abriu o diálogo. O foco retorna à aba estável da janela da equipe, com anúncio `role="status"` de efeito **somente local**. Cenários Chromium em 390×844 e 1366×768 e testes de regressão em snapshot local: **20 Python, 323 Node, Chromium PASS**. Não é homologação de checkout Git nem autorização S0/S1.
 
+> **FV-UI-030 (23/10/2026):** [separação dos testes para suportar redesign](../docs/54_FV_UI_030_TESTES_POR_CAMADA_PREPARACAO_REDESIGN_2026_10_23.md). Diagnósticos seletivos por `node frontend/visual/tests/run_validation_layers.mjs domain|interaction|source|browser`: 19 suítes de domínio, 3 de interação, 5 de contratos/integridade e 1 smoke Chromium. **Após mudar a estrutura do layout, os testes de interação e navegador precisam ser repetidos e, se necessário, atualizados.** Isso não substitui `run_acceptance.py` em checkout Git verificado nem prova autorização externa.
+
 **Branch proprietária:** `feat/frontend-plataforma-visual`. **Referência visual:** organização de mensageiro familiar ao WhatsApp, sem copiar sua identidade, marca ou recursos. **Situação:** demonstração local com dados 100% sintéticos; não é portal operacional.
 
 ## Abrir localmente
