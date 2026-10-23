@@ -163,20 +163,23 @@ def main():
                  "unverified checkout revision" if not revision_ok else
                  "ZIP verifier security regression failed" if not security_ok else
                  "node unavailable")
-        report["steps"].append({"name": "Node ESM regression", "passed": False,
-                                "executed": False, "error": error})
+        node_step={"name": "Node ESM regression", "passed": False,
+                   "executed": False, "error": error}
     else:
-        report["steps"].append(run_step("Node ESM regression",
-                                         [node, "--test", *suite], timeout=180))
+        node_step=run_step("Node ESM regression",
+                           [node, "--test", *suite], timeout=180)
+    report["steps"].append(node_step)
+    node_ok=node_step["passed"] and node_step["executed"]
     if args.skip_browser:
         report["steps"].append({"name": "Chromium Playwright smoke",
                                 "executed": False, "passed": False,
                                 "error": "explicitly skipped"})
         print("Chromium SKIPPED — diagnóstico parcial, não homologação.", flush=True)
-    elif not inventory_ok or not revision_ok or not security_ok:
+    elif not inventory_ok or not revision_ok or not security_ok or not node_ok:
         error = ("incomplete checkout" if not inventory_ok else
                  "unverified checkout revision" if not revision_ok else
-                 "ZIP verifier security regression failed")
+                 "ZIP verifier security regression failed" if not security_ok else
+                 "Node ESM regression failed")
         report["steps"].append({"name": "Chromium Playwright smoke",
                                 "executed": False, "passed": False, "error": error})
         print("Chromium BLOCKED — " + error, flush=True)
