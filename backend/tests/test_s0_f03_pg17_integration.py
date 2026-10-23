@@ -452,5 +452,206 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
                               'where evento_fechamento_id=%s',(self.event,)).fetchone()[0]
         self.assertEqual(count,1)
 
+    def _seed_versions(self):
+        from backend.s0_f03_version_reservation_local import VersionVector
+        with self.pg.connect(DB) as con:
+            con.execute('insert into prumo_private.cfi01_f03_catalog_versions_local '
+                        '(concessionaria_id) values (%s)',(self.shop,))
+            con.execute('insert into prumo_private.cfi01_f03_lead_versions_local '
+                        '(concessionaria_id,lead_id) values (%s,%s)',(self.shop,self.lead))
+            con.execute('insert into prumo_private.cfi01_f03_case_versions_local '
+                        '(concessionaria_id,caso_id,lead_id) values (%s,%s,%s)',
+                        (self.shop,self.case,self.lead))
+        return VersionVector(1,1,1,1,1)
+
+    def _prepare_cas(self):
+        from backend.s0_f03_bound_content_seal_local import (
+            S0F03LocalBoundContentStore,BoundContentState,
+        )
+        from backend.s0_f03_version_reservation_local import S0F03LocalVersionReservationStore
+        vector=self._seed_versions()
+        self.assertIs(self._save(),SealState.SEALED_REVIEW_ONLY)
+        secret=b'fixture-only-content-seal-key-more-than-32-bytes'
+        state=S0F03LocalBoundContentStore(DB).check(
+            self.binding,'test-key-v1',secret,create=True)
+        self.assertIs(state,BoundContentState.SEALED_REVIEW_ONLY)
+        return S0F03LocalVersionReservationStore(DB),vector
+
+    def _reserve(self,store,vector,request='request-cas-0001',sha=None,key='test-key-v1'):
+        return store.reserve(self.binding,vector,request,sha or 'b'*64,key)
+
+    def test_24_cas_reservation_does_not_modify_customer_or_cycle(self):
+        from backend.s0_f03_version_reservation_local import ReservationState as State
+        store,v=self._prepare_cas()
+        self.assertIs(self._reserve(store,v),State.RESERVED_REVIEW_ONLY)
+        with self.pg.connect(DB) as con:
+            c=con.execute('select count(*) from prumo_private.cfi01_f03_reservations_local '
+                          'where evento_fechamento_id=%s',(self.event,)).fetchone()[0]
+            form=con.execute('select versao_ficha from prumo_private.cfi01_f03_lead_versions_local '
+                             'where lead_id=%s',(self.lead,)).fetchone()[0]
+            cycle=con.execute('select versao_registro,status_comercial from public.ciclos_comerciais '
+                              'where id=%s',(self.cycle,)).fetchone()
+        self.assertEqual(c,1)
+        self.assertEqual(form,1)
+        self.assertEqual(cycle,(1,'em atendimento pelo operador'))
+
+    def test_25_cas_same_request_is_idempotent(self):
+        from backend.s0_f03_version_reservation_local import ReservationState as State
+        store,v=self._prepare_cas()
+        self.assertIs(self._reserve(store,v),State.RESERVED_REVIEW_ONLY)
+        self.assertIs(self._reserve(store,v),State.ALREADY_HANDLED_REVIEW_ONLY)
+
+    def test_26_cas_different_proposal_same_closure_is_conflict(self):
+        from backend.s0_f03_version_reservation_local import ReservationState as State
+        store,v=self._prepare_cas()
+        self.assertIs(self._reserve(store,v),State.RESERVED_REVIEW_ONLY)
+        self.assertIs(self._reserve(store,v,'request-cas-0002','c'*64),
+                      State.CONFLICT_REVIEW_REQUIRED)
+        self.assertIs(self._reserve(store,v,'request-cas-0001','c'*64),
+                      State.CONFLICT_REVIEW_REQUIRED)
+
+    def test_27_form_version_drift_is_stale(self):
+        from backend.s0_f03_version_reservation_local import ReservationState as State
+        store,v=self._prepare_cas()
+        with self.pg.connect(DB) as con:
+            con.execute('update prumo_private.cfi01_f03_lead_versions_local '
+                        'set versao_ficha=2 where lead_id=%s',(self.lead,))
+        self.assertIs(self._reserve(store,v),State.STALE_REVIEW_REQUIRED)
+
+    def test_28_catalogue_version_drift_is_stale(self):
+        from backend.s0_f03_version_reservation_local import ReservationState as State
+        store,v=self._prepare_cas()
+        with self.pg.connect(DB) as con:
+            con.execute('update prumo_private.cfi01_f03_catalog_versions_local '
+                        'set versao_catalogo=2 where concessionaria_id=%s',(self.shop,))
+        self.assertIs(self._reserve(store,v),State.STALE_REVIEW_REQUIRED)
+
+    def test_29_case_version_drift_is_stale(self):
+        from backend.s0_f03_version_reservation_local import ReservationState as State
+        store,v=self._prepare_cas()
+        with self.pg.connect(DB) as con:
+            con.execute('update prumo_private.cfi01_f03_case_versions_local '
+                        'set versao_caso=2 where caso_id=%s',(self.case,))
+        self.assertIs(self._reserve(store,v),State.STALE_REVIEW_REQUIRED)
+
+    def test_30_assignment_version_drift_is_stale(self):
+        from backend.s0_f03_version_reservation_local import ReservationState as State
+        store,v=self._prepare_cas()
+        with self.pg.connect(DB) as con:
+            con.execute('update prumo_private.cfi01_f03_case_versions_local '
+                        'set versao_atribuicao=2 where caso_id=%s',(self.case,))
+        self.assertIs(self._reserve(store,v),State.STALE_REVIEW_REQUIRED)
+
+    def test_31_identity_version_drift_is_stale(self):
+        from backend.s0_f03_version_reservation_local import ReservationState as State
+        store,v=self._prepare_cas()
+        with self.pg.connect(DB) as con:
+            con.execute('update prumo_private.cfi01_f03_lead_versions_local '
+                        'set versao_identidade=2 where lead_id=%s',(self.lead,))
+        self.assertIs(self._reserve(store,v),State.STALE_REVIEW_REQUIRED)
+
+    def test_32_missing_version_source_is_not_fabricated(self):
+        from backend.s0_f03_version_reservation_local import (
+            S0F03LocalVersionReservationStore,VersionVector,ReservationState as State,
+        )
+        self._save()
+        self.assertIs(self._reserve(S0F03LocalVersionReservationStore(DB),
+                                    VersionVector(1,1,1,1,1)),
+                      State.MISSING_VERSION_REVIEW_REQUIRED)
+
+    def test_33_missing_content_seal_blocks_reservation(self):
+        from backend.s0_f03_version_reservation_local import ReservationState as State
+        v=self._seed_versions()
+        from backend.s0_f03_version_reservation_local import S0F03LocalVersionReservationStore
+        self.assertIs(self._reserve(S0F03LocalVersionReservationStore(DB),v),
+                      State.STALE_REVIEW_REQUIRED)
+
+    def test_34_closed_assignment_blocks_reservation(self):
+        from backend.s0_f03_version_reservation_local import ReservationState as State
+        store,v=self._prepare_cas()
+        with self.pg.connect(DB) as con:
+            con.execute('update public.atribuicoes_humanas '
+                        'set encerrada_em=greatest(atribuida_em,statement_timestamp()) '
+                        'where id=%s',(self.assignment,))
+        self.assertIs(self._reserve(store,v),State.MISSING_VERSION_REVIEW_REQUIRED)
+
+    def test_35_concurrent_idempotent_reservations_create_one_record(self):
+        from concurrent.futures import ThreadPoolExecutor
+        from backend.s0_f03_version_reservation_local import (
+            ReservationState as State,S0F03LocalVersionReservationStore as Store,
+        )
+        store,v=self._prepare_cas()
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            statuses=list(pool.map(lambda _:self._reserve(Store(DB),v),range(2)))
+        self.assertCountEqual(statuses,[State.RESERVED_REVIEW_ONLY,
+                                        State.ALREADY_HANDLED_REVIEW_ONLY])
+        with self.pg.connect(DB) as con:
+            n=con.execute('select count(*) from prumo_private.cfi01_f03_reservations_local '
+                          'where evento_fechamento_id=%s',(self.event,)).fetchone()[0]
+        self.assertEqual(n,1)
+
+    def test_36_concurrent_competing_proposals_only_one_reservation(self):
+        from concurrent.futures import ThreadPoolExecutor
+        from backend.s0_f03_version_reservation_local import (
+            ReservationState as State,S0F03LocalVersionReservationStore as Store,
+        )
+        store,v=self._prepare_cas()
+        def contender(i):
+            return self._reserve(Store(DB),v,'request-cas-000'+str(i),str(i)*64)
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            statuses=list(pool.map(contender,[1,2]))
+        self.assertCountEqual(statuses,[State.RESERVED_REVIEW_ONLY,
+                                        State.CONFLICT_REVIEW_REQUIRED])
+        with self.pg.connect(DB) as con:
+            n=con.execute('select count(*) from prumo_private.cfi01_f03_reservations_local '
+                          'where evento_fechamento_id=%s',(self.event,)).fetchone()[0]
+        self.assertEqual(n,1)
+
+    def test_37_reservation_audit_is_immutable(self):
+        from backend.s0_f03_version_reservation_local import ReservationState as State
+        store,v=self._prepare_cas()
+        self.assertIs(self._reserve(store,v),State.RESERVED_REVIEW_ONLY)
+        for sql,args in (
+            ('update prumo_private.cfi01_f03_reservations_local '
+             'set proposta_sha256=%s where evento_fechamento_id=%s',
+             ('c'*64,self.event)),
+            ('delete from prumo_private.cfi01_f03_reservations_local '
+             'where evento_fechamento_id=%s',(self.event,))
+        ):
+            with self.subTest(sql=sql):
+                with self.assertRaises(self.pg.Error) as err:
+                    with self.pg.connect(DB) as con:con.execute(sql,args)
+                self.assertEqual(err.exception.sqlstate,'42501')
+
+    def test_38_authenticated_role_cannot_read_or_write_reservation(self):
+        self._prepare_cas()
+        with self.pg.connect(DB) as con:
+            with self.assertRaises(self.pg.Error):
+                con.execute('set local role authenticated')
+                con.execute('select * from prumo_private.cfi01_f03_reservations_local')
+
+    def test_39_invalid_digest_or_request_is_denied(self):
+        from backend.s0_f03_version_reservation_local import ReservationState as State
+        store,v=self._prepare_cas()
+        self.assertIs(self._reserve(store,v,'bad','not-a-hash'),State.DENIED)
+        self.assertIs(self._reserve(store,v,'request-cas-0001','g'*64),State.DENIED)
+
+    def test_40_cycle_version_drift_prevents_reservation(self):
+        from backend.s0_f03_version_reservation_local import ReservationState as State
+        store,v=self._prepare_cas()
+        with self.pg.connect(DB) as con:
+            con.execute('update public.ciclos_comerciais set versao_registro=2 '
+                        'where id=%s',(self.cycle,))
+        self.assertIs(self._reserve(store,v),State.MISSING_VERSION_REVIEW_REQUIRED)
+
+    def test_41_replay_after_form_version_change_is_stale(self):
+        from backend.s0_f03_version_reservation_local import ReservationState as State
+        store,v=self._prepare_cas()
+        self.assertIs(self._reserve(store,v),State.RESERVED_REVIEW_ONLY)
+        with self.pg.connect(DB) as con:
+            con.execute('update prumo_private.cfi01_f03_lead_versions_local '
+                        'set versao_ficha=2 where lead_id=%s',(self.lead,))
+        self.assertIs(self._reserve(store,v),State.STALE_REVIEW_REQUIRED)
+
 if __name__=='__main__':
     unittest.main()
