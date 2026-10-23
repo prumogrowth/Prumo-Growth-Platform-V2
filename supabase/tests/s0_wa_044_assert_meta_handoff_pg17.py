@@ -69,8 +69,8 @@ def packet(scope=a,event="EVT_A",kind="delivered",hashval="a"*64,
        event,kind,hashval,str(t),n,mac]
  return args
 def invocation(args,role=True,rollback=False):
- expression="SELECT prumo_private.meta_arquivar_handoff_assinado_fixture_s0("+
-     ",".join(map(quoted,args))+");"
+ expression=("SELECT prumo_private.meta_arquivar_handoff_assinado_fixture_s0("+
+     ",".join(map(quoted,args))+");")
  if role:expression="SET ROLE prumo_s0_meta_ingress_lab; "+expression
  if rollback:expression="BEGIN; "+expression+" ROLLBACK;"
  return expression
@@ -116,7 +116,7 @@ badmac[-1]="0"*64
 denied(invocation(badmac))
 assert not used(badmac[-2])
 mark(10)
-changed=packet(event="EVT_TAMPER");changed[-5]="EVT_ATTACKER"
+changed=packet(event="EVT_TAMPER");changed[-6]="EVT_ATTACKER"
 denied(invocation(changed))
 mark(11)
 denied(invocation(packet(event="EVT_OLD",issued=int(time.time())-50)))
