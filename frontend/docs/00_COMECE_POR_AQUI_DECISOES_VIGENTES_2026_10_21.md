@@ -68,6 +68,10 @@
 
 **[FV-UI-025 — segurança Python → Node → Chromium](./49_FV_UI_025_GATES_SEQUENCIAIS_VALIDACAO_2026_10_22.md)**: corrige execução de testes posteriores após falha do verificador, impede Chromium com Node reprovado e inibe arquivos `__pycache__` no checkout, com regressões específicas. Execução integral real **permanece pendente** de ZIP/checkout autorizado.
 
+## Execução nativa do Frontend em ZIP verificado (22/10/2026)
+
+**[FV-UI-026 — Python, Node e Chromium em ambiente nativo](./50_FV_UI_026_EXECUCAO_NATIVA_DIAGNOSTICO_2026_10_22.md)**: ZIP do commit `83d5f4df` com 54/54 hashes corretos; Python 20/20; Node 316/317 identificou regex defeituosa da matriz; smoke Chromium após correção local revelou teste de foco prematuro. Após corrigir os dois testes e repinar o manifesto em **ZIP derivado local**, diagnóstico nativo 20/20 Python, 317/317 Node e smoke Chromium completo. Continua **sem homologação de checkout Git, serviços externos ou produção**.
+
 ## Estado do trabalho
 FV-UI-015/016: demonstrações com dados sintéticos. **NÃO** declarar integração real, Auth/RLS/GoTrue, comunicações Meta ou remessas confirmadas. FV-UI-013 não homologada formalmente; **19F 69/100** como último marco. Esta consolidação é **documentação somente**. Nenhum código, migration, branch S1, dado real ou deploy foi tocado.
 
