@@ -64,6 +64,10 @@
 
 **[FV-UI-024 — testes Python e gates nativos obrigatórios](./48_FV_UI_024_TESTES_ADVERSARIAIS_ZIP_E_GATE_NATIVO_2026_10_22.md)**: 15 cenários sintéticos para ataques/alterações de ZIP, limite agregado de descompressão e exigência da suíte de segurança tanto no checkout Git quanto no diagnóstico offline, além de Node e Chromium. Não é prova de execução nativa nem homologação.
 
+## Gates sequenciais da validação nativa (22/10/2026)
+
+**[FV-UI-025 — segurança Python → Node → Chromium](./49_FV_UI_025_GATES_SEQUENCIAIS_VALIDACAO_2026_10_22.md)**: corrige execução de testes posteriores após falha do verificador, impede Chromium com Node reprovado e inibe arquivos `__pycache__` no checkout, com regressões específicas. Execução integral real **permanece pendente** de ZIP/checkout autorizado.
+
 ## Estado do trabalho
 FV-UI-015/016: demonstrações com dados sintéticos. **NÃO** declarar integração real, Auth/RLS/GoTrue, comunicações Meta ou remessas confirmadas. FV-UI-013 não homologada formalmente; **19F 69/100** como último marco. Esta consolidação é **documentação somente**. Nenhum código, migration, branch S1, dado real ou deploy foi tocado.
 
