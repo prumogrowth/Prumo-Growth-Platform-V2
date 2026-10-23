@@ -381,3 +381,18 @@ jobs:
             if [[ "$count" != 1 ]]; then echo "FAIL WA34-$n marker: $count" >&2; exit 1; fi
           done
           echo 'PASS WA34: 29 PG17 nonce checks and three observed lock interleavings'
+
+      - name: "WA-35: HMAC Meta → MAC interno → consumo de nonce PG17 offline"
+        run: |
+          set -euo pipefail
+          sql='meta/integrations/whatsapp-meta/lab'
+          psql -X -qAt -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" \
+            -f "$sql/wa35_pg17_read_forensic_binding.sql" > "$RUNNER_TEMP/wa35_binding.json"
+          test "$(wc -l < "$RUNNER_TEMP/wa35_binding.json")" -eq 1
+          node --experimental-strip-types "$sql/wa35-assert-signed-nonce-pg17.ts" \
+            "$RUNNER_TEMP/wa35_binding.json" | tee "$RUNNER_TEMP/wa35_evidence.log"
+          for n in {01..16}; do
+            count="$(grep -cx "WA35-$n PASS" "$RUNNER_TEMP/wa35_evidence.log" || true)"
+            if [[ "$count" != 1 ]]; then echo "FAIL WA35-$n marker: $count" >&2; exit 1; fi
+          done
+          echo 'PASS WA35: 16 signed HMAC to internal MAC to PG17 nonce checks'
