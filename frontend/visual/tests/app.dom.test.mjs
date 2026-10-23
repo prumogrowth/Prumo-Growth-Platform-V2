@@ -814,3 +814,28 @@ test('FV-UI-022: prévia antiga fechada após trocar ator não rouba foco de out
   assert.equal(get('message-input').value,'');
   assert.equal(get('thread-body').textContent.includes('Mensagem para Rafael'),false);
 });
+
+
+test('FV-UI-029: confirmar pausa repõe foco em aba persistente da equipe',()=>{
+  reset();env.selectActor('marina');get('team-nav').click();
+  const buttons=env.descendants(get('team-list')).filter(n=>n.tagName==='BUTTON' && n.textContent.includes('Solicitar pausa'));
+  assert.ok(buttons.length);buttons[0].click();
+  assert.equal(get('intake-dialog').open,true);
+  get('intake-dialog').close('confirm');
+  assert.equal(env.document.activeElement,get('team-show-members'));
+  assert.match(get('team-action-announcement').textContent,/não aplicada no S0\/S1/i);
+  assert.equal(get('team-dialog').open,true);
+  get('team-dialog').close();
+});
+
+test('FV-UI-029: confirmar fila repõe foco sem simular atribuição efetiva',()=>{
+  reset();env.selectActor('marina');get('team-nav').click();get('team-show-queue').click();
+  const actions=env.descendants(get('team-queue')).filter(n=>n.tagName==='BUTTON' && n.textContent.includes('Solicitar assunção'));
+  assert.ok(actions.length);actions[0].click();
+  assert.equal(get('queue-action-dialog').open,true);
+  get('queue-action-dialog').close('confirm');
+  assert.equal(env.document.activeElement,get('team-show-queue'));
+  assert.match(get('team-action-announcement').textContent,/Nenhuma atribuição ou permissão aplicada/);
+  assert.equal(get('team-dialog').open,true);
+  get('team-dialog').close();
+});
