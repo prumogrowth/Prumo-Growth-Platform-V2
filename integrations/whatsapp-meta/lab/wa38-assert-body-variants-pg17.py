@@ -206,6 +206,6 @@ p=subprocess.run(["node","--experimental-strip-types",runner],
  input=data,capture_output=True,text=True,timeout=15,check=False,
  env={**env,"NODE_OPTIONS":"","NODE_PATH":""})
 assert p.returncode==0,p.stderr[-550:]
-assert p.stdout.strip()=="WA38-TSDB PASS: 6 physical PG17 aggregates deny all authority",p.stdout
+assert p.stdout.strip()=="WA38-TSDB PASS: 7 physical PG17 aggregates deny all authority",p.stdout
 mark(33)
-print("PASS WA38: 33 PG17 checks, three observed PG lock races, six typed readbacks; no Meta",flush=True)
+print("PASS WA38: 33 PG17 checks, three observed PG lock races, seven typed readbacks; no Meta",flush=True)
