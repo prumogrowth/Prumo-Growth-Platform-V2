@@ -70,6 +70,9 @@ with sync_playwright() as p:
         if width<=1040: page.locator('#detail-toggle').click()
         expect(page.locator('.detail-tab.active')).to_have_text('Extração')
         page.get_by_role('button',name='Retorno parcial').click()
+        # FV-UI-032: resultado recria o DOM; aba persistente retoma o foco.
+        expect(page.locator('#case-tab-extraction')).to_be_focused()
+        assert 'Resultado técnico fictício Retorno parcial' in page.locator('#context-announcement').inner_text()
         page.locator('.detail-tab',has_text='Histórico').click()
         assert 'extração' in page.locator('.activity-item').first.inner_text().lower()
         assert not errors, 'Erros JavaScript durante jornada: '+repr(errors)
@@ -190,6 +193,9 @@ with sync_playwright() as p:
     page.get_by_role('button', name='Abrir conversa Cliente Exemplo 05', exact=False).click()
     page.locator('.detail-tab',has_text='Novo contato').click()
     page.get_by_role('button',name='Abrir novo atendimento humano').click()
+    # FV-UI-032: botão do vínculo deixa o DOM; foco alcança região de destino.
+    expect(page.locator('#thread-pane')).to_be_focused()
+    assert 'Caso A-114 aberto por vínculo fictício autorizado' in page.locator('#context-announcement').inner_text()
     assert 'Caso A-114' in page.locator('#thread-meta').inner_text()
     assert page.locator('#message-input').is_enabled()
     page.get_by_role('button',name='Consultar atendimento de origem').click()
@@ -304,6 +310,9 @@ with sync_playwright() as p:
     assert 'f03-a108-1' in cycle_page.locator('#detail-content').inner_text()
     assert 'f03-a108-2' in cycle_page.locator('#detail-content').inner_text()
     cycle_page.locator('#show-clarification-demo').click()
+    # FV-UI-032: esclarecimento recriado mantém foco na aba.
+    expect(cycle_page.locator('#case-tab-extraction')).to_be_focused()
+    assert 'Cenário de esclarecimento fictício' in cycle_page.locator('#context-announcement').inner_text()
     assert 'CENÁRIO ALTERNATIVO' in cycle_page.locator('#workflow-bar').inner_text()
     cycle_page.locator('#request-completion').click()
     cycle_page.locator('#completion-form button[value=confirm]').click()
@@ -321,6 +330,18 @@ with sync_playwright() as p:
     cycle_page.locator('.detail-tab',has_text='Extração').click()
     assert 'f03-a108-1' not in cycle_page.locator('#detail-content').inner_text()
     cycle_page.close()
+    # FV-UI-032: a navegação O5 móvel orienta no botão de retorno.
+    mobile_link=browser.new_page(viewport={'width':390,'height':844})
+    mobile_link.set_content(html)
+    mobile_link.add_script_tag(content=script)
+    mobile_link.get_by_role('button',name='Abrir conversa Cliente Exemplo 05',exact=False).click()
+    mobile_link.locator('#detail-toggle').click()
+    mobile_link.locator('.detail-tab',has_text='Novo contato').click()
+    mobile_link.get_by_role('button',name='Abrir novo atendimento humano').click()
+    expect(mobile_link.locator('#thread-back')).to_be_focused()
+    assert mobile_link.locator('#visual-app').get_attribute('data-mobile-view')=='thread'
+    assert 'Caso A-114' in mobile_link.locator('#thread-meta').inner_text()
+    mobile_link.close()
     print('FV-UI-019 histórico F03, reextração candidata e snapshot preservado: PASS')
     # FV-UI-020: ACK incerto não equivale a envio; prova sintética não altera comércio.
     technical=browser.new_page(viewport={'width':900,'height':780})

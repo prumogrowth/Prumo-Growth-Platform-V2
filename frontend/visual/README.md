@@ -162,3 +162,7 @@ Se Chromium não estiver no caminho usual, definir `CHROMIUM_EXECUTABLE` antes d
 ## FV-UI-031 — Foco após adicionar nota fictícia (23/10/2026)
 
 Ao incluir nota na aba **Notas**, o formulário é reconstruído e o foco retorna ao novo campo `#note-text`. A nota permanece somente em memória e o callback obsoleto continua rejeitado. O teste DOM, o smoke Chromium e a inspeção de fonte receberam regressões, **ainda não executadas nativamente nesta revisão**. Veja [FV-UI-031](../docs/55_FV_UI_031_FOCO_APOS_NOTA_LOCAL_2026_10_23.md). O redesign futuro e a homologação de checkout Git permanecem pendentes.
+
+## FV-UI-032 — Navegação acessível na Extração e no vínculo O5 (23/10/2026)
+
+Na aba **Extração**, resultados técnicos fictícios e esclarecimento que recriam controles restauram o foco na aba ativa, com aviso de contexto. A navegação O5 para caso já projetado restaura foco na conversa do destino em desktop/tablet e no botão Voltar no celular. Não cria caso ou execução F03, nem concede acesso novo. Testes DOM, mobile e roteiro Chromium receberam regressões. [FV-UI-032](../docs/56_FV_UI_032_FOCO_EXTRACAO_NAVEGACAO_O5_2026_10_23.md).

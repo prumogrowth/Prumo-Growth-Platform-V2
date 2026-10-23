@@ -212,3 +212,17 @@ test('FV-UI-028: aria-expanded acompanha painel realmente visível e troca de co
   assert.equal(get('visual-app').dataset.mobileView,'list');
   assert.equal(get('detail-toggle').getAttribute('aria-expanded'),'false');
 });
+
+test('FV-UI-032: O5 móvel foca Voltar na conversa destino',()=>{
+  reset();env.openCase('Exemplo 05');get('detail-toggle').click();
+  env.descendants(get('detail-content')).filter(n=>n.attrs.role==='tab').find(n=>n.textContent==='Novo contato').click();
+  const open=env.descendants(get('detail-content')).find(n=>n.tagName==='BUTTON' &&
+    n.textContent.includes('Abrir novo atendimento humano'));
+  assert.ok(open);open.click();
+  assert.equal(get('visual-app').dataset.mobileView,'thread');
+  assert.equal(env.document.activeElement,get('thread-back'));
+  assert.match(get('thread-meta').textContent,/Caso A-114/);
+  get('thread-back').click();
+  assert.equal(get('visual-app').dataset.mobileView,'list');
+  assert.equal(env.document.activeElement,get('search-input'));
+});

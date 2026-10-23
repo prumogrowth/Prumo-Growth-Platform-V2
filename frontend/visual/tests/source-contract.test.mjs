@@ -408,3 +408,14 @@ test('FV-UI-031: nota fictícia não perde foco após recriar formulário',()=>{
   assert.match(browserSmoke,/FV-UI-031: foco não deve cair no BODY/);
   assert.match(domMock,/selector\.startsWith\('#'\)/);
 });
+
+test('FV-UI-032: foco de extração e navegação O5 têm contratos de origem',()=>{
+  assert.match(app,/function focusExtractionAfterRerender\(caseId,notice\)/);
+  assert.match(app,/focusExtractionAfterRerender\(item\.id,'Resultado técnico fictício '/);
+  assert.match(app,/focusExtractionAfterRerender\(item\.id,'Cenário de esclarecimento fictício '/);
+  assert.match(app,/document\.querySelector\('dialog\[open\]'\)/);
+  assert.match(app,/else \$\('thread-pane'\)\.focus\(\)/);
+  assert.match(markup,/id="thread-pane" aria-labelledby="thread-title" tabindex="-1"/);
+  assert.match(browserSmoke,/FV-UI-032: resultado recria o DOM/);
+  assert.match(browserSmoke,/FV-UI-032: a navegação O5 móvel/);
+});

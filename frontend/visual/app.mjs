@@ -384,6 +384,18 @@ function prop(label,value) {
 function callout(title,text,tone='') {
   const n=el('div','detail-callout ' + tone); n.append(el('strong','',title),el('div','',text));return n;
 }
+/** FV-UI-032: não devolver foco a um controle descartado no re-render.
+ * A operação é local; só orientar o foco no mesmo caso com painel visível.
+ */
+function focusExtractionAfterRerender(caseId,notice){
+  if(selectedCase()?.id!==caseId || state.detailTab!=='extraction' ||
+     document.querySelector('dialog[open]'))return;
+  if(window.matchMedia('(max-width:760px)').matches && state.mobileView!=='detail')return;
+  if(!window.matchMedia('(max-width:760px)').matches &&
+     app.classList.contains('details-hidden'))return;
+  $('detail-content').querySelector('.detail-tab.active')?.focus();
+  announceCurrentContext(notice);
+}
 function renderDetails() {
   const target=$('detail-content');const item=selectedCase();
   if(!item){target.replaceChildren(el('p','detail-placeholder','Selecione uma conversa para ver informações do caso.'));return;}
@@ -520,7 +532,9 @@ function renderDetails() {
           const button=el('button','btn btn-light',label);button.type='button';
           button.addEventListener('click',()=>{if(!canSimulateCompletion(selectedCase(),state.actorId,state.shopId))return;
             if(selectedCase()?.id!==item.id)return;
-            state.processing[item.id]={...state.processing[item.id],kind};render();showToast(projectDemoOperationFeedback(kind).title+'. Nenhuma API foi chamada.');});actions.append(button);
+            state.processing[item.id]={...state.processing[item.id],kind};render();
+            focusExtractionAfterRerender(item.id,'Resultado técnico fictício '+label+' do caso '+item.id);
+            showToast(projectDemoOperationFeedback(kind).title+'. Nenhuma API foi chamada.');});actions.append(button);
         }extract.append(actions);
       }
     }
@@ -577,6 +591,7 @@ function renderDetails() {
           closeTransientDialogs();
           state.reviewScenes[item.id]=candidate;
           state.detailTab='extraction';render();
+          focusExtractionAfterRerender(item.id,'Cenário de esclarecimento fictício do caso '+item.id);
           showToast('Cenário alternativo exibido; NÃO houve reabertura S0 nem extração F03.');
         });
         extract.append(button);
@@ -641,6 +656,10 @@ function renderDetails() {
           state.filter='all';state.statusFilter='all';state.query='';
           $('search-input').value='';state.selectedId=target.id;state.detailTab='postmark';
           goto('thread');updateSelectors();render();
+          // FV-UI-032: o botão de vínculo saiu do DOM; focar o caso de destino.
+          if(window.matchMedia('(max-width:760px)').matches)$('thread-back').focus();
+          else $('thread-pane').focus();
+          announceCurrentContext('Caso '+target.id+' aberto por vínculo fictício autorizado');
         });
         contact.append(open);
       }

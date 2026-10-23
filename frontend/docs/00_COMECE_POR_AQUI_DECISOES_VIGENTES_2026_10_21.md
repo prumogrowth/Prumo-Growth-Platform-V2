@@ -92,6 +92,10 @@
 
 **[FV-UI-031 — retorno ao editor de nota recriado](./55_FV_UI_031_FOCO_APOS_NOTA_LOCAL_2026_10_23.md)**: mantém navegação por teclado depois de registro local de nota, com regressões em DOM sintético, smoke Chromium e inspeção estrutural registrados para futura execução. Sem execução nativa/homologação desta revisão; manifesto repinado após arquivos visuais.
 
+## Restauração de foco em extração e O5 (23/10/2026)
+
+**[FV-UI-032 — foco após re-render na extração e transição O5](./56_FV_UI_032_FOCO_EXTRACAO_NAVEGACAO_O5_2026_10_23.md)**: ancora foco na aba Extração após resultado fictício e esclarecimento e conduz o teclado à conversa vinculada em desktop/celular. Cobertura sintética e verificações Chromium adicionadas, ainda sem homologação de checkout ou sistemas reais.
+
 ## Estado do trabalho
 FV-UI-015/016: demonstrações com dados sintéticos. **NÃO** declarar integração real, Auth/RLS/GoTrue, comunicações Meta ou remessas confirmadas. FV-UI-013 não homologada formalmente; **19F 69/100** como último marco. Esta consolidação é **documentação somente**. Nenhum código, migration, branch S1, dado real ou deploy foi tocado.
 

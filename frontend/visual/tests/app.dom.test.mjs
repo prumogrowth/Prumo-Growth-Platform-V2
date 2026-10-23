@@ -870,3 +870,40 @@ test('FV-UI-031: callback obsoleto não reorienta foco nem registra nota em outr
   assert.equal(env.document.activeElement,get('search-input'));
   assert.equal(get('detail-content').textContent.includes('Texto obsoleto 031'),false);
 });
+
+test('FV-UI-032: resultado técnico fictício restaura foco da aba Extração',()=>{
+  reset();env.openCase('Exemplo 02');
+  buttons('Concluir atendimento')[0].click();get('completion-dialog').close('confirm');
+  const action=env.descendants(get('detail-content')).find(n=>n.tagName==='BUTTON' && n.textContent==='Retorno parcial');
+  assert.ok(action);action.focus();action.click();
+  const tab=env.descendants(get('detail-content')).find(n=>n.id==='case-tab-extraction');
+  assert.equal(env.document.activeElement,tab);
+  assert.match(get('context-announcement').textContent,/Resultado técnico fictício Retorno parcial/);
+  assert.match(get('detail-content').textContent,/Campo ilustrativo A/);
+  const failure=env.descendants(get('detail-content')).find(n=>n.tagName==='BUTTON' && n.textContent==='Falha técnica');
+  assert.ok(failure);failure.click();
+  assert.equal(env.document.activeElement,env.descendants(get('detail-content')).find(n=>n.id==='case-tab-extraction'));
+  assert.match(get('context-announcement').textContent,/Resultado técnico fictício Falha técnica/);
+});
+
+test('FV-UI-032: esclarecimento recriado ancora o foco sem afirmar F03',()=>{
+  reset();env.openCase('Exemplo 09');
+  env.descendants(get('detail-content')).filter(n=>n.attrs.role==='tab').find(n=>n.textContent==='Extração').click();
+  const button=env.descendants(get('detail-content')).find(n=>n.id==='show-clarification-demo');
+  assert.ok(button);button.focus();button.click();
+  assert.equal(env.document.activeElement,env.descendants(get('detail-content')).find(n=>n.id==='case-tab-extraction'));
+  assert.match(get('context-announcement').textContent,/Cenário de esclarecimento fictício do caso A-108/);
+  assert.equal(env.descendants(get('detail-content')).some(n=>n.id==='show-clarification-demo'),false);
+  assert.match(get('detail-content').textContent,/nenhuma IA foi acionada/);
+});
+
+test('FV-UI-032: O5 desktop foca região do novo caso autorizado',()=>{
+  reset();env.openCase('Exemplo 05');
+  env.descendants(get('detail-content')).filter(n=>n.attrs.role==='tab').find(n=>n.textContent==='Novo contato').click();
+  const btn=env.descendants(get('detail-content')).find(n=>n.tagName==='BUTTON' && n.textContent.includes('Abrir novo atendimento humano'));
+  assert.ok(btn);btn.click();
+  assert.equal(env.document.activeElement,get('thread-pane'));
+  assert.match(get('thread-meta').textContent,/Caso A-114/);
+  assert.match(get('context-announcement').textContent,/Caso A-114 aberto por vínculo fictício autorizado/);
+  assert.match(get('workflow-bar').textContent,/em atendimento pelo operador/);
+});
