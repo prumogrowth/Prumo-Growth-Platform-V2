@@ -184,6 +184,10 @@ function announceCurrentContext(detail=''){
 function goto(view) {
   state.mobileView = view;
   app.dataset.mobileView = view;
+  // FV-UI-028: o estado acessível acompanha o painel móvel de fato visível.
+  // No desktop, aria-expanded permanece sob controle da abertura do painel lateral.
+  if(window.matchMedia('(max-width:760px)').matches)
+    $('detail-toggle').setAttribute('aria-expanded',String(view==='detail'));
   if (view === 'thread') $('message-input').blur();
 }
 function updateSelectors() {
