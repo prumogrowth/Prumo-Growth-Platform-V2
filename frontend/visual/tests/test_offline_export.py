@@ -2,15 +2,13 @@
 Executar: python3 -m unittest discover -s frontend/visual/tests -p test_offline_export.py
 Fixtures são bytes inventados; não são dados de clientes ou arquivos reais.
 """
-import contextlib
 import importlib.util
-import io
 from pathlib import Path
 import stat
 import tempfile
 import unittest
 from unittest.mock import patch
-from zipfile import ZipFile, ZipInfo, ZIP_DEFLATED
+from zipfile import ZipFile, ZipInfo, ZIP_DEFLATED, BadZipFile
 
 HERE = Path(__file__).resolve().parent
 spec = importlib.util.spec_from_file_location("fv_ui_offline_verifier", HERE / "verify_offline_export.py")
@@ -129,7 +127,7 @@ class OfflineExportIntegrityTests(unittest.TestCase):
 
     def test_invalid_zip_rejected_by_archive_reader(self):
         self.archive.write_bytes(b"not zip")
-        with self.assertRaises(Exception):
+        with self.assertRaises(BadZipFile):
             verifier.load_verified(self.archive)
 
     def test_manifest_pinning_is_git_blob_hash_not_plain_sha(self):
