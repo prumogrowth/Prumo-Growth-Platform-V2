@@ -1,5 +1,12 @@
 # Frente OpenAI — Prumo Growth | índice inicial
 
+## Governança de conhecimento e MCP — pacote adversarial (22/10/2026)
+
+- [E01-KH/MCP v0.4 — matriz de autoridade da Prumo, fontes, operações e oito gates pendentes](./E01_GOVERNANCA_CONHECIMENTO_MCP_PORTOES_v0_4.md).
+- [E02-KH/MCP-AX v0.1 — 24 variações adversariais documentais](./E02_MATRIZ_ADVERSARIAL_CONHECIMENTO_MCP_v0_1.md): confirmações independentes, replay, auditoria protegida, privacidade e isolamento de conhecimento entre concessionárias.
+
+**Precedência:** AL-IA-02/03 decidem que só a Prumo administra conhecimento, não há pesquisas abertas da F01/F02/F03 por padrão e nenhuma ferramenta pode nascer de um guia MCP. O corpus principal **continua SYN-01..70, 65 P0/5 P1 e 0 executados**; AX-01..24 **não** são 24 novos SYN, fixtures executáveis nem PASS. Contrato físico e aceite KH-R01..R08 dependem da S0/Prumo/segurança. E02-REV/FIX, E04 e E05 não foram liberados.
+
 ## E01/E03 — prontidão do fornecedor e aviso de descontinuação (22/10/2026)
 
 - [E01-AUDIO v0.4 — modelos de voz, descontinuações previstas para 2027 e implicações F04/F05](./E01_ATUALIZACAO_MODELOS_AUDIO_DEPRECACOES_2026_10_22_v0_4.md): a shortlist antiga foi atualizada **documentalmente**, sem decidir endpoint ou modelo de produção.
