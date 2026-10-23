@@ -30,14 +30,19 @@ begin
   if p_ciclo is not null or p_versao is not null then
    raise exception 'I55_LIST_PARAMETERS' using errcode='42501';end if;
   -- This predicate is evaluated at the current clock on every request.
-  if not exists(select 1 from public.equipe_prumo_s1 e
+  -- Share-lock manager/store/grant for response consistency. A revoke
+  -- already committed before the lock is acquired is observed immediately;
+  -- one committed later is serialized behind this listing transaction.
+  perform 1 from public.equipe_prumo_s1 e
    join public.vinculos_papel_escopo v on v.ator_id=e.ator_id
     and v.concessionaria_id=p_loja and v.papel='gestor'
     and v.valido_desde<=pg_catalog.clock_timestamp()
     and (v.valido_ate is null or v.valido_ate>pg_catalog.clock_timestamp())
    join public.concessionarias l on l.id=v.concessionaria_id and l.ativo
-   where e.ator_id=p_ator and e.estado='ativo')
-  then raise exception 'I55_MANAGER_SCOPE_DENIED' using errcode='42501';end if;
+   where e.ator_id=p_ator and e.estado='ativo'
+   for share of e,v,l;
+  if not found then
+   raise exception 'I55_MANAGER_SCOPE_DENIED' using errcode='42501';end if;
   select coalesce(pg_catalog.jsonb_agg(
        pg_catalog.jsonb_build_object('concessionaria_id',z.concessionaria_id,
        'lead_id',z.lead_id,'ciclo_id',z.ciclo_id,'versao',z.versao)
@@ -72,7 +77,7 @@ create function prumo_s1_signed_i20.invocar_fila_v55(
 declare v_op text;v_action text;v_now bigint;v_nonce uuid;v_result jsonb;
 begin
  if p_ator is null or p_sessao is null or p_loja is null or p_chave is null
-  or p_emitido is null or p_nonce is null or p_hmac !~ '^[0-9a-f]{64}$'
+  or p_emitido is null or p_nonce is null or p_hmac is null or p_hmac !~ '^[0-9a-f]{64}$'
  then raise exception 'I55_INVALID_FIELDS' using errcode='42501';end if;
  if p_ciclo is null and p_versao is null then
   v_op:='FILA55L';v_action:='L';
