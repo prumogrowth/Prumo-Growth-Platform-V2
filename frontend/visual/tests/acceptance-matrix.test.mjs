@@ -21,7 +21,7 @@ test('FV-UI-020: matriz aponta para testes reais e somente da frente',()=>{
     assert.ok(Array.isArray(c.tests) && c.tests.length>0,c.id);
     assert.equal(new Set(c.tests).size,c.tests.length);
     for(const filename of c.tests){
-      assert.match(filename,/^[a-z0-9-]+\.test\.mjs$/);
+      assert.match(filename,/^[a-z0-9]+(?:[.-][a-z0-9]+)*\.test\.mjs$/);
       assert.ok(existsSync(join(here,filename)),c.id+' missing '+filename);
     }
   }
