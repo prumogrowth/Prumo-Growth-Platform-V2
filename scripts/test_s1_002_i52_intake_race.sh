@@ -18,8 +18,8 @@ case_a='76650000-0000-4000-8000-000000000001'
 case_b='76650000-0000-4000-8000-000000000002'
 psql -X -qAt -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" <<SQL
 begin;
-insert into auth.users(id) values('$m','$c');
-insert into public.atores(id) values('$m','$c');
+insert into auth.users(id) values('$m'),('$c');
+insert into public.atores(id) values('$m'),('$c');
 insert into public.equipe_prumo_s1(ator_id,estado) values('$m','ativo'),('$c','ativo');
 insert into prumo_private.s1_gestor_operadores(gestor_id,operador_id) values('$m','$c');
 insert into public.concessionarias(id,nome_operacional) values('$shop','I52 concurrent shop');
