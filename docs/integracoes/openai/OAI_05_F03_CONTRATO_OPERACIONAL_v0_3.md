@@ -1,5 +1,11 @@
 # OAI-05 v0.3 — F03: extração pós-conclusão humana e histórico integral (candidata)
 
+## E04/S0-F03 — Testes físicos realizados em GitHub Actions (23/10/2026)
+
+**Impedimento anterior de PostgreSQL 17 RESOLVIDO** mediante autorização do responsável para usar GitHub Actions: [execução PG17 #40027116504](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/40027116504) **150/150 PASS**; [execução PG17 #40027635632](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/40027635632) **153/153 PASS** (84 S0, 24 leitor F03, 31 selo F03 e **14 testes físicos F03**). Logs confirmam PostgreSQL **17.11**, gatilhos, ACL e reprocessamento real no banco descartável.
+
+A frente OpenAI implementou diretamente no [PR #16 S0 compartilhada](https://github.com/prumogrowth/Prumo-Growth---Platform/pull/16) o [leitor HMAC-SHA256 de conteúdo histórico](https://github.com/prumogrowth/Prumo-Growth---Platform/blob/feat/oai-s0-f03-history-port-20261023/backend/s0_f03_content_integrity_local.py), que **detectou em PG17 mudança no texto de caso antigo sem alterar o hash de metadados**. [Relatório técnico](https://github.com/prumogrowth/Prumo-Growth---Platform/blob/feat/oai-s0-f03-history-port-20261023/docs/S0_F03_PG17_CI_HMAC_2026_10_23.md). **Limite importante:** HMAC ainda não vinculado ao manifesto persistente por transação nem provisionado com chave S0 real; não autoriza enviar o conteúdo à F03, aplicar ficha ou iniciar E05. A antiga afirmação “0/11 testes PG17 executados” descreve somente **o momento anterior a esses runs**.
+
 ## E04 — validação física S0/F03 preparada em PR #16 (23/10/2026)
 
 A própria frente OpenAI adicionou na S0 compartilhada [executor manual PG17 protegido](https://github.com/prumogrowth/Prumo-Growth---Platform/blob/feat/oai-s0-f03-history-port-20261023/scripts/run-s0-f03-pg17-local.sh), [11 testes de integração descartável](https://github.com/prumogrowth/Prumo-Growth---Platform/blob/feat/oai-s0-f03-history-port-20261023/backend/tests/test_s0_f03_pg17_integration.py) e [documento de execução e limitações](https://github.com/prumogrowth/Prumo-Growth---Platform/blob/feat/oai-s0-f03-history-port-20261023/docs/S0_F03_PG17_EXECUTOR_E_LACUNA_CONTEUDO_2026_10_23.md), todos no [PR #16](https://github.com/prumogrowth/Prumo-Growth---Platform/pull/16), preservando o PR #12.
