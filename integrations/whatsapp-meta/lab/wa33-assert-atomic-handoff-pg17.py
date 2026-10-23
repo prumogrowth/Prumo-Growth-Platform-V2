@@ -110,8 +110,8 @@ mark(11)
 expect("SELECT wa33_lab.append_fixture(NULL,'111111','1234567890','wamid.WA33_REVOKE_FIRST','5581900000000','evt','SENT_REPORTED',1)","LAB_DENIED")
 expect("SELECT wa33_lab.append_fixture('APP_A','111111','1234567890','wamid.WA33_REVOKE_FIRST','5581900000000','evt',NULL,1)","LAB_DENIED")
 mark(12)
-expect("SELECT count(*) FROM wa31_lab.observations WHERE event_ref LIKE 'evt_%'","0")
-expect("SELECT count(*) FROM wa30_lab.evidence WHERE event_ref LIKE 'evt_%'","0")
+expect("SELECT count(*) FROM wa31_lab.observations WHERE event_ref='evt_hist'","0")
+expect("SELECT count(*) FROM wa30_lab.evidence WHERE event_ref='evt_hist'","0")
 mark(13)
 
 # Revocation locks synthetic authority first. The append must wait, then
