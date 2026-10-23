@@ -1,5 +1,7 @@
 # E04/S0-F03 — preparação de integração física PostgreSQL 17 descartável (23/10/2026)
 
+> **ATUALIZAÇÃO DE EXECUÇÃO REAL — 23/10/2026:** os testes físicos que estavam pendentes **foram executados** no GitHub Actions. [Relatório auditado](./S0_F03_PG17_CI_HMAC_2026_10_23.md): [run #40027116504](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/40027116504) **150/150 PASS**, seguida de [run #40027635632](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/40027635632) **153/153 PASS**, incluindo **14 testes físicos F03**. Novo leitor S0 [HMAC-SHA256 de conteúdo](../backend/s0_f03_content_integrity_local.py) detecta alteração de texto do caso anterior em PG17. A seção original de 0/11 abaixo é registro histórico **anterior** ao CI, não situação atual. O HMAC ainda não está persistido/associado a um grant F03.
+
 **Estado:** scripts e suíte de integração publicados no PR #16, sem execução física nesta sessão. A S0 é infraestrutura compartilhada e esta adaptação é desenvolvida pela frente OpenAI, sem editar o PR #12. Não há nenhuma chamada a Supabase hospedado, cliente real, API Meta/OpenAI, migração ou deploy.
 
 ## Materiais executáveis
