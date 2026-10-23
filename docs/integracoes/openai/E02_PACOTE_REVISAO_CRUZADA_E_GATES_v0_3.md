@@ -1,5 +1,7 @@
 # E02-REV v0.3 — Pacote de revisão cruzada, decisões e gate de aceite
 
+> **Portões de conhecimento e MCP explicitados:** [KH-R01..KH-R08](./E01_GOVERNANCA_CONHECIMENTO_MCP_PORTOES_v0_4.md) e [24 controles adversariais AX](./E02_MATRIZ_ADVERSARIAL_CONHECIMENTO_MCP_v0_1.md). Nenhum foi homologado pela S0/Prumo; seus EXPECTED são revisões documentais, **não** resultados de teste.
+
 > **QA interna documental:** [E02-QA v0.1 — 70 casos, 65 P0/5 P1 e 7 achados editoriais corrigidos](./E02_AUDITORIA_QA_GABARITOS_70_v0_1.md). A auditoria **não fecha** E02-REV nem E02-FIX: seguem pendentes donos de interfaces, schema, provas e autorização E04.
 
 > **Material adicional para os revisores [P/R]:** [E01-INT v0.4 — portões do adaptador, resultados e erros](./E01_CONTRATO_TIPADO_ADAPTADOR_FALHAS_v0_4.md). Usar como proposta de contrato a homologar, não como evidência de implementação. Questões encaminhadas às issues #4/#6/#15 continuam pendentes.
