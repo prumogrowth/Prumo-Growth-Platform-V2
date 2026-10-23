@@ -1,5 +1,7 @@
 # E04/S0 — Selo local append-only do histórico multi-casos F03 (23/10/2026)
 
+> **Integração física preparada, não executada (23/10/2026):** [executor manual PG17](../scripts/run-s0-f03-pg17-local.sh), [11 testes físicos](../backend/tests/test_s0_f03_pg17_integration.py) e [relatório com comandos, critérios e lacunas](./S0_F03_PG17_EXECUTOR_E_LACUNA_CONTEUDO_2026_10_23.md). A sintaxe foi verificada; três tentativas de apontar o runner para alvo remoto/incorreto ou PGHOST redirecionado foram recusadas. **0/11 cenários rodados em PostgreSQL real** neste ambiente (PG17 e psql indisponíveis). A suíte evidencia explicitamente que alteração do **texto** histórico não muda o hash de pertencimento de mensagens; portanto `REVIEW_ONLY` não pode virar autorização de conteúdo F03.
+
 **Situação:** desenvolvimento real de código na S0 compartilhada, como autorizado pelo responsável, exclusivamente em laboratório. **Ainda não homologado fisicamente** contra PostgreSQL 17, GoTrue/S1/S0 reais, mídia ou dados de clientes. Não usar como contrato de execução de F03. PR #16 empilhado sobre PR #12, mantendo ambas as branches originais intactas.
 
 ## Entrega
