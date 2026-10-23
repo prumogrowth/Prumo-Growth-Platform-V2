@@ -27,8 +27,13 @@ Também desabilitamos as funções S1/048 legadas `s1_pausar_operador_da_equipe`
 
 - A função administrativa exige `current_user='postgres'` e revoga EXECUTE para `anon`, `authenticated` e `service_role`; **não** constitui RPC autenticado nem serviço produtivo. O contrato de assinatura/identidade não foi liberado ao cliente.
 - As fontes canônicas S0 e S1 agora se encontram no **trigger do registro de atribuição**, porém toda atribuição por rotinas privilegiadas ainda deve revalidar autorização externa e exigir idempotência.
-- Pausa versus atribuição em sessões reais exige teste transacional complementar em fluxo integrado e retomada do estado após a verificação de histórico. A2 é regra [D] fechada, não mais pendência de produto. Demais critérios G1–G6 do I50 persistem.
+- **A concorrência pausa-vs-atribuição em duas sessões SQL independentes foi coberta** na fixture PG17 (I52-RACE-01/02), incluindo verificação de `pg_stat_activity.wait_event_type='Lock'`; ainda não é integração HTTP de serviço assinado nem validação do ambiente hospedado. A2 é regra [D] fechada, não mais pendência de produto. Demais critérios G1–G6 do I50 persistem.
 
 ## Evidências
 
-Registrar separadamente o SHA do código e workflows efetivamente concluídos antes de declarar aprovado.
+**Revisado e conferido em 23/10/2026:**
+
+- [Regressão completa PG17 da S0/S1, run #39990882138](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39990882138), job `120542008922`, **SUCCESS** sobre código `7353b6f07e7aaa281c2d1175b2ed461084fcd5a6`. Logs lidos: **6/6 `PASS I52-01..06`** da migration canônica e **2/2 `PASS I52-RACE-01..02`**, com sessões PostgreSQL separadas e espera de lock verificada, sem duplicação de titulares.
+- [Primeira integração PG17, run #39990066796](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39990066796), **SUCCESS** sobre `af353ce62ea76162fe2e139dbb50c63c29379212`, antes da adição do ensaio de concorrência. A primeira execução da concorrência falhou na preparação de usuários fictícios, com `INSERT has more expressions than target columns`; corrigido sem mudança da regra de acesso em `7353b6f`. O CI verde acima é a evidência final.
+- **Implementação sob nossa responsabilidade S0/S1:** não existe outra frente proprietária esperando resolver esta integração. O próximo incremento executável é unir o comando versionado `s1_definir_intake` ao gateway autenticado assinado e converter os produtores reais de fila/distribuição para o mesmo contrato canônico, sempre em ambiente isolado até passar a homologação.
+- O teste de concorrência **não** comprova RLS/GoTrue hospedado, Meta, banco externo nem todos os produtores S0. Nenhum merge/deploy foi feito; PR #5 continua Draft.
