@@ -274,3 +274,8 @@ exec(compile(_i46.read_text(encoding="utf-8"), str(_i46), "exec"), globals())
 from pathlib import Path
 _i47 = Path("scripts/test_s1_002_i47_indirect_acl.py")
 exec(compile(_i47.read_text(encoding="utf-8"), str(_i47), "exec"), globals())
+
+
+# I48: real-auth eligibility and case-less negative regressions, same ephemeral stack.
+import runpy
+runpy.run_path('scripts/test_s1_002_i48_optout_acl.py', init_globals=globals())
