@@ -124,6 +124,7 @@ def main():
         "operation-feedback.mjs", "s0-command-result.mjs", "s0-read-contract.mjs", "integration-gate-view.mjs",
         "bank-view.mjs", "postmark-view.mjs", "team-operations.mjs",
         "tests/acceptance-matrix.json", "tests/verify_offline_export.py",
+        "tests/test_offline_export.py",
         "team-monitor.mjs", "team-monitoring.mjs", "batch-monitor.mjs", "distribution-view.mjs", "transport-state-view.mjs",
     }
     missing = sorted(
@@ -142,6 +143,16 @@ def main():
         "executed": True, "missing": missing,
         "expected_node_tests": len(expected_tests),
     })
+    # Segurança do ZIP executável é parte obrigatória do gate de aceite.
+    if not inventory_ok or not revision_ok:
+        report["steps"].append({"name": "Offline ZIP verifier adversarial regression",
+                                "passed": False, "executed": False,
+                                "error": "incomplete or unverified checkout"})
+    else:
+        report["steps"].append(run_step(
+            "Offline ZIP verifier adversarial regression",
+            [sys.executable,"-m","unittest","discover","-s",str(TESTS),
+             "-p","test_offline_export.py"],timeout=45))
     node = shutil.which("node")
     suite = sorted(str(file) for file in TESTS.glob("*.test.mjs"))
     if not inventory_ok or not node or not revision_ok:
