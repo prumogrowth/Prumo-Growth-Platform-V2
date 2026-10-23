@@ -1,5 +1,11 @@
 # Frente OpenAI — Prumo Growth | índice inicial
 
+## E04 — proteção F03 contra sobrescrita, replay e fonte inválida (23/10/2026)
+
+Implementados [pré-validador puro F03](./e04_offline_lab/f03-commit-gate.mjs), [42 casos de teste](./e04_offline_lab/tests/f03-commit-gate.test.mjs) e [relatório de evidência](./E04_F03_PRECHECK_CONCORRENCIA_NODE_2026_10_23_v0_1.md). **Node.js 22.16.0:** 42/42 novos casos F03 aprovados e 95/95 com os 53 F02 presentes no diretório local. **Regressão de 6 suítes completas, sobre fontes reobtidas do GitHub:** 254/254 aprovados em **V8 isolado com adaptação de imports Node** — não é `npm test` completo no Node/CI. Nenhum resultado concede mutação, envio, prova do Banco ou homologação S0.
+
+As guardas mantêm cutoff histórico imutável, validam seis versões distintas, exigem evidência explicitamente atestada na **fixture confiável da S0**, bloqueiam fontes de outra pessoa/concessionária, versões alteradas e replays conflitantes. Permissão real, assinatura e veracidade do histórico dependem de ratificação S0/CFI-01. **70 SYN documentais da E02 continuam sem execução de sua suíte original; E05 não autorizada.**
+
 ## E04 — jornada integrada offline F01 → humano → F03 → F02 (23/10/2026)
 
 [Código de orquestração pura](./e04_offline_lab/journey.mjs), [43 testes de integração sintética](./e04_offline_lab/tests/journey.test.mjs) e [relatório de fronteiras/evidências](./E04_FLUXO_INTEGRADO_F01_HUMANO_F03_F02_2026_10_23_v0_1.md) publicados somente nesta branch. A jornada exige handoff e conclusão humana expressos, F03 por histórico autorizado da mesma pessoa/loja, nova autorização **separada** da S0 para F02 e rechecagem final de categorias/limite local/recibos. Não envia, não grava, não devolve F01 ao caso humano.
