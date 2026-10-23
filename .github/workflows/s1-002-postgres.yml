@@ -6,6 +6,7 @@ on:
       - 'supabase/**'
       - 'scripts/run-s1-002-local.sh'
       - 'scripts/run-s1-002-i12-local.sh'
+      - 'scripts/run-s1-002-i52-local.sh'
       - 'scripts/test_s1_002_*.sh'
       - '.github/workflows/s1-002-postgres.yml'
   workflow_dispatch:
@@ -42,6 +43,8 @@ jobs:
         run: psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c 'CREATE DATABASE prumo_s0_test_s1ci'
       - name: Executar regressao S0 e gate equipe S1-002
         run: bash scripts/run-s1-002-i12-local.sh
+      - name: I52 etapa canonica S0-S1 apos regressao historica
+        run: bash scripts/run-s1-002-i52-local.sh
       - name: I46 inventario completo das migrations SQL rastreadas
         run: python3 scripts/test_s1_002_i46_acl_inventory.py
       - name: I46 catalogo ACL efetivo no PG17 descartavel
