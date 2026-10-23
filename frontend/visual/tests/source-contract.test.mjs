@@ -402,3 +402,9 @@ test('FV-UI-029: confirmação de modais aninhados anuncia sem perder foco',()=>
   assert.match(app,/if\(!\$\('team-dialog'\)\.open \|\| !canSeeTeamSummary/);
   assert.match(browserSmoke,/FV-UI-029 confirmação, anúncio e retorno do foco/);
 });
+
+test('FV-UI-031: nota fictícia não perde foco após recriar formulário',()=>{
+  assert.match(app,/renderDetails\(\);target\.querySelector\('#note-text'\)\?\.focus\(\)/);
+  assert.match(browserSmoke,/FV-UI-031: foco não deve cair no BODY/);
+  assert.match(domMock,/selector\.startsWith\('#'\)/);
+});

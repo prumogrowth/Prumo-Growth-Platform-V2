@@ -88,6 +88,10 @@
 
 **[FV-UI-030 — testes por camadas para não repetir validações desnecessárias](./54_FV_UI_030_TESTES_POR_CAMADA_PREPARACAO_REDESIGN_2026_10_23.md)**: inventário separado em **19 suítes de regras, 3 de interação, 5 de contratos/integridade** e roteiro Chromium isolado. Novo executor diagnóstico `run_validation_layers.mjs` facilita evoluir o layout sem confundir testes funcionais com visuais. Sem revisão do visual escolhido, homologação ou integrações reais.
 
+## Foco após notas fictícias (23/10/2026)
+
+**[FV-UI-031 — retorno ao editor de nota recriado](./55_FV_UI_031_FOCO_APOS_NOTA_LOCAL_2026_10_23.md)**: mantém navegação por teclado depois de registro local de nota, com regressões em DOM sintético, smoke Chromium e inspeção estrutural registrados para futura execução. Sem execução nativa/homologação desta revisão; manifesto repinado após arquivos visuais.
+
 ## Estado do trabalho
 FV-UI-015/016: demonstrações com dados sintéticos. **NÃO** declarar integração real, Auth/RLS/GoTrue, comunicações Meta ou remessas confirmadas. FV-UI-013 não homologada formalmente; **19F 69/100** como último marco. Esta consolidação é **documentação somente**. Nenhum código, migration, branch S1, dado real ou deploy foi tocado.
 

@@ -54,6 +54,7 @@ export function installMockDOM({ mobile = false } = {}) {
     querySelector(selector) {
       if (selector === '.detail-tab.active') return descendants(this).find(n =>
         n.classList.contains('detail-tab') && n.classList.contains('active')) ?? null;
+      if (selector.startsWith('#')) return descendants(this).find(n => n.id === selector.slice(1)) ?? null;
       return null;
     }
   }

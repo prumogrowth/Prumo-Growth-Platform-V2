@@ -49,6 +49,8 @@ with sync_playwright() as p:
         page.locator('.detail-tab', has_text='Notas').click()
         page.locator('#note-text').fill('Nota interna fictícia de ensaio')
         page.locator('#internal-note-form button').click()
+        # FV-UI-031: foco não deve cair no BODY quando a nota recria o formulário.
+        expect(page.locator('#note-text')).to_be_focused()
         assert page.locator('.detail-row').filter(has_text='Nota interna fictícia').count() == 1
         page.locator('.detail-tab', has_text='Histórico').click()
         assert page.locator('.activity-item').count() > 3

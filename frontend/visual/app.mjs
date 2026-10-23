@@ -456,7 +456,10 @@ function renderDetails() {
       form.addEventListener('submit',e=>{e.preventDefault();const text=textarea.value.trim();
         if(!text || selectedCase()?.id!==item.id || !postmarkContextValid(item) || !canWriteNote(item,state.actorId,state.shopId) || !isInActiveInbox(item))return;
         item.notes??=[];item.notes.push({id:'n-'+(item.notes.length+1),text,actorId:state.actorId,time:'Agora · fictício'});
-        renderDetails();showToast('Nota adicionada somente à memória do navegador.');
+        // FV-UI-031: o formulário anterior deixa o DOM; devolver foco ao novo campo
+        // somente após gravação demonstrativa elegível no mesmo caso.
+        renderDetails();target.querySelector('#note-text')?.focus();
+        showToast('Nota adicionada somente à memória do navegador.');
       });notes.append(form);
     }else notes.append(el('p','detail-small','Adição de nota não disponível neste perfil ou caso de demonstração.'));
     content.append(notes);

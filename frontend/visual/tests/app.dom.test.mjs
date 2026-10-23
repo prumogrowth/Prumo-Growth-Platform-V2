@@ -839,3 +839,34 @@ test('FV-UI-029: confirmar fila repõe foco sem simular atribuição efetiva',()
   assert.equal(get('team-dialog').open,true);
   get('team-dialog').close();
 });
+
+
+test('FV-UI-031: nota local recria formulário e retorna foco ao campo vazio',()=>{
+  reset();env.openCase('Exemplo 02');
+  env.descendants(get('detail-content')).filter(n=>n.attrs.role==='tab')
+    .find(n=>n.textContent==='Notas').click();
+  const form=env.descendants(get('detail-content')).find(n=>n.id==='internal-note-form');
+  const original=env.descendants(form).find(n=>n.id==='note-text');
+  original.value='Nota de acessibilidade somente local';original.focus();
+  form.fire('submit');
+  const renewed=env.descendants(get('detail-content')).find(n=>n.id==='note-text');
+  assert.ok(renewed);
+  assert.notEqual(renewed,original,'o formulário deve ter sido recriado');
+  assert.equal(env.document.activeElement,renewed,'foco deve permanecer no contexto da nota');
+  assert.equal(renewed.value,'');
+  assert.match(get('detail-content').textContent,/Nota de acessibilidade somente local/);
+  assert.match(get('toast').textContent,/somente à memória do navegador/);
+});
+
+test('FV-UI-031: callback obsoleto não reorienta foco nem registra nota em outro caso',()=>{
+  reset();env.openCase('Exemplo 02');
+  env.descendants(get('detail-content')).filter(n=>n.attrs.role==='tab')
+    .find(n=>n.textContent==='Notas').click();
+  const form=env.descendants(get('detail-content')).find(n=>n.id==='internal-note-form');
+  env.descendants(form).find(n=>n.id==='note-text').value='Texto obsoleto 031';
+  env.openCase('Exemplo 05');
+  get('search-input').focus();
+  form.fire('submit');
+  assert.equal(env.document.activeElement,get('search-input'));
+  assert.equal(get('detail-content').textContent.includes('Texto obsoleto 031'),false);
+});

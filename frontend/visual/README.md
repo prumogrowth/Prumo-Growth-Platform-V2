@@ -158,3 +158,7 @@ python3 frontend/visual/tests/run_acceptance.py \
 ```
 
 Se Chromium não estiver no caminho usual, definir `CHROMIUM_EXECUTABLE` antes do comando. O runner recusa checkout truncado, branch/revisão diferentes ou alterações locais em `frontend/visual`; `--skip-browser` nunca é aceite completo. A suíte possui verificação que compila o bundle de teste Chromium como script único. A verificação da revisão, o bloqueio em checkout incompleto e seis cenários artificiais de orquestração do executor foram exercitados em ambiente local; **não houve execução Node/Chromium do frontend privado completo nesta etapa**. Consulte [auditoria FV-UI-013](../docs/25_AUDITORIA_TECNICA_FV_UI_013_2026_10_19.md). Não declarar homologação ou alterar a régua 19F em razão destes ensaios.
+
+## FV-UI-031 — Foco após adicionar nota fictícia (23/10/2026)
+
+Ao incluir nota na aba **Notas**, o formulário é reconstruído e o foco retorna ao novo campo `#note-text`. A nota permanece somente em memória e o callback obsoleto continua rejeitado. O teste DOM, o smoke Chromium e a inspeção de fonte receberam regressões, **ainda não executadas nativamente nesta revisão**. Veja [FV-UI-031](../docs/55_FV_UI_031_FOCO_APOS_NOTA_LOCAL_2026_10_23.md). O redesign futuro e a homologação de checkout Git permanecem pendentes.
