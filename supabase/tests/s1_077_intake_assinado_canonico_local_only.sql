@@ -97,6 +97,18 @@ grant execute on function prumo_s1_signed_i20.invocar_intake_v53(
 reset role;
 revoke create on schema prumo_s1_signed_i20 from prumo_s1_i21_executor;
 
+-- Prevent split-brain after S0/S1 053 migrated the old intake state:
+-- callers with a valid historic I37 signature must NOT write the old table.
+create or replace function prumo_private.s1_apply_intake_signed_v37(
+ p_ator uuid,p_sessao uuid,p_operador uuid,p_pausar boolean,p_versao bigint
+) returns jsonb language plpgsql security definer set search_path='' as $legacy$
+begin
+ raise exception 'I53_LEGACY_INTAKE_DISABLED' using errcode='42501';
+end $legacy$;
+revoke all on function prumo_private.s1_apply_intake_signed_v37(
+ uuid,uuid,uuid,boolean,bigint)
+ from public,anon,authenticated,service_role,prumo_s1_signed_login_ci;
+
 do $assert$
 declare exec_owner text;bridge_owner text;
 begin

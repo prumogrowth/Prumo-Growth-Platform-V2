@@ -33,6 +33,20 @@ case_old="e5550000-0000-4000-8000-000000000001"
 case_other="e5550000-0000-4000-8000-000000000002"
 case_new="e5550000-0000-4000-8000-000000000003"
 try:
+    # The last I37 action left O3 paused at legacy revision 4. Migration 053
+    # MUST carry the paused bit and revision forward before switching guards.
+    prior_state=sql(f"select pausado::text||':'||versao "
+                    f"from prumo_private.s1_intake_estado where operador_id={U(o3)}")
+    if prior_state!="true:4":
+        raise AssertionError("I53 lost previously paused consultant or version: "+prior_state)
+    token53=login["access_token"]
+    status,data=intake53(token53,o3,False,4)
+    ok(status,data,"INTAKE_RESUMED")
+    if data["version"]!=5:
+        raise AssertionError("I53 version migration did not resume from 4")
+    status,_=call_intake(token53,o3,False,4)
+    if status!=403:
+        raise AssertionError("I53 old signed gateway still writes a split-brain intake state")
     sql(f"""
     insert into public.leads_loja(id,concessionaria_id,telefone_cliente_normalizado)
     values('{lead_old}',{U(store_a)},'+5581999995301'),
@@ -50,30 +64,29 @@ try:
     values({U(store_a)},{U(case_old)},{U(o3)}),
           ({U(store_a)},{U(case_other)},{U(o4)});
     """)
-    print("PASS S1CANON-149: S0 canonical migration + protected v53 bridge installed after legacy suite")
+    print("PASS S1CANON-149: legacy pause/version migrated atomically; old signed gateway disabled")
 
-    token53=login["access_token"]
-    status,data=intake53(token53,o3,True,1)
+    status,data=intake53(token53,o3,True,5)
     ok(status,data,"INTAKE_PAUSED")
-    assert data["version"]==2 and data["redistribution"]=="DEFERRED_S0_HUMAN_PROOF"
+    assert data["version"]==6 and data["redistribution"]=="DEFERRED_S0_HUMAN_PROOF"
     assert sql(f"select estado from public.equipe_prumo_s1 where ator_id={U(o3)}")=="ativo"
     assert sql(f"select count(*) from public.atribuicoes_humanas "
                f"where caso_id={U(case_old)} and operador_id={U(o3)} "
                "and encerrada_em is null")=="1"
     print("PASS S1CANON-150: real JWT + independent signer pauses intake only, old case retained")
 
-    status,data=intake53(token53,o3,True,2)
+    status,data=intake53(token53,o3,True,6)
     ok(status,data,"ALREADY_APPLIED")
-    assert data["version"]==2
-    status,data=intake53(token53,o3,False,1)
+    assert data["version"]==6
+    status,data=intake53(token53,o3,False,5)
     if status!=409 or data.get("outcome")!="CONFLICT":
         raise AssertionError("I53 CAS stale version not 409: "+str((status,data)))
     print("PASS S1CANON-151: idempotent retry and stale-version HTTP 409")
 
-    status,data=intake53(token_g2,o3,False,2)
+    status,data=intake53(token_g2,o3,False,6)
     if status!=403:
         raise AssertionError("I53 manager from other team changed intake "+str(status))
-    status,data=intake53(token53,o3,False,2,{"motivo_codigo":"NÃO_PERMITIDO"})
+    status,data=intake53(token53,o3,False,6,{"motivo_codigo":"NÃO_PERMITIDO"})
     if status!=400:
         raise AssertionError("I53 accepted unknown reason field")
     print("PASS S1CANON-152: cross-team manager denied and JSON field allowlist enforced")
@@ -104,7 +117,7 @@ try:
     print("PASS S1CANON-153: BOTH S0 direct write and S1 manual transfer deny paused destination")
 
     principal53=SupabaseGoTrueVerifier(api,anon).verify("Bearer "+token53)
-    legacy=app.proof(principal53,uuid.UUID(o3),False,2,"Bearer "+token53)
+    legacy=app.proof(principal53,uuid.UUID(o3),False,6,"Bearer "+token53)
     import psycopg
     try:
         with psycopg.connect(gateway_dsn,connect_timeout=5) as dbc:
@@ -114,7 +127,7 @@ try:
         if exc.sqlstate!="42501":raise
     else:
         raise AssertionError("I53 accepted legacy I37 INTAKE HMAC for INTAKE53 command")
-    signed53=app53.proof(principal53,uuid.UUID(o3),True,2,"Bearer "+token53)
+    signed53=app53.proof(principal53,uuid.UUID(o3),True,6,"Bearer "+token53)
     with psycopg.connect(gateway_dsn,connect_timeout=5) as dbc:
         with dbc.cursor() as cur:
             cur.execute(_SQL_CANONICAL_INTAKE,signed53)
@@ -129,9 +142,9 @@ try:
         raise AssertionError("I53 replayed HMAC nonce changed canonical intake")
     print("PASS S1CANON-154: distinct HMAC command-domain, valid v53 and nonce replay denial")
 
-    status,data=intake53(token53,o3,False,2)
+    status,data=intake53(token53,o3,False,6)
     ok(status,data,"INTAKE_RESUMED")
-    assert data["version"]==3
+    assert data["version"]==7
     sql(f"insert into public.atribuicoes_humanas("
         f"concessionaria_id,caso_id,operador_id) values("
         f"{U(store_a)},{U(case_new)},{U(o3)})")
@@ -139,13 +152,13 @@ try:
                f"where caso_id={U(case_new)} and operador_id={U(o3)} "
                f"and encerrada_em is null")=="1"
     assert sql(f"select count(*) from prumo_private.s1_intake_eventos "
-               f"where operador_id={U(o3)}")=="2"
-    print("PASS S1CANON-155: signed resume enables new canonical S0 assignment, audit two events")
+               f"where operador_id={U(o3)}")=="3"
+    print("PASS S1CANON-155: signed resume enables canonical S0 assignment, three audit events")
 
     # Browser and SQL signed login must not touch internal business functions.
     status,_=http("POST","/rest/v1/rpc/s1_definir_intake",
         bearer=token53,body={"p_gestor":g1,"p_operador":o3,
-                             "p_pausado":True,"p_versao_esperada":3})
+                             "p_pausado":True,"p_versao_esperada":7})
     if status not in (401,403,404):
         raise AssertionError("I53 direct internal intake RPC exposed")
     status,_=http("POST","/s1/pausar",bearer=token53,

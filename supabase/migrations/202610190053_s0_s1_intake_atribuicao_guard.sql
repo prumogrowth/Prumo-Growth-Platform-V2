@@ -4,6 +4,8 @@
 -- A2 [D]: no new case/lead may be assigned to a consultant with intake paused.
 -- Paused actors retain pre-existing cases; the account is NOT suspended.
 
+-- The legacy intake fixture and the new canonical guard change in ONE transaction.
+begin;
 create table prumo_private.s1_intake_estado (
  operador_id uuid primary key references public.equipe_prumo_s1(ator_id),
  pausado boolean not null default false,
@@ -78,6 +80,25 @@ begin
   'redistribution','DEFERRED_S0_HUMAN_PROOF');
 end $f$;
 
+-- Atomic cut-over if the previous intake-only table was installed.
+-- Keep paused=TRUE and monotonic version. Old audit rows remain preserved
+-- in their legacy table; old writes are locked during the transition.
+do $cutover$
+begin
+ if pg_catalog.to_regclass('prumo_private.s1_disponibilidade_leads_10') is not null then
+  lock table prumo_private.s1_disponibilidade_leads_10 in access exclusive mode;
+  insert into prumo_private.s1_intake_estado(
+   operador_id,pausado,versao,atualizado_em)
+  select d.operador_id,d.pausado,d.versao,pg_catalog.statement_timestamp()
+   from prumo_private.s1_disponibilidade_leads_10 d
+  on conflict(operador_id) do update set
+   pausado=excluded.pausado,versao=excluded.versao,
+   atualizado_em=excluded.atualizado_em;
+  drop trigger if exists s1_10_guard_novos_leads
+   on public.atribuicoes_humanas;
+ end if;
+end $cutover$;
+
 -- S0 owns this canonical table. The new trigger is an integration gate,
 -- not a separate mock queue. All INSERT paths (manual, automatic, replay,
 -- exception) converge here, including S1 old functions.
@@ -131,3 +152,4 @@ revoke all on function
  prumo_private.s1_pausar_operador_da_equipe(uuid,uuid,text),
  prumo_private.s1_reativar_operador_da_equipe(uuid,uuid)
  from public,anon,authenticated,service_role;
+commit;
