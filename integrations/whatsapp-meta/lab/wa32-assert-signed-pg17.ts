@@ -87,10 +87,10 @@ assert.equal(root.absent,null);
 assert.deepEqual(root.counts,{a_claims:1,b_claims:1});pass(3);
 
 const reqA=await signed(A,0,SECRET_A),reqB=await signed(B,1,SECRET_B);
-const a=await check(reqA,port([A]),'LAB_FORNSIC_SCOPED');
+const a=await check(reqA,port([A]),'LAB_FORENSIC_SCOPED');
 assert.equal(a.scoped_event_count,1);
 assert.equal(a.invalidated_attempts,1);pass(4);
-const b=await check(reqB,port([B]),'LAB_FORNSIC_SCOPED');
+const b=await check(reqB,port([B]),'LAB_FORENSIC_SCOPED');
 assert.equal(b.invalidated_attempts,0);pass(5);
 await check(reqA,port([B]),'LAB_S0_BINDING_DENIED');pass(6);
 await check(reqB,port([A]),'LAB_S0_BINDING_DENIED');pass(7);
