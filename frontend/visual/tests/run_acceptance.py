@@ -152,7 +152,7 @@ def main():
     else:
         security_step=run_step(
             "Offline ZIP verifier adversarial regression",
-            [sys.executable,"-m","unittest","discover","-s",str(TESTS),
+            [sys.executable,"-B","-m","unittest","discover","-s",str(TESTS),
              "-p","test_offline_export.py"],timeout=45)
     report["steps"].append(security_step)
     security_ok=security_step["passed"] and security_step["executed"]
