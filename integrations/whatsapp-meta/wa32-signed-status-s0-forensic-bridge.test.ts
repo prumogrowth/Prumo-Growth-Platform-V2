@@ -89,13 +89,13 @@ const expectDecision=async(req:Awaited<ReturnType<typeof signed>>,
 test('WA32-01 correct signed POST and exact scoped S0 attempt returns ONLY counters',async()=>{
  let phases:string[]=[];
  const p=s0({lookup:async(s,m,phase)=>{phases.push(phase);return [reference(s,m)]}});
- const r=await expectDecision(await signed(),'LAB_FORNSIC_SCOPED',p);
+ const r=await expectDecision(await signed(),'LAB_FORENSIC_SCOPED',p);
  assert.equal(r.scoped_event_count,1);assert.equal(r.invalidated_attempts,0);
  assert.deepEqual(phases,['LOOKUP','RECHECK']);
 });
 test('WA32-02 previously revoked attempt is retainable for forensic scope only',async()=>{
  const p=s0({lookup:async(s,m)=>[{...reference(s,m),claim_state:'LAB_INVALIDATED'}]});
- const r=await expectDecision(await signed(),'LAB_FORNSIC_SCOPED',p);
+ const r=await expectDecision(await signed(),'LAB_FORENSIC_SCOPED',p);
  assert.equal(r.invalidated_attempts,1);
 });
 test('WA32-03 wrong HMAC is refused before S0 lookup',async()=>{
@@ -203,14 +203,14 @@ test('WA32-18 HMAC registry channel changes after lookup deny same revision',asy
 test('WA32-19 multiple statuses on same case remain classified as observations only',async()=>{
  const r=await expectDecision(await signed([entry(undefined,undefined,
    [status('wamid.WA32_1'),status('wamid.WA32_1','5581900000000','read')])]),
-   'LAB_FORNSIC_SCOPED');
+   'LAB_FORENSIC_SCOPED');
  assert.equal(r.scoped_event_count,2);assert.equal(r.invalidated_attempts,0);
 });
 test('WA32-20 different valid channels within same signed App can be bound separately',async()=>{
  const p=s0({lookup:async(s,m)=>[reference(s,m)]});
  const r=await expectDecision(await signed([
   entry(),entry('202020','1234567891',[status('wamid.WA32_2')]),
- ]),'LAB_FORNSIC_SCOPED',p);
+ ]),'LAB_FORENSIC_SCOPED',p);
  assert.equal(r.scoped_event_count,2);
 });
 test('WA32-21 signed batch with unknown status is rejected, never counted as failure',async()=>{
