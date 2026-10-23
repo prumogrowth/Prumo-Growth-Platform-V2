@@ -23,7 +23,7 @@ Em 23/10/2026, foi criada branch `feat/oai-s0-f03-history-port-20261023`, basead
 
 Novo código **diretamente no backend S0**: `backend/s0_f03_history_manifest_local.py` e 20 testes. A S0 recupera a identidade e o cutoff **de evento autenticado no banco local**, seleciona **metadados multi-casos** por pessoa e concessionária, faz recheck antes/depois, valida watermark e restringe leitura a PostgreSQL local descartável. **Não fornece conteúdo à F03, não grava ficha e não afirma que o histórico está congelado integralmente**. Resultado elegível = `REVIEW_ONLY_NOT_FROZEN`.
 
-**Evidência:** 20/20 unit tests Python 3.13 locais com fac-símiles dos contratos S0, arquivos publicados com SHA idêntico ao executado; teste no checkout S0 real / PG17 físico **ainda não executado**. PR #16 mantém Draft e não modifica a branch S0 PR #12; nenhum deploy, migração ou merge.
+**Evidência:** 24/24 unit tests Python 3.13 locais com fac-símiles dos contratos S0, arquivos publicados com SHA idêntico ao executado; teste no checkout S0 real / PG17 físico **ainda não executado**. PR #16 mantém Draft e não modifica a branch S0 PR #12; nenhum deploy, migração ou merge.
 
 ## Portões ainda necessários, sem transformar em bloqueio de autoria
 
