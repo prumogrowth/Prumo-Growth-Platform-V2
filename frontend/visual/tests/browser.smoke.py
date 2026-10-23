@@ -278,7 +278,8 @@ with sync_playwright() as p:
     queue_page.locator('#team-queue').get_by_role('button',name='Solicitar assunção').first.click()
     assert queue_page.locator('#queue-action-dialog').is_visible()
     queue_page.locator('#queue-action-form button[value=confirm]').click()
-    assert 'NÃO ATRIBUÍDO' in queue_page.locator('#team-queue').inner_text()
+    expect(queue_page.locator('#queue-action-dialog')).to_be_hidden()
+    expect(queue_page.locator('#team-queue')).to_contain_text('NÃO ATRIBUÍDO')
     queue_page.locator('#team-close').click()
     queue_page.locator('#actor-select').select_option('daniel')
     queue_page.locator('#team-nav').click()
@@ -304,8 +305,10 @@ with sync_playwright() as p:
     assert 'CENÁRIO ALTERNATIVO' in cycle_page.locator('#workflow-bar').inner_text()
     cycle_page.locator('#request-completion').click()
     cycle_page.locator('#completion-form button[value=confirm]').click()
+    expect(cycle_page.locator('#completion-dialog')).to_be_hidden()
+    expect(cycle_page.locator('#detail-content')).to_contain_text('a108-3')
+    expect(cycle_page.locator('#detail-content')).to_contain_text(re.compile('corte apenas candidato',re.I))
     details=cycle_page.locator('#detail-content').inner_text()
-    assert 'a108-3' in details and 'corte apenas candidato' in details.lower()
     assert 'v1-ficticia' in details
     cycle_page.get_by_role('button',name='Abrir conversa Cliente Exemplo 15',exact=False).click()
     cycle_page.locator('.detail-tab',has_text='Extração').click()
@@ -388,4 +391,43 @@ with sync_playwright() as p:
     assert focus_page.evaluate('document.activeElement.id') == 'detail-toggle'
     focus_page.close()
     print('FV-UI-022 Escape mobile, contexto de mensagem e foco: PASS')
+    # FV-UI-027: equivalente em viewport CSS de reflow sob zoom 200/400%.
+    # Não substitui testes manuais de zoom real nem de leitores de tela.
+    for zoom_label, zoom_width, zoom_height in (
+        ('reflow-200', 720, 850), ('reflow-400-short', 360, 500),
+        ('reflow-narrow', 320, 640)
+    ):
+        zoom_page=browser.new_page(
+            viewport={'width':zoom_width,'height':zoom_height},
+            reduced_motion='reduce')
+        zoom_errors=[]
+        zoom_page.on('pageerror',lambda error: zoom_errors.append(str(error)))
+        zoom_page.set_content(html)
+        zoom_page.add_script_tag(content=script)
+        assert not zoom_page.evaluate('document.documentElement.scrollWidth > innerWidth'), zoom_label
+        assert zoom_page.locator('.conversation-card').count()==8
+        assert zoom_page.locator('.conversation-card').first.evaluate(
+            '(e) => getComputedStyle(e).transitionDuration') == '0s', zoom_label
+        if zoom_height<=700:
+            assert zoom_page.locator('.list-pane').evaluate(
+                '(e)=>e.scrollHeight > e.clientHeight'), zoom_label + ' sem rolagem vertical acessível'
+            assert zoom_page.locator('.conversation-items').evaluate(
+                '(e)=>e.getBoundingClientRect().height >= 170'), zoom_label + ' lista colapsada'
+            zoom_page.locator('.conversation-card').last.scroll_into_view_if_needed()
+            assert zoom_page.locator('.conversation-card').last.is_visible(), zoom_label
+            zoom_page.locator('.list-footer').scroll_into_view_if_needed()
+            footer=zoom_page.locator('.list-footer').bounding_box()
+            assert footer is not None and 0 <= footer['y'] and footer['y']+footer['height'] <= zoom_height+1, zoom_label
+        zoom_page.get_by_role('button', name='Abrir conversa Cliente Exemplo 02', exact=False).click()
+        assert zoom_page.locator('#visual-app').get_attribute('data-mobile-view')=='thread'
+        assert zoom_page.locator('#message-input').is_visible()
+        assert zoom_page.evaluate('document.activeElement.id')=='thread-back'
+        zoom_page.locator('#detail-toggle').click()
+        assert zoom_page.locator('#visual-app').get_attribute('data-mobile-view')=='detail'
+        zoom_page.locator('#detail-back').click()
+        assert zoom_page.evaluate('document.activeElement.id')=='detail-toggle'
+        assert not zoom_page.evaluate('document.documentElement.scrollWidth > innerWidth')
+        assert not zoom_errors, zoom_label + ': ' + repr(zoom_errors)
+        zoom_page.close()
+    print('FV-UI-027 reflow responsivo, rolagem e movimento reduzido: PASS')
     browser.close()
