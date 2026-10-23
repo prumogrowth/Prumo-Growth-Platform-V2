@@ -26,7 +26,7 @@ create table prumo_private.cfi01_f03_history_seals_local (
 -- together in trusted S0 rows. No browser/model-supplied case identity.
 create function prumo_private.cfi01_f03_seal_scope_guard_local()
 returns trigger language plpgsql security invoker set search_path=''
-as $ begin
+as $$ begin
  if not exists (
   select 1 from prumo_private.cfi01_human_closure_events_local e
   join public.casos_humanos h on h.id=e.caso_id
@@ -43,7 +43,7 @@ as $ begin
   raise exception 'F03_MANIFEST_SCOPE_MISMATCH_LOCAL' using errcode='42501';
  end if;
  return new;
-end $;
+end $$;
 create trigger cfi01_f03_history_seal_scope_guard
  before insert on prumo_private.cfi01_f03_history_seals_local
  for each row execute function prumo_private.cfi01_f03_seal_scope_guard_local();
