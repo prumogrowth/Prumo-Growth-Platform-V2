@@ -124,7 +124,9 @@ if __name__ == '__main__':
         code = Path(runner).read_text(encoding="utf-8")
         paths.extend(re.findall(r"supabase/migrations/[A-Za-z0-9_.-]+\.sql", code))
     paths.append("supabase/migrations/202610190052_s1_verificacao_sessao_gotrue.sql")
-    paths = sorted(set(paths))
+    # I53: preserve legacy I18–I37 expectations until its separate transition gate.
+    # The canonical S0/S1 053 migration is applied in the I53 E2E phase below.
+    paths = sorted(set(p for p in paths if not p.endswith('202610190053_s0_s1_intake_atribuicao_guard.sql')))
     if len(paths) < 45 or not paths[0].endswith("202610170001_s0_foundation.sql"):
         raise AssertionError("listagem das migrations incompleta: " + str(len(paths)))
     for migration in paths:
@@ -2139,6 +2141,13 @@ if __name__ == '__main__':
             if sql(f"select versao from prumo_private.s1_disponibilidade_leads_10 where operador_id='{o3}'::uuid")!="4":
                 raise AssertionError("I37 stale/replay affected revision")
             print("PASS S1INTAKE-146: failed calls did not change CAS or account")
+            # I53: 053 disables the old global-pause API and must be installed
+            # after all historical gateway tests; reuse current signed GoTrue
+            # principal, mTLS signer, key custody and real ephemeral DB.
+            from pathlib import Path
+            _i53 = Path("scripts/test_s1_002_i53_signed_canonical_e2e.py")
+            exec(compile(_i53.read_text(encoding="utf-8"), str(_i53), "exec"), globals())
+
             status,data=call_intake(token,o3,True,4)
             ok(status,data,"ALREADY_APPLIED")
             signer.revoke(new_key)

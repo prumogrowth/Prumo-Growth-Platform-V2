@@ -38,6 +38,7 @@ def intake_fields(command, payload):
 
 
 class LocalSignedIntakeOnlyGateway:
+    _statement = _SQL_INTAKE  # class-bound, never obtained from HTTP payload
     def __init__(self, dsn, gotrue, *, signer, key_id):
         u = urlsplit(dsn)
         if (u.scheme not in ("postgres", "postgresql") or
@@ -70,7 +71,7 @@ class LocalSignedIntakeOnlyGateway:
         with psycopg.connect(self.dsn,connect_timeout=5) as connection:
             with connection.cursor() as cur:
                 try:
-                    cur.execute(_SQL_INTAKE,proof)
+                    cur.execute(self._statement,proof)
                 except psycopg.Error as exc:
                     if exc.sqlstate in ("42501","22023","23514","23505","40001"):
                         raise Denied("I37_NOT_AUTHORIZED") from None

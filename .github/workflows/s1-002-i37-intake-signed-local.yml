@@ -30,6 +30,10 @@ on:
       - 'backend/s1_signer_process_local.py'
       - 'backend/s1_gateway_local.py'
       - 'backend/s1_gateway_intake_signed_local.py'
+      - 'backend/s1_gateway_intake_canonical_local.py'
+      - 'scripts/test_s1_002_i53_signed_canonical_e2e.py'
+      - 'tests/test_s1_002_i53_canonical_gateway.py'
+      - 'supabase/tests/s1_077_intake_assinado_canonico_local_only.sql'
       - 'tests/test_s1_002_i37_intake_gateway.py'
       - 'supabase/tests/s1_053_issue10_disponibilidade_local_only.sql'
       - 'supabase/tests/s1_057_issue10_gateway_assinado_local_only.sql'
@@ -55,7 +59,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Checar 138 testes unitarios incluindo novo intake assinado
         run: |
-          PYTHONPATH=. python3 -m compileall -q backend/s1_gateway_http_policy_local.py backend/s1_signer_process_local.py backend/s1_signer_independent_gotrue_local.py backend/s1_signer_mtls_local.py backend/s1_i27_ephemeral_certificates.py backend/s1_i28_rotating_certificates.py backend/s1_signer_mtls_rotation_local.py tests/test_s1_002_i23_http_policy.py tests/test_s1_002_i25_signer_process.py tests/test_s1_002_i26_independent_auth.py tests/test_s1_002_i27_mtls.py tests/test_s1_002_i28_cert_lifecycle.py tests/test_s1_002_i29_persistent_revocation.py backend/s1_i29_persistent_certificate_store.py backend/s1_signer_mtls_persistent_local.py backend/s1_i30_signed_revocation_authority_local.py backend/s1_signer_mtls_authority_local.py tests/test_s1_002_i30_authenticated_authority.py backend/s1_i31_monotonic_witness_local.py backend/s1_i31_witness_authority_local.py tests/test_s1_002_i31_monotonic_witness.py scripts/test_s1_002_i37_intake_e2e_local.py backend/s1_gateway_intake_signed_local.py tests/test_s1_002_i37_intake_gateway.py
+          PYTHONPATH=. python3 -m compileall -q backend/s1_gateway_intake_canonical_local.py scripts/test_s1_002_i53_signed_canonical_e2e.py tests/test_s1_002_i53_canonical_gateway.py backend/s1_gateway_http_policy_local.py backend/s1_signer_process_local.py backend/s1_signer_independent_gotrue_local.py backend/s1_signer_mtls_local.py backend/s1_i27_ephemeral_certificates.py backend/s1_i28_rotating_certificates.py backend/s1_signer_mtls_rotation_local.py tests/test_s1_002_i23_http_policy.py tests/test_s1_002_i25_signer_process.py tests/test_s1_002_i26_independent_auth.py tests/test_s1_002_i27_mtls.py tests/test_s1_002_i28_cert_lifecycle.py tests/test_s1_002_i29_persistent_revocation.py backend/s1_i29_persistent_certificate_store.py backend/s1_signer_mtls_persistent_local.py backend/s1_i30_signed_revocation_authority_local.py backend/s1_signer_mtls_authority_local.py tests/test_s1_002_i30_authenticated_authority.py backend/s1_i31_monotonic_witness_local.py backend/s1_i31_witness_authority_local.py tests/test_s1_002_i31_monotonic_witness.py scripts/test_s1_002_i37_intake_e2e_local.py backend/s1_gateway_intake_signed_local.py tests/test_s1_002_i37_intake_gateway.py
           PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i23_http_policy.py' -v
           PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i25_signer_process.py' -v
           PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i26_independent_auth.py' -v
@@ -65,6 +69,7 @@ jobs:
           PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i30_authenticated_authority.py' -v
           PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i31_monotonic_witness.py' -v
           PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i37_intake_gateway.py' -v
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i53_canonical_gateway.py' -v
   e2e-gerencia-local:
     runs-on: ubuntu-latest
     timeout-minutes: 24
