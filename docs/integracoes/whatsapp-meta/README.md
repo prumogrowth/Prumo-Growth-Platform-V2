@@ -133,6 +133,7 @@ Arquivos abaixo permanecem pesquisáveis e preservados por fase. São histórico
 - [wa30-recuperacao-envio-incerto-ledger-offline-pg17-2026-10-22.md](./wa30-recuperacao-envio-incerto-ledger-offline-pg17-2026-10-22.md)
 - [wa31-evidencia-tardia-pos-revogacao-forense-pg17-2026-10-22.md](./wa31-evidencia-tardia-pos-revogacao-forense-pg17-2026-10-22.md)
 - [wa32-webhook-assinado-escopo-s0-forense-offline-2026-10-22.md](./wa32-webhook-assinado-escopo-s0-forense-offline-2026-10-22.md)
+- [wa33-handoff-forense-atomico-pg17-2026-10-22.md](./wa33-handoff-forense-atomico-pg17-2026-10-22.md)
 
 ### Índices vigentes e matrizes adicionais
 
