@@ -24,6 +24,7 @@
 | Como validar webhook HMAC e vincular status ao escopo/tentativa S0 simulada | [WA-32 — Webhook assinado, vínculo S0 forense (22/10)](./wa32-webhook-assinado-escopo-s0-forense-offline-2026-10-22.md) | 24 testes assinados Node, 18 SQL→TS, sem autorização de envio nem S0 autenticada |
 | Como anexar evidência sob lock transacional contra revogação concorrente | [WA-33 — Handoff forense atômico PG17 (22/10)](./wa33-handoff-forense-atomico-pg17-2026-10-22.md) | 30 testes físicos e quatro disputas sob bloqueio; sem S0 autenticada |
 | Como propor assinatura interna de serviço e consumo único de nonce | [WA-34 — Handoff e nonce (22/10)](./wa34-contrato-handoff-servico-nonce-laboratorio-2026-10-22.md) | 30 Node, 29 PG17, 3 corridas; identidade S0 operacional ainda não ratificada |
+| Como correlacionar HMAC Meta, binding S0 fictício, MAC interna e nonce no mesmo runner | [WA-35 — Ponte Meta→S0 PG17 (23/10)](./wa35-ponte-hmac-meta-envelope-s0-pg17-offline-2026-10-23.md) | 26 testes Node e 16 físicos com assinatura fictícia, sem serviço S0 real |
 | O que a auditoria encontrou e reparou | [WA-19 — Auditoria documental](./wa19-auditoria-documental-reconciliacao-2026-10-21.md) | Achados, limites, reparos e pendências |
 | Histórico de decisões recentes | [WA-17B](./wa17b-mcp-templates-multimidia-ia-delegada-2026-10-20.md), [WA-18](./wa18-alinhamento-decisorio-respostas-responsavel-2026-10-20.md), [WA-18B](./wa18b-alinhamento-fechamento-optout-variaveis-falhas-cadencia-2026-10-20.md), [WA-18C](./wa18c-falhas-consecutivas-taxonomia-interna-templates-2026-10-20.md) | Proveniência cronológica; partes superadas identificadas |
 | O que foi testado de verdade | [WA-16/17 — fechamento de validação](./wa16-wa17-fechamento-validacao-e-pausa-2026-10-20.md) | Distingue casos escritos, verificações V8 e CI Node/PG17 não comprovado |
@@ -137,6 +138,7 @@ Arquivos abaixo permanecem pesquisáveis e preservados por fase. São histórico
 - [wa32-webhook-assinado-escopo-s0-forense-offline-2026-10-22.md](./wa32-webhook-assinado-escopo-s0-forense-offline-2026-10-22.md)
 - [wa33-handoff-forense-atomico-pg17-2026-10-22.md](./wa33-handoff-forense-atomico-pg17-2026-10-22.md)
 - [wa34-contrato-handoff-servico-nonce-laboratorio-2026-10-22.md](./wa34-contrato-handoff-servico-nonce-laboratorio-2026-10-22.md)
+- [wa35-ponte-hmac-meta-envelope-s0-pg17-offline-2026-10-23.md](./wa35-ponte-hmac-meta-envelope-s0-pg17-offline-2026-10-23.md)
 
 ### Índices vigentes e matrizes adicionais
 
@@ -144,4 +146,4 @@ Arquivos abaixo permanecem pesquisáveis e preservados por fase. São histórico
 - [01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md](./01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md)
 - [02-mapa-fontes-conflitos-e-emendas-2026-10-21.md](./02-mapa-fontes-conflitos-e-emendas-2026-10-21.md)
 
-**Cobertura documental em 22/10/2026:** a auditoria editorial WA-23 conferiu **63 arquivos Markdown** (README + 62 links). Com a inclusão posterior de **WA-24**, **WA-25**, **WA-26**, **WA-27**, **WA-28**, **WA-29**, **WA-30**, **WA-31**, **WA-32** , **WA-33** e **WA-34**, o diretório passa a **74 Markdown** (README + **73 links**), sujeitos a commits futuros. O novo documento inicia auditoria TÉCNICA e reparos, sem significar teste nativo verde ou homologação. Os históricos têm aviso de precedência ou nota contextual, quando necessário. O ZIP de 55 documentos históricos de 17/10 segue preservado fora deste diretório. Essa biblioteca não contém ferramentas MCP executáveis.
+**Cobertura documental em 22/10/2026:** a auditoria editorial WA-23 conferiu **63 arquivos Markdown** (README + 62 links). Com a inclusão posterior de **WA-24**, **WA-25**, **WA-26**, **WA-27**, **WA-28**, **WA-29**, **WA-30**, **WA-31**, **WA-32**, **WA-33**, **WA-34** e **WA-35**, o diretório passa a **75 Markdown** (README + **74 links**), sujeitos a commits futuros. O novo documento inicia auditoria TÉCNICA e reparos, sem significar teste nativo verde ou homologação. Os históricos têm aviso de precedência ou nota contextual, quando necessário. O ZIP de 55 documentos históricos de 17/10 segue preservado fora deste diretório. Essa biblioteca não contém ferramentas MCP executáveis.
