@@ -1,5 +1,7 @@
 # E02-REV v0.3 — Pacote de revisão cruzada, decisões e gate de aceite
 
+> **CF-OP-02/FREQ [R] acrescido (22/10/2026):** [análise Meta frequency capping e F02](./CF_OP_02_META_FREQUENCY_CAPPING_F02_2026_10_22_v0_1.md). Perguntas FREQ-R01..R05 exigem resposta de S0/Meta/Prumo: cota de MARKETING adaptativa (sem número oficial universal confirmado), rejeição 131049, política local, duas falhas técnicas e relógio C09. **66 testes unitários offline Node** deste incremento, **0 execuções originais SYN**; nenhuma ratificação.
+
 > **Nova evidência E04 isolada, não ratificação E02:** [normalizador sintético `sent`/falhas Meta](./e04_offline_lab/transport-evidence.mjs) testado por [28 casos em Node](./e04_offline_lab/tests/transport-evidence.test.mjs), 28 PASS/0 FAIL. Complementa SYN-50..54 e cenários correlatos, mas **não** prova webhooks, recibos ou elegibilidade estado/fase da S0/Meta. E02-REV e as issues #6/#15 permanecem abertas.
 
 > **Portões de conhecimento e MCP explicitados:** [KH-R01..KH-R08](./E01_GOVERNANCA_CONHECIMENTO_MCP_PORTOES_v0_4.md) e [24 controles adversariais AX](./E02_MATRIZ_ADVERSARIAL_CONHECIMENTO_MCP_v0_1.md). Nenhum foi homologado pela S0/Prumo; seus EXPECTED são revisões documentais, **não** resultados de teste.
