@@ -965,6 +965,15 @@ function renderSharedQueue(){
   }
   target.replaceChildren(title,description,totals,list);
 }
+/** FV-UI-029: confirmação substitui o botão de ação da equipe no DOM.
+ * Restaurar foco em aba persistente, não no botão descartado; nunca fazer isso
+ * quando a janela de equipe estiver fechada ou o perfil for inelegível.
+ */
+function announceTeamActionAndRestoreFocus(tabId,announcement){
+  if(!$('team-dialog').open || !canSeeTeamSummary(state.actorId,state.shopId))return;
+  $('team-action-announcement').textContent=announcement;
+  $(tabId).focus();
+}
 function switchTeamPanel(panel){
   if(!canSeeTeamSummary(state.actorId,state.shopId))return;
   state.teamPanel=['monitor','batches','queue'].includes(panel)?panel:'members';
@@ -999,6 +1008,8 @@ $('queue-action-dialog').addEventListener('close',()=>{
     const request=requestMockQueueAction(ctx.actorId,ctx.shopId,ctx.caseId,
       ctx.versionRef,ctx.action,ctx.action==='assign_team' ? $('queue-assignee').value : null);
     state.queueRequests[key]=request;renderSharedQueue();
+    announceTeamActionAndRestoreFocus('team-show-queue',
+      'Intenção registrada apenas localmente. Nenhuma atribuição ou permissão aplicada.');
     showToast('Intenção fictícia registrada. Nenhuma atribuição ou permissão aplicada.');
   }catch{showToast('Solicitação inelegível ou desatualizada nesta projeção.');}
 });
@@ -1008,6 +1019,7 @@ function openTeamSummary(){
     showToast('A visão da equipe está disponível somente no perfil fictício de gestor.');return;
   }
   switchTeamPanel('members');
+  $('team-action-announcement').textContent='';
   const dialog=$('team-dialog');dialog.returnValue='';dialog.showModal();
 }
 $('team-nav').addEventListener('click',openTeamSummary);
@@ -1022,6 +1034,8 @@ $('intake-dialog').addEventListener('close',()=>{
     const requestedNow=requestMockIntake(state.actorId,ctx.operatorId,ctx.action);
     state.teamRequests[ctx.operatorId]=requestedNow;
     renderTeamSummary();
+    announceTeamActionAndRestoreFocus('team-show-members',
+      'Pedido fictício registrado. Pausa ou retomada ainda não aplicada no S0/S1.');
     showToast('Pedido fictício registrado. Pausa/retomada ainda NÃO aplicada no S0/S1.');
   }catch{showToast('Ação indisponível para este Gestor e Consultor.');}
 });
