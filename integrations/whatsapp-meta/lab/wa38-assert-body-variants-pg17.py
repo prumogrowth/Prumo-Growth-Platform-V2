@@ -45,8 +45,8 @@ def append(scope,event,body="a",kind="DELIVERED_REPORTED",change=None):
  app,waba,phone,wamid,recipient,revision=parts
  values=list(map(q,[app,waba,phone,wamid,recipient,event,kind]))
  digest=body*64 if len(body)==1 else body
- return "SELECT wa38_lab.archive_fixture("+",".join(values)+","+q(digest)+
-   f",{revision})"
+ return ("SELECT wa38_lab.archive_fixture("+",".join(values)+","+q(digest)+
+   f",{revision})")
 def read(shop,case,attempt,event,label=None,want=None):
  s="SELECT wa38_lab.read_fixture("+",".join(map(q,(shop,case,attempt,event)))+")"
  value=json.loads(run(s))
