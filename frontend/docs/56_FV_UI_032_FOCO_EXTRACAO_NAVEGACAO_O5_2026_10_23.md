@@ -27,4 +27,8 @@ A correção é local, sem mensagem enviada, acesso a dados reais, gravação ba
 
 Nenhuma nota 19F/FV-22 foi reclassificada. A homologação autenticada de checkout e a revisão do redesign permanecem pendentes.
 
+## Atualização posterior — execução nativa do ZIP recebido
+
+O diagnóstico sobre ZIP integral do commit `138bf641` foi **executado e aprovado**: **57/57 hashes**, **20/20 testes Python**, **334/334 testes Node nativos** e **Chromium/Playwright PASS**. Os resultados anteriores de V8 acima são históricos da fase de implementação; o registro de execução nativa, junto à distinção entre commit do manifesto e commit exportado, está no **[relatório complementar FV-UI-032](./57_FV_UI_032_VALIDACAO_NATIVA_ZIP_2026_10_23.md)**. Permanecem pendentes a homologação do checkout Git, a auditoria manual de tecnologia assistiva e as integrações.
+
 **Relatório anterior:** [FV-UI-031](./55_FV_UI_031_FOCO_APOS_NOTA_LOCAL_2026_10_23.md).

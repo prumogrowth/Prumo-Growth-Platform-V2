@@ -96,6 +96,10 @@
 
 **[FV-UI-032 — foco após re-render na extração e transição O5](./56_FV_UI_032_FOCO_EXTRACAO_NAVEGACAO_O5_2026_10_23.md)**: ancora foco na aba Extração após resultado fictício e esclarecimento e conduz o teclado à conversa vinculada em desktop/celular. Cobertura sintética e verificações Chromium adicionadas, ainda sem homologação de checkout ou sistemas reais.
 
+## Execução nativa sobre ZIP integral do FV-UI-032 (23/10/2026)
+
+**[FV-UI-032 — evidência de Python, Node e Chromium em ZIP verificado](./57_FV_UI_032_VALIDACAO_NATIVA_ZIP_2026_10_23.md)**: 57/57 hashes, **20/20 Python**, **334/334 Node** e **Chromium PASS** no snapshot do commit `138bf641`. **Não** é homologação de checkout Git, de sistemas externos ou produto.
+
 ## Estado do trabalho
 FV-UI-015/016: demonstrações com dados sintéticos. **NÃO** declarar integração real, Auth/RLS/GoTrue, comunicações Meta ou remessas confirmadas. FV-UI-013 não homologada formalmente; **19F 69/100** como último marco. Esta consolidação é **documentação somente**. Nenhum código, migration, branch S1, dado real ou deploy foi tocado.
 
