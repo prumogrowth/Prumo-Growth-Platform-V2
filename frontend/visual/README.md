@@ -18,6 +18,8 @@
 
 > **FV-UI-025 (22/10/2026):** [gates fail-closed de validação](../docs/49_FV_UI_025_GATES_SEQUENCIAIS_VALIDACAO_2026_10_22.md). Corrigido o verificador de ZIP e o runner Git para executar **Python adversarial → Node ESM → Chromium**, interrompendo etapas posteriores se uma falhar. Testes `python -B` preservam a limpeza do checkout. A suíte adversarial agora reúne 20 testes Python. Checagem estática do código não constitui execução nativa nem homologação.
 
+> **FV-UI-026 (22/10/2026):** [primeiro diagnóstico nativo Python/Node/Chromium](../docs/50_FV_UI_026_EXECUCAO_NATIVA_DIAGNOSTICO_2026_10_22.md). O ZIP original com 54 blobs verificados obteve 20/20 Python e 316/317 Node; o Chromium foi bloqueado pelo gate. Duas correções nos **testes** (regex da matriz FV-22 e espera de foco no Chromium) permitiram **20/20 Python, 317/317 Node e smoke Chromium PASS** em cópia local derivada com manifesto atualizado. Isto **não** homologa checkout Git nem serviços reais. Repetir sobre nova exportação pinada da branch.
+
 **Branch proprietária:** `feat/frontend-plataforma-visual`. **Referência visual:** organização de mensageiro familiar ao WhatsApp, sem copiar sua identidade, marca ou recursos. **Situação:** demonstração local com dados 100% sintéticos; não é portal operacional.
 
 ## Abrir localmente
