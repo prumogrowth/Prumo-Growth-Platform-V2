@@ -29,6 +29,10 @@ def load_verified(archive):
         names = [item.filename for item in entries if not item.is_dir()]
         if len(names)!=len(set(names)):
             raise ValueError("Duplicate file entries in ZIP")
+        # Evita descompressão acumulada de centenas de entradas pequenas.
+        if sum(item.file_size for item in entries if not item.is_dir() and
+               "frontend/visual/" in item.filename) > 25_000_000:
+            raise ValueError("ZIP frontend uncompressed budget exceeded")
         for item in entries:
             mode=item.external_attr>>16
             if stat.S_ISLNK(mode):
@@ -91,7 +95,7 @@ def main():
         report["verified_blob_count"]=len(files)-1
         report["verifier_matched_archive"]=True
         report["extra_files_accepted"]=False
-        print("Verified",len(files),"GitHub source blobs against",MANIFEST["source_head"])
+        print("Verified",len(files)-1,"GitHub source blobs against",MANIFEST["source_head"])
         if a.run_native:
             with tempfile.TemporaryDirectory(prefix="fv-ui-013-export-") as tmp:
                 root=Path(tmp)
@@ -101,6 +105,10 @@ def main():
                     dest.write_bytes(raw)
                 visual=root/"frontend"/"visual"
                 tests=sorted(str(f) for f in (visual/"tests").glob("*.test.mjs"))
+                report["runs"]["zip_security_python"]=execute(
+                    [sys.executable,"-m","unittest","discover",
+                     "-s",str(visual/"tests"),"-p","test_offline_export.py"],
+                    visual)
                 report["runs"]["node"]=execute(["node","--test",*tests],visual)
                 report["runs"]["chromium"]=execute(
                     [sys.executable,str(visual/"tests"/"browser.smoke.py")],visual)
