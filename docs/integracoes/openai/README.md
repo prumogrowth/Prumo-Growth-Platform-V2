@@ -1,5 +1,11 @@
 # Frente OpenAI — Prumo Growth | índice inicial
 
+## E04/S0 — selo de metadados F03 append-only (23/10/2026)
+
+Na S0 compartilhada a frente OpenAI publicou no [PR #16](https://github.com/prumogrowth/Prumo-Growth---Platform/pull/16) mais uma adaptação: [registro local append-only dos metadados multi-casos](https://github.com/prumogrowth/Prumo-Growth---Platform/blob/feat/oai-s0-f03-history-port-20261023/backend/s0_f03_history_seal_local.py), [fixture SQL local com gatilhos de integridade](https://github.com/prumogrowth/Prumo-Growth---Platform/blob/feat/oai-s0-f03-history-port-20261023/supabase/tests/s0_f03_history_seal_local_only.sql) e [31 testes Python](https://github.com/prumogrowth/Prumo-Growth---Platform/blob/feat/oai-s0-f03-history-port-20261023/backend/tests/test_s0_f03_history_seal_local.py). **31/31 PASS localmente com dublês S0/PG, não em PG17 real.** O selo é somente dos IDs e proveniência, não do texto; seus resultados continuam `REVIEW_ONLY`, sem grant de F03 ou atualização comercial. [Documento técnico](https://github.com/prumogrowth/Prumo-Growth---Platform/blob/feat/oai-s0-f03-history-port-20261023/docs/S0_F03_HISTORY_SEAL_APPEND_ONLY_2026_10_23.md).
+
+**Não aguardar frente S0 externa:** a frente OpenAI implementa esta dependência diretamente em alteração isolada da S0, conforme [decisão de governança](./DECISAO_S0_COMPARTILHADA_EDICAO_POR_FRENTES_2026_10_23_v0_1.md). PR #12 intacto, PR #16 Draft; sem Supabase hospedado, merge, deploy, Meta real ou E05.
+
 ## Regra de trabalho ATUALIZADA — S0 compartilhada (23/10/2026)
 
 **Decisão expressa do responsável:** [a S0 não tem atualmente uma frente proprietária exclusiva e pode/deve ser adaptada pela própria frente OpenAI quando F01/F02/F03 precisarem](./DECISAO_S0_COMPARTILHADA_EDICAO_POR_FRENTES_2026_10_23_v0_1.md). **Não aguardar outra equipe S0 inexistente.** Implementar no backend com isolamento de branch/PR, testes e respeito ao trabalho existente; sem merge/deploy ou mudanças destrutivas automáticas. Isso **atualiza instruções antigas que restringiam E04 exclusivamente à pasta OpenAI**: mudanças aditivas necessárias na S0 estão autorizadas nesta E04 offline.
