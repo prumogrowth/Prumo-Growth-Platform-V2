@@ -34,4 +34,12 @@ A S0 continua autoridade de leads, ciclos, casos, mensagens, fila, opt-out, call
 
 ## Evidências
 
-Preencher somente após observar os jobs completos e seus logs.
+### CI executado e logs conferidos — 23/10/2026
+
+- **GoTrue/PostgREST:** [Actions #39936762089](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39936762089), job `120358081712`, `SUCCESS` sobre o código `2fd5e06f75439519204059be0a16840382016d93`. **6/6 `PASS I48-01..06`** confirmados em log, além das regressões I44–I47.
+- **PG17 S0/S1 completo:** [Actions #39935974221](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39935974221), `SUCCESS` sobre `00465e846345bff9f231f3280f9a587315caa6bc`, anterior apenas a mudanças no runner GoTrue, no gatilho de workflow e à documentação. Logs conferidos: **4/4 `PASS I48-CATALOG-01..04`**; 5 funções privadas SECURITY DEFINER reconhecidas no catálogo.
+- **Inventário fonte S0/013–037:** `PASS I48-SOURCE` com 24 migrations, 52 declarações de funções, 22 CREATE TABLE, 8 declarações SECURITY DEFINER. Artefato `s1-002-i48-crosswalk`, ID 12493652716, anexado ao PG17; apenas metadados de código e nenhuma informação de clientes.
+- **Correções de teste:** [dcadc4f](https://github.com/prumogrowth/Prumo-Growth---Platform/commit/dcadc4f8d201810616106a418fee914c3f2b26ba) substituiu a expectativa de lista vazia na API `casos_humanos` por verificação da chefia encerrada diretamente na fixture; [2fd5e06](https://github.com/prumogrowth/Prumo-Growth---Platform/commit/2fd5e06f75439519204059be0a16840382016d93) distinguiu `200 []` de negação `401/403` na mensagem sem caso. Os testes mantiveram fail-closed e **nenhum predicado RLS foi flexibilizado**. Execuções anteriores falharam apenas nessas asserções, antes do resultado verde definitivo.
+- **Limites:** só contrato e testes; nenhuma alteração de migration S0, nenhum backend de autorização produtivo e nenhuma aprovação de integração operacional.
+
+**Próximo incremento I49 [P]:** verificar a relação entre autorização de fila sem titular, inbox sem caso e invariantes de mutação concorrente no escopo S0/S1, distinguindo projeções seguras de leitura de permissões de enviar. A2 segue [R].
