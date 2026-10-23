@@ -45,4 +45,12 @@ A execução ainda é deliberadamente **local**. S0/S1 são responsabilidade con
 
 ## Evidências
 
-Preencher só após inspecionar conclusão dos jobs e suas linhas de teste; distinguir SHA de código validado da documentação posterior.
+**CI concluído e logs inspecionados — 23/10/2026:**
+
+- **GoTrue/PostgREST/HMAC/custódia mTLS:** [GitHub Actions #40027119209](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/40027119209), job `120665985957`, **SUCCESS** no commit de código `dc0a77dc7c0902767431ef0f950e27c1b4bb8737`. Logs verificados: `PASS S1CANON-149..156` (**8/8**) e `PASS S1INTAKE-147..148` na nova rota canônica (chave revogada = negação; assinador indisponível = HTTP 503). Os testes unitários do mesmo workflow passaram.
+- **PG17 S0/S1 com cutover atômico:** [GitHub Actions #40026784395](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/40026784395), **SUCCESS** no commit `55375661a2bb652c56baa46721300f867ec0eebc`, incluindo os demais testes do comando S0 canônico.
+- **Regressões históricas:** o runner de I12 deixou de incluir a migration 053 antes de tempo; agora `scripts/run-s1-002-i52-local.sh` a aplica após os testes legados. A verificação GitHub Actions dos gateways históricos I18–I31 terminou verde no commit `5537566`. Isso **não** reabilita suspensão global no contrato vigente.
+- **Correções auditáveis:** E2E I53 anterior obteve 8/8, mas falhou ao invocar v37 depois da desativação intencional. O commit `dc0a77d` moveu as provas de revogação/offline para a rota canônica v53 e retirou a asserção obsoleta. Não houve flexibilização de ACL ou de validação HMAC.
+- **Limites**: ambiente totalmente efêmero, sem merge, deploy, credenciais/usuários reais, Meta ou operações bancárias. O gateway é exercício integrado de implementação S0/S1, não homologação para exposição pública.
+
+**Próximo trabalho de código:** ligar fila real e distribuição S0 ao estado canônico de intake e definir comando de assunção idempotente com mesma identidade verificada, CAS/locks e auditoria; preservar o escopo de equipe/loja e histórico de casos.
