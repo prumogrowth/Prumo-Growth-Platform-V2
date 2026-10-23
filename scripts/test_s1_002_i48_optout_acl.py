@@ -73,7 +73,8 @@ assert sql("select count(*) from public.mensagens "
     f"where conversa_id='{CNULL}'::uuid and caso_id is null")=="1"
 for token in (m1,m4,c2,c3,out):
     status,body=http("GET",f"/rest/v1/mensagens?select=id&conversa_id=eq.{CNULL}",token=token)
-    assert status==200 and body==[], "I48 unauthorized case-less message read"
+    assert (status==200 and body==[]) or status in (401,403), (
+        "I48 unauthorized case-less message read: unexpected HTTP "+str(status))
 for table,body in (
  ("evidencias_elegibilidade_sinteticas",{
   "concessionaria_id":LA,"lead_id":L1,"canal_id":CH,
