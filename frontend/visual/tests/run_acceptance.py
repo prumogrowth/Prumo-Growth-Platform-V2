@@ -116,14 +116,14 @@ def main():
         "attention-integration.test.mjs", "conversation-attention.test.mjs",
         "team-pause-preview.test.mjs", "s0-command-result.test.mjs",
         "s0-read-contract.test.mjs", "integration-gate-view.test.mjs", "operation-feedback.test.mjs",
-        "acceptance-matrix.test.mjs",
+        "acceptance-matrix.test.mjs", "offline-export-manifest.test.mjs",
     }
     required_sources = {
         "index.html", "styles.css", "app.mjs", "fixtures.mjs",
         "view-model.mjs", "cf-op-02.mjs", "registration-view.mjs", "human-cycle-view.mjs",
         "operation-feedback.mjs", "s0-command-result.mjs", "s0-read-contract.mjs", "integration-gate-view.mjs",
         "bank-view.mjs", "postmark-view.mjs", "team-operations.mjs",
-        "tests/acceptance-matrix.json",
+        "tests/acceptance-matrix.json", "tests/verify_offline_export.py",
         "team-monitor.mjs", "team-monitoring.mjs", "batch-monitor.mjs", "distribution-view.mjs", "transport-state-view.mjs",
     }
     missing = sorted(
