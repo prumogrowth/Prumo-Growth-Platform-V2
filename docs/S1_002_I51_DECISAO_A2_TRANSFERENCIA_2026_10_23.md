@@ -32,3 +32,9 @@ O fixture `s1_053_issue10_disponibilidade_local_only.sql` já instalava `s1_10_g
 - Contrato 01, matriz 02 e índice 00 atualizados para marcar **S1-D14/A2 como [D] FECHADA**, explicitando diferença entre bloqueio de **novas atribuições** e permanência de autorização em casos já atribuídos.
 
 **Pendente [R/T] técnico:** os serviços do núcleo S0 devem consumir estado de intake do destino com prova de versão/lock em todos os comandos de atribuição, antes do commit, inclusive concorrência de pausa e transferência. Os testes PG17 de fixture não homologam o backend produtivo, a fila S0 real, o WhatsApp nem a operação da plataforma.
+
+## Continuidade da infraestrutura de testes no I51
+
+- O workflow histórico ISSUE10 ficou bloqueado por reaplicação da tabela `s1_disponibilidade_leads_10` já existente após a suíte I12/I40. Corrigida **somente** a preparação de teste no commit `60b14a1`, reutilizando a fixture existente e mantendo a mesma bateria de aceite. [GitHub Actions #39983585883](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/39983585883) confirmou **SUCCESS** sobre `60b14a1ce2b8d2f7f831536c273c44c472159f08`.
+- Em workflows legados de gateway, o pin `psycopg[binary]==3.2.6` falhou por indisponibilidade do pacote binário no índice Python do runner GitHub, antes de qualquer execução de caso de negócio. O commit `0f369ea` atualiza **apenas 14 arquivos YAML do CI** para o pin existente `3.2.13`. Esta mudança de dependência não é homologação do gateway e precisa da confirmação dos respectivos jobs de integração.
+- PR #5 continua Draft. Não houve mudança de migrations operacionais S0, deploy, credenciais reais ou ação Meta/Banco.
