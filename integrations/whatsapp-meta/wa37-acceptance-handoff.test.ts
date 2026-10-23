@@ -26,6 +26,8 @@ function invalid(x:unknown){
 test('WA37-01 all 12 positive/negative probes exactly track WA36 IDs and owners',()=>{
  assert.equal(WA37_CHECKS.length,12);
  assert.equal(new Set(WA37_CHECKS.map(x=>x.id)).size,12);
+ assert.equal(Object.isFrozen(WA37_CHECKS),true);
+ for(const check of WA37_CHECKS)assert.equal(Object.isFrozen(check),true);
  assert.deepEqual(WA37_CHECKS.map(x=>x.id),WA36_REQUIREMENTS.map(x=>x.id));
  assert.deepEqual(WA37_CHECKS.map(x=>x.owner),WA36_REQUIREMENTS.map(x=>x.owner));
 });
