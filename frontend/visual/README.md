@@ -22,6 +22,8 @@
 
 > **FV-UI-027 (23/10/2026):** [reflow, rolagem em janela baixa e movimento reduzido](../docs/51_FV_UI_027_REFLOW_REDUCED_MOTION_CROMIUM_2026_10_23.md). Em viewport curto (até 700px de altura e 760px de largura), a lista de conversas agora rola inteira, tornando o rodapé e casos acessíveis sem overflow horizontal. Smoke Chromium passa a testar 720×850, 360×500 e 320×640 CSS px, foco móvel, conteúdo alcançável e `reduced_motion='reduce'`. Diagnóstico em cópia local derivada: **20/20 Python, 318/318 Node, Chromium PASS**. Não representa zoom de navegador real, leitor de tela nem homologação de checkout Git.
 
+> **FV-UI-028 (23/10/2026):** [painel móvel anunciado corretamente e foco acessível](../docs/52_FV_UI_028_ARIA_EXPANDED_FOCO_TECLADO_2026_10_23.md). O botão de detalhes atualiza `aria-expanded` junto com a navegação móvel, sem mudar o comportamento do painel desktop. Nos controles das superfícies claras, o foco ganha contorno `#11685d` contrastante, incluindo `textarea` e `summary`. Testes nativos em cópia derivada do ZIP: **20/20 Python, 320/320 Node, smoke Chromium PASS** com Tab, Escape e viewports 390×844 e 320×640. O estado de homologação Git permanece pendente.
+
 **Branch proprietária:** `feat/frontend-plataforma-visual`. **Referência visual:** organização de mensageiro familiar ao WhatsApp, sem copiar sua identidade, marca ou recursos. **Situação:** demonstração local com dados 100% sintéticos; não é portal operacional.
 
 ## Abrir localmente
