@@ -60,3 +60,9 @@ test('final sent replay does not change date', () => {
   const e = ev(1, 'sent', 'A1', {isFinal: true}); assert.equal(reduce(ctx(), [e, e]).verifiedFinalSentAt, e.at);
 });
 test('final sent status requires independent verified receipt', () => must([ev(1, 'sent', 'A1', {isFinal: true, verified: false})], 'REVIEW_REQUIRED'));
+
+test('131049 is quarantined rather than counted as technical loss', () => must([ev(1, 'definitive_failed', 'A1', {errorCode: 131049})], 'META_ECOSYSTEM_REVIEW'));
+test('two 131049 events never produce technical loss candidate', () => must([ev(1, 'definitive_failed', 'A1', {errorCode: 131049}), ev(2, 'definitive_failed', 'A2', {errorCode: 131049})], 'META_ECOSYSTEM_REVIEW'));
+test('unknown provider error remains review pending Meta decision', () => must([ev(1, 'definitive_failed', 'A1', {errorCode: 131026})], 'REVIEW_REQUIRED'));
+test('provider error cannot masquerade as sent receipt', () => must([ev(1, 'sent', 'A1', {errorCode: 131049})], 'INVALID_INPUT'));
+test('provider error without verification is quarantined', () => must([ev(1, 'definitive_failed', 'A1', {errorCode: 131049, verified: false})], 'REVIEW_REQUIRED'));
