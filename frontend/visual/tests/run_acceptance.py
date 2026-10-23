@@ -117,6 +117,7 @@ def main():
         "team-pause-preview.test.mjs", "s0-command-result.test.mjs",
         "s0-read-contract.test.mjs", "integration-gate-view.test.mjs", "operation-feedback.test.mjs",
         "acceptance-matrix.test.mjs", "offline-export-manifest.test.mjs",
+        "validation-layers.test.mjs",
     }
     required_sources = {
         "index.html", "styles.css", "app.mjs", "fixtures.mjs",
@@ -124,7 +125,8 @@ def main():
         "operation-feedback.mjs", "s0-command-result.mjs", "s0-read-contract.mjs", "integration-gate-view.mjs",
         "bank-view.mjs", "postmark-view.mjs", "team-operations.mjs",
         "tests/acceptance-matrix.json", "tests/verify_offline_export.py",
-        "tests/test_offline_export.py",
+        "tests/test_offline_export.py", "tests/validation-layers.json",
+        "tests/run_validation_layers.mjs",
         "team-monitor.mjs", "team-monitoring.mjs", "batch-monitor.mjs", "distribution-view.mjs", "transport-state-view.mjs",
     }
     missing = sorted(
