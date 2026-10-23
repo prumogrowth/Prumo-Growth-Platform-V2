@@ -18,6 +18,13 @@ Foram adicionados três testes DOM desktop, um móvel, um contrato estático e v
 
 ## Evidência e limites
 
-A correção é local, sem mensagem enviada, acesso a dados reais, gravação bancária, OpenAI, Meta ou Supabase. A regressão V8, se realizada, deve ser identificada separadamente de Node nativo; nenhuma asserção Playwright é considerada aprovada apenas por existir no roteiro. A homologação autenticada de checkout e a revisão do redesign permanecem pendentes.
+A correção é local, sem mensagem enviada, acesso a dados reais, gravação bancária, OpenAI, Meta ou Supabase.
+
+- **V8 sintético executado** sobre os 17 módulos extraídos do GitHub e `dom-fixture.mjs`: **67/67 testes** de `app.dom.test.mjs` e **15/15 testes** de `app.mobile.dom.test.mjs` aprovados. O executor adaptado executou as funções do arquivo de testes com asserções equivalentes, substituindo `structuredClone` e timers. **Não é execução do Node nativo**.
+- **Verificação estática V8 de FV-UI-032:** **8/8 expressões** do novo contrato de origem foram exercitadas e aprovadas após ajuste da expressão de esclarecimento.
+- **Node, Python e Chromium/Playwright nativos não executados nesta revisão.** O checkout autenticado e a revisão visual com tecnologia assistiva/zoom permanecem pendentes. As asserções novas em `browser.smoke.py` foram escritas, não executadas em navegador real nesta rodada.
+- O repositório foi acessado pelo conector GitHub; `git ls-remote` falhou por resolução DNS no ambiente de execução. Um ZIP do SHA final da branch permitirá validação nativa de snapshot, **sem convertê-la em homologação de checkout Git**.
+
+Nenhuma nota 19F/FV-22 foi reclassificada. A homologação autenticada de checkout e a revisão do redesign permanecem pendentes.
 
 **Relatório anterior:** [FV-UI-031](./55_FV_UI_031_FOCO_APOS_NOTA_LOCAL_2026_10_23.md).
