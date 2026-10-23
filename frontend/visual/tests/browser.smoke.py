@@ -430,4 +430,42 @@ with sync_playwright() as p:
         assert not zoom_errors, zoom_label + ': ' + repr(zoom_errors)
         zoom_page.close()
     print('FV-UI-027 reflow responsivo, rolagem e movimento reduzido: PASS')
+    # FV-UI-028: aria-expanded acompanha o painel visível; foco de teclado contrastante.
+    for viewport in ({'width':390,'height':844},{'width':320,'height':640}):
+        aria_page=browser.new_page(viewport=viewport)
+        aria_page.set_default_timeout(4500)
+        aria_errors=[]
+        aria_page.on('pageerror',lambda e:aria_errors.append(str(e)))
+        aria_page.set_content(html)
+        aria_page.add_script_tag(content=script)
+        toggler=aria_page.locator('#detail-toggle')
+        expect(toggler).to_have_attribute('aria-expanded','false')
+        aria_page.get_by_role('button',name='Abrir conversa Cliente Exemplo 02',exact=False).click()
+        expect(toggler).to_have_attribute('aria-expanded','false')
+        toggler.click()
+        expect(toggler).to_have_attribute('aria-expanded','true')
+        assert aria_page.locator('#detail-pane').is_visible()
+        aria_page.keyboard.press('Escape')
+        expect(toggler).to_have_attribute('aria-expanded','false')
+        assert aria_page.locator('#thread-pane').is_visible()
+        toggler.click()
+        expect(toggler).to_have_attribute('aria-expanded','true')
+        aria_page.locator('#detail-back').click()
+        expect(toggler).to_have_attribute('aria-expanded','false')
+        aria_page.locator('#thread-back').click()
+        aria_page.locator('#actor-select').select_option('marina')
+        expect(toggler).to_have_attribute('aria-expanded','false')
+        assert aria_page.locator('#visual-app').get_attribute('data-mobile-view')=='list'
+        # De um campo de busca, Tab deixa foco perceptível no botão seguinte.
+        aria_page.locator('#search-input').focus()
+        aria_page.keyboard.press('Tab')
+        focus=aria_page.evaluate("""()=>({tag:document.activeElement?.tagName,
+            outline:getComputedStyle(document.activeElement).outlineColor,
+            width:getComputedStyle(document.activeElement).outlineWidth})""")
+        assert focus['tag']=='BUTTON',focus
+        assert focus['width']=='3px' and focus['outline']=='rgb(17, 104, 93)',focus
+        assert not aria_page.evaluate('document.documentElement.scrollWidth > innerWidth')
+        assert not aria_errors,aria_errors
+        aria_page.close()
+    print('FV-UI-028 acessibilidade teclado, painel e foco: PASS')
     browser.close()
