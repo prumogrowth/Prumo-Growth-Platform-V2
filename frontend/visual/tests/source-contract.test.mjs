@@ -25,6 +25,8 @@ const fixtureTeam = get('fixtures.mjs');
 const browserSmoke = get('tests/browser.smoke.py');
 const domMock = get('tests/dom-fixture.mjs');
 const offlineExport = get('tests/verify_offline_export.py');
+const offlineRunner = get('tests/run_acceptance.py');
+const offlineAdversarial = get('tests/test_offline_export.py');
 
 test('três áreas adaptativas e controle de histórico existem', () => {
   for (const fragment of ['id="conversation-items"', 'id="thread-pane"', 'id="detail-pane"',
@@ -347,4 +349,20 @@ test('FV-UI-023: verificador de ZIP usa somente fontes pinadas e rejeita script 
   assert.match(offlineExport,/\["chromium"\]/);
   assert.match(offlineExport,/full_acceptance":False/);
   assert.doesNotMatch(offlineExport,/git clone|curl|urllib|requests\.get/);
+});
+
+test('FV-UI-025: falha de segurança bloqueia efetivamente execução nativa posterior',()=>{
+  assert.match(offlineExport,/if security\["executed"\] and security\["passed"\]:/);
+  assert.match(offlineExport,/blocked by ZIP verifier security regression/);
+  assert.match(offlineExport,/for gate in \("node","chromium"\)/);
+  assert.match(offlineExport,/\[sys\.executable,"-B","-m","unittest"/);
+  assert.match(offlineRunner,/security_ok=security_step\["passed"\] and security_step\["executed"\]/);
+  assert.match(offlineRunner,/not inventory_ok or not node or not revision_ok or not security_ok/);
+  assert.match(offlineRunner,/elif not inventory_ok or not revision_ok or not security_ok/);
+  assert.match(offlineRunner,/\[sys\.executable,"-B","-m","unittest"/);
+  for(const name of [
+    'test_native_gates_block_after_security_failure',
+    'test_native_gates_block_if_python_security_not_executed',
+    'test_native_gates_run_only_after_python_security_passes'
+  ])assert.ok(offlineAdversarial.includes('def '+name+'('),name);
 });
