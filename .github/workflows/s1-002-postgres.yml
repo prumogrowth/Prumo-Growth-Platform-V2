@@ -46,6 +46,16 @@ jobs:
         run: python3 scripts/test_s1_002_i46_acl_inventory.py
       - name: I46 catalogo ACL efetivo no PG17 descartavel
         run: psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_067_catalog_i46_local_only.sql
+      - name: I48 catalogo efetivo de roles e funcoes gateway S0
+        run: psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_071_gateway_acl_catalog_local_only.sql
+      - name: I48 cruzamento de fontes S0 013-037
+        run: python3 scripts/test_s1_002_i48_acl_crosswalk.py
+      - name: Arquivar cruzamento I48
+        uses: actions/upload-artifact@v4
+        with:
+          name: s1-002-i48-crosswalk
+          path: ${{ runner.temp }}/s1_002_i48_crosswalk.json
+          retention-days: 14
       - name: Arquivar inventario estatico I46
         uses: actions/upload-artifact@v4
         with:
