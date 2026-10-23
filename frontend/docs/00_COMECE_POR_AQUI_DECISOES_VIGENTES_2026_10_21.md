@@ -56,6 +56,10 @@
 
 **[FV-UI-022 — navegação móvel e atualização do smoke](./46_FV_UI_022_ESCAPE_RASCUNHO_SMOKE_REGRESSAO_2026_10_22.md)**: foco devolvido ao painel visível no Escape, rascunho cancelado mantido somente no contexto original, mock de input corrigido e expectativa de supervisão atualizada para incluir A-117. Execuções V8 concluídas; **Chromium/Node nativos continuam não homologados**.
 
+## Preparação de execução nativa sem clone (22/10/2026)
+
+**[FV-UI-023 — verificação de ZIP da branch](./47_FV_UI_023_MANIFESTO_ZIP_OFFLINE_NATIVO_2026_10_22.md)**: inventário de fontes do Frontend pinado por hashes Git, verificador Python fail-closed e teste Node de integridade do manifesto. Permite executar **diagnóstico** nativo sobre ZIP exportado do GitHub, após conferência integral dos bytes; **não representa** homologação FV-UI-013, CI de produção ou conexão de sistemas.
+
 ## Estado do trabalho
 FV-UI-015/016: demonstrações com dados sintéticos. **NÃO** declarar integração real, Auth/RLS/GoTrue, comunicações Meta ou remessas confirmadas. FV-UI-013 não homologada formalmente; **19F 69/100** como último marco. Esta consolidação é **documentação somente**. Nenhum código, migration, branch S1, dado real ou deploy foi tocado.
 
