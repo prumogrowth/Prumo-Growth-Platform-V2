@@ -24,6 +24,8 @@
 
 > **FV-UI-028 (23/10/2026):** [painel móvel anunciado corretamente e foco acessível](../docs/52_FV_UI_028_ARIA_EXPANDED_FOCO_TECLADO_2026_10_23.md). O botão de detalhes atualiza `aria-expanded` junto com a navegação móvel, sem mudar o comportamento do painel desktop. Nos controles das superfícies claras, o foco ganha contorno `#11685d` contrastante, incluindo `textarea` e `summary`. Testes nativos em cópia derivada do ZIP: **20/20 Python, 320/320 Node, smoke Chromium PASS** com Tab, Escape e viewports 390×844 e 320×640. O estado de homologação Git permanece pendente.
 
+> **FV-UI-029 (23/10/2026):** [foco e anúncio em confirmações aninhadas de equipe](../docs/53_FV_UI_029_RETORNO_FOCO_MODAIS_ANINHADOS_2026_10_23.md). Confirmações de pausa/retomada e fila compartilhada deixam de perder o foco após o rerender do botão que abriu o diálogo. O foco retorna à aba estável da janela da equipe, com anúncio `role="status"` de efeito **somente local**. Cenários Chromium em 390×844 e 1366×768 e testes de regressão em snapshot local: **20 Python, 323 Node, Chromium PASS**. Não é homologação de checkout Git nem autorização S0/S1.
+
 **Branch proprietária:** `feat/frontend-plataforma-visual`. **Referência visual:** organização de mensageiro familiar ao WhatsApp, sem copiar sua identidade, marca ou recursos. **Situação:** demonstração local com dados 100% sintéticos; não é portal operacional.
 
 ## Abrir localmente
