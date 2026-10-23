@@ -1,5 +1,11 @@
 # Frente OpenAI — Prumo Growth | índice inicial
 
+## Regra de trabalho ATUALIZADA — S0 compartilhada (23/10/2026)
+
+**Decisão expressa do responsável:** [a S0 não tem atualmente uma frente proprietária exclusiva e pode/deve ser adaptada pela própria frente OpenAI quando F01/F02/F03 precisarem](./DECISAO_S0_COMPARTILHADA_EDICAO_POR_FRENTES_2026_10_23_v0_1.md). **Não aguardar outra equipe S0 inexistente.** Implementar no backend com isolamento de branch/PR, testes e respeito ao trabalho existente; sem merge/deploy ou mudanças destrutivas automáticas. Isso **atualiza instruções antigas que restringiam E04 exclusivamente à pasta OpenAI**: mudanças aditivas necessárias na S0 estão autorizadas nesta E04 offline.
+
+**Primeira execução da decisão:** [PR #16](https://github.com/prumogrowth/Prumo-Growth---Platform/pull/16) empilhado sobre a branch da S0 [PR #12](https://github.com/prumogrowth/Prumo-Growth---Platform/pull/12), com leitor de histórico multi-casos **no backend S0**, sem alterar os módulos existentes; 20 testes locais aprovados com fac-símiles S0. A porta retorna somente metadados `REVIEW_ONLY_NOT_FROZEN` e permanece Draft até prova física PG17/histórico imutável.
+
 ## E04 — conflitos históricos F03 corrigidos (23/10/2026)
 
 [Correção no pré-validador F03](./e04_offline_lab/f03-commit-gate.mjs), [15 cenários adversariais novos](./e04_offline_lab/tests/f03-commit-gate.test.mjs) e [relatório de investigação e execução](./E04_F03_CONFLITOS_HISTORICOS_TESTES_2026_10_23_v0_1.md). A F03 não pode mais ocultar divergência explícita de valores do mesmo campo entre atendimentos autorizados: o laboratório compara as evidências **independentemente do que o modelo declare em `conflicts`** e encaminha a revisão humana, sem sobrescrever ficha. Não escolhe o valor mais recente automaticamente.
