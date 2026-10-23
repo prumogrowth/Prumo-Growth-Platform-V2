@@ -65,3 +65,58 @@ revoke execute on function prumo_private.cfi01_f03_seal_scope_guard_local()
 alter table prumo_private.cfi01_f03_history_seals_local enable row level security;
 comment on table prumo_private.cfi01_f03_history_seals_local is
  'DISPOSABLE PG S0 F03 history membership only; NOT content, authority, or production';
+
+-- E04/S0 F03 content proof. LAB-ONLY: HMAC digest and version, never key/text.
+-- Bound to an existing manifest; the same transaction also locks source rows.
+create table prumo_private.cfi01_f03_content_proofs_local (
+ id uuid primary key default gen_random_uuid(),
+ concessionaria_id uuid not null,
+ evento_fechamento_id uuid not null,
+ caso_id uuid not null,
+ chave_versao text not null check (chave_versao ~ '^[A-Za-z0-9_.:-]{8,80}$'),
+ metadados_sha256 text not null check (metadados_sha256 ~ '^[0-9a-f]{64}$'),
+ mac_sha256 text not null check (mac_sha256 ~ '^[0-9a-f]{64}$'),
+ quantidade_mensagens integer not null check (quantidade_mensagens between 1 and 10000),
+ quantidade_casos integer not null check (quantidade_casos between 1 and 10000),
+ selado_em timestamptz not null default statement_timestamp(),
+ foreign key (concessionaria_id,evento_fechamento_id)
+   references prumo_private.cfi01_f03_history_seals_local(concessionaria_id,evento_fechamento_id)
+   on delete restrict,
+ unique(concessionaria_id,evento_fechamento_id)
+);
+create function prumo_private.cfi01_f03_content_scope_guard_local()
+returns trigger language plpgsql security invoker set search_path=''
+as $f03proof$ begin
+ if not exists(
+   select 1 from prumo_private.cfi01_f03_history_seals_local s
+   where s.concessionaria_id=new.concessionaria_id
+     and s.evento_fechamento_id=new.evento_fechamento_id
+     and s.caso_id=new.caso_id
+     and s.metadados_sha256=new.metadados_sha256
+     and s.quantidade_mensagens=new.quantidade_mensagens
+     and s.quantidade_casos=new.quantidade_casos
+ ) then
+   raise exception 'F03_CONTENT_PROOF_SCOPE_MISMATCH_LOCAL' using errcode='42501';
+ end if;
+ return new;
+end $f03proof$;
+create trigger cfi01_f03_content_scope_guard
+ before insert on prumo_private.cfi01_f03_content_proofs_local
+ for each row execute function prumo_private.cfi01_f03_content_scope_guard_local();
+create function prumo_private.cfi01_f03_content_immutable_local()
+returns trigger language plpgsql security invoker set search_path=''
+as $f03proof$ begin
+ raise exception 'F03_CONTENT_PROOF_IMMUTABLE_LOCAL' using errcode='42501';
+end $f03proof$;
+create trigger cfi01_f03_content_immutable
+ before update or delete on prumo_private.cfi01_f03_content_proofs_local
+ for each row execute function prumo_private.cfi01_f03_content_immutable_local();
+revoke all on prumo_private.cfi01_f03_content_proofs_local
+ from public,anon,authenticated,service_role;
+revoke execute on function prumo_private.cfi01_f03_content_scope_guard_local()
+ from public,anon,authenticated,service_role;
+revoke execute on function prumo_private.cfi01_f03_content_immutable_local()
+ from public,anon,authenticated,service_role;
+alter table prumo_private.cfi01_f03_content_proofs_local enable row level security;
+comment on table prumo_private.cfi01_f03_content_proofs_local is
+ 'LOCAL disposable S0-only HMAC proof; never model content grant or production key';
