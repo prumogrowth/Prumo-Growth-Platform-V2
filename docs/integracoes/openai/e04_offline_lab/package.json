@@ -1,0 +1,10 @@
+{
+  "name": "@prumo/e04-openai-offline-lab",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "E04 synthetic contract guards; zero API calls and zero production writes",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs"
+  }
+}
