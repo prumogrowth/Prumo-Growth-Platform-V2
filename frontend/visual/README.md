@@ -16,6 +16,8 @@
 
 > **FV-UI-024 (22/10/2026):** [testes adversariais e gate do pacote offline](../docs/48_FV_UI_024_TESTES_ADVERSARIAIS_ZIP_E_GATE_NATIVO_2026_10_22.md). A validação do ZIP passa a exigir 15 cenários Python sintéticos (`test_offline_export.py`) contra adulteração/arquivos duplicados, caminhos, symlink e troca de verificador. O check nativo offline e o checkout Git exigem essa suíte, além de Node/Chromium. Manifesto Git é atualizado ao final das alterações para não misturar revisões. **Nenhum teste nativo/Chromium foi executado nesta conversa.**
 
+> **FV-UI-025 (22/10/2026):** [gates fail-closed de validação](../docs/49_FV_UI_025_GATES_SEQUENCIAIS_VALIDACAO_2026_10_22.md). Corrigido o verificador de ZIP e o runner Git para executar **Python adversarial → Node ESM → Chromium**, interrompendo etapas posteriores se uma falhar. Testes `python -B` preservam a limpeza do checkout. A suíte adversarial agora reúne 20 testes Python. Checagem estática do código não constitui execução nativa nem homologação.
+
 **Branch proprietária:** `feat/frontend-plataforma-visual`. **Referência visual:** organização de mensageiro familiar ao WhatsApp, sem copiar sua identidade, marca ou recursos. **Situação:** demonstração local com dados 100% sintéticos; não é portal operacional.
 
 ## Abrir localmente
