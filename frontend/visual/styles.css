@@ -166,3 +166,11 @@
 .detail-tab{min-height:44px}
 .icon-button{min-width:44px;min-height:44px}
 @media(max-height:550px){.visual-app{min-height:0}}
+
+/* FV-UI-027 — janela baixa + reflow: todos os casos e o rodapé alcançáveis.
+   O painel inteiro rola no modo lista; nenhuma ação fica atrás do overflow global. */
+@media(max-width:760px) and (max-height:700px){
+  .list-pane{overflow-y:auto;overscroll-behavior-y:contain}
+  .list-heading,.queue-heading,.list-footer{flex:none}
+  .conversation-items{flex:0 0 auto;min-height:170px;overflow:visible}
+}
