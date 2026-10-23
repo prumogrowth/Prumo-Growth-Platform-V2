@@ -1,5 +1,7 @@
 # OAI-08 v0.3 — Planejamento F02 e nova cadeia pós-humana (candidata)
 
+> **Autoria da S0 corrigida em 23/10/2026:** [S0 compartilhada sem frente exclusiva ativa](./DECISAO_S0_COMPARTILHADA_EDICAO_POR_FRENTES_2026_10_23_v0_1.md). A frente OpenAI, responsável por F02, também deve implementar no código S0 a estrutura de recontatos necessária quando ela faltar, com branch/PR isolados e regressão, preservando autorização, Meta e C09. Não aguardar uma equipe S0 separada inexistente; não interpretar essa permissão como envio real ou E05.
+
 > **Novo risco de fornecedor (22/10/2026) [V/P/R]:** [CF-OP-02/FREQ — cap adaptativo de templates MARKETING, erro 131049 e política local](./CF_OP_02_META_FREQUENCY_CAPPING_F02_2026_10_22_v0_1.md). Não tratar “2 templates por dia” como regra universal da Meta. F02 só propõe plano; S0/Meta revalidam frequência por destinatário/categoria/finalidade a cada disparo. Erro 131049 **não prova desistência ou duas falhas técnicas qualificadas** e não inicia C09. Classificação final [R] em S0/Meta. Código E04 offline incluído, sem envio.
 
 > **Conciliação física pendente [R]:** ver [CF-OP-02/C09 v0.3 — fronteiras S0/Meta](./CF_OP_02_C09_CONCILIACAO_F02_INTERFRENTES_v0_3.md) e [E02-REV v0.3](./E02_PACOTE_REVISAO_CRUZADA_E_GATES_v0_3.md). Estados/fases de C09 e evidência de `sent` não foram ratificados nesta frente.
