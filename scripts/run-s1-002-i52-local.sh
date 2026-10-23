@@ -12,4 +12,7 @@ PY
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/migrations/202610190053_s0_s1_intake_atribuicao_guard.sql
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_076_integracao_intake_canonico_aceite.sql
 bash scripts/test_s1_002_i52_intake_race.sh
-echo "PASS S0+S1 I52 canonical stage after legacy regression"
+# I54: real S0 lead/cycle signal, queue CAS and canonical assignment.
+psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/migrations/202610190054_s0_fila_humana_canonica.sql
+psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_078_fila_s0_canonica_aceite.sql
+echo "PASS S0+S1 I52-I54 canonical stages after legacy regression"
