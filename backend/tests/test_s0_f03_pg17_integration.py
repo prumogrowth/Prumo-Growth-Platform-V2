@@ -310,5 +310,147 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
         reader=S0F03LocalContentIntegrityReader(DB)
         self.assertIsNone(reader.compute(self.receipt,b'weak'))
 
+    def test_15_persist_hmac_binds_existing_manifest(self):
+        from backend.s0_f03_bound_content_seal_local import (
+            S0F03LocalBoundContentStore as Store, BoundContentState as State,
+        )
+        self.assertIs(self._save(),SealState.SEALED_REVIEW_ONLY)
+        store=Store(DB)
+        key=b'fixture-only-content-seal-key-more-than-32-bytes'
+        self.assertIs(store.check(self.binding,'test-key-v1',key,create=True),
+                      State.SEALED_REVIEW_ONLY)
+        self.assertIs(store.check(self.binding,'test-key-v1',key,create=False),
+                      State.MATCHES_REVIEW_ONLY)
+        with self.pg.connect(DB) as con:
+            row=con.execute('select chave_versao,metadados_sha256,mac_sha256 '
+                'from prumo_private.cfi01_f03_content_proofs_local '
+                'where concessionaria_id=%s and evento_fechamento_id=%s',
+                (self.shop,self.event)).fetchone()
+        self.assertEqual(row[0],'test-key-v1')
+        self.assertEqual(len(row[1]),64)
+        self.assertEqual(len(row[2]),64)
+        self.assertNotEqual(row[1],row[2])
+
+    def test_16_replay_hmac_same_key_is_idempotent(self):
+        from backend.s0_f03_bound_content_seal_local import (
+            S0F03LocalBoundContentStore as Store, BoundContentState as State,
+        )
+        self._save()
+        store=Store(DB)
+        key=b'fixture-only-content-seal-key-more-than-32-bytes'
+        self.assertIs(store.check(self.binding,'test-key-v1',key,create=True),
+                      State.SEALED_REVIEW_ONLY)
+        self.assertIs(store.check(self.binding,'test-key-v1',key,create=True),
+                      State.ALREADY_SEALED_REVIEW_ONLY)
+        with self.pg.connect(DB) as con:
+            count=con.execute('select count(*) from prumo_private.cfi01_f03_content_proofs_local '
+                              'where evento_fechamento_id=%s',(self.event,)).fetchone()[0]
+        self.assertEqual(count,1)
+
+    def test_17_old_text_mutation_invalidates_persisted_hmac(self):
+        from backend.s0_f03_bound_content_seal_local import (
+            S0F03LocalBoundContentStore as Store, BoundContentState as State,
+        )
+        self._save()
+        store=Store(DB)
+        key=b'fixture-only-content-seal-key-more-than-32-bytes'
+        self.assertIs(store.check(self.binding,'test-key-v1',key,create=True),
+                      State.SEALED_REVIEW_ONLY)
+        with self.pg.connect(DB) as con:
+            con.execute('update public.mensagens set conteudo_sintetico=%s where id=%s',
+                        ('texto alterado após selação',self.old_message))
+        self.assertIs(store.check(self.binding,'test-key-v1',key,create=False),
+                      State.STALE_REVIEW_REQUIRED)
+        self.assertIs(store.check(self.binding,'test-key-v1',key,create=True),
+                      State.STALE_REVIEW_REQUIRED)
+
+    def test_18_different_key_or_version_cannot_rebind_original_proof(self):
+        from backend.s0_f03_bound_content_seal_local import (
+            S0F03LocalBoundContentStore as Store, BoundContentState as State,
+        )
+        self._save()
+        store=Store(DB)
+        key=b'fixture-only-content-seal-key-more-than-32-bytes'
+        other=b'another-distinct-fixture-key-longer-than-32-bytes'
+        self.assertIs(store.check(self.binding,'test-key-v1',key,create=True),
+                      State.SEALED_REVIEW_ONLY)
+        self.assertIs(store.check(self.binding,'test-key-v1',other,create=False),
+                      State.STALE_REVIEW_REQUIRED)
+        self.assertIs(store.check(self.binding,'test-key-v2',key,create=False),
+                      State.STALE_REVIEW_REQUIRED)
+        self.assertIs(store.check(self.binding,'test-key-v2',key,create=True),
+                      State.STALE_REVIEW_REQUIRED)
+
+    def test_19_source_insert_retrodated_invalidates_hmac(self):
+        from backend.s0_f03_bound_content_seal_local import (
+            S0F03LocalBoundContentStore as Store, BoundContentState as State,
+        )
+        self._save()
+        store=Store(DB)
+        key=b'fixture-only-content-seal-key-more-than-32-bytes'
+        self.assertIs(store.check(self.binding,'test-key-v1',key,create=True),
+                      State.SEALED_REVIEW_ONLY)
+        with self.pg.connect(DB) as con:
+            with con.cursor() as cur:
+                self._message(cur,uuid.uuid4(),self.old_conversation,self.old_case,older=True)
+        self.assertIs(store.check(self.binding,'test-key-v1',key,create=False),
+                      State.STALE_REVIEW_REQUIRED)
+
+    def test_20_proof_cannot_exist_without_metadata_manifest(self):
+        from backend.s0_f03_bound_content_seal_local import (
+            S0F03LocalBoundContentStore as Store, BoundContentState as State,
+        )
+        key=b'fixture-only-content-seal-key-more-than-32-bytes'
+        store=Store(DB)
+        self.assertIs(store.check(self.binding,'test-key-v1',key,create=True),
+                      State.MISSING_REVIEW_REQUIRED)
+        with self.pg.connect(DB) as con:
+            num=con.execute('select count(*) from prumo_private.cfi01_f03_content_proofs_local '
+                            'where evento_fechamento_id=%s',(self.event,)).fetchone()[0]
+        self.assertEqual(num,0)
+
+    def test_21_content_proof_immutable_update_delete(self):
+        from backend.s0_f03_bound_content_seal_local import (
+            S0F03LocalBoundContentStore as Store, BoundContentState as State,
+        )
+        self._save()
+        self.assertIs(Store(DB).check(self.binding,'test-key-v1',
+            b'fixture-only-content-seal-key-more-than-32-bytes',create=True),
+            State.SEALED_REVIEW_ONLY)
+        for sql in ('update prumo_private.cfi01_f03_content_proofs_local '
+                    'set chave_versao=%s where evento_fechamento_id=%s',
+                    'delete from prumo_private.cfi01_f03_content_proofs_local '
+                    'where evento_fechamento_id=%s'):
+            params=('other-test-v1',self.event) if 'update' in sql else (self.event,)
+            with self.subTest(sql=sql):
+                with self.assertRaises(self.pg.Error) as cm:
+                    with self.pg.connect(DB) as con:
+                        con.execute(sql,params)
+                self.assertEqual(cm.exception.sqlstate,'42501')
+
+    def test_22_authenticated_role_cannot_read_content_proof(self):
+        with self.pg.connect(DB) as con:
+            with self.assertRaises(self.pg.Error):
+                con.execute('set local role authenticated')
+                con.execute('select * from prumo_private.cfi01_f03_content_proofs_local')
+
+    def test_23_two_simultaneous_proof_writers_one_persisted_receipt(self):
+        from concurrent.futures import ThreadPoolExecutor
+        from backend.s0_f03_bound_content_seal_local import (
+            S0F03LocalBoundContentStore as Store, BoundContentState as State,
+        )
+        self._save()
+        key=b'fixture-only-content-seal-key-more-than-32-bytes'
+        def attempt(_):
+            return Store(DB).check(self.binding,'test-key-v1',key,create=True)
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            states=list(pool.map(attempt,range(2)))
+        self.assertCountEqual(states,[State.SEALED_REVIEW_ONLY,
+                                       State.ALREADY_SEALED_REVIEW_ONLY])
+        with self.pg.connect(DB) as con:
+            count=con.execute('select count(*) from prumo_private.cfi01_f03_content_proofs_local '
+                              'where evento_fechamento_id=%s',(self.event,)).fetchone()[0]
+        self.assertEqual(count,1)
+
 if __name__=='__main__':
     unittest.main()
