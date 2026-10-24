@@ -1,5 +1,7 @@
 # S0 + S1-002 / I55 — API assinada de consulta e assunção da fila
 
+**Estado em 24/10/2026:** I55 **validado em CI local descartável**: 11/11 testes unitários, 8/8 E2E I55, 8/8 E2E I53. Não homologado para produção, sem deploy, sem merge e sem uso de dados reais. Código verificado em `ad17444ea64e6bf539e8a579b7019188f999c425`.
+
 **23/10/2026.** Continuidade do I54; S0 e S1 são implementadas pela mesma frente. Ambiente de teste **somente CI local descartável**, sem deploy, merge, WhatsApp, cliente real ou bancos externos.
 
 ## Integração
@@ -19,24 +21,34 @@ O I54 criou a fila na S0, mas ela ainda não dispunha de API autenticada. I55 ac
 
 ## Evidências
 
-**Código entregue e ainda NÃO homologado**, 23/10/2026:
+**Histórico de bloqueio inicial do CI (23/10/2026; superado no repositório novo em 24/10/2026):**
 
 - Commit de implementação `0560175332668d1c2c0cb6dfcc0388f7923b4dd5`, seguido de `4aa8cfa30e75b2f2ff04b854a1035a9c5bdab97c` (consulta da fila com `FOR SHARE` na equipe, concessão e loja, serializando revogação durante leitura; rejeição explícita de HMAC nula).
 - [GoTrue/E2E #40039146985](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/40039146985) e [PG17 #40039147068](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/40039147068): **FAILURE sem qualquer etapa registrada nos jobs e logs do job indisponíveis (404 BlobNotFound)**. Reexecução via API solicitada, mas novamente não houve passos com evidência. Não se pode inferir falha ou êxito da implementação.
 - Após correção pontual, [E2E #40039422379](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/40039422379) e [PG17 #40039422319](https://github.com/prumogrowth/Prumo-Growth---Platform/actions/runs/40039422319) também **FAILURE antes de qualquer etapa**. Isto caracteriza bloqueio de validação por infraestrutura/execução do Actions ou outra causa ainda não identificada, **não uma regressão de negócio comprovada**.
-- Testes escritos e conectados ao workflow: `tests/test_s1_002_i55_queue_gateway.py` (8 unitários de esquema/assinatura) e `scripts/test_s1_002_i55_signed_queue_e2e.py` (8 cenários GoTrue reais locais). **Não declarar 8/8 aprovado** até obter saídas individuais e conclusão SUCCESS do CI.
-- I54 permanece a última camada **de fila** com validação positiva (8+2 testes PG17, 16/16 workflows na evidência I54). I55 é uma implementação adicional sujeita à execução e auditoria de segurança. Não houve merge, deploy ou acesso a Meta/Banco.
+- Testes escritos e conectados ao workflow: `tests/test_s1_002_i55_queue_gateway.py` (11 unitários de esquema, assinatura e allowlist de saída) e `scripts/test_s1_002_i55_signed_queue_e2e.py` (8 cenários GoTrue reais locais). **Condição agora satisfeita:** conclusão SUCCESS e logs individuais verificados na execução #40082836279 abaixo.
+- Na data daquele bloqueio, I54 permanecia a última camada **de fila** com validação positiva (8+2 testes PG17, 16/16 workflows na evidência I54). I55 é uma implementação adicional sujeita à execução e auditoria de segurança. Não houve merge, deploy ou acesso a Meta/Banco.
 
 **Próxima atividade do mesmo responsável S0/S1:** recuperar a execução dos runners GitHub Actions e confirmar a ponte assinada no GoTrue efêmero; depois finalizar reconciliação de filas obsoletas, hardening de sessão/revogação e UI.
 
 ## I55.1 — defesa adicional na borda (24/10/2026)
 
-A resposta do executor assinado agora passa também por uma **allowlist de saída** do gateway: a listagem só permite 25 itens e exatamente quatro campos UUID/versão por item; a assunção só permite o resultado e IDs/versionamento esperados. Uma futura mudança não auditada do `SECURITY DEFINER` não pode encaminhar telefones, mensagens ou campos extras automaticamente. Qualquer resposta divergente falha fechada em HTTP 503. Erros transitórios do PostgreSQL como `40001`/`40P01` não são tratados como proibição HTTP 403: exigem recuperação ou retry seguro. Foram adicionados testes unitários de contrato para saída e mapeamento de erros. **Aprovação E2E permanece pendente até execução verificável.**
+A resposta do executor assinado agora passa também por uma **allowlist de saída** do gateway: a listagem só permite 25 itens e exatamente quatro campos UUID/versão por item; a assunção só permite o resultado e IDs/versionamento esperados. Uma futura mudança não auditada do `SECURITY DEFINER` não pode encaminhar telefones, mensagens ou campos extras automaticamente. Qualquer resposta divergente falha fechada em HTTP 503. Erros transitórios do PostgreSQL como `40001`/`40P01` não são tratados como proibição HTTP 403: exigem recuperação ou retry seguro. Foram adicionados testes unitários de contrato para saída e mapeamento de erros. **Agora validado no CI local da execução #40082836279.**
 
 ## Diagnóstico E2E no novo repositório (24/10/2026)
 
-A primeira execução com Actions operante no espelho ([#40082201339](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40082201339)) aprovou os 11 testes unitários do I55 e chegou à S0 real (\`PASS S1QUEUE-157\`), mas a primeira consulta autenticada retornou HTTP 403. A causa identificada no fixture foi **a ausência de concessão de Gestor à loja**: o cenário histórico I37 vinculava o Gestor à equipe sem criar um \`vinculos_papel_escopo\` de papel \`gestor\` para a concessionária. A política I55 exige corretamente ambas as condições. O fixture E2E foi atualizado para conceder explicitamente esse escopo sintético ANTES da consulta, sem alterar a regra de segurança. A reexecução completa é necessária para confirmar o resultado.
+A primeira execução com Actions operante no espelho ([#40082201339](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40082201339)) aprovou os 11 testes unitários do I55 e chegou à S0 real (`PASS S1QUEUE-157`), mas a primeira consulta autenticada retornou HTTP 403. A causa identificada no fixture foi **a ausência de concessão de Gestor à loja**: o cenário histórico I37 vinculava o Gestor à equipe sem criar um `vinculos_papel_escopo` de papel `gestor` para a concessionária. A política I55 exige corretamente ambas as condições. O fixture E2E foi atualizado para conceder explicitamente esse escopo sintético ANTES da consulta, sem alterar a regra de segurança. A correção foi confirmada na execução #40082836279.
 
 ### Reforço do teste de revogação I55
 
-O cenário E2E de revogação foi ajustado para criar uma **terceira pendência sintética ainda sem titular**. A negativa HTTP 403 agora deve ocorrer durante a checagem de concessão da própria assunção, e não por CAS de um caso já atribuído. O teste também verifica que não se cria caso e que a pendência continua disponível após restabelecer o grant. Validação dependente de nova execução CI.
+O cenário E2E de revogação foi ajustado para criar uma **terceira pendência sintética ainda sem titular**. A negativa HTTP 403 agora deve ocorrer durante a checagem de concessão da própria assunção, e não por CAS de um caso já atribuído. O teste também verifica que não se cria caso e que a pendência continua disponível após restabelecer o grant. Validado na execução #40082836279.
+
+## Evidências finais I55 — GitHub Actions, novo repositório (24/10/2026)
+
+- [Execução #40082836279 — SUCESSO](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40082836279), commit de código `ad17444ea64e6bf539e8a579b7019188f999c425`. Jobs `http-policy-unit` (`120839735778`) e `e2e-gerencia-local` (`120839735859`): ambos **SUCCESS**.
+- **I55 unitário:** 11/11 testes de `TestQueueV55` aprovados, incluindo validação da forma de saída, rejeição de campo sensível extra e distinção entre erros SQL transitórios e negações de acesso.
+- **I55 E2E com GoTrue real local:** `PASS S1QUEUE-157` até `PASS S1QUEUE-164`, **8/8**. Cobertura explícita de evento S0, listagem mínima por concessão, Gestor de outra equipe negado, JSON estrito, assunção CAS, nonce anti-replay, revogação de grant em pendência nova e isolamento REST/SQL privado.
+- **Regressão I53:** `PASS S1CANON-149` até `PASS S1CANON-156`, **8/8**, incluindo conta preservada na pausa, S0 bloqueando destino pausado e HMAC de domínio separado. Também `PASS S1INTAKE-147/148` para chave revogada e assinador indisponível.
+- Execuções anteriores #40082201339 e #40082614227 demonstraram dois **problemas em fixtures E2E**, não exigiram enfraquecer o RBAC: primeiro faltava grant da loja; depois o teste de revogação usava caso já atribuído e recebia CAS 409. Corrigidos respectivamente em `fe0e770` e `ad17444`, com última execução verde.
+
+**Limites ainda abertos:** esta é comprovação local com Supabase GoTrue/HMAC e banco descartável; não prova prontidão de infraestrutura de produção, frontend, paginação real além de 25 itens, reconciliação de fila com casos criados fora do fluxo, nem monitoramento operacional. Nenhuma alteração feita em hospedagem, Meta, Banco ou `main`.
