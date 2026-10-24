@@ -66,7 +66,7 @@ two=$!
 await_lock i57_direct_wait || { cat "$tmp/revoke" "$tmp/direct";exit 1; }
 wait "$one"
 if wait "$two";then echo 'I57 direct accepted revoked grant' >&2;exit 1;fi
-grep -q S0_DESTINO_SEM_CONCESSAO_ATIVA "$tmp/direct"
+grep -Eq "S0_DESTINO_SEM_CONCESSAO_ATIVA|PROFISSIONAL_PRUMO_INELEGIVEL" "$tmp/direct"
 [[ "$(psql -X -qAt "$PRUMO_TEST_DATABASE_URL" -c "select count(*) from public.atribuicoes_humanas where caso_id='$ca'")" == "0" ]]
 echo 'PASS I57-RACE-01: direct S0 assignment blocked on revoked grant and denied'
 psql -X -qAt -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -c \

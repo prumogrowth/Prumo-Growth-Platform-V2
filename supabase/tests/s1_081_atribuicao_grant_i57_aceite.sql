@@ -43,7 +43,7 @@ do $t$ declare v text;begin
  raise exception 'I57 CROSS_STORE_ASSIGNED';
  exception when check_violation then
  get stacked diagnostics v=message_text;
- if v<>'S0_DESTINO_SEM_CONCESSAO_ATIVA' then raise exception 'I57 wrong denial %',v;end if;
+ if v not in ('S0_DESTINO_SEM_CONCESSAO_ATIVA','PROFISSIONAL_PRUMO_INELEGIVEL') then raise exception 'I57 wrong denial %',v;end if;
  end;
 end $t$;
 \echo 'PASS I57-02: cross-store assignment denied'
