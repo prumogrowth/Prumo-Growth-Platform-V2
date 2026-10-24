@@ -36,3 +36,15 @@ Demonstração sintética apenas. Nenhum S0/S1, API Meta/WhatsApp, OpenAI, Supab
 ## Ajuste posterior de contraste em estados técnicos
 
 Ao revisar a regra genérica que estiliza elementos `small` dos balões, foi identificado risco de confundir horários neutros com as etiquetas técnicas `message-send-state`, `message-transport-state` e `message-transport-hint`. O ajuste final atribui a cor neutra **somente aos horários sem classe**, mantém o tamanho mínimo de 11px em todas as etiquetas e define cores próprias e contrastantes para os estados técnicos nos dois temas. O aviso de transporte tinha contraste insuficiente na base local clara (**aprox. 2,26:1**); após a correção, o ensaio direcionado repetido passou em **8/8 cenários** com contraste calculado ≥4,5:1 também nesse aviso. Continua sendo evidência local derivada, não gate integral de checkout.
+
+
+## Registro final na branch oficial
+
+- Primeiro commit visual, testes e documentação: `1347de6359fe10a3767df10aa11da5e3dc40e563`.
+- Primeiro repin de manifesto: `48f341ce83422aff244e31af49101b4dbd48621f` (substituído pelo repin definitivo).
+- Correção de contraste e distinção dos estados técnicos: `f787b7138cdcaa7aeed27dc3d661744ccd47499f`.
+- Manifesto definitivo: `0060ffbbeb288c17afea30722a3c59aad09ef69b`, com `source_head=f787b7138cdcaa7aeed27dc3d661744ccd47499f`.
+- Conferência remota: **58/58 hashes Git blob SHA-1 e tamanhos conferidos**, zero divergências; blob SHA do próprio verificador: `737197f7be4230e18f3538f9982a3665e3db4742`.
+- Comparação com FV-UI-041: **4 commits e 7 arquivos alterados**, todos sob `frontend/`.
+- `main` preservada em `dace737ab7afb7ae3f5a3a6f5cb522e6def8b43a` — nenhum merge ou deploy.
+- **Gates:** Chromium direcionado **8/8 PASS**, Node da base derivada **339/339 PASS** (excluindo manifesto antigo). A suíte Chromium completa excedeu o tempo e não deve ser registrada como PASS; checkout autenticado do HEAD oficial e aceite humano continuam pendentes.
