@@ -11,3 +11,11 @@ A auditoria identificou que a operação I54 `s0_fila_assumir` retornava CONFLIC
 **Restrições**: o helper é SECURITY INVOKER privado, executor `postgres` apenas, sem RPC ou grant do cliente. Não altera casos históricos, A2, estados comerciais ou acesso direto a mensagens. Os resultados dependem da verificação independente de sessão/assinatura no gateway I55. Não homologa produção nem todos os comandos e superfícies D2/D3/D4; não resolve o estado de fila inexistente anterior à leitura do lead em I54 e não substitui política RLS de histórico.
 
 **Evidências de CI**: somente acrescentar após jobs concluídos e logs inspecionados.
+
+## Evidências verificadas — 24/10/2026
+
+- **PG17 SUCESSO**: [workflow #40132128199](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40132128199), job `s1-002-equipe` `120985884703`, commit `881218e21d309787110437ad3ebd75dab07ddff0`. Logs conferidos: `PASS I58-01..06` (6/6), `PASS I58-RACE-01..02` (2/2), ambos os waits confirmados em `pg_stat_activity`; regressões I57/anteriores preservadas. Runner: `PASS S0+S1 I52-I58 canonical stages after legacy regression`.
+- **GoTrue/HMAC E2E SUCESSO**: [workflow #40132414081](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40132414081), commit `8bce4866248409ac709ae8145f4c6037a51451e7`, jobs `e2e-gerencia-local` `120986749725` e `http-policy-unit` `120986749496` ambos SUCCESS. Logs conferidos: `S1QUEUE-157..167` **11/11**, I53 `S1CANON-149..156` **8/8**; nonce HMAC, GoTrue e gateway em contêineres descartáveis.
+- **Falha e reparo documentados**: [workflow #40132128031](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40132128031) apresentou erro de sintaxe no teste SQL `pg_catalog.position` (os testes S1QUEUE-157..165 passaram). Corrigido para `pg_catalog.strpos` em `8bce486`; **não** se alterou a migration I58, o helper ou o código de autorização. A execução #40132414081 é o aceite final.
+
+**Estado:** I58 implementado e aprovado no laboratório descartável; sem deploy, sem merge, sem alteração na `main`, sem dados de clientes ou ação externa Meta/Banco. As próximas frentes são RLS de histórico e leitura D2/D3/D4, outras operações privilegiadas e interface operacional.

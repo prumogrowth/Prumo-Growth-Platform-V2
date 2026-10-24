@@ -60,3 +60,7 @@ A integração anterior I55 (8/8) foi ampliada com a prova S1QUEUE-165 de reconc
 ### Regresso I57 (24/10/2026)
 
 Aplicação do guard canônico de concessão do destinatário S0 (I57) na stack assinada efêmera: [GoTrue/HMAC #40125971536](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40125971536), 9/9 E2E da fila e 8/8 I53, com jobs SUCCESS. O [PG17 #40126423968](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40126423968) aprovou adicionalmente I57 5/5 e 2/2 corridas reais. Fonte [I57](S1_002_I57_GRANT_DESTINO_2026_10_24.md). Não comprova produção.
+
+### Revalidação de autorização I58 — 24/10/2026
+
+A projeção assinada I55 de LIST passou a utilizar o helper privado de autorização de Gestor I58; a assunção da S0 agora revalida o Gestor antes de retornar o CAS de uma fila já consumida. [PG17 #40132128199](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40132128199): **SUCCESS**, I58 6/6 + 2/2 corridas reais. [GoTrue/HMAC #40132414081](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40132414081): **SUCCESS**, I55+I56+I58 11/11 E2E + I53 8/8. [Contrato e evidências I58](S1_002_I58_AUTORIZACAO_GESTOR_FILA_2026_10_24.md). Somente laboratório descartável.
