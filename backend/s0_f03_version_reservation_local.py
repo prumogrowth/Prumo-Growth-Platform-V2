@@ -39,6 +39,30 @@ _CASE = """select v.versao_caso,v.versao_atribuicao
  where v.concessionaria_id=%s::uuid and v.caso_id=%s::uuid
   and v.lead_id=%s::uuid and c.versao_registro=%s::bigint
  for update of v"""
+_PENDING_IDENTITY = """select 1
+ from prumo_private.pendencias_identidade_s0 p
+ join public.leads_loja l
+   on l.concessionaria_id=p.concessionaria_id and l.id=%s::uuid
+ where p.concessionaria_id=%s::uuid and (
+   p.telefone_sintetico=l.telefone_cliente_normalizado
+   or (
+     prumo_private.chave_variante_br_s0(p.telefone_sintetico) is not null
+     and prumo_private.chave_variante_br_s0(p.telefone_sintetico)
+       =prumo_private.chave_variante_br_s0(l.telefone_cliente_normalizado)
+   )
+   or exists (
+     select 1 from prumo_private.aliases_identidade_s0 a
+     where a.concessionaria_id=l.concessionaria_id and a.lead_id=l.id
+       and (
+         a.numero_sintetico=p.telefone_sintetico
+         or (
+           prumo_private.chave_variante_br_s0(p.telefone_sintetico) is not null
+           and prumo_private.chave_variante_br_s0(p.telefone_sintetico)
+             =prumo_private.chave_variante_br_s0(a.numero_sintetico)
+         )
+       )
+   )
+ ) limit 1"""
 _PROOF = """select p.chave_versao
  from prumo_private.cfi01_f03_content_proofs_local p
  join prumo_private.cfi01_f03_history_seals_local s
@@ -144,6 +168,12 @@ class S0F03LocalVersionReservationStore:
                               version.assignment,version.identity)
                     if current!=expected:
                         return ReservationState.STALE_REVIEW_REQUIRED
+                    # Pending S0 identity conflicts cannot be assigned to a
+                    # lead by F03. Treat exact or Brazilian mobile variant
+                    # candidates as REVIEW_REQUIRED; no automatic merge.
+                    cur.execute(_PENDING_IDENTITY,(lead,r.store_ref))
+                    if cur.fetchone() is not None:
+                        return ReservationState.CONFLICT_REVIEW_REQUIRED
                     cur.execute(_PROOF,(r.store_ref,r.closure_event_ref,
                                         r.case_ref,lead,r.expected_cycle_version,
                                         r.snapshot_sha256,r.message_watermark))
