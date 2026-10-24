@@ -7,6 +7,16 @@ if os.environ.get("CI")!="true" or os.environ.get("PRUMO_S1_I37_EPHEMERAL")!="YE
     raise AssertionError("I55 only in disposable CI")
 sql(path="supabase/migrations/202610190054_s0_fila_humana_canonica.sql")
 sql(path="supabase/tests/s1_079_fila_assinada_canonica_local_only.sql")
+# I37 legacy movement only requires a team link, NOT a manager/store grant.
+# I55 intentionally requires current 'gestor' shop grant for queue list/claim.
+# Provision synthetic scope explicitly; DO NOT relax signed bridge RBAC.
+sql(f"""insert into public.vinculos_papel_escopo(
+ ator_id,concessionaria_id,papel)
+ values({U(g1)},{U(store_a)},'gestor')""")
+if sql(f"""select count(*) from public.vinculos_papel_escopo
+ where ator_id={U(g1)} and concessionaria_id={U(store_a)}
+ and papel='gestor' and valido_ate is null""")!="1":
+    raise AssertionError("I55 missing explicit current manager shop grant in test fixture")
 # Two new fictional customers and real S0 cycle transitions: no I49 mocks.
 lead55a="e7550000-0000-4000-8000-000000000001"
 lead55b="e7550000-0000-4000-8000-000000000002"
