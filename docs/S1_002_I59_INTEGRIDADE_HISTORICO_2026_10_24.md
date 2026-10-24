@@ -21,3 +21,11 @@ Não amplia nenhuma RLS, grant, exposição Data API, função SECURITY DEFINER,
 ## Limites
 
 A FK reforça integridade referencial, **não** substitui a RLS, a autenticação real, nem revisa acesso a mídia/anexos, D3/D4 e documentos financeiros. Em produção, executar preflight de `conversas` que referenciam `casos_humanos` com `lead_id` diferente antes de aplicar constraint; nenhuma migração ou correção de dados hospedados é autorizada agora.
+
+## Evidências de CI certificadas — 24/10/2026
+
+- **PostgreSQL 17 — SUCCESS:** [workflow #40138406969](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40138406969), job `121004763301`, commit de código `37811fbc975bfbb7ea6448a34df365a3b64be310`. Logs inspecionados: `PASS I59-01` a `PASS I59-07` **7/7**; `PASS S0+S1 I52-I59 canonical stages after legacy regression`. A restrição é `convalidated` no catálogo e recusa mudar caso ou contato mesmo dentro da mesma loja.
+- **GoTrue + PostgREST local — SUCCESS:** [workflow #40138602605](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40138602605), job `121005341078`, SHA `0fc98f364e82b58e213ab150dfd6dffedd47d127`. Logs conferidos: `I59-REST-01..04` **4/4**; `I44-01..06` **6/6**, com regressões `I45-01..06`, `I46-01..06`, `I47-01..06`, `I48-01..06`, `I49-01..06` e `I50-01..06`.
+- **Falha de fixture preservada:** [workflow I44 #40138406910](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40138406910) concluiu com falha porque o teste I59 esperava três mensagens históricas do Gestor, mas o próprio I44-04 tinha inserido uma quarta mensagem legítima. A asserção foi corrigida em `0fc98f3` sem mudar a FK canônica ou o código de autorização. A execução #40138602605 é o aceite GoTrue definitivo.
+
+**Situação de fechamento:** I59 implementado e testado em laboratório PG17 e GoTrue real-local. Não houve merge, deploy, migração hospedada, clientes reais, mensagens Meta ou ação bancária. A promoção de RLS I41/I42/I43, mecanismos completos de exceção por caso e D3/D4 continuam exigindo integração formal com S0 e política final de segurança.
