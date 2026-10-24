@@ -24,3 +24,14 @@ Na mesma base derivada, **340/340 testes Node PASS** (excluído `offline-export-
 Prova de conceito visual com dados fictícios. Nenhum comando operacional foi ativado nos ensaios. Nada de backend, persistência, Meta/WhatsApp, OpenAI, Supabase, alterações de permissões ou autorização, distribuição, S0/S1, cobrança, merge em `main` ou deploy. O comportamento de tela no navegador é verificado separadamente da integridade de Git blob.
 
 **Anterior:** [FV-UI-043](./72_FV_UI_043_BARRA_OPERACIONAL_COMPOSITOR_2026_10_24.md).
+
+
+## Auditoria remota após repin
+
+- Implementação, teste de teclado e documentação: `d6f662182a8293aec2c0310eee71705e13527239`.
+- Manifesto repinado: `c69fa194e376d4058f43effd28a091e0cbf98024`, com `source_head=d6f662182a8293aec2c0310eee71705e13527239` anterior à atualização do próprio manifesto.
+- Comparação desde o FV-UI-043: **2 commits, 7 arquivos alterados**, todos em `frontend/`, nenhum arquivo fora do escopo.
+- Conferência de árvore oficial e `verify_offline_export.py`: **58/58 hashes e tamanhos de blobs correspondentes**, sem entradas extras nem divergências. SHA Git do próprio verificador: `25ea72cdacb44d6fa4c8f8aaa4fd16bead474c77`.
+- `main` verificada em `dace737ab7afb7ae3f5a3a6f5cb522e6def8b43a`, sem merge e sem deploy.
+- Os arquivos publicados contêm CSS FV-UI-044, contrato estático e regressão em `browser.smoke.py`. O relatório local de Chromium **8/8 PASS** e Node **340/340 PASS** pertence a **snapshot derivado do FV-UI-036**, não ao HEAD autenticado. A comparação Git não deve ser apresentada como execução da suíte nativa desse HEAD.
+- Gate de checkout autenticado, execução integral do navegador e revisão humana de acessibilidade **pendentes**.
