@@ -532,3 +532,16 @@ test('FV-UI-042: tipografia da conversa e contraste de cores preservam estados',
   assert.match(browserSmoke,/FV-UI-042 conversa legivel 8 cenarios 4\.5:1 PASS/);
   assert.match(browserSmoke,/ratio>=4\.5/);
 });
+
+
+test('FV-UI-043: estados e compositor legiveis sem alterar permissao de envio',()=>{
+  assert.match(styles,/FV-UI-043: estados e compositor legíveis/);
+  assert.match(styles,/\.thread-pane \.status-indicator\.human\{background:#e1f4ee;color:#1b6457/);
+  assert.match(styles,/\.thread-pane \.composer input\{min-width:0;flex:1;height:48px;font-size:14px/);
+  assert.match(styles,/\.thread-pane \.send-button\{width:48px;height:48px/);
+  assert.match(styles,/\.thread-pane \.composer input:disabled/);
+  assert.match(styles,/@media\(max-width:760px\)\{\.thread-pane \.composer input\{font-size:16px/);
+  assert.match(styles,/\.visual-app\[data-theme="dark"\] \.thread-pane \.status-indicator\.danger/);
+  assert.match(browserSmoke,/FV-UI-043 rodape operacional 8 cenarios e indicadores contrastantes: PASS/);
+  assert.match(browserSmoke,/ratio>=4\.5/);
+});

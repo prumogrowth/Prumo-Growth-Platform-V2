@@ -152,6 +152,10 @@
 
 **[FV-UI-042 — conversa nos dois temas](./71_FV_UI_042_LEGIBILIDADE_CONVERSA_2026_10_24.md)**: melhora fontes e contraste de identidade, prévia contextual, mensagens e horários; preserva envio e sinalização técnica. Ensaio Chromium direcionado em oito cenários, com gate integral do checkout ainda pendente.
 
+## FV-UI-043 — compositor e estados operacionais legíveis (24/10/2026)
+
+**[FV-UI-043 — organização da barra inferior](./72_FV_UI_043_BARRA_OPERACIONAL_COMPOSITOR_2026_10_24.md)**: indicadores contrastantes, ação de trabalho com alvo de 44px, campo e botão de composição com 48px. Corrigida colisão de cores de status no tema claro. Sem mexer no estado comercial, permissões, simulações ou envios.
+
 ## Estado do trabalho
 FV-UI-015/016: demonstrações com dados sintéticos. **NÃO** declarar integração real, Auth/RLS/GoTrue, comunicações Meta ou remessas confirmadas. FV-UI-013 não homologada formalmente; **19F 69/100** como último marco. Esta consolidação é **documentação somente**. Nenhum código, migration, branch S1, dado real ou deploy foi tocado.
 

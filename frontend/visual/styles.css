@@ -340,3 +340,35 @@ body[data-theme="dark"] .team-dialog .team-mode button[aria-pressed="true"]{
   background:#263740;border:1px solid #3b5360;color:#d4e6ec
 }
 .visual-app[data-theme="dark"] .thread-pane .message.system{color:#f1dfb6}
+
+/* FV-UI-043: estados e compositor legíveis, sem alterar as regras de atendimento. */
+.thread-pane .workflow-bar{gap:8px 10px;padding-bottom:12px;align-content:start}
+.thread-pane .workflow-copy{flex-wrap:wrap;gap:6px;align-items:center}
+.thread-pane :is(.status-indicator,.window-indicator){font-size:11px;line-height:1.35;max-width:100%;white-space:normal;overflow-wrap:anywhere}
+.thread-pane .tiny-note{font-size:11px;line-height:1.4;color:#516a74;display:inline}
+.thread-pane .status-indicator{background:#e8eff2;color:#415f68}
+.thread-pane .status-indicator.human{background:#e1f4ee;color:#1b6457}
+.thread-pane .status-indicator.ai{background:#eeebfc;color:#564d88}
+.thread-pane .status-indicator.bank{background:#f2eafb;color:#604a7a}
+.thread-pane .status-indicator.success{background:#e2f5e9;color:#1c6948}
+.thread-pane .status-indicator.danger{background:#fce9e7;color:#8a3d3d}
+.thread-pane .workflow-bar .btn{min-height:44px;font-size:12px;padding:10px 12px;overflow-wrap:anywhere}
+.thread-pane .composer{min-width:0;gap:10px}
+.thread-pane .composer input{min-width:0;flex:1;height:48px;font-size:14px;color:#263e47}
+.thread-pane .send-button{width:48px;height:48px;min-width:48px;min-height:48px}
+.thread-pane .composer input:focus-visible{outline:3px solid #14695e;outline-offset:2px;box-shadow:none}
+.thread-pane .send-button:focus-visible{outline:3px solid #14695e;outline-offset:3px}
+.thread-pane .composer input:disabled{background:#edf1f2;color:#586a70;border-color:#d2dfe2;opacity:1;cursor:not-allowed}
+.thread-pane .composer input:disabled::placeholder{color:#526975;opacity:1}
+.thread-pane .send-button:disabled{background:#d5e0e2;color:#567079;opacity:1;cursor:not-allowed}
+@media(max-width:760px){.thread-pane .composer input{font-size:16px}}
+.visual-app[data-theme="dark"] .thread-pane .tiny-note{color:#b9cbd4}
+.visual-app[data-theme="dark"] .thread-pane .status-indicator.human{background:#214239;color:#b9e9d9}
+.visual-app[data-theme="dark"] .thread-pane .status-indicator.ai{background:#322d45;color:#e5d9ff}
+.visual-app[data-theme="dark"] .thread-pane .status-indicator.bank{background:#3c3044;color:#eedcf7}
+.visual-app[data-theme="dark"] .thread-pane .status-indicator.success{background:#1d4235;color:#bcead1}
+.visual-app[data-theme="dark"] .thread-pane .status-indicator.danger{background:#4d3030;color:#f9d0cb}
+.visual-app[data-theme="dark"] .thread-pane .composer input:disabled{background:#18252d;border-color:#394c56;color:#bacbd4;opacity:1}
+.visual-app[data-theme="dark"] .thread-pane .composer input:disabled::placeholder{color:#b6cbd3;opacity:1}
+.visual-app[data-theme="dark"] .thread-pane .send-button:disabled{background:#344852;color:#c9d8df;opacity:1}
+.visual-app[data-theme="dark"] .thread-pane :is(.composer input,.send-button):focus-visible{outline-color:#83dac9}

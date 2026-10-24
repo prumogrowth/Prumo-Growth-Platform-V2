@@ -864,4 +864,60 @@ with sync_playwright() as p:
             readable.close()
     print('FV-UI-042 conversa legivel 8 cenarios 4.5:1 PASS')
 
+    # FV-UI-043: legibilidade, foco, toque e estados do rodape em claro/escuro.
+    contrast_043="""selector=>{let e=document.querySelector(selector);if(!e)return null;
+      const rgb=t=>{const m=t.match(/rgba?\(([^)]+)\)/);return m?m[1].split(',').map(Number):null};
+      const L=v=>{const a=v.slice(0,3).map(x=>x/255).map(x=>x<=.04045?x/12.92:((x+.055)/1.055)**2.4);return .2126*a[0]+.7152*a[1]+.0722*a[2]};
+      const fg=rgb(getComputedStyle(e).color);let bg=null;
+      while(e){const c=rgb(getComputedStyle(e).backgroundColor);
+        if(c&&(c.length<4||c[3]>=1)){bg=c;break;}e=e.parentElement}
+      if(!fg||!bg)return null;const x=L(fg),y=L(bg);return (Math.max(x,y)+.05)/(Math.min(x,y)+.05)}"""
+    for composer_width in (320,390,900,1440):
+        for composer_theme in ('light','dark'):
+            bottom_page=browser.new_page(viewport={'width':composer_width,'height':760},color_scheme=composer_theme)
+            bottom_page.set_default_timeout(4500)
+            bottom_errors=[]
+            bottom_page.on('pageerror',lambda error:bottom_errors.append(str(error)))
+            bottom_page.set_content(html);bottom_page.add_script_tag(content=script)
+            if composer_width<=760:
+                bottom_page.locator('.conversation-card').first.click()
+            expect(bottom_page.locator('#thread-pane')).to_be_visible()
+            expect(bottom_page.locator('#visual-app')).to_have_attribute('data-theme',composer_theme)
+            input_043=bottom_page.locator('#message-input')
+            send_043=bottom_page.locator('.send-button')
+            assert input_043.bounding_box()['height']>=48
+            assert send_043.bounding_box()['width']>=48 and send_043.bounding_box()['height']>=48
+            assert float(input_043.evaluate('e=>parseFloat(getComputedStyle(e).fontSize)')) >=(16 if composer_width<=760 else 14)
+            for selector in ('.thread-pane .window-indicator','.thread-pane .status-indicator','.thread-pane .tiny-note'):
+                node=bottom_page.locator(selector).first
+                assert node.count()>0,(composer_width,composer_theme,selector)
+                assert float(node.evaluate('e=>parseFloat(getComputedStyle(e).fontSize)'))>=11
+                ratio=bottom_page.evaluate(contrast_043,selector)
+                assert ratio is not None and ratio>=4.5,(composer_width,composer_theme,selector,ratio)
+            # Amostra controlada das cores dos tipos de estado, sem simular mutacao de negocio.
+            bottom_page.evaluate("""()=>{
+              const bar=document.querySelector('#workflow-bar');
+              const fixture=document.createElement('div');fixture.className='fixture-contrast';
+              for(const kind of ['human','ai','bank','success','danger']){
+                const badge=document.createElement('span');
+                badge.className='status-indicator '+kind;badge.textContent='Estado fictício';
+                fixture.append(badge);
+              }
+              bar.append(fixture);
+            }""")
+            for position in range(1,6):
+                ratio=bottom_page.evaluate(contrast_043,'.fixture-contrast .status-indicator:nth-child('+str(position)+')')
+                assert ratio is not None and ratio>=4.5,(composer_width,composer_theme,position,ratio)
+            bottom_page.locator('.fixture-contrast').evaluate('e=>e.remove()')
+            for action_043 in bottom_page.locator('.thread-pane .workflow-bar .btn').all():
+                assert action_043.bounding_box()['height']>=44
+            assert not bottom_page.evaluate('document.documentElement.scrollWidth > innerWidth')
+            # Apenas inspecionar aparencia da desabilitacao; nao executar envio.
+            input_043.evaluate('e=>e.disabled=true')
+            send_043.evaluate('e=>e.disabled=true')
+            assert send_043.evaluate('e=>getComputedStyle(e).backgroundColor')!='rgba(0, 0, 0, 0)'
+            assert not bottom_errors,bottom_errors
+            bottom_page.close()
+    print('FV-UI-043 rodape operacional 8 cenarios e indicadores contrastantes: PASS')
+
     browser.close()
