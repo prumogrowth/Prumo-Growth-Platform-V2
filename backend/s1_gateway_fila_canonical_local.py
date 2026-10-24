@@ -41,6 +41,57 @@ def queue_fields(command, payload):
         raise InvalidCommand("I55_INVALID_CLAIM")
     return uuid.UUID(shop),uuid.UUID(cycle),version
 
+
+def _client_safe_result(command, value):
+    """Fail closed if privileged SQL ever expands its response with PII.
+
+    The signed function remains authoritative, but the HTTP gateway never
+    forwards an unchecked object from a SECURITY DEFINER implementation.
+    """
+    if type(value) is not dict:
+        raise IdentityUnavailable("I55_BAD_DATABASE_RESPONSE")
+    if command == "fila":
+        if set(value) != {"outcome","items"} or value["outcome"] != "QUEUE_LIST":
+            raise IdentityUnavailable("I55_UNEXPECTED_LIST_SHAPE")
+        items = value["items"]
+        if type(items) is not list or len(items) > 25:
+            raise IdentityUnavailable("I55_UNEXPECTED_LIST_SHAPE")
+        safe = []
+        for item in items:
+            if type(item) is not dict or set(item) != {
+                "concessionaria_id","lead_id","ciclo_id","versao",
+            }:
+                raise IdentityUnavailable("I55_UNEXPECTED_ITEM_SHAPE")
+            if not all(type(item[k]) is str and _UUID.fullmatch(item[k])
+                       and str(uuid.UUID(item[k])) == item[k] for k in (
+                           "concessionaria_id","lead_id","ciclo_id",
+                       )):
+                raise IdentityUnavailable("I55_UNEXPECTED_ITEM_IDS")
+            if type(item["versao"]) is not int or not 1 <= item["versao"] <= 9223372036854775807:
+                raise IdentityUnavailable("I55_UNEXPECTED_ITEM_VERSION")
+            safe.append({k:item[k] for k in (
+                "concessionaria_id","lead_id","ciclo_id","versao",
+            )})
+        return {"outcome":"QUEUE_LIST","items":safe}
+
+    if command != "assumir_fila":
+        raise IdentityUnavailable("I55_UNEXPECTED_OPERATION")
+    if value == {"outcome":"CONFLICT"} or value == {"outcome":"ALREADY_HAS_CASE"}:
+        return value
+    if set(value) != {"outcome","case_id","assignment_id","version"} or value["outcome"] != "CLAIMED_BY_MANAGER":
+        raise IdentityUnavailable("I55_UNEXPECTED_CLAIM_SHAPE")
+    if not all(type(value[k]) is str and _UUID.fullmatch(value[k])
+               and str(uuid.UUID(value[k])) == value[k] for k in ("case_id","assignment_id")):
+        raise IdentityUnavailable("I55_UNEXPECTED_CASE_ID")
+    if type(value["version"]) is not int or not 2 <= value["version"] <= 9223372036854775807:
+        raise IdentityUnavailable("I55_UNEXPECTED_CASE_VERSION")
+    return {k:value[k] for k in ("outcome","case_id","assignment_id","version")}
+
+
+def _is_authorization_denial(sqlstate):
+    """Serialization/deadlock/lock timeout are availability, NOT HTTP 403."""
+    return sqlstate in ("42501","22023","23514","23505")
+
 class LocalSignedCanonicalQueueGateway:
     def __init__(self, dsn, gotrue, *, signer, key_id):
         u=urlsplit(dsn)
@@ -80,10 +131,10 @@ class LocalSignedCanonicalQueueGateway:
                 try:
                     cur.execute(_SQL_QUEUE,proof)
                 except psycopg.Error as exc:
-                    if exc.sqlstate in ("42501","22023","23514","23505","40001"):
+                    if _is_authorization_denial(exc.sqlstate):
                         raise Denied("I55_QUEUE_DENIED") from None
                     raise IdentityUnavailable("I55_DB_UNAVAILABLE") from None
                 row=cur.fetchone()
-                if row is None or type(row[0]) is not dict:
+                if row is None:
                     raise IdentityUnavailable("I55_BAD_RESPONSE")
-                return row[0]
+                return _client_safe_result(command,row[0])

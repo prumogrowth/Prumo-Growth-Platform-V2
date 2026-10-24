@@ -28,3 +28,7 @@ O I54 criou a fila na S0, mas ela ainda não dispunha de API autenticada. I55 ac
 - I54 permanece a última camada **de fila** com validação positiva (8+2 testes PG17, 16/16 workflows na evidência I54). I55 é uma implementação adicional sujeita à execução e auditoria de segurança. Não houve merge, deploy ou acesso a Meta/Banco.
 
 **Próxima atividade do mesmo responsável S0/S1:** recuperar a execução dos runners GitHub Actions e confirmar a ponte assinada no GoTrue efêmero; depois finalizar reconciliação de filas obsoletas, hardening de sessão/revogação e UI.
+
+## I55.1 — defesa adicional na borda (24/10/2026)
+
+A resposta do executor assinado agora passa também por uma **allowlist de saída** do gateway: a listagem só permite 25 itens e exatamente quatro campos UUID/versão por item; a assunção só permite o resultado e IDs/versionamento esperados. Uma futura mudança não auditada do `SECURITY DEFINER` não pode encaminhar telefones, mensagens ou campos extras automaticamente. Qualquer resposta divergente falha fechada em HTTP 503. Erros transitórios do PostgreSQL como `40001`/`40P01` não são tratados como proibição HTTP 403: exigem recuperação ou retry seguro. Foram adicionados testes unitários de contrato para saída e mapeamento de erros. **Aprovação E2E permanece pendente até execução verificável.**

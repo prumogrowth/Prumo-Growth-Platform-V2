@@ -5,8 +5,8 @@ import hmac
 import time
 import unittest
 import uuid
-from backend.s1_gateway_fila_canonical_local import LocalSignedCanonicalQueueGateway,queue_fields,_SQL_QUEUE
-from backend.identity_boundary import InvalidCommand,Principal
+from backend.s1_gateway_fila_canonical_local import LocalSignedCanonicalQueueGateway,queue_fields,_SQL_QUEUE,_client_safe_result,_is_authorization_denial
+from backend.identity_boundary import InvalidCommand,Principal,IdentityUnavailable
 from backend.s1_signer_mtls_authority_local import _sign_with_verified_identity
 from backend.s1_gateway_signed_local import _proof_material
 
@@ -79,4 +79,40 @@ class TestQueueV55(unittest.TestCase):
             LocalSignedCanonicalQueueGateway(
              "postgresql://prumo_s1_signed_login_ci:x@remote.example.com/postgres",
              None,signer=self.signer,key_id=self.key)
+    def test_09_rejects_privileged_list_payload_expansion(self):
+        valid={"outcome":"QUEUE_LIST","items":[{
+          "concessionaria_id":str(self.shop),"lead_id":str(self.actor),
+          "ciclo_id":str(self.cycle),"versao":1}]}
+        self.assertEqual(_client_safe_result("fila",valid),valid)
+        for forged in (
+            {**valid,"telefone":"secret"},
+            {"outcome":"QUEUE_LIST","items":[{**valid["items"][0],"telefone":"secret"}]},
+            {"outcome":"QUEUE_LIST","items":valid["items"]*26},
+            {"outcome":"QUEUE_LIST","items":[{**valid["items"][0],"versao":True}]},
+            {"outcome":"QUEUE_LIST","items":{}},
+        ):
+            with self.assertRaises(IdentityUnavailable):
+                _client_safe_result("fila",forged)
+
+    def test_10_claim_payload_strict_and_safe(self):
+        ok={"outcome":"CLAIMED_BY_MANAGER","case_id":str(self.cycle),
+            "assignment_id":str(self.actor),"version":2}
+        self.assertEqual(_client_safe_result("assumir_fila",ok),ok)
+        for outcome in ("CONFLICT","ALREADY_HAS_CASE"):
+            self.assertEqual(_client_safe_result("assumir_fila",{"outcome":outcome}),{"outcome":outcome})
+        for bad in (
+          {**ok,"telefone":"sensitive"},
+          {**ok,"case_id":"fake-id"},
+          {**ok,"version":True},
+          {"outcome":"CONFLICT","lead_id":str(self.actor)},
+        ):
+            with self.assertRaises(IdentityUnavailable):
+                _client_safe_result("assumir_fila",bad)
+
+    def test_11_sql_transient_failures_never_masquerade_as_permission_denial(self):
+        for code in ("40001","40P01","55P03","57014",None):
+            self.assertFalse(_is_authorization_denial(code))
+        for code in ("42501","22023","23514","23505"):
+            self.assertTrue(_is_authorization_denial(code))
+
 if __name__=="__main__":unittest.main()
