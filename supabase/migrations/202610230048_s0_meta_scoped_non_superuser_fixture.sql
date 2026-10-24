@@ -30,6 +30,11 @@ create policy wa49_lab_channel_read on prumo_private.meta_canais_fixture_s0
 create policy wa49_lab_intent_read on prumo_private.outbox_intencoes_s0
  for select to prumo_s0_meta_wa48_executor_lab using(true);
 
+-- WA48 deliberately REVOKEs executor EXECUTE after creation. WA49's
+-- non-login definer requires only this exact internal function permission.
+grant execute on function prumo_private.meta_wa48_shadow_append_fixture_s0(
+ uuid,text,text,text,uuid,uuid,text,text,text,text,text,text,text,bigint,uuid,text)
+ to prumo_s0_meta_wa48_executor_lab;
 grant create on schema prumo_private to prumo_s0_meta_wa48_executor_lab;
 set role prumo_s0_meta_wa48_executor_lab;
 create function prumo_private.meta_wa49_scoped_shadow_fixture_s0(
