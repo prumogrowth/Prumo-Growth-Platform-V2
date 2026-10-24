@@ -1312,5 +1312,261 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
                 (self.shop,self.case)).fetchone()[0]
         self.assertEqual(count,0)
 
+
+    def _new_ratifiable_review(self, *, seed=True, decision=None):
+        from backend.s0_f03_identity_human_review_local import (
+            HumanReviewDecision,HumanReviewState,
+        )
+        if seed:
+            self._seed_versions()
+        self._pending_identity('+5511988887777')
+        state=self._review_pending(decision=(
+            decision or HumanReviewDecision.CANDIDATE_NOT_RELATED)).state
+        self.assertIs(state,HumanReviewState.RECORDED_REVIEW_ONLY)
+        with self.pg.connect(DB) as con:
+            record=con.execute(
+                'select id,pendencia_id from '
+                'prumo_private.cfi01_f03_identity_human_reviews_local '
+                'where concessionaria_id=%s and caso_id=%s',
+                (self.shop,self.case)).fetchone()
+        self.assertIsNotNone(record)
+        return record
+
+    def _new_ratification_manager(self, *, scoped=True,team=True,session=True):
+        actor,session_id=uuid.uuid4(),uuid.uuid4()
+        with self.pg.connect(DB) as con:
+            con.execute('insert into auth.users(id) values (%s)',(actor,))
+            con.execute('insert into public.atores(id) values (%s)',(actor,))
+            if session:
+                con.execute('insert into auth.sessions(id,user_id) values (%s,%s)',
+                            (session_id,actor))
+            if scoped:
+                con.execute('insert into public.vinculos_papel_escopo '
+                            '(ator_id,concessionaria_id,papel) '
+                            "values (%s,%s,'gestor')",(actor,self.shop))
+            if team:
+                con.execute('insert into public.equipe_prumo_s1(ator_id,estado) '
+                            "values (%s,'ativo')",(actor,))
+        return actor,session_id
+
+    def _ratify_review(self, review, pending, manager, *, version=1,
+                       cycle=1, evidence=None, key='f03-ratification-01',
+                       s1=True):
+        from backend.s0_f03_identity_ratification_local import (
+            S0F03LocalRatificationStore,RatificationRequest,
+            ratify_human_identity_review_local,
+        )
+        from backend.s0_s1_closure_authority_local import S0S1LocalTeamAuthority
+        actor,session=manager
+        return ratify_human_identity_review_local(
+            'Bearer FIXTURE',
+            RatificationRequest(str(review),str(self.case),str(pending),
+                                cycle,version,evidence or 'b'*64,key),
+            identity=LocalIdentity(actor,session),
+            store=S0F03LocalRatificationStore(DB),
+            s1=S0S1LocalTeamAuthority() if s1 else None)
+
+    def test_96_second_manager_ratifies_negative_review_as_audit_only(self):
+        from backend.s0_f03_identity_ratification_local import RatificationState as State
+        review,pending=self._new_ratifiable_review()
+        manager=self._new_ratification_manager()
+        self.assertIs(self._ratify_review(review,pending,manager).state,
+                      State.RATIFIED_AUDIT_ONLY)
+        with self.pg.connect(DB) as con:
+            rows=con.execute('select ratificador_id,revisao_id,decisao,'
+                'evidencia_sha256,versao_identidade from '
+                'prumo_private.cfi01_f03_identity_ratifications_local '
+                'where concessionaria_id=%s and caso_id=%s',
+                (self.shop,self.case)).fetchall()
+        self.assertEqual(rows,[(manager[0],review,'RATIFY_CANDIDATE_NOT_RELATED',
+                                'b'*64,1)])
+
+    def test_97_same_manager_ratification_replay_idempotent(self):
+        from backend.s0_f03_identity_ratification_local import RatificationState as State
+        review,pending=self._new_ratifiable_review()
+        manager=self._new_ratification_manager()
+        self.assertIs(self._ratify_review(review,pending,manager).state,
+                      State.RATIFIED_AUDIT_ONLY)
+        self.assertIs(self._ratify_review(review,pending,manager).state,
+                      State.ALREADY_RATIFIED_AUDIT_ONLY)
+
+    def test_98_escalation_cannot_be_ratified_as_negative(self):
+        from backend.s0_f03_identity_ratification_local import RatificationState as State
+        from backend.s0_f03_identity_human_review_local import HumanReviewDecision
+        review,pending=self._new_ratifiable_review(
+            decision=HumanReviewDecision.ESCALATE_REVIEW)
+        self.assertIs(self._ratify_review(
+            review,pending,self._new_ratification_manager()).state,State.DENIED)
+
+    def test_99_reviewing_operator_cannot_ratify_own_decision(self):
+        from backend.s0_f03_identity_ratification_local import RatificationState as State
+        review,pending=self._new_ratifiable_review()
+        self.assertIs(self._ratify_review(
+            review,pending,(self.actor,self.session)).state,State.DENIED)
+
+    def test_100_manager_without_store_role_cannot_ratify(self):
+        from backend.s0_f03_identity_ratification_local import RatificationState as State
+        review,pending=self._new_ratifiable_review()
+        self.assertIs(self._ratify_review(
+            review,pending,self._new_ratification_manager(scoped=False)).state,
+            State.DENIED)
+
+    def test_101_missing_S1_team_adapter_blocks_ratification(self):
+        from backend.s0_f03_identity_ratification_local import RatificationState as State
+        review,pending=self._new_ratifiable_review()
+        self.assertIs(self._ratify_review(
+            review,pending,self._new_ratification_manager(),s1=False).state,
+            State.BLOCKED_S1)
+
+    def test_102_manager_not_active_in_S1_cannot_ratify(self):
+        from backend.s0_f03_identity_ratification_local import RatificationState as State
+        review,pending=self._new_ratifiable_review()
+        self.assertIs(self._ratify_review(
+            review,pending,self._new_ratification_manager(team=False)).state,
+            State.BLOCKED_S1)
+
+    def test_103_identity_change_makes_review_stale_for_ratification(self):
+        from backend.s0_f03_identity_ratification_local import RatificationState as State
+        review,pending=self._new_ratifiable_review()
+        self._insert_alias()
+        self.assertIs(self._ratify_review(
+            review,pending,self._new_ratification_manager(),version=1).state,
+            State.STALE_REVIEW_REQUIRED)
+        self.assertIs(self._ratify_review(
+            review,pending,self._new_ratification_manager(),version=2).state,
+            State.STALE_REVIEW_REQUIRED)
+
+    def test_104_cycle_change_makes_review_stale_for_ratification(self):
+        from backend.s0_f03_identity_ratification_local import RatificationState as State
+        review,pending=self._new_ratifiable_review()
+        with self.pg.connect(DB) as con:
+            con.execute('update public.ciclos_comerciais set versao_registro=2 '
+                        'where id=%s',(self.cycle,))
+        self.assertIs(self._ratify_review(
+            review,pending,self._new_ratification_manager()).state,
+            State.STALE_REVIEW_REQUIRED)
+
+    def test_105_pending_phone_changed_cannot_be_ratified(self):
+        from backend.s0_f03_identity_ratification_local import RatificationState as State
+        review,pending=self._new_ratifiable_review()
+        with self.pg.connect(DB) as con:
+            con.execute('update prumo_private.pendencias_identidade_s0 '
+                        'set telefone_sintetico=%s where id=%s',
+                        ('+5581999965555',pending))
+        self.assertIs(self._ratify_review(
+            review,pending,self._new_ratification_manager()).state,
+            State.STALE_REVIEW_REQUIRED)
+
+    def test_106_wrong_review_reference_is_denied(self):
+        from backend.s0_f03_identity_ratification_local import RatificationState as State
+        review,pending=self._new_ratifiable_review()
+        self.assertIs(self._ratify_review(
+            uuid.uuid4(),pending,self._new_ratification_manager()).state,
+            State.DENIED)
+
+    def test_107_wrong_pending_reference_is_denied(self):
+        from backend.s0_f03_identity_ratification_local import RatificationState as State
+        review,pending=self._new_ratifiable_review()
+        self.assertIs(self._ratify_review(
+            review,uuid.uuid4(),self._new_ratification_manager()).state,
+            State.DENIED)
+
+    def test_108_manager_without_live_session_is_denied(self):
+        from backend.s0_f03_identity_ratification_local import RatificationState as State
+        review,pending=self._new_ratifiable_review()
+        self.assertIs(self._ratify_review(
+            review,pending,self._new_ratification_manager(session=False)).state,
+            State.DENIED)
+
+    def test_109_ratification_record_is_immutable(self):
+        from backend.s0_f03_identity_ratification_local import RatificationState as State
+        review,pending=self._new_ratifiable_review()
+        manager=self._new_ratification_manager()
+        self.assertIs(self._ratify_review(review,pending,manager).state,
+                      State.RATIFIED_AUDIT_ONLY)
+        for query,params in (
+            ('update prumo_private.cfi01_f03_identity_ratifications_local '
+             'set evidencia_sha256=%s where caso_id=%s',('c'*64,self.case)),
+            ('delete from prumo_private.cfi01_f03_identity_ratifications_local '
+             'where caso_id=%s',(self.case,))):
+            with self.subTest(query=query):
+                with self.assertRaises(self.pg.Error) as exc:
+                    with self.pg.connect(DB) as con: con.execute(query,params)
+                self.assertEqual(exc.exception.sqlstate,'42501')
+
+    def test_110_authenticated_cannot_read_ratification_ledger(self):
+        self._new_ratifiable_review()
+        with self.pg.connect(DB) as con:
+            with self.assertRaises(self.pg.Error):
+                con.execute('set local role authenticated')
+                con.execute('select * from '
+                            'prumo_private.cfi01_f03_identity_ratifications_local')
+
+    def test_111_concurrent_competing_manager_receipts_one_wins(self):
+        from concurrent.futures import ThreadPoolExecutor
+        from backend.s0_f03_identity_ratification_local import RatificationState as State
+        review,pending=self._new_ratifiable_review()
+        managers=[self._new_ratification_manager() for _ in range(2)]
+        def attempt(item):
+            i,manager=item
+            return self._ratify_review(
+                review,pending,manager,evidence=str(i+1)*64,
+                key='f03-ratification-'+str(i+1)).state
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            results=list(pool.map(attempt,enumerate(managers)))
+        self.assertCountEqual(results,[
+            State.RATIFIED_AUDIT_ONLY,State.CONFLICT_REVIEW_REQUIRED])
+        with self.pg.connect(DB) as con:
+            amount=con.execute('select count(*) from '
+                'prumo_private.cfi01_f03_identity_ratifications_local '
+                'where concessionaria_id=%s and caso_id=%s',
+                (self.shop,self.case)).fetchone()[0]
+        self.assertEqual(amount,1)
+
+    def test_112_ratification_does_not_unblock_F03_CAS(self):
+        from backend.s0_f03_identity_ratification_local import RatificationState
+        from backend.s0_f03_version_reservation_local import ReservationState
+        store,vector=self._prepare_cas()
+        review,pending=self._new_ratifiable_review(seed=False)
+        manager=self._new_ratification_manager()
+        self.assertIs(self._ratify_review(review,pending,manager).state,
+                      RatificationState.RATIFIED_AUDIT_ONLY)
+        self.assertIs(self._reserve(store,vector),
+                      ReservationState.CONFLICT_REVIEW_REQUIRED)
+
+    def test_113_direct_same_actor_insert_blocked_by_SQL_trigger(self):
+        review,pending=self._new_ratifiable_review()
+        query=('insert into prumo_private.cfi01_f03_identity_ratifications_local '
+               '(concessionaria_id,pendencia_id,caso_id,revisao_id,'
+               'lead_candidato_id,ratificador_id,sessao_id,versao_ciclo,'
+               'versao_identidade,decisao,evidencia_sha256,chave_idempotencia) '
+               'values (%s,%s,%s,%s,%s,%s,%s,1,1,%s,%s,%s)')
+        with self.assertRaises(self.pg.Error) as exc:
+            with self.pg.connect(DB) as con:
+                con.execute(query,(self.shop,pending,self.case,review,self.lead,
+                                   self.actor,self.session,'RATIFY_CANDIDATE_NOT_RELATED',
+                                   'a'*64,'ratify-direct-invalid-01'))
+        self.assertEqual(exc.exception.sqlstate,'42501')
+
+    def test_114_malformed_ratification_hash_is_denied(self):
+        from backend.s0_f03_identity_ratification_local import RatificationState as State
+        review,pending=self._new_ratifiable_review()
+        self.assertIs(self._ratify_review(
+            review,pending,self._new_ratification_manager(),
+            evidence='not-a-digest').state,State.DENIED)
+
+    def test_115_expired_gestor_role_is_denied(self):
+        from backend.s0_f03_identity_ratification_local import RatificationState as State
+        review,pending=self._new_ratifiable_review()
+        manager=self._new_ratification_manager()
+        with self.pg.connect(DB) as con:
+            con.execute('update public.vinculos_papel_escopo set '
+                        "valido_desde=statement_timestamp()-interval '2 days',"
+                        "valido_ate=statement_timestamp()-interval '1 day' "
+                        'where ator_id=%s and concessionaria_id=%s',
+                        (manager[0],self.shop))
+        self.assertIs(self._ratify_review(
+            review,pending,manager).state,State.DENIED)
+
 if __name__=='__main__':
     unittest.main()
