@@ -486,3 +486,12 @@ test('FV-UI-038: contraste do modal gerencial no tema escuro é verificado no na
   assert.match(browserSmoke,/FV-UI-038 contraste de painel gerencial em dark desktop e mobile: PASS/);
   assert.match(browserSmoke,/ratio>=4\.5/);
 });
+
+
+test('FV-UI-039: temas têm alvos de toque legíveis e reflow de cabeçalho',()=>{
+  assert.match(styles,/\.theme-option\{min-height:44px;min-width:44px/);
+  assert.match(styles,/@media\(max-width:400px\)/);
+  assert.match(styles,/\.list-topline\{align-items:flex-start;flex-wrap:wrap\}/);
+  assert.match(browserSmoke,/FV-UI-039 botoes de tema 44px e reflow em quatro larguras: PASS/);
+  assert.match(browserSmoke,/theme_width in \(320,390,900,1440\)/);
+});

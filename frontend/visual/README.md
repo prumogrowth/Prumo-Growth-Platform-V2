@@ -191,3 +191,7 @@ Até a primeira seleção manual, as mudanças de `prefers-color-scheme` atualiz
 ## FV-UI-038 — Contraste dos módulos de gestão no tema escuro (24/10/2026)
 
 Com o tema escuro, o diálogo gerencial conserva o mesmo escopo fictício e as quatro opções existentes, mas passa a ter leitura consistente em Lotes, Monitoramento, Fila compartilhada e textos auxiliares. O CSS foi ajustado apenas sob `body[data-theme="dark"] .team-dialog`; testes Chromium em 1366px e 390px verificam contraste de texto de pelo menos 4,5:1 nos exemplos selecionados. Não altera permissões, casos, ações ou APIs. [Relatório FV-UI-038](../docs/67_FV_UI_038_CONTRASTE_MODAL_GERENCIAL_DARK_2026_10_24.md).
+
+## FV-UI-039 — Controle Claro/Escuro com alvo de toque de 44px (24/10/2026)
+
+Os botões Claro e Escuro agora possuem alvo de toque de pelo menos 44×44 CSS pixels. No cabeçalho até 400px, os elementos se reorganizam sem overflow, preservando as duas escolhas e os demais controles. Chromium verifica o tamanho real, seleção `aria-pressed` e ausência de rolagem horizontal em 320, 390, 900 e 1440px, nos dois temas. Não altera autorização, dados, mensagens, estado comercial nem preferência de tema. [FV-UI-039](../docs/68_FV_UI_039_ALVOS_TOQUE_TEMAS_2026_10_24.md).

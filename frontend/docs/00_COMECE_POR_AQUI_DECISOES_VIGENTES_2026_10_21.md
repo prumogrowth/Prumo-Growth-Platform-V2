@@ -136,6 +136,10 @@
 
 **[FV-UI-038 — legibilidade no diálogo da equipe](./67_FV_UI_038_CONTRASTE_MODAL_GERENCIAL_DARK_2026_10_24.md)**: uniformiza superfícies e textos auxiliares dos módulos de Lotes, Monitoramento, Fila e ajuda no modo escuro. Inclui testes de contraste em Chromium para desktop/celular; sem dados reais, autorização ou operação de negócio.
 
+## FV-UI-039 — alvos de toque do seletor Claro/Escuro (24/10/2026)
+
+**[FV-UI-039 — controle de tema e reflow](./68_FV_UI_039_ALVOS_TOQUE_TEMAS_2026_10_24.md)**: os botões de tema passam a ter pelo menos 44×44 CSS pixels, com quebra de cabeçalho até 400px e regressão Chromium em 320/390/900/1440px. Apenas aparência e acessibilidade; nenhum efeito comercial.
+
 ## Estado do trabalho
 FV-UI-015/016: demonstrações com dados sintéticos. **NÃO** declarar integração real, Auth/RLS/GoTrue, comunicações Meta ou remessas confirmadas. FV-UI-013 não homologada formalmente; **19F 69/100** como último marco. Esta consolidação é **documentação somente**. Nenhum código, migration, branch S1, dado real ou deploy foi tocado.
 

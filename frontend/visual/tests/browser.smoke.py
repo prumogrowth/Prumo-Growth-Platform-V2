@@ -718,4 +718,23 @@ with sync_playwright() as p:
         manager_dark.close()
     print('FV-UI-038 contraste de painel gerencial em dark desktop e mobile: PASS')
 
+    # FV-UI-039: ações claro/escuro devem ser tocáveis sem comprimir o cabeçalho.
+    for theme_width in (320,390,900,1440):
+        touch=browser.new_page(viewport={'width':theme_width,'height':640},color_scheme='light')
+        touch.set_default_timeout(4500)
+        touch_errors=[]
+        touch.on('pageerror',lambda error:touch_errors.append(str(error)))
+        touch.set_content(html);touch.add_script_tag(content=script)
+        for theme in ('light','dark'):
+            btn=touch.locator('#theme-'+theme)
+            btn.click()
+            expect(btn).to_have_attribute('aria-pressed','true')
+            box=btn.bounding_box()
+            assert box and box['width']>=44 and box['height']>=44,(theme_width,theme,box)
+            assert touch.locator('#theme-light').is_visible() and touch.locator('#theme-dark').is_visible()
+            assert not touch.evaluate('document.documentElement.scrollWidth > innerWidth')
+        assert not touch_errors,repr(touch_errors)
+        touch.close()
+    print('FV-UI-039 botoes de tema 44px e reflow em quatro larguras: PASS')
+
     browser.close()

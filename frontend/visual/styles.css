@@ -268,3 +268,11 @@ body[data-theme="dark"] .team-dialog .team-mode button[aria-pressed="true"]{
   outline-color:#8ad6c5;
   outline-offset:2px;
 }
+
+/* FV-UI-039: controles do tema acessíveis ao toque em todos os breakpoints.
+   Duas opções existentes; sem alterar densidade de outras ações. */
+.theme-option{min-height:44px;min-width:44px;padding:11px 12px}
+@media(max-width:400px){
+  .list-topline{align-items:flex-start;flex-wrap:wrap}
+  .list-header-actions{justify-content:flex-start}
+}
