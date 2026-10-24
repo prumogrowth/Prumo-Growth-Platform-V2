@@ -33,7 +33,7 @@ begin
      perform prumo_private.s0_f03_lock_shop_local(a);
    end if;
  else
-   perform prumo_private.s0_f03_lock_shop_local(pg_catalog.coalesce(a,b));
+   perform prumo_private.s0_f03_lock_shop_local(coalesce(a,b));
  end if;
  if tg_op='DELETE' then return old; end if;
  return new;
