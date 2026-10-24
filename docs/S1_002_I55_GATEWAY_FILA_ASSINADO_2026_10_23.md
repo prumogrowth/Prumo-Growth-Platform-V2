@@ -56,3 +56,7 @@ O cenário E2E de revogação foi ajustado para criar uma **terceira pendência 
 ### Resultado complementar I56 (24/10/2026)
 
 A integração anterior I55 (8/8) foi ampliada com a prova S1QUEUE-165 de reconciliação de caso externo: **9/9 E2E GoTrue/HMAC e 11/11 unitários SUCCESS**, [run #40089738334](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40089738334), commit 640ba119. No PG17, [run #40089537969](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40089537969) validou I56 6/6 mais 2/2 corridas com locks reais e regressão I54. Ver [documento I56](S1_002_I56_RECONCILIACAO_FILA_2026_10_24.md). **Somente ambiente descartável; sem produção.**
+
+### Regresso I57 (24/10/2026)
+
+Aplicação do guard canônico de concessão do destinatário S0 (I57) na stack assinada efêmera: [GoTrue/HMAC #40125971536](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40125971536), 9/9 E2E da fila e 8/8 I53, com jobs SUCCESS. O [PG17 #40126423968](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40126423968) aprovou adicionalmente I57 5/5 e 2/2 corridas reais. Fonte [I57](S1_002_I57_GRANT_DESTINO_2026_10_24.md). Não comprova produção.
