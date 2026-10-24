@@ -1816,5 +1816,208 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
                         (chain[4][0],self.shop))
         self.assertIs(self._close_resolution(chain).state,ResolutionState.DENIED)
 
+
+    def _closed_resolution_for_verify(self):
+        from backend.s0_f03_identity_resolution_local import ResolutionState
+        chain=self._resolution_chain()
+        self.assertIs(self._close_resolution(chain).state,
+                      ResolutionState.CLOSED_HOLD_ONLY)
+        with self.pg.connect(DB) as con:
+            resolution=con.execute(
+                'select id from prumo_private.cfi01_f03_identity_resolution_local '
+                'where concessionaria_id=%s and caso_id=%s',
+                (self.shop,self.case)).fetchone()[0]
+        return chain,resolution
+
+    def _verify_resolution_hold(self,chain,resolution,*,principal=None,
+                                key=None,key_id='resolution-key-v1',s1=True,
+                                pending=None,case=None):
+        from backend.s0_f03_identity_resolution_verify_local import (
+            S0F03LocalResolutionValidityStore,ValidityRequest,
+            verify_human_identity_resolution_local,
+        )
+        from backend.s0_s1_closure_authority_local import S0S1LocalTeamAuthority
+        actor,session=principal or chain[4]
+        return verify_human_identity_resolution_local(
+            'Bearer FIXTURE',
+            ValidityRequest(str(resolution),str(pending or chain[1]),
+                            str(case or self.case),key_id),
+            identity=LocalIdentity(actor,session),
+            store=S0F03LocalResolutionValidityStore(DB),
+            s1=S0S1LocalTeamAuthority() if s1 else None,
+            key=key if key is not None else
+                 b'S0-E04-fixture-only-resolution-secret-minimum-32-bytes')
+
+    def test_136_live_close_hmac_matches_only_as_hold(self):
+        from backend.s0_f03_identity_resolution_verify_local import ValidityState
+        chain,rid=self._closed_resolution_for_verify()
+        check=self._verify_resolution_hold(chain,rid)
+        self.assertIs(check.state,ValidityState.CURRENT_HOLD_ONLY)
+        self.assertEqual(tuple(vars(check)),('state',))
+        self.assertFalse(hasattr(check,'content'))
+
+    def test_137_verification_is_read_only_and_does_not_grant_F03(self):
+        from backend.s0_f03_identity_resolution_verify_local import ValidityState
+        from backend.s0_f03_version_reservation_local import ReservationState
+        store,v=self._prepare_cas()
+        chain=self._resolution_chain_from_existing_version()
+        self.assertIs(self._close_resolution(chain).state,
+                      __import__('backend.s0_f03_identity_resolution_local',
+                                 fromlist=['ResolutionState']).ResolutionState.CLOSED_HOLD_ONLY)
+        with self.pg.connect(DB) as con:
+            rid=con.execute('select id from '
+                'prumo_private.cfi01_f03_identity_resolution_local '
+                'where concessionaria_id=%s and caso_id=%s',
+                (self.shop,self.case)).fetchone()[0]
+        self.assertIs(self._verify_resolution_hold(chain,rid).state,
+                      ValidityState.CURRENT_HOLD_ONLY)
+        self.assertIs(self._reserve(store,v),ReservationState.CONFLICT_REVIEW_REQUIRED)
+
+    def test_138_pending_text_change_invalidates_hmac(self):
+        from backend.s0_f03_identity_resolution_verify_local import ValidityState
+        chain,rid=self._closed_resolution_for_verify()
+        with self.pg.connect(DB) as con:
+            con.execute('update prumo_private.pendencias_identidade_s0 '
+                        'set texto_sintetico=%s where id=%s',
+                        ('texto alterado posteriormente',chain[1]))
+        self.assertIs(self._verify_resolution_hold(chain,rid).state,
+                      ValidityState.STALE_REVIEW_REQUIRED)
+
+    def test_139_pending_reason_change_invalidates_hmac(self):
+        from backend.s0_f03_identity_resolution_verify_local import ValidityState
+        chain,rid=self._closed_resolution_for_verify()
+        with self.pg.connect(DB) as con:
+            con.execute('update prumo_private.pendencias_identidade_s0 '
+                        'set motivo=%s where id=%s',
+                        ('MOTIVO_ATUALIZADO',chain[1]))
+        self.assertIs(self._verify_resolution_hold(chain,rid).state,
+                      ValidityState.STALE_REVIEW_REQUIRED)
+
+    def test_140_pending_phone_change_is_stale(self):
+        from backend.s0_f03_identity_resolution_verify_local import ValidityState
+        chain,rid=self._closed_resolution_for_verify()
+        with self.pg.connect(DB) as con:
+            con.execute('update prumo_private.pendencias_identidade_s0 '
+                        'set telefone_sintetico=%s where id=%s',
+                        ('+5581999965555',chain[1]))
+        self.assertIs(self._verify_resolution_hold(chain,rid).state,
+                      ValidityState.STALE_REVIEW_REQUIRED)
+
+    def test_141_alias_insert_invalidates_identity_version(self):
+        from backend.s0_f03_identity_resolution_verify_local import ValidityState
+        chain,rid=self._closed_resolution_for_verify()
+        self._insert_alias()
+        self.assertIs(self._verify_resolution_hold(chain,rid).state,
+                      ValidityState.STALE_REVIEW_REQUIRED)
+
+    def test_142_main_phone_change_invalidates_version(self):
+        from backend.s0_f03_identity_resolution_verify_local import ValidityState
+        chain,rid=self._closed_resolution_for_verify()
+        with self.pg.connect(DB) as con:
+            con.execute('update public.leads_loja '
+                        'set telefone_cliente_normalizado=%s where id=%s',
+                        ('+5511999933333',self.lead))
+        self.assertIs(self._verify_resolution_hold(chain,rid).state,
+                      ValidityState.STALE_REVIEW_REQUIRED)
+
+    def test_143_cycle_changed_is_stale(self):
+        from backend.s0_f03_identity_resolution_verify_local import ValidityState
+        chain,rid=self._closed_resolution_for_verify()
+        with self.pg.connect(DB) as con:
+            con.execute('update public.ciclos_comerciais '
+                        'set versao_registro=versao_registro+1 where id=%s',
+                        (self.cycle,))
+        self.assertIs(self._verify_resolution_hold(chain,rid).state,
+                      ValidityState.STALE_REVIEW_REQUIRED)
+
+    def test_144_assignment_closed_is_stale(self):
+        from backend.s0_f03_identity_resolution_verify_local import ValidityState
+        chain,rid=self._closed_resolution_for_verify()
+        with self.pg.connect(DB) as con:
+            con.execute('update public.atribuicoes_humanas '
+                        'set encerrada_em=greatest(atribuida_em,statement_timestamp()) '
+                        'where id=%s',(self.assignment,))
+        self.assertIs(self._verify_resolution_hold(chain,rid).state,
+                      ValidityState.STALE_REVIEW_REQUIRED)
+
+    def test_145_new_matching_pending_is_conflict_even_with_valid_hmac(self):
+        from backend.s0_f03_identity_resolution_verify_local import ValidityState
+        chain,rid=self._closed_resolution_for_verify()
+        self._pending_identity('+5511988887777')
+        self.assertIs(self._verify_resolution_hold(chain,rid).state,
+                      ValidityState.CONFLICT_REVIEW_REQUIRED)
+
+    def test_146_unrelated_pending_same_shop_not_global_block(self):
+        from backend.s0_f03_identity_resolution_verify_local import ValidityState
+        chain,rid=self._closed_resolution_for_verify()
+        self._pending_identity('+5581999965555')
+        self.assertIs(self._verify_resolution_hold(chain,rid).state,
+                      ValidityState.CURRENT_HOLD_ONLY)
+
+    def test_147_pending_other_shop_not_global_block(self):
+        from backend.s0_f03_identity_resolution_verify_local import ValidityState
+        chain,rid=self._closed_resolution_for_verify()
+        other_shop,other_channel=uuid.uuid4(),uuid.uuid4()
+        with self.pg.connect(DB) as con:
+            con.execute('insert into public.concessionarias(id,nome_operacional) '
+                        "values (%s,'OTHER VERIFY HOLD SHOP')",(other_shop,))
+            con.execute('insert into public.canais_loja '
+                        '(id,concessionaria_id,identificador_emissor) '
+                        'values (%s,%s,%s)',
+                        (other_channel,other_shop,str(other_channel)))
+        self._pending_identity('+5511988887777',other_shop,other_channel)
+        self.assertIs(self._verify_resolution_hold(chain,rid).state,
+                      ValidityState.CURRENT_HOLD_ONLY)
+
+    def test_148_other_manager_cannot_verify_owner_hold(self):
+        from backend.s0_f03_identity_resolution_verify_local import ValidityState
+        chain,rid=self._closed_resolution_for_verify()
+        other=self._new_ratification_manager()
+        self.assertIs(self._verify_resolution_hold(
+            chain,rid,principal=other).state,ValidityState.DENIED)
+
+    def test_149_old_or_missing_session_cannot_verify(self):
+        from backend.s0_f03_identity_resolution_verify_local import ValidityState
+        chain,rid=self._closed_resolution_for_verify()
+        other=(chain[4][0],uuid.uuid4())
+        self.assertIs(self._verify_resolution_hold(
+            chain,rid,principal=other).state,ValidityState.DENIED)
+
+    def test_150_wrong_HMAC_key_or_version_is_stale(self):
+        from backend.s0_f03_identity_resolution_verify_local import ValidityState
+        chain,rid=self._closed_resolution_for_verify()
+        self.assertIs(self._verify_resolution_hold(
+            chain,rid,key=b'another-S0-disposable-secret-longer-than-32-bytes'
+            ).state,ValidityState.STALE_REVIEW_REQUIRED)
+        self.assertIs(self._verify_resolution_hold(
+            chain,rid,key_id='resolution-key-v2'
+            ).state,ValidityState.STALE_REVIEW_REQUIRED)
+
+    def test_151_expired_manager_role_denied_live(self):
+        from backend.s0_f03_identity_resolution_verify_local import ValidityState
+        chain,rid=self._closed_resolution_for_verify()
+        with self.pg.connect(DB) as con:
+            con.execute('update public.vinculos_papel_escopo set '
+                        "valido_desde=statement_timestamp()-interval '2 days',"
+                        "valido_ate=statement_timestamp()-interval '1 day' "
+                        'where ator_id=%s and concessionaria_id=%s',
+                        (chain[4][0],self.shop))
+        self.assertIs(self._verify_resolution_hold(chain,rid).state,
+                      ValidityState.DENIED)
+
+    def test_152_no_S1_authority_fails_closed(self):
+        from backend.s0_f03_identity_resolution_verify_local import ValidityState
+        chain,rid=self._closed_resolution_for_verify()
+        self.assertIs(self._verify_resolution_hold(
+            chain,rid,s1=False).state,ValidityState.BLOCKED_S1)
+
+    def test_153_invalid_scope_and_short_key_denied(self):
+        from backend.s0_f03_identity_resolution_verify_local import ValidityState
+        chain,rid=self._closed_resolution_for_verify()
+        self.assertIs(self._verify_resolution_hold(
+            chain,rid,case=uuid.uuid4()).state,ValidityState.DENIED)
+        self.assertIs(self._verify_resolution_hold(
+            chain,rid,key=b'short').state,ValidityState.DENIED)
+
 if __name__=='__main__':
     unittest.main()
