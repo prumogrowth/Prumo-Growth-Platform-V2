@@ -653,5 +653,203 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
                         'set versao_ficha=2 where lead_id=%s',(self.lead,))
         self.assertIs(self._reserve(store,v),State.STALE_REVIEW_REQUIRED)
 
+
+    def test_42_real_lead_phone_edit_bumps_identity_and_stales_CAS(self):
+        from backend.s0_f03_version_reservation_local import ReservationState as State
+        store,vector=self._prepare_cas()
+        with self.pg.connect(DB) as con:
+            con.execute('update public.leads_loja set telefone_cliente_normalizado=%s '
+                        'where concessionaria_id=%s and id=%s',
+                        ('+5511998765432',self.shop,self.lead))
+            version=con.execute('select versao_identidade from '
+                'prumo_private.cfi01_f03_lead_versions_local where '
+                'concessionaria_id=%s and lead_id=%s',(self.shop,self.lead)).fetchone()[0]
+        self.assertEqual(version,2)
+        self.assertIs(self._reserve(store,vector),State.STALE_REVIEW_REQUIRED)
+
+    def test_43_noop_phone_update_does_not_bump(self):
+        self._seed_versions()
+        with self.pg.connect(DB) as con:
+            con.execute('update public.leads_loja set telefone_cliente_normalizado='
+                        'telefone_cliente_normalizado where id=%s',(self.lead,))
+            ver=con.execute('select versao_identidade from '
+                'prumo_private.cfi01_f03_lead_versions_local where lead_id=%s',
+                (self.lead,)).fetchone()[0]
+        self.assertEqual(ver,1)
+
+    def test_44_real_case_edit_bumps_case_and_stales_CAS(self):
+        from backend.s0_f03_version_reservation_local import ReservationState as State
+        store,v=self._prepare_cas()
+        with self.pg.connect(DB) as con:
+            con.execute("update public.casos_humanos set criado_em=criado_em + interval '1 second' "
+                        'where concessionaria_id=%s and id=%s',(self.shop,self.case))
+            ver=con.execute('select versao_caso from '
+                'prumo_private.cfi01_f03_case_versions_local where caso_id=%s',
+                (self.case,)).fetchone()[0]
+        self.assertEqual(ver,2)
+        self.assertIs(self._reserve(store,v),State.STALE_REVIEW_REQUIRED)
+
+    def test_45_noop_case_update_does_not_bump(self):
+        self._seed_versions()
+        with self.pg.connect(DB) as con:
+            con.execute('update public.casos_humanos set criado_em=criado_em '
+                        'where id=%s',(self.case,))
+            ver=con.execute('select versao_caso from '
+                'prumo_private.cfi01_f03_case_versions_local where caso_id=%s',
+                (self.case,)).fetchone()[0]
+        self.assertEqual(ver,1)
+
+    def test_46_real_assignment_closure_bumps_assignment(self):
+        self._seed_versions()
+        with self.pg.connect(DB) as con:
+            con.execute('update public.atribuicoes_humanas '
+                        'set encerrada_em=greatest(atribuida_em,statement_timestamp()) '
+                        'where id=%s',(self.assignment,))
+            ver=con.execute('select versao_atribuicao from '
+                'prumo_private.cfi01_f03_case_versions_local where caso_id=%s',
+                (self.case,)).fetchone()[0]
+        self.assertEqual(ver,2)
+
+    def test_47_noop_assignment_update_does_not_bump(self):
+        self._seed_versions()
+        with self.pg.connect(DB) as con:
+            con.execute('update public.atribuicoes_humanas set operador_id=operador_id '
+                        'where id=%s',(self.assignment,))
+            ver=con.execute('select versao_atribuicao from '
+                'prumo_private.cfi01_f03_case_versions_local where caso_id=%s',
+                (self.case,)).fetchone()[0]
+        self.assertEqual(ver,1)
+
+    def test_48_synthetic_form_insert_bumps_form_and_stales_CAS(self):
+        from backend.s0_f03_version_reservation_local import ReservationState as State
+        store,v=self._prepare_cas()
+        with self.pg.connect(DB) as con:
+            con.execute('insert into prumo_private.cfi01_f03_form_fields_local '
+                        '(concessionaria_id,lead_id,campo_sintetico,valor_sintetico) '
+                        'values (%s,%s,%s,%s)',
+                        (self.shop,self.lead,'renda_sintetica','TEST_ONLY_1000'))
+            ver=con.execute('select versao_ficha from '
+                'prumo_private.cfi01_f03_lead_versions_local where lead_id=%s',
+                (self.lead,)).fetchone()[0]
+        self.assertEqual(ver,2)
+        self.assertIs(self._reserve(store,v),State.STALE_REVIEW_REQUIRED)
+
+    def test_49_synthetic_form_noop_update_does_not_bump(self):
+        self._seed_versions()
+        with self.pg.connect(DB) as con:
+            con.execute('insert into prumo_private.cfi01_f03_form_fields_local '
+                        '(concessionaria_id,lead_id,campo_sintetico,valor_sintetico) '
+                        'values (%s,%s,%s,%s)',
+                        (self.shop,self.lead,'renda_sintetica','TEST_ONLY_1000'))
+            con.execute('update prumo_private.cfi01_f03_form_fields_local '
+                        'set valor_sintetico=valor_sintetico where lead_id=%s',
+                        (self.lead,))
+            ver=con.execute('select versao_ficha from '
+                'prumo_private.cfi01_f03_lead_versions_local where lead_id=%s',
+                (self.lead,)).fetchone()[0]
+        self.assertEqual(ver,2)
+
+    def test_50_synthetic_catalogue_insert_bumps_and_stales_CAS(self):
+        from backend.s0_f03_version_reservation_local import ReservationState as State
+        store,v=self._prepare_cas()
+        with self.pg.connect(DB) as con:
+            con.execute('insert into prumo_private.cfi01_f03_catalog_entries_local '
+                        '(concessionaria_id,codigo_sintetico,descricao_sintetica) '
+                        'values (%s,%s,%s)',(self.shop,'VEICULO_TESTE','Modelo ficticio'))
+            ver=con.execute('select versao_catalogo from '
+                'prumo_private.cfi01_f03_catalog_versions_local where concessionaria_id=%s',
+                (self.shop,)).fetchone()[0]
+        self.assertEqual(ver,2)
+        self.assertIs(self._reserve(store,v),State.STALE_REVIEW_REQUIRED)
+
+    def test_51_catalogue_edit_and_delete_each_bump_once(self):
+        self._seed_versions()
+        with self.pg.connect(DB) as con:
+            con.execute('insert into prumo_private.cfi01_f03_catalog_entries_local '
+                        '(concessionaria_id,codigo_sintetico,descricao_sintetica) '
+                        'values (%s,%s,%s)',(self.shop,'VEICULO_TESTE','Modelo ficticio'))
+            con.execute('update prumo_private.cfi01_f03_catalog_entries_local '
+                        'set descricao_sintetica=%s where concessionaria_id=%s',
+                        ('Modelo alterado',self.shop))
+            con.execute('delete from prumo_private.cfi01_f03_catalog_entries_local '
+                        'where concessionaria_id=%s',(self.shop,))
+            ver=con.execute('select versao_catalogo from '
+                'prumo_private.cfi01_f03_catalog_versions_local where concessionaria_id=%s',
+                (self.shop,)).fetchone()[0]
+        self.assertEqual(ver,4)
+
+    def test_52_form_source_key_rebind_denied(self):
+        self._seed_versions()
+        with self.pg.connect(DB) as con:
+            con.execute('insert into prumo_private.cfi01_f03_form_fields_local '
+                        '(concessionaria_id,lead_id,campo_sintetico,valor_sintetico) '
+                        'values (%s,%s,%s,%s)',
+                        (self.shop,self.lead,'renda_sintetica','TEST_ONLY_1000'))
+        with self.assertRaises(self.pg.Error) as cm:
+            with self.pg.connect(DB) as con:
+                con.execute('update prumo_private.cfi01_f03_form_fields_local '
+                            'set campo_sintetico=%s where lead_id=%s',
+                            ('telefone_sintetico',self.lead))
+        self.assertEqual(cm.exception.sqlstate,'42501')
+
+    def test_53_catalogue_source_key_rebind_denied(self):
+        self._seed_versions()
+        with self.pg.connect(DB) as con:
+            con.execute('insert into prumo_private.cfi01_f03_catalog_entries_local '
+                        '(concessionaria_id,codigo_sintetico,descricao_sintetica) '
+                        'values (%s,%s,%s)',(self.shop,'VEICULO_TESTE','Modelo ficticio'))
+        with self.assertRaises(self.pg.Error) as cm:
+            with self.pg.connect(DB) as con:
+                con.execute('update prumo_private.cfi01_f03_catalog_entries_local '
+                            'set codigo_sintetico=%s where concessionaria_id=%s',
+                            ('TROCA_NAO_AUTORIZADA',self.shop))
+        self.assertEqual(cm.exception.sqlstate,'42501')
+
+    def test_54_uninitialized_form_source_denied(self):
+        with self.assertRaises(self.pg.Error) as cm:
+            with self.pg.connect(DB) as con:
+                con.execute('insert into prumo_private.cfi01_f03_form_fields_local '
+                            '(concessionaria_id,lead_id,campo_sintetico,valor_sintetico) '
+                            'values (%s,%s,%s,%s)',
+                            (self.shop,self.lead,'renda_sintetica','TEST_ONLY_1000'))
+        self.assertEqual(cm.exception.sqlstate,'42501')
+
+    def test_55_uninitialized_catalogue_source_denied(self):
+        with self.assertRaises(self.pg.Error) as cm:
+            with self.pg.connect(DB) as con:
+                con.execute('insert into prumo_private.cfi01_f03_catalog_entries_local '
+                            '(concessionaria_id,codigo_sintetico,descricao_sintetica) '
+                            'values (%s,%s,%s)',(self.shop,'VEICULO_TESTE','Modelo ficticio'))
+        self.assertEqual(cm.exception.sqlstate,'42501')
+
+    def test_56_untouched_S0_lead_without_F03_vector_still_writable(self):
+        with self.pg.connect(DB) as con:
+            con.execute('update public.leads_loja set telefone_cliente_normalizado=%s '
+                        'where concessionaria_id=%s and id=%s',
+                        ('+5511998765432',self.shop,self.lead))
+            count=con.execute('select count(*) from '
+                'prumo_private.cfi01_f03_lead_versions_local where lead_id=%s',
+                (self.lead,)).fetchone()[0]
+        self.assertEqual(count,0)
+
+    def test_57_version_sources_tenant_isolated(self):
+        self._seed_versions()
+        another_shop=uuid.uuid4()
+        with self.pg.connect(DB) as con:
+            con.execute('insert into public.concessionarias(id,nome_operacional) '
+                        "values (%s,'OTHER VERSION TEST SHOP')",(another_shop,))
+            con.execute('insert into prumo_private.cfi01_f03_catalog_versions_local '
+                        '(concessionaria_id) values (%s)',(another_shop,))
+            con.execute('insert into prumo_private.cfi01_f03_catalog_entries_local '
+                        '(concessionaria_id,codigo_sintetico,descricao_sintetica) '
+                        'values (%s,%s,%s)',(another_shop,'OUTRA_LOJA','Outro modelo'))
+            ver=con.execute('select versao_catalogo from '
+                'prumo_private.cfi01_f03_catalog_versions_local where concessionaria_id=%s',
+                (self.shop,)).fetchone()[0]
+            foreign=con.execute('select versao_catalogo from '
+                'prumo_private.cfi01_f03_catalog_versions_local where concessionaria_id=%s',
+                (another_shop,)).fetchone()[0]
+        self.assertEqual((ver,foreign),(1,2))
+
 if __name__=='__main__':
     unittest.main()
