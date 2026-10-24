@@ -32,3 +32,13 @@ Esses resultados **não equivalem ao gate nativo integral sobre checkout autenti
 Todos os clientes, vendedores, concessionárias e resultados são **fictícios**. Nenhuma visibilidade D3/D4 foi ampliada. Sem alteração de atores, escopos, notas, extração, F03, distribuição, envio de mensagens, Meta/WhatsApp, OpenAI, Supabase, autenticação, banco, S0/S1 ou ações reais. Nenhum merge na `main` ou deploy autorizado.
 
 **Anterior:** [FV-UI-040](./69_FV_UI_040_HIERARQUIA_LISTA_2026_10_24.md).
+
+
+## Auditoria no repositório oficial (pós-repin)
+
+- Commit de conteúdo e testes: `99f004cde3f79462e31bd684b468e3db5429ff25`.
+- Commit de repin do inventário: `9d6c363a40c803e7d82343871ed6d48f5943e441`.
+- Comparação com FV-UI-040: **2 commits e 7 arquivos alterados**, todos sob `frontend/`.
+- Manifesto repinado com `source_head=99f004cde3f79462e31bd684b468e3db5429ff25`: **58/58 hashes Git SHA-1 e tamanhos iguais aos blobs da árvore oficial**, zero divergências. Blob do próprio verificador: `dbed21f06d3fee5277ac6b7f2f8a59e80ed08b9d`.
+- Branch `main` permanece em `dace737ab7afb7ae3f5a3a6f5cb522e6def8b43a`. Não houve merge/deploy.
+- Evidência de Node e Chromium: **ensaios locais sobre base derivada**, com a mudança aplicada, não execução de testes em checkout autenticado do HEAD GitHub. A integridade de blobs conferida remotamente não equivale a esse gate nativo pendente.
