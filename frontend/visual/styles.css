@@ -320,7 +320,10 @@ body[data-theme="dark"] .team-dialog .team-mode button[aria-pressed="true"]{
 .thread-pane .thread-name{font-size:15px;min-width:0}
 .thread-pane .thread-meta{font-size:12px;color:#516b75}
 .thread-pane .message{font-size:13px;line-height:1.65}
-.thread-pane .message small{font-size:11px;line-height:1.4;color:#4b6570}
+.thread-pane .message small{font-size:11px;line-height:1.4}
+.thread-pane .message small:not([class]){color:#4b6570}
+.thread-pane :is(.message-send-state,.message-transport-hint){color:#62451f}
+.thread-pane .message-transport-state{color:#2f5760}
 .thread-pane .message.system{font-size:12px;color:#6b5630}
 .thread-pane .day-separator{font-size:11px;color:#526a73}
 .thread-pane .composer-note{font-size:11px;line-height:1.45;color:#536d76}
@@ -329,7 +332,9 @@ body[data-theme="dark"] .team-dialog .team-mode button[aria-pressed="true"]{
   .thread-pane .thread-meta{font-size:11px}
 }
 .visual-app[data-theme="dark"] .thread-pane .thread-meta{color:#b7cad3}
-.visual-app[data-theme="dark"] .thread-pane .message small{color:#b5cbd3}
+.visual-app[data-theme="dark"] .thread-pane .message small:not([class]){color:#b5cbd3}
+.visual-app[data-theme="dark"] .thread-pane :is(.message-send-state,.message-transport-hint){color:#e7c48f}
+.visual-app[data-theme="dark"] .thread-pane .message-transport-state{color:#c9dee4}
 .visual-app[data-theme="dark"] .thread-pane .composer-note{color:#bacbd3}
 .visual-app[data-theme="dark"] .thread-pane .day-separator{
   background:#263740;border:1px solid #3b5360;color:#d4e6ec

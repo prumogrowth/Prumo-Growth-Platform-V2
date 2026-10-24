@@ -32,3 +32,7 @@ A auditoria da árvore do GitHub e o manifesto de 58 blobs serão conferidos ap�
 Demonstração sintética apenas. Nenhum S0/S1, API Meta/WhatsApp, OpenAI, Supabase, transação bancária, dado de cliente real, integração, autenticação, concessão, alteração de atribuição ou permissão. Não fazer merge na `main` nem deploy.
 
 **Anterior:** [FV-UI-041](./70_FV_UI_041_LEGIBILIDADE_DETALHES_2026_10_24.md).
+
+## Ajuste posterior de contraste em estados técnicos
+
+Ao revisar a regra genérica que estiliza elementos `small` dos balões, foi identificado risco de confundir horários neutros com as etiquetas técnicas `message-send-state`, `message-transport-state` e `message-transport-hint`. O ajuste final atribui a cor neutra **somente aos horários sem classe**, mantém o tamanho mínimo de 11px em todas as etiquetas e define cores próprias e contrastantes para os estados técnicos nos dois temas. O aviso de transporte tinha contraste insuficiente na base local clara (**aprox. 2,26:1**); após a correção, o ensaio direcionado repetido passou em **8/8 cenários** com contraste calculado ≥4,5:1 também nesse aviso. Continua sendo evidência local derivada, não gate integral de checkout.

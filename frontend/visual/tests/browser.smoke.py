@@ -850,6 +850,15 @@ with sync_playwright() as p:
                   const x=lum(fg),y=lum(bg);return (Math.max(x,y)+.05)/(Math.min(x,y)+.05)
                 }""",selector)
                 assert ratio is not None and ratio>=4.5,(thread_width,thread_theme,selector,ratio)
+            if readable.locator('.message-transport-hint').count():
+                technical=readable.evaluate("""selector=>{
+                  let e=document.querySelector(selector);const rgb=t=>{let m=t.match(/rgba?\(([^)]+)\)/);return m?m[1].split(',').map(Number):null};
+                  const L=v=>{let a=v.slice(0,3).map(x=>x/255).map(x=>x<=.04045?x/12.92:((x+.055)/1.055)**2.4);return a[0]*.2126+a[1]*.7152+a[2]*.0722};
+                  let fg=rgb(getComputedStyle(e).color),bg=null;while(e){let c=rgb(getComputedStyle(e).backgroundColor);
+                    if(c&&(c.length<4||c[3]>=1)){bg=c;break;}e=e.parentElement}
+                  if(!fg||!bg)return null;let x=L(fg),y=L(bg);return (Math.max(x,y)+.05)/(Math.min(x,y)+.05)
+                }""",'.message-transport-hint')
+                assert technical is not None and technical>=4.5,(thread_width,thread_theme,'transport contrast',technical)
             assert not readable.evaluate('document.documentElement.scrollWidth>innerWidth')
             assert not errors_042,errors_042
             readable.close()
