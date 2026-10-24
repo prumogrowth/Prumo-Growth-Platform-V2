@@ -1568,5 +1568,253 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
         self.assertIs(self._ratify_review(
             review,pending,manager).state,State.DENIED)
 
+
+    def _resolution_chain(self):
+        from backend.s0_f03_identity_ratification_local import RatificationState
+        review,pending=self._new_ratifiable_review()
+        manager=self._new_ratification_manager()
+        self.assertIs(self._ratify_review(review,pending,manager).state,
+                      RatificationState.RATIFIED_AUDIT_ONLY)
+        with self.pg.connect(DB) as con:
+            ratification=con.execute('select id from '
+                'prumo_private.cfi01_f03_identity_ratifications_local '
+                'where concessionaria_id=%s and caso_id=%s',
+                (self.shop,self.case)).fetchone()[0]
+        closer=self._new_ratification_manager()
+        return review,pending,ratification,manager,closer
+
+    def _close_resolution(self,chain,*,closer=None,version=1,cycle=1,
+                          secret=None,key_version='resolution-key-v1',
+                          evidence=None,idem='resolution-local-0001',s1=True):
+        from backend.s0_f03_identity_resolution_local import (
+            S0F03LocalResolutionStore,ResolutionRequest,
+            close_human_identity_resolution_local,
+        )
+        from backend.s0_s1_closure_authority_local import S0S1LocalTeamAuthority
+        review,pending,ratification,_ratifier,default_closer=chain
+        actor,session=closer or default_closer
+        return close_human_identity_resolution_local(
+            'Bearer FIXTURE',
+            ResolutionRequest(str(review),str(ratification),str(pending),
+                str(self.case),cycle,version,key_version,
+                evidence or 'c'*64,idem),
+            identity=LocalIdentity(actor,session),
+            store=S0F03LocalResolutionStore(DB),
+            s1=S0S1LocalTeamAuthority() if s1 else None,
+            key=secret if secret is not None else
+              b'S0-E04-fixture-only-resolution-secret-minimum-32-bytes')
+
+    def test_116_third_independent_manager_closes_hold_only(self):
+        from backend.s0_f03_identity_resolution_local import ResolutionState
+        chain=self._resolution_chain()
+        self.assertIs(self._close_resolution(chain).state,
+                      ResolutionState.CLOSED_HOLD_ONLY)
+        with self.pg.connect(DB) as con:
+            rows=con.execute('select resultado,chave_hmac_versao,'
+                'pendencia_mac_sha256,evidencia_sha256,gestor_resolvedor_id '
+                'from prumo_private.cfi01_f03_identity_resolution_local '
+                'where concessionaria_id=%s and caso_id=%s',
+                (self.shop,self.case)).fetchall()
+        self.assertEqual(len(rows),1)
+        self.assertEqual(rows[0][0],'NOT_RELATED_HOLD_ONLY')
+        self.assertEqual(rows[0][1],'resolution-key-v1')
+        self.assertEqual(len(rows[0][2]),64)
+        self.assertEqual(rows[0][3],'c'*64)
+        self.assertEqual(rows[0][4],chain[4][0])
+
+    def test_117_exact_replay_is_idempotent(self):
+        from backend.s0_f03_identity_resolution_local import ResolutionState
+        chain=self._resolution_chain()
+        self.assertIs(self._close_resolution(chain).state,
+                      ResolutionState.CLOSED_HOLD_ONLY)
+        self.assertIs(self._close_resolution(chain).state,
+                      ResolutionState.ALREADY_CLOSED_HOLD_ONLY)
+
+    def test_118_source_mutation_invalidates_old_proof_replay(self):
+        from backend.s0_f03_identity_resolution_local import ResolutionState
+        chain=self._resolution_chain()
+        self.assertIs(self._close_resolution(chain).state,
+                      ResolutionState.CLOSED_HOLD_ONLY)
+        with self.pg.connect(DB) as con:
+            con.execute('update prumo_private.pendencias_identidade_s0 '
+                        'set texto_sintetico=%s where id=%s',
+                        ('outra narrativa ficticia',chain[1]))
+        self.assertIs(self._close_resolution(chain).state,
+                      ResolutionState.CONFLICT_REVIEW_REQUIRED)
+
+    def test_119_different_runtime_key_cannot_replay(self):
+        from backend.s0_f03_identity_resolution_local import ResolutionState
+        chain=self._resolution_chain()
+        self.assertIs(self._close_resolution(chain).state,
+                      ResolutionState.CLOSED_HOLD_ONLY)
+        self.assertIs(self._close_resolution(
+            chain,secret=b'different-fixture-S0-hmac-secret-32-bytes-or-more').state,
+            ResolutionState.CONFLICT_REVIEW_REQUIRED)
+
+    def test_120_new_hmac_key_version_cannot_override_receipt(self):
+        from backend.s0_f03_identity_resolution_local import ResolutionState
+        chain=self._resolution_chain()
+        self.assertIs(self._close_resolution(chain).state,
+                      ResolutionState.CLOSED_HOLD_ONLY)
+        self.assertIs(self._close_resolution(
+            chain,key_version='resolution-key-v2').state,
+            ResolutionState.CONFLICT_REVIEW_REQUIRED)
+
+    def test_121_reviewer_cannot_close_own_case(self):
+        from backend.s0_f03_identity_resolution_local import ResolutionState
+        chain=self._resolution_chain()
+        self.assertIs(self._close_resolution(
+            chain,closer=(self.actor,self.session)).state,ResolutionState.DENIED)
+
+    def test_122_ratifier_cannot_close_own_ratification(self):
+        from backend.s0_f03_identity_resolution_local import ResolutionState
+        chain=self._resolution_chain()
+        self.assertIs(self._close_resolution(
+            chain,closer=chain[3]).state,ResolutionState.DENIED)
+
+    def test_123_unscoped_manager_cannot_close(self):
+        from backend.s0_f03_identity_resolution_local import ResolutionState
+        chain=self._resolution_chain()
+        outsider=self._new_ratification_manager(scoped=False)
+        self.assertIs(self._close_resolution(
+            chain,closer=outsider).state,ResolutionState.DENIED)
+
+    def test_124_missing_S1_adapter_fails_closed(self):
+        from backend.s0_f03_identity_resolution_local import ResolutionState
+        chain=self._resolution_chain()
+        self.assertIs(self._close_resolution(chain,s1=False).state,
+                      ResolutionState.BLOCKED_S1)
+
+    def test_125_changed_identity_version_fails_closed(self):
+        from backend.s0_f03_identity_resolution_local import ResolutionState
+        chain=self._resolution_chain()
+        self._insert_alias()
+        self.assertIs(self._close_resolution(chain).state,
+                      ResolutionState.STALE_REVIEW_REQUIRED)
+        self.assertIs(self._close_resolution(chain,version=2).state,
+                      ResolutionState.STALE_REVIEW_REQUIRED)
+
+    def test_126_changed_cycle_version_fails_closed(self):
+        from backend.s0_f03_identity_resolution_local import ResolutionState
+        chain=self._resolution_chain()
+        with self.pg.connect(DB) as con:
+            con.execute('update public.ciclos_comerciais '
+                        'set versao_registro=2 where id=%s',(self.cycle,))
+        self.assertIs(self._close_resolution(chain).state,
+                      ResolutionState.STALE_REVIEW_REQUIRED)
+
+    def test_127_change_phone_in_pending_fails_closed(self):
+        from backend.s0_f03_identity_resolution_local import ResolutionState
+        chain=self._resolution_chain()
+        with self.pg.connect(DB) as con:
+            con.execute('update prumo_private.pendencias_identidade_s0 '
+                        'set telefone_sintetico=%s where id=%s',
+                        ('+5581999965555',chain[1]))
+        self.assertIs(self._close_resolution(chain).state,
+                      ResolutionState.STALE_REVIEW_REQUIRED)
+
+    def test_128_wrong_ratification_reference_fails_closed(self):
+        from backend.s0_f03_identity_resolution_local import ResolutionState
+        chain=list(self._resolution_chain())
+        chain[2]=uuid.uuid4()
+        self.assertIs(self._close_resolution(chain).state,ResolutionState.DENIED)
+
+    def test_129_missing_session_fails_closed(self):
+        from backend.s0_f03_identity_resolution_local import ResolutionState
+        chain=self._resolution_chain()
+        actor=self._new_ratification_manager(session=False)
+        self.assertIs(self._close_resolution(chain,closer=actor).state,
+                      ResolutionState.DENIED)
+
+    def test_130_competing_closers_one_receipt_only(self):
+        from backend.s0_f03_identity_resolution_local import ResolutionState
+        from concurrent.futures import ThreadPoolExecutor
+        chain=self._resolution_chain()
+        managers=[chain[4],self._new_ratification_manager()]
+        def attempt(i):
+            return self._close_resolution(
+                chain,closer=managers[i],evidence=str(i+1)*64,
+                idem='resolution-local-competing-'+str(i)).state
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            got=list(pool.map(attempt,[0,1]))
+        self.assertCountEqual(got,[ResolutionState.CLOSED_HOLD_ONLY,
+                                   ResolutionState.CONFLICT_REVIEW_REQUIRED])
+        with self.pg.connect(DB) as con:
+            count=con.execute('select count(*) from '
+                'prumo_private.cfi01_f03_identity_resolution_local '
+                'where concessionaria_id=%s and caso_id=%s',
+                (self.shop,self.case)).fetchone()[0]
+        self.assertEqual(count,1)
+
+    def test_131_resolution_does_not_unblock_F03_CAS(self):
+        from backend.s0_f03_identity_resolution_local import ResolutionState
+        from backend.s0_f03_version_reservation_local import ReservationState
+        store,v=self._prepare_cas()
+        chain=self._resolution_chain_from_existing_version()
+        self.assertIs(self._close_resolution(chain).state,
+                      ResolutionState.CLOSED_HOLD_ONLY)
+        self.assertIs(self._reserve(store,v),ReservationState.CONFLICT_REVIEW_REQUIRED)
+        with self.pg.connect(DB) as con:
+            remaining=con.execute('select count(*) from '
+                'prumo_private.pendencias_identidade_s0 '
+                'where id=%s',(chain[1],)).fetchone()[0]
+        self.assertEqual(remaining,1)
+
+    def _resolution_chain_from_existing_version(self):
+        from backend.s0_f03_identity_ratification_local import RatificationState
+        review,pending=self._new_ratifiable_review(seed=False)
+        manager=self._new_ratification_manager()
+        self.assertIs(self._ratify_review(review,pending,manager).state,
+                      RatificationState.RATIFIED_AUDIT_ONLY)
+        with self.pg.connect(DB) as con:
+            ratification=con.execute('select id from '
+                'prumo_private.cfi01_f03_identity_ratifications_local '
+                'where concessionaria_id=%s and caso_id=%s',
+                (self.shop,self.case)).fetchone()[0]
+        return review,pending,ratification,manager,self._new_ratification_manager()
+
+    def test_132_resolution_update_delete_are_forbidden(self):
+        from backend.s0_f03_identity_resolution_local import ResolutionState
+        chain=self._resolution_chain()
+        self.assertIs(self._close_resolution(chain).state,
+                      ResolutionState.CLOSED_HOLD_ONLY)
+        for sql,params in (
+            ('update prumo_private.cfi01_f03_identity_resolution_local '
+             'set evidencia_sha256=%s where caso_id=%s',('f'*64,self.case)),
+            ('delete from prumo_private.cfi01_f03_identity_resolution_local '
+             'where caso_id=%s',(self.case,))
+        ):
+            with self.subTest(sql=sql):
+                with self.assertRaises(self.pg.Error) as err:
+                    with self.pg.connect(DB) as con:con.execute(sql,params)
+                self.assertEqual(err.exception.sqlstate,'42501')
+
+    def test_133_authenticated_cannot_read_resolution(self):
+        self._resolution_chain()
+        with self.pg.connect(DB) as con:
+            with self.assertRaises(self.pg.Error):
+                con.execute('set local role authenticated')
+                con.execute('select * from '
+                            'prumo_private.cfi01_f03_identity_resolution_local')
+
+    def test_134_malformed_hmac_input_is_denied(self):
+        from backend.s0_f03_identity_resolution_local import ResolutionState
+        chain=self._resolution_chain()
+        self.assertIs(self._close_resolution(chain,secret=b'short').state,
+                      ResolutionState.DENIED)
+        self.assertIs(self._close_resolution(chain,key_version='bad key').state,
+                      ResolutionState.DENIED)
+
+    def test_135_expired_manager_role_is_denied(self):
+        from backend.s0_f03_identity_resolution_local import ResolutionState
+        chain=self._resolution_chain()
+        with self.pg.connect(DB) as con:
+            con.execute('update public.vinculos_papel_escopo set '
+                        "valido_desde=statement_timestamp()-interval '2 days',"
+                        "valido_ate=statement_timestamp()-interval '1 day' "
+                        'where ator_id=%s and concessionaria_id=%s',
+                        (chain[4][0],self.shop))
+        self.assertIs(self._close_resolution(chain).state,ResolutionState.DENIED)
+
 if __name__=='__main__':
     unittest.main()
