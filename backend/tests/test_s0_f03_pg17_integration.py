@@ -1221,7 +1221,9 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
         self.assertIs(self._review_pending(s1=False).state,State.BLOCKED_S1)
         with self.pg.connect(DB) as con:
             count=con.execute('select count(*) from '
-                'prumo_private.cfi01_f03_identity_human_reviews_local').fetchone()[0]
+                'prumo_private.cfi01_f03_identity_human_reviews_local '
+                'where concessionaria_id=%s and caso_id=%s',
+                (self.shop,self.case)).fetchone()[0]
         self.assertEqual(count,0)
 
     def test_89_human_review_missing_session_is_denied(self):
@@ -1281,7 +1283,9 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
             State.RECORDED_REVIEW_ONLY,State.CONFLICT_REVIEW_REQUIRED])
         with self.pg.connect(DB) as con:
             amount=con.execute('select count(*) from '
-                'prumo_private.cfi01_f03_identity_human_reviews_local').fetchone()[0]
+                'prumo_private.cfi01_f03_identity_human_reviews_local '
+                'where concessionaria_id=%s and caso_id=%s',
+                (self.shop,self.case)).fetchone()[0]
         self.assertEqual(amount,1)
 
     def test_94_human_review_does_not_unblock_F03_reservation(self):
@@ -1303,7 +1307,9 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
         self.assertIs(self._review_pending(evidence='NOT_A_SHA').state,State.DENIED)
         with self.pg.connect(DB) as con:
             count=con.execute('select count(*) from '
-                'prumo_private.cfi01_f03_identity_human_reviews_local').fetchone()[0]
+                'prumo_private.cfi01_f03_identity_human_reviews_local '
+                'where concessionaria_id=%s and caso_id=%s',
+                (self.shop,self.case)).fetchone()[0]
         self.assertEqual(count,0)
 
 if __name__=='__main__':
