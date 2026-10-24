@@ -818,4 +818,41 @@ with sync_playwright() as p:
             detail_page.close()
     print('FV-UI-041 detalhes legiveis em oito cenarios e abas preservadas: PASS')
 
+    # FV-UI-042: legibilidade da conversa, ambas as cores e quatro larguras.
+    for thread_width in (320,390,900,1440):
+        for thread_theme in ('light','dark'):
+            readable=browser.new_page(viewport={'width':thread_width,'height':820},color_scheme=thread_theme)
+            readable.set_default_timeout(4500)
+            errors_042=[]
+            readable.on('pageerror',lambda error:errors_042.append(str(error)))
+            readable.set_content(html);readable.add_script_tag(content=script)
+            if thread_width<=760:
+                readable.locator('.conversation-card').first.click()
+            expect(readable.locator('#thread-pane')).to_be_visible()
+            expect(readable.locator('#visual-app')).to_have_attribute('data-theme',thread_theme)
+            assert readable.locator('.thread-pane .message').count()>0
+            for selector,minimum in (('.thread-pane .thread-name',14),
+                ('.thread-pane .thread-meta',11),('.thread-pane .message',13),
+                ('.thread-pane .message small',11),('.thread-pane .day-separator',11),
+                ('.thread-pane .composer-note',11)):
+                node=readable.locator(selector).first
+                assert node.count()>0,(thread_width,thread_theme,selector)
+                size=float(node.evaluate('e=>parseFloat(getComputedStyle(e).fontSize)'))
+                assert size>=minimum,(thread_width,thread_theme,selector,size)
+                ratio=readable.evaluate("""selector=>{
+                  let e=document.querySelector(selector);if(!e)return null;
+                  const rgb=t=>{const m=t.match(/rgba?\(([^)]+)\)/);return m?m[1].split(',').map(Number):null};
+                  const lum=v=>{const a=v.slice(0,3).map(x=>x/255).map(x=>x<=.04045?x/12.92:((x+.055)/1.055)**2.4);return a[0]*.2126+a[1]*.7152+a[2]*.0722};
+                  const fg=rgb(getComputedStyle(e).color);let bg=null;
+                  while(e){const c=rgb(getComputedStyle(e).backgroundColor);
+                    if(c&&(c.length<4||c[3]>=1)){bg=c;break;}e=e.parentElement}
+                  if(!fg||!bg)return null;
+                  const x=lum(fg),y=lum(bg);return (Math.max(x,y)+.05)/(Math.min(x,y)+.05)
+                }""",selector)
+                assert ratio is not None and ratio>=4.5,(thread_width,thread_theme,selector,ratio)
+            assert not readable.evaluate('document.documentElement.scrollWidth>innerWidth')
+            assert not errors_042,errors_042
+            readable.close()
+    print('FV-UI-042 conversa legivel 8 cenarios 4.5:1 PASS')
+
     browser.close()

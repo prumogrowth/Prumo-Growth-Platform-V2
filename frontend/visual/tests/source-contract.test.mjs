@@ -517,3 +517,15 @@ test('FV-UI-041: detalhes mantem texto legivel e abas sem mudar contratos',()=>{
   assert.match(browserSmoke,/FV-UI-041 detalhes legiveis em oito cenarios e abas preservadas: PASS/);
   assert.match(browserSmoke,/ratio>=4\.5/);
 });
+
+
+test('FV-UI-042: tipografia da conversa e contraste de cores preservam estados',()=>{
+  assert.match(styles,/\.thread-pane \.thread-name\{font-size:15px/);
+  assert.match(styles,/\.thread-pane \.thread-meta\{font-size:12px/);
+  assert.match(styles,/\.thread-pane \.message\{font-size:13px/);
+  assert.match(styles,/\.thread-pane \.message small\{font-size:11px/);
+  assert.match(styles,/\.thread-pane \.composer-note\{font-size:11px/);
+  assert.match(styles,/\.visual-app\[data-theme="dark"\] \.thread-pane \.day-separator/);
+  assert.match(browserSmoke,/FV-UI-042 conversa legivel 8 cenarios 4\.5:1 PASS/);
+  assert.match(browserSmoke,/ratio>=4\.5/);
+});
