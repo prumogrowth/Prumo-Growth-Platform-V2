@@ -19,3 +19,7 @@
 ## Próximo gap
 
 Verificação de todos os caminhos de criação de caso, permissões em voo, integração UI da fila e fluxo de primeiro contato humano/delivery. A2 continua obrigatória sem suspensão global de conta.
+
+## Prova assinada complementar
+
+A suíte GoTrue local I55 foi estendida com S1QUEUE-165, exigindo que a criação de caso externo reconciliada pelo I56 seja excluída da consulta assinada, retorne 409 ao tentar assunção CAS com versão antiga e mantenha um caso e um evento de reconciliação. O estado da execução será registrado somente após inspeção de logs reais.

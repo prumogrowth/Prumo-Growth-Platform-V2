@@ -153,7 +153,34 @@ try:
             else:
                 raise AssertionError("I55 signed login reads private queue")
     print("PASS S1QUEUE-164: REST and signed SQL login cannot bypass private queue privileges")
+
+    # I56: an independent S0 case writer reconciles a queue without using I55.
+    lead55d="e7550000-0000-4000-8000-000000000004"
+    cycle55d="e7550000-0000-4000-8000-000000000014"
+    sql(f"""insert into public.leads_loja(
+       id,concessionaria_id,telefone_cliente_normalizado)
+       values('{lead55d}',{U(store_a)},'+558188550004');
+       insert into public.ciclos_comerciais(
+       id,concessionaria_id,lead_id,status_comercial)
+       values('{cycle55d}',{U(store_a)},'{lead55d}',
+       'em atendimento pelo operador');""")
+    assert sql(f"select estado||':'||versao from prumo_private.s0_fila_humana "
+               f"where ciclo_id={U(cycle55d)}")=="pendente:1"
+    sql(f"""insert into public.casos_humanos(concessionaria_id,lead_id,ciclo_id)
+       values({U(store_a)},'{lead55d}','{cycle55d}');""")
+    assert sql(f"select estado||':'||versao from prumo_private.s0_fila_humana "
+               f"where ciclo_id={U(cycle55d)}")=="reconciliado:2"
+    assert sql(f"select count(*) from prumo_private.s0_fila_humana_eventos "
+               f"where ciclo_id={U(cycle55d)} and resultado='RECONCILIADO'")=="1"
+    status,data=queue55(token53)
+    ok(status,data,"QUEUE_LIST")
+    assert cycle55d not in {item["ciclo_id"] for item in data["items"]}
+    status,_=claim55(token53,cycle55d,version=1)
+    assert status==409,status
+    assert sql(f"select count(*) from public.casos_humanos "
+               f"where ciclo_id={U(cycle55d)}")=="1"
+    print("PASS S1QUEUE-165: external S0 case reconciled; signed LIST hides it and CLAIM CAS conflicts")
 finally:
     server55.shutdown()
     server55.server_close()
-print("I55 8/8 E2E real local GoTrue and signed S0 queue; no hosted deployment")
+print("I55+I56 9/9 E2E real local GoTrue and signed S0 queue; no hosted deployment")
