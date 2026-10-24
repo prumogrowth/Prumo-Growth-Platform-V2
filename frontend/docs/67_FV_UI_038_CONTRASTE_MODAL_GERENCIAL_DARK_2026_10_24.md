@@ -25,3 +25,14 @@ CSS estritamente condicionado ao tema escuro em `body[data-theme="dark"] .team-d
 - Nenhum S0/S1, WhatsApp/Meta, Supabase, OpenAI ou banco acionado. Gestores não ganham acesso a mensagens privadas ou dados D3/D4; a solução não modifica equipes, permissões, concessões, fila, pausa ou status comercial. Nenhum merge/deploy autorizado.
 
 **Anterior:** [FV-UI-037](./66_FV_UI_037_TEMA_SISTEMA_ESCOLHA_MANUAL_2026_10_24.md).
+
+
+## Auditoria remota pós-publicação
+
+- Commit de CSS, navegador, regressão e documentação: `17f442abc93755cff1f634fce5ce759ecb062b31`.
+- Commit de repin do manifesto: `a25e0ff73eae1b9bc1c2836fe3a7f03080e4a3ac`.
+- Comparação com FV-UI-037: **2 commits**, **7 arquivos alterados**, **todos sob `frontend/`**.
+- Árvore do GitHub do novo repositório confrontada com `tests/verify_offline_export.py`: **58/58 hashes Git blob e tamanhos válidos**, nenhuma divergência; SHA do próprio verificador: `987ae824550211370ae82999af1479e137348287`.
+- `source_head` do manifesto referencia o commit de conteúdo `17f442abc...`, anterior ao repin do próprio verificador, para evitar ciclo de hash.
+- Branch `main` verificada sem alteração: `dace737ab7afb7ae3f5a3a6f5cb522e6def8b43a`.
+- O resultado Chromium/Node acima foi obtido em snapshot **local derivado**, com as regras remotas de tema dos diálogos reproduzidas no ensaio. Não constitui checkout autenticado do HEAD publicado nem gate integral do ZIP final. Auditoria WCAG completa segue pendente.
