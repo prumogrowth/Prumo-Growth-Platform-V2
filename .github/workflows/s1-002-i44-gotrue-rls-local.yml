@@ -5,6 +5,8 @@ on:
     paths:
       - '.github/workflows/s1-002-i44-gotrue-rls-local.yml'
       - 'scripts/test_s1_002_i44_real_auth_rls.py'
+      - 'scripts/test_s1_002_i59_real_auth_read.py'
+      - 'supabase/migrations/202610190058_s0_conversa_integridade_contato.sql'
       - 'supabase/tests/s1_064_gotrue_rls_setup_local_only.sql'
       - 'supabase/tests/s1_061_proto_rls_equipe_local_only.sql'
       - 'supabase/tests/s1_062_proto_rls_excecao_local_only.sql'

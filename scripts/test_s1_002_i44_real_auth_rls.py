@@ -67,6 +67,7 @@ def actor(label):
 
 # Install real foundation, baseline RLS and exact shared I43 policy candidates.
 sql(file="supabase/tests/s1_064_gotrue_rls_setup_local_only.sql")
+sql(file="supabase/migrations/202610190058_s0_conversa_integridade_contato.sql")
 actors = {name: actor(name) for name in ("m1", "c2", "c3", "m4", "c5", "outsider")}
 M1, C2, C3, M4, C5, OUT = (actors[n][0] for n in
                            ("m1", "c2", "c3", "m4", "c5", "outsider"))
@@ -253,6 +254,11 @@ status, _ = http("GET", "/rest/v1/casos_humanos?select=id",
 if status != 401:
     raise AssertionError("I44 modified GoTrue JWT was not rejected")
 print("PASS I44-06: REST rejected tampered real GoTrue JWT")
+# I59: canonical conversation/lead/case FK verified against same real JWTs.
+from pathlib import Path as _I59Path
+_i59 = _I59Path("scripts/test_s1_002_i59_real_auth_read.py")
+exec(compile(_i59.read_text(encoding="utf-8"), str(_i59), "exec"), globals())
+
 
 # No identity token, password or key appears in CI output.
 print("S1-002/I44: real GoTrue+PostgREST per-case RLS 6/6 scenarios in disposable local stack.")

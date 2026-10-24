@@ -29,4 +29,7 @@ bash scripts/test_s1_002_i57_grant_race.sh
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/migrations/202610190057_s0_fila_gestor_revalidacao.sql
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_082_fila_gestor_autorizacao_aceite.sql
 bash scripts/test_s1_002_i58_fila_gestor_race.sh
-echo "PASS S0+S1 I52-I58 canonical stages after legacy regression"
+# I59 canonical S0 conversation must reference same case contact/store
+psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/migrations/202610190058_s0_conversa_integridade_contato.sql
+psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_083_integridade_conversas_i59_aceite.sql
+echo "PASS S0+S1 I52-I59 canonical stages after legacy regression"
