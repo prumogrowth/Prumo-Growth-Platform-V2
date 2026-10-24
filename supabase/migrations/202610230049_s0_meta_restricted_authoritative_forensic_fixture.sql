@@ -105,6 +105,8 @@ begin
  or p_kind is null or p_kind not in ('sent','delivered','read','failed')
  or p_hash is null or p_hash !~ '^[0-9a-f]{64}$'
  then raise exception 'WA50_BAD_ENVELOPE' using errcode='42501';end if;
+ -- WA48 fails closed on a different status kind for an existing exact
+ -- event/body; forensic conflict insertion is NOT yet supported by this path.
  -- WA48 takes key lock and spends nonce on our SAME transaction.
  -- Any error below rolls back nonce, shadow receipt AND original ledger.
  v_receipt:=prumo_private.meta_wa48_shadow_append_fixture_s0(

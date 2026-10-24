@@ -66,7 +66,6 @@ mark(4)
 for t in ("meta_vinculos_tentativa_fixture_s0","meta_apps_fixture_s0","meta_canais_fixture_s0","outbox_intencoes_s0"):
  assert ok("select has_table_privilege('prumo_s0_meta_wa50_writer_lab',"+q("prumo_private."+t)+",'UPDATE')")=="f"
 mark(5)
-assert ok("select has_table_privilege('prumo_s0_meta_wa50_binding_guard_lab','prumo_private.meta_vinculos_tentativa_fixture_s0','UPDATE')")=="f" if False else True
 # Guard's very limited UPDATE(id) is isolated from the writer and client.
 assert ok("select has_column_privilege('prumo_s0_meta_wa50_binding_guard_lab','prumo_private.meta_vinculos_tentativa_fixture_s0','id','UPDATE')")=="t"
 assert ok("select has_column_privilege('prumo_s0_meta_wa50_writer_lab','prumo_private.meta_vinculos_tentativa_fixture_s0','id','UPDATE')")=="f"
@@ -110,10 +109,11 @@ assert call()["outcome"]=="LAB_EXACT_BODY_REPLAY"
 mark(22)
 assert call(body="b"*64)["outcome"]=="LAB_BODY_VARIANT_QUARANTINED"
 mark(23)
-r=call(kind="read")
-assert r["outcome"]=="LAB_KIND_CONFLICT_QUARANTINED"
+# WA48's shadow verifier fails closed for an existing body with a new
+# provider kind. This must NOT be misreported as WA39 conflict persistence.
+block(kind="read")
 mark(24)
-assert ok("select count(*) from prumo_private.meta_status_conflitos_fixture_s0 where event_ref='WA50_EVT'")=="1"
+assert ok("select count(*) from prumo_private.meta_status_conflitos_fixture_s0 where event_ref='WA50_EVT'")=="0"
 mark(25)
 before=ok("select count(*) from prumo_private.meta_status_forense_fixture_s0")
 roll=fixture(event="WA50_ROLLBACK")
