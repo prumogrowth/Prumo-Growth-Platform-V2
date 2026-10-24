@@ -258,6 +258,10 @@ print("PASS I44-06: REST rejected tampered real GoTrue JWT")
 from pathlib import Path as _I59Path
 _i59 = _I59Path("scripts/test_s1_002_i59_real_auth_read.py")
 exec(compile(_i59.read_text(encoding="utf-8"), str(_i59), "exec"), globals())
+# I60 candidate: real JWT pre-case contextual history before I45's old negatives.
+_i60= _I59Path("scripts/test_s1_002_i60_real_auth_pre_case.py")
+exec(compile(_i60.read_text(encoding="utf-8"), str(_i60), "exec"), globals())
+
 
 
 # No identity token, password or key appears in CI output.
@@ -298,6 +302,4 @@ from pathlib import Path
 _i50 = Path("scripts/test_s1_002_i50_fila_revalidacao.py")
 exec(compile(_i50.read_text(encoding="utf-8"), str(_i50), "exec"), globals())
 
-# I60 candidate only after older I45/I48 case-less fail-closed regressions.
-_i60=Path("scripts/test_s1_002_i60_real_auth_pre_case.py")
-exec(compile(_i60.read_text(encoding="utf-8"), str(_i60), "exec"), globals())
+# I60 executed before I45; teardown preserves all later negative regressions.
