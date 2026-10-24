@@ -1,5 +1,7 @@
 # E04 — S0/F03: novo repositório oficial e teste físico do CAS de versões
 
+> **ATUALIZAÇÃO POSTERIOR — versão das fontes de escrita S0 implementada e validada:** [relatório de 229/229 testes PG17](./S0_F03_VERSOES_AUTOMATICAS_S0_PG17_229_TESTES_2026_10_24.md). A [execução #40061833588](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40061833588) passou com 84 S0 + 145 F03, dos quais **57 físicos F03 PG17.11**. A nova fixture contém gatilhos nas tabelas S0 existentes de lead, caso e atribuição humana, além de fontes **somente sintéticas** de ficha e catálogo. A afirmação anterior de 213 testes permanece como histórico da etapa pré-gatilhos; não implica que a F03 já pode aplicar campos reais.
+
 **Data:** 24/10/2026. **Repositório único autorizado:** `0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA`. **Branch da adaptação S0/F03:** `feat/oai-s0-f03-history-port-20261023`; base `feat/s0-cfi01-f03-auth-preflight-20261020`. **PR Draft #1**, nenhum merge/deploy e nenhuma alteração no repositório anterior.
 
 ## Prova de preservação do espelho
