@@ -776,4 +776,46 @@ with sync_playwright() as p:
             queue_page.close()
     print('FV-UI-040 hierarquia legivel da fila em 8 cenarios: PASS')
 
+    # FV-UI-041: detalhes com tipografia legivel em claro/escuro e responsividade.
+    for detail_width in (320,390,900,1440):
+        for detail_theme in ('light','dark'):
+            detail_page=browser.new_page(viewport={'width':detail_width,'height':820},color_scheme=detail_theme)
+            detail_page.set_default_timeout(4500)
+            detail_page.set_content(html);detail_page.add_script_tag(content=script)
+            detail_page.locator('#theme-'+detail_theme).click()
+            if detail_width<=760:
+                detail_page.locator('.conversation-card').first.click()
+                detail_page.locator('#detail-toggle').click()
+            else:
+                detail_page.locator('#detail-toggle').click() if not detail_page.locator('#detail-pane').is_visible() else None
+            expect(detail_page.locator('#detail-pane')).to_be_visible()
+            expect(detail_page.locator('#case-tab-overview')).to_have_attribute('aria-selected','true')
+            for selector,min_font in (('.detail-pane .profile-detail span',12),('.detail-pane .detail-label',11),('.detail-pane .property span',12),('.detail-pane .property strong',12),('.detail-pane .detail-tab.active',12)):
+                node=detail_page.locator(selector).first
+                assert node.count()>0,(detail_width,detail_theme,selector)
+                size=float(node.evaluate('e=>parseFloat(getComputedStyle(e).fontSize)'))
+                assert size>=min_font,(detail_width,detail_theme,selector,size)
+            contrast_js = """selector => {
+              const e=document.querySelector(selector);if(!e)return null;
+              const rgb=x=>{const m=x.match(/rgba?\(([^)]+)\)/);return m?m[1].split(',').map(Number):null};
+              const lum=x=>{const y=x.slice(0,3).map(z=>z/255).map(z=>z<=.04045?z/12.92:((z+.055)/1.055)**2.4);return .2126*y[0]+.7152*y[1]+.0722*y[2]};
+              const fg=rgb(getComputedStyle(e).color);let node=e,bg=null;
+              while(node){const computed=rgb(getComputedStyle(node).backgroundColor);
+                if(computed && (computed.length<4 || computed[3]>=1)){bg=computed;break;}node=node.parentElement;}
+              if(!fg||!bg)return null;const a=lum(fg),b=lum(bg);
+              return (Math.max(a,b)+.05)/(Math.min(a,b)+.05);
+            }"""
+            for selector in ('.detail-pane .detail-label','.detail-pane .property span','.detail-pane .property strong','.detail-pane .detail-tab.active'):
+                ratio=detail_page.evaluate(contrast_js,selector)
+                assert ratio is not None and ratio>=4.5,(detail_width,detail_theme,selector,ratio)
+            for tab in ('notes','overview'):
+                detail_page.locator('#case-tab-'+tab).click()
+                expect(detail_page.locator('#case-tab-'+tab)).to_have_attribute('aria-selected','true')
+                if tab=='notes':
+                    ratio=detail_page.evaluate(contrast_js,'.detail-pane .detail-callout')
+                    assert ratio is not None and ratio>=4.5,(detail_width,detail_theme,'note callout',ratio)
+            assert not detail_page.evaluate('document.documentElement.scrollWidth > innerWidth'),(detail_width,detail_theme)
+            detail_page.close()
+    print('FV-UI-041 detalhes legiveis em oito cenarios e abas preservadas: PASS')
+
     browser.close()

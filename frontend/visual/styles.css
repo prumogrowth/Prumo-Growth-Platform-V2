@@ -287,3 +287,31 @@ body[data-theme="dark"] .team-dialog .team-mode button[aria-pressed="true"]{
 .list-pane .conversation-card.is-selected{box-shadow:inset 3px 0 #167e78}
 .visual-app[data-theme="dark"] .list-pane .summary-tile span{color:#b9ced6}
 .visual-app[data-theme="dark"] .list-pane .conversation-card.is-selected{box-shadow:inset 3px 0 #86dbc7}
+
+/* FV-UI-041 — leitura do painel de detalhes (mesma estrutura e autorizacoes). */
+.detail-pane .profile-detail strong{font-size:15px}
+.detail-pane .profile-detail span{font-size:12px;color:#526b76}
+.detail-pane .detail-label{font-size:11px;letter-spacing:.09em;color:#526a74}
+.detail-pane .property{font-size:12px;line-height:1.55;gap:10px;padding:8px 0}
+.detail-pane .property span{color:#526a75;flex:0 1 44%;min-width:0;overflow-wrap:anywhere}
+.detail-pane .property strong{font-size:12px;color:#28434e;flex:0 1 56%;max-width:56%;overflow-wrap:anywhere}
+.detail-pane .detail-callout{font-size:12px;line-height:1.6;color:#405d64}
+.detail-pane .detail-callout.warning{color:#6d532d}
+.detail-pane .detail-callout.success{color:#335e42}
+.detail-pane .detail-tab{font-size:12px;min-height:44px;padding-inline:10px}
+.detail-pane .detail-tabs{border-color:#d6e3e6}
+.detail-pane .detail-tab.active{color:#145e54;border-color:#167e78}
+.visual-app[data-theme="dark"] .detail-pane .profile-detail span{color:#b5c9d3}
+.visual-app[data-theme="dark"] .detail-pane .detail-label{color:#b4c9d3}
+.visual-app[data-theme="dark"] .detail-pane .property span{color:#b5c9d3}
+.visual-app[data-theme="dark"] .detail-pane .property strong{color:#eef6f7}
+.visual-app[data-theme="dark"] .detail-pane .detail-tabs{border-color:#354a54}
+.visual-app[data-theme="dark"] .detail-pane .detail-tab{color:#bdcdd5}
+.visual-app[data-theme="dark"] .detail-pane .detail-tab.active{color:#a8eddb;border-color:#63bfa9}
+.visual-app[data-theme="dark"] .detail-pane .detail-tab:hover{background:#22323b}
+.visual-app[data-theme="dark"] .detail-pane .detail-callout{background:#20353b;color:#d4e7ea;border:1px solid #38525b}
+.visual-app[data-theme="dark"] .detail-pane .detail-callout strong{color:#a5e4d7}
+.visual-app[data-theme="dark"] .detail-pane .detail-callout.warning{background:#3a3022;color:#efd9af;border-color:#6b5230}
+.visual-app[data-theme="dark"] .detail-pane .detail-callout.warning strong{color:#ffe2a8}
+.visual-app[data-theme="dark"] .detail-pane .detail-callout.success{background:#203c30;color:#c5e6cd;border-color:#386348}
+.visual-app[data-theme="dark"] .detail-pane .detail-callout.success strong{color:#a9e7bd}

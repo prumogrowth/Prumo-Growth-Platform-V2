@@ -199,3 +199,7 @@ Os botões Claro e Escuro agora possuem alvo de toque de pelo menos 44×44 CSS p
 ## FV-UI-040 — Hierarquia da fila (24/10/2026)
 
 Nomes 14px, prévias 12px e metadados, etiquetas e rótulos dos três indicadores com 11px. Contraste mais forte em ambos os temas e marca interna discreta na conversa selecionada. Não altera filtro, estado, caso ou permissão. O ensaio Chromium local derivado do FV-UI-036 validou oito cenários (320/390/900/1440px × claro/escuro), fontes, contraste dos elementos auditados e ausência de overflow. A integridade dos arquivos publicados deve ser conferida separadamente no GitHub. Consulte `frontend/docs/69_FV_UI_040_HIERARQUIA_LISTA_2026_10_24.md`.
+
+## FV-UI-041 — Legibilidade do painel Detalhes (24/10/2026)
+
+O painel Detalhes mantém as abas, permissões e dados de demonstração já existentes. A hierarquia visual foi aperfeiçoada com rótulos de 11px, valores e mensagens de 12px, identidade do caso de 15px e abas com alvo de pelo menos 44px. Cores neutras e diferenciação de avisos em claro/escuro, sem deslocar informações restritas para telas gerenciais. Ensaio Chromium local derivado FV-UI-036: 8 cenários em 320/390/900/1440px, contraste dos elementos amostrados ≥4,5:1, alternância das abas Notas/Resumo e ausência de overflow; verificação de conteúdo oficial por manifesto remoto, não por checkout completo autenticado. [Documentação](../docs/70_FV_UI_041_LEGIBILIDADE_DETALHES_2026_10_24.md).

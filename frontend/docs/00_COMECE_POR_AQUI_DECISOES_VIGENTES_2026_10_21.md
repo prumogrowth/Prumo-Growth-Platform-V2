@@ -144,6 +144,10 @@
 
 **[FV-UI-040 — hierarquia da lista em ambos os temas](./69_FV_UI_040_HIERARQUIA_LISTA_2026_10_24.md)**: títulos e metadados com fontes legíveis, contraste reforçado e uma seleção mais perceptível, sem mudar contexto, mensagens ou escopos. Ensaios locais de Chromium (oito cenários) e Node, mais manifesto de 58 blobs conferido no GitHub. Ainda sem gate de checkout autenticado.
 
+## FV-UI-041 — legibilidade de detalhes (24/10/2026)
+
+**[FV-UI-041 — painel Detalhes em claro e escuro](./70_FV_UI_041_LEGIBILIDADE_DETALHES_2026_10_24.md)**: abas e propriedades com fontes mais legíveis, aviso com contraste ajustado e regras de dark mode sem alterar escopo ou ações. Teste local em oito cenários; hashes finais verificados no GitHub.
+
 ## Estado do trabalho
 FV-UI-015/016: demonstrações com dados sintéticos. **NÃO** declarar integração real, Auth/RLS/GoTrue, comunicações Meta ou remessas confirmadas. FV-UI-013 não homologada formalmente; **19F 69/100** como último marco. Esta consolidação é **documentação somente**. Nenhum código, migration, branch S1, dado real ou deploy foi tocado.
 

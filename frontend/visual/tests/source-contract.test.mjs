@@ -507,3 +507,13 @@ test('FV-UI-040: informações da fila ganham hierarquia nos dois temas',()=>{
   assert.match(browserSmoke,/FV-UI-040 hierarquia legivel da fila em 8 cenarios: PASS/);
   assert.match(browserSmoke,/ratio>=4\.5/);
 });
+
+
+test('FV-UI-041: detalhes mantem texto legivel e abas sem mudar contratos',()=>{
+  assert.match(styles,/\.detail-pane \.property\{font-size:12px/);
+  assert.match(styles,/\.detail-pane \.detail-label\{font-size:11px/);
+  assert.match(styles,/\.detail-pane \.detail-tab\{font-size:12px;min-height:44px/);
+  assert.match(styles,/\.visual-app\[data-theme="dark"\] \.detail-pane \.detail-callout\.warning/);
+  assert.match(browserSmoke,/FV-UI-041 detalhes legiveis em oito cenarios e abas preservadas: PASS/);
+  assert.match(browserSmoke,/ratio>=4\.5/);
+});
