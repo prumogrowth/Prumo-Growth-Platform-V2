@@ -32,7 +32,7 @@ const checks=[
  async()=>{assert.equal((await issue({},change(E,'wamid','wamid.FORGED'))).decision,'LAB_SCOPE_DENIED');},
  async()=>{assert.equal((await issue({},change(E,'recipient','5581999999999'))).decision,'LAB_SCOPE_DENIED');},
  async()=>{assert.equal((await issue({getRegistry:async()=>change(R,'tenantRef','FORGED')})).decision,'LAB_SCOPE_DENIED');},
- async()=>{assert.equal((await issue({getRegistry:async()=>change(R,'channelRef',randomUUID())})).decision,'LAB_SCOPE_DENIED');},
+ async()=>{const forgedChannel=randomUUID();assert.equal((await issue({getRegistry:async()=>change(R,'channelRef',forgedChannel)})).decision,'LAB_SCOPE_DENIED');},
  async()=>{assert.equal((await issue({lookupBinding:async()=>change(B,'bindingRevision',0)})).decision,'LAB_SCOPE_DENIED');},
  async()=>{assert.equal((await issue({getRegistry:async()=>change(R,'unexpected',true)})).decision,'LAB_SCOPE_DENIED');},
  async()=>{const x={...R};Object.defineProperty(x,'appRef',{get(){throw Error('getter')}});assert.equal((await issue({getRegistry:async()=>x})).decision,'LAB_SCOPE_DENIED');},
