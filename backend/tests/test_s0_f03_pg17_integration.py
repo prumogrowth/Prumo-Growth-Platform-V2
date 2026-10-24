@@ -1044,5 +1044,71 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
                     'set alias_id=%s where id=%s',(second,event))
         self.assertEqual(cm.exception.sqlstate,'42501')
 
+
+    def _pending_identity(self,phone,shop=None,channel=None):
+        with self.pg.connect(DB) as con:
+            con.execute('insert into prumo_private.pendencias_identidade_s0 '
+                '(concessionaria_id,canal_id,id_externo,telefone_sintetico,'
+                'texto_sintetico,motivo) values (%s,%s,%s,%s,%s,%s)',
+                (shop or self.shop,channel or self.channel,str(uuid.uuid4()),
+                 phone,'fixture: identidade ambigua','IDENTITY_CONFLICT'))
+
+    def test_74_unresolved_exact_phone_blocks_CAS_without_receipt(self):
+        from backend.s0_f03_version_reservation_local import ReservationState as State
+        store,v=self._prepare_cas()
+        self._pending_identity('+5511988887777')
+        self.assertIs(self._reserve(store,v),State.CONFLICT_REVIEW_REQUIRED)
+        with self.pg.connect(DB) as con:
+            amount=con.execute('select count(*) from '
+                'prumo_private.cfi01_f03_reservations_local '
+                'where evento_fechamento_id=%s',(self.event,)).fetchone()[0]
+        self.assertEqual(amount,0)
+
+    def test_75_unresolved_mobile_variant_blocks_CAS(self):
+        from backend.s0_f03_version_reservation_local import ReservationState as State
+        store,v=self._prepare_cas()
+        # The source's own Brazilian +55 9-digit/8-digit variant key.
+        self._pending_identity('+551188887777')
+        self.assertIs(self._reserve(store,v),State.CONFLICT_REVIEW_REQUIRED)
+
+    def test_76_unresolved_alias_phone_blocks_CAS(self):
+        from backend.s0_f03_version_reservation_local import ReservationState as State
+        self._insert_alias(number='+5511999981111')
+        store,v=self._prepare_cas()
+        self._pending_identity('+5511999981111')
+        self.assertIs(self._reserve(store,v),State.CONFLICT_REVIEW_REQUIRED)
+
+    def test_77_unrelated_pending_phone_is_not_arbitrary_global_block(self):
+        from backend.s0_f03_version_reservation_local import ReservationState as State
+        store,v=self._prepare_cas()
+        self._pending_identity('+5581999965555')
+        self.assertIs(self._reserve(store,v),State.RESERVED_REVIEW_ONLY)
+
+    def test_78_other_store_pending_phone_is_isolated(self):
+        from backend.s0_f03_version_reservation_local import ReservationState as State
+        store,v=self._prepare_cas()
+        other_shop,other_channel=uuid.uuid4(),uuid.uuid4()
+        with self.pg.connect(DB) as con:
+            con.execute('insert into public.concessionarias(id,nome_operacional) '
+                "values (%s,'OTHER PENDING F03 SHOP')",(other_shop,))
+            con.execute('insert into public.canais_loja '
+                '(id,concessionaria_id,identificador_emissor) '
+                'values (%s,%s,%s)',
+                (other_channel,other_shop,str(other_channel)))
+        self._pending_identity('+5511988887777',other_shop,other_channel)
+        self.assertIs(self._reserve(store,v),State.RESERVED_REVIEW_ONLY)
+
+    def test_79_pending_identity_blocks_idempotent_replay(self):
+        from backend.s0_f03_version_reservation_local import ReservationState as State
+        store,v=self._prepare_cas()
+        self.assertIs(self._reserve(store,v),State.RESERVED_REVIEW_ONLY)
+        self._pending_identity('+5511988887777')
+        self.assertIs(self._reserve(store,v),State.CONFLICT_REVIEW_REQUIRED)
+        with self.pg.connect(DB) as con:
+            amount=con.execute('select count(*) from '
+                'prumo_private.cfi01_f03_reservations_local '
+                'where evento_fechamento_id=%s',(self.event,)).fetchone()[0]
+        self.assertEqual(amount,1)
+
 if __name__=='__main__':
     unittest.main()
