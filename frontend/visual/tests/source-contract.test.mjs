@@ -495,3 +495,15 @@ test('FV-UI-039: temas têm alvos de toque legíveis e reflow de cabeçalho',()=
   assert.match(browserSmoke,/FV-UI-039 botoes de tema 44px e reflow em quatro larguras: PASS/);
   assert.match(browserSmoke,/theme_width in \(320,390,900,1440\)/);
 });
+
+
+test('FV-UI-040: informações da fila ganham hierarquia nos dois temas',()=>{
+  assert.match(styles,/\.list-pane \.item-title\{font-size:14px/);
+  assert.match(styles,/\.list-pane \.item-preview\{font-size:12px/);
+  assert.match(styles,/\.list-pane \.item-time\{font-size:11px/);
+  assert.match(styles,/\.list-pane \.micro-tag\{font-size:11px/);
+  assert.match(styles,/\.list-pane \.summary-tile span\{font-size:11px/);
+  assert.match(styles,/\.visual-app\[data-theme="dark"\] \.list-pane \.summary-tile span/);
+  assert.match(browserSmoke,/FV-UI-040 hierarquia legivel da fila em 8 cenarios: PASS/);
+  assert.match(browserSmoke,/ratio>=4\.5/);
+});

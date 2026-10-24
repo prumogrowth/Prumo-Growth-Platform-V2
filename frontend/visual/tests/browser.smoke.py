@@ -737,4 +737,43 @@ with sync_playwright() as p:
         touch.close()
     print('FV-UI-039 botoes de tema 44px e reflow em quatro larguras: PASS')
 
+    # FV-UI-040: hierarquia da fila em ambos os temas, com contraste e sem overflow.
+    contrast_function="""selector => {
+      const node=document.querySelector(selector);if(!node)return null;
+      const parse=s=>{const m=s.match(/rgba?\(([^)]+)\)/);return m?m[1].split(',').map(Number):null};
+      const luminance=v=>{const a=v.slice(0,3).map(n=>n/255).map(n=>n<=.04045?n/12.92:((n+.055)/1.055)**2.4);
+        return .2126*a[0]+.7152*a[1]+.0722*a[2]};
+      const foreground=parse(getComputedStyle(node).color);if(!foreground)return null;
+      let target=node,background=null;
+      while(target){const color=parse(getComputedStyle(target).backgroundColor);
+        if(color && (color.length<4 || color[3]>=1)){background=color;break;}
+        target=target.parentElement;}
+      if(!background)return null;
+      const x=luminance(foreground),y=luminance(background);
+      return (Math.max(x,y)+.05)/(Math.min(x,y)+.05);
+    }"""
+    for queue_width in (320,390,900,1440):
+        for queue_theme in ('light','dark'):
+            queue_page=browser.new_page(viewport={'width':queue_width,'height':820},color_scheme=queue_theme)
+            queue_page.set_default_timeout(4500)
+            queue_page.set_content(html);queue_page.add_script_tag(content=script)
+            expect(queue_page.locator('#visual-app')).to_have_attribute('data-theme',queue_theme)
+            expect(queue_page.locator('.conversation-card.is-selected')).to_have_count(1)
+            for selector,min_font in (('.conversation-card.is-selected .item-title',14),
+                ('.conversation-card.is-selected .item-preview',12),
+                ('.conversation-card.is-selected .item-time',11),
+                ('.conversation-card.is-selected .micro-tag',11),
+                ('.summary-tile span',11)):
+                item=queue_page.locator(selector).first
+                assert item.count()>0,(queue_width,queue_theme,selector)
+                size=float(item.evaluate('node=>parseFloat(getComputedStyle(node).fontSize)'))
+                assert size>=min_font,(queue_width,queue_theme,selector,size)
+                ratio=queue_page.evaluate(contrast_function,selector)
+                assert ratio is not None and ratio>=4.5,(queue_width,queue_theme,selector,ratio)
+            assert queue_page.locator('.conversation-card.is-selected').evaluate(
+                'node=>getComputedStyle(node).boxShadow')!='none'
+            assert not queue_page.evaluate('document.documentElement.scrollWidth > innerWidth')
+            queue_page.close()
+    print('FV-UI-040 hierarquia legivel da fila em 8 cenarios: PASS')
+
     browser.close()

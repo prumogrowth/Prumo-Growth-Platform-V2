@@ -195,3 +195,7 @@ Com o tema escuro, o diálogo gerencial conserva o mesmo escopo fictício e as q
 ## FV-UI-039 — Controle Claro/Escuro com alvo de toque de 44px (24/10/2026)
 
 Os botões Claro e Escuro agora possuem alvo de toque de pelo menos 44×44 CSS pixels. No cabeçalho até 400px, os elementos se reorganizam sem overflow, preservando as duas escolhas e os demais controles. Chromium verifica o tamanho real, seleção `aria-pressed` e ausência de rolagem horizontal em 320, 390, 900 e 1440px, nos dois temas. Não altera autorização, dados, mensagens, estado comercial nem preferência de tema. [FV-UI-039](../docs/68_FV_UI_039_ALVOS_TOQUE_TEMAS_2026_10_24.md).
+
+## FV-UI-040 — Hierarquia da fila (24/10/2026)
+
+Nomes 14px, prévias 12px e metadados, etiquetas e rótulos dos três indicadores com 11px. Contraste mais forte em ambos os temas e marca interna discreta na conversa selecionada. Não altera filtro, estado, caso ou permissão. O ensaio Chromium local derivado do FV-UI-036 validou oito cenários (320/390/900/1440px × claro/escuro), fontes, contraste dos elementos auditados e ausência de overflow. A integridade dos arquivos publicados deve ser conferida separadamente no GitHub. Consulte `frontend/docs/69_FV_UI_040_HIERARQUIA_LISTA_2026_10_24.md`.
