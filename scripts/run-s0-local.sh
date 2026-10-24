@@ -28,6 +28,7 @@ psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$ROOT/supabase/tests/s
 python3 "$ROOT/supabase/tests/s0_wa_044_assert_meta_handoff_pg17.py"
 python3 "$ROOT/supabase/tests/s0_wa_046_assert_key_revocation_race_pg17.py"
 python3 "$ROOT/supabase/tests/s0_wa_047_assert_handoff_canonical_pg17.py"
+node --test "$ROOT/supabase/tests/s0_wa_048_meta_handoff_adapter.test.mjs"
 bash "$ROOT/scripts/test_s0_concurrency.sh"
 bash "$ROOT/scripts/test_s0_cross_shop.sh"
 bash "$ROOT/scripts/test_s0_c02_concurrency.sh"
