@@ -25,3 +25,14 @@ A implementação foi previamente ensaiada com fontes locais derivadas do FV-UI-
 Não é checkout Git autenticado, homologação, teste humano WCAG/leitor de tela ou aceite FV-22. Não há autorização para merge em `main` nem deploy.
 
 **Anterior:** [FV-UI-036](./65_FV_UI_036_GATE_NATIVO_LOCAL_2026_10_23.md).
+
+## Auditoria remota após repin
+
+- Commit de código FV-UI-037: `3480921e42f1c71f2b2a54ce15c0d11a83fee87a`.
+- Commit de documentação: `a9d27f2aa727ff02671f25481f71383030f8aa15`.
+- Commit de manifesto: `2ac11a1507f9ec27b952c1050132d33710b85c6d`.
+- Comparação desde FV-UI-036: **3 commits**, **9 arquivos alterados**, **zero arquivos fora de `frontend/`**.
+- Árvore Git oficial: **58/58 Git blob SHA-1 e tamanhos conferidos** perante `verify_offline_export.py`; **zero divergências**.
+- `source_head` do manifesto: commit de código `3480921...`, não o commit que atualizou o próprio manifesto; isso evita autopinagem circular.
+- `main` não sofreu alteração pela nossa frente; sem merge, deploy ou integração produtiva.
+- Fonte do diagnóstico de browser/Node: ambiente local derivado da base FV-UI-036, *não* ZIP oficial/checkout autenticado deste HEAD. Evidência remota é de integridade e presença dos contratos; a execução nativa integral sobre um checkout oficial permanece pendente.
