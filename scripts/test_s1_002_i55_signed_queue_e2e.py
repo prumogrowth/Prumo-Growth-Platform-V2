@@ -7,6 +7,7 @@ if os.environ.get("CI")!="true" or os.environ.get("PRUMO_S1_I37_EPHEMERAL")!="YE
     raise AssertionError("I55 only in disposable CI")
 sql(path="supabase/migrations/202610190054_s0_fila_humana_canonica.sql")
 sql(path="supabase/migrations/202610190055_s0_fila_reconciliacao_casos.sql")
+sql(path="supabase/migrations/202610190056_s0_s1_grant_atribuicao_guard.sql")
 sql(path="supabase/tests/s1_079_fila_assinada_canonica_local_only.sql")
 # I37 legacy movement only requires a team link, NOT a manager/store grant.
 # I55 intentionally requires current 'gestor' shop grant for queue list/claim.
