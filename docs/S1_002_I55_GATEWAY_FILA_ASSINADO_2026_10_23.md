@@ -52,3 +52,7 @@ O cenário E2E de revogação foi ajustado para criar uma **terceira pendência 
 - Execuções anteriores #40082201339 e #40082614227 demonstraram dois **problemas em fixtures E2E**, não exigiram enfraquecer o RBAC: primeiro faltava grant da loja; depois o teste de revogação usava caso já atribuído e recebia CAS 409. Corrigidos respectivamente em `fe0e770` e `ad17444`, com última execução verde.
 
 **Limites ainda abertos:** esta é comprovação local com Supabase GoTrue/HMAC e banco descartável; não prova prontidão de infraestrutura de produção, frontend, paginação real além de 25 itens, reconciliação de fila com casos criados fora do fluxo, nem monitoramento operacional. Nenhuma alteração feita em hospedagem, Meta, Banco ou `main`.
+
+### Resultado complementar I56 (24/10/2026)
+
+A integração anterior I55 (8/8) foi ampliada com a prova S1QUEUE-165 de reconciliação de caso externo: **9/9 E2E GoTrue/HMAC e 11/11 unitários SUCCESS**, [run #40089738334](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40089738334), commit 640ba119. No PG17, [run #40089537969](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40089537969) validou I56 6/6 mais 2/2 corridas com locks reais e regressão I54. Ver [documento I56](S1_002_I56_RECONCILIACAO_FILA_2026_10_24.md). **Somente ambiente descartável; sem produção.**
