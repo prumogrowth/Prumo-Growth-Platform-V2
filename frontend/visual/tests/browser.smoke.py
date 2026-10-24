@@ -676,4 +676,46 @@ with sync_playwright() as p:
     follow_system.close()
     print('FV-UI-037 sistema e escolha manual: PASS')
 
+    # FV-UI-038: contraste real em diálogos gerenciais do tema escuro.
+    # Testar textos pequenos em lotes, monitoramento e fila, não dados comerciais.
+    for manager_width in (1366,390):
+        manager_dark=browser.new_page(viewport={'width':manager_width,'height':800},color_scheme='dark')
+        manager_dark.set_default_timeout(4500)
+        manager_errors=[]
+        manager_dark.on('pageerror',lambda error:manager_errors.append(str(error)))
+        manager_dark.set_content(html);manager_dark.add_script_tag(content=script)
+        expect(manager_dark.locator('body')).to_have_attribute('data-theme','dark')
+        manager_dark.locator('#actor-select').select_option('marina')
+        manager_dark.locator('#team-nav-mobile' if manager_width<=760 else '#team-nav').click()
+        contrast_js="""selector => {
+          const el=document.querySelector(selector);
+          if(!el) return null;
+          const rgb=value=>{const match=value.match(/rgba?\\(([^)]+)\\)/);
+            return match ? match[1].split(',').slice(0,3).map(Number) : null;};
+          const lum=v=>{const xs=v.map(x=>x/255).map(x=>x<=.04045?x/12.92:((x+.055)/1.055)**2.4);
+            return .2126*xs[0]+.7152*xs[1]+.0722*xs[2];};
+          const fg=rgb(getComputedStyle(el).color);
+          let element=el,bg=null;
+          while(element){const raw=getComputedStyle(element).backgroundColor;
+            if(raw && !raw.endsWith(', 0)') && raw!=='transparent'){bg=rgb(raw);break;}
+            element=element.parentElement;}
+          if(!fg||!bg)return null;
+          const a=lum(fg),b=lum(bg);return (Math.max(a,b)+.05)/(Math.min(a,b)+.05);
+        }"""
+        manager_dark.locator('#team-show-batches').click()
+        for selector in ('.team-batch-summary','.team-batch-card span','.team-help summary'):
+            ratio=manager_dark.evaluate(contrast_js,selector)
+            assert ratio is not None and ratio>=4.5,(manager_width,selector,ratio)
+        manager_dark.locator('#team-show-monitor').click()
+        for selector in ('.team-monitor-metric span','.team-monitor-stage'):
+            ratio=manager_dark.evaluate(contrast_js,selector)
+            assert ratio is not None and ratio>=4.5,(manager_width,selector,ratio)
+        manager_dark.locator('#team-show-queue').click()
+        ratio=manager_dark.evaluate(contrast_js,'.team-queue-item span')
+        assert ratio is not None and ratio>=4.5,(manager_width,'team queue',ratio)
+        assert not manager_dark.evaluate('document.documentElement.scrollWidth > innerWidth')
+        assert not manager_errors,repr(manager_errors)
+        manager_dark.close()
+    print('FV-UI-038 contraste de painel gerencial em dark desktop e mobile: PASS')
+
     browser.close()

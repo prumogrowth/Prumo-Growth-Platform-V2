@@ -476,3 +476,13 @@ test('FV-UI-037: preferência dinâmica só antes da escolha manual',()=>{
   assert.match(domMock,/setSystemDark\(dark\)/);
   assert.match(browserSmoke,/FV-UI-037 sistema e escolha manual: PASS/);
 });
+
+
+test('FV-UI-038: contraste do modal gerencial no tema escuro é verificado no navegador',()=>{
+  assert.match(styles,/body\[data-theme="dark"\] \.team-dialog \.team-batch-summary/);
+  assert.match(styles,/body\[data-theme="dark"\] \.team-dialog :is\(/);
+  assert.match(styles,/\.team-help summary/);
+  assert.match(styles,/outline-color:#8ad6c5/);
+  assert.match(browserSmoke,/FV-UI-038 contraste de painel gerencial em dark desktop e mobile: PASS/);
+  assert.match(browserSmoke,/ratio>=4\.5/);
+});

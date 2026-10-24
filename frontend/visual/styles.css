@@ -243,3 +243,28 @@ body[data-theme="dark"] dialog :is(.team-monitor-card,.team-monitor-metric,.team
 body[data-theme="dark"] dialog .btn-light{background:#2b404b;color:#eaf3f6}
 body[data-theme="dark"] dialog .btn-primary{background:#318f82;color:#fff}
 body[data-theme="dark"] dialog :is(button,input,select,textarea,summary):focus-visible{outline:3px solid #83dac9;outline-offset:2px}
+
+/* FV-UI-038: legibilidade dos painéis gerenciais, sem mudar semântica ou dados. */
+body[data-theme="dark"] .team-dialog .team-batch-summary {
+  background:#22323a;
+  border-color:#37505a;
+  color:#e8f2f5;
+}
+body[data-theme="dark"] .team-dialog :is(
+  .team-batch-card span,.team-queue-item span,.team-monitor-card span,
+  .team-monitor-metric span,.team-monitor-tile span,.team-monitor-operator span,
+  .team-monitor-states,.team-monitor-stage,.team-monitor-subheading,
+  .team-pause-counts,.team-pause-cases,.team-pause-preview,
+  .team-batch-list .team-batch-card > span
+){color:#bdced6}
+body[data-theme="dark"] .team-dialog :is(.team-help summary,.team-pause-preview summary) {
+  color:#b0e5d8;
+}
+body[data-theme="dark"] .team-dialog :is(
+  .team-monitor-section,.team-monitor-operator,.team-monitor-stage,
+  .team-member,.team-monitor-list,.team-monitor-stages
+){border-color:#354953}
+body[data-theme="dark"] .team-dialog .team-mode button[aria-pressed="true"]{
+  outline-color:#8ad6c5;
+  outline-offset:2px;
+}

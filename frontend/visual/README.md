@@ -187,3 +187,7 @@ Introduzimos um controle local de tema com duas opções neutras, **Claro** e **
 ## FV-UI-037 — Tema acompanha o sistema até escolha manual (24/10/2026)
 
 Até a primeira seleção manual, as mudanças de `prefers-color-scheme` atualizam o tema. Após clicar Claro ou Escuro, o tema selecionado permanece durante a sessão; recarregar restaura o modo automático. Nenhum armazenamento, API, mudança de caso ou permissão. [Documento](../docs/66_FV_UI_037_TEMA_SISTEMA_ESCOLHA_MANUAL_2026_10_24.md).
+
+## FV-UI-038 — Contraste dos módulos de gestão no tema escuro (24/10/2026)
+
+Com o tema escuro, o diálogo gerencial conserva o mesmo escopo fictício e as quatro opções existentes, mas passa a ter leitura consistente em Lotes, Monitoramento, Fila compartilhada e textos auxiliares. O CSS foi ajustado apenas sob `body[data-theme="dark"] .team-dialog`; testes Chromium em 1366px e 390px verificam contraste de texto de pelo menos 4,5:1 nos exemplos selecionados. Não altera permissões, casos, ações ou APIs. [Relatório FV-UI-038](../docs/67_FV_UI_038_CONTRASTE_MODAL_GERENCIAL_DARK_2026_10_24.md).

@@ -132,6 +132,10 @@
 
 **[FV-UI-037 — preferência claro/escuro dinâmica](./66_FV_UI_037_TEMA_SISTEMA_ESCOLHA_MANUAL_2026_10_24.md)**: mudanças de tema no sistema atualizam a interface até a seleção explícita de Claro ou Escuro. A preferência manual prevalece durante a sessão, sem armazenamento ou mudanças comerciais. Somente protótipo fictício.
 
+## FV-UI-038 — contraste dos módulos gerenciais em escuro (24/10/2026)
+
+**[FV-UI-038 — legibilidade no diálogo da equipe](./67_FV_UI_038_CONTRASTE_MODAL_GERENCIAL_DARK_2026_10_24.md)**: uniformiza superfícies e textos auxiliares dos módulos de Lotes, Monitoramento, Fila e ajuda no modo escuro. Inclui testes de contraste em Chromium para desktop/celular; sem dados reais, autorização ou operação de negócio.
+
 ## Estado do trabalho
 FV-UI-015/016: demonstrações com dados sintéticos. **NÃO** declarar integração real, Auth/RLS/GoTrue, comunicações Meta ou remessas confirmadas. FV-UI-013 não homologada formalmente; **19F 69/100** como último marco. Esta consolidação é **documentação somente**. Nenhum código, migration, branch S1, dado real ou deploy foi tocado.
 
