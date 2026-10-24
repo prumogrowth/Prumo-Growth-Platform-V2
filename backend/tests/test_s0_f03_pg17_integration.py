@@ -851,5 +851,198 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
                 (another_shop,)).fetchone()[0]
         self.assertEqual((ver,foreign),(1,2))
 
+
+    def _insert_alias(self,number='+5511999981111',confirmed=True):
+        with self.pg.connect(DB) as con:
+            return con.execute('insert into prumo_private.aliases_identidade_s0 '
+                '(concessionaria_id,lead_id,numero_sintetico,origem,'
+                'mobile_confirmado_sintetico) values (%s,%s,%s,%s,%s) returning id',
+                (self.shop,self.lead,number,'CANAL_SINTETICO',confirmed)).fetchone()[0]
+
+    def _identity_version(self,lead=None,shop=None):
+        with self.pg.connect(DB) as con:
+            return con.execute('select versao_identidade from '
+                'prumo_private.cfi01_f03_lead_versions_local '
+                'where concessionaria_id=%s and lead_id=%s',
+                (shop or self.shop,lead or self.lead)).fetchone()[0]
+
+    def test_58_new_alias_invalidates_existing_CAS(self):
+        from backend.s0_f03_version_reservation_local import ReservationState as State
+        store,vector=self._prepare_cas()
+        self._insert_alias()
+        self.assertEqual(self._identity_version(),2)
+        self.assertIs(self._reserve(store,vector),State.STALE_REVIEW_REQUIRED)
+
+    def test_59_unconfirmed_alias_still_invalidates_identity(self):
+        self._seed_versions()
+        self._insert_alias(confirmed=False)
+        self.assertEqual(self._identity_version(),2)
+
+    def test_60_duplicate_alias_insert_does_not_bump(self):
+        self._seed_versions()
+        self._insert_alias()
+        with self.pg.connect(DB) as con:
+            con.execute('insert into prumo_private.aliases_identidade_s0 '
+                '(concessionaria_id,lead_id,numero_sintetico,origem,'
+                'mobile_confirmado_sintetico) values (%s,%s,%s,%s,%s) '
+                'on conflict(concessionaria_id,numero_sintetico) do nothing',
+                (self.shop,self.lead,'+5511999981111','CANAL_SINTETICO',True))
+        self.assertEqual(self._identity_version(),2)
+
+    def test_61_alias_evidence_change_invalidates_identity(self):
+        self._seed_versions()
+        alias=self._insert_alias(confirmed=False)
+        with self.pg.connect(DB) as con:
+            con.execute('update prumo_private.aliases_identidade_s0 '
+                'set mobile_confirmado_sintetico=true where id=%s',(alias,))
+        self.assertEqual(self._identity_version(),3)
+
+    def test_62_alias_noop_update_does_not_bump(self):
+        self._seed_versions()
+        alias=self._insert_alias()
+        with self.pg.connect(DB) as con:
+            con.execute('update prumo_private.aliases_identidade_s0 '
+                'set origem=origem where id=%s',(alias,))
+        self.assertEqual(self._identity_version(),2)
+
+    def test_63_alias_deletion_invalidates_identity(self):
+        self._seed_versions()
+        alias=self._insert_alias()
+        with self.pg.connect(DB) as con:
+            con.execute('delete from prumo_private.aliases_identidade_s0 '
+                'where id=%s',(alias,))
+        self.assertEqual(self._identity_version(),3)
+
+    def test_64_alias_cannot_be_rebound_to_different_lead(self):
+        self._seed_versions()
+        alias=self._insert_alias()
+        other=uuid.uuid4()
+        with self.pg.connect(DB) as con:
+            con.execute('insert into public.leads_loja '
+                '(id,concessionaria_id,telefone_cliente_normalizado) '
+                "values (%s,%s,'+5511999912222')",(other,self.shop))
+        with self.assertRaises(self.pg.Error) as cm:
+            with self.pg.connect(DB) as con:
+                con.execute('update prumo_private.aliases_identidade_s0 '
+                    'set lead_id=%s where id=%s',(other,alias))
+        self.assertEqual(cm.exception.sqlstate,'42501')
+        self.assertEqual(self._identity_version(),2)
+
+    def test_65_identity_event_append_bumps_version(self):
+        self._seed_versions()
+        alias=self._insert_alias()
+        with self.pg.connect(DB) as con:
+            con.execute('insert into prumo_private.eventos_identidade_s0 '
+                '(concessionaria_id,lead_id,alias_id,decisao) '
+                'values (%s,%s,%s,%s)',
+                (self.shop,self.lead,alias,'MATCH_EXACT'))
+        self.assertEqual(self._identity_version(),3)
+
+    def test_66_identity_event_must_match_alias_lead(self):
+        self._seed_versions()
+        alias=self._insert_alias()
+        other=uuid.uuid4()
+        with self.pg.connect(DB) as con:
+            con.execute('insert into public.leads_loja '
+                '(id,concessionaria_id,telefone_cliente_normalizado) '
+                "values (%s,%s,'+5511999912222')",(other,self.shop))
+        with self.assertRaises(self.pg.Error) as cm:
+            with self.pg.connect(DB) as con:
+                con.execute('insert into prumo_private.eventos_identidade_s0 '
+                    '(concessionaria_id,lead_id,alias_id,decisao) '
+                    'values (%s,%s,%s,%s)',
+                    (self.shop,other,alias,'MATCH_EXACT'))
+        self.assertEqual(cm.exception.sqlstate,'42501')
+
+    def test_67_identity_event_decision_change_bumps_version(self):
+        self._seed_versions()
+        alias=self._insert_alias()
+        with self.pg.connect(DB) as con:
+            event=con.execute('insert into prumo_private.eventos_identidade_s0 '
+                '(concessionaria_id,lead_id,alias_id,decisao) '
+                'values (%s,%s,%s,%s) returning id',
+                (self.shop,self.lead,alias,'MATCH_EXACT')).fetchone()[0]
+            con.execute('update prumo_private.eventos_identidade_s0 '
+                'set decisao=%s where id=%s',('MATCH_CANONICAL_VARIANT',event))
+        self.assertEqual(self._identity_version(),4)
+
+    def test_68_real_S0_028_resolver_increments_alias_and_event_version(self):
+        from backend.s0_f03_version_reservation_local import ReservationState as State
+        store,vector=self._prepare_cas()
+        with self.pg.connect(DB) as con:
+            out=con.execute('select prumo_private.resolver_contato_s0(%s,%s,%s,%s)',
+                (self.shop,'+5511988887777','CANAL_SINTETICO',True)).fetchone()[0]
+        self.assertEqual(out['outcome'],'MATCH_EXACT')
+        self.assertEqual(str(out['lead_id']),str(self.lead))
+        self.assertEqual(self._identity_version(),3)
+        self.assertIs(self._reserve(store,vector),State.STALE_REVIEW_REQUIRED)
+
+    def test_69_alias_change_in_other_store_does_not_invalidate_customer(self):
+        self._seed_versions()
+        other_shop,other_lead=uuid.uuid4(),uuid.uuid4()
+        with self.pg.connect(DB) as con:
+            con.execute('insert into public.concessionarias(id,nome_operacional) '
+                "values (%s,'F03 OTHER ALIAS SHOP')",(other_shop,))
+            con.execute('insert into public.leads_loja '
+                '(id,concessionaria_id,telefone_cliente_normalizado) '
+                "values (%s,%s,'+5511977776666')",(other_lead,other_shop))
+            con.execute('insert into prumo_private.cfi01_f03_lead_versions_local '
+                '(concessionaria_id,lead_id) values (%s,%s)',
+                (other_shop,other_lead))
+            con.execute('insert into prumo_private.aliases_identidade_s0 '
+                '(concessionaria_id,lead_id,numero_sintetico,origem,'
+                'mobile_confirmado_sintetico) values (%s,%s,%s,%s,%s)',
+                (other_shop,other_lead,'+5511977770000','CANAL_SINTETICO',False))
+        self.assertEqual(self._identity_version(),1)
+        self.assertEqual(self._identity_version(other_lead,other_shop),2)
+
+    def test_70_alias_without_F03_version_does_not_break_S0(self):
+        alias=self._insert_alias()
+        with self.pg.connect(DB) as con:
+            count=con.execute('select count(*) from '
+                'prumo_private.cfi01_f03_lead_versions_local where lead_id=%s',
+                (self.lead,)).fetchone()[0]
+        self.assertEqual(count,0)
+        self.assertIsInstance(alias,uuid.UUID)
+
+    def test_71_identity_event_noop_update_does_not_bump(self):
+        self._seed_versions()
+        alias=self._insert_alias()
+        with self.pg.connect(DB) as con:
+            event=con.execute('insert into prumo_private.eventos_identidade_s0 '
+                '(concessionaria_id,lead_id,alias_id,decisao) '
+                'values (%s,%s,%s,%s) returning id',
+                (self.shop,self.lead,alias,'MATCH_EXACT')).fetchone()[0]
+            con.execute('update prumo_private.eventos_identidade_s0 '
+                'set decisao=decisao where id=%s',(event,))
+        self.assertEqual(self._identity_version(),3)
+
+    def test_72_event_deletion_invalidates_identity(self):
+        self._seed_versions()
+        alias=self._insert_alias()
+        with self.pg.connect(DB) as con:
+            event=con.execute('insert into prumo_private.eventos_identidade_s0 '
+                '(concessionaria_id,lead_id,alias_id,decisao) '
+                'values (%s,%s,%s,%s) returning id',
+                (self.shop,self.lead,alias,'MATCH_EXACT')).fetchone()[0]
+            con.execute('delete from prumo_private.eventos_identidade_s0 '
+                'where id=%s',(event,))
+        self.assertEqual(self._identity_version(),4)
+
+    def test_73_identity_event_cannot_switch_alias_ref(self):
+        self._seed_versions()
+        first=self._insert_alias()
+        second=self._insert_alias(number='+5511999982222')
+        with self.pg.connect(DB) as con:
+            event=con.execute('insert into prumo_private.eventos_identidade_s0 '
+                '(concessionaria_id,lead_id,alias_id,decisao) '
+                'values (%s,%s,%s,%s) returning id',
+                (self.shop,self.lead,first,'MATCH_EXACT')).fetchone()[0]
+        with self.assertRaises(self.pg.Error) as cm:
+            with self.pg.connect(DB) as con:
+                con.execute('update prumo_private.eventos_identidade_s0 '
+                    'set alias_id=%s where id=%s',(second,event))
+        self.assertEqual(cm.exception.sqlstate,'42501')
+
 if __name__=='__main__':
     unittest.main()
