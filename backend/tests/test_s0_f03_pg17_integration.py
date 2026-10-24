@@ -1110,5 +1110,201 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
                 'where evento_fechamento_id=%s',(self.event,)).fetchone()[0]
         self.assertEqual(amount,1)
 
+
+    def _review_pending(self, pending=None, *, decision=None, expected_version=1,
+                        evidence=None, idem='f03-human-review-01', identity=None,
+                        s1=True):
+        from backend.s0_f03_identity_human_review_local import (
+            S0F03LocalHumanReviewStore, HumanReviewRequest,
+            HumanReviewDecision, record_human_identity_review_local,
+        )
+        from backend.s0_s1_closure_authority_local import S0S1LocalTeamAuthority
+        if pending is None:
+            with self.pg.connect(DB) as con:
+                pending=con.execute(
+                    'select id from prumo_private.pendencias_identidade_s0 '
+                    'where concessionaria_id=%s order by registrado_em desc,id desc limit 1',
+                    (self.shop,)).fetchone()[0]
+        req=HumanReviewRequest(
+            str(self.case),str(pending),1,expected_version,
+            decision or HumanReviewDecision.ESCALATE_REVIEW,
+            evidence or 'a'*64,idem)
+        return record_human_identity_review_local(
+            'Bearer FIXTURE',req,
+            identity=identity or LocalIdentity(self.actor,self.session),
+            store=S0F03LocalHumanReviewStore(DB),
+            s1=S0S1LocalTeamAuthority() if s1 else None)
+
+    def test_80_human_review_is_append_only_and_no_text(self):
+        from backend.s0_f03_identity_human_review_local import HumanReviewState as State
+        self._seed_versions()
+        self._pending_identity('+5511988887777')
+        self.assertIs(self._review_pending().state,State.RECORDED_REVIEW_ONLY)
+        with self.pg.connect(DB) as con:
+            rows=con.execute('select decisao,evidencia_sha256,ator_id,sessao_id,'
+                'versao_identidade from prumo_private.cfi01_f03_identity_human_reviews_local '
+                'where concessionaria_id=%s and caso_id=%s',(self.shop,self.case)).fetchall()
+        self.assertEqual(len(rows),1)
+        self.assertEqual(rows[0][0],'ESCALATE_REVIEW')
+        self.assertEqual(rows[0][1],'a'*64)
+        self.assertEqual(rows[0][2],self.actor)
+        self.assertEqual(rows[0][3],self.session)
+        self.assertEqual(rows[0][4],1)
+
+    def test_81_human_review_exact_idempotent_replay(self):
+        from backend.s0_f03_identity_human_review_local import HumanReviewState as State
+        self._seed_versions()
+        self._pending_identity('+5511988887777')
+        self.assertIs(self._review_pending().state,State.RECORDED_REVIEW_ONLY)
+        self.assertIs(self._review_pending().state,State.ALREADY_RECORDED_REVIEW_ONLY)
+
+    def test_82_human_review_different_decision_conflicts(self):
+        from backend.s0_f03_identity_human_review_local import (
+            HumanReviewState as State,HumanReviewDecision as Decision,
+        )
+        self._seed_versions()
+        self._pending_identity('+5511988887777')
+        self.assertIs(self._review_pending().state,State.RECORDED_REVIEW_ONLY)
+        self.assertIs(self._review_pending(
+            decision=Decision.CANDIDATE_NOT_RELATED).state,
+            State.CONFLICT_REVIEW_REQUIRED)
+
+    def test_83_human_review_missing_pending_is_denied(self):
+        from backend.s0_f03_identity_human_review_local import HumanReviewState as State
+        self._seed_versions()
+        self.assertIs(self._review_pending(pending=uuid.uuid4()).state,State.DENIED)
+
+    def test_84_human_review_cannot_attach_unrelated_number(self):
+        from backend.s0_f03_identity_human_review_local import HumanReviewState as State
+        self._seed_versions()
+        self._pending_identity('+5581999965555')
+        self.assertIs(self._review_pending().state,State.NOT_RELATED_REVIEW_REQUIRED)
+
+    def test_85_human_review_cannot_attach_other_shop_pending(self):
+        from backend.s0_f03_identity_human_review_local import HumanReviewState as State
+        self._seed_versions()
+        shop,channel=uuid.uuid4(),uuid.uuid4()
+        with self.pg.connect(DB) as con:
+            con.execute('insert into public.concessionarias(id,nome_operacional) '
+                        "values (%s,'OTHER REVIEW LAB SHOP')",(shop,))
+            con.execute('insert into public.canais_loja(id,concessionaria_id,'
+                        'identificador_emissor) values (%s,%s,%s)',
+                        (channel,shop,str(channel)))
+            pending=con.execute('insert into prumo_private.pendencias_identidade_s0 '
+                '(concessionaria_id,canal_id,id_externo,telefone_sintetico,'
+                'texto_sintetico,motivo) values (%s,%s,%s,%s,%s,%s) returning id',
+                (shop,channel,str(uuid.uuid4()),'+5511988887777',
+                 'fixture outro escopo','NEEDS_REVIEW')).fetchone()[0]
+        self.assertIs(self._review_pending(pending=pending).state,State.DENIED)
+
+    def test_86_human_review_stale_identity_version_refused(self):
+        from backend.s0_f03_identity_human_review_local import HumanReviewState as State
+        self._seed_versions()
+        self._pending_identity('+5511988887777')
+        self.assertIs(self._review_pending(expected_version=2).state,
+                      State.STALE_REVIEW_REQUIRED)
+
+    def test_87_human_review_after_alias_change_requires_fresh_version(self):
+        from backend.s0_f03_identity_human_review_local import HumanReviewState as State
+        self._seed_versions()
+        self._pending_identity('+5511988887777')
+        self._insert_alias()
+        self.assertIs(self._review_pending(expected_version=1).state,
+                      State.STALE_REVIEW_REQUIRED)
+        self.assertIs(self._review_pending(expected_version=2).state,
+                      State.RECORDED_REVIEW_ONLY)
+
+    def test_88_human_review_absent_S1_cannot_record(self):
+        from backend.s0_f03_identity_human_review_local import HumanReviewState as State
+        self._seed_versions()
+        self._pending_identity('+5511988887777')
+        self.assertIs(self._review_pending(s1=False).state,State.BLOCKED_S1)
+        with self.pg.connect(DB) as con:
+            count=con.execute('select count(*) from '
+                'prumo_private.cfi01_f03_identity_human_reviews_local').fetchone()[0]
+        self.assertEqual(count,0)
+
+    def test_89_human_review_missing_session_is_denied(self):
+        from backend.s0_f03_identity_human_review_local import HumanReviewState as State
+        self._seed_versions()
+        self._pending_identity('+5511988887777')
+        bad_identity=LocalIdentity(uuid.uuid4(),uuid.uuid4())
+        self.assertIs(self._review_pending(identity=bad_identity).state,State.DENIED)
+
+    def test_90_human_review_expired_role_is_denied(self):
+        from backend.s0_f03_identity_human_review_local import HumanReviewState as State
+        self._seed_versions()
+        self._pending_identity('+5511988887777')
+        with self.pg.connect(DB) as con:
+            con.execute('update public.vinculos_papel_escopo set '
+                "valido_desde=statement_timestamp()-interval '2 days', "
+                "valido_ate=statement_timestamp()-interval '1 day' "
+                'where ator_id=%s and concessionaria_id=%s',
+                (self.actor,self.shop))
+        self.assertIs(self._review_pending().state,State.DENIED)
+
+    def test_91_human_review_record_is_immutable(self):
+        from backend.s0_f03_identity_human_review_local import HumanReviewState as State
+        self._seed_versions()
+        self._pending_identity('+5511988887777')
+        self.assertIs(self._review_pending().state,State.RECORDED_REVIEW_ONLY)
+        for query,params in [
+            ('update prumo_private.cfi01_f03_identity_human_reviews_local '
+             'set decisao=%s where caso_id=%s',('CANDIDATE_NOT_RELATED',self.case)),
+            ('delete from prumo_private.cfi01_f03_identity_human_reviews_local '
+             'where caso_id=%s',(self.case,))]:
+            with self.subTest(query=query):
+                with self.assertRaises(self.pg.Error) as cm:
+                    with self.pg.connect(DB) as con:con.execute(query,params)
+                self.assertEqual(cm.exception.sqlstate,'42501')
+
+    def test_92_authenticated_role_cannot_read_human_reviews(self):
+        self._seed_versions()
+        with self.pg.connect(DB) as con:
+            with self.assertRaises(self.pg.Error):
+                con.execute('set local role authenticated')
+                con.execute('select * from prumo_private.cfi01_f03_identity_human_reviews_local')
+
+    def test_93_simultaneous_different_human_decisions_only_one_receipt(self):
+        from concurrent.futures import ThreadPoolExecutor
+        from backend.s0_f03_identity_human_review_local import (
+            HumanReviewState as State,HumanReviewDecision as Decision,
+        )
+        self._seed_versions()
+        self._pending_identity('+5511988887777')
+        def attempt(d):
+            return self._review_pending(decision=d).state
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            got=list(pool.map(attempt,(
+                Decision.ESCALATE_REVIEW,Decision.CANDIDATE_NOT_RELATED)))
+        self.assertCountEqual(got,[
+            State.RECORDED_REVIEW_ONLY,State.CONFLICT_REVIEW_REQUIRED])
+        with self.pg.connect(DB) as con:
+            amount=con.execute('select count(*) from '
+                'prumo_private.cfi01_f03_identity_human_reviews_local').fetchone()[0]
+        self.assertEqual(amount,1)
+
+    def test_94_human_review_does_not_unblock_F03_reservation(self):
+        from backend.s0_f03_identity_human_review_local import (
+            HumanReviewState as State,HumanReviewDecision as Decision,
+        )
+        from backend.s0_f03_version_reservation_local import ReservationState
+        store,v=self._prepare_cas()
+        self._pending_identity('+5511988887777')
+        self.assertIs(self._review_pending(
+            decision=Decision.CANDIDATE_NOT_RELATED).state,
+            State.RECORDED_REVIEW_ONLY)
+        self.assertIs(self._reserve(store,v),ReservationState.CONFLICT_REVIEW_REQUIRED)
+
+    def test_95_human_review_invalid_evidence_digest_denied(self):
+        from backend.s0_f03_identity_human_review_local import HumanReviewState as State
+        self._seed_versions()
+        self._pending_identity('+5511988887777')
+        self.assertIs(self._review_pending(evidence='NOT_A_SHA').state,State.DENIED)
+        with self.pg.connect(DB) as con:
+            count=con.execute('select count(*) from '
+                'prumo_private.cfi01_f03_identity_human_reviews_local').fetchone()[0]
+        self.assertEqual(count,0)
+
 if __name__=='__main__':
     unittest.main()
