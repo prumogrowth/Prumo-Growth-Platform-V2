@@ -31,7 +31,7 @@ alter table prumo_private.meta_wa48_shadow_receipts_fixture_s0 enable row level 
 grant usage on schema prumo_private to prumo_s0_meta_wa48_client_lab,prumo_s0_meta_wa48_executor_lab;
 grant select(key_id,app,secret,active,valid_from,valid_until)
  on prumo_private.meta_wa48_shadow_keys_fixture_s0 to prumo_s0_meta_wa48_executor_lab;
-grant insert(nonce,key_id) on prumo_private.meta_wa48_shadow_nonces_fixture_s0
+grant insert(nonce,key_id),select(nonce) on prumo_private.meta_wa48_shadow_nonces_fixture_s0
  to prumo_s0_meta_wa48_executor_lab;
 grant select(key_id,event_ref,body_hash,kind),insert(key_id,event_ref,body_hash,kind)
  on prumo_private.meta_wa48_shadow_receipts_fixture_s0 to prumo_s0_meta_wa48_executor_lab;
@@ -39,6 +39,8 @@ create policy wa48_key_read on prumo_private.meta_wa48_shadow_keys_fixture_s0
  for select to prumo_s0_meta_wa48_executor_lab using(true);
 create policy wa48_nonce_insert on prumo_private.meta_wa48_shadow_nonces_fixture_s0
  for insert to prumo_s0_meta_wa48_executor_lab with check(true);
+create policy wa48_nonce_read on prumo_private.meta_wa48_shadow_nonces_fixture_s0
+ for select to prumo_s0_meta_wa48_executor_lab using(true);
 create policy wa48_receipt_read on prumo_private.meta_wa48_shadow_receipts_fixture_s0
  for select to prumo_s0_meta_wa48_executor_lab using(true);
 create policy wa48_receipt_insert on prumo_private.meta_wa48_shadow_receipts_fixture_s0
