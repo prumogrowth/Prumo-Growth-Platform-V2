@@ -6,7 +6,7 @@ actors and valid JWTs. The canonical FK is applied BEFORE I44 seeded rows.
 # Query list visibility remains exactly I44's owner/team/same-contact scope.
 assert cases(m1)=={CA,CB,CD} and cases(m4)=={CC}
 assert cases(c3)==set(), "I59 exception was revoked in preceding I44 tests"
-assert len(rows("mensagens", m1))==3
+assert len(rows("mensagens", m1))==4  # I44-04 inserted one authorized current-case reply
 print("PASS I59-REST-01: real JWT keeps team history; revoked exception stays invisible")
 
 # The valid linked conversation must not be relabeled as another contact in
