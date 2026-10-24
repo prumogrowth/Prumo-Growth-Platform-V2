@@ -105,19 +105,37 @@ try:
     else:
         raise AssertionError("I55 nonce replay accepted")
     print("PASS S1QUEUE-162: signed claim and HMAC nonce replay denied inside privileged SQL")
+    # Revocation must be probed on a NEW, UNCLAIMED queue entry.
+    # Otherwise a second claim on an already-owned case can return 409
+    # from CAS before proving that the shop grant was really revoked.
+    lead55c="e7550000-0000-4000-8000-000000000003"
+    cycle55c="e7550000-0000-4000-8000-000000000013"
+    sql(f"""insert into public.leads_loja(
+          id,concessionaria_id,telefone_cliente_normalizado)
+          values('{lead55c}',{U(store_a)},'+558188550003');
+          insert into public.ciclos_comerciais(
+          id,concessionaria_id,lead_id,status_comercial)
+          values('{cycle55c}',{U(store_a)},'{lead55c}',
+          'em atendimento pelo operador');""")
+    assert sql(f"select count(*) from prumo_private.s0_fila_humana "
+               f"where ciclo_id={U(cycle55c)} and estado='pendente' and versao=1")=="1"
     # Grant may expire WHILE an operation waits: bank validation is now after-lock.
     sql(f"""update public.vinculos_papel_escopo set valido_ate=clock_timestamp()
         where ator_id={U(g1)} and concessionaria_id={U(store_a)}
         and papel='gestor' and valido_ate is null""")
     status,_=queue55(token53)
     assert status==403,status
-    status,_=claim55(token53,cycle55b,version=2)
+    status,_=claim55(token53,cycle55c,version=1)
     assert status==403,status
+    assert sql(f"select count(*) from public.casos_humanos where ciclo_id={U(cycle55c)}")=="0"
+    assert sql(f"select estado from prumo_private.s0_fila_humana "
+               f"where ciclo_id={U(cycle55c)}")=="pendente"
     sql(f"""update public.vinculos_papel_escopo set valido_ate=null
          where ator_id={U(g1)} and concessionaria_id={U(store_a)}
          and papel='gestor' and valido_ate is not null""")
     status,data=queue55(token53)
     ok(status,data,"QUEUE_LIST")
+    assert cycle55c in {item["ciclo_id"] for item in data["items"]}
     print("PASS S1QUEUE-163: manager revocation takes effect on same JWT and restoring grant restores minimal list")
     status,_=http("POST","/rest/v1/rpc/invocar_fila_v55",
           bearer=token53,body={"p_loja":store_a},base=api)

@@ -36,3 +36,7 @@ A resposta do executor assinado agora passa também por uma **allowlist de saíd
 ## Diagnóstico E2E no novo repositório (24/10/2026)
 
 A primeira execução com Actions operante no espelho ([#40082201339](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40082201339)) aprovou os 11 testes unitários do I55 e chegou à S0 real (\`PASS S1QUEUE-157\`), mas a primeira consulta autenticada retornou HTTP 403. A causa identificada no fixture foi **a ausência de concessão de Gestor à loja**: o cenário histórico I37 vinculava o Gestor à equipe sem criar um \`vinculos_papel_escopo\` de papel \`gestor\` para a concessionária. A política I55 exige corretamente ambas as condições. O fixture E2E foi atualizado para conceder explicitamente esse escopo sintético ANTES da consulta, sem alterar a regra de segurança. A reexecução completa é necessária para confirmar o resultado.
+
+### Reforço do teste de revogação I55
+
+O cenário E2E de revogação foi ajustado para criar uma **terceira pendência sintética ainda sem titular**. A negativa HTTP 403 agora deve ocorrer durante a checagem de concessão da própria assunção, e não por CAS de um caso já atribuído. O teste também verifica que não se cria caso e que a pendência continua disponível após restabelecer o grant. Validação dependente de nova execução CI.
