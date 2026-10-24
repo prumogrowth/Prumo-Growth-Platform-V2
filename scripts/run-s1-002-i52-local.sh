@@ -17,4 +17,8 @@ psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/migrations/202
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_078_fila_s0_canonica_aceite.sql
 # I54: two independent-session races on the canonical queue; disposable DB.
 bash scripts/test_s1_002_i54_fila_race.sh
-echo "PASS S0+S1 I52-I54 canonical stages after legacy regression"
+# I56 case reconciliation and real two-session concurrency
+psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/migrations/202610190055_s0_fila_reconciliacao_casos.sql
+psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_080_fila_reconciliacao_aceite.sql
+bash scripts/test_s1_002_i56_reconciliacao_race.sh
+echo "PASS S0+S1 I52-I56 canonical stages after legacy regression"
