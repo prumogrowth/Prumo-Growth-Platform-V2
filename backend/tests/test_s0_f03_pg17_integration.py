@@ -1889,7 +1889,7 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
         with self.pg.connect(DB) as con:
             con.execute('update prumo_private.pendencias_identidade_s0 '
                         'set motivo=%s where id=%s',
-                        ('MOTIVO_ATUALIZADO',chain[1]))
+                        ('NEEDS_REVIEW',chain[1]))
         self.assertIs(self._verify_resolution_hold(chain,rid).state,
                       ValidityState.STALE_REVIEW_REQUIRED)
 
