@@ -8,6 +8,7 @@ if os.environ.get("CI")!="true" or os.environ.get("PRUMO_S1_I37_EPHEMERAL")!="YE
 sql(path="supabase/migrations/202610190054_s0_fila_humana_canonica.sql")
 sql(path="supabase/migrations/202610190055_s0_fila_reconciliacao_casos.sql")
 sql(path="supabase/migrations/202610190056_s0_s1_grant_atribuicao_guard.sql")
+sql(path="supabase/migrations/202610190057_s0_fila_gestor_revalidacao.sql")
 sql(path="supabase/tests/s1_079_fila_assinada_canonica_local_only.sql")
 # I37 legacy movement only requires a team link, NOT a manager/store grant.
 # I55 intentionally requires current 'gestor' shop grant for queue list/claim.
@@ -181,7 +182,40 @@ try:
     assert sql(f"select count(*) from public.casos_humanos "
                f"where ciclo_id={U(cycle55d)}")=="1"
     print("PASS S1QUEUE-165: external S0 case reconciled; signed LIST hides it and CLAIM CAS conflicts")
+    # I58: authorization ALWAYS precedes stale queue CAS visibility.
+    # The same JWT remains valid while the shop grant is revoked.
+    sql(f"""update public.vinculos_papel_escopo
+      set valido_ate=pg_catalog.clock_timestamp()
+      where ator_id={U(g1)} and concessionaria_id={U(store_a)}
+      and papel='gestor' and valido_ate is null""")
+    status,_=claim55(token53,cycle55a,version=1)
+    assert status==403,("I58 revoked manager learned stale CAS",status)
+    status,_=claim55(token53,cycle55d,version=1)
+    assert status==403,("I58 revoked manager learned external case",status)
+    status,_=queue55(token53)
+    assert status==403,("I58 revoked manager listed queue",status)
+    sql(f"""update public.vinculos_papel_escopo set valido_ate=null
+      where ator_id={U(g1)} and concessionaria_id={U(store_a)}
+      and papel='gestor' and valido_ate is not null""")
+    status,_=claim55(token53,cycle55a,version=1)
+    assert status==409,("I58 restored manager stale CAS",status)
+    assert sql(f"""select pg_catalog.position(
+      's0_fila_exigir_gestor_i58' in pg_catalog.pg_get_functiondef(
+       'prumo_private.s0_fila_signed_v55(uuid,uuid,uuid,uuid,bigint,text)'::regprocedure))""")!="0"
+    print("PASS S1QUEUE-166: revoked manager denied even for stale/externally reconciled CAS; restored manager sees conflict")
+    sql(f"""update public.vinculos_papel_escopo
+      set valido_ate=pg_catalog.clock_timestamp()-interval '1 second'
+      where ator_id={U(g1)} and concessionaria_id={U(store_a)}
+      and papel='gestor'""")
+    status,_=queue55(token53)
+    assert status==403,("I58 naturally expired manager listed queue",status)
+    sql(f"""update public.vinculos_papel_escopo set valido_ate=null
+      where ator_id={U(g1)} and concessionaria_id={U(store_a)}
+      and papel='gestor'""")
+    status,data=queue55(token53)
+    ok(status,data,"QUEUE_LIST")
+    print("PASS S1QUEUE-167: LIST rechecks time-expired shop grant and restores visibility only after grant recovery")
 finally:
     server55.shutdown()
     server55.server_close()
-print("I55+I56 9/9 E2E real local GoTrue and signed S0 queue; no hosted deployment")
+print("I55+I56+I58 11/11 E2E real local GoTrue signed S0 queue; no hosted deployment")

@@ -25,4 +25,8 @@ bash scripts/test_s1_002_i56_reconciliacao_race.sh
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/migrations/202610190056_s0_s1_grant_atribuicao_guard.sql
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_081_atribuicao_grant_i57_aceite.sql
 bash scripts/test_s1_002_i57_grant_race.sh
-echo "PASS S0+S1 I52-I57 canonical stages after legacy regression"
+# I58 manager lock and grant revalidation before LIST and claim-CAS
+psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/migrations/202610190057_s0_fila_gestor_revalidacao.sql
+psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_082_fila_gestor_autorizacao_aceite.sql
+bash scripts/test_s1_002_i58_fila_gestor_race.sh
+echo "PASS S0+S1 I52-I58 canonical stages after legacy regression"
