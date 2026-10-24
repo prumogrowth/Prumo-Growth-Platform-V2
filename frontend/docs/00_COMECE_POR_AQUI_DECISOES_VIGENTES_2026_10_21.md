@@ -128,6 +128,10 @@
 
 **[FV-UI-036 — testes nativos](./65_FV_UI_036_GATE_NATIVO_LOCAL_2026_10_23.md)**: provas sobre snapshot derivado; checkout autenticado e aceite FV-22 continuam pendentes.
 
+## FV-UI-037 — tema dinâmico do sistema até escolha manual (24/10/2026)
+
+**[FV-UI-037 — preferência claro/escuro dinâmica](./66_FV_UI_037_TEMA_SISTEMA_ESCOLHA_MANUAL_2026_10_24.md)**: mudanças de tema no sistema atualizam a interface até a seleção explícita de Claro ou Escuro. A preferência manual prevalece durante a sessão, sem armazenamento ou mudanças comerciais. Somente protótipo fictício.
+
 ## Estado do trabalho
 FV-UI-015/016: demonstrações com dados sintéticos. **NÃO** declarar integração real, Auth/RLS/GoTrue, comunicações Meta ou remessas confirmadas. FV-UI-013 não homologada formalmente; **19F 69/100** como último marco. Esta consolidação é **documentação somente**. Nenhum código, migration, branch S1, dado real ou deploy foi tocado.
 
