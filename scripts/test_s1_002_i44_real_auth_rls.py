@@ -297,3 +297,7 @@ exec(compile(_i49.read_text(encoding="utf-8"), str(_i49), "exec"), globals())
 from pathlib import Path
 _i50 = Path("scripts/test_s1_002_i50_fila_revalidacao.py")
 exec(compile(_i50.read_text(encoding="utf-8"), str(_i50), "exec"), globals())
+
+# I60 candidate only after older I45/I48 case-less fail-closed regressions.
+_i60=Path("scripts/test_s1_002_i60_real_auth_pre_case.py")
+exec(compile(_i60.read_text(encoding="utf-8"), str(_i60), "exec"), globals())
