@@ -27,3 +27,14 @@ A verificação integral da árvore Git, inventário de blobs e repin de manifes
 Somente apresentação. Sem chamadas S0/S1, dados reais, Auth/RLS, Meta/WhatsApp, OpenAI, Supabase, banco, mudanças em papéis, lojas, permissões, distribuição, conclusão, estados comerciais ou transporte. Sem deploy e sem merge na `main`.
 
 **Anterior:** [FV-UI-042](./71_FV_UI_042_LEGIBILIDADE_CONVERSA_2026_10_24.md).
+
+
+## Auditoria remota pós-publicação
+
+- Código, teste de browser/contrato e documentação: `5d8ec2e0346e4d8ae822e4686685541edfe305db`.
+- Manifesto de integridade repinado: `01bf8fd0b3f44d5ab449ff887b6fa40317b4a35d`; `source_head` aponta ao commit de conteúdo anterior ao verificador.
+- Compare com FV-UI-042: **2 commits, 7 arquivos alterados, todos em `frontend/`**.
+- Auditoria da árvore remota e `verify_offline_export.py`: **58/58 hashes e tamanhos de blobs Git correspondentes, zero divergências**. SHA do próprio verificador: `bd52605d712d31f029b5c6650fe8a1b15ebb6995`.
+- `main` confirmada em `dace737ab7afb7ae3f5a3a6f5cb522e6def8b43a`, sem merge, deploy ou alteração.
+- O CSS publicado inclui regras para o estado `human` em tema claro/escuro, os alvos 48px, as classes de desabilitação e o teste Chromium dedicado. A auditoria remota confirma os **arquivos**, não executa Chromium nesse HEAD.
+- Evidência de execução: **8/8 cenários de Chromium direcionado PASS e 339/339 testes Node locais PASS**, ambos em base derivada FV-UI-036 com a mudança de estilo. Testes e scripts de outras versões integradas ao HEAD oficial não foram executados no checkout; **gate nativo completo permanece pendente**.
