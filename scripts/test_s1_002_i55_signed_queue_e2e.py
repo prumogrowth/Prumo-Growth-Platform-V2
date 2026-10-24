@@ -199,9 +199,10 @@ try:
       and papel='gestor' and valido_ate is not null""")
     status,_=claim55(token53,cycle55a,version=1)
     assert status==409,("I58 restored manager stale CAS",status)
-    assert sql(f"""select pg_catalog.position(
-      's0_fila_exigir_gestor_i58' in pg_catalog.pg_get_functiondef(
-       'prumo_private.s0_fila_signed_v55(uuid,uuid,uuid,uuid,bigint,text)'::regprocedure))""")!="0"
+    assert sql(f"""select pg_catalog.strpos(
+      pg_catalog.pg_get_functiondef(
+       'prumo_private.s0_fila_signed_v55(uuid,uuid,uuid,uuid,bigint,text)'::regprocedure),
+      's0_fila_exigir_gestor_i58')""")!="0"
     print("PASS S1QUEUE-166: revoked manager denied even for stale/externally reconciled CAS; restored manager sees conflict")
     sql(f"""update public.vinculos_papel_escopo
       set valido_ate=pg_catalog.clock_timestamp()-interval '1 second'
