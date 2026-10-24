@@ -140,6 +140,10 @@
 
 **[FV-UI-039 — controle de tema e reflow](./68_FV_UI_039_ALVOS_TOQUE_TEMAS_2026_10_24.md)**: os botões de tema passam a ter pelo menos 44×44 CSS pixels, com quebra de cabeçalho até 400px e regressão Chromium em 320/390/900/1440px. Apenas aparência e acessibilidade; nenhum efeito comercial.
 
+## FV-UI-040 — Hierarquia visual legível da lista de conversas (24/10/2026)
+
+**[FV-UI-040 — hierarquia da lista em ambos os temas](./69_FV_UI_040_HIERARQUIA_LISTA_2026_10_24.md)**: títulos e metadados com fontes legíveis, contraste reforçado e uma seleção mais perceptível, sem mudar contexto, mensagens ou escopos. Ensaios locais de Chromium (oito cenários) e Node, mais manifesto de 58 blobs conferido no GitHub. Ainda sem gate de checkout autenticado.
+
 ## Estado do trabalho
 FV-UI-015/016: demonstrações com dados sintéticos. **NÃO** declarar integração real, Auth/RLS/GoTrue, comunicações Meta ou remessas confirmadas. FV-UI-013 não homologada formalmente; **19F 69/100** como último marco. Esta consolidação é **documentação somente**. Nenhum código, migration, branch S1, dado real ou deploy foi tocado.
 
