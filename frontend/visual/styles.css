@@ -372,3 +372,17 @@ body[data-theme="dark"] .team-dialog .team-mode button[aria-pressed="true"]{
 .visual-app[data-theme="dark"] .thread-pane .composer input:disabled::placeholder{color:#b6cbd3;opacity:1}
 .visual-app[data-theme="dark"] .thread-pane .send-button:disabled{background:#344852;color:#c9d8df;opacity:1}
 .visual-app[data-theme="dark"] .thread-pane :is(.composer input,.send-button):focus-visible{outline-color:#83dac9}
+
+/* FV-UI-044: preservar a visibilidade do foco na barra operacional rolável. */
+.thread-pane .workflow-bar{
+  padding-inline:6px;
+  padding-top:6px;
+  scroll-padding:8px;
+}
+.thread-pane :is(.workflow-bar .btn,.thread-heading .icon-button,.composer input,.send-button):focus-visible{
+  outline:3px solid #11685d;
+  outline-offset:2px;
+}
+.visual-app[data-theme="dark"] .thread-pane :is(.workflow-bar .btn,.thread-heading .icon-button,.composer input,.send-button):focus-visible{
+  outline-color:#83dac9;
+}

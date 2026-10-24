@@ -920,4 +920,43 @@ with sync_playwright() as p:
             bottom_page.close()
     print('FV-UI-043 rodape operacional 8 cenarios e indicadores contrastantes: PASS')
 
+    # FV-UI-044: Tab/Shift+Tab, foco visível e anel sem corte dentro do overflow.
+    for focus_width in (320,390,900,1440):
+        for focus_theme in ('light','dark'):
+            focus_044=browser.new_page(viewport={'width':focus_width,'height':520 if focus_width<=390 else 760},color_scheme=focus_theme)
+            focus_044.set_default_timeout(4500)
+            focus_errors=[]
+            focus_044.on('pageerror',lambda e:focus_errors.append(str(e)))
+            focus_044.set_content(html);focus_044.add_script_tag(content=script)
+            if focus_width<=760:focus_044.locator('.conversation-card').first.click()
+            expect(focus_044.locator('#thread-pane')).to_be_visible()
+            expect(focus_044.locator('#visual-app')).to_have_attribute('data-theme',focus_theme)
+            # Do painel para o primeiro controle de cabeçalho: foco de teclado percebido.
+            focus_044.locator('#thread-pane').focus()
+            focus_044.keyboard.press('Tab')
+            assert focus_044.evaluate('getComputedStyle(document.activeElement).outlineWidth')=='3px'
+            # Testa o retorno do campo para a ação anterior SEM clicar nem concluir.
+            focus_044.locator('#message-input').focus()
+            focus_044.keyboard.press('Shift+Tab')
+            expect(focus_044.locator('#request-completion')).to_be_focused()
+            ring=focus_044.evaluate("""() => {
+              const e=document.activeElement,bar=document.querySelector('#workflow-bar');
+              const r=e.getBoundingClientRect(),b=bar.getBoundingClientRect(),css=getComputedStyle(e);
+              return {width:css.outlineWidth,style:css.outlineStyle,color:css.outlineColor,
+                left:r.left-b.left,top:r.top-b.top,right:b.right-r.right,bottom:b.bottom-r.bottom};
+            }""")
+            assert ring['width']=='3px' and ring['style']=='solid',(focus_width,focus_theme,ring)
+            assert ring['color']==('rgb(131, 218, 201)' if focus_theme=='dark' else 'rgb(17, 104, 93)')
+            assert all(ring[side]>=5 for side in ('left','right','top','bottom')),(focus_width,focus_theme,ring)
+            focus_044.keyboard.press('Tab')
+            expect(focus_044.locator('#message-input')).to_be_focused()
+            assert focus_044.locator('#message-input').evaluate('e=>getComputedStyle(e).outlineWidth')=='3px'
+            focus_044.keyboard.press('Tab')
+            expect(focus_044.locator('.send-button')).to_be_focused()
+            assert focus_044.locator('.send-button').evaluate('e=>getComputedStyle(e).outlineWidth')=='3px'
+            assert not focus_044.evaluate('document.documentElement.scrollWidth>innerWidth')
+            assert not focus_errors,focus_errors
+            focus_044.close()
+    print('FV-UI-044 foco teclado sem recorte em 8 cenarios: PASS')
+
     browser.close()

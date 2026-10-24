@@ -545,3 +545,15 @@ test('FV-UI-043: estados e compositor legiveis sem alterar permissao de envio',(
   assert.match(browserSmoke,/FV-UI-043 rodape operacional 8 cenarios e indicadores contrastantes: PASS/);
   assert.match(browserSmoke,/ratio>=4\.5/);
 });
+
+
+test('FV-UI-044: foco teclado da barra e compositor sem recorte',()=>{
+  assert.match(styles,/FV-UI-044: preservar a visibilidade do foco/);
+  assert.match(styles,/padding-inline:6px/);
+  assert.match(styles,/scroll-padding:8px/);
+  assert.match(styles,/\.thread-pane :is\(\.workflow-bar \.btn,\.thread-heading \.icon-button,\.composer input,\.send-button\):focus-visible/);
+  assert.match(styles,/outline:3px solid #11685d/);
+  assert.match(styles,/\.visual-app\[data-theme="dark"\] \.thread-pane :is\(/);
+  assert.match(browserSmoke,/FV-UI-044 foco teclado sem recorte em 8 cenarios: PASS/);
+  assert.match(browserSmoke,/focus_044.keyboard.press\('Shift\+Tab'\)/);
+});
