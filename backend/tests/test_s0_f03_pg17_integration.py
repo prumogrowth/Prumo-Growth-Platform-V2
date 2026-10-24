@@ -2019,5 +2019,120 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
         self.assertIs(self._verify_resolution_hold(
             chain,rid,key=b'short').state,ValidityState.DENIED)
 
+
+    def test_154_competing_second_primary_lead_blocks_hold(self):
+        from backend.s0_f03_identity_resolution_verify_local import ValidityState
+        chain,rid=self._closed_resolution_for_verify()
+        with self.pg.connect(DB) as con:
+            con.execute('insert into public.leads_loja '
+                        '(id,concessionaria_id,telefone_cliente_normalizado) '
+                        'values (%s,%s,%s)',
+                        (uuid.uuid4(),self.shop,'+551188887777'))
+        self.assertIs(self._verify_resolution_hold(chain,rid).state,
+                      ValidityState.CONFLICT_REVIEW_REQUIRED)
+
+    def test_155_competing_alias_lead_blocks_hold_without_merging(self):
+        from backend.s0_f03_identity_resolution_verify_local import ValidityState
+        chain,rid=self._closed_resolution_for_verify()
+        other=uuid.uuid4()
+        with self.pg.connect(DB) as con:
+            con.execute('insert into public.leads_loja '
+                        '(id,concessionaria_id,telefone_cliente_normalizado) '
+                        'values (%s,%s,%s)',
+                        (other,self.shop,'+5581999989999'))
+            con.execute('insert into prumo_private.aliases_identidade_s0 '
+                        '(concessionaria_id,lead_id,numero_sintetico,'
+                        'origem,mobile_confirmado_sintetico) '
+                        'values (%s,%s,%s,%s,%s)',
+                        (self.shop,other,'+551188887777',
+                         'CANAL_SINTETICO',True))
+        self.assertIs(self._verify_resolution_hold(chain,rid).state,
+                      ValidityState.CONFLICT_REVIEW_REQUIRED)
+
+    def test_156_concurrent_pending_writer_cannot_pass_shop_lock(self):
+        from backend.s0_f03_identity_resolution_verify_local import ValidityState
+        chain,rid=self._closed_resolution_for_verify()
+        with self.pg.connect(DB) as keeper:
+            keeper.execute('select prumo_private.s0_f03_lock_shop_local(%s)',
+                           (self.shop,))
+            with self.assertRaises(self.pg.Error) as e:
+                with self.pg.connect(DB) as writer:
+                    writer.execute("set local lock_timeout='150ms'")
+                    writer.execute('insert into prumo_private.pendencias_identidade_s0 '
+                        '(concessionaria_id,canal_id,id_externo,telefone_sintetico,'
+                        'texto_sintetico,motivo) values (%s,%s,%s,%s,%s,%s)',
+                        (self.shop,self.channel,str(uuid.uuid4()),
+                         '+5511988887777','concorrente','IDENTITY_CONFLICT'))
+            self.assertEqual(e.exception.sqlstate,'55P03')
+        self._pending_identity('+5511988887777')
+        self.assertIs(self._verify_resolution_hold(chain,rid).state,
+                      ValidityState.CONFLICT_REVIEW_REQUIRED)
+
+    def test_157_concurrent_alias_writer_cannot_pass_shop_lock(self):
+        from backend.s0_f03_identity_resolution_verify_local import ValidityState
+        chain,rid=self._closed_resolution_for_verify()
+        with self.pg.connect(DB) as keeper:
+            keeper.execute('select prumo_private.s0_f03_lock_shop_local(%s)',
+                           (self.shop,))
+            with self.assertRaises(self.pg.Error) as e:
+                with self.pg.connect(DB) as writer:
+                    writer.execute("set local lock_timeout='150ms'")
+                    writer.execute('insert into prumo_private.aliases_identidade_s0 '
+                        '(concessionaria_id,lead_id,numero_sintetico,'
+                        'origem,mobile_confirmado_sintetico) '
+                        'values (%s,%s,%s,%s,%s)',
+                        (self.shop,self.lead,'+5511999974444',
+                         'CANAL_SINTETICO',False))
+            self.assertEqual(e.exception.sqlstate,'55P03')
+        self._insert_alias('+5511999974444',confirmed=False)
+        self.assertIs(self._verify_resolution_hold(chain,rid).state,
+                      ValidityState.STALE_REVIEW_REQUIRED)
+
+    def test_158_cross_shop_writer_is_not_blocked(self):
+        from backend.s0_f03_identity_resolution_verify_local import ValidityState
+        chain,rid=self._closed_resolution_for_verify()
+        shop,channel=uuid.uuid4(),uuid.uuid4()
+        with self.pg.connect(DB) as con:
+            con.execute('insert into public.concessionarias(id,nome_operacional) '
+                        "values (%s,'TEST OTHER SHOP')",(shop,))
+            con.execute('insert into public.canais_loja '
+                        '(id,concessionaria_id,identificador_emissor) '
+                        'values (%s,%s,%s)',(channel,shop,str(channel)))
+        with self.pg.connect(DB) as keeper:
+            keeper.execute('select prumo_private.s0_f03_lock_shop_local(%s)',
+                           (self.shop,))
+            with self.pg.connect(DB) as writer:
+                writer.execute("set local lock_timeout='150ms'")
+                writer.execute('insert into prumo_private.pendencias_identidade_s0 '
+                    '(concessionaria_id,canal_id,id_externo,telefone_sintetico,'
+                    'texto_sintetico,motivo) values (%s,%s,%s,%s,%s,%s)',
+                    (shop,channel,str(uuid.uuid4()),
+                     '+5511988887777','outra loja','NEEDS_REVIEW'))
+        self.assertIs(self._verify_resolution_hold(chain,rid).state,
+                      ValidityState.CURRENT_HOLD_ONLY)
+
+    def test_159_reader_waits_for_committed_pending_writer(self):
+        from concurrent.futures import ThreadPoolExecutor
+        from threading import Event
+        from backend.s0_f03_identity_resolution_verify_local import ValidityState
+        chain,rid=self._closed_resolution_for_verify()
+        started=Event()
+        with self.pg.connect(DB) as writer:
+            writer.execute('insert into prumo_private.pendencias_identidade_s0 '
+                '(concessionaria_id,canal_id,id_externo,telefone_sintetico,'
+                'texto_sintetico,motivo) values (%s,%s,%s,%s,%s,%s)',
+                (self.shop,self.channel,str(uuid.uuid4()),
+                 '+5511988887777','commit pendente','IDENTITY_CONFLICT'))
+            with ThreadPoolExecutor(max_workers=1) as pool:
+                def reader():
+                    started.set()
+                    return self._verify_resolution_hold(chain,rid).state
+                result=pool.submit(reader)
+                self.assertTrue(started.wait(2))
+                writer.commit()
+                self.assertIs(result.result(timeout=6),
+                              ValidityState.CONFLICT_REVIEW_REQUIRED)
+
+
 if __name__=='__main__':
     unittest.main()

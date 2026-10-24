@@ -1,7 +1,7 @@
 """E04 S0-only, local PG17: read-only live validity of identity CLOSE receipt.
 
-'CURRENT_HOLD_ONLY' certifies that one synthetic S0/028 pending receipt still
-matches its versioned source, not that the identity is resolved or F03 may
+'CURRENT_HOLD_ONLY' certifies only a serialized transaction point; it
+never grants future permanence, identity resolution, or a right for F03 to
 read messages, apply fields, remove a hold or contact a customer.
 """
 from __future__ import annotations
@@ -101,6 +101,36 @@ where p.concessionaria_id=%s::uuid and p.id<>%s::uuid
  )
 order by p.id limit 1 for share of p"""
 
+
+# Resolve shop through the immutable receipt, never from client input.
+_SCOPE = """select concessionaria_id
+from prumo_private.cfi01_f03_identity_resolution_local
+where id=%s::uuid and pendencia_id=%s::uuid and caso_id=%s::uuid"""
+_LOCK_SCOPE = "select prumo_private.s0_f03_lock_shop_local(%s::uuid)"
+# Distinct actual S0 leads: a phone comparison is a candidate, not identity.
+# Consistent with existing _CANDIDATE matching, including BR variant.
+_CANDIDATE_COUNT = """select count(distinct lead_id) from (
+ select l.id as lead_id
+ from public.leads_loja l
+ join prumo_private.pendencias_identidade_s0 p
+  on p.concessionaria_id=l.concessionaria_id
+ where p.concessionaria_id=%s::uuid and p.id=%s::uuid
+ and (p.telefone_sintetico=l.telefone_cliente_normalizado
+  or (prumo_private.chave_variante_br_s0(p.telefone_sintetico) is not null
+   and prumo_private.chave_variante_br_s0(p.telefone_sintetico)
+      =prumo_private.chave_variante_br_s0(l.telefone_cliente_normalizado)))
+ union all
+ select a.lead_id
+ from prumo_private.aliases_identidade_s0 a
+ join prumo_private.pendencias_identidade_s0 p
+  on p.concessionaria_id=a.concessionaria_id
+ where p.concessionaria_id=%s::uuid and p.id=%s::uuid
+ and (p.telefone_sintetico=a.numero_sintetico
+  or (prumo_private.chave_variante_br_s0(p.telefone_sintetico) is not null
+   and prumo_private.chave_variante_br_s0(p.telefone_sintetico)
+      =prumo_private.chave_variante_br_s0(a.numero_sintetico)))
+) candidates"""
+
 def _valid(request: object, key: object) -> bool:
     return (type(request) is ValidityRequest
             and all(_uuid(v) is not None for v in
@@ -127,6 +157,15 @@ class S0F03LocalResolutionValidityStore:
                     return ValidityResult(ValidityState.DENIED)
                 if s1.lock_team(cur,principal) is not S1Proof.ALLOW:
                     return ValidityResult(ValidityState.BLOCKED_S1)
+                # Linearize the read with ALL synthetic identity writers
+                # in this tenant BEFORE any candidate or receipt row lock.
+                cur.execute(_SCOPE,(
+                    _uuid(request.resolution_ref),_uuid(request.pending_ref),
+                    _uuid(request.case_ref)))
+                scope=cur.fetchone()
+                if scope is None or len(scope)!=1:
+                    return ValidityResult(ValidityState.DENIED)
+                cur.execute(_LOCK_SCOPE,(scope[0],))
                 cur.execute(_CURRENT,(
                     _uuid(request.resolution_ref),_uuid(request.pending_ref),
                     _uuid(request.case_ref)))
@@ -139,7 +178,7 @@ class S0F03LocalResolutionValidityStore:
                  review_decision,rat_decision,rev_cycle,rev_identity,
                  rat_cycle,rat_identity,current_cycle,current_identity,
                  assignment_closed)=row
-                if (closer!=principal.actor_id
+                if (shop!=scope[0] or closer!=principal.actor_id
                     or len({closer,reviewer,ratifier})!=3
                     or result!='NOT_RELATED_HOLD_ONLY'
                     or review_decision!='CANDIDATE_NOT_RELATED'
@@ -175,6 +214,16 @@ class S0F03LocalResolutionValidityStore:
                 computed=_source_hmac(pending,shop,lead,snap,key)
                 if computed is None or not hmac.compare_digest(saved_mac,computed):
                     return ValidityResult(ValidityState.STALE_REVIEW_REQUIRED)
+                # Count all competing leads without claiming an identity.
+                # The shared shop lock prevents concurrent insertion phantoms
+                # until the read-only transaction completes.
+                cur.execute(_CANDIDATE_COUNT,
+                            (shop,pending_id,shop,pending_id))
+                candidate_count=cur.fetchone()
+                if (candidate_count is None or len(candidate_count)!=1
+                    or type(candidate_count[0]) is not int
+                    or candidate_count[0]!=1):
+                    return ValidityResult(ValidityState.CONFLICT_REVIEW_REQUIRED)
                 # A subsequently created pending match is NOT covered by this
                 # single receipt. Reject instead of claiming full identity.
                 cur.execute(_OTHER_PENDING,(lead,shop,pending_id))
