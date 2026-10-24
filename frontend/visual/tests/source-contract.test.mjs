@@ -456,7 +456,7 @@ test('FV-UI-035: retorno do foco dos controles mobile após ampliar viewport',()
 test('FV-UI-036: temas claro e escuro têm contrato visual e de controle',()=>{
   assert.match(markup,/id="theme-light"/);
   assert.match(markup,/id="theme-dark"/);
-  assert.match(app,/theme: window\.matchMedia\('\(prefers-color-scheme: dark\)'\)\.matches \? 'dark' : 'light'/);
+  assert.match(app,/theme: systemColorScheme\.matches \? 'dark' : 'light'/);
   assert.match(app,/function applyTheme\(theme\)/);
   assert.match(app,/document\.body\) document\.body\.dataset\.theme = theme/);
   assert.match(styles,/body\[data-theme=\"dark\"\] dialog/);
@@ -465,4 +465,14 @@ test('FV-UI-036: temas claro e escuro têm contrato visual e de controle',()=>{
   assert.match(styles,/\.theme-switch/);
   assert.match(styles,/\.visual-app\[data-theme="dark"\]/);
   assert.match(browserSmoke,/FV-UI-036 tema claro\/escuro e superfícies neutras: PASS/);
+});
+
+
+test('FV-UI-037: preferência dinâmica só antes da escolha manual',()=>{
+  assert.match(app,/systemColorScheme\.addEventListener\('change'/);
+  assert.match(app,/if\(!state\.themeOverride\) applyTheme/);
+  assert.match(app,/state\.themeOverride=true;applyTheme\('dark'\)/);
+  assert.match(app,/state\.themeOverride=true;applyTheme\('light'\)/);
+  assert.match(domMock,/setSystemDark\(dark\)/);
+  assert.match(browserSmoke,/FV-UI-037 sistema e escolha manual: PASS/);
 });

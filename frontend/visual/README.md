@@ -183,3 +183,7 @@ O controle **Voltar** existe somente no layout móvel e desaparece ao ampliar a 
 ## FV-UI-036 — Base visual limpa com tema claro/escuro
 
 Introduzimos um controle local de tema com duas opções neutras, **Claro** e **Escuro**, sem qualquer persistência externa, autenticação ou integração. A linguagem visual segue uma referência de mensageria moderna: superfícies limpas, contraste suave, trilho lateral sóbrio, bolhas de conversa mais discretas e diferenciação segura entre áreas de lista, conversa e detalhes. A troca de tema não altera o caso selecionado, permissões fictícias ou ações demonstrativas.
+
+## FV-UI-037 — Tema acompanha o sistema até escolha manual (24/10/2026)
+
+Até a primeira seleção manual, as mudanças de `prefers-color-scheme` atualizam o tema. Após clicar Claro ou Escuro, o tema selecionado permanece durante a sessão; recarregar restaura o modo automático. Nenhum armazenamento, API, mudança de caso ou permissão. [Documento](../docs/66_FV_UI_037_TEMA_SISTEMA_ESCOLHA_MANUAL_2026_10_24.md).

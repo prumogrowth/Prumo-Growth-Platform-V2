@@ -36,10 +36,12 @@ import {
 const $ = id => document.getElementById(id);
 const app = $('visual-app');
 const list = $('conversation-items');
+// FV-UI-037: acompanhar a preferência do SO enquanto não houver escolha manual.
+const systemColorScheme = window.matchMedia('(prefers-color-scheme: dark)');
 const state = {
   actorId: 'rafael', shopId: 'aurora', filter: 'all', statusFilter: 'all', detailTab: 'overview', query: '',
   selectedId: 'A-102', cases: copyCFDemoFixtures(), processing: {}, reviewScenes: {}, followupRequests: {}, inboxView: 'active',
-  mobileView: 'list', theme: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light',
+  mobileView: 'list', theme: systemColorScheme.matches ? 'dark' : 'light', themeOverride:false,
   dialogContext: { completion: null, template: null, message: null }, intakeDialogContext:null, queueDialogContext:null, queueRequests:{}, teamRequests:{}, teamPanel:'members'
 };
 
@@ -187,6 +189,10 @@ function applyTheme(theme) {
   });
   return true;
 }
+systemColorScheme.addEventListener('change', event => {
+  // Escolha manual prevalece durante a sessão e não grava dados fora da página.
+  if(!state.themeOverride) applyTheme(event.matches ? 'dark' : 'light');
+});
 function announceCurrentContext(detail=''){
   // Apenas identificadores visuais do cenário sintético, nunca dados D3/D4.
   const actor=getActor(state.actorId),shop=getShop(state.shopId);
@@ -756,8 +762,8 @@ function mobileBackNavigation(){
 }
 $('thread-back').addEventListener('click',()=>{mobileBackNavigation();});
 $('detail-back').addEventListener('click',()=>{mobileBackNavigation();});
-$('theme-light').addEventListener('click',()=>{applyTheme('light');});
-$('theme-dark').addEventListener('click',()=>{applyTheme('dark');});
+$('theme-light').addEventListener('click',()=>{state.themeOverride=true;applyTheme('light');});
+$('theme-dark').addEventListener('click',()=>{state.themeOverride=true;applyTheme('dark');});
 $('detail-toggle').addEventListener('click',()=>{
   if (window.matchMedia('(max-width:760px)').matches) {goto('detail');$('detail-back').focus();return;}
   const hidden=app.classList.toggle('details-hidden');$('detail-toggle').setAttribute('aria-expanded',String(!hidden));

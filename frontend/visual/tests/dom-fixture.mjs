@@ -1,7 +1,7 @@
 /** DOM mínimo para testar INTERAÇÃO de UI em Node sem dependências.
  * Não emula CSS/layout, navegador real, segurança ou acessibilidade de leitor de tela.
  */
-export function installMockDOM({ mobile = false, tablet = false } = {}) {
+export function installMockDOM({ mobile = false, tablet = false, prefersDark = false } = {}) {
   class MockNode {
     constructor(tag = 'div') {
       this.tagName = tag.toUpperCase(); this.children = []; this.parent = null;
@@ -108,9 +108,14 @@ export function installMockDOM({ mobile = false, tablet = false } = {}) {
   globalThis.document = document;
   // Mock de eventos do viewport: testes DOM não simulam layout nem reflow real.
   // O comportamento de foco sob resize é verificado no Chromium.
+  const systemColorScheme={
+    matches:Boolean(prefersDark), listeners:[],
+    addEventListener(type,listener){if(type==='change')this.listeners.push(listener);}
+  };
   globalThis.window = {
     events:{},
     matchMedia(query) {
+      if(query.includes('prefers-color-scheme: dark'))return systemColorScheme;
       if (query.includes('760px')) return {matches:mobile};
       return {matches:(mobile || tablet) && /max-width/.test(query)};
     },
@@ -119,6 +124,10 @@ export function installMockDOM({ mobile = false, tablet = false } = {}) {
   return {
     document, nodes, inbox, filters, descendants,
     get:id=>nodes.get(id),
+    setSystemDark(dark){
+      systemColorScheme.matches=Boolean(dark);
+      for(const listener of systemColorScheme.listeners) listener({matches:systemColorScheme.matches});
+    },
     cards:()=>descendants(nodes.get('conversation-items')).filter(n=>n.classList.contains('conversation-card')),
     openCase(fragment) {
       const node=this.cards().find(n=>(n.attrs['aria-label']??'').includes(fragment));

@@ -909,6 +909,18 @@ test('FV-UI-032: O5 desktop foca região do novo caso autorizado',()=>{
 });
 
 
+test('FV-UI-037: segue mudança de tema do SO apenas antes da seleção manual', () => {
+  reset();env.setSystemDark(true);
+  assert.equal(get('visual-app').dataset.theme,'dark');
+  assert.equal(get('theme-dark').getAttribute('aria-pressed'),'true');
+  env.setSystemDark(false);
+  assert.equal(get('visual-app').dataset.theme,'light');
+  get('theme-light').click();env.setSystemDark(true);
+  assert.equal(get('visual-app').dataset.theme,'light');
+  assert.equal(get('theme-light').getAttribute('aria-pressed'),'true');
+  assert.equal(env.cards().length,8);
+});
+
 test('FV-UI-036: tema claro/escuro alterna sem perder o caso selecionado', () => {
   reset();
   assert.equal(get('visual-app').dataset.theme, 'light');
