@@ -26,7 +26,7 @@ insert into public.ciclos_comerciais(id,concessionaria_id,lead_id,status_comerci
  ('78930000-0000-4000-8000-'||lpad(i::text,12,'0'))::uuid,
  'aguardando primeiro disparo' from generate_series(1,3) i;
 insert into public.casos_humanos(id,concessionaria_id,lead_id,ciclo_id)
- select ('78950000-0000-4000-8000-'||lpad(i::text,12,'0'))::uuid,
+ select ('78950000-0000-4000-8000-'||right(c.id::text,12))::uuid,
  c.concessionaria_id,c.lead_id,c.id from public.ciclos_comerciais c
  where c.id::text like '78940000-%';
 insert into public.atribuicoes_humanas(concessionaria_id,caso_id,operador_id)

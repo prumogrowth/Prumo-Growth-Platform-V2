@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-: "\${PRUMO_TEST_DATABASE_URL:?local disposable PG17 required}"
+: "$PRUMO_TEST_DATABASE_URL"
 python3 - <<'PY'
 import os,sys
 from urllib.parse import urlparse,unquote
