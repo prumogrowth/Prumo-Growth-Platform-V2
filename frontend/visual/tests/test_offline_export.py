@@ -271,5 +271,24 @@ class NativeCheckoutPreflightTests(unittest.TestCase):
         self.assertFalse(result["passed"])
         self.assertFalse(result["executed"])
 
+class AcceptanceInventoryGuardTests(unittest.TestCase):
+    """FV-UI-046: impede que o runner deixe um *.test.mjs sem registro."""
+
+    def test_every_node_test_is_registered_by_acceptance(self):
+        import ast
+        source = (HERE / "run_acceptance.py").read_text(encoding="utf-8")
+        tree = ast.parse(source)
+        registrations = [node for node in ast.walk(tree)
+                         if isinstance(node, ast.Assign)
+                         and any(isinstance(target, ast.Name)
+                                 and target.id == "expected_tests"
+                                 for target in node.targets)]
+        self.assertEqual(len(registrations), 1)
+        expected = ast.literal_eval(registrations[0].value)
+        actual = {path.name for path in HERE.glob("*.test.mjs")}
+        self.assertEqual(expected, actual)
+        self.assertIn("app.tablet.dom.test.mjs", expected)
+
+
 if __name__ == "__main__":
     unittest.main()

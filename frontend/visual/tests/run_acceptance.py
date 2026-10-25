@@ -191,7 +191,7 @@ def main():
     blob_ok = blob_step["passed"] and blob_step["executed"]
     # Uma suíte truncada pode passar no Node e não constitui aceite integral.
     expected_tests = {
-        "app.dom.test.mjs", "app.mobile.dom.test.mjs", "bank-view.test.mjs",
+        "app.dom.test.mjs", "app.mobile.dom.test.mjs", "app.tablet.dom.test.mjs", "bank-view.test.mjs",
         "batch-monitor.test.mjs", "cf-op-02.test.mjs", "fixtures.test.mjs",
         "postmark-view.test.mjs", "registration-view.test.mjs", "human-cycle-view.test.mjs",
         "source-contract.test.mjs", "source-module-graph.test.mjs",
