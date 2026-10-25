@@ -7,6 +7,7 @@ on:
       - 'scripts/run-s1-002-local.sh'
       - 'scripts/run-s1-002-i12-local.sh'
       - 'scripts/run-s1-002-i52-local.sh'
+      - 'scripts/test_s1_002_i67_legacy_consumer_inventory.py'
       - 'scripts/test_s1_002_*.sh'
       - '.github/workflows/s1-002-postgres.yml'
   workflow_dispatch:
