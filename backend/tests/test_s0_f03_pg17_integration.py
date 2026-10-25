@@ -3064,5 +3064,58 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
         self.assertIs(self._s2_evidence_review(gate,fields,vector,output,js['proposal']),
                       EvidenceState.S0_EVIDENCE_REVIEW_ONLY)
 
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_214_old_case_source_preserves_original_human_closure_receipt(self):
+        from backend.s0_f03_crossfront_evidence_local import EvidenceState,S0F03LocalEvidenceReviewBridge
+        from backend.s0_human_closure_event_local import _MESSAGES,_fingerprint
+        # Modify ONLY a prior case. The current closed human conversation is
+        # byte-for-byte identical to the moment of S0 closure certification.
+        with self.pg.connect(DB) as con:
+            con.execute('update public.mensagens set conteudo_sintetico=%s '
+                        'where id=%s',
+                        ('observacao_sintetica=preferencia ficticia',self.old_message))
+            current=con.execute(_MESSAGES,(self.shop,self.case)).fetchall()
+            self.assertEqual(_fingerprint(current),self.receipt.snapshot_sha256)
+        base,fields,vector,js=self._s2_recheck_fixture()
+        js['cutoff']['sources'][0]['id']=str(self.old_message)
+        js['cutoff']['sources'][0]['caseId']=str(self.old_case)
+        js['proposal']['fields'][0]['sourceId']=str(self.old_message)
+        output=self._s2_evaluate_real_js(js)
+        self.assertEqual(output['status'],'S0_RECHECK_ONLY')
+        state=self._s2_evidence_review(
+            S0F03LocalEvidenceReviewBridge(base),fields,vector,
+            output,js['proposal'])
+        self.assertIs(state,EvidenceState.S0_EVIDENCE_REVIEW_ONLY)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_215_s2_references_after_cutoff_message_refused(self):
+        from backend.s0_f03_crossfront_evidence_local import EvidenceState
+        gate,fields,vector,js=self._s2_provenance_fixture()
+        after=uuid.uuid4()
+        with self.pg.connect(DB) as con:
+            with con.cursor() as cur:
+                self._message(cur,after,self.old_conversation,self.old_case)
+                cur.execute('update public.mensagens set conteudo_sintetico=%s '
+                            'where id=%s',
+                            ('observacao_sintetica=preferencia ficticia',after))
+                created=cur.execute('select criada_em from public.mensagens '
+                                    'where id=%s',(after,)).fetchone()[0]
+                cutoff=cur.execute('select registrado_em from '
+                                   'prumo_private.cfi01_human_closure_events_local '
+                                   'where id=%s',(self.event,)).fetchone()[0]
+                self.assertGreater(created,cutoff)
+        js['cutoff']['sources'][0]['id']=str(after)
+        js['cutoff']['sources'][0]['caseId']=str(self.old_case)
+        js['proposal']['fields'][0]['sourceId']=str(after)
+        # S2 can falsely label a post-cutoff message with an old sequence;
+        # S0 derives cutoff and source membership from its own PostgreSQL.
+        output=self._s2_evaluate_real_js(js)
+        self.assertEqual(output['status'],'S0_RECHECK_ONLY')
+        self.assertIs(self._s2_evidence_review(gate,fields,vector,output,js['proposal']),
+                      EvidenceState.SOURCE_REVIEW_REQUIRED)
+
 if __name__=='__main__':
     unittest.main()
