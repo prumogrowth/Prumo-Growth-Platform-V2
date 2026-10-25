@@ -86,6 +86,10 @@ export function createWa57OfflineLoopback(raw){
    if(!req.complete||seen!==h.size){
     response(res,400,'LAB_HTTP_BODY_MISMATCH');return;
    }
+   // WA58: before starting the irreversible S0 append, discard an already
+   // closed HTTP response. Once the bridge begins, a lost response cannot
+   // revoke a committed append: retransmission must be idempotent in PG17.
+   if(res.destroyed||res.writableEnded)return;
    const body=Buffer.concat(chunks,seen);
    const verdict=await bridge.receive(body,h.signature);
    if(!verdict||verdict.decision!=='LAB_META_RAW_TO_WA55_FORENSIC_ONLY'||
