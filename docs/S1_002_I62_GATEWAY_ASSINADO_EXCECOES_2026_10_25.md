@@ -23,3 +23,11 @@ A aplicação I61 como migration da branch S0/S1 e a RLS I60 continuam independe
 - O teste E2E ampliado também exercita a **rota HTTP de revogação** em retry legítimo e bloqueia outro Gestor, sem duplicar evento. Sua certificação é separada e depende de novo workflow.
 
 I62 **não** está no Supabase hospedado, no ambiente de clientes ou em endpoint de produção. A RLS definitiva de histórico permanece outra etapa.
+
+## Certificação final — 25/10/2026
+
+**Workflow [#40178720872](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40178720872) — SUCCESS**, commit de código/testes `d2671ba4eca4c5a8fb4fd224b0c368cd286943f1`. Logs conferidos dos jobs `121124961226` (unittest **10/10**, job SUCCESS) e `121124961282` (E2E **7/7**, job SUCCESS).
+
+Casos I62-E2E-01..07: GoTrue identifica Gestor sem permitir identidade fornecida no JSON; pessoa de outra equipe/Consultor não transfere; transferência excepcional cria atribuição S0 válida e nenhum grant de loja; HMAC impede trocar operação; revogação com nonce não repetível; rota HTTP retorna idempotência para Gestor autorizado, nega outro Gestor e mantém um único evento; leitura privada SQL e REST recusada. Regressões de intake I53 e fila I55 persistem verdes na mesma execução.
+
+Os testes não constituem auditoria de implantação, não exercitam gestão real de segredo/KMS, TLS de borda ou dados de clientes. Permanecem pendentes a integração operacional do executor e composição das RLS I41–I60 com as tabelas I61 no ambiente de homologação.
