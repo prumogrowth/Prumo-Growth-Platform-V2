@@ -2745,5 +2745,184 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
         self.assertIs(self._reserve(store,vector),
                       ReservationState.RESERVED_REVIEW_ONLY)
 
+
+    def _s2_recheck_fixture(self):
+        from backend.s0_f03_operational_contracts_local import (
+            ProposedField,FieldKind,S0F03LocalOperationalContractsStore,
+            S0F03LocalOperationalContractsBridge,
+        )
+        from backend.s0_f03_crossfront_contract_local import (
+            S0F03CrossFrontLocalBridge,
+        )
+        from backend.s0_f03_bound_content_seal_local import (
+            S0F03LocalBoundContentBridge,S0F03LocalBoundContentStore,
+        )
+        from backend.s0_f03_history_seal_local import SealState,SealResult
+        fields=(ProposedField('observacao_sintetica',FieldKind.TEXT_ONLY,
+                              'preferencia ficticia'),)
+        vector,digest=self._operational_fixture(fields)
+        with self.pg.connect(DB) as con:
+            sha=con.execute('select metadados_sha256 from '
+                'prumo_private.cfi01_f03_content_proofs_local where '
+                'concessionaria_id=%s and evento_fechamento_id=%s',
+                (self.shop,self.event)).fetchone()[0]
+        # E04 synthetic S0 authority fixture only. Actual *physical* HMAC
+        # recomputation, SQL receipt, versions and scope remain unmocked.
+        class S0TestHistoryAuthority:
+            def verify(self,authorization,binding):
+                if authorization!='Bearer PINNED_S2_LOCAL_E04':
+                    return SealResult(SealState.DENIED)
+                return SealResult(SealState.MATCHES_LIVE_REVIEW_ONLY)
+        content=object.__new__(S0F03LocalBoundContentBridge)
+        content._store=S0F03LocalBoundContentStore(DB)
+        content._history=S0TestHistoryAuthority()
+        contract=S0F03LocalOperationalContractsBridge(
+            content,S0F03LocalOperationalContractsStore(DB))
+        gate=S0F03CrossFrontLocalBridge(contract)
+        versions=dict(case=vector.case,cycle=1,form=vector.form,
+                      catalog=vector.catalog,assignment=vector.assignment,
+                      identity=vector.identity)
+        scope=dict(authenticated=True,authorized=True,tenantAllowed=True,
+                   storeId=str(self.shop),personId=str(self.lead),
+                   caseId=str(self.case),closureId=str(self.event),
+                   requestId='request-cas-0001')
+        item=fields[0]
+        js=dict(
+          scope=scope,
+          cutoff=dict(storeId=str(self.shop),personId=str(self.lead),
+            closureId=str(self.event),s0ClosureVerified=True,
+            historyComplete=True,snapshotRef=sha,watermark=2,
+            expectedVersions=versions,
+            sources=[dict(id=str(self.message),storeId=str(self.shop),
+              personId=str(self.lead),caseId=str(self.case),
+              sequence=1,available=True,s0Verified=True,
+              claims=[dict(code=item.field_key,value=item.value,explicit=True)])]),
+          proposal=dict(proposalRef='synthetic-proposal-01',
+            fields=[dict(code=item.field_key,value=item.value,
+                         sourceId=str(self.message))],
+            conflicts=[],advisory=None),
+          catalog=[dict(code=item.field_key,essential=True)],
+          current=dict(versions=versions.copy(),
+            closureStillAuthorized=True,assignmentAuthorized=True,
+            personScopeVerified=True),
+          prior=None)
+        return gate,fields,vector,js
+
+    def _s2_evaluate_real_js(self,payload):
+        import subprocess,json
+        path=os.environ['PRUMO_S2_F03_GATE_PATH']
+        node_script=("import {pathToFileURL} from 'node:url'; "
+                     "import {readFileSync} from 'node:fs'; "
+                     "const m=await import(pathToFileURL(process.argv[1]).href); "
+                     "const f=JSON.parse(readFileSync(0,'utf8')); "
+                     "console.log(JSON.stringify(m.evaluateF03CommitCandidate(f)))")
+        result=subprocess.run(['node','--input-type=module','-e',
+                               node_script,path],
+                   input=json.dumps(payload,ensure_ascii=False),
+                   text=True,capture_output=True,timeout=12,check=True)
+        return json.loads(result.stdout)
+
+    def _s2_review(self,gate,fields,vector,output,authorization='Bearer PINNED_S2_LOCAL_E04'):
+        return gate.inspect(authorization,self.binding,'test-key-v1',
+                            b'fixture-only-content-seal-key-more-than-32-bytes',
+                            vector,'request-cas-0001',fields,output).state
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'needs pinned S2 JS gate checked out in the CI')
+    def test_196_real_js_gate_s0_review_does_not_write(self):
+        from backend.s0_f03_crossfront_contract_local import CrossFrontState
+        gate,fields,vector,input_js=self._s2_recheck_fixture()
+        output=self._s2_evaluate_real_js(input_js)
+        self.assertEqual(output['status'],'S0_RECHECK_ONLY')
+        self.assertIs(self._s2_review(gate,fields,vector,output),
+                      CrossFrontState.REVIEW_ONLY)
+        with self.pg.connect(DB) as con:
+            form=con.execute('select count(*) from '
+              'prumo_private.cfi01_f03_form_fields_local where lead_id=%s',
+              (self.lead,)).fetchone()[0]
+            applied=con.execute('select count(*) from '
+              'prumo_private.cfi01_f03_form_application_local where lead_id=%s',
+              (self.lead,)).fetchone()[0]
+        self.assertEqual((form,applied),(0,0))
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'needs pinned S2 JS gate checked out in the CI')
+    def test_197_stale_js_response_cannot_enter_physical_review(self):
+        from backend.s0_f03_crossfront_contract_local import CrossFrontState
+        gate,fields,vector,js=self._s2_recheck_fixture()
+        js['current']['versions']['form']+=1
+        output=self._s2_evaluate_real_js(js)
+        self.assertEqual(output,{'status':'STALE'})
+        self.assertIs(self._s2_review(gate,fields,vector,output),
+                      CrossFrontState.DENIED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'needs pinned S2 JS gate checked out in the CI')
+    def test_198_forged_field_codes_cannot_bypass_s0(self):
+        from backend.s0_f03_crossfront_contract_local import CrossFrontState
+        gate,fields,vector,js=self._s2_recheck_fixture()
+        output=self._s2_evaluate_real_js(js)
+        output['fieldCodes']=['identidade_sintetica']
+        self.assertIs(self._s2_review(gate,fields,vector,output),
+                      CrossFrontState.DENIED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'needs pinned S2 JS gate checked out in the CI')
+    def test_199_forged_snapshot_digest_rejected_by_s0(self):
+        from backend.s0_f03_crossfront_contract_local import CrossFrontState
+        gate,fields,vector,js=self._s2_recheck_fixture()
+        output=self._s2_evaluate_real_js(js)
+        output['snapshotRef']='f'*64
+        self.assertIs(self._s2_review(gate,fields,vector,output),
+                      CrossFrontState.STALE_REVIEW_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'needs pinned S2 JS gate checked out in the CI')
+    def test_200_s0_catalog_version_stale_after_js_proposal(self):
+        from backend.s0_f03_crossfront_contract_local import CrossFrontState
+        gate,fields,vector,js=self._s2_recheck_fixture()
+        output=self._s2_evaluate_real_js(js)
+        with self.pg.connect(DB) as con:
+            con.execute('update '
+              'prumo_private.cfi01_f03_operational_field_contracts_local '
+              'set max_chars=64 where concessionaria_id=%s',
+              (self.shop,))
+        self.assertIs(self._s2_review(gate,fields,vector,output),
+                      CrossFrontState.STALE_REVIEW_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'needs pinned S2 JS gate checked out in the CI')
+    def test_201_s0_hmac_fails_when_old_history_changes_after_js(self):
+        from backend.s0_f03_crossfront_contract_local import CrossFrontState
+        gate,fields,vector,js=self._s2_recheck_fixture()
+        output=self._s2_evaluate_real_js(js)
+        with self.pg.connect(DB) as con:
+            con.execute('update public.mensagens set conteudo_sintetico=%s '
+                        'where id=%s',
+                        ('mudanca no caso antigo sem prova',self.old_message))
+        self.assertIs(self._s2_review(gate,fields,vector,output),
+                      CrossFrontState.STALE_REVIEW_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'needs pinned S2 JS gate checked out in the CI')
+    def test_202_new_s0_duplicate_lead_after_js_forces_review(self):
+        from backend.s0_f03_crossfront_contract_local import CrossFrontState
+        gate,fields,vector,js=self._s2_recheck_fixture()
+        output=self._s2_evaluate_real_js(js)
+        self._second_identity_candidate()
+        self.assertIs(self._s2_review(gate,fields,vector,output),
+                      CrossFrontState.CONFLICT_REVIEW_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'needs pinned S2 JS gate checked out in the CI')
+    def test_203_s2_gate_false_authorization_never_enters_s0(self):
+        from backend.s0_f03_crossfront_contract_local import CrossFrontState
+        gate,fields,vector,js=self._s2_recheck_fixture()
+        js['scope']['authenticated']=False
+        output=self._s2_evaluate_real_js(js)
+        self.assertEqual(output,{'status':'DENIED'})
+        self.assertIs(self._s2_review(gate,fields,vector,output),
+                      CrossFrontState.DENIED)
+
 if __name__=='__main__':
     unittest.main()
