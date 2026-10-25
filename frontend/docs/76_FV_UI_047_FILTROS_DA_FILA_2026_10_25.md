@@ -25,3 +25,16 @@ Nenhuma alteração em `app.mjs`, dados fictícios, filtros reais, envio de mens
 **Condicionada ao GitHub Actions no commit efetivamente publicado**: não considerar executado ou aprovado apenas pela presença dos testes. O manifesto de blobs deve ser repinado após o commit de conteúdo; comparar logs do runner para Python/Node/Chromium e `full_acceptance`. Aceite visual humano não substituído.
 
 **Anterior:** [FV-UI-046](./75_FV_UI_046_GITHUB_ACTIONS_VALIDACAO_2026_10_25.md).
+
+
+## Execução real aprovada — GitHub Actions
+
+- Commit de conteúdo e testes: `28d16d0c64119a561126b6c08a1d54789e1ce814`.
+- Commit de repin do manifesto: `4c2e56e3d06d92a5337c2f9ac874f62bc55ae6f5`, com `source_head=28d16d0c64119a561126b6c08a1d54789e1ce814`.
+- [GitHub Actions run 40188680770](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40188680770) executado sobre o SHA repinado exato, **completed / success**.
+- Preflight confirmou **59 arquivos** do checkout Git (58 pinados + o próprio verificador). SHA e tamanhos consistentes.
+- Regressão Python **25/25 PASS**; Node **353/353 PASS**, **0 falhas**.
+- Chromium real executado, roteiro completo **PASS**, incluindo `FV-UI-047 filtros da fila em oito cenarios, foco e contraste: PASS`. Também passaram os blocos anteriores FV-UI-040 até FV-UI-044.
+- Log do executor registra `FULL LOCAL ACCEPTANCE: PASS`. O relatório JSON foi publicado no Actions com retenção de um dia.
+- Ao preparar a publicação, o commit de conteúdo permaneceu sem atualização de branch até a criação do manifesto, produzindo **uma única atualização final da branch** e evitando execuções CI duplicadas.
+- **Nenhuma alteração em `main`, nenhuma integração externa, merge ou deploy**. Esse aceite técnico é do frontend sintético e não implica homologação comercial/produtiva ou análise humana completa de acessibilidade.

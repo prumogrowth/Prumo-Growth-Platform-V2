@@ -170,7 +170,7 @@
 
 ## FV-UI-047 — filtros da lista mais legíveis (25/10/2026)
 
-**[FV-UI-047 — busca, abas e filtros](./76_FV_UI_047_FILTROS_DA_FILA_2026_10_25.md)**: ajustes somente visuais de áreas de toque (≥44px), fontes, contraste e foco em claro/escuro. Testes integrados obrigatórios pelo GitHub Actions antes de certificar.
+**[FV-UI-047 — busca, abas e filtros](./76_FV_UI_047_FILTROS_DA_FILA_2026_10_25.md)**: ajustes somente visuais de áreas de toque (≥44px), fontes, contraste e foco em claro/escuro. Validação oficial **APROVADA** no [GitHub Actions run 40188680770](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40188680770): **25/25 Python, 353/353 Node, Chromium PASS**, com 8 novos cenários de filtros (320/390/900/1440 px × claro/escuro).
 
 ## Estado do trabalho
 FV-UI-015/016: demonstrações com dados sintéticos. **NÃO** declarar integração real, Auth/RLS/GoTrue, comunicações Meta ou remessas confirmadas. FV-UI-013 não homologada formalmente; **19F 69/100** como último marco. Esta consolidação é **documentação somente**. Nenhum código, migration, branch S1, dado real ou deploy foi tocado.
