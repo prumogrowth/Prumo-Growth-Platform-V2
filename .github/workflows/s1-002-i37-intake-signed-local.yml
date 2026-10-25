@@ -44,6 +44,8 @@ on:
       - 'scripts/test_s1_002_i65_rpc_view_surface_e2e.py'
       - 'scripts/test_s1_002_i66_legacy_interface_acl_e2e.py'
       - 'scripts/test_s1_002_i67_admin_row_scope_e2e.py'
+      - 'backend/s1_command_validation_local.py'
+      - 'tests/test_s1_002_i67_command_parser.py'
       - 'scripts/test_s1_002_i67_legacy_consumer_inventory.py'
       - 'supabase/tests/s1_094_admin_row_scoped_candidate_local_only.sql'
       - 'supabase/tests/s1_095_admin_row_scoped_aceite.sql'
@@ -95,6 +97,7 @@ jobs:
           PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i53_canonical_gateway.py' -v
           PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i55_queue_gateway.py' -v
           PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i62_excecao_gateway.py' -v
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i67_command_parser.py' -v
   e2e-gerencia-local:
     runs-on: ubuntu-latest
     timeout-minutes: 24

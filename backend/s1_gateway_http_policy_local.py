@@ -16,7 +16,7 @@ import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 from backend.identity_boundary import Denied, IdentityUnavailable, InvalidCommand
-from backend.s1_gateway_local import _SQL
+from backend.s1_command_validation_local import LEGACY_COMMANDS
 
 _BEARER = re.compile(r"Bearer [A-Za-z0-9_.-]{20,8192}\Z")
 _LENGTH = re.compile(r"[0-9]{1,5}\Z")
@@ -80,7 +80,7 @@ def serve_http_policy_local(gateway, *, max_requests=200, window_seconds=60,
                             allowed_origins=(), security_events=None,
                             allowed_commands=None):
     """Return a loopback-only test server; caller must shutdown/server_close."""
-    commands = frozenset(_SQL) if allowed_commands is None else frozenset(allowed_commands)
+    commands = frozenset(LEGACY_COMMANDS) if allowed_commands is None else frozenset(allowed_commands)
     if not commands or not commands.issubset({"mover","pausar","reativar","intake","fila","assumir_fila","mover_excecao","revogar_excecao"}):
         raise ValueError("HTTP_COMMAND_ALLOWLIST_INVALID")
     origins = tuple(allowed_origins)

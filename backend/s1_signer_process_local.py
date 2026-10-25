@@ -19,7 +19,7 @@ import uuid
 from urllib.parse import urlsplit
 
 from backend.identity_boundary import Denied, IdentityUnavailable, InvalidCommand, SupabaseGoTrueVerifier
-from backend.s1_gateway_local import _fields
+from backend.s1_command_validation_local import _fields
 from backend.s1_gateway_signed_local import _COMMAND, _action_args, _proof_material, _SQL_SIGNED
 
 _MATERIAL = re.compile(

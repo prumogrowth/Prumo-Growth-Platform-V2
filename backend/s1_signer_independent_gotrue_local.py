@@ -11,7 +11,7 @@ import time
 import uuid
 
 from backend.identity_boundary import Denied, IdentityUnavailable, InvalidCommand
-from backend.s1_gateway_local import _fields
+from backend.s1_command_validation_local import _fields
 from backend.s1_gateway_signed_local import _COMMAND, _action_args, _proof_material, _SQL_SIGNED
 from backend.s1_signer_process_local import LocalSeparatedSignerGateway
 

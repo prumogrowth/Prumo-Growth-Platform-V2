@@ -14,7 +14,7 @@ import uuid
 from urllib.parse import urlsplit
 
 from backend.identity_boundary import Denied, IdentityUnavailable, InvalidCommand, Principal
-from backend.s1_gateway_local import _fields, _SQL, serve_local
+from backend.s1_command_validation_local import _fields
 
 _COMMAND = {"mover": "MOVER", "pausar": "PAUSAR", "reativar": "REATIVAR"}
 _SQL_SIGNED = (
