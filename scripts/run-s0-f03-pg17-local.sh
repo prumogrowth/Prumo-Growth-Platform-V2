@@ -24,6 +24,16 @@ case "$server_version" in
   17????) ;; # only PostgreSQL 17
   *) echo "F03 REQUIRES LOCAL PG17; got $server_version" >&2; exit 1 ;;
 esac
+# C04 preexisting physical S0 contact eligibility and legacy recontact rules.
+# Load original versioned SQL ONLY into the dedicated disposable PG17.
+# Deliberately no new C04 implementation or hosted-Supabase execution.
+for source in \
+  supabase/migrations/202610170012_s0_recontatos_sinteticos.sql \
+  supabase/migrations/202610170016_c04_elegibilidade_optout_sintetico.sql \
+  supabase/migrations/202610170017_c04_estado_replay_plano.sql
+do
+  psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$source"
+done
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s0_f03_alias_lab_roles_local_only.sql
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/migrations/202610180028_s0_identidade_aliases_sinteticos.sql
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s0_f03_history_seal_local_only.sql
