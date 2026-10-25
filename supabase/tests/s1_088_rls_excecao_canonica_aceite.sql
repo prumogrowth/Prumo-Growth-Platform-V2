@@ -29,7 +29,7 @@ insert into public.ciclos_comerciais(id,concessionaria_id,lead_id,status_comerci
  select ('86340000-0000-4000-8000-'||lpad(i::text,12,'0'))::uuid,
  case when i=4 then '86320000-0000-4000-8000-000000000002'::uuid
  else '86320000-0000-4000-8000-000000000001'::uuid end,
- ('86330000-0000-4000-8000-'||lpad((case when i=4 then 3 when i=2 then 1 else i end)::text,12,'0'))::uuid,
+ ('86330000-0000-4000-8000-'||lpad((case when i=4 then 3 when i=3 then 2 when i=2 then 1 else i end)::text,12,'0'))::uuid,
  'aguardando primeiro disparo'
  from generate_series(1,4) i;
 insert into public.casos_humanos(id,concessionaria_id,lead_id,ciclo_id)
