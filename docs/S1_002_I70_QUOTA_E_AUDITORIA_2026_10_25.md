@@ -1,0 +1,17 @@
+# I70 — Limites cumulativos, reservas atômicas e auditoria mínima de exportações
+
+**25/10/2026. Somente branch experimental `feat/s1-002-equipe-prumo` e ambiente descartável. Não promover à produção.** A Issue #3 de otimização de workflows continua sem autorização de execução. Nenhum workflow de outra frente será alterado.
+
+## Modelo candidato
+
+O limite I69 de 20 registros por página pode ser burlado por paginação repetitiva. O I70 aplica uma **reserva atômica, vinculada ao ator autenticado, loja, tipo de exportação e hora** antes da consulta I69: no máximo **4 requisições/hora e 30 unidades solicitadas/hora** para cada combinação. `p_limite` continua entre 1 e 20. São contabilizadas as **unidades solicitadas**, mesmo quando a consulta retorna menos linhas ou página vazia; logo a repetição do mesmo cursor consome orçamento. As quotas de `lotes` e `canais` são separadas por tipo, assim como as de Gestores e lojas diferentes.
+
+`supabase/tests/s1_100_admin_export_quota_local_only.sql` acrescenta, *somente no laboratório*, contador privado `prumo_private.s1_70_export_contadores`, com chave única por ator/loja/tipo/início de hora, e ledger de reservas `public.s1_70_export_reservas`, com inserção permitida exclusivamente a `authenticated` nos quatro campos `ator_id`, `concessionaria_id`, `tipo`, `unidades_reservadas`. Nenhuma role cliente recebe SELECT, UPDATE ou DELETE; RLS exige `auth.uid()`, operador ativo e concessão de Gestor válida na loja. Um trigger `SECURITY DEFINER` **em schema privado** revalida a identidade e executa `INSERT ON CONFLICT DO UPDATE ... WHERE` no contador. O lock da PK garante que duas reservas concorrentes não possam ultrapassar 4 requisições/30 unidades. As duas funções I69 passam a `VOLATILE SECURITY INVOKER`, preservando SQL estático e RLS, e só retornam página após reservar a quota.
+
+O ledger grava exclusivamente identidade técnica do ator, loja, tipo, unidades solicitadas e horário. **Não armazena nome, telefone, conteúdo de mensagem, lead, caso, dados do cliente ou resultado da exportação.** Um cliente SQL com INSERT próprio pode consumir quota adicional de sua própria conta, mas não pode reduzi-la, resetá-la, falsificar outro ator ou ler os contadores; isso impede bypass, embora ainda permita *autonegação de serviço*. O ledger deve ser tratado como registro de **reservas aceitas**, não certificação independente de entrega HTTP. Pedidos negados não são persistidos porque o erro aborta a transação — logs externos protegidos serão necessários para auditoria completa.
+
+## Controles de regressão e limitações
+
+A prova PG17 inclui repetição de cursor, 5ª chamada negada, contador/auditoria sem vazamento, 20+11 rejeitado vs. 20+10 aceito, independência de Gestores, falsificação de ator, revogação e controles anteriores I63–I69. A prova GoTrue real verifica HTTP 400/403 para quota/violação de identidade e múltiplas requisições concorrentes, com token JWT real.
+
+**Importante:** essa implementação é deliberadamente uma política local de quotas técnicas, não ainda um gateway de produção. O limite 30 é orçamento de **unidades pedidas**, não prova de volume efetivamente exportado; o próprio cliente pode disparar inserções que queimam sua quota. O contador usa buckets horários fixos e pode permitir bursts na passagem de uma hora. Falta rate-limit distribuído por tempo real, logs de recusas, revisão LGPD/retention para identificador de operador, validação de esquemas/roles expostos e monitoramento de desempenho. **Não foi criada migration hospedada, deploy ou integração à main.**
