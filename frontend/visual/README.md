@@ -239,3 +239,7 @@ As mensagens do toast continuam textualmente idênticas e com `role=status`, `ar
 ## FV-UI-051 — Orientações contextualizadas nos três painéis (25/10/2026)
 
 A mensagem existente no rodapé da lista agora tem ID e `role=note` associados à busca com `aria-describedby`. A composição conserva sua advertência de que não envia WhatsApp e explicita dados fictícios, vinculando-a ao campo de texto da mesma maneira. Na aba Resumo dos detalhes, uma nota de escopo deixa explícito que nada é executado fora da demonstração; ela descreve acessivelmente o painel e possui contraste testado. Sem novas permissões, filtros, envios ou operações. Regressão Chromium 8 cenários + contrato Node; gate GitHub Actions obrigatório. [FV-UI-051](../docs/80_FV_UI_051_ORIENTACOES_TRES_PAINEIS_2026_10_25.md).
+
+## FV-UI-052 — Contagem acessível da fila (25/10/2026)
+
+O contador `#list-count` anuncia mudanças de resultados (`role=status`, `aria-live=polite`), mas desativa o próprio anúncio quando a fila está vazia: a mensagem de `.no-results` já explica esse estado. Ao restaurar os filtros, o anúncio do contador retorna, mantendo perfil, concessionária e foco. Cobertura Node e Chromium 8 cenários; certificação exclusivamente pelo CI oficial. Sem alterações de workflows nem otimização da Issue #3. [Relatório FV-UI-052](../docs/81_FV_UI_052_CONTAGEM_ACESSIVEL_FILA_2026_10_25.md).

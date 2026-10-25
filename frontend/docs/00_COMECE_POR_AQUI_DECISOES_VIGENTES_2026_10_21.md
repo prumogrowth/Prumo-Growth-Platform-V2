@@ -188,6 +188,10 @@
 
 **[FV-UI-051 — escopo demonstrativo acessível](./80_FV_UI_051_ORIENTACOES_TRES_PAINEIS_2026_10_25.md)**: associa as orientações da busca e composição aos campos correspondentes e explica no Resumo do caso que os dados são fictícios e nenhuma operação externa é realizada. Gate do GitHub Actions **APROVADO** no [run 40196488010](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40196488010): **25/25 Python, 357/357 Node, Chromium PASS** e oito cenários de descrição acessível.
 
+## FV-UI-052 — contagem acessível da lista (25/10/2026)
+
+**[FV-UI-052 — anúncio não duplicado dos resultados](./81_FV_UI_052_CONTAGEM_ACESSIVEL_FILA_2026_10_25.md)**: anuncia a contagem quando há conversas e preserva a orientação própria do estado vazio; sem mudar filtros, permissões ou a automação de outras frentes. Validação GitHub Actions obrigatória.
+
 ## Estado do trabalho
 FV-UI-015/016: demonstrações com dados sintéticos. **NÃO** declarar integração real, Auth/RLS/GoTrue, comunicações Meta ou remessas confirmadas. FV-UI-013 não homologada formalmente; **19F 69/100** como último marco. Esta consolidação é **documentação somente**. Nenhum código, migration, branch S1, dado real ou deploy foi tocado.
 

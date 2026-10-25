@@ -1164,4 +1164,42 @@ with sync_playwright() as p:
             guide.close()
     print('FV-UI-051 orientacoes vinculadas e detalhes legiveis em 8 cenarios: PASS')
 
+    # FV-UI-052: anúncio da contagem sem duplicar o estado vazio acessível.
+    for results_width,results_height in ((320,640),(390,844),(900,780),(1440,900)):
+        for results_theme in ('light','dark'):
+            results=browser.new_page(viewport={'width':results_width,'height':results_height},color_scheme=results_theme)
+            results.set_default_timeout(4500)
+            errors_052=[]
+            results.on('pageerror',lambda e:errors_052.append(str(e)))
+            results.set_content(html);results.add_script_tag(content=script)
+            expect(results.locator('#conversation-list')).to_be_visible()
+            expect(results.locator('#visual-app')).to_have_attribute('data-theme',results_theme)
+            count=results.locator('#list-count')
+            assert count.get_attribute('role')=='status'
+            assert count.get_attribute('aria-atomic')=='true'
+            assert count.get_attribute('aria-live')=='polite'
+            assert results.locator('.conversation-card').count()>0
+            original_actor=results.locator('#actor-select').input_value()
+            original_shop=results.locator('#shop-select').input_value()
+            results.locator('#search-input').fill('FV-UI-052-nenhum-caso-123xyz')
+            assert count.get_attribute('aria-live')=='off'
+            assert count.inner_text().strip().startswith('0 de ')
+            assert results.locator('.no-results').count()==1
+            assert results.locator('.no-results').get_attribute('role')=='status'
+            assert results.locator('.no-results').get_attribute('aria-live')=='polite'
+            clear=results.locator('.empty-reset')
+            expect(clear).to_be_visible()
+            clear.scroll_into_view_if_needed()
+            clear.click()
+            expect(results.locator('#search-input')).to_be_focused()
+            assert count.get_attribute('aria-live')=='polite'
+            assert results.locator('.conversation-card').count()>0
+            assert results.locator('.no-results').count()==0
+            assert results.locator('#actor-select').input_value()==original_actor
+            assert results.locator('#shop-select').input_value()==original_shop
+            assert not results.evaluate('document.documentElement.scrollWidth>innerWidth')
+            assert not errors_052,errors_052
+            results.close()
+    print('FV-UI-052 contador de resultados e estado vazio acessiveis em 8 cenarios: PASS')
+
     browser.close()

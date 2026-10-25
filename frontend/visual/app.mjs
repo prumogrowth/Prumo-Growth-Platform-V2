@@ -239,8 +239,12 @@ function renderList() {
   const items = filtered();
   const listProjection = projectInbox(state.cases,state.actorId,state.shopId,state.inboxView);
   const total = listProjection.length;
+  // FV-UI-052: anunciar quantidades quando existirem resultados; evitar
+  // anúncio duplo de zero, já explicado por .no-results[role=status].
+  const listCount = $('list-count');
+  listCount.setAttribute('aria-live',items.length===0?'off':'polite');
   // FV-UI-049: o contador indica resultados visíveis sem perder o total desta aba.
-  $('list-count').textContent = items.length !== total ? `${items.length} de ${total} atendimentos` : `${total} ${total === 1 ? 'atendimento' : 'atendimentos'}`;
+  listCount.textContent = items.length !== total ? `${items.length} de ${total} atendimentos` : `${total} ${total === 1 ? 'atendimento' : 'atendimentos'}`;
   const currentActor = getActor(state.actorId);
   $('list-context').textContent = currentActor.teamState !== 'active' ? 'Acesso fictício suspenso' : currentActor.role === 'gestor' ? 'Visão de supervisão' : 'Atribuídos a mim';
   const activeRows=projectInbox(state.cases,state.actorId,state.shopId,'active');

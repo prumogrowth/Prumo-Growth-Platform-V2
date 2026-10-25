@@ -629,3 +629,15 @@ test('FV-UI-051: orientacoes dos tres paineis associadas aos controles e coerent
   assert.match(styles,/\.detail-pane \.detail-demo-guidance\{font-size:12px/);
   assert.match(browserSmoke,/FV-UI-051 orientacoes vinculadas e detalhes legiveis em 8 cenarios: PASS/);
 });
+
+
+test('FV-UI-052: contagem anuncia resultados sem duplicar o aviso de lista vazia',()=>{
+  assert.match(markup,/<span id="list-count" role="status" aria-live="polite" aria-atomic="true">/);
+  assert.match(app,/FV-UI-052: anunciar quantidades quando existirem resultados/);
+  assert.match(app,/listCount\.setAttribute\('aria-live',items\.length===0\?'off':'polite'\)/);
+  assert.match(app,/listCount\.textContent = items\.length !== total/);
+  assert.match(app,/box\.setAttribute\('role','status'\)/);
+  assert.match(browserSmoke,/FV-UI-052 contador de resultados e estado vazio acessiveis em 8 cenarios: PASS/);
+  assert.match(browserSmoke,/assert count\.get_attribute\('aria-live'\)=='off'/);
+  assert.match(browserSmoke,/assert count\.get_attribute\('aria-live'\)=='polite'/);
+});
