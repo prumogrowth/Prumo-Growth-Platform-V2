@@ -2134,5 +2134,193 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
                               ValidityState.CONFLICT_REVIEW_REQUIRED)
 
 
+
+    def _operational_fixture(self,fields,*,definitions=None,products=()):
+        from backend.s0_f03_operational_contracts_local import proposal_digest
+        from backend.s0_f03_version_reservation_local import (
+            VersionVector,ReservationState,
+        )
+        reservation,vector=self._prepare_cas()
+        definitions=definitions if definitions is not None else (
+            ('observacao_sintetica','TEXT_ONLY',48,True),
+        )
+        with self.pg.connect(DB) as con:
+            for key,kind,max_chars,active in definitions:
+                con.execute('insert into '
+                    'prumo_private.cfi01_f03_operational_field_contracts_local '
+                    '(concessionaria_id,campo_sintetico,tipo_sintetico,'
+                    'max_chars,ativo_sintetico) values (%s,%s,%s,%s,%s)',
+                    (self.shop,key,kind,max_chars,active))
+            for key,active in products:
+                con.execute('insert into prumo_private.cfi01_f03_catalog_entries_local '
+                    '(concessionaria_id,codigo_sintetico,descricao_sintetica,'
+                    'ativo_sintetico) values (%s,%s,%s,%s)',
+                    (self.shop,key,'Produto ficticio da loja',active))
+            cat=con.execute('select versao_catalogo from '
+                'prumo_private.cfi01_f03_catalog_versions_local '
+                'where concessionaria_id=%s',(self.shop,)).fetchone()[0]
+        vector=VersionVector(vector.form,cat,vector.case,vector.assignment,
+                             vector.identity)
+        digest=proposal_digest(fields)
+        self.assertIsNotNone(digest)
+        self.assertIs(self._reserve(reservation,vector,sha=digest),
+                      ReservationState.RESERVED_REVIEW_ONLY)
+        return vector,digest
+
+    def _operational_check(self,fields,vector,digest):
+        from backend.s0_f03_operational_contracts_local import (
+            S0F03LocalOperationalContractsStore,
+        )
+        return S0F03LocalOperationalContractsStore(DB).check(
+            self.binding,vector,'request-cas-0001',digest,
+            'test-key-v1',fields)
+
+    def test_160_operational_text_review_is_read_only(self):
+        from backend.s0_f03_operational_contracts_local import (
+            ProposedField,FieldKind,OperationalState,
+        )
+        fields=(ProposedField('observacao_sintetica',FieldKind.TEXT_ONLY,
+                              'Preferencia ficticia'),)
+        v,d=self._operational_fixture(fields)
+        with self.pg.connect(DB) as con:
+            before=con.execute('select count(*) from '
+                'prumo_private.cfi01_f03_form_fields_local '
+                'where concessionaria_id=%s',(self.shop,)).fetchone()[0]
+        self.assertIs(self._operational_check(fields,v,d),
+                      OperationalState.CONTRACT_REVIEW_ONLY)
+        with self.pg.connect(DB) as con:
+            after=con.execute('select count(*) from '
+                'prumo_private.cfi01_f03_form_fields_local '
+                'where concessionaria_id=%s',(self.shop,)).fetchone()[0]
+        self.assertEqual((before,after),(0,0))
+
+    def test_161_active_catalog_code_review_only(self):
+        from backend.s0_f03_operational_contracts_local import (
+            ProposedField,FieldKind,OperationalState,
+        )
+        fields=(ProposedField('produto_sintetico',FieldKind.CATALOG_CODE,
+                              'MODELO_TESTE'),)
+        v,d=self._operational_fixture(fields,definitions=(
+            ('produto_sintetico','CATALOG_CODE',48,True),),
+            products=(('MODELO_TESTE',True),))
+        self.assertIs(self._operational_check(fields,v,d),
+                      OperationalState.CONTRACT_REVIEW_ONLY)
+
+    def test_162_unregistered_field_is_denied_by_contract(self):
+        from backend.s0_f03_operational_contracts_local import (
+            ProposedField,FieldKind,OperationalState,
+        )
+        fields=(ProposedField('identidade_sintetica',FieldKind.TEXT_ONLY,'x'),)
+        v,d=self._operational_fixture(fields)
+        self.assertIs(self._operational_check(fields,v,d),
+                      OperationalState.FIELD_REVIEW_REQUIRED)
+
+    def test_163_wrong_field_kind_is_denied(self):
+        from backend.s0_f03_operational_contracts_local import (
+            ProposedField,FieldKind,OperationalState,
+        )
+        fields=(ProposedField('observacao_sintetica',FieldKind.CATALOG_CODE,
+                              'MODELO_TESTE'),)
+        v,d=self._operational_fixture(fields)
+        self.assertIs(self._operational_check(fields,v,d),
+                      OperationalState.FIELD_REVIEW_REQUIRED)
+
+    def test_164_field_length_above_contract_is_denied(self):
+        from backend.s0_f03_operational_contracts_local import (
+            ProposedField,FieldKind,OperationalState,
+        )
+        fields=(ProposedField('observacao_sintetica',FieldKind.TEXT_ONLY,
+                              'x'*50),)
+        v,d=self._operational_fixture(fields)
+        self.assertIs(self._operational_check(fields,v,d),
+                      OperationalState.FIELD_REVIEW_REQUIRED)
+
+    def test_165_nonexistent_catalog_item_denied(self):
+        from backend.s0_f03_operational_contracts_local import (
+            ProposedField,FieldKind,OperationalState,
+        )
+        fields=(ProposedField('produto_sintetico',FieldKind.CATALOG_CODE,
+                              'INEXISTENTE'),)
+        v,d=self._operational_fixture(fields,definitions=(
+            ('produto_sintetico','CATALOG_CODE',48,True),))
+        self.assertIs(self._operational_check(fields,v,d),
+                      OperationalState.CATALOG_REVIEW_REQUIRED)
+
+    def test_166_inactive_catalog_item_denied(self):
+        from backend.s0_f03_operational_contracts_local import (
+            ProposedField,FieldKind,OperationalState,
+        )
+        fields=(ProposedField('produto_sintetico',FieldKind.CATALOG_CODE,
+                              'MODELO_TESTE'),)
+        v,d=self._operational_fixture(fields,definitions=(
+            ('produto_sintetico','CATALOG_CODE',48,True),),
+            products=(('MODELO_TESTE',False),))
+        self.assertIs(self._operational_check(fields,v,d),
+                      OperationalState.CATALOG_REVIEW_REQUIRED)
+
+    def test_167_catalog_version_drift_invalidates_contract(self):
+        from backend.s0_f03_operational_contracts_local import (
+            ProposedField,FieldKind,OperationalState,
+        )
+        fields=(ProposedField('observacao_sintetica',FieldKind.TEXT_ONLY,
+                              'Texto ficticio'),)
+        v,d=self._operational_fixture(fields)
+        with self.pg.connect(DB) as con:
+            con.execute('update prumo_private.cfi01_f03_operational_field_contracts_local '
+                'set max_chars=%s where concessionaria_id=%s and campo_sintetico=%s',
+                (64,self.shop,'observacao_sintetica'))
+        self.assertIs(self._operational_check(fields,v,d),
+                      OperationalState.STALE_REVIEW_REQUIRED)
+
+    def test_168_form_version_drift_invalidates_contract(self):
+        from backend.s0_f03_operational_contracts_local import (
+            ProposedField,FieldKind,OperationalState,
+        )
+        fields=(ProposedField('observacao_sintetica',FieldKind.TEXT_ONLY,'x'),)
+        v,d=self._operational_fixture(fields)
+        with self.pg.connect(DB) as con:
+            con.execute('insert into prumo_private.cfi01_f03_form_fields_local '
+                '(concessionaria_id,lead_id,campo_sintetico,valor_sintetico) '
+                'values (%s,%s,%s,%s)',
+                (self.shop,self.lead,'observacao_sintetica','valor existente'))
+        self.assertIs(self._operational_check(fields,v,d),
+                      OperationalState.STALE_REVIEW_REQUIRED)
+
+    def test_169_new_identity_pending_invalidates_contract(self):
+        from backend.s0_f03_operational_contracts_local import (
+            ProposedField,FieldKind,OperationalState,
+        )
+        fields=(ProposedField('observacao_sintetica',FieldKind.TEXT_ONLY,'x'),)
+        v,d=self._operational_fixture(fields)
+        self._pending_identity('+5511988887777')
+        self.assertIs(self._operational_check(fields,v,d),
+                      OperationalState.CONFLICT_REVIEW_REQUIRED)
+
+    def test_170_contract_rekey_is_forbidden(self):
+        from backend.s0_f03_operational_contracts_local import (
+            ProposedField,FieldKind,
+        )
+        fields=(ProposedField('observacao_sintetica',FieldKind.TEXT_ONLY,'x'),)
+        self._operational_fixture(fields)
+        with self.assertRaises(self.pg.Error) as err:
+            with self.pg.connect(DB) as con:
+                con.execute('update prumo_private.cfi01_f03_operational_field_contracts_local '
+                  'set tipo_sintetico=%s where concessionaria_id=%s '
+                  'and campo_sintetico=%s',
+                  ('CATALOG_CODE',self.shop,'observacao_sintetica'))
+        self.assertEqual(err.exception.sqlstate,'42501')
+
+    def test_171_authenticated_cannot_query_field_registry(self):
+        from backend.s0_f03_operational_contracts_local import (
+            ProposedField,FieldKind,
+        )
+        self._operational_fixture((
+            ProposedField('observacao_sintetica',FieldKind.TEXT_ONLY,'x'),))
+        with self.pg.connect(DB) as con:
+            with self.assertRaises(self.pg.Error):
+                con.execute('set local role authenticated')
+                con.execute('select * from '
+                    'prumo_private.cfi01_f03_operational_field_contracts_local')
+
 if __name__=='__main__':
     unittest.main()
