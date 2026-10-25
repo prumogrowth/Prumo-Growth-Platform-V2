@@ -56,4 +56,5 @@ psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$ROOT/supabase/migrati
 python3 "$ROOT/supabase/tests/s0_wa_059_assert_single_entry_sealed_pg17.py"
 node --test "$ROOT/supabase/tests/s0_wa_060_meta_raw_to_pg17_bridge.test.mjs"
 node --test "$ROOT/supabase/tests/s0_wa_061_meta_http_loopback_transport.test.mjs"
+node --test "$ROOT/supabase/tests/s0_wa_062_http_disconnect_replay_pg17.test.mjs"
 echo 'Teste local concluído. Não houve escrita no Supabase.'
