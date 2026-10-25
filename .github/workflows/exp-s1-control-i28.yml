@@ -1,0 +1,69 @@
+name: EXP S1 CONTROL I28 baseline
+on:
+  push:
+    branches: [exp/ci-s1-consolidacao-20261025]
+    paths:
+      - 'docs/ci/CI_S1_OTIMIZACAO_BASELINE_20261025.md'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: exp-s1-control-i28
+  cancel-in-progress: true
+jobs:
+  http-policy-unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checar 78 provas unitarias HTTP, signer, GoTrue, mTLS e rotacao
+        run: |
+          PYTHONPATH=. python3 -m compileall -q backend/s1_gateway_http_policy_local.py backend/s1_signer_process_local.py backend/s1_signer_independent_gotrue_local.py backend/s1_signer_mtls_local.py backend/s1_i27_ephemeral_certificates.py backend/s1_i28_rotating_certificates.py backend/s1_signer_mtls_rotation_local.py tests/test_s1_002_i23_http_policy.py tests/test_s1_002_i25_signer_process.py tests/test_s1_002_i26_independent_auth.py tests/test_s1_002_i27_mtls.py tests/test_s1_002_i28_cert_lifecycle.py scripts/test_s1_002_i28_service_rotation_local.py
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i23_http_policy.py' -v
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i25_signer_process.py' -v
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i26_independent_auth.py' -v
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i27_mtls.py' -v
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i28_cert_lifecycle.py' -v
+  e2e-gerencia-local:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    env:
+      CI: 'true'
+      PRUMO_S1_I28_EPHEMERAL: 'YES'
+      SUPABASE_DISABLE_TELEMETRY: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 2.84.2
+      - name: Cliente PostgreSQL
+        run: command -v psql || (sudo apt-get update -qq && sudo apt-get install -y postgresql-client)
+      - name: Instalar driver SQL pinado para gateway efemero
+        run: python3 -m pip install --user 'psycopg[binary]==3.2.13'
+      - name: Subir GoTrue e PostgREST completamente descartaveis
+        shell: bash
+        run: |
+          set -euo pipefail
+          workdir="$(mktemp -d)"
+          printf '%s\n' "$workdir" > "$RUNNER_TEMP/prumo-s1-i28-workdir"
+          cd "$workdir"
+          supabase init
+          supabase start --exclude studio,realtime,storage-api,imgproxy,postgres-meta,edge-runtime,logflare,vector,supavisor
+          supabase status -o env > "$RUNNER_TEMP/prumo-s1-i28-env"
+          test -s "$RUNNER_TEMP/prumo-s1-i28-env"
+      - name: Testar rotacao e revogacao mTLS com GoTrue local e PostgreSQL descartavel
+        shell: bash
+        run: |
+          set -euo pipefail
+          set -a
+          source "$RUNNER_TEMP/prumo-s1-i28-env"
+          set +a
+          PYTHONPATH=. python3 scripts/test_s1_002_i28_service_rotation_local.py
+      - name: Desligar stack local
+        if: always()
+        shell: bash
+        run: |
+          if [ -f "$RUNNER_TEMP/prumo-s1-i28-workdir" ]; then
+            cd "$(cat "$RUNNER_TEMP/prumo-s1-i28-workdir")"
+            supabase stop || true
+          fi
