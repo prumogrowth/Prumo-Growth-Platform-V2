@@ -210,5 +210,6 @@ end $t$;
 -- I67: restore only row-addressable admin items/recontacts/events with team scope.
 \ir s1_095_admin_row_scoped_aceite.sql
 \ir s1_097_admin_projection_invoker_aceite.sql
+\ir s1_099_admin_export_bounded_aceite.sql
 rollback;
-\echo 'I64 S0 indirect exposure PG17 8/8; I65 8/8; I66 8/8; I67 8/8; I68 9/9; all synthetic objects and policies rolled back'
+\echo 'I64 S0 indirect exposure PG17 8/8; I65 8/8; I66 8/8; I67 8/8; I68 9/9; I69 9/9; all synthetic objects and policies rolled back'
