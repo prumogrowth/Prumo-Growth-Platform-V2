@@ -3240,5 +3240,228 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
         self.assertIs(self._s2_evidence_review(bridge,fields,vector,output,js['proposal']),
                       EvidenceState.MEDIA_REVIEW_REQUIRED)
 
+
+    def _media_attestation_fixture(self,*,record=True,days=1,signer=None):
+        from datetime import datetime,timezone,timedelta
+        from backend.s0_f03_media_attestation_local import (
+            _digest,_proof_hmac,S0F03LocalMediaAttestationBridge,
+        )
+        base,fields,vector,js=self._s2_recheck_fixture()
+        output=self._s2_evaluate_real_js(js)
+        self.assertEqual(output['status'],'S0_RECHECK_ONLY')
+        media=b'E04_synthetic_media_bytes'
+        transcript='transcricao produzida fora do modelo - SOMENTE FIXTURE'
+        expiry=datetime.now(timezone.utc)+timedelta(days=days)
+        content_sha,trans_sha=_digest(media,transcript)
+        secret=b'fixture-only-content-seal-key-more-than-32-bytes'
+        hmac_value=_proof_hmac(signer or secret,str(self.shop),
+                      str(self.event),str(self.case),str(self.message),
+                      'test-key-v1',content_sha,trans_sha,expiry)
+        if record:
+            with self.pg.connect(DB) as con:
+                con.execute('insert into '
+                    'prumo_private.cfi01_f03_media_attestations_local '
+                    '(concessionaria_id,evento_fechamento_id,caso_id,'
+                    'mensagem_id,proposito,chave_versao,anexo_sha256,'
+                    'transcricao_sha256,prova_hmac_sha256,valido_ate) '
+                    'values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',
+                    (self.shop,self.event,self.case,self.message,
+                     'F03_POST_HUMAN_REVIEW_SYNTHETIC','test-key-v1',
+                     content_sha,trans_sha,hmac_value,expiry))
+        return (S0F03LocalMediaAttestationBridge(base),base,fields,
+                vector,output,media,transcript)
+
+    def _media_check(self,test,*,message=None,media=None,transcript=None,
+                     authorization='Bearer PINNED_S2_LOCAL_E04'):
+        (bridge,base,fields,vector,output,original_media,original_text)=test
+        return bridge.inspect(authorization,self.binding,'test-key-v1',
+                  b'fixture-only-content-seal-key-more-than-32-bytes',
+                  vector,'request-cas-0001',fields,output,
+                  str(message or self.message),
+                  media if media is not None else original_media,
+                  transcript if transcript is not None else original_text).state
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_224_signed_media_receipt_is_review_only_no_form_write(self):
+        from backend.s0_f03_media_attestation_local import MediaAttestationState
+        fixture=self._media_attestation_fixture()
+        self.assertIs(self._media_check(fixture),
+                      MediaAttestationState.MEDIA_DIGEST_REVIEW_ONLY)
+        with self.pg.connect(DB) as con:
+            count=con.execute('select count(*) from '
+                    'prumo_private.cfi01_f03_form_fields_local '
+                    'where lead_id=%s',(self.lead,)).fetchone()[0]
+        self.assertEqual(count,0)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_225_missing_media_receipt_is_not_evidence(self):
+        from backend.s0_f03_media_attestation_local import MediaAttestationState
+        fixture=self._media_attestation_fixture(record=False)
+        self.assertIs(self._media_check(fixture),MediaAttestationState.MISSING_ATTESTATION)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_226_media_byte_substitution_refused(self):
+        from backend.s0_f03_media_attestation_local import MediaAttestationState
+        fixture=self._media_attestation_fixture()
+        self.assertIs(self._media_check(fixture,media=b'altered-audio-fixture'),
+                      MediaAttestationState.INTEGRITY_REVIEW_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_227_transcript_substitution_refused(self):
+        from backend.s0_f03_media_attestation_local import MediaAttestationState
+        fixture=self._media_attestation_fixture()
+        self.assertIs(self._media_check(fixture,transcript='OUTRA transcricao'),
+                      MediaAttestationState.INTEGRITY_REVIEW_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_228_wrong_s0_signing_key_refused(self):
+        from backend.s0_f03_media_attestation_local import MediaAttestationState
+        fixture=self._media_attestation_fixture(
+            signer=b'fixture-different-strong-signing-key-longer-than-32')
+        self.assertIs(self._media_check(fixture),
+                      MediaAttestationState.INTEGRITY_REVIEW_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_229_expired_retention_cannot_be_registered(self):
+        fixture_not_saved=self._media_attestation_fixture(record=False)
+        with self.assertRaises(self.pg.Error) as error:
+            self._media_attestation_fixture(days=-1)
+        self.assertEqual(error.exception.sqlstate,'23514')
+
+    def test_230_cross_shop_media_attestation_insert_denied(self):
+        from datetime import datetime,timezone,timedelta
+        with self.assertRaises(self.pg.Error) as error:
+            with self.pg.connect(DB) as con:
+                con.execute('insert into '
+                    'prumo_private.cfi01_f03_media_attestations_local '
+                    '(concessionaria_id,evento_fechamento_id,caso_id,'
+                    'mensagem_id,proposito,chave_versao,anexo_sha256,'
+                    'transcricao_sha256,prova_hmac_sha256,valido_ate) '
+                    'values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',
+                    (uuid.uuid4(),self.event,self.case,self.message,
+                     'F03_POST_HUMAN_REVIEW_SYNTHETIC','test-key-v1',
+                     'a'*64,'b'*64,'c'*64,
+                     datetime.now(timezone.utc)+timedelta(days=1)))
+        self.assertEqual(error.exception.sqlstate,'42501')
+
+    def test_231_client_role_cannot_read_media_proof(self):
+        with self.assertRaises(self.pg.Error) as error:
+            with self.pg.connect(DB) as con:
+                con.execute('set local role authenticated')
+                con.execute('select * from '
+                    'prumo_private.cfi01_f03_media_attestations_local')
+        self.assertIn(error.exception.sqlstate,('42501','42P01','3F000'))
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_232_media_attestation_immutable_update_and_delete(self):
+        self._media_attestation_fixture()
+        for statement in (
+            "update prumo_private.cfi01_f03_media_attestations_local "
+            "set transcricao_sha256=%s where mensagem_id=%s",
+            "delete from prumo_private.cfi01_f03_media_attestations_local "
+            "where mensagem_id=%s",
+        ):
+            params=('d'*64,self.message) if statement.startswith('update') else (self.message,)
+            with self.subTest(action=statement.split()[0]):
+                with self.assertRaises(self.pg.Error) as error:
+                    with self.pg.connect(DB) as con:con.execute(statement,params)
+                self.assertEqual(error.exception.sqlstate,'42501')
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_233_other_historical_text_message_not_media_receipt(self):
+        from backend.s0_f03_media_attestation_local import MediaAttestationState
+        fixture=self._media_attestation_fixture()
+        self.assertIs(self._media_check(fixture,message=self.old_message),
+                      MediaAttestationState.MISSING_ATTESTATION)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_234_hmac_attestation_does_not_unlock_literal_f03_fields(self):
+        from backend.s0_f03_crossfront_evidence_local import (
+            EvidenceState,S0F03LocalEvidenceReviewBridge,
+        )
+        fixture=self._media_attestation_fixture()
+        self.assertIs(self._media_check(fixture),
+                      __import__('backend.s0_f03_media_attestation_local',fromlist=[
+                        'MediaAttestationState']).MediaAttestationState.MEDIA_DIGEST_REVIEW_ONLY)
+        _,base,fields,vector,output,_,_=fixture
+        self.assertIs(self._s2_evidence_review(
+            S0F03LocalEvidenceReviewBridge(base),fields,vector,output,
+            {'proposalRef':'synthetic-proposal-01','fields':[{
+                'code':'observacao_sintetica','value':'preferencia ficticia',
+                'sourceId':str(self.message)}],
+             'conflicts':[],'advisory':None}), EvidenceState.MEDIA_REVIEW_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_235_image_fixture_refused_for_media_receipt(self):
+        fixture=self._media_attestation_fixture(record=False)
+        with self.assertRaises(self.pg.Error) as error:
+            self._media_attestation_fixture()
+        self.assertEqual(error.exception.sqlstate,'42501')
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_236_invalid_s0_authorization_does_not_disclose_media(self):
+        from backend.s0_f03_media_attestation_local import MediaAttestationState
+        fixture=self._media_attestation_fixture()
+        self.assertIs(self._media_check(fixture,authorization='Bearer OTHER'),
+                      MediaAttestationState.STALE_REVIEW_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_237_changed_live_message_rejects_old_media_attestation(self):
+        from backend.s0_f03_media_attestation_local import MediaAttestationState
+        fixture=self._media_attestation_fixture()
+        with self.pg.connect(DB) as con:
+            con.execute('update public.mensagens set conteudo_sintetico=%s '
+                        'where id=%s',
+                        ('altered synthetic content after S0 seal',self.message))
+        self.assertIs(self._media_check(fixture),
+                      MediaAttestationState.STALE_REVIEW_REQUIRED)
+
+    def test_238_wrong_purpose_rejected_by_sql_contract(self):
+        from datetime import datetime,timezone,timedelta
+        with self.assertRaises(self.pg.Error) as error:
+            with self.pg.connect(DB) as con:
+                con.execute('insert into '
+                    'prumo_private.cfi01_f03_media_attestations_local '
+                    '(concessionaria_id,evento_fechamento_id,caso_id,'
+                    'mensagem_id,proposito,chave_versao,anexo_sha256,'
+                    'transcricao_sha256,prova_hmac_sha256,valido_ate) '
+                    'values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',
+                    (self.shop,self.event,self.case,self.message,
+                     'F03_AUTOMATIC_COMMERCIAL_WRITE','test-key-v1',
+                     'a'*64,'b'*64,'c'*64,
+                     datetime.now(timezone.utc)+timedelta(days=1)))
+        self.assertEqual(error.exception.sqlstate,'23514')
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_239_forged_message_id_not_attested(self):
+        from backend.s0_f03_media_attestation_local import MediaAttestationState
+        fixture=self._media_attestation_fixture()
+        self.assertIs(self._media_check(fixture,message=uuid.uuid4()),
+                      MediaAttestationState.MISSING_ATTESTATION)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_240_source_transcript_is_never_exposed_by_result(self):
+        fixture=self._media_attestation_fixture()
+        result=fixture[0].inspect(
+             'Bearer PINNED_S2_LOCAL_E04',self.binding,'test-key-v1',
+             b'fixture-only-content-seal-key-more-than-32-bytes',
+             fixture[3],'request-cas-0001',fixture[2],fixture[4],
+             str(self.message),fixture[5],fixture[6])
+        self.assertEqual(tuple(vars(result)),('state',))
+
 if __name__=='__main__':
     unittest.main()
