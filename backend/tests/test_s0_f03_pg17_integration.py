@@ -2584,9 +2584,13 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
             ver=con.execute('select versao_ficha from '
                 'prumo_private.cfi01_f03_lead_versions_local where lead_id=%s',
                 (self.lead,)).fetchone()[0]
-            item=con.execute('select antigo_sha256,novo_sha256 from '
-                'prumo_private.cfi01_f03_form_application_items_local '
-                'where campo_sintetico=%s',('observacao_sintetica',)).fetchone()
+            item=con.execute('select i.antigo_sha256,i.novo_sha256 from '
+                'prumo_private.cfi01_f03_form_application_items_local i '
+                'join prumo_private.cfi01_f03_form_application_local a '
+                'on a.id=i.aplicacao_id '
+                'where a.concessionaria_id=%s and a.lead_id=%s '
+                'and i.campo_sintetico=%s',
+                (self.shop,self.lead,'observacao_sintetica')).fetchone()
         self.assertEqual((row,ver),('depois',3))
         self.assertEqual(item,(_sha('antes'),_sha('depois')))
 
@@ -2598,11 +2602,11 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
         with self.pg.connect(DB) as con:
             con.execute("""
               create function prumo_private.f03_fail_audit_test_local()
-              returns trigger language plpgsql set search_path='' as $
+              returns trigger language plpgsql set search_path='' as $boom$
               begin
                 raise exception 'E04_FORCED_AUDIT_FAILURE'
                   using errcode='23514';
-              end $;
+              end $boom$;
               create trigger f03_fail_audit_test
               before insert on prumo_private.cfi01_f03_form_application_local
               for each row execute function prumo_private.f03_fail_audit_test_local();
