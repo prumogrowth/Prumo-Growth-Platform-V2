@@ -79,6 +79,16 @@ try:
  except psycopg.Error as e:assert e.sqlstate=="42501",e.sqlstate
  else:raise AssertionError("I62 nonce replay accepted")
  print("PASS I62-E2E-05: signed revoke cuts grant, replay denied inside executor")
+ status,data=http("POST","/s1/revogar_excecao",bearer=token53,
+  body={"excecao_id":exception_id},base=url62)
+ assert status==200 and data=={"outcome":"ALREADY_REVOKED"},(status,data)
+ status,_=http("POST","/s1/revogar_excecao",bearer=token_g2,
+  body={"excecao_id":exception_id},base=url62)
+ assert status==403,status
+ assert sql(f"select count(*) from prumo_private.s1_excecoes_caso_eventos_i61 "
+   f"where excecao_id={U(exception_id)} and evento='REVOGADA'")=="1"
+ print("PASS I62-E2E-06: signed HTTP revoke is idempotent for authorized manager; foreign manager denied, one audit event")
+
 
  status,_=http("POST","/rest/v1/rpc/invocar_excecao_i62",bearer=token53,
                 body={"p_ator":g1},base=api)
@@ -88,7 +98,7 @@ try:
    try:cur.execute("select count(*) from prumo_private.s1_excecoes_caso_i61")
    except psycopg.Error as e:assert e.sqlstate=="42501",e.sqlstate
    else:raise AssertionError("I62 login reads private data")
- print("PASS I62-E2E-06: PostgREST and signed SQL login cannot inspect private exception table")
+ print("PASS I62-E2E-07: PostgREST and signed SQL login cannot inspect private exception table")
 finally:
  server62.shutdown();server62.server_close()
-print("I62 6/6 real GoTrue and independent mTLS HMAC tests in disposable CI")
+print("I62 7/7 real GoTrue and independent mTLS HMAC tests in disposable CI")
