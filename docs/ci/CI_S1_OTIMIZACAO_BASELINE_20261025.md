@@ -33,3 +33,8 @@ Data: 2026-10-25. Escopo: experimento isolado da Issue #3. Não altera nenhum wo
 - **Não** desativar workflows vigentes antes de repetir e comprovar cobertura 1:1 e reprodutibilidade.
 
 Esta atualização documental provoca intencionalmente uma segunda execução do workflow experimental, **sem alterar código de S1 ou workflow**; seu resultado será analisado separadamente.
+
+## Segundo ensaio e comparação simultânea proposta (25/10/2026)
+- [Run #40200072455](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40200072455): **SUCCESS**. Um job (13:58:47–14:02:09Z, **3 min 22 s**), nenhuma falha no gate.
+- Controle de comparação no mesmo SHA preparado com cópias exatas dos workflows atuais de I27 e I28, apenas com gatilho específico para esta documentação experimental. Cada controle possui seus jobs originais unitário e E2E; sem substituição do CI oficial.
+- Esta atualização documental dispara simultaneamente o workflow otimizado e os dois controles para produzir um resultado mais comparável; diferenças de runner/cache/infra ainda podem produzir dispersão. NUNCA declarar aprovado para a S1 oficial apenas por esta medição.
