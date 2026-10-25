@@ -493,6 +493,12 @@ function renderDetails() {
     if(isSyntheticBankProtected(item)) group.append(callout('Marco bancário protegido','Silêncio de cliente ou janela Meta expirada não representa negativa da instituição financeira.','warning'));
     const rule=detailSection('REGRAS DA EXPERIÊNCIA');
     rule.append(callout('Atendimento humano independente','Concluir a conversa não envia cadastro ao banco, não marca vendido ou perdido e não reativa a IA Vendedora.'));
+    // FV-UI-051: o alcance fictício também é explícito no painel de detalhes.
+    const guidance=el('p','detail-small detail-demo-guidance',
+      'Dados fictícios. Este painel apenas exibe informações ilustrativas e não executa operações externas.');
+    guidance.id='case-demo-guidance';guidance.setAttribute('role','note');
+    rule.append(guidance);
+    content.setAttribute('aria-describedby','case-demo-guidance');
     rule.append(el('p','detail-small','Gestores veem conversas fictícias por loja. Dados financeiros protegidos D3/D4 não são disponibilizados na simulação.'));
     content.append(group,rule);
   } else if(state.detailTab==='activity'){

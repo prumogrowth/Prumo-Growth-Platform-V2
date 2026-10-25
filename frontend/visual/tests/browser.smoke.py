@@ -1119,4 +1119,48 @@ with sync_playwright() as p:
             notice_page.close()
     print('FV-UI-050 avisos acessiveis, tempo de leitura e compositor livre em 8 cenarios: PASS')
 
+    # FV-UI-051: ajuda consistente em busca, composicao e detalhes (leitores de tela).
+    for guide_width,guide_height in ((320,640),(390,844),(900,780),(1440,900)):
+        for guide_theme in ('light','dark'):
+            guide=browser.new_page(viewport={'width':guide_width,'height':guide_height},color_scheme=guide_theme)
+            guide.set_default_timeout(4500)
+            guide_errors=[]
+            guide.on('pageerror',lambda e:guide_errors.append(str(e)))
+            guide.set_content(html);guide.add_script_tag(content=script)
+            expect(guide.locator('#conversation-list')).to_be_visible()
+            expect(guide.locator('#visual-app')).to_have_attribute('data-theme',guide_theme)
+            assert guide.locator('#search-input').get_attribute('aria-describedby')=='list-demo-guidance'
+            list_note=guide.locator('#list-demo-guidance')
+            assert list_note.count()==1 and list_note.get_attribute('role')=='note'
+            assert 'Dados fictícios' in list_note.inner_text()
+            guide.locator('.conversation-card').first.click()
+            expect(guide.locator('#thread-pane')).to_be_visible()
+            assert guide.locator('#message-input').get_attribute('aria-describedby')=='composer-demo-guidance'
+            message_note=guide.locator('#composer-demo-guidance')
+            expect(message_note).to_be_visible()
+            assert message_note.get_attribute('role')=='note'
+            assert 'Dados fictícios' in message_note.inner_text()
+            assert 'Nenhum envio pelo WhatsApp' in message_note.inner_text()
+            guide.locator('#detail-toggle').click()
+            expect(guide.locator('#detail-pane')).to_be_visible()
+            detail_note=guide.locator('#case-demo-guidance')
+            expect(detail_note).to_be_visible()
+            assert detail_note.get_attribute('role')=='note'
+            assert guide.locator('#case-tab-panel').get_attribute('aria-describedby')=='case-demo-guidance'
+            assert 'Dados fictícios' in detail_note.inner_text()
+            assert 'não executa operações externas' in detail_note.inner_text()
+            assert float(detail_note.evaluate('e=>parseFloat(getComputedStyle(e).fontSize)'))>=12
+            result_051=detail_note.evaluate("""e=>{
+              const rgb=s=>s.match(/\d+(\.\d+)?/g).slice(0,3).map(Number);
+              const l=v=>{const c=v.map(n=>n/255).map(n=>n<=0.04045?n/12.92:Math.pow((n+0.055)/1.055,2.4));
+              return 0.2126*c[0]+0.7152*c[1]+0.0722*c[2]};
+              const cs=getComputedStyle(e),fg=l(rgb(cs.color)),bg=l(rgb(cs.backgroundColor));
+              return {contrast:(Math.max(fg,bg)+0.05)/(Math.min(fg,bg)+0.05),font:cs.fontSize};
+            }""")
+            assert result_051['contrast']>=4.5,(guide_width,guide_theme,result_051)
+            assert not guide.evaluate('document.documentElement.scrollWidth>innerWidth')
+            assert not guide_errors,guide_errors
+            guide.close()
+    print('FV-UI-051 orientacoes vinculadas e detalhes legiveis em 8 cenarios: PASS')
+
     browser.close()

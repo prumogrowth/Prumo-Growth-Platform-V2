@@ -445,3 +445,7 @@ body[data-theme="dark"] .team-dialog .team-mode button[aria-pressed="true"]{
 .list-pane .list-footer{font-size:11px;line-height:1.5;color:#536c75}
 .visual-app[data-theme="dark"] .list-pane .list-footer{color:#bacdd5}
 @media(max-width:760px){.toast{top:calc(env(safe-area-inset-top) + 72px);padding:12px 14px}}
+
+/* FV-UI-051 — orientações vinculadas a busca, composição e detalhes. */
+.detail-pane .detail-demo-guidance{font-size:12px;line-height:1.55;color:#405962;background:#edf5f3;border:1px solid #d5e4e1;border-radius:9px;padding:10px 12px;margin:12px 0}
+.visual-app[data-theme="dark"] .detail-pane .detail-demo-guidance{background:#22343b;border-color:#36545b;color:#d6e7ea}

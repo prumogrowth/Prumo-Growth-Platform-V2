@@ -184,6 +184,10 @@
 
 **[FV-UI-050 — notificações legíveis](./79_FV_UI_050_AVISOS_ESTADO_2026_10_25.md)**: melhora tempo de leitura, posição do toast e rodapé informativo, mantendo a mensagem e semântica de demonstração. GitHub Actions **APROVADO** no [run 40192925946](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40192925946): **25/25 Python, 356/356 Node e Chromium PASS**, após correção de expectativa de CSS calculado no teste inicial.
 
+## FV-UI-051 — orientações entre lista, conversa e detalhes (25/10/2026)
+
+**[FV-UI-051 — escopo demonstrativo acessível](./80_FV_UI_051_ORIENTACOES_TRES_PAINEIS_2026_10_25.md)**: associa as orientações da busca e composição aos campos correspondentes e explica no Resumo do caso que os dados são fictícios e nenhuma operação externa é realizada. Gate do GitHub Actions obrigatório.
+
 ## Estado do trabalho
 FV-UI-015/016: demonstrações com dados sintéticos. **NÃO** declarar integração real, Auth/RLS/GoTrue, comunicações Meta ou remessas confirmadas. FV-UI-013 não homologada formalmente; **19F 69/100** como último marco. Esta consolidação é **documentação somente**. Nenhum código, migration, branch S1, dado real ou deploy foi tocado.
 

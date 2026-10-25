@@ -614,3 +614,18 @@ test('FV-UI-050: avisos legiveis sem obstruir compositor e sem mudar a mensagem'
   assert.match(browserSmoke,/FV-UI-050 avisos acessiveis, tempo de leitura e compositor livre em 8 cenarios: PASS/);
   assert.match(browserSmoke,/toast_rect\['y'\]\+toast_rect\['height'\]\+12 < composer_rect\['y'\]/);
 });
+
+
+test('FV-UI-051: orientacoes dos tres paineis associadas aos controles e coerentes',()=>{
+  assert.match(markup,/id="search-input"[^>]*aria-describedby="list-demo-guidance"/);
+  assert.match(markup,/id="list-demo-guidance" role="note"/);
+  assert.match(markup,/id="message-input"[^>]*aria-describedby="composer-demo-guidance"/);
+  assert.match(markup,/id="composer-demo-guidance" role="note">Dados fictícios/);
+  assert.match(markup,/Nenhum envio pelo WhatsApp/);
+  assert.match(app,/FV-UI-051: o alcance fictício também é explícito no painel de detalhes/);
+  assert.match(app,/guidance\.id='case-demo-guidance';guidance\.setAttribute\('role','note'\)/);
+  assert.match(app,/content\.setAttribute\('aria-describedby','case-demo-guidance'\)/);
+  assert.match(styles,/FV-UI-051 — orientações vinculadas a busca, composição e detalhes/);
+  assert.match(styles,/\.detail-pane \.detail-demo-guidance\{font-size:12px/);
+  assert.match(browserSmoke,/FV-UI-051 orientacoes vinculadas e detalhes legiveis em 8 cenarios: PASS/);
+});

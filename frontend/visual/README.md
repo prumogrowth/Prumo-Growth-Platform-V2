@@ -235,3 +235,7 @@ A lista diferencia busca sem correspondências, filtros sem conversas, aba genui
 ## FV-UI-050 — Avisos legíveis e sem conflito com o compositor (25/10/2026)
 
 As mensagens do toast continuam textualmente idênticas e com `role=status`, `aria-live=polite`, mas agora duram de 5 a 9 segundos conforme o comprimento e aparecem na região superior (acima do compositor), inclusive no móvel com respeito à área segura. Tipografia de 13px e quebra de linhas evitam cortes; o rodapé que identifica dados fictícios tem fonte de 11px. Sem mudanças em envios ou em ações reais. O roteiro Chromium inclui 8 cenários nos dois temas; certificado somente após GitHub Actions completo. [FV-UI-050](../docs/79_FV_UI_050_AVISOS_ESTADO_2026_10_25.md).
+
+## FV-UI-051 — Orientações contextualizadas nos três painéis (25/10/2026)
+
+A mensagem existente no rodapé da lista agora tem ID e `role=note` associados à busca com `aria-describedby`. A composição conserva sua advertência de que não envia WhatsApp e explicita dados fictícios, vinculando-a ao campo de texto da mesma maneira. Na aba Resumo dos detalhes, uma nota de escopo deixa explícito que nada é executado fora da demonstração; ela descreve acessivelmente o painel e possui contraste testado. Sem novas permissões, filtros, envios ou operações. Regressão Chromium 8 cenários + contrato Node; gate GitHub Actions obrigatório. [FV-UI-051](../docs/80_FV_UI_051_ORIENTACOES_TRES_PAINEIS_2026_10_25.md).
