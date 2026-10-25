@@ -8,8 +8,18 @@ sql(path="supabase/tests/s1_100_admin_export_quota_local_only.sql")
 sql("notify pgrst,'reload schema'")
 def request70(kind,token=token53,lim=1,cursor=None,shop=store_a):
  route="/rest/v1/rpc/s1_69_exportar_"+kind
- return http("POST",route,bearer=token,
-  body={"p_loja":shop,"p_apos":cursor,"p_limite":lim},base=api)
+ # PostgREST caches volatility: I69 STABLE -> I70 VOLATILE. A stale
+ # RPC cache erroneously routes POST into read-only transaction (SQLSTATE 25006).
+ # Retry ONLY that exact pre-refresh error, with finite timeout. Never retry
+ # quota errors or actual permission failures.
+ for attempt in range(40):
+  status,result=http("POST",route,bearer=token,
+   body={"p_loja":shop,"p_apos":cursor,"p_limite":lim},base=api)
+  if status==405 and isinstance(result,dict) and result.get("code")=="25006":
+   time.sleep(.25)
+   continue
+  return status,result
+ raise AssertionError("I70_PGRST_VOLATILITY_CACHE_NOT_REFRESHED")
 
 assert sql("select count(*) from prumo_private.s1_70_export_contadores")=="0"
 assert sql("select count(*) from public.s1_70_export_reservas")=="0"
