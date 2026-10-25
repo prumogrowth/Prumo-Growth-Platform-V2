@@ -357,8 +357,9 @@ test('FV-UI-025: falha de segurança bloqueia efetivamente execução nativa pos
   assert.match(offlineExport,/for gate in \("node","chromium"\)/);
   assert.match(offlineExport,/\[sys\.executable,"-B","-m","unittest"/);
   assert.match(offlineRunner,/security_ok=security_step\["passed"\] and security_step\["executed"\]/);
-  assert.match(offlineRunner,/not inventory_ok or not node or not revision_ok or not security_ok/);
-  assert.match(offlineRunner,/elif not inventory_ok or not revision_ok or not security_ok or not node_ok/);
+  assert.match(offlineRunner,/not inventory_ok or not node or not revision_ok or not blob_ok or not security_ok/);
+  assert.match(offlineRunner,/elif not inventory_ok or not revision_ok or not blob_ok or not security_ok or not node_ok/);
+  assert.match(offlineRunner,/blob_step = check_native_blob_manifest\(args\.expected_head, revision_ok\)/);
   assert.match(offlineRunner,/node_ok=node_step\["passed"\] and node_step\["executed"\]/);
   assert.match(offlineExport,/if node_step\["executed"\] and node_step\["passed"\]:/);
   assert.match(offlineExport,/blocked by Node ESM regression/);
