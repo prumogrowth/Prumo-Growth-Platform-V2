@@ -77,9 +77,9 @@ begin
         and el.estado='verificada_simulada'
      )
      and not exists(
-       select 1 from public.planos_recontato_sinteticos old
-       where old.concessionaria_id=new.concessionaria_id
-        and old.lead_id=new.lead_id and old.estado='ativo'
+       select 1 from public.planos_recontato_sinteticos prior_plan
+       where prior_plan.concessionaria_id=new.concessionaria_id
+        and prior_plan.lead_id=new.lead_id and prior_plan.estado='ativo'
      )
  ) then
   raise exception 'F02_POSTHUMAN_INTENT_SCOPE_DENIED_LOCAL' using errcode='42501';
