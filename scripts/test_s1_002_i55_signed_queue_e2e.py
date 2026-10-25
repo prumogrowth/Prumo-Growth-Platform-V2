@@ -220,3 +220,7 @@ finally:
     server55.shutdown()
     server55.server_close()
 print("I55+I56+I58 11/11 E2E real local GoTrue signed S0 queue; no hosted deployment")
+# I62 after all I55 queue regressions, BEFORE I53 HMAC key revocation.
+_i62=Path("scripts/test_s1_002_i62_excecao_signed_e2e.py")
+exec(compile(_i62.read_text(encoding="utf-8"),str(_i62),"exec"),globals())
+

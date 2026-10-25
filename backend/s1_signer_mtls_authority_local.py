@@ -119,6 +119,14 @@ def _sign_with_verified_identity(payload, keys, verifier):
                     or re.fullmatch(r"[PR]:[1-9][0-9]{0,18}", parts[9]) is None
                     or int(parts[9][2:]) > 9223372036854775807):
                 return {"status": "DENIED"}
+        elif parts[1] == "EXC62M":
+            if (parts[8:10] != ["-","-"] or
+                any(str(uuid.UUID(x)) != x for x in parts[4:8])):
+                return {"status":"DENIED"}
+        elif parts[1] == "EXC62R":
+            if (str(uuid.UUID(parts[4])) != parts[4] or
+                parts[5:9] != ["-"] * 4 or parts[9] != "R"):
+                return {"status":"DENIED"}
         elif parts[1] in ("FILA55L", "FILA55C"):
             if (str(uuid.UUID(parts[4])) != parts[4]
                   or parts[6:9] != ["-"] * 3):

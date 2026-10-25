@@ -38,6 +38,10 @@ on:
       - 'supabase/migrations/202610190054_s0_fila_humana_canonica.sql'
       - 'backend/s1_gateway_fila_canonical_local.py'
       - 'scripts/test_s1_002_i55_signed_queue_e2e.py'
+      - 'scripts/test_s1_002_i62_excecao_signed_e2e.py'
+      - 'backend/s1_gateway_excecao_caso_local.py'
+      - 'supabase/tests/s1_086_excecao_assinada_local_only.sql'
+      - 'tests/test_s1_002_i62_excecao_gateway.py'
       - 'tests/test_s1_002_i55_queue_gateway.py'
       - 'tests/test_s1_002_i37_intake_gateway.py'
       - 'supabase/tests/s1_053_issue10_disponibilidade_local_only.sql'
@@ -76,6 +80,7 @@ jobs:
           PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i37_intake_gateway.py' -v
           PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i53_canonical_gateway.py' -v
           PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i55_queue_gateway.py' -v
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i62_excecao_gateway.py' -v
   e2e-gerencia-local:
     runs-on: ubuntu-latest
     timeout-minutes: 24

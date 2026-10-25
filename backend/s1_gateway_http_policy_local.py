@@ -81,7 +81,7 @@ def serve_http_policy_local(gateway, *, max_requests=200, window_seconds=60,
                             allowed_commands=None):
     """Return a loopback-only test server; caller must shutdown/server_close."""
     commands = frozenset(_SQL) if allowed_commands is None else frozenset(allowed_commands)
-    if not commands or not commands.issubset({"mover","pausar","reativar","intake","fila","assumir_fila"}):
+    if not commands or not commands.issubset({"mover","pausar","reativar","intake","fila","assumir_fila","mover_excecao","revogar_excecao"}):
         raise ValueError("HTTP_COMMAND_ALLOWLIST_INVALID")
     origins = tuple(allowed_origins)
     for origin in origins:
