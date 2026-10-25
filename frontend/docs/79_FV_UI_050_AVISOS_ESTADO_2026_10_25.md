@@ -26,3 +26,13 @@ Contrato Node para semântica original, tempo adaptativo e CSS. Roteiro Playwrig
 Alterações unicamente em `frontend/` (mensagem, orientação e testes). Nenhuma mudança em dados sintéticos, lógica comercial, Auth/RLS, Meta/WhatsApp, banco, APIs, Supabase, IA, backend, redistribuição, regras de negócio, acesso, merge em `main` ou deploy.
 
 **Anterior:** [FV-UI-049](./78_FV_UI_049_ESTADOS_VAZIOS_DA_FILA_2026_10_25.md).
+
+
+## Certificação nativa e correção da regressão
+
+- Implementação, CSS, contratos, roteiro e documentação: commit `8439cc510f4923aa95fa052ecee2d0a903497515`. Manifesto inicial: `8576342f4690edd99b5521b55cdf20e8c51d9bcf`.
+- [Primeiro GitHub Actions 40192563219](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40192563219): **failure**, com **356/356 Node PASS** e Chromium bloqueado pelo ensaio FV-UI-050, linha 1115: o teste exigia que `getComputedStyle(toast).bottom` retornasse literalmente `auto`. O navegador retorna um valor resolvido para a posição fixa, mesmo que o CSS defina `bottom:auto`. Não houve evidência de falha das regras funcionais neste ensaio.
+- A correção removeu **apenas a dependência da representação computada**. Permanece a validação geométrica real do aviso totalmente acima do compositor (`toast_rect.y + height + 12 < composer_rect.y`), visibilidade, limite da viewport, tempo de exibição, tipografia, cores, semântica ARIA, `pointer-events:none` e ausência de erro JavaScript. Commit: `e94fffe608f5093ba55e69ee7fa93929829c0417`.
+- Manifesto repinado após a correção: `8993979c87aac25cd586e7da53a2de9cd79dd6fe`, `source_head=e94fffe608f5093ba55e69ee7fa93929829c0417`.
+- [Segundo GitHub Actions 40192925946](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40192925946): **completed / success**, sobre o SHA repinado exato. Os logs atestam **preflight Git 59 arquivos PASS, Python 25/25 PASS, Node 356/356 PASS, Chromium/Playwright integrado PASS**, com marcador `FV-UI-050 avisos acessiveis, tempo de leitura e compositor livre em 8 cenarios: PASS` e `FULL LOCAL ACCEPTANCE: PASS`.
+- Um relatório JSON foi publicado no workflow com retenção de um dia. A avaliação ainda está limitada ao frontend demonstrativo, sem homologar operações bancárias, fornecedores, autorização real, integração Meta/WhatsApp ou produção.
