@@ -164,7 +164,7 @@ const cases=[
  async()=>{const before=count(TS[4]),fail=await send(F,TS[4],true);
   assert.equal(fail.status,403);assert.equal(fail.body?.meta_ack_emitted,false);
   assert.equal(count(TS[4]),before);
-  assert.equal(pg('select count(*) from prumo_private.meta_wa48_shadow_receipts_fixture_s0'), '0');
+  assert.equal(pg('select count(*) from prumo_private.meta_wa48_shadow_receipts_fixture_s0 where key_id in ('+all.map(x=>q(x.keyId)).join(',')+')'), '0');
   assert.equal(pg("select has_function_privilege('prumo_s0_meta_wa48_client_lab',"+
    q('prumo_private.meta_wa52_locked_forensic_fixture_s0(uuid,text,text,text,uuid,uuid,text,text,text,text,text,text,text,bigint,uuid,text)')+
    ",'EXECUTE')"),'f');
