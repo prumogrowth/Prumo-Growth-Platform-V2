@@ -35,4 +35,6 @@ psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_083_i
 # I61: case-level exception lives in canonical S0/S1 tables, NOT in old I55 fixture.
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/migrations/202610190059_s0_s1_excecao_caso_canonica.sql
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_085_excecao_caso_canonica_aceite.sql
-echo "PASS S0+S1 I52-I61 canonical stages after legacy regression"
+# I63 isolated candidate on canonical S0+I61; data/policies revert inside rollback.
+psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_088_rls_excecao_canonica_aceite.sql
+echo "PASS S0+S1 I52-I63 canonical and candidate stages after legacy regression"
