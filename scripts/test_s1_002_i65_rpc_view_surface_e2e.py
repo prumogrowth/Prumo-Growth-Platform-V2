@@ -77,3 +77,6 @@ finally:
 assert count65()=="0",("I65 leaked fixtures",count65())
 print("PASS I65-E2E-06: disposable red-team objects dropped, private boundary remains closed")
 print("I65 real GoTrue RPC/view surface E2E 6/6; synthetic attack objects destroyed")
+_i66=Path("scripts/test_s1_002_i66_legacy_interface_acl_e2e.py")
+exec(compile(_i66.read_text(encoding="utf-8"),str(_i66),"exec"),globals())
+

@@ -34,7 +34,7 @@ revoke all on schema prumo_s1_interface
 do $post$
 declare v_role text;v_oid oid;v_error text;
 begin
- foreach v_role in array array['PUBLIC','anon','authenticated','service_role'] loop
+ foreach v_role in array array['anon','authenticated','service_role'] loop
   if pg_catalog.has_schema_privilege(v_role,'prumo_s1_interface','USAGE') then
     raise exception 'I66_SCHEMA_CLIENT_USAGE: %',v_role using errcode='42501';end if;
   for v_oid in
