@@ -17,9 +17,10 @@ conv63="e7630000-0000-4000-8000-000000000007"
 conv63pre="e7630000-0000-4000-8000-000000000008"
 msg63="e7630000-0000-4000-8000-000000000009"
 msg63pre="e7630000-0000-4000-8000-000000000010"
-channel63=sql(f"select id from public.canais_loja where concessionaria_id={U(store_a)} order by id limit 1")
-if not channel63:raise AssertionError("I63 S0 shop missing simulation channel")
+channel63="e7630000-0000-4000-8000-000000000011"
 sql(f"""
+insert into public.canais_loja(id,concessionaria_id,identificador_emissor)
+ values('{channel63}',{U(store_a)},'i63-disposable-shop-channel');
 insert into public.leads_loja(id,concessionaria_id,telefone_cliente_normalizado)
  values('{lead63}',{U(store_a)},'+5581886300001');
 insert into public.ciclos_comerciais(id,concessionaria_id,lead_id,status_comercial)
