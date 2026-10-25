@@ -140,7 +140,7 @@ denied("select prumo_private.meta_wa51_verify_nonce_only_fixture_s0(null,null,nu
 mark(33)
 assert ok("select count(*) from prumo_private.meta_wa48_shadow_receipts_fixture_s0 where key_id="+q(KEY))=="0"
 mark(34)
-assert ok("select (position('WA48_KIND_CONFLICT' in pg_get_functiondef("+q("prumo_private.meta_wa48_shadow_append_fixture_s0(uuid,text,text,text,uuid,uuid,text,text,text,text,text,text,bigint,uuid,text)")+"::regprocedure))>0)::text")=="true"
+assert ok("select (position('WA48_KIND_CONFLICT' in pg_get_functiondef("+q("prumo_private.meta_wa48_shadow_append_fixture_s0(uuid,text,text,text,uuid,uuid,text,text,text,text,text,text,text,bigint,uuid,text)")+"::regprocedure))>0)::text")=="true"
 mark(35)
 fndef=ok("select pg_get_functiondef("+q(s)+"::regprocedure)")
 assert fndef.index("'wa39:'")<fndef.index("meta_wa51_verify_nonce_only_fixture_s0")
