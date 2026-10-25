@@ -8,6 +8,9 @@ on:
       - 'scripts/run-s1-002-i12-local.sh'
       - 'scripts/run-s1-002-i52-local.sh'
       - 'scripts/test_s1_002_i67_legacy_consumer_inventory.py'
+      - 'backend/s1_gateway_*.py'
+      - 'backend/s1_signer_*.py'
+      - 'backend/s1_command_validation_local.py'
       - 'scripts/test_s1_002_*.sh'
       - '.github/workflows/s1-002-postgres.yml'
   workflow_dispatch:
