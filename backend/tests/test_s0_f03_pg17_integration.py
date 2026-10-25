@@ -99,11 +99,17 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
                 self._message(cur,self.message,self.conversation,self.case)
                 # Explicit S0 classification for each synthetic source.
                 # Media is NEVER accepted as a verified text source.
-                current_type='AUDIO' if self._testMethodName in (
-                    'test_216_audio_attachment_requires_review',
-                    'test_217_unverified_transcript_is_not_content_proof',
-                    'test_223_media_previously_classified_cannot_be_upgraded',
-                ) else 'TEXT'
+                media_tests=set(range(224,241))
+                media_test_number=self._testMethodName.split('_')[1]
+                is_new_media=(media_test_number.isdigit() and
+                    int(media_test_number) in media_tests)
+                current_type=('IMAGE' if self._testMethodName.startswith(
+                    'test_235_') else 'AUDIO') if is_new_media else (
+                    'AUDIO' if self._testMethodName in (
+                      'test_216_audio_attachment_requires_review',
+                      'test_217_unverified_transcript_is_not_content_proof',
+                      'test_223_media_previously_classified_cannot_be_upgraded',
+                    ) else 'TEXT')
                 previous_type='IMAGE' if self._testMethodName in (
                     'test_218_old_image_attachment_blocks_all_field_reviews',
                 ) else 'TEXT'
@@ -112,13 +118,16 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
                     if (self._testMethodName=='test_219_missing_modality_denies'
                         and message==self.old_message):
                         continue
+                    import hashlib
+                    file_sha=(hashlib.sha256(b'E04_synthetic_media_bytes').hexdigest()
+                              if kind!='TEXT' else None)
                     cur.execute('insert into '
                         'prumo_private.cfi01_f03_message_modalities_local '
-                        '(concessionaria_id,mensagem_id,tipo,estado) '
-                        'values (%s,%s,%s,%s)',
+                        '(concessionaria_id,mensagem_id,tipo,estado,anexo_sha256) '
+                        'values (%s,%s,%s,%s,%s)',
                         (self.shop,message,kind,
                          'NATIVE_TEXT_FIXTURE' if kind=='TEXT'
-                         else 'MEDIA_UNVERIFIED'))
+                         else 'MEDIA_UNVERIFIED',file_sha))
         self.s0=S0LocalClosureStore(DB)
         self.reader=S0F03LocalPostgresHistoryReader(DB)
         self.seal=S0F03LocalManifestSealStore(DB)
