@@ -150,5 +150,63 @@ do $t$ declare v text;begin
  exception when check_violation then null;end;
 end $t$;
 \echo 'PASS I61-07: private grants denied, event audit append-only'
+-- A second, independent case tests strict single-case scope and automatic
+-- entitlement closure, without modifying the earlier explicitly revoked case.
+insert into public.leads_loja(id,concessionaria_id,telefone_cliente_normalizado)
+ values('86130000-0000-4000-8000-000000000003',
+ '86120000-0000-4000-8000-000000000001','+5581886100003');
+insert into public.ciclos_comerciais(id,concessionaria_id,lead_id,status_comercial)
+ values('86140000-0000-4000-8000-000000000003',
+ '86120000-0000-4000-8000-000000000001',
+ '86130000-0000-4000-8000-000000000003','aguardando primeiro disparo');
+insert into public.casos_humanos(id,concessionaria_id,lead_id,ciclo_id)
+ values('86150000-0000-4000-8000-000000000003',
+ '86120000-0000-4000-8000-000000000001',
+ '86130000-0000-4000-8000-000000000003',
+ '86140000-0000-4000-8000-000000000003');
+insert into public.atribuicoes_humanas(id,concessionaria_id,caso_id,operador_id)
+ values('86160000-0000-4000-8000-000000000003',
+ '86120000-0000-4000-8000-000000000001',
+ '86150000-0000-4000-8000-000000000003',
+ '86110000-0000-4000-8000-000000000002');
+do $t$ declare v text;begin
+ begin
+ insert into public.atribuicoes_humanas(concessionaria_id,caso_id,operador_id)
+ values('86120000-0000-4000-8000-000000000001',
+ '86150000-0000-4000-8000-000000000003',
+ '86110000-0000-4000-8000-000000000003');
+ raise exception 'I61 exception from prior case was reused';
+ exception when check_violation then
+ get stacked diagnostics v=message_text;
+ if v not in ('S0_DESTINO_SEM_CONCESSAO_ATIVA',
+ 'PROFISSIONAL_PRUMO_INELEGIVEL')
+ then raise exception 'I61 cross-case proof wrong denial %',v;end if;end;
+end $t$;
+\echo 'PASS I61-08: exception of previous case cannot authorize assignment of another case'
+do $t$ declare j jsonb; x uuid; a uuid;begin
+ j:=prumo_private.s1_mover_excecao_caso_i61(
+ '86110000-0000-4000-8000-000000000001',
+ '86120000-0000-4000-8000-000000000001',
+ '86150000-0000-4000-8000-000000000003',
+ '86160000-0000-4000-8000-000000000003',
+ '86110000-0000-4000-8000-000000000003');
+ if j->>'outcome'<>'MOVED_CASE_EXCEPTION' then
+  raise exception 'I61 second valid exception missing %',j;end if;
+ a:=(j->>'assignment_id')::uuid;
+ x:=(j->>'exception_id')::uuid;
+ update public.atribuicoes_humanas
+ set encerrada_em=greatest(atribuida_em,pg_catalog.clock_timestamp())
+ where id=a;
+ if (select count(*) from prumo_private.s1_excecoes_caso_i61
+    where id=x and revogada_em is not null)<>1
+ or (select count(*) from prumo_private.s1_excecoes_caso_eventos_i61
+    where excecao_id=x and evento='REVOGADA')<>1
+ or prumo_private.s1_prova_excecao_i61(
+   '86120000-0000-4000-8000-000000000001',
+   '86150000-0000-4000-8000-000000000003',a,
+   '86110000-0000-4000-8000-000000000003')
+ then raise exception 'I61 closing assignment failed to revoke exception';end if;
+end $t$;
+\echo 'PASS I61-09: assignment closure synchronously revokes exception and appends event'
 rollback;
-\echo 'I61 canonical case-exception PG17 7/7; rollback'
+\echo 'I61 canonical case-exception PG17 9/9; rollback'
