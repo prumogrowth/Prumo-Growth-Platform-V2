@@ -174,7 +174,7 @@
 
 ## FV-UI-048 — espaço da lista no celular (25/10/2026)
 
-**[FV-UI-048 — fila compacta sem ocultar conteúdo](./77_FV_UI_048_ESPACO_LISTA_MOVEL_2026_10_25.md)**: reduz espaços verticais no cabeçalho móvel, mantém os controles do FV-UI-047, resumo, conversas e rodapé com rolagem na tela baixa. Exige aprovação real no GitHub Actions.
+**[FV-UI-048 — fila compacta sem ocultar conteúdo](./77_FV_UI_048_ESPACO_LISTA_MOVEL_2026_10_25.md)**: reduz espaços verticais no cabeçalho móvel, mantém os controles do FV-UI-047, resumo, conversas e rodapé com rolagem na tela baixa. GitHub Actions **APROVADO** no [run 40189686784](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40189686784): **25/25 Python, 354/354 Node e Chromium integrado PASS**, incluindo oito novos cenários de reflow e acesso a conteúdo.
 
 ## Estado do trabalho
 FV-UI-015/016: demonstrações com dados sintéticos. **NÃO** declarar integração real, Auth/RLS/GoTrue, comunicações Meta ou remessas confirmadas. FV-UI-013 não homologada formalmente; **19F 69/100** como último marco. Esta consolidação é **documentação somente**. Nenhum código, migration, branch S1, dado real ou deploy foi tocado.

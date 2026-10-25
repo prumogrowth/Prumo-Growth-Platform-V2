@@ -24,3 +24,15 @@ Ensaio Playwright no GitHub Actions em 320×640, 390×844, 900×780 e 1440×900 
 Apenas frontend demonstrativo com dados fictícios. Não se modificam concessões, permissões, atendimento, mensagens, Meta/WhatsApp, OpenAI, Supabase, S0/S1, pagamentos, autenticação, `main`, produção, merge ou deploy.
 
 **Antecessor:** [FV-UI-047](./76_FV_UI_047_FILTROS_DA_FILA_2026_10_25.md).
+
+
+## Evidência de aprovação real — GitHub Actions
+
+- Commit de estilo e testes: `aa105bc3360146a4dc501705816b5f046db85df2`.
+- Repin do manifesto (58 blobs): `6189fe256df5b7f2842fc3fc5f555823794bb360`, com `source_head=aa105bc3360146a4dc501705816b5f046db85df2`.
+- [GitHub Actions run 40189686784](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40189686784), executado no SHA de repin, concluído com status **completed / success**.
+- Logs confirmam: **preflight Git de 59 arquivos PASS**, **25/25 testes Python PASS**, **354/354 testes Node PASS, 0 falhas**, e **Chromium/Playwright integral PASS**.
+- O browser incluiu `FV-UI-048 lista compacta e conteudo acessivel em oito cenarios: PASS`, além de FV-UI-040 até FV-UI-047, fluxo de atendimento, escopo, teclado e responsividade.
+- Resultado do executor: `FULL LOCAL ACCEPTANCE: PASS` no ambiente GitHub-hosted, sobre o checkout oficial do commit indicado. Relatório JSON publicado como artifact com retenção de um dia.
+- Comparação com FV-UI-047: **2 commits de implementação/manifesto e 7 arquivos alterados**, todos em `frontend/`, sem alteração de `main`.
+- O aceite cobre apenas o protótipo com dados sintéticos e não constitui homologação de produção, API, acessibilidade humana completa ou integração bancária.
