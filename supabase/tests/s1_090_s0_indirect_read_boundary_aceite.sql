@@ -203,5 +203,7 @@ do $t$ begin
 end $t$;
 \echo 'PASS I64-08: 7 restrictive SELECT-only candidate policies, 8 I63 preserved, no private grant'
 
+-- I65 catalog inventory and deliberate hostile RPC/view injection inside same rollback.
+\ir s1_091_rpc_view_surface_guard_local_only.sql
 rollback;
-\echo 'I64 S0 indirect exposure PG17 8/8; all synthetic objects and policies rolled back'
+\echo 'I64 S0 indirect exposure PG17 8/8; I65 8/8; all synthetic objects and policies rolled back'

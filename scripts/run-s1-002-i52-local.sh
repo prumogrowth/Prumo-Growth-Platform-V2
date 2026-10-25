@@ -39,4 +39,4 @@ psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_085_e
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_088_rls_excecao_canonica_aceite.sql
 # I64: prove indirect S0 leakage and candidate quarantine, ALL rollback.
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_090_s0_indirect_read_boundary_aceite.sql
-echo "PASS S0+S1 I52-I64 canonical and candidate stages after legacy regression"
+echo "PASS S0+S1 I52-I65 canonical and candidate stages after legacy regression"
