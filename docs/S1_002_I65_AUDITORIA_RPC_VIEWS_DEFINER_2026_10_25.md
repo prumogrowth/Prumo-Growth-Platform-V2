@@ -15,3 +15,7 @@ O teste inverte a prova usual: cria propositalmente **uma função pública defi
 Teste catalogal não equivale à prova de todas as funções SQL nem da infraestrutura de rede, JWT/KMS, edges e RPC externas. O escopo visa os objetos atuais de `public` e o schema privado canônico; schemas futuramente expostos e funções de serviço com elevação explícita exigem nova revisão. O PostgREST do ambiente GoTrue local deve ainda provar por HTTP que os nomes de RPC privada não são atingíveis e que o scanner percebe a exposição caso uma view/definer deliberada seja ativada.
 
 **Sem qualquer deploy ou promoção de políticas.** Evidências da CI serão registradas após aprovação.
+
+## Prova HTTP assinada e scanner reutilizável
+
+O scanner foi extraído para `supabase/tests/s1_091a_rpc_view_catalog_scanner_local_only.sql` para a mesma lógica ser executada em PG17 e GoTrue/PostgREST efêmero. O red-team PG17 importa este arquivo e faz oito verificações com rollback; `scripts/test_s1_002_i65_rpc_view_surface_e2e.py` é chamado após I64 e usa a mesma sessão real para demonstrar leitura indevida quando a RPC/view **de propósito** recebe privilégios, corte de acesso por `REVOKE` e `DROP` de ambos os objetos. O ensaio distingue claramente **vulnerabilidade deliberadamente injetada** de exposição observada nos objetos legítimos. Nenhum objeto malicioso foi inserido em migration operacional.

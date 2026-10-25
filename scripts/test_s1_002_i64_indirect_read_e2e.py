@@ -78,3 +78,6 @@ assert sql("select count(*) from pg_catalog.pg_policies where "
            "schemaname='public' and policyname like 's1_64_%'")=="7"
 print("PASS I64-E2E-06: no exposed direct policy RPC; exactly 7 local-only restrictive policies")
 print("I64 6/6 real GoTrue indirect D2 isolation tests; local-only CI")
+_i65=Path("scripts/test_s1_002_i65_rpc_view_surface_e2e.py")
+exec(compile(_i65.read_text(encoding="utf-8"),str(_i65),"exec"),globals())
+
