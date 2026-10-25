@@ -2634,5 +2634,116 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
               'where concessionaria_id=%s',(self.shop,)).fetchone()[0]
         self.assertEqual((count,ver,receipts),(0,1,0))
 
+
+    def _second_identity_candidate(self,*,phone='+551188887777',
+                                   alias=None,shop=None):
+        other=uuid.uuid4()
+        with self.pg.connect(DB) as con:
+            con.execute('insert into public.leads_loja '
+                        '(id,concessionaria_id,telefone_cliente_normalizado) '
+                        'values (%s,%s,%s)',
+                        (other,shop or self.shop,phone))
+            if alias is not None:
+                con.execute('insert into prumo_private.aliases_identidade_s0 '
+                            '(concessionaria_id,lead_id,numero_sintetico,origem,'
+                            'mobile_confirmado_sintetico) '
+                            "values (%s,%s,%s,'CANAL_SINTETICO',true)",
+                            (shop or self.shop,other,alias))
+        return other
+
+    def test_188_reservation_refuses_second_lead_br_variant_without_pending(self):
+        from backend.s0_f03_version_reservation_local import ReservationState
+        store,vector=self._prepare_cas()
+        self._second_identity_candidate()
+        self.assertIs(self._reserve(store,vector),
+                      ReservationState.CONFLICT_REVIEW_REQUIRED)
+        with self.pg.connect(DB) as con:
+            count=con.execute('select count(*) from '
+                'prumo_private.cfi01_f03_reservations_local '
+                'where evento_fechamento_id=%s',(self.event,)).fetchone()[0]
+        self.assertEqual(count,0)
+
+    def test_189_reservation_refuses_other_lead_alias_variant_without_pending(self):
+        from backend.s0_f03_version_reservation_local import ReservationState
+        store,vector=self._prepare_cas()
+        self._second_identity_candidate(phone='+5581999989999',
+                                        alias='+551188887777')
+        self.assertIs(self._reserve(store,vector),
+                      ReservationState.CONFLICT_REVIEW_REQUIRED)
+
+    def test_190_operational_contract_detects_new_candidate_after_reservation(self):
+        from backend.s0_f03_operational_contracts_local import (
+            ProposedField,FieldKind,OperationalState,
+        )
+        proposals=(ProposedField('observacao_sintetica',FieldKind.TEXT_ONLY,'x'),)
+        vector,digest=self._operational_fixture(proposals)
+        self._second_identity_candidate()
+        self.assertIs(self._operational_check(proposals,vector,digest),
+                      OperationalState.CONFLICT_REVIEW_REQUIRED)
+
+    def test_191_application_cannot_write_with_second_candidate_phone(self):
+        from backend.s0_f03_field_application_local import ApplicationState
+        request,manager=self._application_fixture()
+        self._second_identity_candidate()
+        self.assertIs(self._human_apply(request,manager).state,
+                      ApplicationState.CONFLICT_REVIEW_REQUIRED)
+        with self.pg.connect(DB) as con:
+            count=con.execute('select count(*) from '
+                'prumo_private.cfi01_f03_form_fields_local '
+                'where lead_id=%s',(self.lead,)).fetchone()[0]
+        self.assertEqual(count,0)
+
+    def test_192_other_shop_matching_phone_does_not_block_local_human(self):
+        from backend.s0_f03_field_application_local import ApplicationState
+        request,manager=self._application_fixture()
+        other_shop=uuid.uuid4()
+        with self.pg.connect(DB) as con:
+            con.execute('insert into public.concessionarias(id,nome_operacional) '
+                        "values (%s,'UNRELATED TEST SHOP')",(other_shop,))
+        self._second_identity_candidate(phone='+5511988887777',shop=other_shop)
+        self.assertIs(self._human_apply(request,manager).state,
+                      ApplicationState.APPLIED_SYNTHETIC_ONLY)
+
+    def test_193_own_alias_matching_other_lead_primary_blocks_reservation(self):
+        from backend.s0_f03_version_reservation_local import ReservationState
+        self._insert_alias(number='+5511999981111')
+        store,vector=self._prepare_cas()
+        self._second_identity_candidate(phone='+5511999981111')
+        self.assertIs(self._reserve(store,vector),
+                      ReservationState.CONFLICT_REVIEW_REQUIRED)
+
+    def test_194_candidate_writer_waits_behind_scope_lock_before_cas(self):
+        from concurrent.futures import ThreadPoolExecutor
+        from threading import Event
+        from backend.s0_f03_field_application_local import ApplicationState
+        request,manager=self._application_fixture()
+        started=Event()
+        with self.pg.connect(DB) as writer:
+            writer.execute('insert into public.leads_loja '
+                '(id,concessionaria_id,telefone_cliente_normalizado) '
+                'values (%s,%s,%s)',
+                (uuid.uuid4(),self.shop,'+551188887777'))
+            with ThreadPoolExecutor(max_workers=1) as pool:
+                def verify():
+                    started.set()
+                    return self._human_apply(request,manager).state
+                result=pool.submit(verify)
+                self.assertTrue(started.wait(2))
+                writer.commit()
+                self.assertIs(result.result(timeout=7),
+                              ApplicationState.CONFLICT_REVIEW_REQUIRED)
+        with self.pg.connect(DB) as con:
+            count=con.execute('select count(*) from '
+                'prumo_private.cfi01_f03_form_fields_local '
+                'where lead_id=%s',(self.lead,)).fetchone()[0]
+        self.assertEqual(count,0)
+
+    def test_195_own_alias_without_second_lead_remains_eligible(self):
+        from backend.s0_f03_version_reservation_local import ReservationState
+        self._insert_alias(number='+551188887777')
+        store,vector=self._prepare_cas()
+        self.assertIs(self._reserve(store,vector),
+                      ReservationState.RESERVED_REVIEW_ONLY)
+
 if __name__=='__main__':
     unittest.main()
