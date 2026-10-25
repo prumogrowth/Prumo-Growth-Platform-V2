@@ -30,6 +30,27 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Preflight Git e inventario antes de baixar o Chromium
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          python - <<'PYFAST'
+          import importlib.util, os
+          from pathlib import Path
+          path = Path('frontend/visual/tests/run_acceptance.py')
+          spec = importlib.util.spec_from_file_location('fv_native_preflight', path)
+          validator = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(validator)
+          expected = os.environ['GITHUB_SHA']
+          revision = validator.check_git_revision(expected)
+          if not revision.get('passed'):
+              raise SystemExit(f'Revisao Git divergente: {revision}')
+          result = validator.check_native_blob_manifest(expected, True)
+          if not result.get('passed'):
+              raise SystemExit(f'Inventario ou hash divergente: {result}')
+          print('Preflight nativo PASS:', result['files_checked'], 'arquivos')
+          PYFAST
+          python -B -m unittest discover -s frontend/visual/tests -p test_offline_export.py
       - name: Instalar Chromium para Playwright
         run: |
           python -m pip install --no-cache-dir --disable-pip-version-check 'playwright==1.55.0'
