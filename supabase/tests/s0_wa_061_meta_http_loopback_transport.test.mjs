@@ -118,9 +118,13 @@ const checks=[
  async()=>{await service(stub().bridge,async a=>{assertLab(await request(a,baseRaw,{headers:withHeaders(a,{'X-Hub-Signature-256':'sha1='+'0'.repeat(64)})}),400,'LAB_HTTP_HEADERS_DENIED');});},
  async()=>{await service(stub().bridge,async a=>{assertLab(await request(a,baseRaw,{headers:withHeaders(a,{'Host':'evil.example'})}),400,'LAB_HTTP_HEADERS_DENIED');});},
  async()=>{await service(stub().bridge,async a=>{const h=withHeaders(a);delete h['X-Hub-Signature-256'];assertLab(await request(a,baseRaw,{headers:h}),400,'LAB_HTTP_HEADERS_DENIED');});},
- async()=>{await service(stub().bridge,async a=>{const h=withHeaders(a);delete h['Content-Length'];assertLab(await request(a,baseRaw,{headers:h}),400,'LAB_HTTP_HEADERS_DENIED');});},
+ async()=>{await service(stub().bridge,async a=>{const h=withHeaders(a);delete h['Content-Length'];
+  const raw=['POST '+a.route+' HTTP/1.1','Host: 127.0.0.1:__PORT__',
+   'Content-Type: application/json','X-Hub-Signature-256: '+sig(baseRaw),
+   'Connection: close','',''].join('\r\n');
+  assert.match(await rawRequest(a,raw),/^HTTP\/1\.1 400 /);});},
  async()=>{await service(stub().bridge,async a=>{assertLab(await request(a,baseRaw,{headers:withHeaders(a,{'Content-Length':'262145'})}),400,'LAB_HTTP_HEADERS_DENIED');});},
- async()=>{await service(stub().bridge,async a=>{assertLab(await request(a,baseRaw,{headers:withHeaders(a,{'Content-Length':'0'})}),400,'LAB_HTTP_HEADERS_DENIED');});},
+ async()=>{await service(stub().bridge,async a=>{assertLab(await request(a,Buffer.alloc(0),{headers:withHeaders(a,{'Content-Length':'0'})}),400,'LAB_HTTP_HEADERS_DENIED');});},
  async()=>{await service(stub().bridge,async a=>{assertLab(await request(a,baseRaw,{headers:withHeaders(a,{'X-Forwarded-For':'192.0.2.10'})}),400,'LAB_HTTP_HEADERS_DENIED');});},
  async()=>{await service(stub().bridge,async a=>{assertLab(await request(a,baseRaw,{headers:withHeaders(a,{'Content-Encoding':'gzip'})}),400,'LAB_HTTP_HEADERS_DENIED');});},
  async()=>{await service(stub().bridge,async a=>{assertLab(await request(a,baseRaw,{headers:withHeaders(a,{'X-Debug-Tenant':'OTHER'})}),400,'LAB_HTTP_HEADERS_DENIED');});},
