@@ -190,7 +190,7 @@
 
 ## FV-UI-052 — contagem acessível da lista (25/10/2026)
 
-**[FV-UI-052 — anúncio não duplicado dos resultados](./81_FV_UI_052_CONTAGEM_ACESSIVEL_FILA_2026_10_25.md)**: anuncia a contagem quando há conversas e preserva a orientação própria do estado vazio; sem mudar filtros, permissões ou a automação de outras frentes. Validação GitHub Actions obrigatória.
+**[FV-UI-052 — anúncio não duplicado dos resultados](./81_FV_UI_052_CONTAGEM_ACESSIVEL_FILA_2026_10_25.md)**: anuncia a contagem quando há conversas e preserva a orientação própria do estado vazio; sem mudar filtros, permissões ou a automação de outras frentes. GitHub Actions **APROVADO** no [run 40198989629](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40198989629): **25/25 Python, 358/358 Node e Chromium PASS**, com 8 cenários novos de contador acessível e estado vazio.
 
 ## Estado do trabalho
 FV-UI-015/016: demonstrações com dados sintéticos. **NÃO** declarar integração real, Auth/RLS/GoTrue, comunicações Meta ou remessas confirmadas. FV-UI-013 não homologada formalmente; **19F 69/100** como último marco. Esta consolidação é **documentação somente**. Nenhum código, migration, branch S1, dado real ou deploy foi tocado.

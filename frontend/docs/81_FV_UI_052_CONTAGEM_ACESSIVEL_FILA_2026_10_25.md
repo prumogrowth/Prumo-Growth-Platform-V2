@@ -22,3 +22,14 @@ O workflow atual da **própria frente visual** continuará validando Git, Python
 **Critério de aceite:** confirmar `FULL LOCAL ACCEPTANCE: PASS` nos logs do GitHub Actions no SHA repinado. Esta mudança não substitui testes humanos com leitor de tela, nem habilita integração real, WhatsApp, banco, S0/S1, Supabase, IA, pagamentos ou produção.
 
 **Etapa anterior:** [FV-UI-051](./80_FV_UI_051_ORIENTACOES_TRES_PAINEIS_2026_10_25.md).
+
+
+## Certificação e auditoria remota
+
+- Commit de conteúdo (interface, contrato, roteiro, documentação): `9d85f939333cdc99ab9f61f147782148563637b9`.
+- Manifesto repinado: `9027e8124c5084973125b571bdbce7f5c7cfdb3d`, com `source_head=9d85f939333cdc99ab9f61f147782148563637b9`.
+- [GitHub Actions run 40198989629](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40198989629) executado no SHA do manifesto: **completed / success**.
+- Log técnico: `Preflight nativo PASS: 59 arquivos`, Python **25/25 PASS**, Node **358/358 PASS** e **0 falhas**, `Chromium Playwright smoke` PASS, incluindo `FV-UI-052 contador de resultados e estado vazio acessiveis em 8 cenarios: PASS`. O executor registrou `FULL LOCAL ACCEPTANCE: PASS`.
+- Arquivo de diagnóstico JSON disponível como artifact do run, com retenção de um dia. A validação representa o checkout oficial do protótipo com dados fictícios, não testes humanos assistivos, integrações externas ou produção.
+- Auditoria de integridade pré-execução: **58/58 blobs Git pinados**, tamanho e SHA conferidos, zero divergências. Comparação com o FV-UI-051: dois commits de conteúdo/manifesto e **8 arquivos alterados**, todos em `frontend/`.
+- O workflow da frente visual permaneceu inalterado; **nenhum workflow da frente S1 foi editado**, nenhuma otimização da Issue #3 foi aplicada, e não houve PR de integração, merge na `main` ou deploy.
