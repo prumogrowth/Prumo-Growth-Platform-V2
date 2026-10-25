@@ -14,3 +14,19 @@ A autorização humana é apenas simulada usando `LocalIdentity` nos testes; **n
 
 ## Próximo gate
 Integrar mecanismos reais de aprovação humana e fontes comerciais autenticadas, construir provas de mídia e LGPD, ratificar cobertura de escritores e testar fluxos completos sem transgredir E04. Registrar resultados do GitHub Actions somente após logs.
+
+## Certificação PG17 concluída — 375 testes
+
+**GitHub Actions SUCCESS:** https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40178595768
+
+**Código certificado:** `13ab8f7f5870efa1f4a389bc2ffe9b1819c299a1`. PostgreSQL **17.11** descartável, sem recursos hospedados.
+
+- **84/84** testes S0 CFI-01: `Ran 84 tests ... OK`.
+- **291/291** testes F03: `Ran 291 tests ... OK`, dos quais **187** físicos PG17.
+- **375/375** no total, 24 novos sobre o baseline anterior (14 físicos iniciais + 8 unitários + 2 físicos adversariais posteriores).
+- Cenário **186** passou: atualiza campo existente somente com SHA do valor anterior correto; o recibo por campo registra SHA antigo e novo.
+- Cenário **187** passou: uma falha SQL proposital *após as duas escritas* provoca rollback da ficha, da versão e do recibo de aplicação no mesmo commit.
+- Primeira tentativa desses dois cenários [Actions #40178480555](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40178480555) falhou por problemas do **teste** (SQL delimitador `$` e consulta de auditoria sem filtro de concessionária). Corrigidos sem alterar a lógica CAS; última execução SUCCESS.
+- Os testes desta etapa usam atores/sessões S0 de fixture; não homologam assinatura humana real. Nenhuma mudança de produção ou `main`.
+
+**Próximas lacunas:** autorização humana real e contratada, cadastro/catálogo operacionais, rechecagens de todas as fontes externas e mídia, controles LGPD, integração de aplicação real campo a campo com CAS e gate separado; este laboratório não promove HOLD nem concede grants à F03.
