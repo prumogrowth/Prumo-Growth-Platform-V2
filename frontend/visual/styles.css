@@ -439,3 +439,9 @@ body[data-theme="dark"] .team-dialog .team-mode button[aria-pressed="true"]{
 .visual-app[data-theme="dark"] .list-pane .no-results .empty-reset{background:#26463e;border-color:#4b796c;color:#d7f1e7}
 .visual-app[data-theme="dark"] .list-pane .no-results .empty-reset:focus-visible{outline-color:#83dac9}
 @media(max-width:400px){.list-pane .no-results{margin-inline:9px;padding-inline:12px}}
+
+/* FV-UI-050: avisos legíveis e afastados do compositor da conversa. */
+.toast{top:18px;bottom:auto;width:max-content;max-width:min(460px,calc(100vw - 24px));padding:13px 17px;font-size:13px;line-height:1.5;overflow-wrap:anywhere;background:#193e48;color:#fff;pointer-events:none}
+.list-pane .list-footer{font-size:11px;line-height:1.5;color:#536c75}
+.visual-app[data-theme="dark"] .list-pane .list-footer{color:#bacdd5}
+@media(max-width:760px){.toast{top:calc(env(safe-area-inset-top) + 72px);padding:12px 14px}}

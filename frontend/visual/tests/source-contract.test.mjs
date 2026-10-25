@@ -600,3 +600,17 @@ test('FV-UI-049: busca vazia contextual, contador visivel e limpeza restrita',()
   assert.match(styles,/\.visual-app\[data-theme="dark"\] \.list-pane \.no-results/);
   assert.match(browserSmoke,/FV-UI-049 busca vazia, reset e suspensao em oito cenarios: PASS/);
 });
+
+
+test('FV-UI-050: avisos legiveis sem obstruir compositor e sem mudar a mensagem',()=>{
+  assert.match(app,/FV-UI-050: avisos longos precisam de tempo de leitura/);
+  assert.match(app,/const readingTime = Math\.min\(9000, Math\.max\(5000, message\.length \* 70\)\)/);
+  assert.match(app,/showToast\.timer = setTimeout\(\(\) => \{ node\.hidden = true; \}, readingTime\)/);
+  assert.match(markup,/role="status" aria-live="polite" aria-atomic="true" id="toast"/);
+  assert.match(styles,/FV-UI-050: avisos legíveis e afastados do compositor/);
+  assert.match(styles,/\.toast\{top:18px;bottom:auto;/);
+  assert.match(styles,/\.list-pane \.list-footer\{font-size:11px/);
+  assert.match(styles,/@media\(max-width:760px\)\{\.toast\{top:calc\(env\(safe-area-inset-top\) \+ 72px\)/);
+  assert.match(browserSmoke,/FV-UI-050 avisos acessiveis, tempo de leitura e compositor livre em 8 cenarios: PASS/);
+  assert.match(browserSmoke,/toast_rect\['y'\]\+toast_rect\['height'\]\+12 < composer_rect\['y'\]/);
+});

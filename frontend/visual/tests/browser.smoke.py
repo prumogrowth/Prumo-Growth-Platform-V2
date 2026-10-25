@@ -1081,4 +1081,41 @@ with sync_playwright() as p:
             empty_page.close()
     print('FV-UI-049 busca vazia, reset e suspensao em oito cenarios: PASS')
 
+    # FV-UI-050: avisos de leitura acessivel, afastados do compositor nos 2 temas.
+    for notice_width,notice_height in ((320,640),(390,844),(900,780),(1440,900)):
+        for notice_theme in ('light','dark'):
+            notice_page=browser.new_page(viewport={'width':notice_width,'height':notice_height},color_scheme=notice_theme)
+            notice_page.set_default_timeout(4500)
+            notice_errors=[]
+            notice_page.on('pageerror',lambda e:notice_errors.append(str(e)))
+            notice_page.set_content(html);notice_page.add_script_tag(content=script)
+            expect(notice_page.locator('#visual-app')).to_have_attribute('data-theme',notice_theme)
+            if notice_width<=760:notice_page.locator('.conversation-card').first.click()
+            expect(notice_page.locator('#thread-pane')).to_be_visible()
+            notice_ms=notice_page.evaluate("""() => {
+              const original=window.setTimeout; let delay=-1;
+              window.setTimeout=(fn,ms)=>{delay=ms;return 4201};
+              try { showToast('Aviso fictício extenso: nenhuma mensagem foi enviada, nenhuma API foi chamada e as informações desta central são apenas uma demonstração local.'); }
+              finally { window.setTimeout=original }
+              return delay;
+            }""")
+            assert 5000<=notice_ms<=9000,(notice_width,notice_theme,notice_ms)
+            toast=notice_page.locator('#toast')
+            expect(toast).to_be_visible()
+            assert toast.get_attribute('role')=='status'
+            assert toast.get_attribute('aria-live')=='polite'
+            toast_rect=toast.bounding_box()
+            composer_rect=notice_page.locator('.composer').bounding_box()
+            assert toast_rect['y']+toast_rect['height']+12 < composer_rect['y'],(notice_width,notice_theme,toast_rect,composer_rect)
+            assert toast_rect['x']>=0 and toast_rect['x']+toast_rect['width']<=notice_width
+            assert float(toast.evaluate('e=>parseFloat(getComputedStyle(e).fontSize)'))>=13
+            colors=toast.evaluate("""e=>({foreground:getComputedStyle(e).color,background:getComputedStyle(e).backgroundColor,
+                bottom:getComputedStyle(e).bottom,events:getComputedStyle(e).pointerEvents})""")
+            assert colors['foreground']=='rgb(255, 255, 255)' and colors['background']=='rgb(25, 62, 72)'
+            assert colors['bottom']=='auto' and colors['events']=='none'
+            assert not notice_page.evaluate('document.documentElement.scrollWidth>innerWidth')
+            assert not notice_errors,notice_errors
+            notice_page.close()
+    print('FV-UI-050 avisos acessiveis, tempo de leitura e compositor livre em 8 cenarios: PASS')
+
     browser.close()

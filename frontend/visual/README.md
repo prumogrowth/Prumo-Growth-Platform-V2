@@ -231,3 +231,7 @@ O cabeçalho da fila em telas até 760px agora usa espaçamento vertical mais en
 ## FV-UI-049 — Resultados vazios orientativos (25/10/2026)
 
 A lista diferencia busca sem correspondências, filtros sem conversas, aba genuinamente vazia e perfil fictício suspenso. O contador expõe o número visível em relação ao total da aba quando há refinamentos. Um botão de alcance ≥44px permite limpar apenas a busca, o filtro rápido e o estado comercial; mantém perfil, concessionária, aba histórico/ativas e regras de escopo. O retorno do foco vai ao campo de busca. Roteiro Chromium com 8 cenários de busca/reset/suspensão e contrato Node. [Relatório FV-UI-049](../docs/78_FV_UI_049_ESTADOS_VAZIOS_DA_FILA_2026_10_25.md).
+
+## FV-UI-050 — Avisos legíveis e sem conflito com o compositor (25/10/2026)
+
+As mensagens do toast continuam textualmente idênticas e com `role=status`, `aria-live=polite`, mas agora duram de 5 a 9 segundos conforme o comprimento e aparecem na região superior (acima do compositor), inclusive no móvel com respeito à área segura. Tipografia de 13px e quebra de linhas evitam cortes; o rodapé que identifica dados fictícios tem fonte de 11px. Sem mudanças em envios ou em ações reais. O roteiro Chromium inclui 8 cenários nos dois temas; certificado somente após GitHub Actions completo. [FV-UI-050](../docs/79_FV_UI_050_AVISOS_ESTADO_2026_10_25.md).

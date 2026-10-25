@@ -172,9 +172,11 @@ function closeTransientDialogs() {
   }
 }
 function showToast(message) {
-  const node = $('toast'); node.textContent = message; node.hidden = false;
+  // FV-UI-050: avisos longos precisam de tempo de leitura; não mudam operações.
+  const node = $('toast'); node.hidden = false; node.textContent = message;
   clearTimeout(showToast.timer);
-  showToast.timer = setTimeout(() => { node.hidden = true; }, 3700);
+  const readingTime = Math.min(9000, Math.max(5000, message.length * 70));
+  showToast.timer = setTimeout(() => { node.hidden = true; }, readingTime);
 }
 function applyTheme(theme) {
   if(!['light','dark'].includes(theme)) return false;

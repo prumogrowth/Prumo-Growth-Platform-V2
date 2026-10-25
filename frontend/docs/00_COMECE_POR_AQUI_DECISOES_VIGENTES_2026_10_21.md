@@ -180,6 +180,10 @@
 
 **[FV-UI-049 — busca e filtros sem resultados](./78_FV_UI_049_ESTADOS_VAZIOS_DA_FILA_2026_10_25.md)**: diferencia busca vazia, filtros, ausência real na aba e suspensão. Contador visível/total e botão de limpeza estritamente visual; GitHub Actions **APROVADO** no [run 40191190235](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40191190235): **25/25 Python, 355/355 Node e Chromium PASS** em 8 novos cenários (busca, limpeza de filtros e suspensão).
 
+## FV-UI-050 — avisos orientativos e estados (25/10/2026)
+
+**[FV-UI-050 — notificações legíveis](./79_FV_UI_050_AVISOS_ESTADO_2026_10_25.md)**: melhora tempo de leitura, posição do toast e rodapé informativo, mantendo a mensagem e semântica de demonstração. GitHub Actions é o critério para aprovação.
+
 ## Estado do trabalho
 FV-UI-015/016: demonstrações com dados sintéticos. **NÃO** declarar integração real, Auth/RLS/GoTrue, comunicações Meta ou remessas confirmadas. FV-UI-013 não homologada formalmente; **19F 69/100** como último marco. Esta consolidação é **documentação somente**. Nenhum código, migration, branch S1, dado real ou deploy foi tocado.
 
