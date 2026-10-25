@@ -58,4 +58,5 @@ node --test "$ROOT/supabase/tests/s0_wa_060_meta_raw_to_pg17_bridge.test.mjs"
 node --test "$ROOT/supabase/tests/s0_wa_061_meta_http_loopback_transport.test.mjs"
 node --test "$ROOT/supabase/tests/s0_wa_062_http_disconnect_replay_pg17.test.mjs"
 node --test "$ROOT/supabase/tests/s0_wa_063_http_admission_limits_pg17.test.mjs"
+node --test "$ROOT/supabase/tests/s0_wa_065_http_process_restart_pg17.test.mjs"
 echo 'Teste local concluído. Não houve escrita no Supabase.'
