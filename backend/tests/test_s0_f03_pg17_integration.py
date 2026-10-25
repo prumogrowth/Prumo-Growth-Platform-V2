@@ -3428,6 +3428,8 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
 
     def test_238_wrong_purpose_rejected_by_sql_contract(self):
         from datetime import datetime,timezone,timedelta
+        import hashlib
+        correct_sha=hashlib.sha256(b'E04_synthetic_media_bytes').hexdigest()
         with self.assertRaises(self.pg.Error) as error:
             with self.pg.connect(DB) as con:
                 con.execute('insert into '
@@ -3438,7 +3440,7 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
                     'values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',
                     (self.shop,self.event,self.case,self.message,
                      'F03_AUTOMATIC_COMMERCIAL_WRITE','test-key-v1',
-                     'a'*64,'b'*64,'c'*64,
+                     correct_sha,'b'*64,'c'*64,
                      datetime.now(timezone.utc)+timedelta(days=1)))
         self.assertEqual(error.exception.sqlstate,'23514')
 
