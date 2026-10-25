@@ -95,3 +95,6 @@ assert sql("select pg_catalog.has_schema_privilege('authenticated',"
 assert sql("select count(*) from prumo_s1_i65_test.exposicoes()")=="0"
 print("PASS I67-E2E-07: I66 ACL closed, no definer/view leaks, seven scoped/quarantine boundaries")
 print("I67 7/7 real GoTrue scoped administrative row tests; disposable only")
+_i68=Path("scripts/test_s1_002_i68_admin_projection_e2e.py")
+exec(compile(_i68.read_text(encoding="utf-8"),str(_i68),"exec"),globals())
+
