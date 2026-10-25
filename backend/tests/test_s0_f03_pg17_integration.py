@@ -3782,5 +3782,239 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
         self.assertIs(self._f02_preview_check(data),
                       PreviewState.TEMPLATE_STALE_REVIEW_REQUIRED)
 
+
+    def _f02_intent_fixture(self,*,manager_options=None):
+        from backend.s0_f02_posthuman_intent_local import (
+            S0F02LocalPostHumanIntentStore,PostHumanIntentRequest
+        )
+        data=self._f02_preview_fixture(manager_options=manager_options)
+        req=PostHumanIntentRequest(data[2],
+              'EXPLICIT_REVIEW_SYNTHETIC_ONLY','a'*64,
+              'f02-human-intent-0001')
+        return data,S0F02LocalPostHumanIntentStore(data[1]),req
+
+    def _f02_intent_record(self,fixture,*,req=None,authorization=None):
+        data,store,request=fixture
+        physical,_,_,_,_=data
+        _,fields,version,output,proposal=physical
+        return store.record(authorization or 'Bearer PINNED_S2_LOCAL_E04',
+          self.binding,'test-key-v1',
+          b'fixture-only-content-seal-key-more-than-32-bytes',
+          version,'request-cas-0001',fields,output,proposal,
+          self._s2_f02_real_lifecycle(),str(self.channel),
+          request if req is None else req).state
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_262_explicit_manager_intent_is_audit_only_no_plan_or_send(self):
+        from backend.s0_f02_posthuman_intent_local import IntentState
+        fixture=self._f02_intent_fixture()
+        self.assertIs(self._f02_intent_record(fixture),IntentState.RECORDED_AUDIT_ONLY)
+        with self.pg.connect(DB) as con:
+            count=con.execute('select count(*) from '
+                  'prumo_private.cfi01_f02_posthuman_intents_local '
+                  'where concessionaria_id=%s',(self.shop,)).fetchone()[0]
+            self.assertEqual(count,1)
+            self.assertEqual(con.execute('select count(*) from '
+                  'public.planos_recontato_sinteticos where '
+                  'concessionaria_id=%s',(self.shop,)).fetchone()[0],0)
+            self.assertEqual(con.execute('select count(*) from '
+                  'public.envios_template_sinteticos where '
+                  'concessionaria_id=%s',(self.shop,)).fetchone()[0],0)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_263_exact_intent_replay_keeps_one_audit_row(self):
+        from backend.s0_f02_posthuman_intent_local import IntentState
+        fixture=self._f02_intent_fixture()
+        self.assertIs(self._f02_intent_record(fixture),IntentState.RECORDED_AUDIT_ONLY)
+        self.assertIs(self._f02_intent_record(fixture),
+                      IntentState.ALREADY_RECORDED_AUDIT_ONLY)
+        with self.pg.connect(DB) as con:
+            self.assertEqual(con.execute('select count(*) from '
+              'prumo_private.cfi01_f02_posthuman_intents_local where '
+              'concessionaria_id=%s and evento_fechamento_id=%s',
+              (self.shop,self.event)).fetchone()[0],1)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_264_changed_manager_evidence_same_closure_conflicts(self):
+        from backend.s0_f02_posthuman_intent_local import (
+          IntentState,PostHumanIntentRequest)
+        fixture=self._f02_intent_fixture()
+        self.assertIs(self._f02_intent_record(fixture),IntentState.RECORDED_AUDIT_ONLY)
+        original=fixture[2]
+        altered=PostHumanIntentRequest(original.preview,original.decision,
+                                     'b'*64,original.idempotency_key)
+        self.assertIs(self._f02_intent_record(fixture,req=altered),
+                      IntentState.CONFLICT_REVIEW_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_265_different_idempotency_key_same_closure_conflicts(self):
+        from backend.s0_f02_posthuman_intent_local import (
+          IntentState,PostHumanIntentRequest)
+        fixture=self._f02_intent_fixture()
+        self.assertIs(self._f02_intent_record(fixture),IntentState.RECORDED_AUDIT_ONLY)
+        original=fixture[2]
+        altered=PostHumanIntentRequest(original.preview,original.decision,
+                 original.manager_evidence_sha256,'f02-human-intent-0002')
+        self.assertIs(self._f02_intent_record(fixture,req=altered),
+                      IntentState.CONFLICT_REVIEW_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_266_manager_without_s1_role_denied_before_intent(self):
+        from backend.s0_f02_posthuman_intent_local import IntentState
+        fixture=self._f02_intent_fixture(manager_options={'team':False})
+        self.assertIs(self._f02_intent_record(fixture),
+                      IntentState.MANAGER_S1_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_267_optout_cancels_intent_replay_success(self):
+        from backend.s0_f02_posthuman_intent_local import IntentState
+        fixture=self._f02_intent_fixture()
+        self.assertIs(self._f02_intent_record(fixture),IntentState.RECORDED_AUDIT_ONLY)
+        with self.pg.connect(DB) as con:
+            con.execute('insert into public.supressoes_contato_sinteticas '
+              '(concessionaria_id,lead_id,canal_id,finalidade,evento_origem) '
+              'values (%s,%s,%s,%s,%s)',
+              (self.shop,self.lead,self.channel,
+               'recontato_comercial_sintetico','fixture-revoked-2026'))
+        self.assertIs(self._f02_intent_record(fixture),
+                      IntentState.S0_REVIEW_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_268_manager_scope_lost_before_intent_denied(self):
+        from backend.s0_f02_posthuman_intent_local import IntentState
+        fixture=self._f02_intent_fixture()
+        manager=fixture[0][3]
+        with self.pg.connect(DB) as con:
+            con.execute('delete from public.vinculos_papel_escopo '
+                 "where ator_id=%s and concessionaria_id=%s and papel='gestor'",
+                 (manager[0],self.shop))
+        self.assertIs(self._f02_intent_record(fixture),
+                      IntentState.MANAGER_S1_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_269_invalid_manager_decision_denied(self):
+        from backend.s0_f02_posthuman_intent_local import (
+          IntentState,PostHumanIntentRequest)
+        fixture=self._f02_intent_fixture()
+        req=fixture[2]
+        forged=PostHumanIntentRequest(req.preview,'SEND_NOW',
+                                      req.manager_evidence_sha256,req.idempotency_key)
+        self.assertIs(self._f02_intent_record(fixture,req=forged),IntentState.DENIED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_270_existing_active_plan_blocks_intent_record(self):
+        from backend.s0_f02_posthuman_intent_local import IntentState
+        fixture=self._f02_intent_fixture()
+        with self.pg.connect(DB) as con:
+            con.execute('insert into public.planos_recontato_sinteticos '
+              '(concessionaria_id,lead_id,ciclo_id,canal_id,'
+              'chave_idempotencia,fingerprint) values (%s,%s,%s,%s,%s,%s)',
+              (self.shop,self.lead,self.cycle,self.channel,
+               'e04-legacy-in-flight','fixture-sha'))
+        self.assertIs(self._f02_intent_record(fixture),IntentState.S0_REVIEW_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_271_catalogue_version_change_blocks_recording(self):
+        from backend.s0_f02_posthuman_intent_local import IntentState
+        fixture=self._f02_intent_fixture()
+        template=fixture[0][4]
+        with self.pg.connect(DB) as con:
+            con.execute('update public.catalogo_templates_sinteticos '
+              'set versao=2 where id=%s',(template,))
+        self.assertIs(self._f02_intent_record(fixture),IntentState.S0_REVIEW_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_272_readonly_intent_audit_never_changes_commercial_status(self):
+        from backend.s0_f02_posthuman_intent_local import IntentState
+        fixture=self._f02_intent_fixture()
+        with self.pg.connect(DB) as con:
+            before=con.execute('select status_comercial from '
+               'public.ciclos_comerciais where id=%s',(self.cycle,)).fetchone()
+        self.assertIs(self._f02_intent_record(fixture),IntentState.RECORDED_AUDIT_ONLY)
+        with self.pg.connect(DB) as con:
+            after=con.execute('select status_comercial from '
+               'public.ciclos_comerciais where id=%s',(self.cycle,)).fetchone()
+        self.assertEqual(before,after)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_273_same_closure_parallel_intents_only_one_audit(self):
+        from backend.s0_f02_posthuman_intent_local import IntentState
+        from concurrent.futures import ThreadPoolExecutor
+        fixture=self._f02_intent_fixture()
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            futures=[pool.submit(self._f02_intent_record,fixture) for _ in range(2)]
+            results=[f.result() for f in futures]
+        self.assertEqual(sorted(results,key=str),
+          sorted([IntentState.RECORDED_AUDIT_ONLY,
+                  IntentState.ALREADY_RECORDED_AUDIT_ONLY],key=str))
+        with self.pg.connect(DB) as con:
+            self.assertEqual(con.execute('select count(*) from '
+              'prumo_private.cfi01_f02_posthuman_intents_local where '
+              'concessionaria_id=%s and evento_fechamento_id=%s',
+              (self.shop,self.event)).fetchone()[0],1)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_274_intent_record_table_is_immutable(self):
+        from backend.s0_f02_posthuman_intent_local import IntentState
+        fixture=self._f02_intent_fixture()
+        self.assertIs(self._f02_intent_record(fixture),IntentState.RECORDED_AUDIT_ONLY)
+        for stmt in (
+            "update prumo_private.cfi01_f02_posthuman_intents_local "
+            "set estado='AUDIT_ONLY_C04_BLOCKED' where concessionaria_id=%s",
+            "delete from prumo_private.cfi01_f02_posthuman_intents_local "
+            "where concessionaria_id=%s",
+        ):
+            with self.subTest(cmd=stmt.split()[0]):
+                with self.assertRaises(self.pg.Error) as ex:
+                    with self.pg.connect(DB) as con:
+                        con.execute(stmt,(self.shop,))
+                self.assertEqual(ex.exception.sqlstate,'42501')
+
+    def test_275_client_role_cannot_read_audit_intent_table(self):
+        with self.assertRaises(self.pg.Error) as ex:
+            with self.pg.connect(DB) as con:
+                con.execute('set local role authenticated')
+                con.execute('select * from '
+                  'prumo_private.cfi01_f02_posthuman_intents_local')
+        self.assertIn(ex.exception.sqlstate,('42501','42P01','3F000'))
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_276_fake_other_shop_direct_intent_write_denied(self):
+        from backend.s0_f02_posthuman_intent_local import IntentState
+        fixture=self._f02_intent_fixture()
+        self.assertIs(self._f02_intent_record(fixture),IntentState.RECORDED_AUDIT_ONLY)
+        with self.pg.connect(DB) as con:
+            record=con.execute('select evento_fechamento_id,caso_id,lead_id,'
+             'canal_id,template_id,gestor_id,sessao_id,tentativa_s2,'
+             'versao_template,categoria,versao_politica,decisao,'
+             'evidencia_gestor_sha256,proposta_sha256,chave_idempotencia '
+             'from prumo_private.cfi01_f02_posthuman_intents_local '
+             'where concessionaria_id=%s',(self.shop,)).fetchone()
+        with self.assertRaises(self.pg.Error) as ex:
+            with self.pg.connect(DB) as con:
+                con.execute('insert into '
+                  'prumo_private.cfi01_f02_posthuman_intents_local '
+                  '(concessionaria_id,evento_fechamento_id,caso_id,lead_id,'
+                  'canal_id,template_id,gestor_id,sessao_id,tentativa_s2,'
+                  'versao_template,categoria,versao_politica,decisao,'
+                  'evidencia_gestor_sha256,proposta_sha256,chave_idempotencia) '
+                  'values ('+','.join(['%s']*16)+')',
+                  (uuid.uuid4(),*record))
+        self.assertEqual(ex.exception.sqlstate,'42501')
+
 if __name__=='__main__':
     unittest.main()
