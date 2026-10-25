@@ -20,3 +20,13 @@ A frente visual também assume, por determinação expressa do responsável nest
 **Gate obrigatório:** execução GitHub Actions no SHA final repinado; conferir Python, Node, Chromium e `FULL LOCAL ACCEPTANCE: PASS` antes de certificar. Sem PR, merge, mudança de `main` ou deploy.
 
 **Anterior:** [FV-UI-052](./81_FV_UI_052_CONTAGEM_ACESSIVEL_FILA_2026_10_25.md).
+
+## Certificação remota — 25/10/2026
+
+- **Commit técnico testado:** `002020fe8a08a26f6f6ba853aec8cd907fb6b851`.
+- **Commit com manifesto repinado / SHA efetivamente testado:** `2af2f25657067ded1d534b54ec79a5faff31df32`.
+- **Manifesto:** 58 arquivos visuais pinados; preflight nativo `59 arquivos` PASS.
+- **GitHub Actions:** [run 40200903811](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40200903811), `completed / success`.
+- **Logs reais:** Python **25/25 PASS**; Node **359/359 PASS**, **0 falhas**; Chromium/Playwright **PASS**, inclusive `FV-UI-053 atalho de busca teclado e reflow em 8 cenarios: PASS`; `FULL LOCAL ACCEPTANCE: PASS`.
+- **Âmbito:** código sintético/visual e navegação; não equivale a teste humano por leitor de tela ou homologação da plataforma/S0/S1/Meta/IA/banco.
+- Este acréscimo documental posterior não altera os 59 arquivos do checkout visual certificado; `main` intocada, sem deploy/PR/merge.
