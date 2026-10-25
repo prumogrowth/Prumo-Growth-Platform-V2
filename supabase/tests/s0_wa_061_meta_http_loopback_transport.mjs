@@ -9,6 +9,11 @@ const ROUTE='/__wa57_lab/status';
 const HEADERS=new Set(['host','connection','content-type',
  'content-length','x-hub-signature-256']);
 const MAX_BYTES=262144;
+/* WA59: caps are on this disposable listener, not production budgets.
+ * Maximum body buffering: 4 * 262144 bytes (+ transient network buffers).
+ * Maximum simultaneously accepted TCP connections: 16.
+ */
+const MAX_INFLIGHT=4,MAX_SOCKETS=16,IDLE_MS=1200;
 const fail=(code)=>Object.freeze({decision:code,lab_only:true,
  meta_ack_emitted:false,ack_allowed:false,send_authorized:false});
 function response(res,status,decision){
@@ -62,8 +67,9 @@ export function createWa57OfflineLoopback(raw){
   bridge=raw.bridge;
  }catch{return null;}
  if(!bridge||typeof bridge.receive!=='function')return null;
- let started=false,disposed=false;
+ let started=false,disposed=false,active=0;
  const server=http.createServer(async(req,res)=>{
+  let admitted=false;
   try{
    if(req.socket.localAddress!=='127.0.0.1'||
       !loopback(req.socket.remoteAddress)||
@@ -75,6 +81,12 @@ export function createWa57OfflineLoopback(raw){
    if(!h||h.host!=='127.0.0.1:'+req.socket.localPort){
     req.resume();response(res,400,'LAB_HTTP_HEADERS_DENIED');return;
    }
+   // Reserve scarce parsing/forensic capacity before buffering any body.
+   // Busy rejection is local-only and never starts a WA56/WA55 operation.
+   if(active>=MAX_INFLIGHT){
+    response(res,503,'LAB_HTTP_BUSY');req.resume();return;
+   }
+   active++;admitted=true;
    const chunks=[];let seen=0;
    for await(const part of req){
     seen+=part.length;
@@ -107,8 +119,12 @@ export function createWa57OfflineLoopback(raw){
    response(res,202,'LAB_HTTP_FORENSIC_STORED_ONLY');
   }catch{
    response(res,503,'LAB_HTTP_UNAVAILABLE');
+  }finally{
+   if(admitted)active--;
   }
  });
+ server.maxConnections=MAX_SOCKETS;
+ server.timeout=IDLE_MS; // idle/incomplete socket closes without ACK or archive
  server.maxHeadersCount=8;
  server.headersTimeout=5000;server.requestTimeout=5000;
  server.keepAliveTimeout=1000;server.maxRequestsPerSocket=1;
