@@ -1,0 +1,117 @@
+name: EXP S1 CI - I27 I28 serial isolated
+on:
+  push:
+    branches:
+      - exp/ci-s1-consolidacao-20261025
+    paths:
+      - '.github/workflows/exp-s1-i27-i28-serial.yml'
+      - 'docs/ci/CI_S1_OTIMIZACAO_BASELINE_20261025.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: exp-s1-ci-serial-only
+  cancel-in-progress: true
+
+jobs:
+  compare-i27-i28:
+    name: EXP unit + I27/I28 E2E in fresh disposable stacks
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    env:
+      CI: 'true'
+      SUPABASE_DISABLE_TELEMETRY: '1'
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - name: Checkout experimental only
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Install pinned local-only tools once
+        uses: supabase/setup-cli@v3
+        with:
+          version: 2.84.2
+      - name: Local SQL tools and pinned DB driver
+        run: |
+          set -euo pipefail
+          command -v psql || (sudo apt-get update -qq && sudo apt-get install -y postgresql-client)
+          python3 -m pip install --user 'psycopg[binary]==3.2.13'
+      - name: Run I27 and I28 cumulative unit gates once
+        shell: bash
+        run: |
+          set -euo pipefail
+          for gate in 23 25 26 27 28; do
+            case "$gate" in
+              23) file=test_s1_002_i23_http_policy.py ;;
+              25) file=test_s1_002_i25_signer_process.py ;;
+              26) file=test_s1_002_i26_independent_auth.py ;;
+              27) file=test_s1_002_i27_mtls.py ;;
+              28) file=test_s1_002_i28_cert_lifecycle.py ;;
+            esac
+            PYTHONPATH=. python3 -m unittest discover -s tests -p "$file" -v
+          done
+          echo 'PASS EXP UNIT: cumulative I23/I25/I26/I27/I28 executed exactly once'
+      - name: Run I27 and I28 with independent GoTrue/PostgREST databases
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo 'Do not reuse database identity or credentials between I27 and I28.'
+          current_workdir=''
+          cleanup() {
+            if [ -n "$current_workdir" ] && [ -d "$current_workdir" ]; then
+              (cd "$current_workdir" && supabase stop --no-backup) || true
+            fi
+          }
+          trap cleanup EXIT
+          run_case() {
+            local gate="$1" script marker flag workdir envfile before after
+            case "$gate" in
+              I27)
+                script='scripts/test_s1_002_i27_mtls_local.py'
+                marker='S1-002/I27: 80/80 cenarios E2E locais GoTrue, HMAC, mTLS, RBAC.'
+                flag=PRUMO_S1_I27_EPHEMERAL ;;
+              I28)
+                script='scripts/test_s1_002_i28_service_rotation_local.py'
+                marker='S1-002/I28: 93/93 gates E2E GoTrue, HMAC e ciclo certificados TLS local.'
+                flag=PRUMO_S1_I28_EPHEMERAL ;;
+              *) exit 2 ;;
+            esac
+            before="$(date +%s)"
+            workdir="$(mktemp -d)"
+            current_workdir="$workdir"
+            cd "$workdir"
+            supabase init
+            supabase start --exclude studio,realtime,storage-api,imgproxy,postgres-meta,edge-runtime,logflare,vector,supavisor
+            envfile="$RUNNER_TEMP/exp-s1-$gate.env"
+            supabase status -o env > "$envfile"
+            test -s "$envfile"
+            set -a
+            source "$envfile"
+            set +a
+            export "$flag=YES"
+            cd "$GITHUB_WORKSPACE"
+            PYTHONPATH=. python3 "$script" 2>&1 | tee "$RUNNER_TEMP/exp-s1-$gate.log"
+            grep -Fqx "$marker" "$RUNNER_TEMP/exp-s1-$gate.log"
+            unset "$flag"
+            cd "$workdir"
+            supabase stop --no-backup
+            current_workdir=''
+            after="$(date +%s)"
+            echo "EXP-S1 $gate PASS; seconds=$((after-before)); independent stack" | tee -a "$RUNNER_TEMP/exp-s1-metrics.txt"
+            cd "$GITHUB_WORKSPACE"
+          }
+          run_case I27
+          run_case I28
+          cat "$RUNNER_TEMP/exp-s1-metrics.txt" >> "$GITHUB_STEP_SUMMARY"
+          echo 'PASS EXP E2E: I27 80/80 and I28 93/93 (independent databases)'
+      - name: Preserve experimental timing summary
+        if: always()
+        shell: bash
+        run: |
+          if [ -f "$RUNNER_TEMP/exp-s1-metrics.txt" ]; then
+            cat "$RUNNER_TEMP/exp-s1-metrics.txt"
+          else
+            echo 'No E2E timing result; consult failed setup and test logs.'
+          fi
