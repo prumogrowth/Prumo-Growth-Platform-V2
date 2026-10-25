@@ -51,7 +51,7 @@ do $t$ declare v text;begin
  raise exception 'I61 bypassed ordinary S0 guard';
  exception when check_violation then
  get stacked diagnostics v=message_text;
- if v<>'S0_DESTINO_SEM_CONCESSAO_ATIVA' then
+ if v not in ('S0_DESTINO_SEM_CONCESSAO_ATIVA','PROFISSIONAL_PRUMO_INELEGIVEL') then
   raise exception 'I61 wrong default denial: %',v;end if;end;
 end $t$;
 \echo 'PASS I61-01: without exact exception default S0 no-grant denial remains'

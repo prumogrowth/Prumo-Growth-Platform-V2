@@ -70,6 +70,9 @@ begin
  where v.ator_id=new.operador_id and v.concessionaria_id=new.concessionaria_id
  and v.papel in ('operador','gestor')
  order by v.papel,v.valido_desde for share of v;
+ -- Preserve I57 protection against dealership closure while assignment waits.
+ perform 1 from public.concessionarias l
+ where l.id=new.concessionaria_id for share of l;
  select exists(select 1 from public.vinculos_papel_escopo v
  join public.concessionarias l on l.id=v.concessionaria_id
  where v.ator_id=new.operador_id and v.concessionaria_id=new.concessionaria_id
@@ -169,6 +172,11 @@ begin
  perform 1 from public.concessionarias
  where id=p_loja and ativo for share;
  if not found then raise exception 'EXCECAO_LOJA_INATIVA' using errcode='42501';end if;
+ -- Lock source grant rows before case/assignment rows to avoid stale
+ -- authority if a simultaneous grant update attempts redistribution.
+ perform 1 from public.vinculos_papel_escopo v
+ where v.ator_id=v_origem and v.concessionaria_id=p_loja
+ order by v.papel,v.valido_desde for share of v;
  -- Lock destination's grants WITHOUT time predicate before read. Any current
  -- store role (including manager/responsavel) forces the normal path.
  perform 1 from public.vinculos_papel_escopo v
