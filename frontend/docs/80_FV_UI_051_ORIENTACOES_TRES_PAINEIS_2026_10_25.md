@@ -26,3 +26,14 @@ O contrato Node valida os vínculos semânticos e a presença do aviso. O novo r
 Somente frontend demonstrativo e sintético, sem alteração de projeções de autorização, envio, AI, Meta/WhatsApp, banco, concessões, papéis, Auth, Supabase, integrações, S0/S1, `main`, merge ou deploy. Este trabalho não substitui uma auditoria completa de acessibilidade ou homologação produtiva.
 
 **Anterior:** [FV-UI-050](./79_FV_UI_050_AVISOS_ESTADO_2026_10_25.md).
+
+
+## Certificação no GitHub Actions
+
+- Implementação dos vínculos semânticos, nota de Resumo e testes: `956b476c3d69da1a3620a7653f4c88b20bde9288`.
+- Ajuste pré-publicação do teste para apenas abrir detalhes quando ocultos, preservando o painel já aberto no desktop: `e5399a197bf011163470ebeb640c843e946ac8a4`.
+- Manifesto de 58 blobs repinado: `86ca0c44e4d9b5b10884cadc5b481da5026e4234`, `source_head=e5399a197bf011163470ebeb640c843e946ac8a4`.
+- [GitHub Actions run 40196488010](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40196488010), executado no SHA do manifesto: **completed / success**.
+- Logs: **preflight nativo 59 arquivos PASS**, **Python 25/25 PASS**, **Node 357/357 PASS, sem falhas**, Chromium/Playwright completo **PASS**, incluindo `FV-UI-051 orientacoes vinculadas e detalhes legiveis em 8 cenarios: PASS`.
+- O executor registrou `FULL LOCAL ACCEPTANCE: PASS`. Relatório JSON publicado no Actions com retenção de um dia. Nenhuma atividade bancária, operação produtiva ou envio real foi efetuado.
+- A certificação é técnica e restrita ao protótipo sintético; acessibilidade humana completa, autenticação real e produção continuam fora do escopo.
