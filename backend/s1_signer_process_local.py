@@ -23,7 +23,7 @@ from backend.s1_gateway_local import _fields
 from backend.s1_gateway_signed_local import _COMMAND, _action_args, _proof_material, _SQL_SIGNED
 
 _MATERIAL = re.compile(
-    rb"prumo-s1-i20-v1\|(MOVER|PAUSAR|REATIVAR|INTAKE53|INTAKE|FILA55L|FILA55C)\|"
+    rb"prumo-s1-i20-v1\|(MOVER|PAUSAR|REATIVAR|INTAKE53|INTAKE|FILA55L|FILA55C|EXC62M|EXC62R)\|"
     rb"[0-9a-f-]{36}\|[0-9a-f-]{36}\|[A-Z0-9a-f|_:\-]{5,350}"
 )
 _MAX_MATERIAL = 600
