@@ -449,3 +449,10 @@ body[data-theme="dark"] .team-dialog .team-mode button[aria-pressed="true"]{
 /* FV-UI-051 — orientações vinculadas a busca, composição e detalhes. */
 .detail-pane .detail-demo-guidance{font-size:12px;line-height:1.55;color:#405962;background:#edf5f3;border:1px solid #d5e4e1;border-radius:9px;padding:10px 12px;margin:12px 0}
 .visual-app[data-theme="dark"] .detail-pane .detail-demo-guidance{background:#22343b;border-color:#36545b;color:#d6e7ea}
+
+/* FV-UI-053 — atalho de busca visivel somente com teclado util em telas amplas. */
+.list-pane .search-shortcut{flex:none;white-space:nowrap;font-size:11px;font-weight:700;line-height:1;
+  color:#405b66;border:1px solid #a3b6be;border-radius:5px;padding:5px 6px;
+  background:#fff;pointer-events:none}
+.visual-app[data-theme="dark"] .list-pane .search-shortcut{background:#263742;color:#e1edf2;border-color:#829ba8}
+@media(max-width:760px){.list-pane .search-shortcut{display:none}}

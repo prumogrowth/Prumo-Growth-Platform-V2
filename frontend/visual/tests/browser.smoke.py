@@ -1202,4 +1202,33 @@ with sync_playwright() as p:
             results.close()
     print('FV-UI-052 contador de resultados e estado vazio acessiveis em 8 cenarios: PASS')
 
+
+    # FV-UI-053: atalho descobrivel, sem ocultar busca nem roubar area no celular.
+    for shortcut_width, shortcut_height in ((320,640),(390,844),(900,780),(1440,900)):
+        for shortcut_theme in ('light','dark'):
+            shortcut_page=browser.new_page(viewport={'width':shortcut_width,'height':shortcut_height},color_scheme=shortcut_theme)
+            shortcut_page.set_default_timeout(4500)
+            shortcut_errors=[]
+            shortcut_page.on('pageerror',lambda e:shortcut_errors.append(str(e)))
+            shortcut_page.set_content(html);shortcut_page.add_script_tag(content=script)
+            expect(shortcut_page.locator('#visual-app')).to_have_attribute('data-theme',shortcut_theme)
+            shortcut_input=shortcut_page.locator('#search-input')
+            assert shortcut_input.get_attribute('aria-keyshortcuts')=='Control+K Meta+K'
+            hint=shortcut_page.locator('.search-shortcut')
+            assert hint.count()==1 and hint.get_attribute('aria-hidden')=='true'
+            if shortcut_width<=760:
+                expect(hint).to_be_hidden()
+            else:
+                expect(hint).to_be_visible()
+                assert hint.bounding_box()['width']>30
+            initial_count=shortcut_page.locator('.conversation-card').count()
+            shortcut_page.locator('.conversation-card').first.click()
+            shortcut_page.keyboard.press('Control+k')
+            expect(shortcut_input).to_be_focused()
+            assert shortcut_page.locator('.conversation-card').count()==initial_count
+            assert not shortcut_page.evaluate('document.documentElement.scrollWidth>innerWidth')
+            assert not shortcut_errors,shortcut_errors
+            shortcut_page.close()
+    print('FV-UI-053 atalho de busca teclado e reflow em 8 cenarios: PASS')
+
     browser.close()

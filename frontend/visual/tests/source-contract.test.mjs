@@ -641,3 +641,12 @@ test('FV-UI-052: contagem anuncia resultados sem duplicar o aviso de lista vazia
   assert.match(browserSmoke,/assert count\.get_attribute\('aria-live'\)=='off'/);
   assert.match(browserSmoke,/assert count\.get_attribute\('aria-live'\)=='polite'/);
 });
+
+test('FV-UI-053: atalho da busca descobrivel sem nova operacao ou efeito comercial',()=>{
+  assert.match(markup,/id="search-input"[^>]*aria-keyshortcuts="Control\+K Meta\+K"/);
+  assert.match(markup,/class="search-shortcut" aria-hidden="true">Ctrl\/⌘ K<\/span>/);
+  assert.match(styles,/FV-UI-053 — atalho de busca visivel/);
+  assert.match(styles,/@media\(max-width:760px\)\{\.list-pane \.search-shortcut\{display:none\}\}/);
+  assert.match(app,/\(event\.ctrlKey\|\|event\.metaKey\)\&\&event\.key\.toLowerCase\(\)==='k'/);
+  assert.match(browserSmoke,/FV-UI-053 atalho de busca teclado e reflow em 8 cenarios: PASS/);
+});
