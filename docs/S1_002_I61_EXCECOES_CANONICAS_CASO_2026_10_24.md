@@ -20,3 +20,15 @@ Revogação formal pelo mesmo gestor autorizado corta imediatamente o entitlemen
 ## CI
 
 Registrar os resultados apenas após a execução do GitHub Actions e a inspeção dos logs.
+
+## Aceites de CI — inspecionados
+
+- **Versão final PG17 SUCCESS:** [workflow #40145749776](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40145749776), job `121026590257`, commit de código e testes `16e9b3086fb3d3aaf0b5053caf4fc10bde5f15a4`. Logs: `PASS I61-01` até `PASS I61-09` (**9/9**), mais `PASS S0+S1 I52-I61 canonical stages after legacy regression`. Todos os dados de teste rolaram back.
+- **Versão prévia PG17 SUCCESS:** [workflow #40145560409](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40145560409), job `121026010305`, `I61-01..07` (**7/7**) com a regressão anterior. A versão final acrescentou dois testes: negação de reaproveitamento da exceção em outro caso e revogação automática após encerramento da atribuição.
+- **Falha inicial preservada:** [workflow #40145376743](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40145376743) falhou em uma expectativa muito estreita do teste negativo, pois a trigger S1 rejeitou antes da trigger S0. Em `e2122760c3c20f760f1129d1717856df536c11b2`, o teste passou a aceitar ambos os resultados de negação e a migração preservou explicitamente locks de concessão da origem e da loja. **Nenhum acesso indevido foi liberado.**
+
+**Certificação restrita ao PG17 descartável.** A migration canônica está na branch, mas a migração em Supabase hospedado, o executor atrelado a uma sessão GoTrue real, a trilha de assinatura/HMAC e a promoção de RLS de histórico ainda não estão integrados/homologados. O próximo incremento deve cobrir essas fronteiras antes de qualquer abertura operacional.
+
+## Estado
+
+I61: **código concluído e 9/9 testes canônicos PG17 aprovados**; integração de produção e autenticação real da operação excepcional **pendentes**.
