@@ -3,6 +3,7 @@ Executar: python3 -m unittest discover -s frontend/visual/tests -p test_offline_
 Fixtures são bytes inventados; não são dados de clientes ou arquivos reais.
 """
 import importlib.util
+import json
 import contextlib
 import io
 import sys
@@ -195,6 +196,80 @@ class OfflineExportIntegrityTests(unittest.TestCase):
         self.assertNotEqual(verifier.blob_sha(self.payload),
                             hashlib.sha1(self.payload).hexdigest())
 
+
+
+
+class NativeCheckoutPreflightTests(unittest.TestCase):
+    """FV-UI-045 — regressões isoladas de um repositório Git sintético, sem rede."""
+
+    def setUp(self):
+        import json
+        import subprocess
+        self.temp = tempfile.TemporaryDirectory(prefix="fv-ui-045-git-")
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+        self.visual = self.root / "frontend" / "visual"
+        self.tests = self.visual / "tests"
+        self.tests.mkdir(parents=True)
+        spec = importlib.util.spec_from_file_location("fv_ui_native_acceptance",
+                                                     HERE / "run_acceptance.py")
+        self.runner = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(self.runner)
+        self.patch_root = patch.object(self.runner, "ROOT", self.visual)
+        self.patch_tests = patch.object(self.runner, "TESTS", self.tests)
+        self.patch_root.start(); self.patch_tests.start()
+        self.addCleanup(self.patch_root.stop); self.addCleanup(self.patch_tests.stop)
+
+        def git(*args):
+            return subprocess.run(["git", "-C", str(self.root), *args],
+                                  capture_output=True, text=True, check=True).stdout.strip()
+        self.git = git
+        subprocess.run(["git", "init", "-q", "-b", "feat/frontend-plataforma-visual",
+                        str(self.root)], check=True, capture_output=True)
+        git("config", "user.name", "Local Fixture")
+        git("config", "user.email", "fixture@invalid.local")
+        git("commit", "-q", "--allow-empty", "-m", "synthetic root")
+        source = git("rev-parse", "HEAD")
+        self.data_path = "frontend/visual/index.html"
+        body = b"<main>only synthetic evidence</main>\n"
+        (self.visual / "index.html").write_bytes(body)
+        pinned = {
+            "source_head": source,
+            "source_branch": "feat/frontend-plataforma-visual",
+            "files": {self.data_path: {"sha": verifier.blob_sha(body), "size": len(body)}},
+        }
+        (self.tests / "verify_offline_export.py").write_text(
+            "import json\nMANIFEST = json.loads(" + json.dumps(json.dumps(pinned)) + ")\n",
+            encoding="utf-8")
+        git("add", ".")
+        git("commit", "-q", "-m", "pinned synthetic visual tree")
+        self.head = git("rev-parse", "HEAD")
+
+    def test_native_manifest_accepts_complete_unchanged_git_tree(self):
+        result = self.runner.check_native_blob_manifest(self.head, True)
+        self.assertTrue(result["passed"], result)
+        self.assertTrue(result["executed"])
+        self.assertEqual(result["files_checked"], 2)
+
+    def test_native_manifest_rejects_modified_worktree_blob(self):
+        (self.visual / "index.html").write_text("tampered content", encoding="utf-8")
+        result = self.runner.check_native_blob_manifest(self.head, True)
+        self.assertFalse(result["passed"])
+        self.assertIn("working-tree blob mismatch", result["error"])
+
+    def test_native_manifest_rejects_unpinned_committed_blob(self):
+        (self.visual / "unexpected.txt").write_text("unexpected", encoding="utf-8")
+        self.git("add", ".")
+        self.git("commit", "-q", "-m", "unlisted synthetic blob")
+        actual = self.git("rev-parse", "HEAD")
+        result = self.runner.check_native_blob_manifest(actual, True)
+        self.assertFalse(result["passed"])
+        self.assertIn("Git tree inventory differs", result["error"])
+
+    def test_native_manifest_rejects_unverified_checkout(self):
+        result = self.runner.check_native_blob_manifest(self.head, False)
+        self.assertFalse(result["passed"])
+        self.assertFalse(result["executed"])
 
 if __name__ == "__main__":
     unittest.main()

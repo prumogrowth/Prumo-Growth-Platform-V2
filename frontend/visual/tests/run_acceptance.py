@@ -9,6 +9,8 @@ Usage:
 No network, database or production actions are performed by this runner.
 """
 import argparse
+import ast
+import hashlib
 import json
 import re
 import os
@@ -89,6 +91,85 @@ def check_git_revision(expected_head):
 
 
 
+
+def check_native_blob_manifest(expected_head, revision_ok):
+    """FV-UI-045: bloqueia testes se blobs do checkout divergirem da árvore Git.
+
+    Lê o json.loads(...) literal do verificador usando AST, SEM executá-lo.
+    source_head é o commit de conteúdo ancestral do HEAD; o repin altera
+    somente o verificador e a documentação. Não autoriza outro repositório.
+    """
+    step = {"name": "FV-UI-045 native Git blob preflight", "passed": False,
+            "executed": False, "files_checked": 0}
+    if not revision_ok:
+        step["error"] = "unverified Git checkout"
+        return step
+    try:
+        verifier = TESTS / "verify_offline_export.py"
+        syntax = ast.parse(verifier.read_text(encoding="utf-8"), str(verifier))
+        assignment = next((node for node in syntax.body
+            if isinstance(node, ast.Assign)
+            and any(isinstance(target, ast.Name) and target.id == "MANIFEST"
+                    for target in node.targets)), None)
+        if assignment is None or not isinstance(assignment.value, ast.Call):
+            raise ValueError("manifest assignment unavailable")
+        call = assignment.value
+        if (not isinstance(call.func, ast.Attribute) or call.func.attr != "loads"
+                or not isinstance(call.func.value, ast.Name)
+                or call.func.value.id != "json" or len(call.args) != 1
+                or not isinstance(call.args[0], ast.Constant)
+                or not isinstance(call.args[0].value, str)):
+            raise ValueError("manifest is not a literal json.loads call")
+        manifest = json.loads(call.args[0].value)
+        source = manifest.get("source_head", "")
+        if (manifest.get("source_branch") != "feat/frontend-plataforma-visual"
+                or not isinstance(source, str)
+                or not re.fullmatch(r"[0-9a-f]{40}", source)):
+            raise ValueError("manifest provenance invalid")
+        files = manifest.get("files", {})
+        if not isinstance(files, dict) or not files:
+            raise ValueError("manifest has no files")
+        git = shutil.which("git")
+        root = Path(subprocess.run([git, "-C", str(ROOT), "rev-parse", "--show-toplevel"],
+            capture_output=True, text=True, check=True, timeout=10).stdout.strip())
+        ancestor = subprocess.run([git, "-C", str(root), "merge-base", "--is-ancestor",
+            source, expected_head], capture_output=True, timeout=10, check=False)
+        if ancestor.returncode != 0:
+            raise ValueError("manifest source_head is not an ancestor of expected HEAD")
+        tree = subprocess.run([git, "-C", str(root), "ls-tree", "-r", "--long",
+            expected_head, "--", "frontend/visual"],
+            capture_output=True, text=True, check=True, timeout=10)
+        actual = {}
+        for line in tree.stdout.splitlines():
+            entry = re.fullmatch(r"(100644|100755) blob ([0-9a-f]{40})\s+(\d+)\t(.+)", line)
+            if not entry:
+                raise ValueError("unexpected Git tree entry: " + line[:80])
+            mode, sha, size, path = entry.groups()
+            actual[path] = {"sha": sha, "size": int(size)}
+        verifier_path = "frontend/visual/tests/verify_offline_export.py"
+        if verifier_path not in actual:
+            raise ValueError("self verifier absent from Git tree")
+        if set(actual) != set(files) | {verifier_path}:
+            raise ValueError("Git tree inventory differs from pinned manifest")
+        if any(actual[name] != details for name, details in files.items()):
+            raise ValueError("Git tree blob hash/size mismatch")
+        for name, details in actual.items():
+            path = root / name
+            if not path.is_file() or path.is_symlink():
+                raise ValueError("missing or unsafe checkout file: " + name)
+            data = path.read_bytes()
+            digest = hashlib.sha1(b"blob " + str(len(data)).encode() + b"\0" + data).hexdigest()
+            if digest != details["sha"] or len(data) != details["size"]:
+                raise ValueError("working-tree blob mismatch: " + name)
+            step["files_checked"] += 1
+        step.update({"executed": True, "passed": True,
+                     "source_head": source, "expected_head": expected_head})
+        return step
+    except (OSError, ValueError, StopIteration, KeyError, subprocess.CalledProcessError,
+            subprocess.TimeoutExpired, SyntaxError, TypeError) as exc:
+        step.update({"executed": True, "error": str(exc)})
+        return step
+
 def main():
     parser = argparse.ArgumentParser(description="Validação local Node + Chromium")
     parser.add_argument("--skip-browser", action="store_true",
@@ -105,6 +186,9 @@ def main():
     revision_step = check_git_revision(args.expected_head)
     report["steps"].append(revision_step)
     revision_ok = revision_step["passed"]
+    blob_step = check_native_blob_manifest(args.expected_head, revision_ok)
+    report["steps"].append(blob_step)
+    blob_ok = blob_step["passed"] and blob_step["executed"]
     # Uma suíte truncada pode passar no Node e não constitui aceite integral.
     expected_tests = {
         "app.dom.test.mjs", "app.mobile.dom.test.mjs", "bank-view.test.mjs",
@@ -147,10 +231,10 @@ def main():
     })
     # Falha fechada: código de interface e Chromium não rodam quando a
     # regressão de segurança do pacote falha, mesmo em checkout válido.
-    if not inventory_ok or not revision_ok:
+    if not inventory_ok or not revision_ok or not blob_ok:
         security_step={"name": "Offline ZIP verifier adversarial regression",
                        "passed": False, "executed": False,
-                       "error": "incomplete or unverified checkout"}
+                       "error": "incomplete, unverified or blob-mismatched checkout"}
     else:
         security_step=run_step(
             "Offline ZIP verifier adversarial regression",
@@ -160,9 +244,10 @@ def main():
     security_ok=security_step["passed"] and security_step["executed"]
     node = shutil.which("node")
     suite = sorted(str(file) for file in TESTS.glob("*.test.mjs"))
-    if not inventory_ok or not node or not revision_ok or not security_ok:
+    if not inventory_ok or not node or not revision_ok or not blob_ok or not security_ok:
         error = ("incomplete checkout" if not inventory_ok else
                  "unverified checkout revision" if not revision_ok else
+                 "native blob preflight failed" if not blob_ok else
                  "ZIP verifier security regression failed" if not security_ok else
                  "node unavailable")
         node_step={"name": "Node ESM regression", "passed": False,
@@ -177,9 +262,10 @@ def main():
                                 "executed": False, "passed": False,
                                 "error": "explicitly skipped"})
         print("Chromium SKIPPED — diagnóstico parcial, não homologação.", flush=True)
-    elif not inventory_ok or not revision_ok or not security_ok or not node_ok:
+    elif not inventory_ok or not revision_ok or not blob_ok or not security_ok or not node_ok:
         error = ("incomplete checkout" if not inventory_ok else
                  "unverified checkout revision" if not revision_ok else
+                 "native blob preflight failed" if not blob_ok else
                  "ZIP verifier security regression failed" if not security_ok else
                  "Node ESM regression failed")
         report["steps"].append({"name": "Chromium Playwright smoke",
