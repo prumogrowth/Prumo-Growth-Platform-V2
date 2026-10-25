@@ -95,3 +95,6 @@ assert sql("select pg_catalog.has_schema_privilege('authenticated',"
  "'prumo_s1_interface','USAGE')")=="f"
 print("PASS I68-E2E-08: invoker views and sensitive column ACL audited; I65/I66 boundaries intact")
 print("I68 8/8 real GoTrue projection and scoped summaries E2E; disposable only")
+_i69=Path("scripts/test_s1_002_i69_bounded_export_e2e.py")
+exec(compile(_i69.read_text(encoding="utf-8"),str(_i69),"exec"),globals())
+

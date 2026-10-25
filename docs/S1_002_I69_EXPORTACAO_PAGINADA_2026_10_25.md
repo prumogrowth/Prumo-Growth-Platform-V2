@@ -16,3 +16,7 @@ A verificação PostgreSQL usa dois gestores, dois lotes/canais da mesma loja e 
 ## Limitações que impedem promoção
 
 **Limite de até 20 linhas por requisição não limita quantidade total de páginas ou taxa**, nem substitui rate-limit/quotas no gateway e trilha auditável de exportação. Um cliente ainda pode ler tabelas brutas legitimamente permitidas pelo I63/I67 e recompor contagens de suas **próprias** linhas; esse desenho não afirma eliminar exportações alternativas. A consistência entre páginas sob alterações concorrentes não é um snapshot. UUIDs de referências continuam expostos (sem descrição de lote/canal). Integração de autenticação de sessão para exportações sensíveis, retenção, limites globais, logs sem PII e mascaramento precisam de gate próprio antes de produção.
+
+## Prova HTTP adicional
+
+`scripts/test_s1_002_i69_bounded_export_e2e.py` reaproveita a stack e os dois Gestores reais do I68, adiciona segundo lote/canal do Gestor A e exige páginas ordenadas 1+1+vazio, sem repetição; Gestor B só vê lote/canal de sua equipe mesmo pedindo 20 linhas, e a loja B permanece vazia. Comprova que `GET` das duas views I68 falha, `anon` não executa RPC, parâmetros inválidos são negados, Consultor excepcional não vê exportações e o mesmo JWT do Gestor perde imediatamente o acesso após revogação. Nenhum workflow de outra frente foi alterado. Registros de aprovação só serão acrescentados após observar CI.
