@@ -82,3 +82,6 @@ print("PASS I66-E2E-07: RLS, private schema and signed executor boundaries unaff
 assert SupabaseGoTrueVerifier(api,anon).verify("Bearer "+token53).actor_id==uuid.UUID(g1)
 print("PASS I66-E2E-08: same real GoTrue session remains valid after legacy ACL cutover")
 print("I66 8/8 GoTrue signed and SQL ACL quarantine E2E; disposable only")
+_i67=Path("scripts/test_s1_002_i67_admin_row_scope_e2e.py")
+exec(compile(_i67.read_text(encoding="utf-8"),str(_i67),"exec"),globals())
+

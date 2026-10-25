@@ -27,3 +27,7 @@ A fronteira SQL I66 foi preservada: os wrappers legados ainda existem, mas não 
 `supabase/tests/s1_095_admin_row_scoped_aceite.sql` reproduz um lote sintético contendo um contato de cada equipe e linha rejeitada sem caso. Compara as leituras antes/depois do candidato, prova que cada Gestor com vínculo e concessão só vê as próprias linhas de itens/reencontros/eventos e que nenhum deles lê lote/canal completos. Valida Consultor excepcional negado, concessão expirada, ACL privada e regressões I63–I66. O teste ocorre dentro do `BEGIN/ROLLBACK` já estabelecido no I64.
 
 O cenário GoTrue real testará a mesma autorização via PostgREST e JWT reais. Evidências de CI serão registradas após serem observadas.
+
+## Teste de sessão real
+
+`scripts/test_s1_002_i67_admin_row_scope_e2e.py` cria um segundo Consultor legítimo, atribuído a outro Gestor, e registra itens aceitos de duas equipes no mesmo lote, além de uma linha rejeitada sem caso. Prova a quarentena I64 original, aplica I67 apenas no stack efêmero e verifica via JWT real a separação nas três tabelas. Revoga e restaura concessão do segundo Gestor usando o mesmo token; valida que lote/canal permanecem fechados, bem como ACL I66 e scanner I65. O runner PG17 também executa o inventário estático de consumidores. Evidências somente após resultados.
