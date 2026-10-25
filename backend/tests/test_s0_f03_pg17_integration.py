@@ -3139,5 +3139,97 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
         self.assertIs(self._s2_evidence_review(gate,fields,vector,output,js['proposal']),
                       EvidenceState.SOURCE_REVIEW_REQUIRED)
 
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_216_audio_attachment_requires_review(self):
+        from backend.s0_f03_crossfront_evidence_local import EvidenceState
+        bridge,fields,vector,js=self._s2_provenance_fixture()
+        output=self._s2_evaluate_real_js(js)
+        self.assertEqual(output['status'],'S0_RECHECK_ONLY')
+        self.assertIs(self._s2_evidence_review(bridge,fields,vector,output,js['proposal']),
+                      EvidenceState.MEDIA_REVIEW_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_217_unverified_transcript_is_not_content_proof(self):
+        from backend.s0_f03_crossfront_evidence_local import EvidenceState
+        bridge,fields,vector,js=self._s2_provenance_fixture()
+        # S2 fixture claims the value is explicitly attested; in S0 physical
+        # modality the message is AUDIO, never a verified transcript.
+        js['cutoff']['sources'][0]['claims'][0]['explicit']=True
+        output=self._s2_evaluate_real_js(js)
+        self.assertEqual(output['status'],'S0_RECHECK_ONLY')
+        self.assertIs(self._s2_evidence_review(bridge,fields,vector,output,js['proposal']),
+                      EvidenceState.MEDIA_REVIEW_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_218_old_image_attachment_blocks_all_field_reviews(self):
+        from backend.s0_f03_crossfront_evidence_local import EvidenceState
+        bridge,fields,vector,js=self._s2_provenance_fixture()
+        output=self._s2_evaluate_real_js(js)
+        self.assertEqual(output['status'],'S0_RECHECK_ONLY')
+        self.assertIs(self._s2_evidence_review(bridge,fields,vector,output,js['proposal']),
+                      EvidenceState.MEDIA_REVIEW_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_219_missing_modality_denies(self):
+        from backend.s0_f03_crossfront_evidence_local import EvidenceState
+        bridge,fields,vector,js=self._s2_provenance_fixture()
+        output=self._s2_evaluate_real_js(js)
+        self.assertEqual(output['status'],'S0_RECHECK_ONLY')
+        self.assertIs(self._s2_evidence_review(bridge,fields,vector,output,js['proposal']),
+                      EvidenceState.MEDIA_REVIEW_REQUIRED)
+
+    def test_220_unprivileged_role_cannot_read_s0_modality(self):
+        with self.assertRaises(self.pg.Error) as error:
+            with self.pg.connect(DB) as con:
+                con.execute('set local role authenticated')
+                con.execute('select * from '
+                            'prumo_private.cfi01_f03_message_modalities_local')
+        self.assertIn(error.exception.sqlstate,('42501','42P01','3F000'))
+
+    def test_221_s0_modality_immutable_even_if_pg_owner(self):
+        for query in (
+            "update prumo_private.cfi01_f03_message_modalities_local "
+            "set tipo='AUDIO',estado='MEDIA_UNVERIFIED' where mensagem_id=%s",
+            "delete from prumo_private.cfi01_f03_message_modalities_local "
+            "where mensagem_id=%s",
+        ):
+            with self.subTest(action=query.split()[0]):
+                with self.assertRaises(self.pg.Error) as error:
+                    with self.pg.connect(DB) as con:
+                        con.execute(query,(self.message,))
+                self.assertEqual(error.exception.sqlstate,'42501')
+
+    def test_222_wrong_tenant_cannot_forge_existing_modality(self):
+        with self.assertRaises(self.pg.Error) as error:
+            with self.pg.connect(DB) as con:
+                con.execute('insert into '
+                    'prumo_private.cfi01_f03_message_modalities_local '
+                    '(concessionaria_id,mensagem_id,tipo,estado) '
+                    "values (%s,%s,'TEXT','NATIVE_TEXT_FIXTURE')",
+                    (uuid.uuid4(),uuid.uuid4()))
+        self.assertEqual(error.exception.sqlstate,'42501')
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_223_media_previously_classified_cannot_be_upgraded(self):
+        from backend.s0_f03_crossfront_evidence_local import EvidenceState
+        bridge,fields,vector,js=self._s2_provenance_fixture()
+        with self.assertRaises(self.pg.Error) as error:
+            with self.pg.connect(DB) as con:
+                con.execute('update '
+                     'prumo_private.cfi01_f03_message_modalities_local '
+                     "set tipo='TEXT',estado='NATIVE_TEXT_FIXTURE' "
+                     'where mensagem_id=%s',(self.message,))
+        self.assertEqual(error.exception.sqlstate,'42501')
+        output=self._s2_evaluate_real_js(js)
+        self.assertEqual(output['status'],'S0_RECHECK_ONLY')
+        self.assertIs(self._s2_evidence_review(bridge,fields,vector,output,js['proposal']),
+                      EvidenceState.MEDIA_REVIEW_REQUIRED)
+
 if __name__=='__main__':
     unittest.main()
