@@ -16,3 +16,17 @@ O laboratório já possui as fontes S0 `cfi01_f03_form_fields_local`, `cfi01_f03
 **Segurança e limite:** o digest não equivale a aprovação humana; verificações são transitórias e não blindam edições futuras. O próximo passo é modelar o compromisso transacional final campo a campo sob autoridade autenticada S0, com aprovação humana explícita e sem promover HOLD automaticamente.
 
 **Validação:** os testes PG17 desta rodada serão contabilizados somente após verificar logs de um workflow do commit correspondente.
+
+## Certificação física executada
+
+**GitHub Actions SUCCESS:** https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40145676674
+
+**HEAD de código testado:** `359a4a956fde57c475f86e0140987d304bcb4fe6`; banco PostgreSQL 17 em container descartável.
+
+- 84/84 testes S0 CFI-01 aprovados;
+- 267/267 testes F03 aprovados, incluindo 171 físicos PostgreSQL;
+- **351/351 no total**, incremento de 20 testes em relação aos 331 certificados anteriormente;
+- Cenários físicos 160–171 e 8 novos testes unitários do contrato de campos aprovados;
+- Foram testados campo permitido, item ativo, campo desconhecido, tipo e comprimento divergentes, produto ausente/inativo, mudança de versão do catálogo e da ficha, pendência de identidade, reidentificação de contrato proibida, isolamento ACL, digest, autenticação dupla e revogação.
+
+Este registro posterior é somente documental; não altera a execução certificada.
