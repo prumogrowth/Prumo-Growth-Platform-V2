@@ -26,3 +26,21 @@ A presença do workflow no Git **não comprova que ele rodou**. Só registrar `f
 Somente interface fictícia e verificação. Nenhuma modificação S0/S1, WhatsApp/Meta, OpenAI, Supabase, cadastro real, pagamento, template ou permissão. Nenhuma interação com leads reais.
 
 **Antecessor:** [FV-UI-045](./74_FV_UI_045_PREFLIGHT_NATIVO_HEAD_2026_10_25.md).
+
+
+## Evidência de execução GitHub Actions — resultado certificado
+
+**Primeira execução:** [run 40180745497](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40180745497), SHA `6404faa24f759d44e76d27a46597b815d3a49c1d`, status **failure**. O checkout Git oficial, preflight da árvore, regressão Python, instalação Chromium e a maior parte da suíte Node passaram; **351/352** testes Node, com erro apenas em `source-contract.test.mjs` (contrato FV-UI-025 ainda buscava expressão anterior a `blob_ok`). O Chromium integrado ficou bloqueado corretamente. A falha não foi ocultada nem tratada como PASS.
+
+**Correção:** `frontend/visual/tests/source-contract.test.mjs` passou a exigir `blob_ok` nos dois caminhos de bloqueio e a verificar explicitamente a invocação `check_native_blob_manifest`. Teste direcionado local **1/1 PASS**. Implementação: `9ba601c8cd8b057fb42f8675544fa4acbdba5a6d`; novo repin do manifesto: `f6f10b53329fecfa000699df37bdb1b509626714`.
+
+**Execução aprovada:** [run 40180965490](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40180965490), SHA exato `f6f10b53329fecfa000699df37bdb1b509626714`, **status completed / conclusion success**, consultado diretamente no GitHub. Logs e job confirmam:
+- checkout Git e integridade prévia: **59 arquivos** (58 pinados e próprio verificador);
+- regressão Python adversarial: **25 testes / 25 PASS**;
+- regressão nativa Node sobre checkout oficial: **352 testes / 352 PASS, 0 falhas**;
+- Chromium/Playwright efetivamente executado e **PASS** no roteiro completo, incluindo FV-UI-036 até FV-UI-044, reflow, teclado e contraste;
+- relatório do executor: `FULL LOCAL ACCEPTANCE: PASS` / `full_acceptance=true` na máquina GitHub-hosted. Um artefato JSON foi publicado com retenção de um dia, além dos logs do job.
+  
+**Configuração final:** `.github/workflows/frontend-visual-validation.yml` ativa em `feat/frontend-plataforma-visual`, com preflight e 25 testes Python **antes** da instalação Chromium, timeout de 15 minutos, cancelamento de runs concorrentes e permissões somente `contents:read`. Arquivo fora de `frontend/` autorizado especificamente para GitHub Actions; nenhuma modificação da `main`.
+
+**Interpretação:** esse PASS comprova os testes nativos definidos no projeto para o **frontend fictício** neste SHA. **Não comprova** integração bancária, Auth real, Meta/WhatsApp, Supabase, pagamentos, implantação, acessibilidade humana completa ou prontidão de produção. Um commit exclusivamente documental posterior não muda os 59 blobs testados e não aciona novo run, conforme o filtro do workflow.

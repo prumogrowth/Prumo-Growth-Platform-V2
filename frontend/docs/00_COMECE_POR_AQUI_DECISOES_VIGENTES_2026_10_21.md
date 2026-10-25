@@ -166,7 +166,7 @@
 
 ## FV-UI-046 — GitHub Actions para validação integrada (25/10/2026)
 
-**[FV-UI-046 — workflow de validação de interface](./75_FV_UI_046_GITHUB_ACTIONS_VALIDACAO_2026_10_25.md)**: workflow sem deploy restrito à branch experimental, com gatilho por mudança em `frontend/visual`, timeout de 15 minutos, cancelamento de runs repetidas e gate nativo de Git/ZIP/Node/Chromium. Status real da primeira execução deve ser consultado no GitHub.
+**[FV-UI-046 — workflow de validação de interface](./75_FV_UI_046_GITHUB_ACTIONS_VALIDACAO_2026_10_25.md)**: workflow sem deploy restrito à branch experimental, com gatilho por mudança em `frontend/visual`, timeout de 15 minutos, cancelamento de runs repetidas e gate nativo de Git/ZIP/Node/Chromium. Execução real aprovada no commit `f6f10b53329fecfa000699df37bdb1b509626714`: **25/25 testes Python, 352/352 Node e Chromium integrado PASS**, com logs no [run 40180965490](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40180965490). Não constitui homologação de produção.
 
 ## Estado do trabalho
 FV-UI-015/016: demonstrações com dados sintéticos. **NÃO** declarar integração real, Auth/RLS/GoTrue, comunicações Meta ou remessas confirmadas. FV-UI-013 não homologada formalmente; **19F 69/100** como último marco. Esta consolidação é **documentação somente**. Nenhum código, migration, branch S1, dado real ou deploy foi tocado.
