@@ -427,3 +427,15 @@ body[data-theme="dark"] .team-dialog .team-mode button[aria-pressed="true"]{
   .list-pane{scroll-padding-block:12px}
   .list-pane .conversation-items{min-height:170px}
 }
+
+/* FV-UI-049 — resultados vazios contextuais e ação de limpeza apenas visual. */
+.list-pane .no-results{margin:14px 12px 18px;padding:26px 18px;min-height:150px;border:1px solid #dce9e9;border-radius:14px;background:#f3f8f7;color:#506a74;font-size:12px;line-height:1.55}
+.list-pane .no-results strong{font-size:14px;line-height:1.4;color:#2d4d58;margin-bottom:8px}
+.list-pane .no-results-hint{display:block;max-width:34ch;margin-inline:auto}
+.list-pane .no-results .empty-reset{margin-top:16px;min-height:44px;padding:10px 15px;font-size:12px;font-weight:750;background:#dceee9;border:1px solid #aed3ca;color:#175d51;max-width:100%;white-space:normal}
+.list-pane .no-results .empty-reset:focus-visible{outline:3px solid #11685d;outline-offset:2px}
+.visual-app[data-theme="dark"] .list-pane .no-results{background:#1b2a32;border-color:#354b55;color:#bfd0d8}
+.visual-app[data-theme="dark"] .list-pane .no-results strong{color:#edf6f8}
+.visual-app[data-theme="dark"] .list-pane .no-results .empty-reset{background:#26463e;border-color:#4b796c;color:#d7f1e7}
+.visual-app[data-theme="dark"] .list-pane .no-results .empty-reset:focus-visible{outline-color:#83dac9}
+@media(max-width:400px){.list-pane .no-results{margin-inline:9px;padding-inline:12px}}

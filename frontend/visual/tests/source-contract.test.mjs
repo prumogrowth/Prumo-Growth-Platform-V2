@@ -584,3 +584,19 @@ test('FV-UI-048: lista compacta preserva controles indicadores e scroll',()=>{
   assert.match(browserSmoke,/compact\.locator\('\.list-footer'\)\.scroll_into_view_if_needed\(\)/);
   assert.match(browserSmoke,/compact\.locator\('\.conversation-card'\)\.first\.scroll_into_view_if_needed\(\)/);
 });
+
+
+test('FV-UI-049: busca vazia contextual, contador visivel e limpeza restrita',()=>{
+  assert.match(app,/FV-UI-049: o contador indica resultados visíveis/);
+  assert.match(app,/FV-UI-049: distinguir busca, filtros, aba vazia e suspensão/);
+  assert.match(app,/Nenhuma conversa corresponde à busca/);
+  assert.match(app,/Nenhum atendimento nesta lista/);
+  assert.match(app,/Nenhum atendimento com estes filtros/);
+  assert.match(app,/clear\.addEventListener\('click'/);
+  assert.match(app,/state\.query='';state\.filter='all';state\.statusFilter='all';/);
+  assert.match(app,/\$\('search-input'\)\.focus\(\)/);
+  assert.match(styles,/FV-UI-049 — resultados vazios contextuais/);
+  assert.match(styles,/\.list-pane \.no-results \.empty-reset\{margin-top:16px;min-height:44px/);
+  assert.match(styles,/\.visual-app\[data-theme="dark"\] \.list-pane \.no-results/);
+  assert.match(browserSmoke,/FV-UI-049 busca vazia, reset e suspensao em oito cenarios: PASS/);
+});

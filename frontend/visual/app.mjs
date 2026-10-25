@@ -237,7 +237,8 @@ function renderList() {
   const items = filtered();
   const listProjection = projectInbox(state.cases,state.actorId,state.shopId,state.inboxView);
   const total = listProjection.length;
-  $('list-count').textContent = `${total} ${total === 1 ? 'atendimento' : 'atendimentos'}`;
+  // FV-UI-049: o contador indica resultados visíveis sem perder o total desta aba.
+  $('list-count').textContent = items.length !== total ? `${items.length} de ${total} atendimentos` : `${total} ${total === 1 ? 'atendimento' : 'atendimentos'}`;
   const currentActor = getActor(state.actorId);
   $('list-context').textContent = currentActor.teamState !== 'active' ? 'Acesso fictício suspenso' : currentActor.role === 'gestor' ? 'Visão de supervisão' : 'Atribuídos a mim';
   const activeRows=projectInbox(state.cases,state.actorId,state.shopId,'active');
@@ -281,9 +282,42 @@ function renderList() {
     return card;
   });
   if (!nodes.length) {
+    // FV-UI-049: distinguir busca, filtros, aba vazia e suspensão sem alterar o escopo.
     const box = el('div','no-results');
-    const suspended = getActor(state.actorId).teamState !== 'active';
-    box.append(el('strong','', suspended?'Sem acesso demonstrativo':'Nenhuma conversa neste filtro'),el('span','', suspended?'Profissional suspenso na fixture. Acesso real pertence ao S0/S1-002.':'Altere a busca, o filtro ou o perfil fictício.'));
+    box.setAttribute('role','status');
+    box.setAttribute('aria-live','polite');
+    const suspended = currentActor.teamState !== 'active';
+    const searching = Boolean(state.query.trim());
+    const refined = searching || state.filter !== 'all' || state.statusFilter !== 'all';
+    let heading, hint;
+    if (suspended) {
+      heading='Sem acesso demonstrativo';
+      hint='Profissional suspenso na fixture. Acesso real pertence ao S0/S1-002.';
+    } else if (total === 0) {
+      heading='Nenhum atendimento nesta lista';
+      hint='Consulte as abas Ativas / pendentes e Histórico do mesmo perfil fictício.';
+    } else if (searching) {
+      heading='Nenhuma conversa corresponde à busca';
+      hint='Tente outro termo ou limpe a busca e os filtros desta lista.';
+    } else if (refined) {
+      heading='Nenhum atendimento com estes filtros';
+      hint='Altere os filtros ou limpe a seleção atual para visualizar as conversas.';
+    } else {
+      heading='Nenhuma conversa disponível';
+      hint='Não há conversas correspondentes nesta demonstração.';
+    }
+    box.append(el('strong','',heading),el('span','no-results-hint',hint));
+    if (!suspended && total > 0 && refined) {
+      const clear = el('button','btn btn-light empty-reset','Limpar busca e filtros');
+      clear.type='button';
+      clear.addEventListener('click',()=>{
+        state.query='';state.filter='all';state.statusFilter='all';
+        $('search-input').value='';$('status-filter').value='all';
+        renderList();
+        $('search-input').focus();
+      });
+      box.append(clear);
+    }
     list.replaceChildren(box);
   } else list.replaceChildren(...nodes);
   document.querySelectorAll('[data-filter]').forEach(btn => {

@@ -1041,4 +1041,44 @@ with sync_playwright() as p:
             compact.close()
     print('FV-UI-048 lista compacta e conteudo acessivel em oito cenarios: PASS')
 
+    # FV-UI-049: busca vazia, reset seguro e perfil suspenso em telas e temas distintos.
+    for empty_width,empty_height in ((320,640),(390,844),(900,780),(1440,900)):
+        for empty_theme in ('light','dark'):
+            empty_page=browser.new_page(viewport={'width':empty_width,'height':empty_height},color_scheme=empty_theme)
+            empty_page.set_default_timeout(4500)
+            empty_errors=[]
+            empty_page.on('pageerror',lambda error:empty_errors.append(str(error)))
+            empty_page.set_content(html);empty_page.add_script_tag(content=script)
+            expect(empty_page.locator('#conversation-list')).to_be_visible()
+            expect(empty_page.locator('#visual-app')).to_have_attribute('data-theme',empty_theme)
+            assert empty_page.locator('.conversation-card').count()>0
+            profile_before=empty_page.locator('#actor-select').input_value()
+            shop_before=empty_page.locator('#shop-select').input_value()
+            empty_page.locator('.filter-chip[data-filter="unread"]').click()
+            empty_page.locator('#search-input').fill('fv-ui-049-sem-correspondencia-xyzz')
+            expect(empty_page.locator('.no-results strong')).to_have_text('Nenhuma conversa corresponde à busca')
+            assert empty_page.locator('.no-results').get_attribute('role')=='status'
+            assert empty_page.locator('#list-count').inner_text().startswith('0 de ')
+            clear_button=empty_page.locator('.empty-reset')
+            expect(clear_button).to_be_visible()
+            assert clear_button.bounding_box()['height']>=44
+            if empty_width<=390:
+                clear_button.scroll_into_view_if_needed()
+            clear_button.click()
+            expect(empty_page.locator('#search-input')).to_be_focused()
+            assert empty_page.locator('#search-input').input_value()==''
+            assert empty_page.locator('#status-filter').input_value()=='all'
+            expect(empty_page.locator('.filter-chip[data-filter="all"]')).to_have_attribute('aria-pressed','true')
+            assert empty_page.locator('.conversation-card').count()>0
+            assert empty_page.locator('#actor-select').input_value()==profile_before
+            assert empty_page.locator('#shop-select').input_value()==shop_before
+            assert empty_page.locator('.empty-reset').count()==0
+            empty_page.locator('#actor-select').select_option('otavio')
+            expect(empty_page.locator('.no-results strong')).to_have_text('Sem acesso demonstrativo')
+            assert empty_page.locator('.empty-reset').count()==0
+            assert not empty_page.evaluate('document.documentElement.scrollWidth>innerWidth')
+            assert not empty_errors,empty_errors
+            empty_page.close()
+    print('FV-UI-049 busca vazia, reset e suspensao em oito cenarios: PASS')
+
     browser.close()

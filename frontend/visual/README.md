@@ -227,3 +227,7 @@ Controles existentes da lista (buscar, Ativas/Histórico, filtros Todas/Não lid
 ## FV-UI-048 — Distribuição do espaço na lista móvel (25/10/2026)
 
 O cabeçalho da fila em telas até 760px agora usa espaçamento vertical mais enxuto entre título, perfil, concessionária, busca, abas, filtros, etapa comercial e resumo, preservando controles e etiquetas. Mantém alvos mínimos de 44px de FV-UI-047 e preserva rolagem integral da lista em alturas até 700px com acesso aos atendimentos e ao rodapé de dados fictícios. O CSS é estritamente visual e não afeta filtros, papeis ou mensagens. Novo teste Chromium de oito combinações de tela/tema e contrato Node. Aceite depende de GitHub Actions no SHA definitivo. [Relatório FV-UI-048](../docs/77_FV_UI_048_ESPACO_LISTA_MOVEL_2026_10_25.md).
+
+## FV-UI-049 — Resultados vazios orientativos (25/10/2026)
+
+A lista diferencia busca sem correspondências, filtros sem conversas, aba genuinamente vazia e perfil fictício suspenso. O contador expõe o número visível em relação ao total da aba quando há refinamentos. Um botão de alcance ≥44px permite limpar apenas a busca, o filtro rápido e o estado comercial; mantém perfil, concessionária, aba histórico/ativas e regras de escopo. O retorno do foco vai ao campo de busca. Roteiro Chromium com 8 cenários de busca/reset/suspensão e contrato Node. [Relatório FV-UI-049](../docs/78_FV_UI_049_ESTADOS_VAZIOS_DA_FILA_2026_10_25.md).

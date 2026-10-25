@@ -176,6 +176,10 @@
 
 **[FV-UI-048 — fila compacta sem ocultar conteúdo](./77_FV_UI_048_ESPACO_LISTA_MOVEL_2026_10_25.md)**: reduz espaços verticais no cabeçalho móvel, mantém os controles do FV-UI-047, resumo, conversas e rodapé com rolagem na tela baixa. GitHub Actions **APROVADO** no [run 40189686784](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40189686784): **25/25 Python, 354/354 Node e Chromium integrado PASS**, incluindo oito novos cenários de reflow e acesso a conteúdo.
 
+## FV-UI-049 — estados vazios claros (25/10/2026)
+
+**[FV-UI-049 — busca e filtros sem resultados](./78_FV_UI_049_ESTADOS_VAZIOS_DA_FILA_2026_10_25.md)**: diferencia busca vazia, filtros, ausência real na aba e suspensão. Contador visível/total e botão de limpeza estritamente visual; exige gate integrado GitHub Actions.
+
 ## Estado do trabalho
 FV-UI-015/016: demonstrações com dados sintéticos. **NÃO** declarar integração real, Auth/RLS/GoTrue, comunicações Meta ou remessas confirmadas. FV-UI-013 não homologada formalmente; **19F 69/100** como último marco. Esta consolidação é **documentação somente**. Nenhum código, migration, branch S1, dado real ou deploy foi tocado.
 
