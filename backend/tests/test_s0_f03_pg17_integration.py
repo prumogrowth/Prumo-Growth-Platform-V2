@@ -2924,5 +2924,145 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
         self.assertIs(self._s2_review(gate,fields,vector,output),
                       CrossFrontState.DENIED)
 
+
+    def _s2_provenance_fixture(self,*,text='observacao_sintetica=preferencia ficticia',
+                               older_text=None):
+        from backend.s0_f03_crossfront_evidence_local import S0F03LocalEvidenceReviewBridge
+        with self.pg.connect(DB) as con:
+            con.execute('update public.mensagens set conteudo_sintetico=%s '
+                        'where id=%s',(text,self.message))
+            if older_text is not None:
+                con.execute('update public.mensagens set conteudo_sintetico=%s '
+                            'where id=%s',(older_text,self.old_message))
+        base,fields,vector,js=self._s2_recheck_fixture()
+        return S0F03LocalEvidenceReviewBridge(base),fields,vector,js
+
+    def _s2_evidence_review(self,gate,fields,vector,output,proposal):
+        return gate.inspect('Bearer PINNED_S2_LOCAL_E04',self.binding,'test-key-v1',
+             b'fixture-only-content-seal-key-more-than-32-bytes',
+             vector,'request-cas-0001',fields,output,proposal).state
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_204_s2_verified_literal_from_same_case_yields_s0_review_only(self):
+        from backend.s0_f03_crossfront_evidence_local import EvidenceState
+        gate,fields,vector,js=self._s2_provenance_fixture()
+        output=self._s2_evaluate_real_js(js)
+        self.assertEqual(output['status'],'S0_RECHECK_ONLY')
+        self.assertIs(self._s2_evidence_review(
+            gate,fields,vector,output,js['proposal']),
+            EvidenceState.S0_EVIDENCE_REVIEW_ONLY)
+        with self.pg.connect(DB) as con:
+            changed=con.execute('select count(*) from '
+                'prumo_private.cfi01_f03_form_fields_local '
+                'where lead_id=%s',(self.lead,)).fetchone()[0]
+        self.assertEqual(changed,0)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_205_js_claims_value_s0_does_not_contain(self):
+        from backend.s0_f03_crossfront_evidence_local import EvidenceState
+        gate,fields,vector,js=self._s2_provenance_fixture(text='somente fixture')
+        output=self._s2_evaluate_real_js(js)
+        self.assertEqual(output['status'],'S0_RECHECK_ONLY')
+        self.assertIs(self._s2_evidence_review(gate,fields,vector,output,js['proposal']),
+                      EvidenceState.SOURCE_REVIEW_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_206_s2_hidden_earlier_conflict_detected_physically(self):
+        from backend.s0_f03_crossfront_evidence_local import EvidenceState
+        gate,fields,vector,js=self._s2_provenance_fixture(
+            older_text='observacao_sintetica=outra preferencia')
+        output=self._s2_evaluate_real_js(js)
+        self.assertEqual(output['status'],'S0_RECHECK_ONLY')
+        self.assertIs(self._s2_evidence_review(gate,fields,vector,output,js['proposal']),
+                      EvidenceState.CONFLICT_REVIEW_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_207_fake_source_id_rejected_even_if_js_accepts(self):
+        from backend.s0_f03_crossfront_evidence_local import EvidenceState
+        gate,fields,vector,js=self._s2_provenance_fixture()
+        alien=str(uuid.uuid4())
+        js['cutoff']['sources'][0]['id']=alien
+        js['proposal']['fields'][0]['sourceId']=alien
+        output=self._s2_evaluate_real_js(js)
+        self.assertEqual(output['status'],'S0_RECHECK_ONLY')
+        self.assertIs(self._s2_evidence_review(gate,fields,vector,output,js['proposal']),
+                      EvidenceState.SOURCE_REVIEW_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_208_value_in_historical_case_authorized_with_same_lead(self):
+        from backend.s0_f03_crossfront_evidence_local import EvidenceState
+        gate,fields,vector,js=self._s2_provenance_fixture(
+            text='registro de outro campo',
+            older_text='observacao_sintetica=preferencia ficticia')
+        js['cutoff']['sources'][0]['id']=str(self.old_message)
+        js['cutoff']['sources'][0]['caseId']=str(self.old_case)
+        js['proposal']['fields'][0]['sourceId']=str(self.old_message)
+        output=self._s2_evaluate_real_js(js)
+        self.assertEqual(output['status'],'S0_RECHECK_ONLY')
+        self.assertIs(self._s2_evidence_review(gate,fields,vector,output,js['proposal']),
+                      EvidenceState.S0_EVIDENCE_REVIEW_ONLY)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_209_s2_forged_claim_with_matching_s2_source_rejected_by_s0(self):
+        from backend.s0_f03_crossfront_evidence_local import EvidenceState
+        gate,fields,vector,js=self._s2_provenance_fixture()
+        js['proposal']['fields'][0]['value']='alegacao inventada'
+        js['cutoff']['sources'][0]['claims'][0]['value']='alegacao inventada'
+        output=self._s2_evaluate_real_js(js)
+        self.assertEqual(output['status'],'S0_RECHECK_ONLY')
+        self.assertIs(self._s2_evidence_review(gate,fields,vector,output,js['proposal']),
+                      EvidenceState.DENIED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_210_source_changed_after_s2_response_fails_live_hmac(self):
+        from backend.s0_f03_crossfront_evidence_local import EvidenceState
+        gate,fields,vector,js=self._s2_provenance_fixture()
+        output=self._s2_evaluate_real_js(js)
+        with self.pg.connect(DB) as con:
+            con.execute('update public.mensagens set conteudo_sintetico=%s '
+                        'where id=%s',
+                        ('observacao_sintetica=preferencia alterada',self.message))
+        self.assertIs(self._s2_evidence_review(gate,fields,vector,output,js['proposal']),
+                      EvidenceState.STALE_REVIEW_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_211_s2_foreign_code_and_extra_authority_rejected(self):
+        from backend.s0_f03_crossfront_evidence_local import EvidenceState
+        gate,fields,vector,js=self._s2_provenance_fixture()
+        output=self._s2_evaluate_real_js(js)
+        forged={**js['proposal'],'approvedByAI':True}
+        self.assertIs(self._s2_evidence_review(gate,fields,vector,output,forged),
+                      EvidenceState.DENIED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_212_natural_language_unstructured_text_not_accepted_as_fact(self):
+        from backend.s0_f03_crossfront_evidence_local import EvidenceState
+        gate,fields,vector,js=self._s2_provenance_fixture(
+            text='O cliente quer preferencia ficticia na observacao_sintetica')
+        output=self._s2_evaluate_real_js(js)
+        self.assertEqual(output['status'],'S0_RECHECK_ONLY')
+        self.assertIs(self._s2_evidence_review(gate,fields,vector,output,js['proposal']),
+                      EvidenceState.SOURCE_REVIEW_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_213_two_identical_claims_across_cases_are_not_conflict(self):
+        from backend.s0_f03_crossfront_evidence_local import EvidenceState
+        gate,fields,vector,js=self._s2_provenance_fixture(
+            older_text='observacao_sintetica=preferencia ficticia')
+        output=self._s2_evaluate_real_js(js)
+        self.assertEqual(output['status'],'S0_RECHECK_ONLY')
+        self.assertIs(self._s2_evidence_review(gate,fields,vector,output,js['proposal']),
+                      EvidenceState.S0_EVIDENCE_REVIEW_ONLY)
+
 if __name__=='__main__':
     unittest.main()
