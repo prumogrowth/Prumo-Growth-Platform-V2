@@ -49,6 +49,7 @@ psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s0_f03_f
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s0_f03_message_modalities_local_only.sql
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s0_f03_media_attestation_local_only.sql
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s0_f02_posthuman_template_policy_local_only.sql
+psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s0_f02_posthuman_intent_local_only.sql
 python3 -m unittest backend.tests.test_s0_f03_history_manifest_local \
   backend.tests.test_s0_f03_history_seal_local \
   backend.tests.test_s0_f03_bound_content_seal_local \
@@ -60,4 +61,5 @@ python3 -m unittest backend.tests.test_s0_f03_history_manifest_local \
   backend.tests.test_s0_f03_media_attestation_local \
   backend.tests.test_s0_f02_posthuman_compatibility_local \
   backend.tests.test_s0_f02_posthuman_preview_local \
+  backend.tests.test_s0_f02_posthuman_intent_local \
   backend.tests.test_s0_f03_pg17_integration -v
