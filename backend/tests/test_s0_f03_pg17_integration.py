@@ -2542,5 +2542,93 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
               (self.case,)).fetchone()[0]
         self.assertEqual((count,audit),(0,0))
 
+
+    def test_186_existing_field_updates_only_if_old_hash_matches(self):
+        from backend.s0_f03_operational_contracts_local import (
+            ProposedField,FieldKind,proposal_digest,
+        )
+        from backend.s0_f03_field_application_local import (
+            FieldCAS,HumanDecision,HumanFieldRequest,_sha,ApplicationState,
+        )
+        from backend.s0_f03_version_reservation_local import (
+            VersionVector,ReservationState,
+        )
+        store,_=self._prepare_cas()
+        with self.pg.connect(DB) as con:
+            con.execute('insert into prumo_private.cfi01_f03_form_fields_local '
+                '(concessionaria_id,lead_id,campo_sintetico,valor_sintetico) '
+                'values (%s,%s,%s,%s)',
+                (self.shop,self.lead,'observacao_sintetica','antes'))
+            con.execute('insert into '
+                'prumo_private.cfi01_f03_operational_field_contracts_local '
+                '(concessionaria_id,campo_sintetico,tipo_sintetico,max_chars) '
+                'values (%s,%s,%s,%s)',
+                (self.shop,'observacao_sintetica','TEXT_ONLY',48))
+        proposed=ProposedField('observacao_sintetica',FieldKind.TEXT_ONLY,'depois')
+        digest=proposal_digest((proposed,))
+        version=VersionVector(2,2,1,1,1)
+        self.assertIs(self._reserve(store,version,sha=digest),
+                      ReservationState.RESERVED_REVIEW_ONLY)
+        approval=HumanFieldRequest(self.binding,version,'request-cas-0001',
+                'test-key-v1',(FieldCAS(proposed,_sha('antes')),),
+                HumanDecision.EXPLICIT_APPROVE_SYNTHETIC_FIELDS,
+                'a'*64,'human-existing-cas-001')
+        manager=self._new_ratification_manager()
+        self.assertIs(self._human_apply(approval,manager).state,
+                      ApplicationState.APPLIED_SYNTHETIC_ONLY)
+        with self.pg.connect(DB) as con:
+            row=con.execute('select valor_sintetico from '
+                'prumo_private.cfi01_f03_form_fields_local '
+                'where lead_id=%s and campo_sintetico=%s',
+                (self.lead,'observacao_sintetica')).fetchone()[0]
+            ver=con.execute('select versao_ficha from '
+                'prumo_private.cfi01_f03_lead_versions_local where lead_id=%s',
+                (self.lead,)).fetchone()[0]
+            item=con.execute('select antigo_sha256,novo_sha256 from '
+                'prumo_private.cfi01_f03_form_application_items_local '
+                'where campo_sintetico=%s',('observacao_sintetica',)).fetchone()
+        self.assertEqual((row,ver),('depois',3))
+        self.assertEqual(item,(_sha('antes'),_sha('depois')))
+
+    def test_187_late_audit_sql_failure_rolls_back_all_field_changes(self):
+        from backend.s0_f03_field_application_local import ApplicationState
+        req,manager=self._application_fixture(multiple=True)
+        # Deliberately fail AFTER both field writes and their version bumps.
+        # A successful rollback must leave zero fields/audit and old version.
+        with self.pg.connect(DB) as con:
+            con.execute("""
+              create function prumo_private.f03_fail_audit_test_local()
+              returns trigger language plpgsql set search_path='' as $
+              begin
+                raise exception 'E04_FORCED_AUDIT_FAILURE'
+                  using errcode='23514';
+              end $;
+              create trigger f03_fail_audit_test
+              before insert on prumo_private.cfi01_f03_form_application_local
+              for each row execute function prumo_private.f03_fail_audit_test_local();
+            """)
+        try:
+            self.assertIs(self._human_apply(req,manager).state,
+                          ApplicationState.UNAVAILABLE)
+        finally:
+            with self.pg.connect(DB) as con:
+                con.execute('drop trigger if exists f03_fail_audit_test on '
+                    'prumo_private.cfi01_f03_form_application_local')
+                con.execute('drop function if exists '
+                    'prumo_private.f03_fail_audit_test_local()')
+        with self.pg.connect(DB) as con:
+            count=con.execute('select count(*) from '
+              'prumo_private.cfi01_f03_form_fields_local where '
+              'concessionaria_id=%s and lead_id=%s',
+              (self.shop,self.lead)).fetchone()[0]
+            ver=con.execute('select versao_ficha from '
+              'prumo_private.cfi01_f03_lead_versions_local where '
+              'concessionaria_id=%s and lead_id=%s',
+              (self.shop,self.lead)).fetchone()[0]
+            receipts=con.execute('select count(*) from '
+              'prumo_private.cfi01_f03_form_application_local '
+              'where concessionaria_id=%s',(self.shop,)).fetchone()[0]
+        self.assertEqual((count,ver,receipts),(0,1,0))
+
 if __name__=='__main__':
     unittest.main()
