@@ -102,4 +102,8 @@ jobs:
             count="$(grep -c "^WA50-$n PASS$" "$RUNNER_TEMP/wa39.log" || true)"
             if [[ "$count" != 1 ]]; then echo "WA50-$n marker invalid: $count" >&2; exit 1; fi
           done
-          echo "WA39 18/18, WA40 25/25, WA41 16/16, WA42 23/23, WA43 18/18, WA44 27/27, WA45 27/27, WA46 28/28, WA47 37/37, WA48 28/28, WA49 34/34, WA50 30/30 PASS - PG17 disposable"
+          for n in {01..36}; do
+            count="$(grep -c "^WA51-$n PASS$" "$RUNNER_TEMP/wa39.log" || true)"
+            if [[ "$count" != 1 ]]; then echo "WA51-$n marker invalid: $count" >&2; exit 1; fi
+          done
+          echo "WA39 18/18, WA40 25/25, WA41 16/16, WA42 23/23, WA43 18/18, WA44 27/27, WA45 27/27, WA46 28/28, WA47 37/37, WA48 28/28, WA49 34/34, WA50 30/30, WA51 36/36 PASS - PG17 disposable"
