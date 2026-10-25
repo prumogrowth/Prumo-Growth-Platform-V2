@@ -2322,5 +2322,225 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
                 con.execute('select * from '
                     'prumo_private.cfi01_f03_operational_field_contracts_local')
 
+
+    def _application_fixture(self,*,multiple=False,existing=False):
+        from backend.s0_f03_operational_contracts_local import ProposedField,FieldKind
+        from backend.s0_f03_field_application_local import (
+            FieldCAS,HumanFieldRequest,HumanDecision,_sha,
+        )
+        fields=[ProposedField('observacao_sintetica',FieldKind.TEXT_ONLY,
+                              'preferencia ficticia aprovada')]
+        defs=[('observacao_sintetica','TEXT_ONLY',48,True)]
+        products=()
+        if multiple:
+            fields.append(ProposedField('produto_sintetico',
+                                        FieldKind.CATALOG_CODE,'MODELO_TESTE'))
+            defs.append(('produto_sintetico','CATALOG_CODE',48,True))
+            products=(('MODELO_TESTE',True),)
+        vector,digest=self._operational_fixture(tuple(fields),
+                               definitions=tuple(defs),products=products)
+        if existing:
+            with self.pg.connect(DB) as con:
+                con.execute('insert into prumo_private.cfi01_f03_form_fields_local '
+                    '(concessionaria_id,lead_id,campo_sintetico,valor_sintetico) '
+                    'values (%s,%s,%s,%s)',
+                    (self.shop,self.lead,'observacao_sintetica','texto anterior'))
+            # The reservation became stale; this is intentional for stale tests.
+        cas=tuple(FieldCAS(field,None) for field in fields)
+        req=HumanFieldRequest(self.binding,vector,'request-cas-0001',
+                    'test-key-v1',cas,HumanDecision.EXPLICIT_APPROVE_SYNTHETIC_FIELDS,
+                    'a'*64,'human-apply-fixture-001')
+        manager=self._new_ratification_manager()
+        return req,manager
+
+    def _human_apply(self,req,manager,*,secret=None,s1=True):
+        from backend.s0_f03_field_application_local import (
+            S0F03LocalHumanFieldApplicationStore,apply_human_s0_synthetic_fields,
+        )
+        from backend.s0_s1_closure_authority_local import S0S1LocalTeamAuthority
+        return apply_human_s0_synthetic_fields('Bearer FIXTURE',req,
+            identity=LocalIdentity(*manager),
+            store=S0F03LocalHumanFieldApplicationStore(DB),
+            s1=S0S1LocalTeamAuthority() if s1 else None,
+            key=secret if secret is not None else
+                b'fixture-only-content-seal-key-more-than-32-bytes')
+
+    def test_172_human_s0_applies_one_synthetic_field_and_audits(self):
+        from backend.s0_f03_field_application_local import ApplicationState
+        req,manager=self._application_fixture()
+        response=self._human_apply(req,manager)
+        self.assertIs(response.state,ApplicationState.APPLIED_SYNTHETIC_ONLY)
+        self.assertEqual(tuple(vars(response)),('state',))
+        with self.pg.connect(DB) as con:
+            field=con.execute('select valor_sintetico from '
+              'prumo_private.cfi01_f03_form_fields_local '
+              'where concessionaria_id=%s and lead_id=%s '
+              'and campo_sintetico=%s',
+              (self.shop,self.lead,'observacao_sintetica')).fetchone()[0]
+            ver=con.execute('select versao_ficha from '
+              'prumo_private.cfi01_f03_lead_versions_local '
+              'where concessionaria_id=%s and lead_id=%s',
+              (self.shop,self.lead)).fetchone()[0]
+            count=con.execute('select count(*) from '
+              'prumo_private.cfi01_f03_form_application_items_local').fetchone()[0]
+        self.assertEqual((field,ver,count),('preferencia ficticia aprovada',2,1))
+
+    def test_173_two_fields_atomic_with_incrementing_form_version(self):
+        from backend.s0_f03_field_application_local import ApplicationState
+        req,manager=self._application_fixture(multiple=True)
+        self.assertIs(self._human_apply(req,manager).state,
+                      ApplicationState.APPLIED_SYNTHETIC_ONLY)
+        with self.pg.connect(DB) as con:
+            rows=con.execute('select campo_sintetico,valor_sintetico from '
+              'prumo_private.cfi01_f03_form_fields_local where '
+              'concessionaria_id=%s and lead_id=%s order by campo_sintetico',
+              (self.shop,self.lead)).fetchall()
+            ver=con.execute('select versao_ficha from '
+              'prumo_private.cfi01_f03_lead_versions_local where lead_id=%s',
+              (self.lead,)).fetchone()[0]
+        self.assertEqual(len(rows),2)
+        self.assertEqual(ver,3)
+
+    def test_174_human_replay_is_audit_only(self):
+        from backend.s0_f03_field_application_local import ApplicationState
+        req,manager=self._application_fixture()
+        self.assertIs(self._human_apply(req,manager).state,
+                      ApplicationState.APPLIED_SYNTHETIC_ONLY)
+        self.assertIs(self._human_apply(req,manager).state,
+                      ApplicationState.ALREADY_APPLIED_AUDIT_ONLY)
+        with self.pg.connect(DB) as con:
+            versions=con.execute('select versao_ficha from '
+              'prumo_private.cfi01_f03_lead_versions_local where lead_id=%s',
+              (self.lead,)).fetchone()[0]
+        self.assertEqual(versions,2)
+
+    def test_175_other_manager_cannot_claim_existing_application(self):
+        from backend.s0_f03_field_application_local import ApplicationState
+        req,manager=self._application_fixture()
+        self.assertIs(self._human_apply(req,manager).state,
+                      ApplicationState.APPLIED_SYNTHETIC_ONLY)
+        stranger=self._new_ratification_manager()
+        self.assertIs(self._human_apply(req,stranger).state,
+                      ApplicationState.CONFLICT_REVIEW_REQUIRED)
+
+    def test_176_unscoped_manager_denied(self):
+        from backend.s0_f03_field_application_local import ApplicationState
+        req,_=self._application_fixture()
+        manager=self._new_ratification_manager(scoped=False)
+        self.assertIs(self._human_apply(req,manager).state,ApplicationState.DENIED)
+
+    def test_177_without_s1_authority_blocked(self):
+        from backend.s0_f03_field_application_local import ApplicationState
+        req,manager=self._application_fixture()
+        self.assertIs(self._human_apply(req,manager,s1=False).state,
+                      ApplicationState.BLOCKED_S1)
+
+    def test_178_pending_identity_blocks_all_fields(self):
+        from backend.s0_f03_field_application_local import ApplicationState
+        req,manager=self._application_fixture(multiple=True)
+        self._pending_identity('+5511988887777')
+        self.assertIs(self._human_apply(req,manager).state,
+                      ApplicationState.CONFLICT_REVIEW_REQUIRED)
+        with self.pg.connect(DB) as con:
+            total=con.execute('select count(*) from '
+              'prumo_private.cfi01_f03_form_fields_local '
+              'where lead_id=%s',(self.lead,)).fetchone()[0]
+        self.assertEqual(total,0)
+
+    def test_179_stale_catalog_contract_no_form_write(self):
+        from backend.s0_f03_field_application_local import ApplicationState
+        req,manager=self._application_fixture()
+        with self.pg.connect(DB) as con:
+            con.execute('update '
+              'prumo_private.cfi01_f03_operational_field_contracts_local '
+              'set max_chars=40 where concessionaria_id=%s',
+              (self.shop,))
+        self.assertIs(self._human_apply(req,manager).state,
+                      ApplicationState.STALE_REVIEW_REQUIRED)
+
+    def test_180_wrong_runtime_hmac_refused(self):
+        from backend.s0_f03_field_application_local import ApplicationState
+        req,manager=self._application_fixture()
+        self.assertIs(self._human_apply(req,manager,
+            secret=b'wrong-S0-disposable-key-has-more-than-32-bytes').state,
+            ApplicationState.STALE_REVIEW_REQUIRED)
+        with self.pg.connect(DB) as con:
+            total=con.execute('select count(*) from '
+              'prumo_private.cfi01_f03_form_fields_local '
+              'where lead_id=%s',(self.lead,)).fetchone()[0]
+        self.assertEqual(total,0)
+
+    def test_181_existing_old_value_without_expected_hash_conflicts(self):
+        from backend.s0_f03_field_application_local import ApplicationState
+        req,manager=self._application_fixture(existing=True)
+        self.assertIs(self._human_apply(req,manager).state,
+                      ApplicationState.STALE_REVIEW_REQUIRED)
+
+    def test_182_audit_ledgers_immutable(self):
+        from backend.s0_f03_field_application_local import ApplicationState
+        req,manager=self._application_fixture()
+        self.assertIs(self._human_apply(req,manager).state,
+                      ApplicationState.APPLIED_SYNTHETIC_ONLY)
+        for statement in (
+            'update prumo_private.cfi01_f03_form_application_local '
+            'set evidencia_aprovacao_sha256=%s',
+            'delete from prumo_private.cfi01_f03_form_application_items_local '
+            'where campo_sintetico=%s'
+        ):
+            param=('b'*64,) if statement.startswith('update') else (
+                'observacao_sintetica',)
+            with self.assertRaises(self.pg.Error) as err:
+                with self.pg.connect(DB) as con: con.execute(statement,param)
+            self.assertEqual(err.exception.sqlstate,'42501')
+
+    def test_183_authenticated_role_cannot_access_applications(self):
+        from backend.s0_f03_field_application_local import ApplicationState
+        req,manager=self._application_fixture()
+        self.assertIs(self._human_apply(req,manager).state,
+                      ApplicationState.APPLIED_SYNTHETIC_ONLY)
+        with self.pg.connect(DB) as con:
+            with self.assertRaises(self.pg.Error):
+                con.execute('set local role authenticated')
+                con.execute('select * from '
+                  'prumo_private.cfi01_f03_form_application_local')
+
+    def test_184_same_human_competing_application_single_write(self):
+        from concurrent.futures import ThreadPoolExecutor
+        from backend.s0_f03_field_application_local import ApplicationState
+        req,manager=self._application_fixture()
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            outcomes=list(pool.map(lambda _:self._human_apply(req,manager).state,
+                                   range(2)))
+        self.assertCountEqual(outcomes,[
+            ApplicationState.APPLIED_SYNTHETIC_ONLY,
+            ApplicationState.ALREADY_APPLIED_AUDIT_ONLY])
+        with self.pg.connect(DB) as con:
+            ver=con.execute('select versao_ficha from '
+              'prumo_private.cfi01_f03_lead_versions_local where lead_id=%s',
+              (self.lead,)).fetchone()[0]
+        self.assertEqual(ver,2)
+
+    def test_185_second_field_invalid_rolls_back_entire_batch(self):
+        from backend.s0_f03_field_application_local import (
+            ApplicationState,FieldCAS,HumanFieldRequest,
+        )
+        req,manager=self._application_fixture(multiple=True)
+        # Retain original, valid, reserved proposal; make its second CAS
+        # precondition impossible. The first field must not be inserted.
+        first,second=req.fields
+        bad=HumanFieldRequest(req.binding,req.version,req.request_ref,
+            req.key_version,(first,FieldCAS(second.proposed,'f'*64)),
+            req.decision,req.approval_evidence_sha256,req.idempotency_key)
+        self.assertIs(self._human_apply(bad,manager).state,
+                      ApplicationState.CONFLICT_REVIEW_REQUIRED)
+        with self.pg.connect(DB) as con:
+            count=con.execute('select count(*) from '
+              'prumo_private.cfi01_f03_form_fields_local where lead_id=%s',
+              (self.lead,)).fetchone()[0]
+            audit=con.execute('select count(*) from '
+              'prumo_private.cfi01_f03_form_application_local where caso_id=%s',
+              (self.case,)).fetchone()[0]
+        self.assertEqual((count,audit),(0,0))
+
 if __name__=='__main__':
     unittest.main()
