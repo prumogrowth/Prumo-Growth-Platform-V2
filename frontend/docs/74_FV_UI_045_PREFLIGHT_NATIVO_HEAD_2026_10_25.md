@@ -38,3 +38,15 @@ A execução do `run_acceptance.py` sobre a cópia antiga, fornecendo explicitam
 - Apenas dados de demonstração. Sem alterações de S0/S1, serviços externos, Meta/WhatsApp, OpenAI, Supabase, autenticação, pagamentos, regras comerciais, atribuições, permissões, merge na `main` ou deploy.
 
 **Anterior:** [FV-UI-044](./73_FV_UI_044_FOCO_TECLADO_CONVERSA_2026_10_24.md).
+
+
+## Auditoria do GitHub após os commits
+
+- Commit do novo preflight e 4 regressões adversariais: `bec2817a8bd87dbe5946c6881f6e3147a398355b`.
+- Documentação/indexação: `327a92f02532616ce8c1e5df82596f7a9c89414c`.
+- Manifesto repinado: `a9fe63f56a59591a4da1ea284e55771875e63599`, com `source_head=327a92f02532616ce8c1e5df82596f7a9c89414c` (ancestral do commit final).
+- **58/58 hashes de blobs e tamanhos** conferidos diretamente contra a árvore do GitHub; nenhum arquivo extra, ausente ou divergente. O preflight também verificará localmente o próprio verificador, cujo SHA Git é `c6c49a4b251c18d7a2694e090f6f6fb4d8a71d9e`.
+- Os dois arquivos Python publicados possuem SHA Git `2d3a8f0291893754244411945339c865cf47578b` (executor) e `9b85b99e11e991f7f4c57314ea04a2e459a92c82` (testes), **idênticos aos bytes executados** na base local. Os **24/24 testes Python PASS** se referem especificamente a eles.
+- Comparação com FV-UI-044: **3 commits e 6 arquivos alterados**, todos sob `frontend/`. `main` mantida em `dace737ab7afb7ae3f5a3a6f5cb522e6def8b43a`.
+- Confirmação estrutural no GitHub: chamada a `check_native_blob_manifest` ocorre antes das suítes de segurança/Node/Chromium, e os quatro cenários sintéticos estão presentes no código oficial.
+- **Não executado:** gate integrado completo (`run_acceptance.py`) sobre clone Git autenticado do HEAD, nem o Chromium/Node correspondente. O novo requisito bloqueante foi provado em Git sintético local; relatório não declara homologação integral.
