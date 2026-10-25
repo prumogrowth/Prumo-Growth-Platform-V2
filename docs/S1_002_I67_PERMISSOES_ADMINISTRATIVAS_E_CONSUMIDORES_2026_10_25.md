@@ -18,7 +18,7 @@ A quarentena I64 permanece como baseline. O I67 **substitui apenas três políti
 
 ## Auditoria de consumidores legados
 
-O script `scripts/test_s1_002_i67_legacy_consumer_inventory.py` pesquisa arquivos SQL, Python, JS/TS e Shell do checkout buscando os três nomes de fachadas I51 e `prumo_s1_interface`. Registros históricos e testes são apresentados separadamente; **referências em runtime fora da lista aprovada falham CI**. A checagem não descobre SQL dinâmico, sistemas externos ou consumidores fora do repositório.
+O script `scripts/test_s1_002_i67_legacy_consumer_inventory.py` pesquisa arquivos SQL, Python, JS/TS e Shell do checkout buscando os três nomes de fachadas I51 e `prumo_s1_interface`. Registros históricos e testes são apresentados separadamente; **referências em runtime não revisadas falham CI**. A checagem não descobre SQL dinâmico, sistemas externos ou consumidores fora do repositório.
 
 A fronteira SQL I66 foi preservada: os wrappers legados ainda existem, mas não possuem `USAGE/EXECUTE` cliente; chamadas operacionais atuais utilizam autenticação GoTrue e fluxo HMAC do I62.
 
@@ -31,3 +31,9 @@ O cenário GoTrue real testará a mesma autorização via PostgREST e JWT reais.
 ## Teste de sessão real
 
 `scripts/test_s1_002_i67_admin_row_scope_e2e.py` cria um segundo Consultor legítimo, atribuído a outro Gestor, e registra itens aceitos de duas equipes no mesmo lote, além de uma linha rejeitada sem caso. Prova a quarentena I64 original, aplica I67 apenas no stack efêmero e verifica via JWT real a separação nas três tabelas. Revoga e restaura concessão do segundo Gestor usando o mesmo token; valida que lote/canal permanecem fechados, bem como ACL I66 e scanner I65. O runner PG17 também executa o inventário estático de consumidores. Evidências somente após resultados.
+
+### Achado do inventário e limite
+
+A primeira CI I67 identificou **um consumidor legado real no código-fonte**, `backend/s1_gateway_local.py` (adaptador demonstrativo I19 local). Não é um módulo de produção autorizado: usa o login SQL local `prumo_s1_gateway_ci` e é limitado a `127.0.0.1`. Após aplicar a quarentena I66, sua rota SQL é negada no banco. **Isso não prova ausência de consumidores externos**, portanto o adaptador não é considerado limpo ou preparado para produção. A auditoria estática foi fortalecida para registrar expressamente esse único módulo sob estado `I67-RETIRED_LOCAL_ADAPTER`, checar os limites de loopback e de login restrito, e falhar caso apareçam outros consumidores de funções I51 ou do adaptador fora de teste. Qualquer ativação real do I19 requer substituição completa pelo gateway assinado, nunca reversão de ACL I66.
+
+O ensaio SQL de I67 passou 8/8 na execução anterior; a mesma execução foi reprovada **corretamente** pelo detector estático desse consumidor, o que motivou este tratamento explícito.
