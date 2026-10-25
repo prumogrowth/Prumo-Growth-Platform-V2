@@ -207,5 +207,7 @@ end $t$;
 \ir s1_091_rpc_view_surface_guard_local_only.sql
 -- I66 follows I65 baseline probes, quarantines only the legacy facade ACL.
 \ir s1_093_legacy_interface_acl_quarantine_aceite.sql
+-- I67: restore only row-addressable admin items/recontacts/events with team scope.
+\ir s1_095_admin_row_scoped_aceite.sql
 rollback;
-\echo 'I64 S0 indirect exposure PG17 8/8; I65 8/8; I66 8/8; all synthetic objects and policies rolled back'
+\echo 'I64 S0 indirect exposure PG17 8/8; I65 8/8; I66 8/8; I67 8/8; all synthetic objects and policies rolled back'
