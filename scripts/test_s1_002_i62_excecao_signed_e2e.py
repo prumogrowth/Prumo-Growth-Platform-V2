@@ -102,3 +102,7 @@ try:
 finally:
  server62.shutdown();server62.server_close()
 print("I62 7/7 real GoTrue and independent mTLS HMAC tests in disposable CI")
+# I63: candidate RLS from canonical I61 exception, real JWT and signed transfer.
+_i63=Path("scripts/test_s1_002_i63_canonical_rls_e2e.py")
+exec(compile(_i63.read_text(encoding="utf-8"),str(_i63),"exec"),globals())
+

@@ -39,6 +39,8 @@ on:
       - 'backend/s1_gateway_fila_canonical_local.py'
       - 'scripts/test_s1_002_i55_signed_queue_e2e.py'
       - 'scripts/test_s1_002_i62_excecao_signed_e2e.py'
+      - 'scripts/test_s1_002_i63_canonical_rls_e2e.py'
+      - 'supabase/tests/s1_087_rls_excecao_canonica_local_only.sql'
       - 'backend/s1_gateway_excecao_caso_local.py'
       - 'supabase/tests/s1_086_excecao_assinada_local_only.sql'
       - 'tests/test_s1_002_i62_excecao_gateway.py'

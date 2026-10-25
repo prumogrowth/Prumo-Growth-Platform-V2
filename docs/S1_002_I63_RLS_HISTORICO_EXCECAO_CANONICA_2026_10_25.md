@@ -13,3 +13,7 @@ Não publica nova view, não amplia `INSERT` em mensagens e não libera tabelas 
 ## Aceite e riscos
 
 O teste `supabase/tests/s1_088_rls_excecao_canonica_aceite.sql` usa dados sintéticos e BEGIN/ROLLBACK no PG17, inclui o manager com grant amplo para demonstrar que esse grant não supera a restrição de equipe, reuso de mesmo contato, pré-caso, pausa, revogação e escrita bloqueada. O próximo passo, após PG17, é complementar a prova com GoTrue real e a transferência assinada I62; não confundir cobertura de laboratório com autorização para implantar em produção.
+
+## Prova de sessão real adicionada
+
+A `scripts/test_s1_002_i63_canonical_rls_e2e.py` é executada depois do I62, com GoTrue/PostgREST descartáveis, token real do destinatário e gestor, transferência/revogação pelo gateway HMAC já certificado, e as políticas I63 carregadas no banco efêmero. Verifica antes/apos: ausência de entitlement, histórico corrente e pré-caso de contato/loja exatos, negativa de gestor alheio, pausa A2 preservando leitura, revogação assinada cortando tudo no mesmo JWT e RPC privada inacessível. Evidências serão registradas após executar CI.
