@@ -15,9 +15,10 @@ begin
  and (rolcanlogin or rolsuper or rolbypassrls))
  then raise exception 'WA53_UNSAFE_OWNER' using errcode='42501';end if;
 end $wa53_preflight$;
--- CREATE OR REPLACE preserves OID, ACL and SECURITY DEFINER owner.
-grant create on schema prumo_private to prumo_s0_meta_wa50_writer_lab;
-set role prumo_s0_meta_wa50_writer_lab;
+-- The migration principal postgres replaces the function. Its runtime
+-- owner remains the NOLOGIN writer: CREATE OR REPLACE preserves OID/ACL/owner.
+-- The writer itself has EXECUTE revoked by WA50, so SET ROLE writer
+-- cannot perform the replacement even though it owns the routine.
 create or replace function prumo_private.meta_wa50_restricted_forensic_fixture_s0(
  p_key uuid,p_app text,p_waba text,p_phone text,p_channel uuid,
  p_intent uuid,p_attempt text,p_corr text,p_recipient text,p_wamid text,
@@ -110,6 +111,4 @@ begin
   'delivery_confirmed',false,'case_transition_authorized',false,
   'definitive_failure_count_increment',false);
 end $wa50_function$;
-reset role;
-revoke create on schema prumo_private from prumo_s0_meta_wa50_writer_lab;
--- No new EXECUTE grants, no RLS changes, no commercial side effects.
+-- No runtime role switch, no grants, no RLS changes or commercial effects.
