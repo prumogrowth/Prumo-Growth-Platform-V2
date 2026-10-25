@@ -17,6 +17,7 @@ from backend.s0_f03_bound_content_seal_local import (
     S0F03LocalBoundContentBridge, BoundContentState, _valid,
 )
 from backend.s0_f03_history_manifest_local import _CONTEXT_SQL, _uuid
+from backend.s0_f03_identity_uniqueness_local import conflicting_lead_candidate
 from backend.s0_human_closure_event_local import S0LocalClosureStore
 
 _CATALOG = """select versao_catalogo
@@ -144,6 +145,9 @@ class S0F03LocalVersionReservationStore:
             with psycopg.connect(self._dsn,connect_timeout=5) as con:
                 with con.cursor() as cur:
                     cur.execute("set local lock_timeout = '3s'")
+                    # Serialize with all S0 synthetic phone/alias source writers.
+                    cur.execute("select prumo_private.s0_f03_lock_shop_local(%s::uuid)",
+                                (r.store_ref,))
                     cur.execute(_CONTEXT_SQL,(
                         r.closure_event_ref,r.store_ref,r.case_ref,
                         r.snapshot_sha256,r.expected_cycle_version,
@@ -173,6 +177,8 @@ class S0F03LocalVersionReservationStore:
                     # candidates as REVIEW_REQUIRED; no automatic merge.
                     cur.execute(_PENDING_IDENTITY,(lead,r.store_ref))
                     if cur.fetchone() is not None:
+                        return ReservationState.CONFLICT_REVIEW_REQUIRED
+                    if conflicting_lead_candidate(cur,r.store_ref,lead):
                         return ReservationState.CONFLICT_REVIEW_REQUIRED
                     cur.execute(_PROOF,(r.store_ref,r.closure_event_ref,
                                         r.case_ref,lead,r.expected_cycle_version,

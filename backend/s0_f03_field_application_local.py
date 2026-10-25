@@ -29,6 +29,7 @@ from backend.s0_f03_operational_contracts_local import (
     ProposedField,FieldKind,proposal_digest,_SHOP_LOCK,
     _FIELD,_PRODUCT,_RESERVATION,
 )
+from backend.s0_f03_identity_uniqueness_local import conflicting_lead_candidate
 from backend.s0_f03_history_manifest_local import _CONTEXT_SQL,MAX_HISTORY_RECORDS
 from backend.s0_f03_bound_content_seal_local import _valid as _valid_hmac
 from backend.s0_f03_content_integrity_local import _CONTENT_SQL,_derive
@@ -204,6 +205,10 @@ class S0F03LocalHumanFieldApplicationStore:
                         return ApplicationResult(ApplicationState.STALE_REVIEW_REQUIRED)
                     cur.execute(_PENDING_IDENTITY,(lead,r.store_ref))
                     if cur.fetchone() is not None:
+                        return ApplicationResult(ApplicationState.CONFLICT_REVIEW_REQUIRED)
+                    # A second lead matching this lead's phone OR any alias
+                    # (exact/BR variant) is a conflict, even with no pending.
+                    if conflicting_lead_candidate(cur,r.store_ref,lead):
                         return ApplicationResult(ApplicationState.CONFLICT_REVIEW_REQUIRED)
                     cur.execute(_RESERVATION,(r.store_ref,r.closure_event_ref,
                                               r.case_ref,lead))

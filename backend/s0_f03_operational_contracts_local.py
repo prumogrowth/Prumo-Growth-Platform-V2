@@ -20,6 +20,7 @@ from backend.s0_f03_bound_content_seal_local import (
     S0F03LocalBoundContentBridge, BoundContentState, _valid,
 )
 from backend.s0_cfi01_f03_receipt_bridge_local import S0F03BoundReceiptLocal
+from backend.s0_f03_identity_uniqueness_local import conflicting_lead_candidate
 from backend.s0_human_closure_event_local import S0LocalClosureStore
 
 class FieldKind(str, Enum):
@@ -126,6 +127,8 @@ class S0F03LocalOperationalContractsStore:
                         return OperationalState.STALE_REVIEW_REQUIRED
                     cur.execute(_PENDING_IDENTITY,(lead,r.store_ref))
                     if cur.fetchone() is not None:
+                        return OperationalState.CONFLICT_REVIEW_REQUIRED
+                    if conflicting_lead_candidate(cur,r.store_ref,lead):
                         return OperationalState.CONFLICT_REVIEW_REQUIRED
                     cur.execute(_PROOF,(r.store_ref,r.closure_event_ref,
                                        r.case_ref,lead,r.expected_cycle_version,
