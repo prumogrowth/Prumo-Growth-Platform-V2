@@ -223,3 +223,7 @@ O validador `tests/run_acceptance.py` agora exige a conferência integral dos ar
 ## FV-UI-047 — Busca e filtros da fila (25/10/2026)
 
 Controles existentes da lista (buscar, Ativas/Histórico, filtros Todas/Não lidas/Atribuídas e etapa comercial) ganharam alvo vertical ≥44px, fonte de 12px para as opções, busca de 14px no desktop e 16px no móvel, foco visível e contraste ajustado nos temas claro/escuro. Não foram adicionados filtros nem mudados os predicados, a seleção ou os escopos. Regressão integrada GitHub Actions obrigatória, sem deploy. [Relatório FV-UI-047](../docs/76_FV_UI_047_FILTROS_DA_FILA_2026_10_25.md).
+
+## FV-UI-048 — Distribuição do espaço na lista móvel (25/10/2026)
+
+O cabeçalho da fila em telas até 760px agora usa espaçamento vertical mais enxuto entre título, perfil, concessionária, busca, abas, filtros, etapa comercial e resumo, preservando controles e etiquetas. Mantém alvos mínimos de 44px de FV-UI-047 e preserva rolagem integral da lista em alturas até 700px com acesso aos atendimentos e ao rodapé de dados fictícios. O CSS é estritamente visual e não afeta filtros, papeis ou mensagens. Novo teste Chromium de oito combinações de tela/tema e contrato Node. Aceite depende de GitHub Actions no SHA definitivo. [Relatório FV-UI-048](../docs/77_FV_UI_048_ESPACO_LISTA_MOVEL_2026_10_25.md).

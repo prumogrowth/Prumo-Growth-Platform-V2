@@ -405,3 +405,25 @@ body[data-theme="dark"] .team-dialog .team-mode button[aria-pressed="true"]{
 .visual-app[data-theme="dark"] .list-pane .filter-chip:not(.selected){color:#dce9ee}
 .visual-app[data-theme="dark"] .list-pane .advanced-filter label{color:#b9cdd6}
 .visual-app[data-theme="dark"] .list-pane .advanced-filter select{background:#1d2932;border-color:#374954;color:#e9f2f5}
+
+/* FV-UI-048 — compacto, mas completo: lista móvel e indicadores preservados. */
+@media(max-width:760px){
+  .list-pane .list-heading{padding:15px 16px 8px}
+  .list-pane .list-topline{margin-bottom:12px}
+  .list-pane :is(.actor-control,.shop-control){margin-bottom:8px}
+  .list-pane .search-box{margin-top:10px}
+  .list-pane .inbox-mode{margin-bottom:9px}
+  .list-pane .filters{padding-top:7px;gap:6px}
+  .list-pane .advanced-filter{margin-top:9px}
+  .list-pane .queue-summary{margin-top:9px}
+  .list-pane .queue-heading{padding:10px 16px}
+  .list-pane .list-footer{padding-block:10px}
+}
+@media(max-width:400px){
+  .list-pane .list-heading{padding-inline:12px}
+  .list-pane .filter-chip{padding-inline:9px}
+}
+@media(max-width:760px) and (max-height:700px){
+  .list-pane{scroll-padding-block:12px}
+  .list-pane .conversation-items{min-height:170px}
+}

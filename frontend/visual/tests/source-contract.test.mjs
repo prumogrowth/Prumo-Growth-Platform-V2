@@ -571,3 +571,16 @@ test('FV-UI-047: filtros da fila acessiveis nos dois temas',()=>{
   assert.match(browserSmoke,/FV-UI-047 filtros da fila em oito cenarios, foco e contraste: PASS/);
   assert.match(browserSmoke,/queue_page.keyboard.press\('Tab'\)/);
 });
+
+
+test('FV-UI-048: lista compacta preserva controles indicadores e scroll',()=>{
+  assert.match(styles,/FV-UI-048 — compacto, mas completo/);
+  assert.match(styles,/\.list-pane \.list-heading\{padding:15px 16px 8px\}/);
+  assert.match(styles,/\.list-pane \.list-topline\{margin-bottom:12px\}/);
+  assert.match(styles,/\.list-pane \.queue-summary\{margin-top:9px\}/);
+  assert.match(styles,/\.list-pane\{scroll-padding-block:12px\}/);
+  assert.match(styles,/\.list-pane \.conversation-items\{min-height:170px\}/);
+  assert.match(browserSmoke,/FV-UI-048 lista compacta e conteudo acessivel em oito cenarios: PASS/);
+  assert.match(browserSmoke,/compact\.locator\('\.list-footer'\)\.scroll_into_view_if_needed\(\)/);
+  assert.match(browserSmoke,/compact\.locator\('\.conversation-card'\)\.first\.scroll_into_view_if_needed\(\)/);
+});

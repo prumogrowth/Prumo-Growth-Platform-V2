@@ -1007,4 +1007,38 @@ with sync_playwright() as p:
             queue_page.close()
     print('FV-UI-047 filtros da fila em oito cenarios, foco e contraste: PASS')
 
+    # FV-UI-048: espaco e alcance na lista sem esconder a fila nem os avisos.
+    for compact_width,compact_height in ((320,640),(390,844),(900,780),(1440,900)):
+        for compact_theme in ('light','dark'):
+            compact=browser.new_page(viewport={'width':compact_width,'height':compact_height},color_scheme=compact_theme)
+            compact.set_default_timeout(4500)
+            errors_048=[]
+            compact.on('pageerror',lambda e:errors_048.append(str(e)))
+            compact.set_content(html);compact.add_script_tag(content=script)
+            expect(compact.locator('#conversation-list')).to_be_visible()
+            expect(compact.locator('#visual-app')).to_have_attribute('data-theme',compact_theme)
+            assert compact.locator('#queue-summary .summary-tile').count()>=1
+            assert compact.locator('.conversation-card').count()>=1
+            assert compact.locator('#list-count').inner_text().strip()
+            for selector in ('#actor-select','#shop-select','#search-input','#status-filter',
+                '.inbox-tab[data-inbox="active"]','.filter-chip[data-filter="all"]'):
+                assert compact.locator(selector).is_visible(),(compact_width,compact_theme,selector)
+            if compact_width<=760:
+                assert compact.locator('.list-heading').evaluate('e=>parseFloat(getComputedStyle(e).paddingTop)')<=15
+                assert compact.locator('.list-topline').evaluate('e=>parseFloat(getComputedStyle(e).marginBottom)')<=12
+                assert compact.locator('.queue-summary').evaluate('e=>parseFloat(getComputedStyle(e).marginTop)')<=9
+                assert compact.locator('.filter-chip').first.bounding_box()['height']>=44
+                if compact_height<=700:
+                    assert compact.locator('#conversation-list').evaluate('e=>getComputedStyle(e).overflowY')=='auto'
+                    assert compact.locator('#conversation-list').evaluate('e=>e.scrollHeight>e.clientHeight')
+            compact.locator('.conversation-card').first.scroll_into_view_if_needed()
+            assert compact.locator('.conversation-card').first.is_visible()
+            compact.locator('.list-footer').scroll_into_view_if_needed()
+            expect(compact.locator('.list-footer')).to_be_visible()
+            assert 'fictícios' in compact.locator('.list-footer').inner_text()
+            assert not compact.evaluate('document.documentElement.scrollWidth>innerWidth')
+            assert not errors_048,errors_048
+            compact.close()
+    print('FV-UI-048 lista compacta e conteudo acessivel em oito cenarios: PASS')
+
     browser.close()
