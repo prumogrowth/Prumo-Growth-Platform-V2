@@ -558,3 +558,16 @@ test('FV-UI-044: foco teclado da barra e compositor sem recorte',()=>{
   assert.match(browserSmoke,/FV-UI-044 foco teclado sem recorte em 8 cenarios: PASS/);
   assert.match(browserSmoke,/focus_044.keyboard.press\('Shift\+Tab'\)/);
 });
+
+
+test('FV-UI-047: filtros da fila acessiveis nos dois temas',()=>{
+  assert.match(styles,/FV-UI-047: filtros da fila/);
+  assert.match(styles,/\.list-pane \.search-box\{min-height:44px/);
+  assert.match(styles,/\.list-pane \.inbox-tab\{min-height:44px;font-size:12px/);
+  assert.match(styles,/\.list-pane \.filter-chip\{min-height:44px;font-size:12px/);
+  assert.match(styles,/\.list-pane \.advanced-filter select\{min-height:44px;font-size:12px/);
+  assert.match(styles,/@media\(max-width:760px\)\{\.list-pane \.search-box input\{font-size:16px/);
+  assert.match(styles,/\.visual-app\[data-theme="dark"\] \.list-pane \.advanced-filter select/);
+  assert.match(browserSmoke,/FV-UI-047 filtros da fila em oito cenarios, foco e contraste: PASS/);
+  assert.match(browserSmoke,/queue_page.keyboard.press\('Tab'\)/);
+});

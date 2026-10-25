@@ -959,4 +959,52 @@ with sync_playwright() as p:
             focus_044.close()
     print('FV-UI-044 foco teclado sem recorte em 8 cenarios: PASS')
 
+    # FV-UI-047: botoes, filtros, contraste e foco da fila em claro/escuro.
+    contrast_047="""selector=>{const e0=document.querySelector(selector);if(!e0)return null;
+      const rgb=t=>{const m=t.match(/rgba?\(([^)]+)\)/);return m?m[1].split(',').map(Number):null};
+      const L=v=>{const a=v.slice(0,3).map(x=>x/255).map(x=>x<=.04045?x/12.92:((x+.055)/1.055)**2.4);return .2126*a[0]+.7152*a[1]+.0722*a[2]};
+      const fg=rgb(getComputedStyle(e0).color);let e=e0,bg=null;
+      while(e){const c=rgb(getComputedStyle(e).backgroundColor);
+        if(c&&(c.length<4||c[3]>=1)){bg=c;break;}e=e.parentElement}
+      if(!fg||!bg)return null;const x=L(fg),y=L(bg);return (Math.max(x,y)+.05)/(Math.min(x,y)+.05)}"""
+    for queue_width in (320,390,900,1440):
+        for queue_theme in ('light','dark'):
+            queue_page=browser.new_page(viewport={'width':queue_width,'height':640 if queue_width<=390 else 820},color_scheme=queue_theme)
+            queue_page.set_default_timeout(4500)
+            errors_047=[]
+            queue_page.on('pageerror',lambda e:errors_047.append(str(e)))
+            queue_page.set_content(html);queue_page.add_script_tag(content=script)
+            expect(queue_page.locator('#conversation-list')).to_be_visible()
+            expect(queue_page.locator('#visual-app')).to_have_attribute('data-theme',queue_theme)
+            for selector in ('.list-pane .search-box','.list-pane .inbox-tab',
+                             '.list-pane .filter-chip','.list-pane .advanced-filter select'):
+                target=queue_page.locator(selector).first
+                assert target.count()>0,(queue_width,queue_theme,selector)
+                assert target.bounding_box()['height']>=44,(queue_width,queue_theme,selector)
+            minimum=16 if queue_width<=760 else 14
+            assert float(queue_page.locator('#search-input').evaluate('e=>parseFloat(getComputedStyle(e).fontSize)'))>=minimum
+            for selector in ('.list-pane .inbox-tab:not(.selected)',
+                             '.list-pane .filter-chip:not(.selected)',
+                             '.list-pane .advanced-filter label',
+                             '.list-pane .advanced-filter select'):
+                ratio=queue_page.evaluate(contrast_047,selector)
+                assert ratio is not None and ratio>=4.5,(queue_width,queue_theme,selector,ratio)
+            queue_page.locator('#search-input').focus()
+            assert queue_page.locator('.search-box').evaluate('e=>getComputedStyle(e).outlineWidth')=='3px'
+            queue_page.keyboard.press('Tab')
+            expect(queue_page.locator('.inbox-tab[data-inbox="active"]')).to_be_focused()
+            assert queue_page.locator('.inbox-tab[data-inbox="active"]').evaluate('e=>getComputedStyle(e).outlineWidth')=='3px'
+            queue_page.locator('.inbox-tab[data-inbox="history"]').click()
+            expect(queue_page.locator('.inbox-tab[data-inbox="history"]')).to_have_attribute('aria-pressed','true')
+            queue_page.locator('.inbox-tab[data-inbox="active"]').click()
+            expect(queue_page.locator('.inbox-tab[data-inbox="active"]')).to_have_attribute('aria-pressed','true')
+            queue_page.locator('.filter-chip[data-filter="unread"]').click()
+            expect(queue_page.locator('.filter-chip[data-filter="unread"]')).to_have_attribute('aria-pressed','true')
+            queue_page.locator('.filter-chip[data-filter="all"]').click()
+            expect(queue_page.locator('.filter-chip[data-filter="all"]')).to_have_attribute('aria-pressed','true')
+            assert not queue_page.evaluate('document.documentElement.scrollWidth>innerWidth')
+            assert not errors_047,errors_047
+            queue_page.close()
+    print('FV-UI-047 filtros da fila em oito cenarios, foco e contraste: PASS')
+
     browser.close()

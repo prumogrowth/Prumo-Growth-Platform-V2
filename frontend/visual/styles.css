@@ -386,3 +386,22 @@ body[data-theme="dark"] .team-dialog .team-mode button[aria-pressed="true"]{
 .visual-app[data-theme="dark"] .thread-pane :is(.workflow-bar .btn,.thread-heading .icon-button,.composer input,.send-button):focus-visible{
   outline-color:#83dac9;
 }
+
+/* FV-UI-047: filtros da fila — leitura, toque e foco sem mudar as consultas. */
+.list-pane .search-box{min-height:44px;color:#506c76}
+.list-pane .search-box input{min-width:0;font-size:14px}
+.list-pane .search-box input::placeholder{color:#546e78;opacity:1}
+.list-pane .search-box:focus-within{outline:3px solid #11685d;outline-offset:2px}
+.list-pane .inbox-tab{min-height:44px;font-size:12px;line-height:1.35;color:#4b6470}
+.list-pane .filter-chip{min-height:44px;font-size:12px;line-height:1.35;color:#405b66;padding:8px 11px}
+.list-pane .advanced-filter label{font-size:11px;line-height:1.45;color:#4a6470}
+.list-pane .advanced-filter select{min-height:44px;font-size:12px;line-height:1.4}
+@media(max-width:760px){.list-pane .search-box input{font-size:16px}}
+.visual-app[data-theme="dark"] .list-pane .search-box{color:#b5c7d0}
+.visual-app[data-theme="dark"] .list-pane .search-box input::placeholder{color:#b0c6d0}
+.visual-app[data-theme="dark"] .list-pane .search-box:focus-within{outline-color:#83dac9}
+.visual-app[data-theme="dark"] .list-pane .inbox-tab:not(.selected){color:#b8cbd3}
+.visual-app[data-theme="dark"] .list-pane .inbox-tab.selected{color:#96dbca}
+.visual-app[data-theme="dark"] .list-pane .filter-chip:not(.selected){color:#dce9ee}
+.visual-app[data-theme="dark"] .list-pane .advanced-filter label{color:#b9cdd6}
+.visual-app[data-theme="dark"] .list-pane .advanced-filter select{background:#1d2932;border-color:#374954;color:#e9f2f5}
