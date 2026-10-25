@@ -17,3 +17,15 @@ O teste `supabase/tests/s1_088_rls_excecao_canonica_aceite.sql` usa dados sinté
 ## Prova de sessão real adicionada
 
 A `scripts/test_s1_002_i63_canonical_rls_e2e.py` é executada depois do I62, com GoTrue/PostgREST descartáveis, token real do destinatário e gestor, transferência/revogação pelo gateway HMAC já certificado, e as políticas I63 carregadas no banco efêmero. Verifica antes/apos: ausência de entitlement, histórico corrente e pré-caso de contato/loja exatos, negativa de gestor alheio, pausa A2 preservando leitura, revogação assinada cortando tudo no mesmo JWT e RPC privada inacessível. Evidências serão registradas após executar CI.
+
+## Certificação final de 25/10/2026
+
+**PG17 descartável: SUCCESS**, [workflow #40180680687](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40180680687), job `121130901757`, versão de código `c077e16788370968db3a8681739bf488db805280`. Logs conferidos: `PASS I63-01` até `PASS I63-09`, **9/9**; `I63 canonical history RLS PG17 9/9; all rolled back`; e `PASS S0+S1 I52-I63 canonical and candidate stages after legacy regression`. Candidato instalado dentro da transação teste; policies e dados sintetizados são revertidos.
+
+**GoTrue real + gateway assinado I62: SUCCESS**, [workflow #40180783080](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40180783080), jobs `121131205582` (GoTrue E2E) e `121131206150` (unitários). Logs conferidos `PASS I63-E2E-01` até `PASS I63-E2E-06` — **6/6**, incluindo identidade de JWT real, transferência assinada, pré-caso, segregação por equipe, pausa A2, revogação assinada cortando leitura no mesmo token e função não publicada via RPC. I62-E2E-01..07 também permaneceram aprovados.
+
+**Falhas iniciais diagnosticadas e reparadas, não escondidas:** o primeiro PG17 parou na fixture por misturar ciclo da loja A com lead da loja B; a FK composta S0 rejeitou corretamente. Corrigido em `c077e16788370968db3a8681739bf488db805280`. A primeira execução GoTrue parou porque a fixture nova dependia de um canal simulado pré-existente; foi ajustada para criar seu próprio canal explicitamente em `4c193d2a63516aa2c683d8bef2a2c2e1ae307ce6`. Nenhuma flexibilização de FK ou política de segurança foi usada.
+
+### Delimitação do aceite
+
+Este resultado **não** certifica o mecanismo de histórico como deploy operacional: as oito políticas foram mantidas em `supabase/tests` e só são carregadas no PG17 transacional ou no Supabase CLI efêmero. O banco hospedado permanece inalterado. Ainda é necessário integrar as fronteiras de D2/D3/D4 e checar a composição com toda a superfície legada S0 (consultas indiretas e objeto a objeto), revisar autorização de Gestores e preparar migrações somente após auditoria conjunta. O endpoint HTTP assinador continua estritamente local/test-only, sem infraestrutura/KMS de produção.
