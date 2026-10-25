@@ -1,7 +1,6 @@
 -- I63 RLS CANDIDATE ONLY: consume canonical S0/S1/I61 exceptions.
 -- Loaded in disposable PG17 or ephemeral GoTrue, NEVER as hosted migration.
 -- No SELECT grant on private ledger, no DML expansion, no public PII view.
-begin;
 create schema prumo_s1_i63_test authorization postgres;
 revoke all on schema prumo_s1_i63_test from public,anon,service_role;
 grant usage on schema prumo_s1_i63_test to authenticated;
@@ -181,4 +180,3 @@ do $gate$ begin
  or has_function_privilege('anon','prumo_s1_i63_test.caso(uuid,uuid,uuid)','EXECUTE')
  then raise exception 'I63_CANDIDATE_ACL_INVALID' using errcode='42501';end if;
 end $gate$;
-commit;
