@@ -18,10 +18,16 @@ from backend.s0_f03_field_application_local import _SAVED_HMAC
 from backend.s0_f03_version_reservation_local import VersionVector
 from backend.s0_cfi01_f03_receipt_bridge_local import S0F03BoundReceiptLocal
 
+_MODALITIES = """select mensagem_id,tipo,estado
+from prumo_private.cfi01_f03_message_modalities_local
+where concessionaria_id=%s::uuid and mensagem_id=any(%s::uuid[])
+order by mensagem_id for share"""
+
 class EvidenceState(str,Enum):
     S0_EVIDENCE_REVIEW_ONLY='S0_EVIDENCE_REVIEW_ONLY'
     DENIED='DENIED'
     SOURCE_REVIEW_REQUIRED='SOURCE_REVIEW_REQUIRED'
+    MEDIA_REVIEW_REQUIRED='MEDIA_REVIEW_REQUIRED'
     CONFLICT_REVIEW_REQUIRED='CONFLICT_REVIEW_REQUIRED'
     STALE_REVIEW_REQUIRED='STALE_REVIEW_REQUIRED'
     UNAVAILABLE='UNAVAILABLE'
@@ -128,6 +134,19 @@ class S0F03LocalEvidenceReviewBridge:
                         or saved[3]!=proof.count or saved[4]!=proof.case_count
                         or not hmac.compare_digest(saved[2],proof.content_mac_sha256)):
                         return EvidenceResult(EvidenceState.STALE_REVIEW_REQUIRED)
+                    # Classifications are immutable S0-only PG17 fixtures,
+                    # NEVER model declared. Missing/multimodal media anywhere
+                    # in this history may hide conflicting evidence, so fail
+                    # closed even if the chosen source looks like normal text.
+                    ids=[row[0] for row in rows]
+                    cur.execute(_MODALITIES,(r.store_ref,ids))
+                    classified=cur.fetchall()
+                    if (len(classified)!=len(ids)
+                        or {m[0] for m in classified}!=set(ids)):
+                        return EvidenceResult(EvidenceState.MEDIA_REVIEW_REQUIRED)
+                    if any(m[1]!='TEXT' or m[2]!='NATIVE_TEXT_FIXTURE'
+                           for m in classified):
+                        return EvidenceResult(EvidenceState.MEDIA_REVIEW_REQUIRED)
                     for field in fields:
                         found={}
                         for row in rows:

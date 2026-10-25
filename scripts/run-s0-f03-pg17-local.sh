@@ -36,6 +36,7 @@ psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s0_f03_i
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s0_f03_identity_scope_serialization_local_only.sql
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s0_f03_operational_contracts_local_only.sql
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s0_f03_field_application_local_only.sql
+psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s0_f03_message_modalities_local_only.sql
 python3 -m unittest backend.tests.test_s0_f03_history_manifest_local \
   backend.tests.test_s0_f03_history_seal_local \
   backend.tests.test_s0_f03_bound_content_seal_local \

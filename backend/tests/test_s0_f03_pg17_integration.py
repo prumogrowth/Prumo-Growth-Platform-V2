@@ -97,6 +97,28 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
                 self._message(cur,self.old_message,self.old_conversation,self.old_case,
                               older=True)
                 self._message(cur,self.message,self.conversation,self.case)
+                # Explicit S0 classification for each synthetic source.
+                # Media is NEVER accepted as a verified text source.
+                current_type='AUDIO' if self._testMethodName in (
+                    'test_216_audio_attachment_requires_review',
+                    'test_217_unverified_transcript_is_not_content_proof',
+                    'test_223_media_previously_classified_cannot_be_upgraded',
+                ) else 'TEXT'
+                previous_type='IMAGE' if self._testMethodName in (
+                    'test_218_old_image_attachment_blocks_all_field_reviews',
+                ) else 'TEXT'
+                for message,kind in ((self.message,current_type),
+                                     (self.old_message,previous_type)):
+                    if (self._testMethodName=='test_219_missing_modality_denies'
+                        and message==self.old_message):
+                        continue
+                    cur.execute('insert into '
+                        'prumo_private.cfi01_f03_message_modalities_local '
+                        '(concessionaria_id,mensagem_id,tipo,estado) '
+                        'values (%s,%s,%s,%s)',
+                        (self.shop,message,kind,
+                         'NATIVE_TEXT_FIXTURE' if kind=='TEXT'
+                         else 'MEDIA_UNVERIFIED'))
         self.s0=S0LocalClosureStore(DB)
         self.reader=S0F03LocalPostgresHistoryReader(DB)
         self.seal=S0F03LocalManifestSealStore(DB)
