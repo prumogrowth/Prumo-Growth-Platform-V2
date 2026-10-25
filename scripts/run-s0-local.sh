@@ -50,4 +50,8 @@ bash "$ROOT/scripts/test_s0_wa_031_c01_concurrency.sh"
 bash "$ROOT/scripts/test_s0_wa_032_lifecycle_concurrency.sh"
 bash "$ROOT/scripts/test_s0_wa_033_concurrency.sh"
 bash "$ROOT/scripts/test_s0_wa_041_concurrency.sh"
+# WA55 is deliberately LATE: all previous historical WA40/48-54 regression
+# fixtures must execute before direct client EXECUTE is revoked.
+psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$ROOT/supabase/migrations/202610230054_s0_meta_single_entry_seal_fixture.sql"
+python3 "$ROOT/supabase/tests/s0_wa_059_assert_single_entry_sealed_pg17.py"
 echo 'Teste local concluído. Não houve escrita no Supabase.'
