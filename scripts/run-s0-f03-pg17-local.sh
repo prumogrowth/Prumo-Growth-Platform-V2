@@ -43,4 +43,5 @@ python3 -m unittest backend.tests.test_s0_f03_history_manifest_local \
   backend.tests.test_s0_f03_operational_contracts_local \
   backend.tests.test_s0_f03_field_application_local \
   backend.tests.test_s0_f03_crossfront_contract_local \
+  backend.tests.test_s0_f03_crossfront_evidence_local \
   backend.tests.test_s0_f03_pg17_integration -v
