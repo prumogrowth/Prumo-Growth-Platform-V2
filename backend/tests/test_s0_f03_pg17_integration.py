@@ -3626,5 +3626,159 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
            version,'request-cas-0001',fields,output,proposal,
            result,str(self.channel)).state,F02RecheckState.STALE_REVIEW_REQUIRED)
 
+
+    def _f02_preview_fixture(self,*,manager_options=None,with_policy=True,
+                             policy_category='MARKETING',policy_version='policy-001'):
+        from backend.s0_f02_posthuman_preview_local import (
+            S0F02LocalPostHumanPreview,PostHumanPreviewRequest,
+        )
+        fixture=self._f02_bridge_fixture()
+        manager=self._new_ratification_manager(**(manager_options or {}))
+        template=uuid.uuid4()
+        with self.pg.connect(DB) as con:
+            con.execute('insert into public.catalogo_templates_sinteticos '
+              '(id,concessionaria_id,codigo,versao,aprovado_simulacao) '
+              'values (%s,%s,%s,%s,true)',
+              (template,self.shop,'template-f02',1))
+            if with_policy:
+                con.execute('insert into '
+                  'prumo_private.cfi01_f02_posthuman_template_policy_local '
+                  '(concessionaria_id,template_id,finalidade,categoria,versao_politica) '
+                  'values (%s,%s,%s,%s,%s)',
+                  (self.shop,template,'post_human',policy_category,policy_version))
+        bridge=S0F02LocalPostHumanPreview(fixture[0],
+             LocalIdentity(*manager),DB)
+        req=PostHumanPreviewRequest(str(template),policy_version)
+        return fixture,bridge,req,manager,template
+
+    def _f02_preview_check(self,data,*,js=None,request=None):
+        fixture,bridge,req,_,_=data
+        _,fields,version,output,proposal=fixture
+        return bridge.inspect('Bearer PINNED_S2_LOCAL_E04',self.binding,
+            'test-key-v1',b'fixture-only-content-seal-key-more-than-32-bytes',
+            version,'request-cas-0001',fields,output,proposal,
+            self._s2_f02_real_lifecycle() if js is None else js,
+            str(self.channel),req if request is None else request).state
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_250_manager_s1_and_s0_template_policy_preview_still_blocks_send(self):
+        from backend.s0_f02_posthuman_preview_local import PreviewState
+        data=self._f02_preview_fixture()
+        self.assertIs(self._f02_preview_check(data),
+                      PreviewState.PREVIEW_ONLY_LEGACY_C04_BLOCKED)
+        with self.pg.connect(DB) as con:
+            self.assertEqual(con.execute('select count(*) from '
+                'public.planos_recontato_sinteticos where concessionaria_id=%s',
+                (self.shop,)).fetchone()[0],0)
+            self.assertEqual(con.execute('select count(*) from '
+                'public.envios_template_sinteticos where concessionaria_id=%s',
+                (self.shop,)).fetchone()[0],0)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_251_manager_without_store_scope_cannot_preview(self):
+        from backend.s0_f02_posthuman_preview_local import PreviewState
+        data=self._f02_preview_fixture(manager_options={'scoped':False})
+        self.assertIs(self._f02_preview_check(data),PreviewState.MANAGER_S1_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_252_manager_not_active_in_s1_cannot_preview(self):
+        from backend.s0_f02_posthuman_preview_local import PreviewState
+        data=self._f02_preview_fixture(manager_options={'team':False})
+        self.assertIs(self._f02_preview_check(data),PreviewState.MANAGER_S1_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_253_manager_missing_session_cannot_preview(self):
+        from backend.s0_f02_posthuman_preview_local import PreviewState
+        data=self._f02_preview_fixture(manager_options={'session':False})
+        self.assertIs(self._f02_preview_check(data),PreviewState.MANAGER_S1_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_254_template_category_not_registered_requires_policy(self):
+        from backend.s0_f02_posthuman_preview_local import PreviewState
+        data=self._f02_preview_fixture(with_policy=False)
+        self.assertIs(self._f02_preview_check(data),PreviewState.TEMPLATE_POLICY_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_255_template_policy_version_drift_blocks(self):
+        from backend.s0_f02_posthuman_preview_local import PreviewState,PostHumanPreviewRequest
+        data=self._f02_preview_fixture()
+        _,_,req,_,_=data
+        req=PostHumanPreviewRequest(req.template_ref,'policy-002')
+        self.assertIs(self._f02_preview_check(data,request=req),
+                      PreviewState.TEMPLATE_STALE_REVIEW_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_256_model_cannot_reclassify_marketing_to_utility(self):
+        from backend.s0_f02_posthuman_preview_local import PreviewState
+        data=self._f02_preview_fixture()
+        js={**self._s2_f02_real_lifecycle(),'category':'UTILITY'}
+        self.assertIs(self._f02_preview_check(data,js=js),
+                      PreviewState.TEMPLATE_STALE_REVIEW_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_257_optout_post_initial_preview_contract_blocks(self):
+        from backend.s0_f02_posthuman_preview_local import PreviewState
+        data=self._f02_preview_fixture()
+        with self.pg.connect(DB) as con:
+            con.execute('insert into public.supressoes_contato_sinteticas '
+                '(concessionaria_id,lead_id,canal_id,finalidade,evento_origem) '
+                'values (%s,%s,%s,%s,%s)',
+                (self.shop,self.lead,self.channel,
+                 'recontato_comercial_sintetico','e04-late-optout'))
+        self.assertIs(self._f02_preview_check(data),
+                      PreviewState.CONTRACT_REVIEW_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_258_wrong_template_ref_for_store_denied(self):
+        from backend.s0_f02_posthuman_preview_local import PreviewState,PostHumanPreviewRequest
+        data=self._f02_preview_fixture()
+        bogus=PostHumanPreviewRequest(str(uuid.uuid4()),'policy-001')
+        self.assertIs(self._f02_preview_check(data,request=bogus),
+                      PreviewState.TEMPLATE_STALE_REVIEW_REQUIRED)
+
+    def test_259_posthuman_policy_is_immutable_for_local_admin(self):
+        data=self._f02_preview_fixture()
+        _,_,_,_,template=data
+        for sql in (
+            'update prumo_private.cfi01_f02_posthuman_template_policy_local '
+            "set categoria='UTILITY' where template_id=%s",
+            'delete from prumo_private.cfi01_f02_posthuman_template_policy_local '
+            'where template_id=%s',
+        ):
+            with self.subTest(action=sql.split()[0]):
+                with self.assertRaises(self.pg.Error) as ex:
+                    with self.pg.connect(DB) as con:
+                        con.execute(sql,(template,))
+                self.assertEqual(ex.exception.sqlstate,'42501')
+
+    def test_260_client_role_cannot_view_local_posthuman_policy(self):
+        with self.assertRaises(self.pg.Error) as ex:
+            with self.pg.connect(DB) as con:
+                con.execute('set local role authenticated')
+                con.execute('select * from '
+                    'prumo_private.cfi01_f02_posthuman_template_policy_local')
+        self.assertIn(ex.exception.sqlstate,('42501','42P01','3F000'))
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_261_catalogue_template_version_drift_denied(self):
+        from backend.s0_f02_posthuman_preview_local import PreviewState
+        data=self._f02_preview_fixture()
+        _,_,_,_,template=data
+        with self.pg.connect(DB) as con:
+            con.execute('update public.catalogo_templates_sinteticos set versao=2 '
+                        'where id=%s',(template,))
+        self.assertIs(self._f02_preview_check(data),
+                      PreviewState.TEMPLATE_STALE_REVIEW_REQUIRED)
+
 if __name__=='__main__':
     unittest.main()
