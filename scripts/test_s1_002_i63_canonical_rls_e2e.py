@@ -90,3 +90,7 @@ try:
 finally:
  server63.shutdown();server63.server_close()
 print("I63 6/6 real GoTrue signed canonical exception RLS tests; disposable only")
+# I64: S0 indirect access audit with same authenticated GoTrue session.
+_i64=Path("scripts/test_s1_002_i64_indirect_read_e2e.py")
+exec(compile(_i64.read_text(encoding="utf-8"),str(_i64),"exec"),globals())
+

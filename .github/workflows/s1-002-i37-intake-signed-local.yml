@@ -40,6 +40,8 @@ on:
       - 'scripts/test_s1_002_i55_signed_queue_e2e.py'
       - 'scripts/test_s1_002_i62_excecao_signed_e2e.py'
       - 'scripts/test_s1_002_i63_canonical_rls_e2e.py'
+      - 'scripts/test_s1_002_i64_indirect_read_e2e.py'
+      - 'supabase/tests/s1_089_s0_indirect_read_boundary_local_only.sql'
       - 'supabase/tests/s1_087_rls_excecao_canonica_local_only.sql'
       - 'backend/s1_gateway_excecao_caso_local.py'
       - 'supabase/tests/s1_086_excecao_assinada_local_only.sql'

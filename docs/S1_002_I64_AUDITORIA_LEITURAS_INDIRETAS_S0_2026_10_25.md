@@ -22,3 +22,7 @@ A fronteira de dados do S0 aqui auditada é D2 sintético. Não existe inferênc
 `supabase/tests/s1_090_s0_indirect_read_boundary_aceite.sql` mostra a leitura indevida pré-candidato do Gestor de outra equipe e verifica após a quarentena a visibilidade para Gestor correto, a não elevação de privilégios do Consultor excepcional, a perda de acesso à revogação e o isolamento das cinco tabelas em lote, em transação `BEGIN/ROLLBACK`.
 
 A prova PostgREST usa GoTrue real e o gateway I62 assinado, na mesma stack local do I63. Evidências finais devem citar os workflows e logs após aprovação.
+
+## Verificação GoTrue adicionada
+
+O arquivo `scripts/test_s1_002_i64_indirect_read_e2e.py` é executado depois de I63 e antes da revogação da chave assinadora, com banco local e tokens reais. Ele cria um vínculo de Gestor na loja que **não** o torna supervisor do caso, documenta a leitura real pré-patch de sete superfícies, aplica a quarentena candidata e verifica que o mesmo token deixa de acessar tais dados. Também exige que o Gestor efetivamente responsável retenha apenas contatos/ciclos autorizados, que o Consultor com exceção revogada não recupere o histórico e que a revogação/restauração do grant de loja produza resultado imediato no mesmo JWT. Certificação depende dos logs de CI.
