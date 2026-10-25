@@ -83,6 +83,12 @@ revoke execute on function prumo_private.meta_wa51_parity_forensic_fixture_s0(
 revoke execute on function prumo_private.meta_wa52_locked_forensic_fixture_s0(
  uuid,text,text,text,uuid,uuid,text,text,text,text,text,text,text,bigint,uuid,text)
  from prumo_s0_meta_wa48_client_lab;
+-- WA52 originally revoked EXECUTE even from its own NOLOGIN writer role.
+-- Restore ONLY the private definer-to-definer call needed by WA55;
+-- do not grant the old route back to the synthetic client.
+grant execute on function prumo_private.meta_wa52_locked_forensic_fixture_s0(
+ uuid,text,text,text,uuid,uuid,text,text,text,text,text,text,text,bigint,uuid,text)
+ to prumo_s0_meta_wa50_writer_lab;
 revoke execute on function prumo_private.meta_arquivar_handoff_assinado_fixture_s0(
  uuid,text,text,text,uuid,uuid,text,text,text,text,text,text,text,bigint,uuid,text)
  from prumo_s0_meta_ingress_lab;
