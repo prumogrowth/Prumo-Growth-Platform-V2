@@ -3745,6 +3745,8 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
         self.assertIs(self._f02_preview_check(data,request=bogus),
                       PreviewState.TEMPLATE_STALE_REVIEW_REQUIRED)
 
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
     def test_259_posthuman_policy_is_immutable_for_local_admin(self):
         data=self._f02_preview_fixture()
         _,_,_,_,template=data

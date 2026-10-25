@@ -32,16 +32,16 @@ join public.vinculos_papel_escopo v on v.ator_id=s.user_id
  and v.valido_desde<=statement_timestamp()
  and (v.valido_ate is null or v.valido_ate>statement_timestamp())
 where s.id=%s::uuid and s.user_id=%s::uuid
-for share of s,t,v"""
+"""
 _TEMPLATE="""select c.codigo,c.versao,c.aprovado_simulacao,
  p.finalidade,p.categoria,p.versao_politica
 from public.catalogo_templates_sinteticos c
 join prumo_private.cfi01_f02_posthuman_template_policy_local p
  on p.concessionaria_id=c.concessionaria_id and p.template_id=c.id
 where c.concessionaria_id=%s::uuid and c.id=%s::uuid
-for share of c,p"""
+"""
 _TEMPLATE_EXISTS="""select 1 from public.catalogo_templates_sinteticos c
-where c.concessionaria_id=%s::uuid and c.id=%s::uuid for share of c"""
+where c.concessionaria_id=%s::uuid and c.id=%s::uuid """
 
 class PreviewState(str,Enum):
     PREVIEW_ONLY_LEGACY_C04_BLOCKED='PREVIEW_ONLY_LEGACY_C04_BLOCKED'
