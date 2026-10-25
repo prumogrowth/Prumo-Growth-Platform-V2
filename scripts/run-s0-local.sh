@@ -54,4 +54,5 @@ bash "$ROOT/scripts/test_s0_wa_041_concurrency.sh"
 # fixtures must execute before direct client EXECUTE is revoked.
 psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$ROOT/supabase/migrations/202610230054_s0_meta_single_entry_seal_fixture.sql"
 python3 "$ROOT/supabase/tests/s0_wa_059_assert_single_entry_sealed_pg17.py"
+node --test "$ROOT/supabase/tests/s0_wa_060_meta_raw_to_pg17_bridge.test.mjs"
 echo 'Teste local concluído. Não houve escrita no Supabase.'
