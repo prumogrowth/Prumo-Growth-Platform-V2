@@ -1,0 +1,70 @@
+name: LiberaCred - Validacao do frontend visual
+on:
+  push:
+    branches:
+      - feat/frontend-plataforma-visual
+    paths:
+      - "frontend/visual/**"
+      - ".github/workflows/frontend-visual-validation.yml"
+permissions:
+  contents: read
+concurrency:
+  group: fv-visual-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  native-checkout:
+    if: github.ref == 'refs/heads/feat/frontend-plataforma-visual'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout oficial, historico completo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Instalar Chromium para Playwright
+        run: |
+          python -m pip install --no-cache-dir --disable-pip-version-check 'playwright==1.55.0'
+          python -m playwright install --with-deps chromium
+      - name: Preflight Git, seguranca ZIP, Node e Chromium
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+          CI: 'true'
+        run: |
+          python -B frontend/visual/tests/run_acceptance.py \
+            --expected-head "$GITHUB_SHA" \
+            --json-report fv-native-validation/report.json
+      - name: Registrar resumo tecnico
+        if: always()
+        run: |
+          python - <<'PYREPORT'
+          import json, os
+          from pathlib import Path
+          report_path = Path('fv-native-validation/report.json')
+          output = Path(os.environ['GITHUB_STEP_SUMMARY'])
+          lines = ['## Validacao do frontend visual', '', 'Somente dados sinteticos; nenhum deploy ou envio.', '']
+          if report_path.exists():
+              report = json.loads(report_path.read_text(encoding='utf-8'))
+              lines += ['Aceite nativo: **'+('PASS' if report.get('full_acceptance') else 'NAO APROVADO')+'**', '']
+              for step in report.get('steps', []):
+                  lines.append('- '+('PASS' if step.get('passed') and step.get('executed') else 'FALHA/BLOQUEADO')+': '+step.get('name','etapa desconhecida'))
+          else:
+              lines += ['O validador nao gerou relatorio: **NAO APROVADO**. Consulte o log.']
+          output.write_text('\n'.join(lines)+'\n', encoding='utf-8')
+          PYREPORT
+      - name: Artefato JSON de diagnostico (1 dia)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fv-native-validation-${{ github.run_id }}
+          path: fv-native-validation/report.json
+          if-no-files-found: warn
+          retention-days: 1

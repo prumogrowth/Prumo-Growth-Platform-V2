@@ -164,6 +164,10 @@
 
 **[FV-UI-045 — preflight nativo do checkout e dos blobs](./74_FV_UI_045_PREFLIGHT_NATIVO_HEAD_2026_10_25.md)**: reforça a validação de revisão/branch, ancestral do manifesto, inventário exato e SHA Git/tamanho de cada arquivo antes de executar testes funcionais. Quatro cenários de regressão em Git sintético; checkout autenticado completo e homologação seguem pendentes.
 
+## FV-UI-046 — GitHub Actions para validação integrada (25/10/2026)
+
+**[FV-UI-046 — workflow de validação de interface](./75_FV_UI_046_GITHUB_ACTIONS_VALIDACAO_2026_10_25.md)**: workflow sem deploy restrito à branch experimental, com gatilho por mudança em `frontend/visual`, timeout de 15 minutos, cancelamento de runs repetidas e gate nativo de Git/ZIP/Node/Chromium. Status real da primeira execução deve ser consultado no GitHub.
+
 ## Estado do trabalho
 FV-UI-015/016: demonstrações com dados sintéticos. **NÃO** declarar integração real, Auth/RLS/GoTrue, comunicações Meta ou remessas confirmadas. FV-UI-013 não homologada formalmente; **19F 69/100** como último marco. Esta consolidação é **documentação somente**. Nenhum código, migration, branch S1, dado real ou deploy foi tocado.
 
