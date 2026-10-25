@@ -48,6 +48,17 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - uses: actions/checkout@v4
+        with:
+          ref: ebf6fe4e546f2fe990bdaefe2df25aa0cf18e74c
+          path: .s2-e04-source
+          persist-credentials: false
+      - name: Run native Node E04 F01 F02 F03 suites from pinned S2 commit
+        run: |
+          test -f .s2-e04-source/docs/integracoes/openai/e04_offline_lab/f03-commit-gate.mjs
+          node --test .s2-e04-source/docs/integracoes/openai/e04_offline_lab/tests/*.test.mjs
+      - name: Expose pinned S2 gate to S0 physical tests
+        run: echo "PRUMO_S2_F03_GATE_PATH=$GITHUB_WORKSPACE/.s2-e04-source/docs/integracoes/openai/e04_offline_lab/f03-commit-gate.mjs" >> "$GITHUB_ENV"
       - name: Install isolated PG client
         run: |
           python3 -m pip install 'psycopg[binary]>=3.2,<4'
