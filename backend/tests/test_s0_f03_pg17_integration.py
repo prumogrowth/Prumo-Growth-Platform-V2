@@ -3463,5 +3463,168 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
              str(self.message),fixture[5],fixture[6])
         self.assertEqual(tuple(vars(result)),('state',))
 
+
+    def _s2_f02_real_lifecycle(self,*,events=None):
+        """Run actual pinned S2 F02 plan lifecycle JS, not mocked Python."""
+        import json,subprocess
+        f03=os.environ['PRUMO_S2_F03_GATE_PATH']
+        root=dict(storeId=str(self.shop),personId=str(self.lead),
+                  caseId=str(self.case))
+        scope=dict(**root,authenticated=True,authorized=True,
+                   tenantAllowed=True,optOut=False,planAuthorized=True,
+                   caseVersion=1,catalogVersion=1,chainVersion=1,
+                   now='2026-11-02T18:00:00Z',handoff=True)
+        plan=dict(id='plan-f02-local',**root,purpose='post_human',
+                  ownerRoute='human',caseVersion=1,catalogVersion=1,
+                  chainVersion=1,attempts=[
+                    dict(id='a1',templateId='template-f02',
+                         templateVersion='v1',category='MARKETING',
+                         at='2026-11-02T12:00:00Z',isFinal=False)])
+        cmd=("import {pathToFileURL} from 'node:url';"
+             "import {readFileSync} from 'node:fs';"
+             "const u=new URL('./plan-lifecycle.mjs',"
+             "pathToFileURL(process.argv[1]));"
+             "const m=await import(u.href);"
+             "const v=JSON.parse(readFileSync(0,'utf8'));"
+             "console.log(JSON.stringify(m.reconcileF02Plan("
+             "v.scope,v.plan,v.events)))")
+        result=subprocess.run(['node','--input-type=module','-e',cmd,f03],
+             input=json.dumps(dict(scope=scope,plan=plan,
+                          events=[] if events is None else events)),
+             text=True,capture_output=True,timeout=12,check=True)
+        return json.loads(result.stdout)
+
+    def _f02_bridge_fixture(self,*,eligibility=True,revoked=False,optout=False,
+                            old_plan=False):
+        from backend.s0_f02_posthuman_compatibility_local import (
+            S0F02LocalPostHumanCompatibilityBridge,
+        )
+        evidence,fields,version,js=self._s2_provenance_fixture()
+        out=self._s2_evaluate_real_js(js)
+        self.assertEqual(out['status'],'S0_RECHECK_ONLY')
+        with self.pg.connect(DB) as con:
+            if eligibility:
+                con.execute('insert into '
+                    'public.evidencias_elegibilidade_sinteticas '
+                    '(concessionaria_id,lead_id,canal_id,finalidade,estado,'
+                    'referencia_ficticia) values (%s,%s,%s,%s,%s,%s)',
+                    (self.shop,self.lead,self.channel,
+                    'recontato_comercial_sintetico',
+                    'revogada' if revoked else 'verificada_simulada',
+                    'e04-only-test-eligibility'))
+            if optout:
+                con.execute('insert into public.supressoes_contato_sinteticas '
+                    '(concessionaria_id,lead_id,canal_id,finalidade,evento_origem)'
+                    ' values (%s,%s,%s,%s,%s)',
+                    (self.shop,self.lead,self.channel,
+                     'recontato_comercial_sintetico','e04-optout'))
+            if old_plan:
+                con.execute('insert into public.planos_recontato_sinteticos '
+                    '(concessionaria_id,lead_id,ciclo_id,canal_id,'
+                    'chave_idempotencia,fingerprint) values (%s,%s,%s,%s,%s,%s)',
+                    (self.shop,self.lead,self.cycle,self.channel,
+                     'e04-old-ai-plan','e04-fixture-only'))
+        bridge=S0F02LocalPostHumanCompatibilityBridge(evidence,DB)
+        return (bridge,fields,version,out,js['proposal'])
+
+    def _f02_physical_recheck(self,fixture,result,*,channel=None):
+        bridge,fields,version,output,proposal=fixture
+        return bridge.inspect('Bearer PINNED_S2_LOCAL_E04',self.binding,
+                'test-key-v1',
+                b'fixture-only-content-seal-key-more-than-32-bytes',
+                version,'request-cas-0001',fields,output,proposal,
+                result,str(channel or self.channel)).state
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_241_real_s2_f02_ready_but_s0_c04_posthuman_incompatible(self):
+        from backend.s0_f02_posthuman_compatibility_local import F02RecheckState
+        fixture=self._f02_bridge_fixture()
+        js=self._s2_f02_real_lifecycle()
+        self.assertEqual(js['status'],'READY_FOR_S0_RECHECK')
+        self.assertIs(self._f02_physical_recheck(fixture,js),
+                      F02RecheckState.LEGACY_C04_HUMAN_CASE_INCOMPATIBLE)
+        with self.pg.connect(DB) as con:
+            self.assertEqual(con.execute('select count(*) from '
+                'public.planos_recontato_sinteticos where '
+                'concessionaria_id=%s and lead_id=%s',
+                (self.shop,self.lead)).fetchone()[0],0)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_242_no_s0_contact_evidence_fails_even_if_s2_ready(self):
+        from backend.s0_f02_posthuman_compatibility_local import F02RecheckState
+        fixture=self._f02_bridge_fixture(eligibility=False)
+        self.assertIs(self._f02_physical_recheck(fixture,self._s2_f02_real_lifecycle()),
+                      F02RecheckState.C04_EVIDENCE_MISSING)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_243_revoked_consent_evidence_not_valid(self):
+        from backend.s0_f02_posthuman_compatibility_local import F02RecheckState
+        fixture=self._f02_bridge_fixture(revoked=True)
+        self.assertIs(self._f02_physical_recheck(fixture,self._s2_f02_real_lifecycle()),
+                      F02RecheckState.C04_EVIDENCE_MISSING)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_244_c04_optout_blocks_f02_proposal_regardless_of_js(self):
+        from backend.s0_f02_posthuman_compatibility_local import F02RecheckState
+        fixture=self._f02_bridge_fixture(optout=True)
+        self.assertIs(self._f02_physical_recheck(fixture,self._s2_f02_real_lifecycle()),
+                      F02RecheckState.C04_OPTOUT_BLOCK)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_245_cross_shop_or_unknown_channel_is_denied(self):
+        from backend.s0_f02_posthuman_compatibility_local import F02RecheckState
+        fixture=self._f02_bridge_fixture()
+        self.assertIs(self._f02_physical_recheck(
+            fixture,self._s2_f02_real_lifecycle(),channel=uuid.uuid4()),
+            F02RecheckState.DENIED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_246_old_ai_plan_active_blocks_posthuman_f02(self):
+        from backend.s0_f02_posthuman_compatibility_local import F02RecheckState
+        fixture=self._f02_bridge_fixture(old_plan=True)
+        self.assertIs(self._f02_physical_recheck(fixture,self._s2_f02_real_lifecycle()),
+                      F02RecheckState.OLD_AI_PLAN_ACTIVE)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_247_queued_s2_transport_is_never_send_grant(self):
+        from backend.s0_f02_posthuman_compatibility_local import F02RecheckState
+        fixture=self._f02_bridge_fixture()
+        result=self._s2_f02_real_lifecycle(events=[dict(
+            eventId='evt-f02-1',sequence=1,
+            storeId=str(self.shop),personId=str(self.lead),
+            caseId=str(self.case),planId='plan-f02-local',
+            attemptId='a1',kind='QUEUED',verified=True)])
+        self.assertEqual(result,{'status':'AWAITING_META_PROOF'})
+        self.assertIs(self._f02_physical_recheck(fixture,result),
+                      F02RecheckState.DENIED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_248_invented_f02_send_permission_rejected(self):
+        from backend.s0_f02_posthuman_compatibility_local import F02RecheckState
+        fixture=self._f02_bridge_fixture()
+        result={**self._s2_f02_real_lifecycle(),'sendNow':True}
+        self.assertIs(self._f02_physical_recheck(fixture,result),
+                      F02RecheckState.DENIED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_249_wrong_s0_authorization_does_not_admit_f02(self):
+        from backend.s0_f02_posthuman_compatibility_local import F02RecheckState
+        fixture=self._f02_bridge_fixture()
+        result=self._s2_f02_real_lifecycle()
+        bridge,fields,version,output,proposal=fixture
+        self.assertIs(bridge.inspect('Bearer OTHER',self.binding,'test-key-v1',
+           b'fixture-only-content-seal-key-more-than-32-bytes',
+           version,'request-cas-0001',fields,output,proposal,
+           result,str(self.channel)).state,F02RecheckState.STALE_REVIEW_REQUIRED)
+
 if __name__=='__main__':
     unittest.main()
