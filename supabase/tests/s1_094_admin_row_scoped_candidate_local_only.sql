@@ -4,7 +4,7 @@
 -- Legacy I64 restrictive quarantine is replaced IN-PLACE on 3 tables.
 do $pre$
 begin
- if pg_catalog.current_user<>'postgres'
+ if current_user<>'postgres'
  or (select count(*) from pg_catalog.pg_policies
      where schemaname='public' and policyname like 's1_64_%')<>7
  or (select count(*) from pg_catalog.pg_policies
