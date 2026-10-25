@@ -16,7 +16,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  compare-i27-i28:
+  compare-i29-i30:
     name: EXP unit + I29/I30 E2E in fresh disposable stacks
     runs-on: ubuntu-latest
     timeout-minutes: 18
