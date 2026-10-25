@@ -3329,7 +3329,6 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
     @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
                          'requires pinned S2 JS in CI')
     def test_229_expired_retention_cannot_be_registered(self):
-        fixture_not_saved=self._media_attestation_fixture(record=False)
         with self.assertRaises(self.pg.Error) as error:
             self._media_attestation_fixture(days=-1)
         self.assertEqual(error.exception.sqlstate,'23514')
@@ -3388,10 +3387,10 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
         from backend.s0_f03_crossfront_evidence_local import (
             EvidenceState,S0F03LocalEvidenceReviewBridge,
         )
+        from backend.s0_f03_media_attestation_local import MediaAttestationState
         fixture=self._media_attestation_fixture()
         self.assertIs(self._media_check(fixture),
-                      __import__('backend.s0_f03_media_attestation_local',fromlist=[
-                        'MediaAttestationState']).MediaAttestationState.MEDIA_DIGEST_REVIEW_ONLY)
+                      MediaAttestationState.MEDIA_DIGEST_REVIEW_ONLY)
         _,base,fields,vector,output,_,_=fixture
         self.assertIs(self._s2_evidence_review(
             S0F03LocalEvidenceReviewBridge(base),fields,vector,output,
@@ -3403,7 +3402,6 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
     @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
                          'requires pinned S2 JS in CI')
     def test_235_image_fixture_refused_for_media_receipt(self):
-        fixture=self._media_attestation_fixture(record=False)
         with self.assertRaises(self.pg.Error) as error:
             self._media_attestation_fixture()
         self.assertEqual(error.exception.sqlstate,'42501')
