@@ -102,3 +102,6 @@ assert sql("select pg_catalog.has_schema_privilege('authenticated',"
  "'prumo_s1_interface','USAGE')")=="f"
 print("PASS I69-E2E-09: no elevated definer/view exposure, legacy I66 cut remains")
 print("I69 9/9 real GoTrue bounded export E2E; ephemeral only")
+_i70=Path("scripts/test_s1_002_i70_quota_e2e.py")
+exec(compile(_i70.read_text(encoding="utf-8"),str(_i70),"exec"),globals())
+
