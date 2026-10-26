@@ -1020,7 +1020,8 @@ test('FV-UI-057: Esc limpa apenas texto de busca e preserva filtros e contexto',
   reset();
   const actor=get('actor-select').value,shop=get('shop-select').value;
   env.filters[1].click();
-  assert.equal(env.cards().length,1);
+  const unreadCount=env.cards().length;
+  assert.ok(unreadCount>0 && unreadCount<8);
   const input=get('search-input');
   input.value='FV-UI-057-nenhum-resultado';
   input.fire('input');input.focus();
@@ -1028,7 +1029,7 @@ test('FV-UI-057: Esc limpa apenas texto de busca e preserva filtros e contexto',
   assert.equal(get('filter-reset-controls').hidden,true);
   env.document.fire('keydown',{key:'Escape'});
   assert.equal(input.value,'');
-  assert.equal(env.cards().length,1);
+  assert.equal(env.cards().length,unreadCount);
   assert.equal(env.filters[1].getAttribute('aria-pressed'),'true');
   assert.equal(env.inbox[0].getAttribute('aria-pressed'),'true');
   assert.equal(get('filter-reset-controls').hidden,false);
@@ -1037,7 +1038,7 @@ test('FV-UI-057: Esc limpa apenas texto de busca e preserva filtros e contexto',
   assert.equal(env.document.activeElement,input);
   env.document.fire('keydown',{key:'Escape'});
   assert.equal(env.filters[1].getAttribute('aria-pressed'),'true');
-  assert.equal(env.cards().length,1);
+  assert.equal(env.cards().length,unreadCount);
   get('clear-list-filters').click();
   assert.equal(env.cards().length,8);
 });

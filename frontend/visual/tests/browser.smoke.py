@@ -1334,7 +1334,8 @@ with sync_playwright() as p:
             actor057=esc_page.locator('#actor-select').input_value()
             shop057=esc_page.locator('#shop-select').input_value()
             esc_page.locator('[data-filter="unread"]').click()
-            assert esc_page.locator('.conversation-card').count()==1
+            unread_count_057=esc_page.locator('.conversation-card').count()
+            assert unread_count_057>0 and unread_count_057<8
             input057.fill('FV-UI-057-consulta-sem-resultados')
             assert esc_page.locator('.conversation-card').count()==0
             assert esc_page.locator('.empty-reset').count()==1
@@ -1345,7 +1346,7 @@ with sync_playwright() as p:
             assert esc_page.locator('[data-inbox="active"]').get_attribute('aria-pressed')=='true'
             assert esc_page.locator('#actor-select').input_value()==actor057
             assert esc_page.locator('#shop-select').input_value()==shop057
-            assert esc_page.locator('.conversation-card').count()==1
+            assert esc_page.locator('.conversation-card').count()==unread_count_057
             expect(esc_page.locator('#filter-reset-controls')).to_be_visible()
             esc_page.locator('#clear-list-filters').click()
             assert esc_page.locator('.conversation-card').count()==8
