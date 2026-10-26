@@ -159,6 +159,16 @@ class Tests(unittest.TestCase):
         self.assertFalse(any(hasattr(prepare_handoff, name) for name in (
             "approve", "schedule", "send", "execute", "persist")))
 
+    def test_21_template_version_strict_format(self):
+        e, p = fixtures()
+        self.assertIs(prepare_handoff(e, p).status,
+                      HandoffState.HANDOFF_REVIEW_ONLY)
+        for bad in ("v", "VERSION_1", "v-1", "v1.0", "v" + "1" * 20):
+            with self.subTest(template_version=bad):
+                self.assertIs(prepare_handoff(
+                    e, replace(p, template_version=bad)).status,
+                    HandoffState.DENIED_MALFORMED)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -32,6 +32,7 @@ REQUEST_ONLY = "REQUEST_S0_HUMAN_RATIFICATION_ONLY"
 _HEX = re.compile(r"[0-9a-f]{64}\Z", re.ASCII)
 _KEY = re.compile(r"[A-Za-z0-9._:-]{8,128}\Z", re.ASCII)
 _VERSION = re.compile(r"[A-Za-z0-9._:-]{4,80}\Z", re.ASCII)
+_TEMPLATE_VERSION = re.compile(r"v[0-9]{1,10}\Z", re.ASCII)
 
 
 class HandoffState(str, Enum):
@@ -124,7 +125,7 @@ def prepare_handoff(
         evidence.human_intent_sha256,
     )):
         return denied
-    if (not _match(_VERSION, proposal.template_version)
+    if (not _match(_TEMPLATE_VERSION, proposal.template_version)
         or not _match(_VERSION, proposal.policy_version)
         or not _match(_KEY, proposal.idempotency_key)
         or type(proposal.proposed_at) is not datetime
