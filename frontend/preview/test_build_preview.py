@@ -31,7 +31,7 @@ class ShareableDemoTests(unittest.TestCase):
                 self.assertEqual(len(names), len(set(names)))
                 self.assertEqual(set(names), set(assets) | {
                     "robots.txt", "_headers", "PREVIEW_BUILD_MANIFEST.json"})
-                self.assertFalse(any("..", "/" in name or "\\" in name for name in names))
+                self.assertFalse(any(".." in name or "/" in name or "\\" in name for name in names))
                 for name, data in assets.items():
                     self.assertEqual(zipfile.read(name), data)
                 self.assertIn(b"Disallow: /", zipfile.read("robots.txt"))
