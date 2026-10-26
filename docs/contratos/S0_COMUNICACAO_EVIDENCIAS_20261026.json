@@ -1,0 +1,143 @@
+{
+  "date": "2026-10-26",
+  "scope": "offline structural compatibility, not authenticated integration",
+  "local": {
+    "python_tests": 58,
+    "new_compatibility_tests": 20,
+    "status": "success",
+    "node_version": "v24.19.0",
+    "ci_node_version": "22",
+    "log": [
+      "test_01_authenticated_subject_from_gotrue_not_user_metadata (test_identity_boundary.IdentityBoundaryTests.test_01_authenticated_subject_from_gotrue_not_user_metadata) ... ok",
+      "test_02_token_subject_must_match_verified_user (test_identity_boundary.IdentityBoundaryTests.test_02_token_subject_must_match_verified_user) ... ok",
+      "test_03_missing_session_denied (test_identity_boundary.IdentityBoundaryTests.test_03_missing_session_denied) ... ok",
+      "test_03b_malformed_base64_after_gotrue_is_denied_not_500 (test_identity_boundary.IdentityBoundaryTests.test_03b_malformed_base64_after_gotrue_is_denied_not_500) ... ok",
+      "test_04_auth_origin_cannot_be_untrusted_http_or_path (test_identity_boundary.IdentityBoundaryTests.test_04_auth_origin_cannot_be_untrusted_http_or_path) ... ok",
+      "test_05_invalid_bearer_fails_closed (test_identity_boundary.IdentityBoundaryTests.test_05_invalid_bearer_fails_closed) ... ok",
+      "test_06_allowlist_rejects_arbitrary_actor_and_sql (test_identity_boundary.IdentityBoundaryTests.test_06_allowlist_rejects_arbitrary_actor_and_sql) ... ok",
+      "test_07_only_verified_actor_reaches_database (test_identity_boundary.IdentityBoundaryTests.test_07_only_verified_actor_reaches_database) ... ok",
+      "test_08_reconciliation_exact_validation (test_identity_boundary.IdentityBoundaryTests.test_08_reconciliation_exact_validation) ... ok",
+      "test_09_privileged_database_cannot_point_remote (test_identity_boundary.IdentityBoundaryTests.test_09_privileged_database_cannot_point_remote) ... ok",
+      "test_10_active_session_checked_and_sql_is_parameterized (test_identity_boundary.IdentityBoundaryTests.test_10_active_session_checked_and_sql_is_parameterized) ... ok",
+      "test_11_revoked_session_prevents_write (test_identity_boundary.IdentityBoundaryTests.test_11_revoked_session_prevents_write) ... ok",
+      "test_12_auth_outage_cannot_write_to_database (test_identity_boundary.IdentityBoundaryTests.test_12_auth_outage_cannot_write_to_database) ... ok",
+      "test_13_restricted_gateway_disallows_admin_or_remote_login (test_identity_boundary.LeastPrivilegeGatewayTests.test_13_restricted_gateway_disallows_admin_or_remote_login) ... ok",
+      "test_14_gateway_queries_only_whitelisted_wrappers_with_session (test_identity_boundary.LeastPrivilegeGatewayTests.test_14_gateway_queries_only_whitelisted_wrappers_with_session) ... ok",
+      "test_14b_requires_second_key_distinct_from_sql_password (test_identity_boundary.LeastPrivilegeGatewayTests.test_14b_requires_second_key_distinct_from_sql_password) ... ok",
+      "test_14c_exact_signature_binds_decision_text_and_target (test_identity_boundary.LeastPrivilegeGatewayTests.test_14c_exact_signature_binds_decision_text_and_target) ... ok",
+      "test_15_gateway_fails_if_set_role_is_not_allowed (test_identity_boundary.LeastPrivilegeGatewayTests.test_15_gateway_fails_if_set_role_is_not_allowed) ... ok",
+      "test_empty_valid_grants_still_require_case_scoped_authority (test_operator_distribution_policy.MalformedSnapshotTests.test_empty_valid_grants_still_require_case_scoped_authority) ... ok",
+      "test_malformed_candidate_cannot_request_exception_or_standard_path (test_operator_distribution_policy.MalformedSnapshotTests.test_malformed_candidate_cannot_request_exception_or_standard_path) ... ok",
+      "test_malformed_case_identity_is_denied_on_both_paths (test_operator_distribution_policy.MalformedSnapshotTests.test_malformed_case_identity_is_denied_on_both_paths) ... ok",
+      "test_mixed_candidate_ids_are_denied_without_sort_failure (test_operator_distribution_policy.MalformedSnapshotTests.test_mixed_candidate_ids_are_denied_without_sort_failure) ... ok",
+      "test_completed_case_is_never_moved_automatically (test_operator_distribution_policy.SelectivePauseContractTests.test_completed_case_is_never_moved_automatically) ... ok",
+      "test_manual_transfer_of_closed_case_is_denied (test_operator_distribution_policy.SelectivePauseContractTests.test_manual_transfer_of_closed_case_is_denied) ... ok",
+      "test_manual_transfer_with_valid_shop_grant_is_not_automatic_authorization (test_operator_distribution_policy.SelectivePauseContractTests.test_manual_transfer_with_valid_shop_grant_is_not_automatic_authorization) ... ok",
+      "test_manual_transfer_without_shop_grant_requires_case_specific_exception (test_operator_distribution_policy.SelectivePauseContractTests.test_manual_transfer_without_shop_grant_requires_case_specific_exception) ... ok",
+      "test_no_grant_provision_and_no_input_mutation (test_operator_distribution_policy.SelectivePauseContractTests.test_no_grant_provision_and_no_input_mutation) ... ok",
+      "test_started_contact_is_preserved (test_operator_distribution_policy.SelectivePauseContractTests.test_started_contact_is_preserved) ... ok",
+      "test_unauthorized_or_stale_case_snapshot_fails_closed (test_operator_distribution_policy.SelectivePauseContractTests.test_unauthorized_or_stale_case_snapshot_fails_closed) ... ok",
+      "test_unknown_human_contact_is_not_reassigned (test_operator_distribution_policy.SelectivePauseContractTests.test_unknown_human_contact_is_not_reassigned) ... ok",
+      "test_unstarted_lead_proposes_authorized_same_team_recipient (test_operator_distribution_policy.SelectivePauseContractTests.test_unstarted_lead_proposes_authorized_same_team_recipient) ... ok",
+      "test_without_same_team_shop_grant_lead_stays_with_paused_operator (test_operator_distribution_policy.SelectivePauseContractTests.test_without_same_team_shop_grant_lead_stays_with_paused_operator) ... ok",
+      "test_only_technical_state_leaves_projection (test_s0_communication_contract.CompletionProjectionTests.test_only_technical_state_leaves_projection) ... ok",
+      "test_original_capture_field_allowlist_is_unchanged (test_s0_communication_contract.CompletionProjectionTests.test_original_capture_field_allowlist_is_unchanged) ... ok",
+      "test_field_mismatch_duplicate_unknown_value_and_effect_claim_blocked (test_s0_communication_contract.CrossFrontExecutionTests.test_field_mismatch_duplicate_unknown_value_and_effect_claim_blocked) ... ok",
+      "test_real_frontend_has_no_cfi_command_and_rejects_candidate_projection (test_s0_communication_contract.CrossFrontExecutionTests.test_real_frontend_has_no_cfi_command_and_rejects_candidate_projection) ... ok",
+      "test_real_s2_output_is_accepted_by_original_pr1_parser_and_adapter (test_s0_communication_contract.CrossFrontExecutionTests.test_real_s2_output_is_accepted_by_original_pr1_parser_and_adapter) ... ok",
+      "test_real_s2_revocation_and_stale_are_never_promoted (test_s0_communication_contract.CrossFrontExecutionTests.test_real_s2_revocation_and_stale_are_never_promoted) ... ok",
+      "test_real_ui_claimed_applied_still_is_not_verified_effect (test_s0_communication_contract.CrossFrontExecutionTests.test_real_ui_claimed_applied_still_is_not_verified_effect) ... ok",
+      "test_receipt_hash_is_not_metadata_seal_hash (test_s0_communication_contract.CrossFrontExecutionTests.test_receipt_hash_is_not_metadata_seal_hash) ... ok",
+      "test_s1_export_parser_does_not_accept_cfi_payload_or_browser_authority (test_s0_communication_contract.CrossFrontExecutionTests.test_s1_export_parser_does_not_accept_cfi_payload_or_browser_authority) ... ok",
+      "test_case_version_is_not_converted_to_cycle_version (test_s0_communication_contract.PhysicalRequestTests.test_case_version_is_not_converted_to_cycle_version) ... ok",
+      "test_direct_dto_construction_is_revalidated (test_s0_communication_contract.PhysicalRequestTests.test_direct_dto_construction_is_revalidated) ... ok",
+      "test_json_safe_integer_guard_preserves_native_pg_version (test_s0_communication_contract.PhysicalRequestTests.test_json_safe_integer_guard_preserves_native_pg_version) ... ok",
+      "test_payload_roundtrips_into_actual_s0_validator (test_s0_communication_contract.PhysicalRequestTests.test_payload_roundtrips_into_actual_s0_validator) ... ok",
+      "test_rejects_identity_authority_and_alias_injection (test_s0_communication_contract.PhysicalRequestTests.test_rejects_identity_authority_and_alias_injection) ... ok",
+      "test_type_range_and_no_silent_coercion (test_s0_communication_contract.PhysicalRequestTests.test_type_range_and_no_silent_coercion) ... ok",
+      "test_every_fixture_matches_original_git_blob_and_digest (test_s0_communication_contract.PinnedSourceIntegrityTests.test_every_fixture_matches_original_git_blob_and_digest) ... ok",
+      "test_every_metadata_dimension_invalidates_recheck (test_s0_communication_contract.ReceiptCompatibilityTests.test_every_metadata_dimension_invalidates_recheck) ... ok",
+      "test_matches_actual_atomic_receipt_field_names (test_s0_communication_contract.ReceiptCompatibilityTests.test_matches_actual_atomic_receipt_field_names) ... ok",
+      "test_no_uuid_watermark_to_numeric_sequence_coercion (test_s0_communication_contract.ReceiptCompatibilityTests.test_no_uuid_watermark_to_numeric_sequence_coercion) ... ok",
+      "test_receipt_rejects_hidden_authority_extras_and_boolean_counts (test_s0_communication_contract.ReceiptCompatibilityTests.test_receipt_rejects_hidden_authority_extras_and_boolean_counts) ... ok",
+      "test_01_denied_goes_to_low_sensitivity_record (test_security_events.DenialSecurityEventTests.test_01_denied_goes_to_low_sensitivity_record) ... ok",
+      "test_02_unknown_operation_never_logged_raw (test_security_events.DenialSecurityEventTests.test_02_unknown_operation_never_logged_raw) ... ok",
+      "test_03_auth_outage_classified_without_exception_body (test_security_events.DenialSecurityEventTests.test_03_auth_outage_classified_without_exception_body) ... ok",
+      "test_04_event_sink_down_does_not_turn_denial_into_success (test_security_events.DenialSecurityEventTests.test_04_event_sink_down_does_not_turn_denial_into_success) ... ok",
+      "test_05_invalid_log_category_rejected (test_security_events.DenialSecurityEventTests.test_05_invalid_log_category_rejected) ... ok",
+      "test_06_unknown_command_name_is_scrubbed_directly (test_security_events.DenialSecurityEventTests.test_06_unknown_command_name_is_scrubbed_directly) ... ok",
+      "",
+      "----------------------------------------------------------------------",
+      "Ran 58 tests in 0.272s",
+      "",
+      "OK"
+    ]
+  },
+  "ci": {
+    "state": "pending"
+  },
+  "pinned_sources": [
+    {
+      "commit": "948891714f632adb6179cf3a11f362a6eb914f91",
+      "path": "backend/s0_human_closure_event_local.py",
+      "fixture": "s0_closure.py",
+      "git_blob_sha": "0286a566d950ae85daeaef41c740110c03b5634f",
+      "sha256": "0843f1e305209196fddb9ec919d8d277d44c55d28804e9461ccbb89ed5a17d77"
+    },
+    {
+      "commit": "948891714f632adb6179cf3a11f362a6eb914f91",
+      "path": "backend/s0_cfi01_atomic_commands_local.py",
+      "fixture": "s0_atomic.py",
+      "git_blob_sha": "0b3fefface7c0219a9742e1db49f08eb39c7f009",
+      "sha256": "3f08a0c6ad62bf36be37e5c4432f07861082a2255cfe22a46635d5efe6df3611"
+    },
+    {
+      "commit": "948891714f632adb6179cf3a11f362a6eb914f91",
+      "path": "backend/s0_cfi01_authenticated_commands_local.py",
+      "fixture": "s0_authenticated.py",
+      "git_blob_sha": "d68d4fd59c9f94b3a3add56846aefc16a1a8e1ca",
+      "sha256": "1071ccdc7471babd79ef9ea1af3aa3b41678dfaa428a3500bf67d9fd8d29a8ad"
+    },
+    {
+      "commit": "84c8eba8c92054458ff224cc781a2e368710319c",
+      "path": "backend/s1_gateway_export_local.py",
+      "fixture": "s1_export.py",
+      "git_blob_sha": "cb9fb9cf541308fdec1c5c21f6ee02a7a6675145",
+      "sha256": "8c26239be438d12fc06b5be78e2da5e52c8e5104c840648f5731f9ee262147d2"
+    },
+    {
+      "commit": "6d245d11e23bb3b0918d8594e87d242f2fbad815",
+      "path": "frontend/visual/s0-command-result.mjs",
+      "fixture": "fv_command.mjs",
+      "git_blob_sha": "044cfb95fee6eb8916dadf7de6f77aecdd3d2471",
+      "sha256": "b301248fbd551912d496622a44c4f2ed19278539601a59a747755150557a0644"
+    },
+    {
+      "commit": "ebf6fe4e546f2fe990bdaefe2df25aa0cf18e74c",
+      "path": "docs/integracoes/openai/e04_offline_lab/f03-commit-gate.mjs",
+      "fixture": "s2_f03.mjs",
+      "git_blob_sha": "13b60983b824bcbe145eb708d8b503e10aa45ba9",
+      "sha256": "8a10c6451521f5d709d4c0db17019ee5b263ed72903928672405a140cefb3066"
+    },
+    {
+      "commit": "631d8eca3a5ba93c1d7ce40f1a9eb555071b7104",
+      "path": "backend/s0_f03_crossfront_contract_local.py",
+      "fixture": "oai_crossfront.py",
+      "git_blob_sha": "e321aa57d4ce32b1afa4920b4adc01d2239a65ab",
+      "sha256": "66528739c5a9fcce8c47267d56a244977bde3684c86acd41fd60229d63688ff9"
+    },
+    {
+      "commit": "631d8eca3a5ba93c1d7ce40f1a9eb555071b7104",
+      "path": "backend/s0_f03_operational_contracts_local.py",
+      "fixture": "oai_fields.py",
+      "git_blob_sha": "44dca67a89a6fef21944500d704ee1af1cd801e8",
+      "sha256": "1538127ba27942decaceeb1bb91a12e58deacac8233579a4a93ebdbf00161a5e"
+    }
+  ],
+  "not_executed": [
+    "GoTrue real in new adapters",
+    "S1 transactional authorization from new module",
+    "external Meta/OpenAI",
+    "production field writes"
+  ]
+}
