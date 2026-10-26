@@ -1,0 +1,21 @@
+--- a/supabase/migrations/202610230047_s0_meta_shadow_non_superuser_fixture.sql
++++ b/supabase/migrations/202610230047_s0_meta_shadow_non_superuser_fixture.sql
+@@ -1,3 +1,12 @@
++begin;
++do $s0_meta_install_guard$
++begin
++ if current_user <> 'postgres' or session_user <> 'postgres'
++    or current_database() <> 'prumo_s0_test_ci'
++    or current_setting('server_version_num')::int / 10000 <> 17
++ then raise exception 'S0_META_DISPOSABLE_INSTALL_ONLY' using errcode='42501';
++ end if;
++end $s0_meta_install_guard$;
+ -- WA48/S0-047: offline PostgreSQL 17 shadow M2M, no hosted deployment.
+ -- Additive: WA39-47 production-ineligible contracts remain untouched.
+ do $wa48$
+@@ -155,3 +164,5 @@
+ revoke all on function prumo_private.meta_wa48_shadow_revoke_fixture_s0(uuid)
+  from public,anon,authenticated,service_role,
+  prumo_s0_meta_wa48_client_lab,prumo_s0_meta_wa48_executor_lab;
++
++commit;

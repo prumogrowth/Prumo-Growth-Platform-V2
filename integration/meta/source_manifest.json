@@ -1,0 +1,306 @@
+{
+  "meta_head": "04c2a355bf8ab5765855f82ab3de2062e2d5bd67",
+  "meta_code": "cb4b27f2ec3ea77c0f8305c3c87387bddc5c7d6d",
+  "s0_checkpoint": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+  "common_base": "75095fe9b6050c704df37c663bb92595bc6513b6",
+  "files": [
+    {
+      "path": "scripts/run-s0-local.sh",
+      "sha256": "02fd739441d583751c292ea812d1621f8207e532ca4b77a224ee880649f46f68",
+      "blob": "0e21c28fd9703aa45a7f4b02c2f540bf33f13b3e"
+    },
+    {
+      "path": "supabase/migrations/202610230043_s0_meta_status_forense_fixture.sql",
+      "sha256": "9a04eea014daa8365b02f9dcdd95b53b19a1432f7eb1dc409fe2511075ddf368",
+      "blob": "6d50fa91d2ac90eb7758a6f10f2f68471800a1da"
+    },
+    {
+      "path": "supabase/migrations/202610230044_s0_meta_handoff_assinado_fixture.sql",
+      "sha256": "7fa2095249cb10aaa6b13eed5d792733a6f10e0227e0bc6f20c28ba36c5d3511",
+      "blob": "823ef5653fbb23a388fb3da4aa90ce8715bb2952"
+    },
+    {
+      "path": "supabase/migrations/202610230045_s0_meta_isolar_verificador_fixture.sql",
+      "sha256": "6b1881b6061d1e34e6898e8e836128895b49f3ee255a36235d90b339c054dfcc",
+      "blob": "7b8318d475ff3de9d0cd7f97e486457d00b89990"
+    },
+    {
+      "path": "supabase/migrations/202610230046_s0_meta_key_revocation_lock_fixture.sql",
+      "sha256": "238ef4c0c74e8b7585c422390dc08e868371bd2d8c717f23df4e045b2c9bc1d4",
+      "blob": "b8f802dca1500cbe3eab4c9725647d22fca33b71"
+    },
+    {
+      "path": "supabase/migrations/202610230047_s0_meta_shadow_non_superuser_fixture.sql",
+      "sha256": "64deb9d1e75a04b302d81314f16b8ee4268887b1907c13f21dffd5bd1072cf56",
+      "blob": "3e9ab9fa5e55504058fdd83fd871dbb2357587df"
+    },
+    {
+      "path": "supabase/migrations/202610230048_s0_meta_scoped_non_superuser_fixture.sql",
+      "sha256": "6934ea16d0330bb274cd2f263feb86d77b7ec8aabdcee92ce41c9fa311a22da5",
+      "blob": "942acbf5fea1c8ec4835889c44177ad4675c0d35"
+    },
+    {
+      "path": "supabase/migrations/202610230049_s0_meta_restricted_authoritative_forensic_fixture.sql",
+      "sha256": "1886750aa738a6bf69e7105e4b4b5143c5568ba11474b07ee1ae7e17e36d47ee",
+      "blob": "d4c355e277a5e21a14eb6259ef1ae6f860c7eb66"
+    },
+    {
+      "path": "supabase/migrations/202610230050_s0_meta_forensic_conflict_parity_fixture.sql",
+      "sha256": "75a865e9012c8a69c6104fc079ca569f285af32b6f0f0fec344e7e526fbd3f88",
+      "blob": "b5a275b62d55146852cd2747f5c9f20d4bdf108a"
+    },
+    {
+      "path": "supabase/migrations/202610230051_s0_meta_outbox_lock_cancel_race_fixture.sql",
+      "sha256": "562f558c42dafe966f1d97684556f59f32e45a31b1eae8ef427493c718a0ad58",
+      "blob": "9578a0daa1f1148680712d7f5c028492be649cbb"
+    },
+    {
+      "path": "supabase/migrations/202610230052_s0_meta_lock_order_repair_fixture.sql",
+      "sha256": "3af6de3a25673b77fc9a6a69e03668a5acd2c931c7e65ab89695cd849f5b6c4a",
+      "blob": "0722ae5c30d299820bf563d80d9b8245dbb7a88f"
+    },
+    {
+      "path": "supabase/migrations/202610230053_s0_meta_wa40_lock_order_fixture.sql",
+      "sha256": "baaabd159dd7bdfa779681c7ea552bd2ee59b427532f16f6e861d11fc13ee24c",
+      "blob": "70aebbc2059b7a5ccb4e1c806d0524dbc98dfee9"
+    },
+    {
+      "path": "supabase/migrations/202610230054_s0_meta_single_entry_seal_fixture.sql",
+      "sha256": "92d1be305e333dde2dc00e247e3e129537c78c68a40a09cf4e01b08449ed6f4b",
+      "blob": "ebad8f3a12c0cb5c5b8988424b2cd996d391ea69"
+    },
+    {
+      "path": "supabase/tests/s0_wa_043_status_forense_fixture.sql",
+      "sha256": "7c26ec3201a77cfac5226454b44a46642b600a2a80421d914a5f8f7c626ab132",
+      "blob": "b41f36a4aa273e18d24cd931f68856d129fb7e4b"
+    },
+    {
+      "path": "supabase/tests/s0_wa_044_assert_meta_handoff_pg17.py",
+      "sha256": "56d3e8cdd3a146792732bbd9b2cd4dfd41193c642cbacdd5bffb89d35d8e6585",
+      "blob": "9826118722f6d5503d6f21c09697890c6b31f168"
+    },
+    {
+      "path": "supabase/tests/s0_wa_044_meta_handoff_setup.sql",
+      "sha256": "829c75012046abfdade03105a6ad0ec600d354b8f0f119d00602ca8a1fec96e3",
+      "blob": "160dd46c6a66e9ff8e9f7582fba7096d148a6712"
+    },
+    {
+      "path": "supabase/tests/s0_wa_045_meta_signer_privilegios.sql",
+      "sha256": "8fed06e5559e6d738dd8482dab44842eba5e0fc8c3e4e9dda46d7ed7c1829e2f",
+      "blob": "475785595a6ba6016607e859c7175afc2f65a15d"
+    },
+    {
+      "path": "supabase/tests/s0_wa_046_assert_key_revocation_race_pg17.py",
+      "sha256": "7c931d837ca5ee48deef65b22017b102f1f97b4815f87363a489798e92a36d62",
+      "blob": "4b14f168593b97de29fb10b2f1118ec66b637098"
+    },
+    {
+      "path": "supabase/tests/s0_wa_046_meta_revocation_contract.sql",
+      "sha256": "48e3a96f6ceaf9a9f9678e9a4c4e03a7135f6f0676f203ee82fad88631e6f7e9",
+      "blob": "b02fd3f8f93b4ef299e9051115232d3e3a1b5570"
+    },
+    {
+      "path": "supabase/tests/s0_wa_047_assert_handoff_canonical_pg17.py",
+      "sha256": "c60c201decb209a6efa37ea2d781035b4b7e8506fc1632558e47c7414eac582c",
+      "blob": "98e7028354e270434cb318fdfdabe6f843c2c44e"
+    },
+    {
+      "path": "supabase/tests/s0_wa_048_meta_handoff_adapter.mjs",
+      "sha256": "8098a534c697f0b925051f1c543517565e501c1a4e4d74299bf6ae91521490fe",
+      "blob": "84833f538d4c6e63698c2d65958a41519522468c"
+    },
+    {
+      "path": "supabase/tests/s0_wa_048_meta_handoff_adapter.test.mjs",
+      "sha256": "94ebb77925e575d62f4c2b8677712cc51146a399b84e0681740b00f868e75934",
+      "blob": "16b650b5e699fbf0741a904acfb96982d18e6046"
+    },
+    {
+      "path": "supabase/tests/s0_wa_049_meta_trusted_boundary.mjs",
+      "sha256": "35ad2fec8feeaff42141577ebd503dabae2c832501d796560f84515d3aeeefc8",
+      "blob": "c3b73cbcf9a6cdbea0ce71afd01ee7ceb5bc6c2f"
+    },
+    {
+      "path": "supabase/tests/s0_wa_049_meta_trusted_boundary.test.mjs",
+      "sha256": "e0564914fc380603d6152a629b1b4d7af14891511aff425de534128c9606c319",
+      "blob": "2b1d03fe277206d2094113368b9ea7344f8a82e5"
+    },
+    {
+      "path": "supabase/tests/s0_wa_050_meta_raw_hmac_gate.mjs",
+      "sha256": "703d96bfabba37550b5a73edc884fc7fd318dc628da3c0d79d328eff15a36d39",
+      "blob": "11b57f229f24810c92f5ee010045cb5945b7370b"
+    },
+    {
+      "path": "supabase/tests/s0_wa_050_meta_raw_hmac_gate.test.mjs",
+      "sha256": "56596fe116bc731e0e939c195a85ec17c9506c2d8c3e8905c930488698733f82",
+      "blob": "f5c63095fd1e9fea7783565eff9c258e674e8438"
+    },
+    {
+      "path": "supabase/tests/s0_wa_051_dual_wire_agreement.mjs",
+      "sha256": "60a6790d402d0af2a3d446ff4791845f28ee9ca41f610216a812dc3f69d0c424",
+      "blob": "e4a3ff8dc6ddbfa3c1d8171644212f23704dd69b"
+    },
+    {
+      "path": "supabase/tests/s0_wa_051_dual_wire_agreement.test.mjs",
+      "sha256": "e1a9d85ad4b39ff77e49d55cdb468d3f3f7ae1df4a9657f9ba6be568c5469366",
+      "blob": "f5c71fade0740ddec6c352123fd8a4511c647bec"
+    },
+    {
+      "path": "supabase/tests/s0_wa_052_assert_non_superuser_pg17.py",
+      "sha256": "b615674d2a6aed1485c0566b520ca7128b695ff701f8f370a4e2d8127817794b",
+      "blob": "833cc4d122754d2a4416fb5bb5cf98c808197e3d"
+    },
+    {
+      "path": "supabase/tests/s0_wa_053_assert_authoritative_scope_pg17.py",
+      "sha256": "84d68a9f5e7a02cf782c2aedf18b715c535597e6ace1f3794cdf6c0bde8572b3",
+      "blob": "9e4a64b911d6197e0f80f5d7c8434e2b2ce17e85"
+    },
+    {
+      "path": "supabase/tests/s0_wa_054_assert_restricted_forensic_pg17.py",
+      "sha256": "99c9c5ebf0beb1229f113dfdd466de0088527394fa562589a4a04c46842770bb",
+      "blob": "f37208c82fdef735316db5619418ddf23f5f6db6"
+    },
+    {
+      "path": "supabase/tests/s0_wa_055_assert_forensic_parity_pg17.py",
+      "sha256": "c8d768d6b4019985e7931900247a65a5aa0c5bc0d35e295acef81a9368e0edcf",
+      "blob": "68cddf08decd7ca0989a10e13356d81440c74c6e"
+    },
+    {
+      "path": "supabase/tests/s0_wa_056_assert_outbox_cancel_race_pg17.py",
+      "sha256": "122b110e613fe03991eea06b3806b0ecf1958ade74a609d5469ed8147c78daed",
+      "blob": "648206f669b7e9efac031bb69535a704699f5b64"
+    },
+    {
+      "path": "supabase/tests/s0_wa_057_assert_lock_order_cross_routes_pg17.py",
+      "sha256": "ebb953174d4086b30645fc20538fd6f35513331ca93610fa7455824b7257b0e5",
+      "blob": "0c3daf15eeee76df2d626f9d9934e63911df1b9f"
+    },
+    {
+      "path": "supabase/tests/s0_wa_058_assert_legacy_handoff_lock_order_pg17.py",
+      "sha256": "3f4686c7f9ef83ecaf68b0cd6333bbc5bf5cb9b3b0a2ad587a569b27e4b10bfb",
+      "blob": "92021395be2bfe3c6c90d41b851e371c410e735a"
+    },
+    {
+      "path": "supabase/tests/s0_wa_059_assert_single_entry_sealed_pg17.py",
+      "sha256": "42d6dd10a96c225c4d05f8b6d67b266f3e5cde0e6beb7fdfa1ae9adcec904f62",
+      "blob": "c0cf7fb711d5445c9ba59fd68d90f4d169d0cf0b"
+    },
+    {
+      "path": "supabase/tests/s0_wa_060_meta_raw_to_pg17_bridge.mjs",
+      "sha256": "72eacbe211b9b572f374504580aefafee7c03f6915eaf30798b5fae412bd1b56",
+      "blob": "ee504420a097c6678b2be82952e88ba3c5884b3d"
+    },
+    {
+      "path": "supabase/tests/s0_wa_060_meta_raw_to_pg17_bridge.test.mjs",
+      "sha256": "e8925811110bca905a32241a98645b8ddbc358bceb1212c6850e97ebc225ad9b",
+      "blob": "dd660189f6d46d4041601ffca541f9df44755387"
+    },
+    {
+      "path": "supabase/tests/s0_wa_061_meta_http_loopback_transport.mjs",
+      "sha256": "c8374778c7ba0867aea60a451c4af2c01cdabada72f89b2dc591f14e0a4a4240",
+      "blob": "f37aa29524312bf34daece7f236d80ee8da93a52"
+    },
+    {
+      "path": "supabase/tests/s0_wa_061_meta_http_loopback_transport.test.mjs",
+      "sha256": "fb6014bafb8f2d9242962bf43a06a286bc69c37ae577fd40cc553b2ad19c73cc",
+      "blob": "17e68e75b83bdf513b6a8202ce8c90b8b2cbbf4f"
+    },
+    {
+      "path": "supabase/tests/s0_wa_062_http_disconnect_replay_pg17.test.mjs",
+      "sha256": "0361a7b46406b60564e1aef893fd6b8b906deb9f0527df0bd62863c52cb37c3f",
+      "blob": "1ba593a8f69d7a461c8b638f9cab0a078bc90165"
+    },
+    {
+      "path": "supabase/tests/s0_wa_063_http_admission_limits_pg17.test.mjs",
+      "sha256": "f13995eefab21127eda4fe174e789d97e4958c49bd217c242049e163338149da",
+      "blob": "4c76d93ce7e1da05cd434c524971b97aab4336d2"
+    },
+    {
+      "path": "supabase/tests/s0_wa_064_pg17_restart_worker.mjs",
+      "sha256": "c45a80943e66b80cb48f5a0326387038a6f41b3b30bebdafa660fa686e5511f4",
+      "blob": "5a9b7acbeeed3e21a7c02c02430f9fdc843a4d16"
+    },
+    {
+      "path": "supabase/tests/s0_wa_065_http_process_restart_pg17.test.mjs",
+      "sha256": "2d5aa38ded19de587d378d7017b3e6950844d6c5a557c06c53cc7a577c11cdba",
+      "blob": "a1246916469d1c9ce30570e68db2d7f2eff9bb28"
+    },
+    {
+      "path": "supabase/tests/s0_wa_066_forensic_revocation_restart_pg17.test.mjs",
+      "sha256": "4e70e52353eed152bc379b19853135bf6eb42e63b3eb12dbbaaf240ab8dbf7a6",
+      "blob": "16c15cd46b12279c997525a00c036739bb22917f"
+    },
+    {
+      "path": "supabase/tests/s0_wa_067_key_revoke_race_pg17.test.mjs",
+      "sha256": "e1b732192bb9f7cc398d8d16737e40d2a4ba325ce18c24867e8651eecd8327a5",
+      "blob": "7bd8b55451692b23771b717f9b5120419e350648"
+    },
+    {
+      "path": "supabase/tests/s0_wa_068_triple_race_pg17.test.mjs",
+      "sha256": "fb7762a2851ca5fec04dc7750a2371e2d43125f7b9ea1f608d08cfc3e6c11205",
+      "blob": "cff384126ecc109291789d78894a868ac60f1203"
+    },
+    {
+      "path": "supabase/tests/s0_wa_069_dual_event_revocation_pg17.test.mjs",
+      "sha256": "b2577f5313e1cb5aac8db1d7f0dbeffc89b1e5243ff754a147d9bc5517b924ef",
+      "blob": "39b987333b514cd45ea4b323a603006f0de9e757"
+    },
+    {
+      "path": "supabase/tests/s0_wa_070_cross_key_variant_pg17.test.mjs",
+      "sha256": "65b6758d6a0aec9809f3b086c5f5f637317da58a73c3d7e4bb68f84041fe92ff",
+      "blob": "c7a9bf0e18374a2a04b12f901227bcabc413a14e"
+    },
+    {
+      "path": "supabase/tests/s0_wa_071_admission_canonical_pg17.test.mjs",
+      "sha256": "367622d0016186c3635fc00661530042fd07dd7102bd674d27581ebef7a5bad9",
+      "blob": "8b30f8f56a56bb0df2a80f657b56d2f1442f6783"
+    },
+    {
+      "path": "supabase/tests/s0_wa_072_strict_json_keys.mjs",
+      "sha256": "cf00db2edc7fc504cf424a730422ada34113c46d71b5f37d2921e7b6e28b3ea2",
+      "blob": "6f707ae36944f6883ccd4a5d12bd82121c954ba6"
+    },
+    {
+      "path": "supabase/tests/s0_wa_073_json_ambiguity_pg17.test.mjs",
+      "sha256": "847db784298eda74cc506f495efc79b3f6d4369e45451a901ec889ea41a1475a",
+      "blob": "1ac96caf1215b4e5e50e349926b9175d709ff4d2"
+    },
+    {
+      "path": "supabase/tests/s0_wa_074_guard_budget_pg17.test.mjs",
+      "sha256": "2dd3f2e16d89b4972a53195a22b5c627fa169a86b6b888449953e86a9bf015f9",
+      "blob": "341e7089f93e5e5da3e1a7bdc5a52aa271537a08"
+    }
+  ],
+  "wa_counts": [
+    18,
+    25,
+    16,
+    12,
+    18,
+    27,
+    27,
+    28,
+    37,
+    28,
+    34,
+    30,
+    36,
+    28,
+    32,
+    32,
+    36,
+    36,
+    40,
+    36,
+    24,
+    24,
+    24,
+    20,
+    24,
+    24,
+    24,
+    24,
+    24,
+    24
+  ],
+  "wa42_revocation_count": 11
+}

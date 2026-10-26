@@ -1,0 +1,21 @@
+--- a/supabase/migrations/202610230053_s0_meta_wa40_lock_order_fixture.sql
++++ b/supabase/migrations/202610230053_s0_meta_wa40_lock_order_fixture.sql
+@@ -1,3 +1,12 @@
++begin;
++do $s0_meta_install_guard$
++begin
++ if current_user <> 'postgres' or session_user <> 'postgres'
++    or current_database() <> 'prumo_s0_test_ci'
++    or current_setting('server_version_num')::int / 10000 <> 17
++ then raise exception 'S0_META_DISPOSABLE_INSTALL_ONLY' using errcode='42501';
++ end if;
++end $s0_meta_install_guard$;
+ -- WA54/S0-053: change the offline privileged WA40 handoff to
+ -- binding/outbox FOR SHARE -> WA39 event -> WA42 key/nonce.
+ -- PG17 prumo_s0_test_ci ONLY. No S1/production/Meta hosted deployments.
+@@ -88,3 +97,5 @@
+ end $wa41_outer$;
+ 
+ -- No grants, new service identities, webhook, or commercial operations.
++
++commit;

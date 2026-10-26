@@ -1,0 +1,21 @@
+--- a/supabase/migrations/202610230052_s0_meta_lock_order_repair_fixture.sql
++++ b/supabase/migrations/202610230052_s0_meta_lock_order_repair_fixture.sql
+@@ -1,3 +1,12 @@
++begin;
++do $s0_meta_install_guard$
++begin
++ if current_user <> 'postgres' or session_user <> 'postgres'
++    or current_database() <> 'prumo_s0_test_ci'
++    or current_setting('server_version_num')::int / 10000 <> 17
++ then raise exception 'S0_META_DISPOSABLE_INSTALL_ONLY' using errcode='42501';
++ end if;
++end $s0_meta_install_guard$;
+ -- WA53 S0/052: normalize WA50 lock order to event -> key, PG17 test only.
+ -- Do not deploy in hosted Supabase. No changes to WA48/49/51/52, S1, main.
+ do $wa53_preflight$
+@@ -112,3 +121,5 @@
+   'definitive_failure_count_increment',false);
+ end $wa50_function$;
+ -- No runtime role switch, no grants, no RLS changes or commercial effects.
++
++commit;

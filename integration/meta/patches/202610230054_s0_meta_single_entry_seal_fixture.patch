@@ -1,0 +1,21 @@
+--- a/supabase/migrations/202610230054_s0_meta_single_entry_seal_fixture.sql
++++ b/supabase/migrations/202610230054_s0_meta_single_entry_seal_fixture.sql
+@@ -1,3 +1,12 @@
++begin;
++do $s0_meta_install_guard$
++begin
++ if current_user <> 'postgres' or session_user <> 'postgres'
++    or current_database() <> 'prumo_s0_test_ci'
++    or current_setting('server_version_num')::int / 10000 <> 17
++ then raise exception 'S0_META_DISPOSABLE_INSTALL_ONLY' using errcode='42501';
++ end if;
++end $s0_meta_install_guard$;
+ -- WA55 / S0-054 FINAL PHASE: seal old user-facing fixture entrypoints and
+ -- expose ONE signed PG17-only candidate delegating to WA52's locked path.
+ -- Applied ONLY after WA39-54 historical regressions and race scripts finish.
+@@ -92,3 +101,5 @@
+ revoke execute on function prumo_private.meta_arquivar_handoff_assinado_fixture_s0(
+  uuid,text,text,text,uuid,uuid,text,text,text,text,text,text,text,bigint,uuid,text)
+  from prumo_s0_meta_ingress_lab;
++
++commit;

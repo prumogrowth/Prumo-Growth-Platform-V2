@@ -1,0 +1,21 @@
+--- a/supabase/migrations/202610230050_s0_meta_forensic_conflict_parity_fixture.sql
++++ b/supabase/migrations/202610230050_s0_meta_forensic_conflict_parity_fixture.sql
+@@ -1,3 +1,12 @@
++begin;
++do $s0_meta_install_guard$
++begin
++ if current_user <> 'postgres' or session_user <> 'postgres'
++    or current_database() <> 'prumo_s0_test_ci'
++    or current_setting('server_version_num')::int / 10000 <> 17
++ then raise exception 'S0_META_DISPOSABLE_INSTALL_ONLY' using errcode='42501';
++ end if;
++end $s0_meta_install_guard$;
+ -- WA51 S0/050: forensic KIND_CONFLICT parity without loosening WA48.
+ -- PG17 disposable CI database ONLY; not an authorized hosted migration.
+ do $wa51_guard$
+@@ -167,3 +176,5 @@
+ grant execute on function prumo_private.meta_wa51_parity_forensic_fixture_s0(
+  uuid,text,text,text,uuid,uuid,text,text,text,text,text,text,text,bigint,uuid,text)
+  to prumo_s0_meta_wa48_client_lab;
++
++commit;

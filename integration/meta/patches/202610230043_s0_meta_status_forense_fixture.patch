@@ -1,0 +1,21 @@
+--- a/supabase/migrations/202610230043_s0_meta_status_forense_fixture.sql
++++ b/supabase/migrations/202610230043_s0_meta_status_forense_fixture.sql
+@@ -1,3 +1,12 @@
++begin;
++do $s0_meta_install_guard$
++begin
++ if current_user <> 'postgres' or session_user <> 'postgres'
++    or current_database() <> 'prumo_s0_test_ci'
++    or current_setting('server_version_num')::int / 10000 <> 17
++ then raise exception 'S0_META_DISPOSABLE_INSTALL_ONLY' using errcode='42501';
++ end if;
++end $s0_meta_install_guard$;
+ -- S0/043 WA39: forensics for Meta STATUS tied to actual S0/041-042 fixture bindings.
+ -- ADDITIVE / OFFLINE ONLY. Neither webhook authentication nor service login.
+ -- DB fixture writer postgres is NOT an operational M2M identity.
+@@ -164,3 +173,5 @@
+ revoke all on function prumo_private.archivar_status_meta_tecnico_fixture_s0(
+  text,text,text,uuid,uuid,text,text,text,text,text,text,text)
+  from public,anon,authenticated,service_role,prumo_s0_gateway,prumo_s0_signer;
++
++commit;

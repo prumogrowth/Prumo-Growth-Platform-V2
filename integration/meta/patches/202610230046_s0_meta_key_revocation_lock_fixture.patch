@@ -1,0 +1,21 @@
+--- a/supabase/migrations/202610230046_s0_meta_key_revocation_lock_fixture.sql
++++ b/supabase/migrations/202610230046_s0_meta_key_revocation_lock_fixture.sql
+@@ -1,3 +1,12 @@
++begin;
++do $s0_meta_install_guard$
++begin
++ if current_user <> 'postgres' or session_user <> 'postgres'
++    or current_database() <> 'prumo_s0_test_ci'
++    or current_setting('server_version_num')::int / 10000 <> 17
++ then raise exception 'S0_META_DISPOSABLE_INSTALL_ONLY' using errcode='42501';
++ end if;
++end $s0_meta_install_guard$;
+ -- S0/046 WA42: offline key-revocation serialization, NO Meta API.
+ -- SQL-side scope only; S1 rights/assignment are outside this migration.
+ -- Never apply laboratory role/fixture migrations to hosted Supabase.
+@@ -98,3 +107,5 @@
+ revoke create on schema prumo_private from prumo_s0_meta_signer_lab;
+ -- The wrapper/nonce/forensics interface remains unchanged: no Graph,
+ -- webhook HTTP ACK, machine LOGIN or production authorization.
++
++commit;

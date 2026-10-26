@@ -1,0 +1,30 @@
+--- a/supabase/migrations/202610230049_s0_meta_restricted_authoritative_forensic_fixture.sql
++++ b/supabase/migrations/202610230049_s0_meta_restricted_authoritative_forensic_fixture.sql
+@@ -1,3 +1,12 @@
++begin;
++do $s0_meta_install_guard$
++begin
++ if current_user <> 'postgres' or session_user <> 'postgres'
++    or current_database() <> 'prumo_s0_test_ci'
++    or current_setting('server_version_num')::int / 10000 <> 17
++ then raise exception 'S0_META_DISPOSABLE_INSTALL_ONLY' using errcode='42501';
++ end if;
++end $s0_meta_install_guard$;
+ -- WA50 / S0-049: PG17-only restricted ACTUAL S0 forensic ledger proof.
+ -- Experimental alternate path; unchanged WA39-49 public/privileged functions.
+ -- NO hosted migration, no real Meta principal, no ACK/Graph/S1.
+@@ -26,7 +35,7 @@
+ create policy wa50_fk_guard_read on prumo_private.meta_vinculos_tentativa_fixture_s0
+  for select to prumo_s0_meta_wa50_binding_guard_lab using(true);
+ create policy wa50_fk_guard_lock on prumo_private.meta_vinculos_tentativa_fixture_s0
+- for update to prumo_s0_meta_wa50_binding_guard_lab using(true) with check(true);
++ for update to prumo_s0_meta_wa50_binding_guard_lab using(true) with check(false);
+ grant create on schema prumo_private to prumo_s0_meta_wa50_binding_guard_lab;
+ alter function prumo_private.validar_meta_status_vinculo_fixture_s0()
+  security definer;
+@@ -175,3 +184,5 @@
+ grant execute on function prumo_private.meta_wa50_restricted_forensic_fixture_s0(
+  uuid,text,text,text,uuid,uuid,text,text,text,text,text,text,text,bigint,uuid,text)
+  to prumo_s0_meta_wa48_client_lab;
++
++commit;

@@ -1,0 +1,21 @@
+--- a/supabase/migrations/202610230045_s0_meta_isolar_verificador_fixture.sql
++++ b/supabase/migrations/202610230045_s0_meta_isolar_verificador_fixture.sql
+@@ -1,3 +1,12 @@
++begin;
++do $s0_meta_install_guard$
++begin
++ if current_user <> 'postgres' or session_user <> 'postgres'
++    or current_database() <> 'prumo_s0_test_ci'
++    or current_setting('server_version_num')::int / 10000 <> 17
++ then raise exception 'S0_META_DISPOSABLE_INSTALL_ONLY' using errcode='42501';
++ end if;
++end $s0_meta_install_guard$;
+ -- S0/045 WA41: narrow offline Meta HMAC verifier; preserve WA40 protocol.
+ -- Isolates access to internal test keys and nonce; leaves the S0-043
+ -- domain append intentionally postgres-owned. NOT operational M2M/IAM.
+@@ -171,3 +180,5 @@
+   'service_authenticated',false,'s0_production_authorized',false,
+   'handoff_contract','WA40_PG17_LAB_ONLY');
+ end $wa41_outer$;
++
++commit;

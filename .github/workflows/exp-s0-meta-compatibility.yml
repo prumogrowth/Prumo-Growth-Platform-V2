@@ -1,0 +1,67 @@
+name: S0 Meta - pinned compatibility audit PG17
+on:
+  push:
+    branches: [exp/s0-meta-integracao-auditoria-20261026]
+    paths:
+      - 'integration/meta/**'
+      - '.github/workflows/exp-s0-meta-compatibility.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: s0-meta-compatibility-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  laboratory-composition:
+    if: github.ref == 'refs/heads/exp/s0-meta-integracao-auditoria-20261026'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd=pg_isready
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=10
+    env:
+      PGPASSWORD: postgres
+      PRUMO_TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/prumo_s0_test_ci
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: 04c2a355bf8ab5765855f82ab3de2062e2d5bd67
+          path: work/meta-source
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Prepare pinned temporary composition, verify shared S0 migrations
+        run: python3 integration/meta/prepare_lab.py --source-repo work/meta-source --destination "$RUNNER_TEMP/meta-composed"
+      - name: Install SQL client if missing
+        run: command -v psql || (sudo apt-get update -qq && sudo apt-get install -y postgresql-client)
+      - name: Reject all 12 standalone fixtures on wrong disposable database
+        run: python3 integration/meta/test_install_guards.py "$RUNNER_TEMP/meta-composed"
+      - name: Current S0 structural and backend regression
+        run: python3 -m unittest discover -s backend/tests -v
+      - name: All original S0 and WA39–WA68 regressions with adaptations
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c 'CREATE DATABASE prumo_s0_test_ci'
+          cd "$RUNNER_TEMP/meta-composed"
+          bash scripts/run-s0-local.sh 2>&1 | tee "$RUNNER_TEMP/meta-regression.log"
+      - name: Verify 823 markers and final effective privileges with negative DML
+        run: |
+          python3 integration/meta/verify_markers.py "$RUNNER_TEMP/meta-regression.log"
+          python3 integration/meta/test_final_security.py "$RUNNER_TEMP/meta-security.json"

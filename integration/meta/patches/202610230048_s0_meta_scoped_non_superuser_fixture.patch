@@ -1,0 +1,21 @@
+--- a/supabase/migrations/202610230048_s0_meta_scoped_non_superuser_fixture.sql
++++ b/supabase/migrations/202610230048_s0_meta_scoped_non_superuser_fixture.sql
+@@ -1,3 +1,12 @@
++begin;
++do $s0_meta_install_guard$
++begin
++ if current_user <> 'postgres' or session_user <> 'postgres'
++    or current_database() <> 'prumo_s0_test_ci'
++    or current_setting('server_version_num')::int / 10000 <> 17
++ then raise exception 'S0_META_DISPOSABLE_INSTALL_ONLY' using errcode='42501';
++ end if;
++end $s0_meta_install_guard$;
+ -- WA49 S0/048: use ACTUAL S0/041-042 bindings for a scoped PG17
+ -- non-superuser SHADOW receipt. Read-only on authoritative S0 objects.
+ -- Never install this fixture in hosted Supabase; no production M2M or S1.
+@@ -109,3 +118,5 @@
+ grant execute on function prumo_private.meta_wa49_scoped_shadow_fixture_s0(
+  uuid,text,text,text,uuid,uuid,text,text,text,text,text,text,text,bigint,uuid,text)
+  to prumo_s0_meta_wa48_client_lab;
++
++commit;
