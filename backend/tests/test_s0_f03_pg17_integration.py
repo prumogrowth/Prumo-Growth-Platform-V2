@@ -73,6 +73,38 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
                             'id,concessionaria_id,lead_id,status_comercial,versao_registro) '
                             "values (%s,%s,%s,'em atendimento pelo operador',1)",
                             (self.cycle,self.shop,self.lead))
+                # Test-only TRUE event order for legacy reconciliation:
+                # C04 plan + attempt are actually observed BEFORE human case
+                # INSERT by the local S0 AFTER-trigger ledger. The prior
+                # retrodated fixtures cannot satisfy that independent proof.
+                test_number=int(self._testMethodName.split('_')[1])
+                self.early_legacy=(322<=test_number<=329)
+                if self.early_legacy:
+                    from datetime import datetime,timezone,timedelta
+                    self.legacy_plan=uuid.uuid4()
+                    self.legacy_attempt=uuid.uuid4()
+                    self.legacy_template=uuid.uuid4()
+                    cur.execute('insert into public.canais_loja('
+                        'id,concessionaria_id,identificador_emissor) '
+                        'values (%s,%s,%s)',(self.channel,self.shop,str(self.channel)))
+                    cur.execute('insert into public.catalogo_templates_sinteticos '
+                        '(id,concessionaria_id,codigo,versao,aprovado_simulacao) '
+                        "values (%s,%s,'template-original-c04',1,true)",
+                        (self.legacy_template,self.shop))
+                    cur.execute('insert into public.planos_recontato_sinteticos '
+                        '(id,concessionaria_id,lead_id,ciclo_id,canal_id,'
+                        'chave_idempotencia,fingerprint,criado_em) '
+                        "values (%s,%s,%s,%s,%s,'pre-human-legacy-observed',"
+                        "'synthetic-origin-chain',statement_timestamp()-interval '2 hours')",
+                        (self.legacy_plan,self.shop,self.lead,self.cycle,self.channel))
+                    cur.execute('insert into public.envios_template_sinteticos '
+                        '(id,concessionaria_id,plano_id,template_id,ordem,'
+                        'agendado_em,estado,chave_idempotencia,criado_em) '
+                        "values (%s,%s,%s,%s,1,statement_timestamp()+interval '7 days',"
+                        "'programado','pre-human-legacy-observed:1',"
+                        "statement_timestamp()-interval '1 hour')",
+                        (self.legacy_attempt,self.shop,self.legacy_plan,
+                         self.legacy_template))
                 for case in (self.case, self.old_case):
                     cur.execute('insert into public.casos_humanos('
                                 'id,concessionaria_id,lead_id,ciclo_id) '
@@ -84,10 +116,11 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
                             (self.assignment,self.shop,self.case,self.actor))
                 cur.execute('insert into public.equipe_prumo_s1(ator_id,estado) '
                             "values (%s,'ativo')", (self.actor,))
-                cur.execute('insert into public.canais_loja('
-                            'id,concessionaria_id,identificador_emissor) '
-                            'values (%s,%s,%s)',
-                            (self.channel,self.shop,str(self.channel)))
+                if not self.early_legacy:
+                    cur.execute('insert into public.canais_loja('
+                                'id,concessionaria_id,identificador_emissor) '
+                                'values (%s,%s,%s)',
+                                (self.channel,self.shop,str(self.channel)))
                 for conversation, case in ((self.conversation,self.case),
                                            (self.old_conversation,self.old_case)):
                     cur.execute('insert into public.conversas('
