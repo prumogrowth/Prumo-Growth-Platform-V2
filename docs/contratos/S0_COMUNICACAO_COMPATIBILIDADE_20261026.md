@@ -160,3 +160,19 @@ Só depois conectar F03 pelo contrato aprovado e revalidar campos na transação
 
 Validação desta entrega e SHAs executados: `S0_COMUNICACAO_EVIDENCIAS_20261026.json`.
 Sem merge, deploy, migração, integrações externas ou alterações em branches alheias.
+
+## Resultado de execução — 26/10/2026
+
+- Commit executável: `e18118a2b997e4f61c3e5f931383e13948d2ca75`.
+- Local: **58/58 Python**, incluindo **20 métodos novos** de compatibilidade,
+  com Node v24.19.0 para os probes. Sem rede ou banco nos adaptadores.
+- [GitHub Actions #40296667385](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40296667385):
+  **SUCCESS**, job `121484278477`. **58/58 Python** com Node 22 e runner
+  PostgreSQL 17 integral, incluindo migrations/isolamento/concorrência existentes.
+  Contagem, marcador terminal e passos foram conferidos nos logs. Sem retry.
+- O executor SQL/autenticação não foi modificado; o CI de regressão não transforma
+  os testes estruturais de comunicação em autenticação ponta a ponta.
+- Limite adicional a ratificar no vetor: S2 admite zero e inteiros seguros JS;
+  o validador PR #1 exige versões positivas abaixo de 2^63−1. Este módulo não
+  converte o vetor nem escolhe valores substitutos. A interseção das regras deve
+  acompanhar a fonte física aprovada antes de conectar o gate operacional.
