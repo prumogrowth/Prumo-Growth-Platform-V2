@@ -64,4 +64,5 @@ node --test "$ROOT/supabase/tests/s0_wa_067_key_revoke_race_pg17.test.mjs"
 node --test "$ROOT/supabase/tests/s0_wa_068_triple_race_pg17.test.mjs"
 node --test "$ROOT/supabase/tests/s0_wa_069_dual_event_revocation_pg17.test.mjs"
 node --test "$ROOT/supabase/tests/s0_wa_070_cross_key_variant_pg17.test.mjs"
+node --test "$ROOT/supabase/tests/s0_wa_071_admission_canonical_pg17.test.mjs"
 echo 'Teste local concluído. Não houve escrita no Supabase.'
