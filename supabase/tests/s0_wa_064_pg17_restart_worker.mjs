@@ -26,7 +26,7 @@ if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(keyId?
  throw Error('WA60_WORKER_BAD_CONFIG');
 // WA61 process-local fixture drift, never a real S0 binding update.
 const profile=env.WA61_BINDING_PROFILE??'current';
-if(!['current','stale-attempt','disabled-route'].includes(profile))
+if(!['current','stale-attempt','disabled-route','wa63-a','wa63-b','wa63-c'].includes(profile))
  throw Error('WA61_WORKER_PROFILE_DENIED');
 const INTERNAL=Buffer.from(secretHex,'hex'),META=Buffer.alloc(48,0x4d);
 const NOW=()=>Math.floor(Date.now()/1000);
@@ -39,8 +39,17 @@ const B=Object.freeze({appRef:R.appRef,tenantRef:R.tenantRef,channelRef:R.channe
  bindingRevision:3});
 const REG=Object.freeze({routeRef:'WA60_LOOPBACK',revision:1,...R,
  secretSlot:'WA60_TEST_SECRET_ONLY',enabled:profile!=='disabled-route'});
-const ACTIVE_BINDING=profile==='stale-attempt'
- ?Object.freeze({...B,attemptRef:'ATTEMPT_WA61_STALE'}):B;
+// WA63: independent fresh synthetic S0 intent per triple-race ordering.
+const WA63_BINDINGS=Object.freeze({
+ 'wa63-a':Object.freeze({...B,intentRef:'f7400000-0000-4000-8000-000000000063',
+  attemptRef:'ATTEMPT_WA63_A',correlationRef:'CORR_WA63_A',wamid:'wamid.WA63.A'}),
+ 'wa63-b':Object.freeze({...B,intentRef:'f7400000-0000-4000-8000-000000000064',
+  attemptRef:'ATTEMPT_WA63_B',correlationRef:'CORR_WA63_B',wamid:'wamid.WA63.B'}),
+ 'wa63-c':Object.freeze({...B,intentRef:'f7400000-0000-4000-8000-000000000065',
+  attemptRef:'ATTEMPT_WA63_C',correlationRef:'CORR_WA63_C',wamid:'wamid.WA63.C'})
+});
+const ACTIVE_BINDING=WA63_BINDINGS[profile]??(profile==='stale-attempt'
+ ?Object.freeze({...B,attemptRef:'ATTEMPT_WA61_STALE'}):B);
 function sql(q){
  return new Promise((resolve,reject)=>{
   const client='postgresql://prumo_s0_meta_wa48_client_lab@127.0.0.1:5432/prumo_s0_test_ci';
