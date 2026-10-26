@@ -15,3 +15,9 @@ Hash validation covers every original file, including unused parts.
 Changing a pin requires explicit manifest/source updates and reviewing drift.
 Tests demonstrate compatibility of these SHAs, not future branch heads or
 an authenticated production integration. Fixtures contain synthetic metadata.
+
+`s0_atomic_checkpoint_1b4.py` preserves the exact PR #9 atomic runtime at
+`1b4f2841d513fb971c93379636414bf686784beb` for the PR #11 provenance check.
+It is test data, never imported as a runtime. The active backend now has the
+audited precommit expected-receipt check; source_manifest.json explicitly
+points the historical checkpoint entry at this immutable reference.

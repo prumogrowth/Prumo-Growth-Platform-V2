@@ -209,11 +209,12 @@ class TransactionalCommunicationTests(unittest.TestCase):
     def test_14_forged_binding_and_pending_ui_intent_never_gain_authority(self):
         binding=self.capture()
         forged=replace(binding,receipt=replace(binding.receipt,store_ref=str(uuid.uuid4())))
-        # Real S0 recheck succeeds but bridge rejects different metadata. A nonce
-        # is legitimately committed by that recheck; no new closure is created.
+        # Complete expected metadata is now compared before COMMIT. A stale
+        # server binding must not leave nonce/audit from an accepted recheck.
+        before=self.counters()
         result=self.adapter.recheck(self.auth,forged)
         self.assertEqual(result.state,'STALE');self.assertIsNone(result.binding)
-        before=self.counters()
+        self.assertEqual(self.counters(),before)
         pending=self.adapter.capture(self.auth,dict(case_ref=str(self.case),expected_case_version='v1',idempotency_key='pending-only-001'),profile=FV_INTENT_PROFILE)
         self.assertIsNone(pending.binding);self.assertEqual(pending.public_projection()['state'],'CONTRACT_PENDING')
         self.assertEqual(self.counters(),before)

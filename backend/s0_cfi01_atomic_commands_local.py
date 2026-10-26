@@ -26,6 +26,9 @@ from backend.s0_cfi01_signed_prerequisite_local import (
     S0CFI01RestrictedSignedPrerequisiteLocal
 )
 from backend.s0_human_closure_event_local import _uuid
+from backend.s0_communication_contract import (
+    parse_receipt_metadata, InvalidCompatibilityInput,
+)
 
 
 _ATOMIC_SQL="""select state,event_ref
@@ -61,6 +64,10 @@ class S0InternalReceiptResultLocal:
     receipt: S0InternalReceiptLocal | None = None
 
 
+class _ExpectedReceiptChanged(Exception):
+    """Fixed diagnostic only; forces rollback before stale binding escapes."""
+
+
 class S0CFI01AtomicCommandsLocal:
     """A single signed PG transaction after each genuine GoTrue user check."""
     def __init__(self, api_url: str, publishable_key: str,
@@ -93,12 +100,25 @@ class S0CFI01AtomicCommandsLocal:
         result=self._execute(authorization,'capture_human_closure',payload,include_receipt=True)
         return result if type(result) is S0InternalReceiptResultLocal else S0InternalReceiptResultLocal(result.state)
 
-    def recheck_internal_receipt(self,authorization: str,payload: object) -> S0InternalReceiptResultLocal:
-        result=self._execute(authorization,'recheck_human_closure',payload,include_receipt=True)
+    def recheck_internal_receipt(self,authorization: str,payload: object, *,
+                                expected_receipt: S0InternalReceiptLocal | None = None) -> S0InternalReceiptResultLocal:
+        # Optional server-internal expectation; never decode this from UI JSON.
+        # Shape is not identity: the usual GoTrue/HMAC/live SQL checks still run.
+        if expected_receipt is not None:
+            if type(expected_receipt) is not S0InternalReceiptLocal:
+                return S0InternalReceiptResultLocal(CommandState.INPUT_REJECTED)
+            try:
+                parse_receipt_metadata({name:getattr(expected_receipt,name)
+                    for name in S0InternalReceiptLocal.__dataclass_fields__})
+            except InvalidCompatibilityInput:
+                return S0InternalReceiptResultLocal(CommandState.INPUT_REJECTED)
+        result=self._execute(authorization,'recheck_human_closure',payload,
+                             include_receipt=True,expected_receipt=expected_receipt)
         return result if type(result) is S0InternalReceiptResultLocal else S0InternalReceiptResultLocal(result.state)
 
     def _execute(self,authorization: str,command: str,payload: object, *,
-                 include_receipt: bool) -> CommandResult | S0InternalReceiptResultLocal:
+                 include_receipt: bool,
+                 expected_receipt: S0InternalReceiptLocal | None = None) -> CommandResult | S0InternalReceiptResultLocal:
         if type(command) is not str or command not in (
             "capture_human_closure","recheck_human_closure"):
             return CommandResult(CommandState.UNSUPPORTED_COMMAND)
@@ -144,10 +164,16 @@ class S0CFI01AtomicCommandsLocal:
                     decoded=self._decode_result(command,case,event,version,rows,include_receipt)
                     if decoded.state is CommandState.DENIED:
                         raise Denied("ATOMIC_RESULT_INVALID")
+                    if expected_receipt is not None and (
+                            type(decoded) is not S0InternalReceiptResultLocal
+                            or decoded.receipt != expected_receipt):
+                        raise _ExpectedReceiptChanged()
             # Connection context commits only after every result field validated.
             return decoded
         except Denied:
             return CommandResult(CommandState.DENIED)
+        except _ExpectedReceiptChanged:
+            return CommandResult(CommandState.STALE)
         except Exception as exc:
             # Database denial and stale versions always fail closed;
             # never surface backend SQL, tenant, or authentication details.

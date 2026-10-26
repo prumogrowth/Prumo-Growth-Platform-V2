@@ -20,6 +20,8 @@ from psycopg import sql
 from integration.cfi01 import test_transactional_communication as checkpoint
 from backend import s0_cfi01_atomic_commands_local as atomic
 from backend.s0_cfi01_communication_local import S0CFI01CommunicationLocal
+from backend.s0_cfi01_f03_receipt_bridge_local import S0CFI01F03ReceiptBridgeLocal,S0F03BridgeState
+from dataclasses import replace
 
 
 class RestrictedBackendTests(checkpoint.TransactionalCommunicationTests):
@@ -259,6 +261,55 @@ class RestrictedBackendTests(checkpoint.TransactionalCommunicationTests):
                 self.assertEqual(c.execute("select has_table_privilege(%s,%s,'SELECT'),has_column_privilege(%s,%s,%s,'SELECT')",(owner,table,owner,table,column)).fetchone(),(False,False))
             self.assertFalse(c.execute("select has_column_privilege(%s,'prumo_private.cfi01_command_audit_local','recorded_at','INSERT')",(owner,)).fetchone()[0])
         self.capture()
+
+    def test_29_every_nonrequest_receipt_dimension_rolls_back_when_mismatched(self):
+        binding=self.capture();before=self.counters();audit=self.audit_count()
+        changes={'store_ref':str(uuid.uuid4()),'assignment_ref':str(uuid.uuid4()),
+                 'snapshot_sha256':'0'*64,'message_watermark':str(uuid.uuid4()),'message_count':2}
+        for key,value in changes.items():
+            with self.subTest(field=key):
+                forged=replace(binding,receipt=replace(binding.receipt,**{key:value}))
+                self.refused(lambda:self.adapter.recheck(self.auth,forged),'STALE')
+        self.assertEqual(self.counters(),before);self.assertEqual(self.audit_count(),audit)
+        self.assertEqual(self.adapter.recheck(self.auth,binding).state,'VERIFIED_CONTRACT_PENDING')
+        self.assertEqual(self.counters(),(before[0],before[1]+1));self.assertEqual(self.audit_count(),audit+1)
+
+    def test_30_raw_internal_recheck_control_vs_complete_expected_binding(self):
+        binding=self.capture()
+        payload={**self.payload,'closure_event_ref':binding.receipt.closure_event_ref}
+        before=self.counters();audit=self.audit_count()
+        # Existing raw API has no complete expectation to compare. It remains
+        # an authorized physical recheck, not a verified arbitrary binding.
+        raw=self.gateway.recheck_internal_receipt(self.auth,payload)
+        self.assertEqual(raw.state.value,'VERIFIED_REVIEW_ONLY_LOCAL')
+        self.assertEqual(self.counters(),(before[0],before[1]+1));self.assertEqual(self.audit_count(),audit+1)
+        different=replace(binding,receipt=replace(binding.receipt,snapshot_sha256='0'*64))
+        self.refused(lambda:self.adapter.recheck(self.auth,different),'STALE')
+        self.assertEqual(self.audit_count(),audit+1)
+
+    def test_31_caller_payload_mutation_cannot_change_returned_capture_key(self):
+        bridge=S0CFI01F03ReceiptBridgeLocal(self.gateway)
+        raw=self.payload.copy();original_key=raw['idempotency_key']
+        original=self.gateway.capture_internal_receipt
+        def capture_then_mutate(authorization,forwarded):
+            result=original(authorization,forwarded)  # Actual GoTrue and SQL.
+            raw['idempotency_key']='changed-after-real-commit'
+            return result
+        with patch.object(self.gateway,'capture_internal_receipt',side_effect=capture_then_mutate):
+            captured=bridge.capture(self.auth,raw)
+        self.assertEqual(captured.state,S0F03BridgeState.VERIFIED_CONTRACT_PENDING)
+        self.assertEqual(captured.binding.idempotency_key,original_key)
+        self.assertNotEqual(raw['idempotency_key'],original_key)
+        self.assertEqual(bridge.recheck(self.auth,captured.binding).state,S0F03BridgeState.VERIFIED_CONTRACT_PENDING)
+        self.assertEqual(self.audit_count(),2)
+
+    def test_32_concurrent_matching_and_mismatched_rechecks_only_one_commits(self):
+        binding=self.capture();before=self.counters();audit=self.audit_count()
+        different=replace(binding,receipt=replace(binding.receipt,message_count=2))
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            results=list(pool.map(lambda b:self.adapter.recheck(self.auth,b),(binding,different)))
+        self.assertEqual({r.state for r in results},{'VERIFIED_CONTRACT_PENDING','STALE'})
+        self.assertEqual(self.counters(),(before[0],before[1]+1));self.assertEqual(self.audit_count(),audit+1)
 
 
 if __name__=='__main__':

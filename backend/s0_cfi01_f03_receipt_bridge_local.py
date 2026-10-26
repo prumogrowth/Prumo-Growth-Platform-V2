@@ -111,6 +111,9 @@ class S0CFI01F03ReceiptBridgeLocal:
             'case_ref', 'expected_cycle_version', 'idempotency_key',
         }:
             return S0F03BridgeResultLocal(S0F03BridgeState.INPUT_REJECTED)
+        # Snapshot before the gateway's network/DB work. Caller mutation must
+        # not change the key/case/version used to construct the returned binding.
+        payload = payload.copy()
         outcome = self._s0.capture_internal_receipt(authorization, payload)
         if type(outcome) is not S0InternalReceiptResultLocal:
             return S0F03BridgeResultLocal(S0F03BridgeState.DENIED)
@@ -139,7 +142,7 @@ class S0CFI01F03ReceiptBridgeLocal:
             'expected_cycle_version': receipt.expected_cycle_version,
             'idempotency_key': binding.idempotency_key,
             'closure_event_ref': receipt.closure_event_ref,
-        })
+        }, expected_receipt=receipt)
         if type(outcome) is not S0InternalReceiptResultLocal:
             return S0F03BridgeResultLocal(S0F03BridgeState.DENIED)
         if outcome.state is not CommandState.VERIFIED_REVIEW_ONLY_LOCAL:

@@ -11,9 +11,10 @@
     "front": "S0 checkpoint",
     "head": "1b4f2841d513fb971c93379636414bf686784beb",
     "path": "backend/s0_cfi01_atomic_commands_local.py",
-    "tested_file": "backend/s0_cfi01_atomic_commands_local.py",
+    "tested_file": "backend/tests/compat_sources/s0_atomic_checkpoint_1b4.py",
     "git_blob": "af0b38fd1f526c15a3d0ec60efe4b8f49ddc2006",
-    "sha256": "fcf4f616fcffa5b30f22b0ccab3b8024aca5f104351e69c673417085528431f0"
+    "sha256": "fcf4f616fcffa5b30f22b0ccab3b8024aca5f104351e69c673417085528431f0",
+    "reference_scope": "Immutable historical checkpoint; current runtime has an audited precommit-binding delta"
   },
   {
     "front": "Frontend",
