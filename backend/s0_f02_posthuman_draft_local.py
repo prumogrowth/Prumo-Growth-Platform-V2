@@ -64,7 +64,11 @@ _INTENT="""select caso_id,lead_id,canal_id,template_id,gestor_id,sessao_id,
  where concessionaria_id=%s::uuid and evento_fechamento_id=%s::uuid
  for share"""
 _LEGACY="""select 1 from public.planos_recontato_sinteticos p
- where p.concessionaria_id=%s::uuid and p.lead_id=%s::uuid limit 1"""
+ where p.concessionaria_id=%s::uuid and p.lead_id=%s::uuid
+ union all
+ select 1 from prumo_private.cfi01_f02_c04_origin_ledger_local o
+ where o.concessionaria_id=%s::uuid and o.lead_id=%s::uuid
+  and o.tipo='PLAN' limit 1"""
 _NOW="""select statement_timestamp()"""
 _EXIST="""select caso_id,lead_id,canal_id,template_id,gestor_id,sessao_id,
  tentativa_s2,versao_template,categoria,versao_politica,
@@ -168,7 +172,7 @@ class S0F02PostHumanDraftLocal:
                     if (eligibility is None or type(eligibility[0]) is not dict
                         or eligibility[0].get('decisao')!='ELEGIVEL_SOMENTE_SIMULACAO'):
                         return DraftResult(DraftState.S0_REVIEW_REQUIRED)
-                    cur.execute(_LEGACY,(r.store_ref,lead))
+                    cur.execute(_LEGACY,(r.store_ref,lead,r.store_ref,lead))
                     if cur.fetchone() is not None:
                         return DraftResult(DraftState.LEGACY_RECONCILIATION_REQUIRED)
                     cur.execute(_INTENT,(r.store_ref,r.closure_event_ref))

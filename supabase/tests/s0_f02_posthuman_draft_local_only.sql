@@ -77,6 +77,11 @@ begin
        and prior.lead_id=i.lead_id
     )
     and not exists(
+      select 1 from prumo_private.cfi01_f02_c04_origin_ledger_local history
+      where history.concessionaria_id=i.concessionaria_id
+       and history.lead_id=i.lead_id and history.tipo='PLAN'
+    )
+    and not exists(
       select 1 from public.supressoes_contato_sinteticas o
       where o.concessionaria_id=i.concessionaria_id
        and o.lead_id=i.lead_id and o.canal_id=i.canal_id

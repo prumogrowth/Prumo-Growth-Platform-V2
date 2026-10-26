@@ -4695,5 +4695,30 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
             DraftState.DRAFT_RECORDED_REVIEW_ONLY,
             DraftState.DRAFT_REPLAY_REVIEW_ONLY],key=str))
 
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),'needs pinned S2 JS')
+    def test_321_deleted_legacy_row_does_not_erase_observed_origin(self):
+        from backend.s0_f02_posthuman_draft_local import DraftState
+        a=self._f02_draft_fixture()
+        plan=uuid.uuid4()
+        with self.pg.connect(DB) as con:
+            con.execute('insert into public.planos_recontato_sinteticos '
+              '(id,concessionaria_id,lead_id,ciclo_id,canal_id,'
+              'chave_idempotencia,fingerprint) '
+              'values (%s,%s,%s,%s,%s,%s,%s)',
+              (plan,self.shop,self.lead,self.cycle,self.channel,
+               'transient-legacy-draft','synthetic-origin'))
+        with self.pg.connect(DB) as con:
+            con.execute('delete from public.planos_recontato_sinteticos '
+              'where id=%s',(plan,))
+            self.assertEqual(con.execute('select count(*) from '
+              'public.planos_recontato_sinteticos where lead_id=%s',
+              (self.lead,)).fetchone()[0],0)
+            self.assertEqual(con.execute('select count(*) from '
+              'prumo_private.cfi01_f02_c04_origin_ledger_local '
+              "where tipo='PLAN' and entidade_id=%s",(plan,)).fetchone()[0],1)
+        self.assertIs(self._f02_draft_record(a),
+                      DraftState.LEGACY_RECONCILIATION_REQUIRED)
+
 if __name__=='__main__':
     unittest.main()
