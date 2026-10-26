@@ -8,7 +8,7 @@ do $pre$ begin
  or to_regclass('prumo_export_ledger.s1_70_export_reservas') is not null
  or to_regprocedure('public.s1_71_exportar_resumo(text,uuid,uuid,integer)') is null
  or to_regprocedure('prumo_private.s1_71_purgar_registros(timestamptz)') is null
- or not has_table_privilege('authenticated','public.s1_70_export_reservas','INSERT')
+ or not has_column_privilege('authenticated','public.s1_70_export_reservas','ator_id','INSERT')
  or not exists(select 1 from pg_catalog.pg_policies
    where schemaname='public' and tablename='s1_70_export_reservas'
    and policyname='s1_70_reserva_propria')
@@ -53,8 +53,8 @@ do $audit$ begin
  or not has_schema_privilege('authenticated','prumo_export_ledger','USAGE')
  or has_schema_privilege('anon','prumo_export_ledger','USAGE')
  or has_schema_privilege('service_role','prumo_export_ledger','USAGE')
- or not has_table_privilege('authenticated',
-   'prumo_export_ledger.s1_70_export_reservas','INSERT')
+ or not has_column_privilege('authenticated',
+   'prumo_export_ledger.s1_70_export_reservas','ator_id','INSERT')
  or has_table_privilege('authenticated',
    'prumo_export_ledger.s1_70_export_reservas','SELECT')
  or has_table_privilege('authenticated',

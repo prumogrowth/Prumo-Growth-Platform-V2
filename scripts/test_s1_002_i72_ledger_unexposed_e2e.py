@@ -5,8 +5,8 @@ rolling quota, concurrent reservations, RLS or private retention.
 """
 if os.environ.get("CI")!="true" or os.environ.get("PRUMO_S1_I37_EPHEMERAL")!="YES":
  raise AssertionError("I72 disposable CI only")
-assert sql("select pg_catalog.has_table_privilege('authenticated',"
- "'public.s1_70_export_reservas','INSERT')")=="t"
+assert sql("select pg_catalog.has_column_privilege('authenticated',"
+ "'public.s1_70_export_reservas','ator_id','INSERT')")=="t"
 before=int(sql("select count(*) from public.s1_70_export_reservas"))
 sql(path="supabase/tests/s1_104_export_ledger_unexposed_local_only.sql")
 sql("notify pgrst,'reload schema'")
