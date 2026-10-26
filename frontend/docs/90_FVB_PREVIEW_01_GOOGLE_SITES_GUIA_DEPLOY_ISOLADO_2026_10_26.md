@@ -1,5 +1,8 @@
 # FVB-PREVIEW-01 — Pacote de avaliação da interface via Google Sites
 
+> **SUPERADO EM 26/10/2026 — CORREÇÃO DE DESTINO DE PUBLICAÇÃO:** o responsável esclareceu que se referia ao **ChatGPT Sites (OpenAI)**, não ao Google Sites. O fluxo Google Sites + Cloudflare abaixo é apenas uma **alternativa técnica histórica não executada**. **Diretriz vigente:** preparar o projeto visual para o **ChatGPT Work/Codex → ChatGPT Sites**, sem publicação automática e sem acesso a dados reais. Consultar [FVB-SITES-02](./91_FVB_SITES_02_CHATGPT_SITES_DESTINO_VIGENTE_2026_10_26.md) antes de qualquer deploy. O ZIP previamente certificado continua válido como artefato estático opcional, mas não é requisito para ChatGPT Sites e não foi publicado.
+
+
 **Data:** 26/10/2026. **Responsável pela frente:** Frontend visual, sem modificações em S0. **Objetivo:** permitir que avaliadores externos abram a versão interativa sintética em celular e computador, sem apresentar o protótipo como aplicativo operacional e **sem publicar o repositório privado**.
 
 ## Decisão técnica — Google Sites é a entrada; a aplicação é um embed externo
