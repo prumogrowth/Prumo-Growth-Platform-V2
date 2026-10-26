@@ -4468,7 +4468,8 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
                       fromlist=['CancelWitnessState']).CancelWitnessState.
                       LOCAL_CHAIN_ATTESTED_AUDIT_ONLY)
         data,witness,_,_=ctx
-        physical,_,req=data
+        preview_data,_,req=data
+        physical=preview_data[0]
         _,fields,version,f03,proposal=physical
         bridge=S0F02LegacyObservedOriginBridge(witness)
         result=bridge.inspect(
