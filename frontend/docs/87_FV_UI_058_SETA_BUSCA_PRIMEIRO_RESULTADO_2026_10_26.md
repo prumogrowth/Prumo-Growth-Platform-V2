@@ -27,3 +27,7 @@ Codex é o responsável principal pela S0. **FV-UI-058 não modifica nem depende
 **Anterior:** [FV-UI-057](./86_FV_UI_057_ESCAPE_BUSCA_PRESERVA_FILTROS_2026_10_25.md).
 
 **Status:** implementação candidata, certificação pendente.
+
+## Otimização do teste após primeira execução
+
+Na execução inicial, o preflight e Node **372/372** passaram, mas o script Chromium excedeu o limite de execução de 180 s ao abrir oito páginas adicionais. O roteiro FV-UI-058 foi incorporado às mesmas oito páginas já abertas pela FV-UI-057, sem remover cobertura de viewport/tema nem alterar o timeout ou o código de negócio. Novo aceite completo obrigatório.
