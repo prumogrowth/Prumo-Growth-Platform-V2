@@ -38,6 +38,16 @@ jobs:
           grep -qx '# tests 12' "$RUNNER_TEMP/cloud-meta-contract.tap"
           grep -qx '# pass 12' "$RUNNER_TEMP/cloud-meta-contract.tap"
           grep -qx '# fail 0' "$RUNNER_TEMP/cloud-meta-contract.tap"
+      - name: Graph wire observation and failure handling (20 checks)
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --experimental-strip-types --test --test-concurrency=1 \
+            integrations/whatsapp-meta/cloud-wire-observation.test.ts \
+            2>&1 | tee "$RUNNER_TEMP/cloud-wire-observation.tap"
+          grep -qx '# tests 20' "$RUNNER_TEMP/cloud-wire-observation.tap"
+          grep -qx '# pass 20' "$RUNNER_TEMP/cloud-wire-observation.tap"
+          grep -qx '# fail 0' "$RUNNER_TEMP/cloud-wire-observation.tap"
       - name: Reuse existing HMAC, Graph and WA36/37 contracts, no duplicates
         shell: bash
         run: |
