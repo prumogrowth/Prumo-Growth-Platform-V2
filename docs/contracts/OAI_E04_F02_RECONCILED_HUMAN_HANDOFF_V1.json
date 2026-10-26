@@ -1,0 +1,96 @@
+{
+  "contract_version": "F02_S0_RECONCILED_HUMAN_HANDOFF_V1",
+  "kind": "untrusted_review_handoff",
+  "status": "F02_REVIEW_HANDOFF_ONLY_NOT_AUTHORIZED_FOR_S0_PROMOTION",
+  "official_s0_owner": "Codex",
+  "producer_file": "backend/f02_reconciled_human_authorization_handoff.py",
+  "inputs": {
+    "evidence": {
+      "type": "ClaimedS0Evidence",
+      "scoped_uuid_fields": [
+        "shop_id",
+        "lead_id",
+        "case_id",
+        "closure_id"
+      ],
+      "expected_source": "E04_SYNTHETIC_S0_C08_REVIEW",
+      "expected_reconciliation_state": "LOCAL_LEGACY_EVIDENCE_REVIEW_ONLY",
+      "expected_origin_state": "LOCAL_OBSERVED_ORIGIN_REVIEW_ONLY",
+      "untrusted_hex_sha256_fields": [
+        "f03_receipt_sha256",
+        "c08_local_witness_sha256",
+        "origin_ledger_sha256",
+        "human_intent_sha256"
+      ],
+      "required_external_disposition": "EXTERNAL_DISPATCH_UNVERIFIED",
+      "required_human_ratification": "HUMAN_OPERATIONAL_AUTHORIZATION_NOT_RATIFIED"
+    },
+    "proposal": {
+      "type": "ReviewOnlyProposal",
+      "same_scope_fields": [
+        "shop_id",
+        "lead_id",
+        "case_id",
+        "closure_id"
+      ],
+      "more_uuid_fields": [
+        "channel_id",
+        "template_id"
+      ],
+      "template_version_format": "v[0-9]{1,10}",
+      "policy_version_format": "[A-Za-z0-9._:-]{4,80}",
+      "proposed_at": "timezone_aware_UTC_normalized",
+      "idempotency_key_format": "[A-Za-z0-9._:-]{8,128}",
+      "required_action": "REQUEST_S0_HUMAN_RATIFICATION_ONLY"
+    }
+  },
+  "output": {
+    "fields": [
+      "status",
+      "untrusted_request_sha256",
+      "contract_version"
+    ],
+    "positive_status": "HANDOFF_REVIEW_ONLY",
+    "negative_statuses": [
+      "DENIED_MALFORMED",
+      "S0_RECONCILIATION_REQUIRED",
+      "SCOPE_MISMATCH",
+      "EXTERNAL_DISPOSITION_NOT_ATTESTED",
+      "OPERATIONAL_RATIFICATION_NOT_ATTESTED"
+    ],
+    "authority": "NONE",
+    "digest_type": "UNSIGNED_SHA256_OF_UNTRUSTED_CANONICAL_REQUEST"
+  },
+  "test_proof": {
+    "github_actions_run": 40294600994,
+    "code_sha": "f9215c26b4a5a39df49d95ecd320a5c461432f4b",
+    "python_s0": 84,
+    "python_f02_f03": 537,
+    "pg17_physical": 330,
+    "node_s2_pinned": 269,
+    "new_unit_tests": 21,
+    "new_pg17_scenarios": [
+      329,
+      330
+    ]
+  },
+  "affected_files": [
+    "backend/f02_reconciled_human_authorization_handoff.py",
+    "backend/tests/test_f02_reconciled_human_authorization_handoff.py",
+    "backend/tests/test_s0_f03_pg17_integration.py",
+    "scripts/run-s0-f03-pg17-local.sh"
+  ],
+  "s0_code_modified": false,
+  "hosted_supabase_modified": false,
+  "deploy_enabled": false,
+  "external_send_enabled": false,
+  "dependencies_for_codex": [
+    "S0_authenticated_principal_and_GoTrue_session",
+    "S1_manager_eligibility_and_scope",
+    "S0_independent_F03_C08_observed_origin_verification",
+    "Meta_external_disposition_and_template_approval",
+    "lawful_contact_basis_and_optout",
+    "independent_S0_human_operational_ratification",
+    "review_integration_branch_before_main"
+  ]
+}
