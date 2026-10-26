@@ -235,12 +235,19 @@ function updateSelectors() {
     ...COMMERCIAL_STATUSES.map(status => { const opt=el('option','',status);opt.value=status;return opt;}));
   statusSelect.options[0].value='all';statusSelect.value=state.statusFilter;
 }
+// FV-UI-054: redefinir só refinamentos, sem mudar perfil, loja ou aba.
+function resetListRefinements() {
+  state.query='';state.filter='all';state.statusFilter='all';
+  $('search-input').value='';$('status-filter').value='all';
+  renderList();$('search-input').focus();
+}
 function renderList() {
   const items = filtered();
   const listProjection = projectInbox(state.cases,state.actorId,state.shopId,state.inboxView);
   const total = listProjection.length;
   // FV-UI-052: anunciar quantidades quando existirem resultados; evitar
   // anúncio duplo de zero, já explicado por .no-results[role=status].
+  $('filter-reset-controls').hidden=!(state.query.trim() || state.filter!=='all' || state.statusFilter!=='all');
   const listCount = $('list-count');
   listCount.setAttribute('aria-live',items.length===0?'off':'polite');
   // FV-UI-049: o contador indica resultados visíveis sem perder o total desta aba.
@@ -316,12 +323,7 @@ function renderList() {
     if (!suspended && total > 0 && refined) {
       const clear = el('button','btn btn-light empty-reset','Limpar busca e filtros');
       clear.type='button';
-      clear.addEventListener('click',()=>{
-        state.query='';state.filter='all';state.statusFilter='all';
-        $('search-input').value='';$('status-filter').value='all';
-        renderList();
-        $('search-input').focus();
-      });
+      clear.addEventListener('click',resetListRefinements);
       box.append(clear);
     }
     list.replaceChildren(box);
@@ -787,6 +789,7 @@ $('shop-select').addEventListener('change',event=>{
   state.queueRequests={};state.reviewScenes={};state.shopId=event.target.value;state.selectedId=null;state.detailTab='overview';state.statusFilter='all';state.inboxView='active';$('status-filter').value='all';state.query='';$('search-input').value='';goto('list');render();announceCurrentContext('Concessionária alterada');
 });
 $('search-input').addEventListener('input',event=>{state.query=event.target.value;renderList();});
+$('clear-list-filters').addEventListener('click',resetListRefinements);
 $('status-filter').addEventListener('change',event=>{state.statusFilter=event.target.value;renderList();});
 document.querySelectorAll('[data-inbox]').forEach(button=>button.addEventListener('click',()=>{
  closeTransientDialogs();state.inboxView=button.dataset.inbox;state.selectedId=null;goto('list');render();

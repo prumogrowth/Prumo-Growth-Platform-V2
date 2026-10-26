@@ -934,3 +934,32 @@ test('FV-UI-036: tema claro/escuro alterna sem perder o caso selecionado', () =>
   assert.equal(get('theme-light').getAttribute('aria-pressed'), 'true');
   assert.match(get('thread-title').textContent, /Cliente Exemplo 02/);
 });
+
+test('FV-UI-054: limpeza mantém contexto, aba, foco e reabre resultados',()=>{
+  reset();
+  const actor=get('actor-select').value,shop=get('shop-select').value;
+  assert.equal(get('filter-reset-controls').hidden,true);
+  get('search-input').value='fv-ui-054-sem-caso';
+  get('search-input').fire('input');
+  assert.equal(get('filter-reset-controls').hidden,false);
+  env.filters[1].click();
+  get('status-filter').value='em atendimento pelo operador';
+  get('status-filter').fire('change');
+  assert.equal(env.cards().length,0);
+  get('clear-list-filters').click();
+  assert.equal(get('search-input').value,'');
+  assert.equal(get('status-filter').value,'all');
+  assert.equal(env.filters[0].getAttribute('aria-pressed'),'true');
+  assert.equal(get('filter-reset-controls').hidden,true);
+  assert.equal(get('actor-select').value,actor);
+  assert.equal(get('shop-select').value,shop);
+  assert.equal(env.inbox[0].getAttribute('aria-pressed'),'true');
+  assert.equal(env.document.activeElement,get('search-input'));
+  assert.equal(env.cards().length,8);
+  env.inbox[1].click();
+  get('search-input').value='fv-ui-054-historico-sem-caso';
+  get('search-input').fire('input');
+  get('clear-list-filters').click();
+  assert.equal(env.inbox[1].getAttribute('aria-pressed'),'true');
+  assert.equal(env.cards().length,3);
+});

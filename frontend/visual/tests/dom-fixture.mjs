@@ -65,7 +65,7 @@ export function installMockDOM({ mobile = false, tablet = false, prefersDark = f
   const descendants = node => node.children.flatMap(n => [n, ...descendants(n)]);
   const ids = [
     'visual-app', 'actor-select', 'shop-select', 'search-input', 'status-filter',
-    'list-count', 'list-context', 'queue-summary', 'conversation-items', 'thread-title',
+    'list-count', 'list-context', 'queue-summary', 'filter-reset-controls', 'clear-list-filters', 'conversation-items', 'thread-title',
     'thread-meta', 'thread-body', 'workflow-bar', 'message-input', 'detail-toggle',
     'detail-content', 'detail-pane', 'thread-pane', 'message-preview-dialog',
     'message-preview-body', 'completion-dialog',
@@ -80,6 +80,7 @@ export function installMockDOM({ mobile = false, tablet = false, prefersDark = f
   ];
   const nodes = new Map(ids.map(id => {
     const tag=id.endsWith('dialog') ? 'dialog' :
+      id==='clear-list-filters' ? 'button' :
       ['search-input','message-input'].includes(id) ? 'input' :
       id.includes('select') || ['status-filter','queue-assignee'].includes(id) ? 'select' :
       'div';

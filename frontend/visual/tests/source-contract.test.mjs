@@ -592,7 +592,7 @@ test('FV-UI-049: busca vazia contextual, contador visivel e limpeza restrita',()
   assert.match(app,/Nenhuma conversa corresponde à busca/);
   assert.match(app,/Nenhum atendimento nesta lista/);
   assert.match(app,/Nenhum atendimento com estes filtros/);
-  assert.match(app,/clear\.addEventListener\('click'/);
+  assert.match(app,/clear\.addEventListener\('click',resetListRefinements\)/);
   assert.match(app,/state\.query='';state\.filter='all';state\.statusFilter='all';/);
   assert.match(app,/\$\('search-input'\)\.focus\(\)/);
   assert.match(styles,/FV-UI-049 — resultados vazios contextuais/);
@@ -649,4 +649,14 @@ test('FV-UI-053: atalho da busca descobrivel sem nova operacao ou efeito comerci
   assert.match(styles,/@media\(max-width:760px\)\{\.list-pane \.search-shortcut\{display:none\}\}/);
   assert.match(app,/\(event\.ctrlKey\|\|event\.metaKey\)\&\&event\.key\.toLowerCase\(\)==='k'/);
   assert.match(browserSmoke,/FV-UI-053 atalho de busca teclado e reflow em 8 cenarios: PASS/);
+});
+
+test('FV-UI-054: limpeza contextual conserva os limites de demonstracao',()=>{
+  assert.match(markup,/id="filter-reset-controls" hidden/);
+  assert.match(markup,/id="clear-list-filters">Limpar busca e filtros/);
+  assert.match(app,/function resetListRefinements\(\)/);
+  assert.match(app,/filter-reset-controls'\)\.hidden=!\(state\.query\.trim\(\) \|\| state\.filter!=='all' \|\| state\.statusFilter!=='all'\)/);
+  assert.match(app,/clear-list-filters'\)\.addEventListener\('click',resetListRefinements\)/);
+  assert.match(styles,/FV-UI-054 — limpeza explícita dos refinamentos da fila/);
+  assert.match(browserSmoke,/FV-UI-054 limpeza de filtros com escopo preservado em 8 cenarios: PASS/);
 });

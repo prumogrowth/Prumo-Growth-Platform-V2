@@ -1231,4 +1231,41 @@ with sync_playwright() as p:
             shortcut_page.close()
     print('FV-UI-053 atalho de busca teclado e reflow em 8 cenarios: PASS')
 
+
+    # FV-UI-054: limpar filtros ativos, com ou sem resultados, preservando escopo.
+    for reset_width,reset_height in ((320,640),(390,844),(900,780),(1440,900)):
+        for reset_theme in ('light','dark'):
+            reset_page=browser.new_page(viewport={'width':reset_width,'height':reset_height},color_scheme=reset_theme)
+            reset_page.set_default_timeout(4500)
+            errors_054=[]
+            reset_page.on('pageerror',lambda e:errors_054.append(str(e)))
+            reset_page.set_content(html);reset_page.add_script_tag(content=script)
+            expect(reset_page.locator('#visual-app')).to_have_attribute('data-theme',reset_theme)
+            reset_controls=reset_page.locator('#filter-reset-controls')
+            expect(reset_controls).to_be_hidden()
+            original_actor=reset_page.locator('#actor-select').input_value()
+            original_shop=reset_page.locator('#shop-select').input_value()
+            reset_page.locator('#search-input').fill('FV-UI-054-busca-sem-resultado-xxyy')
+            reset_page.locator('#status-filter').select_option(index=1)
+            reset_page.locator('[data-filter="unread"]').click()
+            expect(reset_controls).to_be_visible()
+            reset_button=reset_page.locator('#clear-list-filters')
+            expect(reset_button).to_be_visible()
+            assert reset_button.bounding_box()['height']>=44
+            reset_button.scroll_into_view_if_needed()
+            reset_button.click()
+            expect(reset_controls).to_be_hidden()
+            expect(reset_page.locator('#search-input')).to_be_focused()
+            assert reset_page.locator('#search-input').input_value()==''
+            assert reset_page.locator('#status-filter').input_value()=='all'
+            assert reset_page.locator('[data-filter="all"]').get_attribute('aria-pressed')=='true'
+            assert reset_page.locator('[data-inbox="active"]').get_attribute('aria-pressed')=='true'
+            assert reset_page.locator('#actor-select').input_value()==original_actor
+            assert reset_page.locator('#shop-select').input_value()==original_shop
+            assert reset_page.locator('.conversation-card').count()>0
+            assert not reset_page.evaluate('document.documentElement.scrollWidth>innerWidth')
+            assert not errors_054,errors_054
+            reset_page.close()
+    print('FV-UI-054 limpeza de filtros com escopo preservado em 8 cenarios: PASS')
+
     browser.close()

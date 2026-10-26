@@ -456,3 +456,11 @@ body[data-theme="dark"] .team-dialog .team-mode button[aria-pressed="true"]{
   background:#fff;pointer-events:none}
 .visual-app[data-theme="dark"] .list-pane .search-shortcut{background:#263742;color:#e1edf2;border-color:#829ba8}
 @media(max-width:760px){.list-pane .search-shortcut{display:none}}
+
+/* FV-UI-054 — limpeza explícita dos refinamentos da fila; sem alterar escopo. */
+.list-pane .filter-reset-controls:not([hidden]){display:flex;justify-content:flex-end;padding-top:5px}
+.list-pane .clear-list-filters{min-height:44px;padding:9px 13px;border:1px solid #91aeb4;
+  border-radius:9px;background:#f5f9f9;color:#205765;font-size:12px;font-weight:700}
+.list-pane .clear-list-filters:focus-visible{outline:3px solid #11685d;outline-offset:2px}
+.visual-app[data-theme="dark"] .list-pane .clear-list-filters{background:#263742;color:#e1edf2;border-color:#829ba8}
+.visual-app[data-theme="dark"] .list-pane .clear-list-filters:focus-visible{outline-color:#83dac9}
