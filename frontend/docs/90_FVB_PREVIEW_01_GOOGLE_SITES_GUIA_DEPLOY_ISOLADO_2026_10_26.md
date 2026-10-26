@@ -47,3 +47,7 @@ Apenas os arquivos da raiz `frontend/visual/` necessários ao navegador: `index.
 ## Impacto nos contratos e S0
 
 Arquivos adicionados: `frontend/preview/build_preview.py`, `frontend/preview/test_build_preview.py`, este documento. Arquivo modificado: `.github/workflows/frontend-visual-validation.yml`. Nenhum arquivo sob `frontend/visual/`, `frontend/s1/`, S0, API, migrations ou `main` foi alterado. Continua preservado todo o trabalho e PRs anteriores.
+
+## Empacotamento rápido usando o snapshot FVA-01 já certificado
+
+O build geral da interface continua testando Chromium para alterações reais de frontend. Para permitir distribuição do mesmo runtime sem qualquer nova modificação visual, foi adicionada uma rotina **separada** `.github/workflows/frontend-preview-package.yml` com verificação *fail-closed*: o Git tree inteiro de `frontend/visual` precisa ser **idêntico** ao já aprovado `c9e7dd75f3a50dd0727eaeac808c412e26de9258` ([run PASS 40300012152](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40300012152)). A rotina executa os testes do ZIP e compara cada asset aos hashes do manifesto antes de disponibilizar artefato, **sem modificar a `main` e sem publicar nada**. Não substitui Chromium quando o runtime visual mudar; basta um arquivo alterado nessa árvore para o empacotamento rápido bloquear até haver nova certificação e repin do baseline. O artefato pode ser baixado de qualquer execução **PASS** da rotina rápida ou do workflow nativo completo.

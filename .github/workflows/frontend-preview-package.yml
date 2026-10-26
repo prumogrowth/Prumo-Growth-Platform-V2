@@ -1,0 +1,45 @@
+name: Prumo - Gerar pacote de avaliacao visual (sem deploy)
+on:
+  push:
+    branches:
+      - feat/frontend-plataforma-visual
+    paths:
+      - ".github/workflows/frontend-preview-package.yml"
+      - "frontend/preview/**"
+permissions:
+  contents: read
+jobs:
+  preview-package:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout completo para conferir snapshot ja certificado
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Exigir runtime identico ao snapshot aprovado FVA-01
+        run: |
+          set -euo pipefail
+          baseline="c9e7dd75f3a50dd0727eaeac808c412e26de9258"
+          actual="$(git rev-parse HEAD:frontend/visual)"
+          certified="$(git rev-parse "${baseline}:frontend/visual")"
+          test "$actual" = "$certified"
+          echo "Runtime idêntico ao SHA certificado $baseline — PASS"
+      - name: Testar e gerar ZIP somente com arquivos pinados
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          python -B -m unittest discover -s frontend/preview -p 'test_*.py'
+          python -B frontend/preview/build_preview.py --output out/prumo-demo-visual.zip
+      - name: Disponibilizar pacote ZIP (30 dias; nenhuma publicacao)
+        uses: actions/upload-artifact@v4
+        with:
+          name: prumo-demo-visual-zip
+          path: out/prumo-demo-visual.zip
+          if-no-files-found: error
+          retention-days: 30
