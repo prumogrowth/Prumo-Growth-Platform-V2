@@ -75,6 +75,8 @@ Critérios: 20 reservas concorrentes → uma tentativa; dez begins → um venced
 
 Entrada observe: {attempt_ref,observation_ref,wire}. Transporte futuro deve autenticar identidade técnica e vincular observação à tentativa/correlação iniciada. wire é snapshot inerte transport_error, not_attempted, ou HTTP com status, headers e response_base64. Reutiliza **sem alterar** classifyCloudWireObservation e classifyGraphSendResult.
 
+A tentativa possui correlation_ref gerado no servidor, independente de correlation_id de transporte. A evidência conserva esse vínculo; auditoria persiste digest do envelope, escopo técnico, referências solicitadas (identificadas como tal) e recibo efetivo.
+
 A transação registra digest e campos sanitizados: estado técnico, wamid validado se houver, status HTTP e códigos numéricos. Não persiste body Graph, token, mensagem textual de erro ou segredo. Repetição exata não duplica evidência. Mesmo observation_ref com digest diferente mantém original, registra fingerprints do conflito e põe tentativa em quarentena; aceitação/rejeição incompatíveis ou wamids divergentes exigem revisão.
 
 | Observação | Resultado candidato |
@@ -169,7 +171,7 @@ python3 integration/meta_s0_candidate/verify_sources.py
 node --experimental-strip-types --test --test-concurrency=1 integration/meta_s0_candidate/candidate.test.mjs integration/meta_s0_candidate/durable.test.mjs
 ~~~
 
-Workflow executa **161 regressões Meta existentes** selecionadas no PR #8 (12 Cloud webhook + 20 Cloud wire + 129 anteriores), sem copiar/recontar WA39–68. **50 testes novos** cobrem modelo candidato/fixture de filesystem; não substituem certificação PG17/GoTrue dos PRs #7/#9.
+Workflow executa **161 regressões Meta existentes** selecionadas no PR #8 (12 Cloud webhook + 20 Cloud wire + 129 anteriores), sem copiar/recontar WA39–68. **52 testes novos** cobrem modelo candidato/fixture de filesystem; não substituem certificação PG17/GoTrue dos PRs #7/#9.
 
 Revisor: conferir diff aditivo/manifesto; ler C1–C7; examinar CI no SHA executável; confirmar ausência de direito de envio/produção/ACK externo; exigir corridas físicas/instalação mínima futuras. Resultados desta proposta em EVIDENCIAS.md; até sua verificação, testes estão preparados, não certificados.
 

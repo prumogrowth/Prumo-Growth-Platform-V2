@@ -310,3 +310,27 @@ test('conflict fingerprints are retained without overwriting the original observ
   assert.equal(h.store.state.conflicts.length,1);
   assert.notEqual(h.store.state.conflicts[0].expected,h.store.state.conflicts[0].received);
 });
+
+test('technical attempt correlation is server-owned and durable audit binds request, scope and receipt',async()=>{
+  const h=setup(),ref=await begun(h),internal=h.store.state.attempts[ref].correlation_ref;
+  await h.call('observe',{attempt_ref:ref,observation_ref:'obs_fixed',wire:http(200)},
+    'dispatch',{correlation_id:'changed_transport_correlation'});
+  const evidence=h.store.state.attempts[ref].evidence[0];
+  assert.equal(evidence.correlation_ref,internal);
+  assert.notEqual(internal,'changed_transport_correlation');
+  const audit=h.store.state.audit.at(-1);
+  assert.equal(audit.requested_attempt_ref,ref);assert.equal(audit.tenant_ref,'tenant_A');
+  assert.match(audit.envelope_sha256,/^[a-f0-9]{64}$/);
+  const batch=await h.call('append_batch',h.batch(),'ingress');
+  assert.equal(h.store.state.audit.at(-1).receipt_ref,batch.receipt_ref);
+});
+test('a review ref reused with different evidence cannot overwrite reconciliation',async()=>{
+  const h=setup(),ref=await begun(h);
+  await observe(h,ref,{kind:'transport_error'},'one');
+  await observe(h,ref,http(200),'two');
+  await h.call('review',{attempt_ref:ref,decision_ref:'review_fixed',evidence_refs:['one']},'reviewer');
+  const r=await h.call('review',{attempt_ref:ref,decision_ref:'review_fixed',evidence_refs:['two']},'reviewer');
+  assert.equal(r.code,'REVIEW_CONFLICT_QUARANTINED');
+  assert.deepEqual(h.store.state.attempts[ref].reviews[0].evidence_refs,['one']);
+  assert.equal(h.store.state.attempts[ref].quarantined,true);invariants(r);
+});

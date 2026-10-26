@@ -88,7 +88,12 @@ export class CandidateLab {
           throw Error('INVALID_RESULT');
         s.nonces[nk]=digest;
         s.audit.push({request_id:p.request_id,correlation_id:p.correlation_id,
-          key_id:proof.key_id,operation:p.operation,code:outcome.code});
+          key_id:proof.key_id,operation:p.operation,code:outcome.code,
+          tenant_ref:k.tenant_ref,channel_ref:k.channel_ref,route_ref:k.route_ref,
+          route_revision:k.route_revision,envelope_sha256:digest,
+          requested_attempt_ref:p.body?.attempt_ref??null,
+          requested_intent_ref:p.body?.intent_ref??null,
+          receipt_ref:outcome.receipt_ref??null});
         return outcome;
       });
       // The adapter must resolve ONLY after the full durable commit. Even a
@@ -122,7 +127,7 @@ export class CandidateLab {
       if (s.intents[b.intent_ref]) return out('INTENT_OCCUPIED_NO_RETRY');
       const attempt_ref=randomUUID();
       s.attempts[attempt_ref]={attempt_ref,intent_ref:b.intent_ref,
-        revision:a.revision,phase:'RESERVED',cancelled:false,quarantined:false,
+        revision:a.revision,correlation_ref:randomUUID(),phase:'RESERVED',cancelled:false,quarantined:false,
         evidence:[],reviews:[]};
       s.intents[b.intent_ref]=attempt_ref;
       s.idempotency[ik]={fingerprint,attempt_ref};
@@ -169,7 +174,7 @@ export class CandidateLab {
       if (!['EXTERNAL_POSSIBLE','EXTERNAL_UNCERTAIN'].includes(a.phase))
         return out('EXTERNAL_BEGIN_REQUIRED');
       const wire=wireObservation(b.wire);
-      const d=classifyCloudWireObservation(a.attempt_ref,p.correlation_id,wire);
+      const d=classifyCloudWireObservation(a.attempt_ref,a.correlation_ref,wire);
       const fingerprint=sha(JSON.stringify(b.wire));
       const existing=a.evidence.find(e=>e.ref===b.observation_ref);
       if (existing) {
@@ -188,7 +193,7 @@ export class CandidateLab {
         || (kind==='PROVIDER_REJECTED' && accepted.length)
         || (kind==='API_ACCEPTED' && accepted.some(e=>e.provider_message_id!==d.provider_message_id)))
         a.quarantined=true;
-      a.evidence.push({ref:b.observation_ref,fingerprint,send_state:kind,
+      a.evidence.push({ref:b.observation_ref,fingerprint,correlation_ref:a.correlation_ref,send_state:kind,
         provider_message_id:d.provider_message_id,http_status:d.http_status,
         meta_error_code:d.meta_error_code,meta_error_subcode:d.meta_error_subcode});
       a.phase='EXTERNAL_UNCERTAIN';

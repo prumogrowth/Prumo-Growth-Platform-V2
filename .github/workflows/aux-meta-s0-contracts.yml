@@ -29,15 +29,15 @@ jobs:
           node-version: '22'
       - name: Verify source blobs and additive scope
         run: python3 integration/meta_s0_candidate/verify_sources.py
-      - name: Candidate state machine, M2M and durable crash tests (50)
+      - name: Candidate state machine, M2M and durable crash tests (52)
         shell: bash
         run: |
           set -euo pipefail
           node --experimental-strip-types --test --test-concurrency=1 \
             integration/meta_s0_candidate/candidate.test.mjs \
             integration/meta_s0_candidate/durable.test.mjs 2>&1 | tee "$RUNNER_TEMP/meta-s0-candidate.tap"
-          grep -qx '# tests 50' "$RUNNER_TEMP/meta-s0-candidate.tap"
-          grep -qx '# pass 50' "$RUNNER_TEMP/meta-s0-candidate.tap"
+          grep -qx '# tests 52' "$RUNNER_TEMP/meta-s0-candidate.tap"
+          grep -qx '# pass 52' "$RUNNER_TEMP/meta-s0-candidate.tap"
           grep -qx '# fail 0' "$RUNNER_TEMP/meta-s0-candidate.tap"
       - name: Existing Meta regression - unchanged imports and tests (161)
         shell: bash
