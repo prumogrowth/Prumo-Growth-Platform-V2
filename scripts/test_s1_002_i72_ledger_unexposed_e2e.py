@@ -37,10 +37,20 @@ assert st in (401,403,404),(st,err)
 print("PASS I72-E2E-03: ledger has no public read endpoint; anonymous user cannot write")
 
 # Selecting the ledger's internal schema via header MUST NOT enable access.
-st,err=http("POST","/rest/v1/s1_70_export_reservas",
-            bearer=token53,body=direct,base=api,
-            headers={"Content-Profile":"prumo_export_ledger"})
-assert st==406,(st,err)
+# Existing shared HTTP helper has no custom-headers argument.
+from urllib.request import Request as _I72Request, urlopen as _I72Open
+from urllib.error import HTTPError as _I72HTTPError
+_i72_req=_I72Request(api+"/rest/v1/s1_70_export_reservas",
+ data=json.dumps(direct).encode("utf-8"),method="POST",
+ headers={"Content-Profile":"prumo_export_ledger",
+          "Content-Type":"application/json",
+          "apikey":anon,"Authorization":"Bearer "+token53})
+try:
+ with _I72Open(_i72_req,timeout=20) as _i72_response:
+  st=_i72_response.status
+except _I72HTTPError as _i72_error:
+ st=_i72_error.code
+assert st==406,st
 print("PASS I72-E2E-04: Content-Profile cannot expose internal schema")
 
 st,payload=export71("lotes",token=token53,lim=1)
