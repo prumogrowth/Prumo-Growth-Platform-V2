@@ -29,3 +29,13 @@ O primeiro workflow GoTrue `#40256248783` executou as **oito provas I73** com su
 ## Correção adicional no runner de CI
 
 O workflow GoTrue [#40256646366](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40256646366) terminou SUCCESS para o conjunto antigo, mas **NÃO executou I73**: uma sequência literal de caracteres \n ficou dentro de um comentário e neutralizou `exec`. Logo, sucesso do job **não** foi considerado evidência I73. Esta revisão repõe uma linha Python executável real; a certificação exige os oito marcadores `PASS I73-E2E-01..08` e sucesso das regressões posteriores.
+
+## Certificação I73 — laboratório — 25/10/2026 (Brasil)
+
+**PostgreSQL 17: SUCCESS, I73 6/6.** [Workflow #40256248791](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40256248791), job `121358609112`, revisão SQL `100246260077b9cf304a0ac909bffadf51e88224`. Logs conferidos: `PASS I73-01` a `PASS I73-06`, regressões S0+S1 I52–I72 sem falhas, candidato revertido por ROLLBACK. O SQL I73 e o ensaio PG17 não foram alterados pelas revisões posteriores.
+
+**GoTrue real/PostgREST: SUCCESS, I73 8/8.** [Workflow #40256988933](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40256988933), job `121360850909`, commit `d9e415e82bd3cb9c55e75db8e0c31bcf166179bb`. Logs conferidos: `PASS I73-E2E-01` a `PASS I73-E2E-08`; após a I73, `PASS S1INTAKE-147` e execução completa de testes seguintes, sem traceback. Job de testes unitários `121360851063` SUCCESS.
+
+**Intercorrências não contabilizadas:** #40256248783 falhou depois de oito testes I73 em regressão I53 por interferência em sessão e namespace globais; #40256646366 foi SUCCESS geral, mas a chamada I73 estava inadvertidamente comentada por sequência literal `\\n`, portanto **não** é prova de I73. Ambas foram diagnosticadas e corrigidas. O workflow final confirmou os oito testes e a sequência posterior.
+
+**Resultado:** I73 concluída e certificada **somente em laboratório**. A via de uso SQL direto por `authenticated` foi cortada. Persistem o risco de credenciais SQL do próprio executor comprometidas, a necessidade de assinatura independente/replay, quotas gerais por loja, rate-limit e auditoria de exportações alternativas da S0. O gate de deploy, a integração `main` e a implantação hospedada permanecem **bloqueados**. Issue #3 inalterada.
