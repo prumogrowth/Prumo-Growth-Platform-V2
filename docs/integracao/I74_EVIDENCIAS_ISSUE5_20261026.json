@@ -1,0 +1,551 @@
+{
+  "date": "2026-10-26",
+  "issue": 5,
+  "branch": "exp/s0-i74-provisionamento-20261026",
+  "base_s1_sha": "01f7ba1a3c46100e023ce88a91a7bcc97d638a6c",
+  "tested_sha": "ab38ebb3c5c8010857953383b665a52029be57f7",
+  "commits": [
+    "57d711f708c48051470be759f945a1dac66e8b3f",
+    "ab38ebb3c5c8010857953383b665a52029be57f7"
+  ],
+  "function_body_sha256_unchanged": "ab537e63f06e2f8c12feb5874132637e0b2fcfa7715076105d8e1ad0e709cde9",
+  "results": {
+    "sql_i74": 6,
+    "real_e2e_i74": 8,
+    "provision_negatives": 4,
+    "additional_security": 3,
+    "unit_tests": 179,
+    "regression_end_markers": [
+      "PASS S1INTAKE-147: canonical signed intake denies revoked signer key",
+      "PASS S1INTAKE-148: canonical signed intake unavailable without signer",
+      "S1-002/I37: 132 older E2E and 16 new I37 gates PASS."
+    ]
+  },
+  "runs": [
+    {
+      "id": 40302989195,
+      "name": "I74 provision PG17 regression",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40302989195",
+      "head_sha": "ab38ebb3c5c8010857953383b665a52029be57f7",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "id": 121505135657,
+          "name": "s1-002-equipe",
+          "conclusion": "success",
+          "started_at": "2026-10-26T09:52:56Z",
+          "completed_at": "2026-10-26T09:54:46Z",
+          "steps": [
+            {
+              "name": "Set up job",
+              "conclusion": "success"
+            },
+            {
+              "name": "Initialize containers",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Instalar cliente PostgreSQL se necessario",
+              "conclusion": "success"
+            },
+            {
+              "name": "Criar base local descartavel",
+              "conclusion": "success"
+            },
+            {
+              "name": "Executar regressao S0 e gate equipe S1-002",
+              "conclusion": "success"
+            },
+            {
+              "name": "I52 etapa canonica S0-S1 apos regressao historica",
+              "conclusion": "success"
+            },
+            {
+              "name": "I46 inventario completo das migrations SQL rastreadas",
+              "conclusion": "success"
+            },
+            {
+              "name": "I46 catalogo ACL efetivo no PG17 descartavel",
+              "conclusion": "success"
+            },
+            {
+              "name": "I48 catalogo efetivo de roles e funcoes gateway S0",
+              "conclusion": "success"
+            },
+            {
+              "name": "I48 cruzamento de fontes S0 013-037",
+              "conclusion": "success"
+            },
+            {
+              "name": "Arquivar cruzamento I48",
+              "conclusion": "success"
+            },
+            {
+              "name": "Arquivar inventario estatico I46",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Stop containers",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "conclusion": "success"
+            }
+          ],
+          "log_evidence": [
+            "PASS I60-01: pre-candidate restrictive policies deny case-less history",
+            "PASS I60-02: exceptional consultant reads pre-case history of exact contact/store only",
+            "PASS I60-03: two managers see only team-history, including cross-store difference",
+            "PASS I60-04: former consultant sees only currently held case contact",
+            "PASS I60-05: read-only pre-case access never grants outbound message",
+            "PASS I60-06: revocation rescopes same JWT and three candidate policies isolated",
+            "PASS I52-01: S0-owned canonical assignments created before intake pause",
+            "PASS I52-02: versioned intake-only pause preserves original owner/account",
+            "PASS I52-03: canonical S0 INSERT and S1 manual transfer both reject paused destination without partial mutation",
+            "PASS I52-04: strict CAS, outsider denied and one intake audit event",
+            "PASS I52-05: paused consultant retains original case and can answer",
+            "PASS I52-06: legacy global-pause disabled, resumed consultant receives manual transfer with one owner",
+            "PASS I52-RACE-01: pause committed first; waiting S0 assignment rejected",
+            "PASS I52-RACE-02: assignment committed first; subsequent pause keeps prior owner",
+            "PASS I54-01: leads and cycles without explicit human event are NOT a queue",
+            "PASS I54-02: S0 commercial status explicitly produces five durable minimal queue events",
+            "PASS I54-03: S0 auto-dispatch creates one real case/assignment, skips paused C1, CAS replay conflicts",
+            "PASS I54-04: real manual manager claim requires exact shop, creates canonical case and assignment",
+            "PASS I54-05: no eligible consultant => queue remains pending, no case/owner fabricated",
+            "PASS I54-06: resumed consultant can receive previously queued case once, CAS",
+            "PASS I54-07: no cross-store assignment; only own manager can claim own shop",
+            "PASS I54-08: append-only handoff audit, four unique owners, no authenticated direct SQL privilege",
+            "PASS I54-RACE-01: concurrent claims => one canonical owner and one audit, loser CAS conflict",
+            "PASS I54-RACE-02: grant revoked while blocked => no case and unchanged queue",
+            "PASS I56-01: no explicit signal => no queue",
+            "PASS I56-02: external case reconciled and audited with CAS",
+            "PASS I56-03: legitimate I54 claim stays assigned, no false event",
+            "PASS I56-04: same-cycle second case rejected",
+            "PASS I56-05: all pending cycles of same lead reconciled",
+            "PASS I56-06: stale claim conflicts, trigger private",
+            "PASS I56-RACE-01: external case first => one case and claim CAS conflict",
+            "PASS I56-RACE-02: claim first => second case denied after lock, one owner",
+            "PASS I57-01: valid shop grant enables canonical assignment",
+            "PASS I57-02: cross-store assignment denied",
+            "PASS I57-03: A2 paused intake continues blocking new assignment",
+            "PASS I57-04: older assignment may be closed after grant expiry",
+            "PASS I57-05: SQL direct execution denied; failed writes did not mutate cases",
+            "PASS I57-RACE-01: direct S0 assignment blocked on revoked grant and denied",
+            "PASS I57-RACE-02: natural grant expiry during manual wait; prior owner and audit intact",
+            "PASS I58-01: authorized manager sees shared LIST gate and wins exact S0 CAS",
+            "PASS I58-02: authorized stale CAS remains conflict without duplicate",
+            "PASS I58-03: revoked grant denied BEFORE stale CAS and no tenant metadata leaked",
+            "PASS I58-04: cross-store manager fails signed LIST predicate",
+            "PASS I58-05: manager account suspension denies LIST even with store grant",
+            "PASS I58-06: denied operations preserve pending queue, ACL remains private",
+            "PASS I58-RACE-01: grant revoked while CLAIM awaited SQL lock; queue/case unchanged",
+            "PASS I58-RACE-02: LIST authorization rejects naturally expired grant after actual lock wait",
+            "PASS I59-01: legitimate conversation binds exact shop/case/contact",
+            "PASS I59-02: same-store different-contact case association is rejected",
+            "PASS I59-03: changing contact of existing case conversation fails closed",
+            "PASS I59-04: redirecting existing conversation to another contact case fails",
+            "PASS I59-05: case-less S0 conversation remains valid before human handoff",
+            "PASS I59-06: same telephone in another store never attaches foreign case",
+            "PASS I59-07: validated canonical FK; denied writes leave original conversation intact",
+            "PASS I61-01: without exact exception default S0 no-grant denial remains",
+            "PASS I61-02: other manager cannot exercise case exception",
+            "PASS I61-03: A2 pause blocks even exceptional assignment",
+            "PASS I61-04: S0 canonical assignment now accepts exact case exception only",
+            "PASS I61-05: stale assignment cannot claim a second owner",
+            "PASS I61-06: only owning manager revokes and authorization stops without moving S0 case",
+            "PASS I61-07: private grants denied, event audit append-only",
+            "PASS I61-08: exception of previous case cannot authorize assignment of another case",
+            "PASS I61-09: assignment closure synchronously revokes exception and appends event",
+            "PASS I63-01: baseline no-grant consultant does not receive S0 history",
+            "PASS I63-02: candidate RLS does not invent entitlement from team membership",
+            "PASS I63-03: transfer opens same-lead case and pre-case messages only",
+            "PASS I63-04: previous consultant loses case; foreign manager shop grant cannot bypass RLS",
+            "PASS I63-05: manager supervises participants not unrelated customer or store",
+            "PASS I63-06: pre-case read never grants send without a case",
+            "PASS I63-07: A2 intake pause retains existing exceptional case/history",
+            "PASS I63-08: same JWT loses case, assignment, history and pre-case messages after revoke",
+            "PASS I63-09: exactly eight local candidate policies, one durable revoke event",
+            "I63 canonical history RLS PG17 9/9; all rolled back",
+            "PASS I64-01: reproduced indirect S0 store-grant visibility despite I63 restricted case",
+            "PASS I64-02: foreign team manager grant constrained to supervised contact and cycle",
+            "PASS I64-03: current supervisor with S0 manager grant retains exactly same-contact D2 read",
+            "PASS I64-04: five S0 bulk surfaces quarantined even for legitimate manager",
+            "PASS I64-05: exceptional consultant without store grant gains no direct lead/cycle/bulk select",
+            "PASS I64-06: canonical exception keeps case history but creates no raw S0 lead/cycle right",
+            "PASS I64-07: revoke cuts case history, no lead/cycle side channel on same JWT",
+            "PASS I64-08: 7 restrictive SELECT-only candidate policies, 8 I63 preserved, no private grant",
+            "PASS I65-01: no public definer RPC, owner-rights public view or private-schema client USAGE in canonical S0/S1",
+            "PASS I65-02: legacy S1 interface capability inventoried separately; I61 private move denied",
+            "PASS I65-03: private SECURITY DEFINER functions retain empty search_path",
+            "PASS I65-04: scanner detects both malicious public RPC and owner-rights view",
+            "PASS I65-05: authenticated reader can exploit injected definer RPC/view but cannot SELECT private ledger directly",
+            "PASS I65-06: revoke EXECUTE/SELECT removes both leaked capabilities from exposed catalog",
+            "PASS I65-07: same SQL role denied public RPC/view after revoke",
+            "PASS I65-08: I63/I64 policies preserved, private schema remains inaccessible",
+            "PASS I66-01: legacy authenticated SQL schema and all three EXECUTE grants reproduced",
+            "PASS I66-02: direct caller reached privileged legacy facade before revoke; session still fail-closed",
+            "PASS I66-03: candidate removed all schema USAGE and function EXECUTE for client roles",
+            "PASS I66-04: same authenticated role cannot execute MOVE/PAUSE/RESUME legacy facades after revoke",
+            "PASS I66-05: legacy function bodies and owners retained for rollback, privileges only narrowed",
+            "PASS I66-06: canonical I61 private ledger and movement remain inaccessible to raw client SQL",
+            "PASS I66-07: supervisor-specific I63/I64 reads unchanged after legacy ACL quarantine",
+            "PASS I66-08: SECURITY DEFINER protections and prior catalog isolation remain intact",
+            "PASS I67-01: mixed-store batch fixture has two team leads and a rejected anonymous line",
+            "PASS I67-02: I64 original quarantine closed all three row-addressable collections",
+            "PASS I67-03: manager 004 sees only accepted item, recontact and event for own supervised contact",
+            "PASS I67-04: manager 001 sees only own contact within same lot, rejected row hidden",
+            "PASS I67-05: full lot and shared channel remain unreadable even to legitimate manager",
+            "PASS I67-06: no raw administrative SELECT granted to exception-only consultant",
+            "PASS I67-07: same identity loses administrative row reads immediately after shop grant expires",
+            "PASS I67-08: restrictive-only scoped policies, quarantined headers and I66 legacy closure retained",
+            "PASS I68-01: invoker views and column-only grants installed without changing I67 RLS",
+            "PASS I68-02: manager A sees only own accepted row and its own share of mixed-lot count",
+            "PASS I68-03: manager B on same lot sees precisely own count, not global batch metadata",
+            "PASS I68-04: raw PK/rejected reason/recontact reason/previous status all blocked even on owned rows",
+            "PASS I68-05: channel summary counts caller-visible conversations, no headers or emitter identifiers",
+            "PASS I68-06: second manager sees one own conversation, not other team same-channel history",
+            "PASS I68-07: exception-only consultant denied both admin summaries",
+            "PASS I68-08: same manager/session loses both summaries immediately after grant expiry",
+            "PASS I68-09: no catalog owner-view leak; I63-I67 RLS/ACL boundaries intact",
+            "PASS I69-01: invoker-only bounded export installed, direct I68 view scans removed",
+            "PASS I69-02: deterministic one-row keyset pages, no repetitions and own-team counts",
+            "PASS I69-03: channel keyset pages include only own conversations, not foreign team",
+            "PASS I69-04: foreign-team manager sees own share only; cross-store filter returns empty",
+            "PASS I69-05: bounds 1..20, NULL/zero/21 and absent shop fail-closed",
+            "PASS I69-06: direct unlimited I68 views cannot be SELECTed after RPC cutover",
+            "PASS I69-07: exception-only consultant does not gain administrative exports",
+            "PASS I69-08: expired grant stops both exports immediately with unchanged session",
+            "PASS I69-09: no definer/owner view leaks, I66 ACL and I67 RLS unchanged",
+            "PASS I70-01: quota trigger, private atomic counters and minimal audit installed",
+            "PASS I70-02: repeated identical cursor consumes quota; 5th request denied",
+            "PASS I70-03: private counter and write-only audit show exactly 4 successful reservations",
+            "PASS I70-04: per-kind independence; 20+11 denied, 20+10 accepted under 30 units",
+            "PASS I70-05: independent manager quota and cross-store RLS preserved",
+            "PASS I70-06: client cannot read, reset or forge another actor audit/quota",
+            "PASS I70-07: accepted-reservation audit contains no customer fields; no publicly executable definer",
+            "PASS I70-08: revoked manager receives no rows without new reservation",
+            "PASS I70-09: I63-I69 access boundaries, legacy ACL and private counter intact",
+            "PASS I71-01: rolling ledger and private refusal aggregate installed, legacy RPC closed",
+            "PASS I71-02: old I70 accepted requests enforce rolling limit; denial is durably recorded",
+            "PASS I71-03: request accepted after prior 60-minute window expires",
+            "PASS I71-04: 59-minute requests remain counted despite fixed hour boundary",
+            "PASS I71-05: per-type and per-actor rolling quotas remain independent; second manager retains own budget",
+            "PASS I71-06: exception-only consultant learns no exports and old I69 bypass closed",
+            "PASS I71-07: declined audit has only technical aggregate fields, no RLS bypass",
+            "PASS I71-08: explicit admin retention removes >30-day accepted and refused records only",
+            "PASS I71-09: I63-I70 RLS maintained, admin-only retention never public",
+            "PASS I72-01: reservation ledger moved outside published public schema; same RLS and grants",
+            "PASS I72-02: no public relation, existing restrictive auth boundary remains",
+            "PASS I72-03: manager original invoker export succeeds with no direct SELECT on ledger",
+            "PASS I72-04: successful export still persists accepted reservation in internal ledger",
+            "PASS I72-05: consultant without manager grant remains denied under same RLS",
+            "PASS I72-06: private I71 purge operates on relocated ledger without widening privileges",
+            "PASS I73-01: executor NOLOGIN installed; public invoker and ledger INSERT denied to authenticated",
+            "PASS I73-02: authenticated SQL cannot call export, insert reservation or inspect private session checker",
+            "PASS I73-03: dedicated executor inherits S0 RLS and consumes quota through existing invoker",
+            "PASS I73-04: accepted export still persists quota reservation in internal ledger",
+            "PASS I73-05: executor never bypasses manager/team/store RLS for exception-only consultant",
+            "PASS I73-06: anon, service_role and authenticated cannot reach privileged helper or exported RPC",
+            "PASS I74-01: executor owned private signed entrypoint; no LOGIN membership",
+            "PASS I74-02: signed login cannot call raw invoker or insert reservation",
+            "PASS I74-03: private signed function denies unknown key/unsigned proof",
+            "PASS I74-04: HMAC keys and nonce table private with RLS",
+            "PASS I74-05: public invoker and S0 RLS unchanged; no public definer leak",
+            "PASS I74-06: I65 ACL scanner clean and ledger hidden from signed login",
+            "I64 S0 indirect exposure PG17 8/8; I65 8/8; I66 8/8; I67 8/8; I68 9/9; I69 9/9; I70 9/9; I71 9/9; I72 6/6; I73 6/6; I74 6/6; all synthetic objects and policies rolled back",
+            "PASS I67-SCAN-01: zero unreviewed runtime consumers; one explicit retired loopback adapter; 40 archived/test references inventoried"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 40302989277,
+      "name": "I74 provision real GoTrue full regression",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40302989277",
+      "head_sha": "ab38ebb3c5c8010857953383b665a52029be57f7",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "id": 121505135875,
+          "name": "e2e-gerencia-local",
+          "conclusion": "success",
+          "started_at": "2026-10-26T09:52:56Z",
+          "completed_at": "2026-10-26T09:55:57Z",
+          "steps": [
+            {
+              "name": "Set up job",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run supabase/setup-cli@v3",
+              "conclusion": "success"
+            },
+            {
+              "name": "Cliente PostgreSQL",
+              "conclusion": "success"
+            },
+            {
+              "name": "Instalar driver SQL pinado para gateway efemero",
+              "conclusion": "success"
+            },
+            {
+              "name": "Subir GoTrue e PostgREST completamente descartaveis",
+              "conclusion": "success"
+            },
+            {
+              "name": "Testar intake-only GoTrue com HMAC, CAS, nonce e PostgreSQL descartavel",
+              "conclusion": "success"
+            },
+            {
+              "name": "Desligar stack local",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run supabase/setup-cli@v3",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "conclusion": "success"
+            }
+          ],
+          "log_evidence": [
+            "PASS S1INTAKE-133: fixture I37 loaded after historical 132 gates",
+            "PASS S1INTAKE-134: GoTrue real + signer mTLS + I22 HMAC + CAS pause",
+            "PASS S1INTAKE-135: pause keeps account ACTIVE",
+            "PASS S1INTAKE-136: grants preserved, no redistribution claim",
+            "PASS S1INTAKE-137: retry idempotent with exact current version",
+            "PASS S1INTAKE-138: stale CAS maps to HTTP 409, no mutation",
+            "PASS S1INTAKE-139: cross-team manager forbidden",
+            "PASS S1INTAKE-140: no reason allowed, strict JSON and version",
+            "PASS S1INTAKE-141: HTTP rejects legacy suspend-account routes",
+            "PASS S1INTAKE-142: resume restores intake only, version3",
+            "PASS S1INTAKE-143: raw signed command must be authenticated and committed",
+            "PASS S1INTAKE-144: SQL nonce replay blocked",
+            "PASS S1INTAKE-145: HMAC binds pause boolean and version",
+            "PASS S1INTAKE-146: failed calls did not change CAS or account",
+            "PASS I62-E2E-01: GoTrue identity derives manager; other team and consultant cannot move case",
+            "PASS I62-E2E-02: strict HTTP forbids caller-supplied gestor/ator IDs",
+            "PASS I62-E2E-03: signed current manager transfers one canonical S0 case without store grant",
+            "PASS I62-E2E-04: HMAC operation domain prevents revoke-to-move modification",
+            "PASS I62-E2E-05: signed revoke cuts grant, replay denied inside executor",
+            "PASS I62-E2E-06: signed HTTP revoke is idempotent for authorized manager; foreign manager denied, one audit event",
+            "PASS I62-E2E-07: PostgREST and signed SQL login cannot inspect private exception table",
+            "I62 7/7 real GoTrue and independent mTLS HMAC tests in disposable CI",
+            "PASS I63-E2E-01: GoTrue JWT alone/team membership does not expose ungranted S0 history",
+            "PASS I63-E2E-02: signed I62 transfer unlocks current/same-contact/pre-case history under real JWT",
+            "PASS I63-E2E-03: other team manager cannot read assigned consultant's contact history",
+            "PASS I63-E2E-04: paused intake does not erase authorized historical reads",
+            "PASS I63-E2E-05: signed revoke instantly removes S0 history on the SAME real JWT; audit once",
+            "PASS I63-E2E-06: private boolean policy function not exposed as public PostgREST RPC",
+            "I63 6/6 real GoTrue signed canonical exception RLS tests; disposable only",
+            "PASS I64-E2E-01: real GoTrue manager with shop grant bypasses I63 case scope via 7 indirect S0 D2 read surfaces",
+            "PASS I64-E2E-02: 7 restrictive candidates close foreign-team direct leads/cycles and all five bulk reads",
+            "PASS I64-E2E-03: legitimate supervisor sees same-contact leads/cycles only; bulk remains deliberately closed",
+            "PASS I64-E2E-04: revoked consultant gains neither case history nor raw D2 access",
+            "PASS I64-E2E-05: same real JWT immediately respects revoked/restored manager-shop grant",
+            "PASS I64-E2E-06: no exposed direct policy RPC; exactly 7 local-only restrictive policies",
+            "I64 6/6 real GoTrue indirect D2 isolation tests; local-only CI",
+            "PASS I65-E2E-01: existing S1 legacy SQL interface is NOT exposed in public PostgREST RPC, but remains ACL risk",
+            "PASS I65-E2E-02: live catalog detects injected owner-rights function and view despite I64 boundaries",
+            "PASS I65-E2E-03: live JWT reads private data through injected definer RPC and owner-rights view (red-team only)",
+            "PASS I65-E2E-04: revoked function/view unavailable on SAME real JWT; scanner clean",
+            "PASS I65-E2E-05: no PostgREST route into the canonical private exception ledger",
+            "PASS I65-E2E-06: disposable red-team objects dropped, private boundary remains closed",
+            "I65 real GoTrue RPC/view surface E2E 6/6; synthetic attack objects destroyed",
+            "PASS I66-E2E-01: SQL ACL baseline confirms all legacy facades were callable by authenticated",
+            "PASS I66-E2E-02: all three facades and schema closed to browser/service roles, ownership unchanged",
+            "PASS I66-E2E-03: PostgreSQL authenticated caller rejected BEFORE entering legacy SECURITY DEFINER",
+            "PASS I66-E2E-04: real JWT cannot access any legacy facade over PostgREST",
+            "PASS I66-E2E-05: independent I62 GoTrue+HMAC signed revocation remains callable and idempotent",
+            "PASS I66-E2E-06: legitimate I63/I64 historical read and cross-team isolation unchanged",
+            "PASS I66-E2E-07: RLS, private schema and signed executor boundaries unaffected",
+            "PASS I66-E2E-08: same real GoTrue session remains valid after legacy ACL cutover",
+            "I66 8/8 GoTrue signed and SQL ACL quarantine E2E; disposable only",
+            "PASS I67-E2E-01: baseline I64 denies row-bearing collections for both managers in mixed team batch",
+            "PASS I67-E2E-02: two actual GoTrue managers see disjoint items/recontacts/events in same physical lot",
+            "PASS I67-E2E-03: shared lot headers/channel remain quarantined for both managers",
+            "PASS I67-E2E-04: exception-only consultant has no administrative raw reads",
+            "PASS I67-E2E-05: same GoTrue JWT loses all admin rows after store-grant revoke",
+            "PASS I67-E2E-06: recovered grant restores only linked manager's records",
+            "PASS I67-E2E-07: I66 ACL closed, no definer/view leaks, seven scoped/quarantine boundaries",
+            "I67 7/7 real GoTrue scoped administrative row tests; disposable only",
+            "PASS I68-E2E-01: baseline permits surplus raw administrative columns despite I67 row-level boundary",
+            "PASS I68-E2E-02: SELECT * and forbidden column requests denied by real PostgREST",
+            "PASS I68-E2E-03: allowed column-only projections preserve exactly manager's RLS-scoped rows",
+            "PASS I68-E2E-04: both teams receive their own row counts, no global mixed-batch total or header",
+            "PASS I68-E2E-05: channel conversation counts scoped by caller; emitter IDs never present",
+            "PASS I68-E2E-06: raw lot/channel remain quarantined; exception-only and anon users see no admin summaries",
+            "PASS I68-E2E-07: same valid GoTrue token loses then regains only permitted summaries on grant change",
+            "PASS I68-E2E-08: invoker views and sensitive column ACL audited; I65/I66 boundaries intact",
+            "I68 8/8 real GoTrue projection and scoped summaries E2E; disposable only",
+            "PASS I69-E2E-01: unbounded direct summary view can enumerate manager's batches before I69",
+            "PASS I69-E2E-02: first, second and empty keyset pages are disjoint, max one item each",
+            "PASS I69-E2E-03: bounded channel pages show only manager's RLS-visible counts",
+            "PASS I69-E2E-04: foreign-team manager cannot enumerate other team's batch, channel or store",
+            "PASS I69-E2E-05: direct I68 views revoked, anon cannot call either new RPC",
+            "PASS I69-E2E-06: invalid, huge, null page sizes and null shop refused over HTTP",
+            "PASS I69-E2E-07: exception-only denied, same revoked-manager JWT sees empty exports",
+            "PASS I69-E2E-08: restored grant restores scoped export, not foreign case rights",
+            "PASS I69-E2E-09: no elevated definer/view exposure, legacy I66 cut remains",
+            "I69 9/9 real GoTrue bounded export E2E; ephemeral only",
+            "PASS I70-E2E-01: quota ledger and counters empty after I69 regressions; no retroactive consumption",
+            "PASS I70-E2E-02: repeated same cursor consumes exactly four reservations; fifth denied without audit row",
+            "PASS I70-E2E-03: cumulative 20+11 blocked, 20+10 allowed; channels independent of lots",
+            "PASS I70-E2E-04: six concurrent real-JWT requests yield exactly four accepted and two quota-denied",
+            "PASS I70-E2E-05: authenticated browser cannot read audit or forge another manager's reservation",
+            "PASS I70-E2E-06: no manager grant and cross-store route return empty without audit write",
+            "PASS I70-E2E-07: same JWT loses all grant-bound exports without new quota reservation",
+            "PASS I70-E2E-08: I65 scanner remains clear, invoker exports and private quota boundary intact",
+            "I70 8/8 real GoTrue cumulative quota and concurrency E2E; disposable only",
+            "PASS I71-E2E-01: I70 accepted reservations count in 60-minute window; denied JSON response persists audit",
+            "PASS I71-E2E-02: six simultaneous real JWT calls allow four scoped results and durably log two refusals",
+            "PASS I71-E2E-03: rolling sixty-minute time boundary denies 59m and permits after 61m",
+            "PASS I71-E2E-04: old RPCs and anon inaccessible, invalid inputs fail closed",
+            "PASS I71-E2E-05: exception-only and foreign shop reveal no rows and create no reservations",
+            "PASS I71-E2E-06: revoked manager grant fails closed with unchanged GoTrue JWT and no new audit",
+            "PASS I71-E2E-07: denial audit is private, no public definer/view leak",
+            "PASS I71-E2E-08: admin-only 30-day purge deletes exactly aged accepted and denied events, retains recent",
+            "I71 8/8 real GoTrue rolling quota, denied audit, concurrency, retention E2E; disposable only",
+            "PASS I72-E2E-01: same ledger rows preserved and invoker grants re-bound after schema move",
+            "PASS I72-E2E-02: valid manager cannot POST a direct quota reservation through public REST",
+            "PASS I72-E2E-03: ledger has no public read endpoint; anonymous user cannot write",
+            "PASS I72-E2E-04: Content-Profile cannot expose internal schema",
+            "PASS I72-E2E-05: real GoTrue manager still exports through I71 invoker; reservation increments once",
+            "PASS I72-E2E-06: revoked/unauthorized export boundaries and I65 ACL scanner intact",
+            "PASS I72-E2E-07: private administrator retention still reaches relocated accepted events",
+            "I72 7/7 real GoTrue/PostgREST ledger isolation E2E; disposable only",
+            "PASS I73-E2E-01: SQL role cutover removes direct authenticated RPC and INSERT grants",
+            "PASS I73-E2E-02: real GoTrue JWT cannot invoke legacy public export or direct ledger REST",
+            "PASS I73-E2E-03: even direct SQL authenticated cannot forge export or consume quota",
+            "PASS I73-E2E-04: GoTrue verifies JWT and dedicated gateway login holds SET ROLE only",
+            "PASS I73-E2E-05: verified user uses executor-only invoker; RLS and quota preserved",
+            "PASS I73-E2E-06: revoked manager and non-manager cannot charge quota or export",
+            "PASS I73-E2E-07: actor spoofing and JWT tampering fail before DB mutation",
+            "PASS I73-E2E-08: GoTrue logout invalidates private DB session; old JWT denied",
+            "I73 8/8 real GoTrue, SQL grants and executor-only export E2E; disposable only",
+            "PASS I74-PROV-01: non-superuser installer initially cannot SET executor",
+            "PASS I74-PROV-02: injected failure restores roles/grants/schema in autocommit",
+            "PASS I74-E2E-01: original gateway login disconnected from executor; signed login has no membership",
+            "PASS I74-E2E-02: compromised SQL login cannot call raw invoker or read HMAC/nonce/ledger",
+            "PASS I74-E2E-03: independent signer revalidates GoTrue; DB verifies MAC/session and exports with RLS",
+            "PASS I74-E2E-04: same signed request replay denied with no extra reservation",
+            "PASS I74-E2E-05: kind, shop, cursor and page size tampering invalidates proof",
+            "PASS I74-E2E-06: independent signer rejects spoofed actor and forged JWT",
+            "PASS I74-E2E-07: atomic nonce prevents concurrent double-use, no unauthorized disclosure",
+            "PASS I74-PROV-03: actual application SET ROLE and unauthorized role EXECUTE denied",
+            "PASS I74-PROV-04: key lock privilege cannot modify id, secret or revocation state",
+            "PASS I74-SEC-01: revoked shop grant on same GoTrue token exports nothing and charges no quota",
+            "PASS I74-SEC-02: valid MAC after real GoTrue logout denied; nonce and quota rolled back",
+            "PASS I74-SEC-03: DB key revocation denies previously signed proof without nonce or quota",
+            "PASS I74-E2E-08: expired timestamp and independent signer key revocation denied",
+            "I74 8/8 real GoTrue signed export and replay E2E; disposable only",
+            "PASS S1INTAKE-147: canonical signed intake denies revoked signer key",
+            "PASS S1INTAKE-148: canonical signed intake unavailable without signer",
+            "S1-002/I37: 132 older E2E and 16 new I37 gates PASS."
+          ]
+        },
+        {
+          "id": 121505136245,
+          "name": "http-policy-unit",
+          "conclusion": "success",
+          "started_at": "2026-10-26T09:52:56Z",
+          "completed_at": "2026-10-26T09:53:43Z",
+          "steps": [
+            {
+              "name": "Set up job",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Checar 138 testes unitarios incluindo novo intake assinado",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "conclusion": "success"
+            }
+          ],
+          "log_evidence": [
+            "Ran 30 tests in 1.028s",
+            "OK",
+            "Ran 10 tests in 0.748s",
+            "OK",
+            "Ran 10 tests in 1.438s",
+            "OK",
+            "Ran 13 tests in 3.606s",
+            "OK",
+            "Ran 15 tests in 5.363s",
+            "OK",
+            "Ran 15 tests in 7.815s",
+            "OK",
+            "Ran 15 tests in 10.492s",
+            "OK",
+            "Ran 15 tests in 9.142s",
+            "OK",
+            "Ran 15 tests in 0.003s",
+            "OK",
+            "Ran 8 tests in 0.001s",
+            "OK",
+            "Ran 11 tests in 0.001s",
+            "OK",
+            "Ran 10 tests in 0.001s",
+            "OK",
+            "Ran 3 tests in 0.000s",
+            "OK",
+            "Ran 5 tests in 0.000s",
+            "OK",
+            "Ran 4 tests in 0.000s",
+            "OK"
+          ]
+        }
+      ]
+    }
+  ],
+  "failed_attempt": {
+    "sha": "57d711f708c48051470be759f945a1dac66e8b3f",
+    "gotrue_run": 40301912378,
+    "job": 121501585887,
+    "provision_tests_passed": true,
+    "i74_e2e_markers_before_failure": 2,
+    "error": "permission denied for table chaves_i74 at SELECT FOR SHARE; no full E2E certification"
+  },
+  "preserved": {
+    "s0_sha": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+    "cfi01_runs": [
+      40298770078,
+      40298769996
+    ],
+    "official_branches_written": false,
+    "migration_or_deploy": false
+  },
+  "limits": [
+    "Experimental disposable environment only",
+    "Official S1 adoption requires its own exact-SHA full regression",
+    "Production key custody, retention, quota and rate-limit remain separate gates"
+  ]
+}
