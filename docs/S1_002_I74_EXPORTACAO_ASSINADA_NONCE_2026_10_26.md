@@ -27,3 +27,11 @@ Arquivos S1 alterados: `backend/s1_signer_process_local.py`, runner PostgreSQL s
 O laboratório protege contra vazamento isolado das credenciais do login SQL, não contra invasão conjunta do processo assinador e da conta SQL, roubo de JWT, comprometimento do host/OS, administração do PostgreSQL ou acesso ao segredo em custódia. O assinador por IPC local não é HSM/KMS, os testes não habilitam TLS operacional na borda e o segredo de ensaio é efêmero.
 
 Critérios: PostgreSQL 17 **6 provas**, GoTrue real + PostgREST **8 provas**, regressões antigas sem falhas, log explícito confirmando a execução (não apenas job verde), e rollback no ensaio PG17. **Certificação pendente da execução do CI.**
+
+## Certificação final I74 — própria branch S1-002, 26/10/2026
+
+**Atualização posterior à seção de pendência acima:** após revisão da Issue #5 e do [PR Draft #6](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/pull/6), os quatro arquivos propostos pelo Codex foram incorporados no commit S1 `ad252bdccb56aafa3f0846b33d3fe965bcf74fa6`, sem incorporar workflows experimentais, executar merge ou tocar a S0 oficial. O instalador atômico restaura a associação de SET ROLE prévia e o lock da chave tem ACL UPDATE(id) mínima com RLS UPDATE WITH CHECK false.
+
+**Evidências reexecutadas neste commit:** [PG17 oficial #40307390136](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40307390136), job `121519756929`, **SUCCESS com I74 6/6**, rollback/regressões; [GoTrue oficial #40307390037](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40307390037), job `121519756694`, **SUCCESS com I74 E2E 8/8, PROV 4/4, SEC 3/3** e regressões finais S1INTAKE-147/148; job `121519756342` **179 unitários PASS**. Todos os marcadores foram consultados nos logs, inclusive os do final da execução. O erro anterior de instalação em #40294183275 foi resolvido, e aquele run não é contado como aprovação.
+
+**Estado novo e definitivo deste documento:** I74 **CERTIFICADA EM LABORATÓRIO**. A S1-002 inteira continua aberta em G1–G6. Checklist de integração e próximos passos em [checkpoint I74 + gates](S1_002_CHECKPOINT_I74_E_GATES_2026_10_26.md). Nenhuma autorização de produção, merge, hospedagem ou promoção de migrations foi inferida.
