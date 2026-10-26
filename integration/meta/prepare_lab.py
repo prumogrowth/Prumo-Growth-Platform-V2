@@ -50,6 +50,23 @@ def prepare(source_repo, destination):
     for patch in sorted((HERE / 'patches').glob('*.patch')):
         subprocess.run(['git', 'apply', '--check', str(patch)], cwd=destination, check=True)
         subprocess.run(['git', 'apply', str(patch)], cwd=destination, check=True)
+    # Reuse the historical ordering exactly; add a rollback probe immediately
+    # before each actual install, when that fixture's dependencies exist.
+    for name in ('catalog_fingerprint.py', 'test_install_atomicity.py'):
+        target = destination / 'integration/meta' / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes((HERE / name).read_bytes())
+    runner = destination / 'scripts/run-s0-local.sh'
+    text = runner.read_text()
+    anchor = ' psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$ROOT/$file"'
+    assert text.count(anchor) == 1
+    text = text.replace(anchor, ' if [[ "$file" == supabase/migrations/2026102300* ]]; then\n'
+        '  python3 "$ROOT/integration/meta/test_install_atomicity.py" "$ROOT/$file"\n fi\n' + anchor)
+    late = 'psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f "$ROOT/supabase/migrations/202610230054_s0_meta_single_entry_seal_fixture.sql"'
+    assert text.count(late) == 1
+    text = text.replace(late, 'python3 "$ROOT/integration/meta/test_install_atomicity.py" '
+        '"$ROOT/supabase/migrations/202610230054_s0_meta_single_entry_seal_fixture.sql"\n' + late)
+    runner.write_text(text)
     print('META-COMPOSE: pinned sources verified; current S0 retained; 12 fixtures isolated', flush=True)
 
 

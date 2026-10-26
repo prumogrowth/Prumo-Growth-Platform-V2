@@ -17,4 +17,7 @@ expected |= {f'WA42-R{i:02}' for i in range(1, 12)}
 assert set(actual) == expected, (sorted(expected - set(actual)), sorted(set(actual) - expected))
 assert all(value == 1 for value in actual.values()), actual
 assert len(expected) == 823
+atomic = Counter(re.findall(r'(?m)^META-ATOMIC-(\d\d) PASS:', log))
+assert atomic == Counter({f'{i:02}': 1 for i in range(43,55)}), atomic
 print('META-REGRESSION: 823/823 individual WA39–WA68 markers exactly once')
+print('META-ATOMICITY: 12/12 injected install failures fully rolled back')
