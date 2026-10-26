@@ -1213,7 +1213,7 @@ with sync_playwright() as p:
             shortcut_page.set_content(html);shortcut_page.add_script_tag(content=script)
             expect(shortcut_page.locator('#visual-app')).to_have_attribute('data-theme',shortcut_theme)
             shortcut_input=shortcut_page.locator('#search-input')
-            assert shortcut_input.get_attribute('aria-keyshortcuts')=='Control+K Meta+K'
+            assert shortcut_input.get_attribute('aria-keyshortcuts')=='Control+K Meta+K Escape'
             hint=shortcut_page.locator('.search-shortcut')
             assert hint.count()==1 and hint.get_attribute('aria-hidden')=='true'
             if shortcut_width<=760:
