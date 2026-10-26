@@ -1,0 +1,56 @@
+name: Meta Cloud interactive quick replies - isolated offline
+on:
+  push:
+    branches:
+      - feat/meta-cloud-interactive-template-20261026
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - feat/meta-cloud-envelope-contract-20261026
+    paths:
+      - 'integrations/whatsapp-meta/**'
+      - '.github/workflows/meta-cloud-interactive-template.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  quick-reply-offline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      NODE_OPTIONS: ''
+      NODE_PATH: ''
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Testar exclusivamente novas regras de quick reply (18)
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --experimental-strip-types --test --test-concurrency=1 \
+            integrations/whatsapp-meta/graph-template-interactive.test.ts \
+            2>&1 | tee "$RUNNER_TEMP/meta-interactive.tap"
+          grep -qx '# tests 18' "$RUNNER_TEMP/meta-interactive.tap"
+          grep -qx '# pass 18' "$RUNNER_TEMP/meta-interactive.tap"
+          grep -qx '# fail 0' "$RUNNER_TEMP/meta-interactive.tap"
+      - name: Revalidar somente os contratos Meta reutilizados (161)
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --experimental-strip-types --test --test-concurrency=1 \
+            integrations/whatsapp-meta/inbound.test.ts \
+            integrations/whatsapp-meta/routed-webhook.test.ts \
+            integrations/whatsapp-meta/graph-outbound.test.ts \
+            integrations/whatsapp-meta/graph-template.test.ts \
+            integrations/whatsapp-meta/wa36-ratification-gate.test.ts \
+            integrations/whatsapp-meta/wa37-acceptance-handoff.test.ts \
+            integrations/whatsapp-meta/cloud-webhook-handoff.test.ts \
+            integrations/whatsapp-meta/cloud-wire-observation.test.ts \
+            2>&1 | tee "$RUNNER_TEMP/meta-existing.tap"
+          grep -qx '# tests 161' "$RUNNER_TEMP/meta-existing.tap"
+          grep -qx '# pass 161' "$RUNNER_TEMP/meta-existing.tap"
+          grep -qx '# fail 0' "$RUNNER_TEMP/meta-existing.tap"
