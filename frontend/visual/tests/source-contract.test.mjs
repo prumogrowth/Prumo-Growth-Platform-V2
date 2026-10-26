@@ -644,7 +644,7 @@ test('FV-UI-052: contagem anuncia resultados sem duplicar o aviso de lista vazia
 });
 
 test('FV-UI-053: atalho da busca descobrivel sem nova operacao ou efeito comercial',()=>{
-  assert.match(markup,/id="search-input"[^>]*aria-keyshortcuts="Control\+K Meta\+K"/);
+  assert.match(markup,/id="search-input"[^>]*aria-keyshortcuts="Control\+K Meta\+K Escape"/);
   assert.match(markup,/class="search-shortcut" aria-hidden="true">Ctrl\/⌘ K<\/span>/);
   assert.match(styles,/FV-UI-053 — atalho de busca visivel/);
   assert.match(styles,/@media\(max-width:760px\)\{\.list-pane \.search-shortcut\{display:none\}\}/);
@@ -677,4 +677,13 @@ test('FV-UI-056: normalizacao textual acontece apos projecao de escopo',()=>{
   assert.match(queueModel,/const term = normalizeQueueSearch\(query\)/);
   assert.match(queueModel,/\.some\(value => normalizeQueueSearch\(value\)\.includes\(term\)\)/);
   assert.match(browserSmoke,/FV-UI-056 busca normalizada e isolamento de loja em 8 cenarios: PASS/);
+});
+
+test('FV-UI-057: Escape contextual e instrucoes acessiveis de busca',()=>{
+  assert.match(markup,/aria-keyshortcuts="Control\+K Meta\+K Escape"/);
+  assert.match(markup,/id="list-demo-guidance" role="note"[^<]*Na busca, Esc apaga somente o texto e mantém os filtros/);
+  assert.match(app,/FV-UI-057: Esc na busca apaga somente a consulta/);
+  assert.match(app,/document\.activeElement===\$\('search-input'\)/);
+  assert.match(app,/state\.query='';\$\('search-input'\)\.value='';renderList\(\)/);
+  assert.match(browserSmoke,/FV-UI-057 Esc limpa somente busca em 8 cenarios: PASS/);
 });

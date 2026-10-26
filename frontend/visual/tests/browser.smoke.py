@@ -1319,4 +1319,39 @@ with sync_playwright() as p:
             search_page.close()
     print('FV-UI-056 busca normalizada e isolamento de loja em 8 cenarios: PASS')
 
+    # FV-UI-057: Escape em busca com refinamentos preserva chips, escopo e foco.
+    for esc_width,esc_height in ((320,640),(390,844),(900,780),(1440,900)):
+        for esc_theme in ('light','dark'):
+            esc_page=browser.new_page(viewport={'width':esc_width,'height':esc_height},color_scheme=esc_theme)
+            esc_page.set_default_timeout(4500)
+            errors_057=[]
+            esc_page.on('pageerror',lambda e:errors_057.append(str(e)))
+            esc_page.set_content(html);esc_page.add_script_tag(content=script)
+            expect(esc_page.locator('#visual-app')).to_have_attribute('data-theme',esc_theme)
+            input057=esc_page.locator('#search-input')
+            assert input057.get_attribute('aria-keyshortcuts')=='Control+K Meta+K Escape'
+            assert 'Esc apaga somente o texto' in esc_page.locator('#list-demo-guidance').inner_text()
+            actor057=esc_page.locator('#actor-select').input_value()
+            shop057=esc_page.locator('#shop-select').input_value()
+            esc_page.locator('[data-filter="unread"]').click()
+            assert esc_page.locator('.conversation-card').count()==1
+            input057.fill('FV-UI-057-consulta-sem-resultados')
+            assert esc_page.locator('.conversation-card').count()==0
+            assert esc_page.locator('.empty-reset').count()==1
+            input057.press('Escape')
+            assert input057.input_value()==''
+            expect(input057).to_be_focused()
+            assert esc_page.locator('[data-filter="unread"]').get_attribute('aria-pressed')=='true'
+            assert esc_page.locator('[data-inbox="active"]').get_attribute('aria-pressed')=='true'
+            assert esc_page.locator('#actor-select').input_value()==actor057
+            assert esc_page.locator('#shop-select').input_value()==shop057
+            assert esc_page.locator('.conversation-card').count()==1
+            expect(esc_page.locator('#filter-reset-controls')).to_be_visible()
+            esc_page.locator('#clear-list-filters').click()
+            assert esc_page.locator('.conversation-card').count()==8
+            assert not esc_page.evaluate('document.documentElement.scrollWidth>innerWidth')
+            assert not errors_057,errors_057
+            esc_page.close()
+    print('FV-UI-057 Esc limpa somente busca em 8 cenarios: PASS')
+
     browser.close()

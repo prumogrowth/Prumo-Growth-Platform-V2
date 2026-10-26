@@ -1152,6 +1152,14 @@ document.addEventListener('keydown',event=>{
   // Não deslocar o foco para trás de um diálogo modal nativo.
   if(document.querySelector('dialog[open]'))return;
   const inField=['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName);
+  // FV-UI-057: Esc na busca apaga somente a consulta, sem retirar chips,
+  // etapa comercial, perfil, loja ou aba selecionada. Modais têm prioridade.
+  if(event.key==='Escape' && document.activeElement===$('search-input') &&
+     !event.ctrlKey && !event.metaKey && !event.altKey && state.query!==''){
+    event.preventDefault();
+    state.query='';$('search-input').value='';renderList();
+    return;
+  }
   if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='k'){
     event.preventDefault();goto('list');$('search-input').focus();
   }

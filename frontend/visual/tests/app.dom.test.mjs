@@ -1015,3 +1015,43 @@ test('FV-UI-056: interface respeita busca normalizada sem trocar identidade ou c
   assert.equal(env.cards().length,8);
   assert.equal(env.document.activeElement,get('search-input'));
 });
+
+test('FV-UI-057: Esc limpa apenas texto de busca e preserva filtros e contexto',()=>{
+  reset();
+  const actor=get('actor-select').value,shop=get('shop-select').value;
+  env.filters[1].click();
+  assert.equal(env.cards().length,1);
+  const input=get('search-input');
+  input.value='FV-UI-057-nenhum-resultado';
+  input.fire('input');input.focus();
+  assert.equal(env.cards().length,0);
+  assert.equal(get('filter-reset-controls').hidden,true);
+  env.document.fire('keydown',{key:'Escape'});
+  assert.equal(input.value,'');
+  assert.equal(env.cards().length,1);
+  assert.equal(env.filters[1].getAttribute('aria-pressed'),'true');
+  assert.equal(env.inbox[0].getAttribute('aria-pressed'),'true');
+  assert.equal(get('filter-reset-controls').hidden,false);
+  assert.equal(get('actor-select').value,actor);
+  assert.equal(get('shop-select').value,shop);
+  assert.equal(env.document.activeElement,input);
+  env.document.fire('keydown',{key:'Escape'});
+  assert.equal(env.filters[1].getAttribute('aria-pressed'),'true');
+  assert.equal(env.cards().length,1);
+  get('clear-list-filters').click();
+  assert.equal(env.cards().length,8);
+});
+
+test('FV-UI-057: Escape não rouba contexto de diálogo modal aberto',()=>{
+  reset();env.openCase('Exemplo 08');
+  buttons('Selecionar e solicitar template')[0].click();
+  assert.equal(get('template-dialog').open,true);
+  const input=get('search-input');
+  input.value='Cliente Exemplo 02';input.fire('input');input.focus();
+  env.document.fire('keydown',{key:'Escape'});
+  assert.equal(input.value,'Cliente Exemplo 02');
+  assert.equal(get('template-dialog').open,true);
+  get('template-dialog').close('cancel');
+  env.document.fire('keydown',{key:'Escape'});
+  assert.equal(input.value,'');
+});
