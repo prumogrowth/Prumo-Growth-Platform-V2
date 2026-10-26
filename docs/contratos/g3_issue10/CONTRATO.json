@@ -1,0 +1,57 @@
+{
+  "version": "issue10-catalog-handoff-0.1-review",
+  "date_local": "2026-10-26",
+  "timezone": "America/Sao_Paulo",
+  "issue": 10,
+  "status": "RETURN_DELIVERED_FOR_REVIEW_G3_PARTIAL",
+  "new_product_permissions_granted": false,
+  "final_integration_executed": false,
+  "context_identity": {
+    "key": ["concessionaria_id", "leads_loja.id"],
+    "conversation_contact_join": ["conversas.concessionaria_id", "conversas.lead_id"],
+    "message_conversation_join": ["mensagens.concessionaria_id", "mensagens.conversa_id"],
+    "channel_identity": ["concessionaria_id", "canal_id"],
+    "inbound_deduplication": ["concessionaria_id", "canal_id", "id_externo"],
+    "phone_is_global_contact_key": false,
+    "write_scope": ["concessionaria_id", "caso_id", "current_atribuicao_id", "authenticated_actor"]
+  },
+  "surfaces": {
+    "canonical_history_tables": ["public.leads_loja", "public.ciclos_comerciais", "public.casos_humanos", "public.atribuicoes_humanas", "public.conversas", "public.mensagens"],
+    "canonical_administrative_tables": ["public.itens_lote", "public.reencontros_lote", "public.eventos_status_comercial", "public.lotes_importacao", "public.canais_loja"],
+    "i63_policies_stage": "EXPERIMENTAL_8_POLICIES_NOT_PERSISTED",
+    "cfi01_pr9_stage": "IMPLEMENTED_RESTRICTED_LAB_NO_MEDIA_AUTHORITY",
+    "ui_pr11_stage": "UNRATIFIED_PROTOCOL_NO_TRANSPORT",
+    "meta_pr8_stage": "IMPLEMENTED_OFFLINE_NO_GRAPH_NO_DURABLE_ACK",
+    "f03_pr1_media_form_stage": "PRIVATE_SYNTHETIC_FIXTURES_NOT_IN_S0_CURRENT_OR_PR9",
+    "application_storage": "NOT_IDENTIFIED_IN_PINNED_SOURCES_AND_DISPOSABLE_CATALOGS",
+    "application_download_route": null,
+    "application_bucket": null,
+    "signed_url_ttl": null,
+    "hosted_database_inspected": false
+  },
+  "production_field_contract": {
+    "D2": {"consultor_min_fields": null, "gestor_min_fields": null, "diretor_min_fields": null, "status": "FIELD_PROJECTION_AND_MASKING_PENDING"},
+    "D3": {"consultor_min_fields": null, "gestor_min_fields": null, "diretor_min_fields": null, "status": "NO_RATIFIED_PRODUCTION_FIELD_CLASSIFICATION"},
+    "D4": {"consultor_min_fields": null, "gestor_min_fields": null, "diretor_min_fields": null, "status": "NO_IMPLEMENTED_BANK_DOCUMENT_ACCESS_CONTRACT"},
+    "conversation_membership_grants_document_access": false,
+    "retention_policy": null,
+    "post_archive_policy": null
+  },
+  "I75D_crosswalk": [
+    {"id": "I75-G3-01", "evidence": "G3-01/02", "status": "SQL_SYNTHETIC_POSITIVE_CONTROL_CANONICAL_VS_I63_DIFFERENCE_RECORDED"},
+    {"id": "I75-G3-02", "evidence": "G3-01", "status": "SQL_NEGATIVE_OTHER_STORE_SAME_PHONE_AND_OTHER_CONTACT"},
+    {"id": "I75-G3-03", "evidence": "G3-03 and existing S1 I61/I63", "status": "READ_VS_SYNTHETIC_WRITE_PROVEN_EXCEPTION_RUNTIME_NOT_RETESTED"},
+    {"id": "I75-G3-04", "evidence": "G3-06/07/08/09 and PRIVATE-03", "status": "SQL_SELECT_SESSION_GAP_REQUIRES_REAL_READ_PATH_SESSION_VALIDATION"},
+    {"id": "I75-G3-05", "evidence": "G3-04/09", "status": "EXPERIMENTAL_TEAM_SCOPE_PROVEN_NO_PRODUCTION_SIGNOFF"},
+    {"id": "I75-G3-06", "evidence": "PRIVATE-01; field/source inventory", "status": "PRIVATE_SYNTHETIC_FIXTURES_DENIED_REAL_D3_D4_ABSENT_NOT_TESTED"},
+    {"id": "I75-G3-07", "evidence": "source inventory and physical catalog", "status": "BLOCKED_NO_REAL_MEDIA_DOWNLOAD_OR_OLD_URL_TO_TEST"},
+    {"id": "I75-G3-08", "evidence": "existing S1 I64-I74 and catalog", "status": "PRESERVE_EXISTING_CERTIFICATION_COMPOSE_AND_REVIEW_LATER"}
+  ],
+  "required_decisions": [
+    "session-aware contextual read path and revocation concurrency",
+    "ratified minimal field projections by role and purpose",
+    "D3/D4 classification, masking, provenance and retention",
+    "real media/document architecture before URL/download tests",
+    "global lock order and supervised S0/S1/Meta/F03 integration"
+  ]
+}

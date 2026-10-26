@@ -1,0 +1,14 @@
+{
+  "columns.csv": "b1a91e94404fcfbf9ba21f605726d280e47fd83c3baf1e2b2d5cf9fa516eb2aa",
+  "execution.json": "51df8609d468a674c6abc7418c3489b205a63f7fa3c36267a9bcd00b8d3f6298",
+  "f03-catalog.json.gz": "db57749a112999d6a902dfc4ec4600610ec55752b479b35d1953d28e98e42457",
+  "f03-negative.txt": "bc49ca1127d0a76d3beab303c012b7965118699286aec381e2fa8554504a6b08",
+  "p9-catalog.json.gz": "54c8aac1113ee39508f9bb5ff6f532a74d8fb1a1834ca7ba337d877d1d2cb0df",
+  "p9-negative.txt": "bc49ca1127d0a76d3beab303c012b7965118699286aec381e2fa8554504a6b08",
+  "s0-catalog.json.gz": "1012c045ab7e72908999b1534a429ef40b43d6ab5fece2ac0f59222196e79aa9",
+  "s0-negative.txt": "82dee133e0b804f41581d3402c311904deabb5dfc72261ecb6f20c80b3789674",
+  "s1-catalog.json.gz": "3fca193aa45ff56e30ebd16ea6532c2a4034fce37c4ad521114f709e086e33cb",
+  "s1-i63-candidate-catalog.json.gz": "a33df95ec6424a3b23a64a27d748ad7e31f5f503074dcfc55885a2fbba655ffe",
+  "s1-negative.txt": "82dee133e0b804f41581d3402c311904deabb5dfc72261ecb6f20c80b3789674",
+  "source-inventory.json.gz": "ae94982f67cd9e2a3c933f97d68789bf52d0a7d7207d759ec8a0002bdd371c66"
+}

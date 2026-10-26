@@ -1,0 +1,3 @@
+PASS PRIVATE-01: authenticated cannot SELECT existing private receipt or selected F03 fixtures (when installed)
+PASS PRIVATE-03: actual CFI session helper accepts live and denies deleted synthetic session
+PASS PRIVATE-02: real SQL session_user CFI login cannot SELECT messages or assume owner role

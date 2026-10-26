@@ -1,0 +1,14 @@
+a1000000-0000-4000-8000-000000000001
+PASS G3-01: positive current contact, other contact and same phone in other store denied
+PROFILE G3-02: S0 expects 1 message; S1 I63 candidate expects 3 including old case and pre-case
+PASS G3-03: current synthetic INSERT control accepted, old-case INSERT denied even with candidate historical SELECT
+a1000000-0000-4000-8000-000000000003
+PASS G3-04: manager cannot write unassigned case; S0 reads 4 store messages, S1 candidate reads 2 (current team case and pre-case); old case of other team denied
+a1000000-0000-4000-8000-000000000005
+PASS G3-05: responsavel label does not grant blanket conversation access
+a1000000-0000-4000-8000-000000000001
+GAP G3-06: SQL history SELECT still works with same auth.uid after synthetic session deletion; no session-aware read gate demonstrated
+PASS G3-07: revoked store grant blocks next history SELECT with same SQL identity
+PASS G3-08: ending the only current assignment removes contextual history, with store grant retained
+a1000000-0000-4000-8000-000000000003
+PROFILE G3-09: S1 candidate denies former manager after team relation ends; S0 has no team relation model

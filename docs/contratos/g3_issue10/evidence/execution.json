@@ -1,0 +1,823 @@
+{
+  "image": "postgres@sha256:b8faeff7712663c2773a190181e1246e37e364b887611c04658c28b44e2408fe",
+  "authentication": "synthetic SQL; no GoTrue/PostgREST",
+  "profiles": {
+    "s0": {
+      "ref": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+      "markers": [
+        "PASS G3-01: positive current contact, other contact and same phone in other store denied",
+        "PASS G3-03: current synthetic INSERT control accepted, old-case INSERT denied even with candidate historical SELECT",
+        "PASS G3-04: manager cannot write unassigned case; S0 reads 4 store messages, S1 candidate reads 2 (current team case and pre-case); old case of other team denied",
+        "PASS G3-05: responsavel label does not grant blanket conversation access",
+        "GAP G3-06: SQL history SELECT still works with same auth.uid after synthetic session deletion; no session-aware read gate demonstrated",
+        "PASS G3-07: revoked store grant blocks next history SELECT with same SQL identity",
+        "PASS G3-08: ending the only current assignment removes contextual history, with store grant retained"
+      ],
+      "catalog_unchanged_after_rollback": true,
+      "synthetic_rows_removed": true,
+      "applied_sources": [
+        {
+          "ref": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+          "path": "supabase/tests/bootstrap_fake_auth.sql"
+        },
+        {
+          "ref": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+          "path": "supabase/migrations/202610170001_s0_foundation.sql"
+        },
+        {
+          "ref": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+          "path": "supabase/migrations/202610170002_s0_read_policies.sql"
+        },
+        {
+          "ref": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+          "path": "supabase/migrations/202610170003_s0_domain.sql"
+        },
+        {
+          "ref": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+          "path": "supabase/migrations/202610170004_s0_access.sql"
+        },
+        {
+          "ref": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+          "path": "supabase/migrations/202610170005_s0_scope_integrity.sql"
+        },
+        {
+          "ref": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+          "path": "supabase/migrations/202610170006_s0_transactional_simulation.sql"
+        },
+        {
+          "ref": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+          "path": "supabase/migrations/202610170008_s0_lead_operador_caso.sql"
+        },
+        {
+          "ref": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+          "path": "supabase/migrations/202610170009_s0_c02_inbound_synthetic.sql"
+        },
+        {
+          "ref": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+          "path": "supabase/migrations/202610170010_s0_channel_validation.sql"
+        },
+        {
+          "ref": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+          "path": "supabase/migrations/202610170011_s0_c02_ambiguous_inbox.sql"
+        },
+        {
+          "ref": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+          "path": "supabase/migrations/202610170012_s0_recontatos_sinteticos.sql"
+        },
+        {
+          "ref": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+          "path": "supabase/migrations/202610170013_s0_c02_cancelamento_atomico.sql"
+        },
+        {
+          "ref": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+          "path": "supabase/migrations/202610170014_s0_cancelamento_gestor_versionado.sql"
+        },
+        {
+          "ref": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+          "path": "supabase/migrations/202610170015_auditoria_recontatos.sql"
+        },
+        {
+          "ref": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+          "path": "supabase/migrations/202610170016_c04_elegibilidade_optout_sintetico.sql"
+        },
+        {
+          "ref": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+          "path": "supabase/migrations/202610170017_c04_estado_replay_plano.sql"
+        },
+        {
+          "ref": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+          "path": "supabase/migrations/202610170018_c04_inbound_pos_optout_humano.sql"
+        },
+        {
+          "ref": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+          "path": "supabase/migrations/202610170019_c07_callbacks_sinteticos.sql"
+        },
+        {
+          "ref": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+          "path": "supabase/migrations/202610170020_c07_reconciliacao_falhas_sintetica.sql"
+        },
+        {
+          "ref": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+          "path": "supabase/migrations/202610170021_c07_bloqueio_retry_incertos.sql"
+        },
+        {
+          "ref": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+          "path": "supabase/migrations/202610170022_c07_auditoria_replay_eligibilidade.sql"
+        },
+        {
+          "ref": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+          "path": "supabase/migrations/202610170023_s0_gateway_minimo_e_auditoria.sql"
+        },
+        {
+          "ref": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+          "path": "supabase/migrations/202610170024_s0_auditoria_sessao_fingerprint.sql"
+        },
+        {
+          "ref": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+          "path": "supabase/migrations/202610170025_s0_prova_dupla_gateway.sql"
+        },
+        {
+          "ref": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+          "path": "supabase/migrations/202610180026_s0_ciclo_chaves_e_retencao_nonce.sql"
+        },
+        {
+          "ref": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+          "path": "supabase/migrations/202610180027_s0_isolamento_verificador_hmac.sql"
+        },
+        {
+          "ref": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+          "path": "supabase/migrations/202610180028_s0_identidade_aliases_sinteticos.sql"
+        },
+        {
+          "ref": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+          "path": "supabase/migrations/202610180029_s0_inbox_outbox_sinteticos.sql"
+        },
+        {
+          "ref": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+          "path": "supabase/migrations/202610180030_s0_replay_multicanal_fixture.sql"
+        },
+        {
+          "ref": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+          "path": "supabase/migrations/202610180031_s0_c01_alias_importacao_sintetica.sql"
+        },
+        {
+          "ref": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+          "path": "supabase/migrations/202610180032_s0_ciclo_tarefas_ingresso.sql"
+        },
+        {
+          "ref": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+          "path": "supabase/migrations/202610180033_s0_inbox_aplicacao_c02_atomica.sql"
+        },
+        {
+          "ref": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+          "path": "supabase/migrations/202610180034_s0_integridade_c02_e_pendencias.sql"
+        },
+        {
+          "ref": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+          "path": "supabase/migrations/202610180036_s0_owner_gateway_assinado.sql"
+        },
+        {
+          "ref": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+          "path": "supabase/migrations/202610180037_s0_036a_acl_audit_repair.sql"
+        },
+        {
+          "ref": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+          "path": "supabase/migrations/202610190040_s0_meta_canal_emissor_unico_fixture.sql"
+        },
+        {
+          "ref": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+          "path": "supabase/migrations/202610190041_s0_meta_vinculo_tentativa_fixture.sql"
+        },
+        {
+          "ref": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+          "path": "supabase/migrations/202610200042_s0_wa15_meta_ids_tecnicos_fixture.sql"
+        }
+      ],
+      "server": "17.11 (Debian 17.11-1.pgdg13+2)"
+    },
+    "s1": {
+      "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+      "markers": [
+        "PASS G3-01: positive current contact, other contact and same phone in other store denied",
+        "PASS G3-03: current synthetic INSERT control accepted, old-case INSERT denied even with candidate historical SELECT",
+        "PASS G3-04: manager cannot write unassigned case; S0 reads 4 store messages, S1 candidate reads 2 (current team case and pre-case); old case of other team denied",
+        "PASS G3-05: responsavel label does not grant blanket conversation access",
+        "GAP G3-06: SQL history SELECT still works with same auth.uid after synthetic session deletion; no session-aware read gate demonstrated",
+        "PASS G3-07: revoked store grant blocks next history SELECT with same SQL identity",
+        "PASS G3-08: ending the only current assignment removes contextual history, with store grant retained"
+      ],
+      "catalog_unchanged_after_rollback": true,
+      "synthetic_rows_removed": true,
+      "applied_sources": [
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/tests/bootstrap_fake_auth.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610170001_s0_foundation.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610170002_s0_read_policies.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610170003_s0_domain.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610170004_s0_access.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610170005_s0_scope_integrity.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610170006_s0_transactional_simulation.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610170008_s0_lead_operador_caso.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610170009_s0_c02_inbound_synthetic.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610170010_s0_channel_validation.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610170011_s0_c02_ambiguous_inbox.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610170012_s0_recontatos_sinteticos.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610170013_s0_c02_cancelamento_atomico.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610170014_s0_cancelamento_gestor_versionado.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610170015_auditoria_recontatos.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610170016_c04_elegibilidade_optout_sintetico.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610170017_c04_estado_replay_plano.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610170018_c04_inbound_pos_optout_humano.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610170019_c07_callbacks_sinteticos.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610170020_c07_reconciliacao_falhas_sintetica.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610170021_c07_bloqueio_retry_incertos.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610170022_c07_auditoria_replay_eligibilidade.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610170023_s0_gateway_minimo_e_auditoria.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610170024_s0_auditoria_sessao_fingerprint.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610170025_s0_prova_dupla_gateway.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610180026_s0_ciclo_chaves_e_retencao_nonce.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610180027_s0_isolamento_verificador_hmac.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610180028_s0_identidade_aliases_sinteticos.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610180029_s0_inbox_outbox_sinteticos.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610180030_s0_replay_multicanal_fixture.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610180031_s0_c01_alias_importacao_sintetica.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610180032_s0_ciclo_tarefas_ingresso.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610180033_s0_inbox_aplicacao_c02_atomica.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610180034_s0_integridade_c02_e_pendencias.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610180036_s0_owner_gateway_assinado.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610180037_s0_036a_acl_audit_repair.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610180038_s1_equipe_prumo_gate.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610180039_s1_remanejamento_transacional.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610180040_s1_concessoes_expiradas_reconciliacao.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610180041_s1_prevenir_deadlock_remanejamento.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610180042_s1_recuperacao_fila_protegida.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610180043_s1_drenagem_backlog_limitada.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610180044_s1_retorno_pos_venda_perdido_reparo.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610190045_s1_historicos_append_only.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610190046_s1_admin_negacao_por_padrao.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610190047_s1_matriz_autoridades_responsavel_gestor.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610190048_s1_gestao_equipe_pausa_global.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610190049_s1_movimento_manual_por_equipe.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610190050_s1_movimento_manual_bloqueio_chefia.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610190051_s1_sessao_autorizacao_privada.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610190052_s1_verificacao_sessao_gotrue.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610190053_s0_s1_intake_atribuicao_guard.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610190054_s0_fila_humana_canonica.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610190055_s0_fila_reconciliacao_casos.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610190056_s0_s1_grant_atribuicao_guard.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610190057_s0_fila_gestor_revalidacao.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610190058_s0_conversa_integridade_contato.sql"
+        },
+        {
+          "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+          "path": "supabase/migrations/202610190059_s0_s1_excecao_caso_canonica.sql"
+        }
+      ],
+      "server": "17.11 (Debian 17.11-1.pgdg13+2)"
+    },
+    "p9": {
+      "ref": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+      "markers": [
+        "PASS PRIVATE-01: authenticated cannot SELECT existing private receipt or selected F03 fixtures (when installed)",
+        "PASS PRIVATE-03: actual CFI session helper accepts live and denies deleted synthetic session",
+        "PASS PRIVATE-02: real SQL session_user CFI login cannot SELECT messages or assume owner role"
+      ],
+      "applied_sources": [
+        {
+          "ref": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+          "path": "supabase/tests/bootstrap_fake_auth.sql"
+        },
+        {
+          "ref": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+          "path": "supabase/migrations/202610170001_s0_foundation.sql"
+        },
+        {
+          "ref": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+          "path": "supabase/migrations/202610170002_s0_read_policies.sql"
+        },
+        {
+          "ref": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+          "path": "supabase/migrations/202610170003_s0_domain.sql"
+        },
+        {
+          "ref": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+          "path": "supabase/migrations/202610170004_s0_access.sql"
+        },
+        {
+          "ref": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+          "path": "supabase/migrations/202610170005_s0_scope_integrity.sql"
+        },
+        {
+          "ref": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+          "path": "supabase/migrations/202610170006_s0_transactional_simulation.sql"
+        },
+        {
+          "ref": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+          "path": "supabase/migrations/202610170008_s0_lead_operador_caso.sql"
+        },
+        {
+          "ref": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+          "path": "supabase/migrations/202610170009_s0_c02_inbound_synthetic.sql"
+        },
+        {
+          "ref": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+          "path": "supabase/migrations/202610170010_s0_channel_validation.sql"
+        },
+        {
+          "ref": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+          "path": "supabase/migrations/202610170011_s0_c02_ambiguous_inbox.sql"
+        },
+        {
+          "ref": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+          "path": "supabase/migrations/202610170012_s0_recontatos_sinteticos.sql"
+        },
+        {
+          "ref": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+          "path": "supabase/migrations/202610170013_s0_c02_cancelamento_atomico.sql"
+        },
+        {
+          "ref": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+          "path": "supabase/migrations/202610170014_s0_cancelamento_gestor_versionado.sql"
+        },
+        {
+          "ref": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+          "path": "supabase/migrations/202610170015_auditoria_recontatos.sql"
+        },
+        {
+          "ref": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+          "path": "supabase/migrations/202610170016_c04_elegibilidade_optout_sintetico.sql"
+        },
+        {
+          "ref": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+          "path": "supabase/migrations/202610170017_c04_estado_replay_plano.sql"
+        },
+        {
+          "ref": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+          "path": "supabase/migrations/202610170018_c04_inbound_pos_optout_humano.sql"
+        },
+        {
+          "ref": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+          "path": "supabase/migrations/202610170019_c07_callbacks_sinteticos.sql"
+        },
+        {
+          "ref": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+          "path": "supabase/migrations/202610170020_c07_reconciliacao_falhas_sintetica.sql"
+        },
+        {
+          "ref": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+          "path": "supabase/migrations/202610170021_c07_bloqueio_retry_incertos.sql"
+        },
+        {
+          "ref": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+          "path": "supabase/migrations/202610170022_c07_auditoria_replay_eligibilidade.sql"
+        },
+        {
+          "ref": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+          "path": "supabase/migrations/202610170023_s0_gateway_minimo_e_auditoria.sql"
+        },
+        {
+          "ref": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+          "path": "supabase/migrations/202610170024_s0_auditoria_sessao_fingerprint.sql"
+        },
+        {
+          "ref": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+          "path": "supabase/migrations/202610170025_s0_prova_dupla_gateway.sql"
+        },
+        {
+          "ref": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+          "path": "supabase/migrations/202610180026_s0_ciclo_chaves_e_retencao_nonce.sql"
+        },
+        {
+          "ref": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+          "path": "supabase/migrations/202610180027_s0_isolamento_verificador_hmac.sql"
+        },
+        {
+          "ref": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+          "path": "supabase/migrations/202610180028_s0_identidade_aliases_sinteticos.sql"
+        },
+        {
+          "ref": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+          "path": "supabase/migrations/202610180029_s0_inbox_outbox_sinteticos.sql"
+        },
+        {
+          "ref": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+          "path": "supabase/migrations/202610180030_s0_replay_multicanal_fixture.sql"
+        },
+        {
+          "ref": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+          "path": "supabase/migrations/202610180031_s0_c01_alias_importacao_sintetica.sql"
+        },
+        {
+          "ref": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+          "path": "supabase/migrations/202610180032_s0_ciclo_tarefas_ingresso.sql"
+        },
+        {
+          "ref": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+          "path": "supabase/migrations/202610180033_s0_inbox_aplicacao_c02_atomica.sql"
+        },
+        {
+          "ref": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+          "path": "supabase/migrations/202610180034_s0_integridade_c02_e_pendencias.sql"
+        },
+        {
+          "ref": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+          "path": "supabase/migrations/202610180036_s0_owner_gateway_assinado.sql"
+        },
+        {
+          "ref": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+          "path": "supabase/migrations/202610180037_s0_036a_acl_audit_repair.sql"
+        },
+        {
+          "ref": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+          "path": "supabase/migrations/202610190040_s0_meta_canal_emissor_unico_fixture.sql"
+        },
+        {
+          "ref": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+          "path": "supabase/migrations/202610190041_s0_meta_vinculo_tentativa_fixture.sql"
+        },
+        {
+          "ref": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+          "path": "supabase/migrations/202610200042_s0_wa15_meta_ids_tecnicos_fixture.sql"
+        },
+        {
+          "ref": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+          "path": "supabase/tests/s0_cfi01_s1_038_reference_local_only.sql"
+        },
+        {
+          "ref": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+          "path": "supabase/tests/s0_cfi01_human_closure_table_local_only.sql"
+        },
+        {
+          "ref": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+          "path": "supabase/tests/s0_cfi01_signed_prerequisite_local_only.sql"
+        },
+        {
+          "ref": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+          "path": "supabase/tests/s0_cfi01_atomic_owner_local_only.sql"
+        }
+      ],
+      "server": "17.11 (Debian 17.11-1.pgdg13+2)"
+    },
+    "f03": {
+      "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+      "markers": [
+        "PASS PRIVATE-01: authenticated cannot SELECT existing private receipt or selected F03 fixtures (when installed)",
+        "PASS PRIVATE-03: actual CFI session helper accepts live and denies deleted synthetic session",
+        "PASS PRIVATE-02: real SQL session_user CFI login cannot SELECT messages or assume owner role"
+      ],
+      "applied_sources": [
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/tests/bootstrap_fake_auth.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/migrations/202610170001_s0_foundation.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/migrations/202610170002_s0_read_policies.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/migrations/202610170003_s0_domain.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/migrations/202610170004_s0_access.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/migrations/202610170005_s0_scope_integrity.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/migrations/202610170006_s0_transactional_simulation.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/migrations/202610170008_s0_lead_operador_caso.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/migrations/202610170009_s0_c02_inbound_synthetic.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/migrations/202610170010_s0_channel_validation.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/migrations/202610170011_s0_c02_ambiguous_inbox.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/migrations/202610170012_s0_recontatos_sinteticos.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/migrations/202610170013_s0_c02_cancelamento_atomico.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/migrations/202610170014_s0_cancelamento_gestor_versionado.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/migrations/202610170015_auditoria_recontatos.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/migrations/202610170016_c04_elegibilidade_optout_sintetico.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/migrations/202610170017_c04_estado_replay_plano.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/migrations/202610170018_c04_inbound_pos_optout_humano.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/migrations/202610170019_c07_callbacks_sinteticos.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/migrations/202610170020_c07_reconciliacao_falhas_sintetica.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/migrations/202610170021_c07_bloqueio_retry_incertos.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/migrations/202610170022_c07_auditoria_replay_eligibilidade.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/migrations/202610170023_s0_gateway_minimo_e_auditoria.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/migrations/202610170024_s0_auditoria_sessao_fingerprint.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/migrations/202610170025_s0_prova_dupla_gateway.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/migrations/202610180026_s0_ciclo_chaves_e_retencao_nonce.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/migrations/202610180027_s0_isolamento_verificador_hmac.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/migrations/202610180028_s0_identidade_aliases_sinteticos.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/migrations/202610180029_s0_inbox_outbox_sinteticos.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/migrations/202610180030_s0_replay_multicanal_fixture.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/migrations/202610180031_s0_c01_alias_importacao_sintetica.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/migrations/202610180032_s0_ciclo_tarefas_ingresso.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/migrations/202610180033_s0_inbox_aplicacao_c02_atomica.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/migrations/202610180034_s0_integridade_c02_e_pendencias.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/migrations/202610180036_s0_owner_gateway_assinado.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/migrations/202610180037_s0_036a_acl_audit_repair.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/migrations/202610190040_s0_meta_canal_emissor_unico_fixture.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/migrations/202610190041_s0_meta_vinculo_tentativa_fixture.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/migrations/202610200042_s0_wa15_meta_ids_tecnicos_fixture.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/tests/s0_cfi01_s1_038_reference_local_only.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/tests/s0_cfi01_human_closure_table_local_only.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/tests/s0_cfi01_signed_prerequisite_local_only.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/tests/s0_cfi01_atomic_owner_local_only.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/tests/s0_f03_message_modalities_local_only.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/tests/s0_f03_history_seal_local_only.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/tests/s0_f03_versions_reservation_local_only.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/tests/s0_f03_version_source_triggers_local_only.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/tests/s0_f03_operational_contracts_local_only.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/tests/s0_f03_field_application_local_only.sql"
+        },
+        {
+          "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+          "path": "supabase/tests/s0_f03_media_attestation_local_only.sql"
+        }
+      ],
+      "server": "17.11 (Debian 17.11-1.pgdg13+2)"
+    }
+  },
+  "containers_removed": true
+}
