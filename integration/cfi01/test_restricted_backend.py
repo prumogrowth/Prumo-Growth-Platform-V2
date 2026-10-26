@@ -250,6 +250,16 @@ class RestrictedBackendTests(checkpoint.TransactionalCommunicationTests):
         self.deny_sql(atomic._ATOMIC_INTERNAL_SQL,next_proof)
         self.assertEqual(self.audit_count(),1)
 
+    def test_28_owner_has_only_required_column_grants(self):
+        owner='prumo_cfi01_atomic_owner_local'
+        with psycopg.connect(self.db) as c:
+            for table,column in [('public.casos_humanos','lead_id'),('public.mensagens','id_externo'),
+                                 ('prumo_private.cfi01_human_closure_events_local','registrado_em'),
+                                 ('prumo_private.cfi01_consumed_nonces_local','used_at')]:
+                self.assertEqual(c.execute("select has_table_privilege(%s,%s,'SELECT'),has_column_privilege(%s,%s,%s,'SELECT')",(owner,table,owner,table,column)).fetchone(),(False,False))
+            self.assertFalse(c.execute("select has_column_privilege(%s,'prumo_private.cfi01_command_audit_local','recorded_at','INSERT')",(owner,)).fetchone()[0])
+        self.capture()
+
 
 if __name__=='__main__':
     unittest.main(verbosity=2)

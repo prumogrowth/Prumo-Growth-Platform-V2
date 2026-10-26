@@ -36,17 +36,20 @@ begin
    'grant execute on function %I.digest(bytea,text) to prumo_cfi01_atomic_owner_local',
    v_schema);
 end $crypto_acl$;
-grant select on public.equipe_prumo_s1,
- public.casos_humanos,public.ciclos_comerciais,public.concessionarias,
- public.atribuicoes_humanas,public.vinculos_papel_escopo,
- public.conversas,public.mensagens,
- prumo_private.cfi01_signing_keys_local,
- prumo_private.cfi01_human_closure_events_local,
- prumo_private.cfi01_consumed_nonces_local
- to prumo_cfi01_atomic_owner_local;
-grant insert on prumo_private.cfi01_consumed_nonces_local,
- prumo_private.cfi01_human_closure_events_local
- to prumo_cfi01_atomic_owner_local;
+-- Explicit columns: future schema additions do not expand this role.
+grant select(ator_id,estado) on public.equipe_prumo_s1 to prumo_cfi01_atomic_owner_local;
+grant select(id,concessionaria_id,ciclo_id) on public.casos_humanos to prumo_cfi01_atomic_owner_local;
+grant select(id,concessionaria_id,versao_registro,status_comercial) on public.ciclos_comerciais to prumo_cfi01_atomic_owner_local;
+grant select(id,ativo) on public.concessionarias to prumo_cfi01_atomic_owner_local;
+grant select(id,caso_id,concessionaria_id,operador_id,encerrada_em) on public.atribuicoes_humanas to prumo_cfi01_atomic_owner_local;
+grant select(id,ator_id,concessionaria_id,papel,valido_desde,valido_ate) on public.vinculos_papel_escopo to prumo_cfi01_atomic_owner_local;
+grant select(id,concessionaria_id,caso_id) on public.conversas to prumo_cfi01_atomic_owner_local;
+grant select(id,criada_em,direcao,origem,conteudo_sintetico,enviada_por,conversa_id,concessionaria_id) on public.mensagens to prumo_cfi01_atomic_owner_local;
+grant select(key_id,secret,active) on prumo_private.cfi01_signing_keys_local to prumo_cfi01_atomic_owner_local;
+grant select(id,concessionaria_id,caso_id,ator_id,sessao_id,atribuicao_id,versao_ciclo,chave_idempotencia,snapshot_sha256,ultima_mensagem_id,quantidade_mensagens) on prumo_private.cfi01_human_closure_events_local to prumo_cfi01_atomic_owner_local;
+grant select(nonce,key_id) on prumo_private.cfi01_consumed_nonces_local to prumo_cfi01_atomic_owner_local;
+grant insert(nonce,key_id) on prumo_private.cfi01_consumed_nonces_local to prumo_cfi01_atomic_owner_local;
+grant insert(concessionaria_id,caso_id,ator_id,sessao_id,atribuicao_id,versao_ciclo,chave_idempotencia,snapshot_sha256,ultima_mensagem_id,quantidade_mensagens) on prumo_private.cfi01_human_closure_events_local to prumo_cfi01_atomic_owner_local;
 -- Locking S0 rows FOR UPDATE requires UPDATE privilege on these relations.
 -- This role is NOLOGIN/NOINHERIT; only the allowlisted SECURITY DEFINER uses it.
 grant update(id) on public.casos_humanos to prumo_cfi01_atomic_owner_local;
@@ -163,7 +166,8 @@ create table prumo_private.cfi01_command_audit_local (
 alter table prumo_private.cfi01_command_audit_local enable row level security;
 revoke all on prumo_private.cfi01_command_audit_local
  from public,anon,authenticated,service_role,prumo_cfi01_pgtest_login;
-grant insert on prumo_private.cfi01_command_audit_local to prumo_cfi01_atomic_owner_local;
+grant insert(nonce,key_id,operation,actor_id,session_id,store_id,case_id,cycle_version,receipt_id,result)
+ on prumo_private.cfi01_command_audit_local to prumo_cfi01_atomic_owner_local;
 create policy cfi01_audit_insert on prumo_private.cfi01_command_audit_local
  for insert to prumo_cfi01_atomic_owner_local with check(true);
 create function prumo_private.cfi01_immutable_fact_local()
