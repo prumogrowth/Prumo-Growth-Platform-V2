@@ -65,6 +65,7 @@ class HistoryTests(unittest.TestCase):
         self.convs=[uuid.uuid4() for _ in range(5)]
         self.channels=[uuid.uuid4(),uuid.uuid4()]
         self.assignments=[uuid.uuid4() for _ in range(4)]
+        self.cycles=[]
         with psycopg.connect(self.db) as c:
             for actor,_ in self.actors.values():
                 c.execute('insert into public.atores(id) values (%s)',(actor,))
@@ -87,7 +88,8 @@ class HistoryTests(unittest.TestCase):
                 shop=self.shop_b if i==3 else self.shop
                 lead=[self.lead,self.lead,self.other_lead,self.lead_b][i]
                 cycle=uuid.uuid4()
-                c.execute("insert into public.ciclos_comerciais(id,concessionaria_id,lead_id,status_comercial) values (%s,%s,%s,'em atendimento pelo operador')",(cycle,shop,lead))
+                self.cycles.append(cycle)
+                c.execute("insert into public.ciclos_comerciais(id,concessionaria_id,lead_id,status_comercial,versao_registro) values (%s,%s,%s,'em atendimento pelo operador',2)",(cycle,shop,lead))
                 c.execute('insert into public.casos_humanos(id,concessionaria_id,lead_id,ciclo_id) values (%s,%s,%s,%s)',(self.cases[i],shop,lead,cycle))
                 actor=self.actor if i==0 else self.actors['other'][0]
                 c.execute('insert into public.atribuicoes_humanas(id,concessionaria_id,caso_id,operador_id) values (%s,%s,%s,%s)',(self.assignments[i],shop,self.cases[i],actor))
@@ -98,6 +100,13 @@ class HistoryTests(unittest.TestCase):
             c.execute('insert into public.conversas(id,concessionaria_id,lead_id,canal_id) values (%s,%s,%s,%s)',(self.convs[4],self.shop,self.lead,self.channels[0]))
             for conv in self.convs:
                 c.execute("insert into public.mensagens(concessionaria_id,conversa_id,canal_id,caso_id,direcao,conteudo_sintetico,id_externo) select concessionaria_id,id,canal_id,caso_id,'entrada','synthetic history',id::text from public.conversas where id=%s",(conv,))
+            # Positive rows in ALL eleven protected relations. An empty table
+            # after logout alone would not prove its session restriction.
+            batch=uuid.uuid4()
+            c.execute('insert into public.lotes_importacao(id,concessionaria_id,chave_importacao) values (%s,%s,%s)',(batch,self.shop,str(batch)))
+            c.execute('insert into public.itens_lote(concessionaria_id,lote_id,ordinal_linha,lead_id) values (%s,%s,1,%s)',(self.shop,batch,self.lead))
+            c.execute('insert into public.reencontros_lote(concessionaria_id,lote_id,lead_id) values (%s,%s,%s)',(self.shop,batch,self.lead))
+            c.execute("insert into public.eventos_status_comercial(concessionaria_id,ciclo_id,versao_ciclo_apos,status_anterior,status_posterior) values (%s,%s,2,'em atendimento pela IA','em atendimento pelo operador')",(self.shop,self.cycles[0]))
 
     def read(self, token=None, table='mensagens'):
         return request(self.api,self.key,'GET',f'/rest/v1/{table}?select=*&concessionaria_id=in.({self.shop},{self.shop_b})',token=self.token if token is None else token)
@@ -133,7 +142,9 @@ class HistoryTests(unittest.TestCase):
 
     def test_02_real_logout_with_unexpired_jwt_denies_all_history_relations(self):
         token=self.actors['manager'][1]
-        self.assertTrue(self.rows(token));self.assertGreater(claims(token)['exp'],time.time())
+        for table in TABLES:
+            with self.subTest(positive_table=table):self.assertTrue(self.rows(token,table))
+        self.assertGreater(claims(token)['exp'],time.time())
         self.logout(token)
         with psycopg.connect(self.db) as c:
             self.assertIsNone(c.execute('select id from auth.sessions where id=%s',(claims(token)['session_id'],)).fetchone())
