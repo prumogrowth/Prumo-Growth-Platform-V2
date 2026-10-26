@@ -83,7 +83,7 @@ class Tests(unittest.TestCase):
         for key in ("f03_receipt_sha256", "c08_local_witness_sha256",
                     "origin_ledger_sha256", "human_intent_sha256"):
             with self.subTest(key=key):
-                self.assertIs(prepare_handoff(e, replace(e, **{key: "a" * 63}), p).status,
+                self.assertIs(prepare_handoff(replace(e, **{key: "a" * 63}), p).status,
                               HandoffState.DENIED_MALFORMED)
 
     def test_11_human_ratification_cannot_be_user_declared(self):
