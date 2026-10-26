@@ -4253,5 +4253,157 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
                             'prumo_private.cfi01_f02_legacy_cancel_witness_local')
         self.assertIn(exc.exception.sqlstate,('42501','42P01','3F000'))
 
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_291_plan_forged_after_human_handoff_is_not_legacy(self):
+        from backend.s0_f02_legacy_cancellation_witness_local import CancelWitnessState
+        from datetime import timedelta
+        ctx=self._f02_legacy_witness_fixture()
+        with self.pg.connect(DB) as con:
+            case_at=con.execute('select criado_em from public.casos_humanos where id=%s',
+                                (self.case,)).fetchone()[0]
+            con.execute('update public.planos_recontato_sinteticos '
+                'set criado_em=%s where id=%s',(case_at+timedelta(seconds=1),ctx[2]))
+        self.assertIs(self._f02_cancel_witness(ctx),
+                      CancelWitnessState.LEGACY_CHRONOLOGY_REVIEW_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_292_attempt_forged_after_human_handoff_is_not_legacy(self):
+        from backend.s0_f02_legacy_cancellation_witness_local import CancelWitnessState
+        from datetime import timedelta
+        ctx=self._f02_legacy_witness_fixture()
+        with self.pg.connect(DB) as con:
+            case_at=con.execute('select criado_em from public.casos_humanos where id=%s',
+                                (self.case,)).fetchone()[0]
+            con.execute('update public.envios_template_sinteticos '
+                'set criado_em=%s where id=%s',(case_at+timedelta(seconds=1),ctx[3]))
+        self.assertIs(self._f02_cancel_witness(ctx),
+                      CancelWitnessState.LEGACY_CHRONOLOGY_REVIEW_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_293_local_cancel_retrodated_before_handoff_rejected(self):
+        from backend.s0_f02_legacy_cancellation_witness_local import CancelWitnessState
+        from datetime import timedelta
+        ctx=self._f02_legacy_witness_fixture()
+        with self.pg.connect(DB) as con:
+            case_at=con.execute('select criado_em from public.casos_humanos where id=%s',
+                                (self.case,)).fetchone()[0]
+            back=case_at-timedelta(minutes=5)
+            con.execute('update public.planos_recontato_sinteticos '
+                'set cancelado_em=%s where id=%s',(back,ctx[2]))
+            con.execute('update public.envios_template_sinteticos '
+                'set cancelado_em=%s where id=%s',(back,ctx[3]))
+            con.execute('update public.eventos_envio_template_sinteticos '
+                'set criado_em=%s where envio_id=%s',(back,ctx[3]))
+        self.assertIs(self._f02_cancel_witness(ctx),
+                      CancelWitnessState.LEGACY_CHRONOLOGY_REVIEW_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_294_attempt_created_before_original_plan_denied(self):
+        from backend.s0_f02_legacy_cancellation_witness_local import CancelWitnessState
+        from datetime import timedelta
+        ctx=self._f02_legacy_witness_fixture()
+        with self.pg.connect(DB) as con:
+            created=con.execute('select criado_em from public.planos_recontato_sinteticos '
+                'where id=%s',(ctx[2],)).fetchone()[0]
+            con.execute('update public.envios_template_sinteticos '
+                'set criado_em=%s where id=%s',(created-timedelta(seconds=2),ctx[3]))
+        self.assertIs(self._f02_cancel_witness(ctx),
+                      CancelWitnessState.LEGACY_CHRONOLOGY_REVIEW_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_295_attempt_scheduled_before_creation_denied(self):
+        from backend.s0_f02_legacy_cancellation_witness_local import CancelWitnessState
+        from datetime import timedelta
+        ctx=self._f02_legacy_witness_fixture()
+        with self.pg.connect(DB) as con:
+            created=con.execute('select criado_em from public.envios_template_sinteticos '
+                'where id=%s',(ctx[3],)).fetchone()[0]
+            con.execute('update public.envios_template_sinteticos '
+                'set agendado_em=%s where id=%s',(created-timedelta(minutes=1),ctx[3]))
+        self.assertIs(self._f02_cancel_witness(ctx),
+                      CancelWitnessState.LEGACY_CHRONOLOGY_REVIEW_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_296_fake_handoff_after_closure_is_chronology_block(self):
+        from backend.s0_f02_legacy_cancellation_witness_local import CancelWitnessState
+        from datetime import timedelta
+        ctx=self._f02_legacy_witness_fixture()
+        with self.pg.connect(DB) as con:
+            closed=con.execute('select registrado_em from '
+                'prumo_private.cfi01_human_closure_events_local '
+                'where id=%s',(self.event,)).fetchone()[0]
+            con.execute('update public.casos_humanos set criado_em=%s '
+                'where id=%s',(closed+timedelta(minutes=2),self.case))
+        self.assertIs(self._f02_cancel_witness(ctx),
+                      CancelWitnessState.LEGACY_CHRONOLOGY_REVIEW_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_297_forged_assignment_after_closure_fails(self):
+        from backend.s0_f02_legacy_cancellation_witness_local import CancelWitnessState
+        from datetime import timedelta
+        ctx=self._f02_legacy_witness_fixture()
+        with self.pg.connect(DB) as con:
+            closed=con.execute('select registrado_em from '
+                'prumo_private.cfi01_human_closure_events_local '
+                'where id=%s',(self.event,)).fetchone()[0]
+            con.execute('update public.atribuicoes_humanas set atribuida_em=%s '
+                'where id=%s',(closed+timedelta(minutes=2),self.assignment))
+        self.assertIs(self._f02_cancel_witness(ctx),
+                      CancelWitnessState.LEGACY_CHRONOLOGY_REVIEW_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_298_changed_case_start_invalidates_existing_seal(self):
+        from backend.s0_f02_legacy_cancellation_witness_local import CancelWitnessState
+        from datetime import timedelta
+        ctx=self._f02_legacy_witness_fixture()
+        self.assertIs(self._f02_cancel_witness(ctx),
+                      CancelWitnessState.LOCAL_CHAIN_ATTESTED_AUDIT_ONLY)
+        with self.pg.connect(DB) as con:
+            con.execute('update public.casos_humanos '
+                "set criado_em=criado_em - interval '1 second' "
+                'where id=%s',(self.case,))
+        self.assertIs(self._f02_cancel_witness(ctx),
+                      CancelWitnessState.STALE_WITNESS_REVIEW_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_299_changed_attempt_creation_invalidates_existing_seal(self):
+        from backend.s0_f02_legacy_cancellation_witness_local import CancelWitnessState
+        ctx=self._f02_legacy_witness_fixture()
+        self.assertIs(self._f02_cancel_witness(ctx),
+                      CancelWitnessState.LOCAL_CHAIN_ATTESTED_AUDIT_ONLY)
+        with self.pg.connect(DB) as con:
+            con.execute('update public.envios_template_sinteticos '
+                "set criado_em=criado_em + interval '1 second' "
+                'where id=%s',(ctx[3],))
+        self.assertIs(self._f02_cancel_witness(ctx),
+                      CancelWitnessState.STALE_WITNESS_REVIEW_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_300_future_cancellation_timestamp_is_not_valid(self):
+        from backend.s0_f02_legacy_cancellation_witness_local import CancelWitnessState
+        from datetime import datetime,timezone,timedelta
+        ctx=self._f02_legacy_witness_fixture()
+        later=datetime.now(timezone.utc)+timedelta(days=1)
+        with self.pg.connect(DB) as con:
+            con.execute('update public.planos_recontato_sinteticos '
+                'set cancelado_em=%s where id=%s',(later,ctx[2]))
+            con.execute('update public.envios_template_sinteticos '
+                'set cancelado_em=%s where id=%s',(later,ctx[3]))
+            con.execute('update public.eventos_envio_template_sinteticos '
+                'set criado_em=%s where envio_id=%s',(later,ctx[3]))
+        self.assertIs(self._f02_cancel_witness(ctx),
+                      CancelWitnessState.LEGACY_CHRONOLOGY_REVIEW_REQUIRED)
+
 if __name__=='__main__':
     unittest.main()
