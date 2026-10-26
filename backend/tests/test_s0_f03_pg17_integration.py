@@ -4405,5 +4405,160 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
         self.assertIs(self._f02_cancel_witness(ctx),
                       CancelWitnessState.LEGACY_CHRONOLOGY_REVIEW_REQUIRED)
 
+
+    def _c04_origin_early_case_fixture(self,*,reserved=False):
+        """Physical PG17: C04 insert is observed before a NEW human case."""
+        from datetime import datetime,timezone,timedelta
+        data=self._f02_preview_fixture()
+        plan,attempt,case=uuid.uuid4(),uuid.uuid4(),uuid.uuid4()
+        with self.pg.connect(DB) as con:
+            con.execute('insert into public.planos_recontato_sinteticos '
+                '(id,concessionaria_id,lead_id,ciclo_id,canal_id,'
+                'chave_idempotencia,fingerprint) '
+                'values (%s,%s,%s,%s,%s,%s,%s)',
+                (plan,self.shop,self.lead,self.cycle,self.channel,
+                 'e04-ledger-earlier-than-new-case','synthetic-origin-test'))
+            con.execute('insert into public.envios_template_sinteticos '
+                '(id,concessionaria_id,plano_id,template_id,ordem,'
+                'agendado_em,estado,chave_idempotencia) '
+                "values (%s,%s,%s,%s,1,%s,'programado',%s)",
+                (attempt,self.shop,plan,data[4],
+                 datetime.now(timezone.utc)+timedelta(days=2),
+                 'e04-ledger-origin-attempt'))
+            if reserved:
+                con.execute('update public.envios_template_sinteticos '
+                    "set estado='reservado',reservado_em=statement_timestamp() "
+                    'where id=%s',(attempt,))
+        # A separate DB transaction prevents inherited now() timestamps
+        # from making the event ordering appear equal.
+        with self.pg.connect(DB) as con:
+            con.execute('insert into public.casos_humanos '
+                '(id,concessionaria_id,lead_id,ciclo_id) '
+                'values (%s,%s,%s,%s)',
+                (case,self.shop,self.lead,self.cycle))
+        with self.pg.connect(DB) as con:
+            result=con.execute('select prumo_private.cancelar_recontatos_sinteticos'
+                 "(%s,%s,'handoff')",(self.shop,self.lead)).fetchone()[0]
+            self.assertEqual(result['outcome'],'APPLIED')
+            self.assertEqual(result['planos_cancelados'],1)
+            self.assertEqual(result['envios_cancelados'],1)
+        return plan,attempt,case
+
+    def _c04_origin_state(self,case=None):
+        with self.pg.connect(DB) as con:
+            return con.execute('select prumo_private.cfi01_f02_check_origin_local'
+                '(%s,%s,%s)',(self.shop,self.lead,case or self.case)).fetchone()[0]
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_301_backdated_legacy_created_after_handoff_still_refused(self):
+        ctx=self._f02_legacy_witness_fixture()
+        self.assertEqual(self._c04_origin_state(),'LATE_OBSERVED_SOURCE')
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_302_signed_s0_witness_does_not_bypass_observed_ledger(self):
+        from backend.s0_f02_legacy_observed_origin_local import (
+            S0F02LegacyObservedOriginBridge,OriginState)
+        ctx=self._f02_legacy_witness_fixture()
+        # Earlier synthetically backdated timestamp passes OLD C08 gate;
+        # the new independent capture recognizes PG observed creation late.
+        self.assertIs(self._f02_cancel_witness(ctx),
+                      __import__('backend.s0_f02_legacy_cancellation_witness_local',
+                      fromlist=['CancelWitnessState']).CancelWitnessState.
+                      LOCAL_CHAIN_ATTESTED_AUDIT_ONLY)
+        data,witness,_,_=ctx
+        physical,_,req=data
+        _,fields,version,f03,proposal=physical
+        bridge=S0F02LegacyObservedOriginBridge(witness)
+        result=bridge.inspect(
+            'Bearer PINNED_S2_LOCAL_E04',self.binding,'test-key-v1',
+            b'fixture-only-content-seal-key-more-than-32-bytes',
+            version,'request-cas-0001',fields,f03,proposal,
+            self._s2_f02_real_lifecycle(),str(self.channel),req)
+        self.assertIs(result.state,OriginState.LATE_ORIGIN_REVIEW_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_303_pg17_observed_true_pre_handoff_local_chain_verified(self):
+        _,_,case=self._c04_origin_early_case_fixture()
+        self.assertEqual(self._c04_origin_state(case),
+                         'LOCAL_ORIGIN_VERIFIED_AUDIT_ONLY')
+        with self.pg.connect(DB) as con:
+            count=con.execute('select count(*) from '
+                'public.planos_recontato_sinteticos where lead_id=%s '
+                "and estado='ativo'",(self.lead,)).fetchone()[0]
+            self.assertEqual(count,0)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_304_mutated_c04_cancellation_row_invalidates_origin(self):
+        plan,_,case=self._c04_origin_early_case_fixture()
+        with self.pg.connect(DB) as con:
+            con.execute('update public.planos_recontato_sinteticos '
+                "set cancelado_em=cancelado_em + interval '2 seconds' "
+                'where id=%s',(plan,))
+        self.assertEqual(self._c04_origin_state(case),'MUTATED_ORIGIN')
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_305_mutated_c08_event_invalidates_origin(self):
+        _,attempt,case=self._c04_origin_early_case_fixture()
+        with self.pg.connect(DB) as con:
+            con.execute('update public.eventos_envio_template_sinteticos '
+                "set criado_em=criado_em + interval '1 second' "
+                'where envio_id=%s',(attempt,))
+        self.assertEqual(self._c04_origin_state(case),'MUTATED_ORIGIN')
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_306_once_reserved_never_claims_external_stop(self):
+        _,attempt,case=self._c04_origin_early_case_fixture(reserved=True)
+        self.assertEqual(self._c04_origin_state(case),
+                         'RESERVED_EXTERNAL_UNKNOWN')
+        with self.pg.connect(DB) as con:
+            stages=con.execute('select etapa from '
+              'prumo_private.cfi01_f02_c04_origin_ledger_local '
+              "where tipo='ATTEMPT' and entidade_id=%s order by id",
+              (attempt,)).fetchall()
+        self.assertEqual([x[0] for x in stages],['CREATE','RESERVE','CANCEL'])
+
+    def test_307_missing_original_chain_is_not_origin_proof(self):
+        self.assertEqual(self._c04_origin_state(),'NO_LEGACY_CHAIN')
+
+    def test_308_unprivileged_role_cannot_read_s0_origin_ledger(self):
+        with self.assertRaises(self.pg.Error) as error:
+            with self.pg.connect(DB) as con:
+                con.execute('set local role authenticated')
+                con.execute('select * from '
+                   'prumo_private.cfi01_f02_c04_origin_ledger_local')
+        self.assertIn(error.exception.sqlstate,('42501','42P01','3F000'))
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_309_origin_ledger_append_only_no_delete_or_rewrite(self):
+        plan,_,_=self._c04_origin_early_case_fixture()
+        for command in (
+           'update prumo_private.cfi01_f02_c04_origin_ledger_local '
+           "set payload_sha256=%s where entidade_id=%s",
+           'delete from prumo_private.cfi01_f02_c04_origin_ledger_local '
+           'where entidade_id=%s',
+        ):
+            params=('a'*64,plan) if command.startswith('update') else (plan,)
+            with self.subTest(action=command.split()[0]):
+                with self.assertRaises(self.pg.Error) as exc:
+                    with self.pg.connect(DB) as con:con.execute(command,params)
+                self.assertEqual(exc.exception.sqlstate,'42501')
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_310_late_backdating_timestamp_cannot_restore_origin(self):
+        plan,_,case=self._c04_origin_early_case_fixture()
+        with self.pg.connect(DB) as con:
+            con.execute('update public.planos_recontato_sinteticos '
+                "set criado_em=criado_em - interval '20 days' "
+                'where id=%s',(plan,))
+        self.assertEqual(self._c04_origin_state(case),'MUTATED_ORIGIN')
+
 if __name__=='__main__':
     unittest.main()
