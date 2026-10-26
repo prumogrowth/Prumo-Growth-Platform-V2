@@ -5,6 +5,7 @@
  * The bridge independently checks the raw body/event and S0 ticket MAC.
  */
 import {createHash,createHmac,timingSafeEqual} from 'node:crypto';
+import {wa67StrictJsonKeys} from './s0_wa_072_strict_json_keys.mjs';
 import {WA44_AUDIENCE,wa44CanonicalBytes} from './s0_wa_048_meta_handoff_adapter.mjs';
 
 const PORTS=['rawGate','getInternalKey','appendWa55','nowSeconds'];
@@ -43,6 +44,7 @@ function immutableTuple(candidate){
 }
 function rawEvent(bytes){
  try {
+  if(!wa67StrictJsonKeys(bytes))return null;
   const root=obj(JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(bytes)),['object','entry']);
   if(!root||root.object!=='whatsapp_business_account'||
      !Array.isArray(root.entry)||root.entry.length!==1)return null;

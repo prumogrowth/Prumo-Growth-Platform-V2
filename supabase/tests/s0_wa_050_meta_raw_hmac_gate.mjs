@@ -6,6 +6,7 @@
  * WA34/35 JSON tickets are never accepted as the S0/044 wire contract.
  */
 import {createHmac,createHash,timingSafeEqual} from 'node:crypto';
+import {wa67StrictJsonKeys} from './s0_wa_072_strict_json_keys.mjs';
 
 const REG=['routeRef','revision','appTechnical','wabaTechnical','phoneTechnical',
  'appRef','tenantRef','channelRef','secretSlot','enabled'];
@@ -40,6 +41,7 @@ function registry(raw,route){
 function same(a,b){return REG.every(k=>a[k]===b[k]);}
 function parseOneStatus(bytes,r){
  try{
+  if(!wa67StrictJsonKeys(bytes))return null;
   const raw=new TextDecoder('utf-8',{fatal:true}).decode(bytes);
   const root=dataOnly(JSON.parse(raw),['object','entry']);
   if(!root||root.object!=='whatsapp_business_account'||
