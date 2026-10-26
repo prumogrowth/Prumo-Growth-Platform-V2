@@ -22,10 +22,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Exigir runtime identico ao snapshot aprovado FVA-01
+      - name: Exigir runtime identico ao snapshot aprovado FVA-02
         run: |
           set -euo pipefail
-          baseline="c9e7dd75f3a50dd0727eaeac808c412e26de9258"
+          baseline="a14c46257c0d36a6a944af57e36635e1e75357f1"
           actual="$(git rev-parse HEAD:frontend/visual)"
           certified="$(git rev-parse "${baseline}:frontend/visual")"
           test "$actual" = "$certified"
