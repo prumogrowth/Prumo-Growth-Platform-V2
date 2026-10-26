@@ -1,3 +1,21 @@
+-- Atomic lab-only installer: one DO statement also works within PG acceptance ROLLBACK.
+-- Reuses CFI01's transient installer SET/CREATE mechanism, restoring preexisting
+-- installer membership options rather than persisting operational membership.
+do $i74_install$
+declare
+ installer_before jsonb;
+ prior_admin boolean; prior_inherit boolean; prior_set boolean;
+ prior_own_grant boolean;
+begin
+ select coalesce(jsonb_agg(jsonb_build_array(m.grantor,m.admin_option,m.inherit_option,m.set_option)
+                         order by m.grantor),'[]'::jsonb)
+ into installer_before from pg_catalog.pg_auth_members m
+ where m.roleid='prumo_s1_export_executor'::regrole and m.member='postgres'::regrole;
+ select m.admin_option,m.inherit_option,m.set_option
+ into prior_admin,prior_inherit,prior_set from pg_catalog.pg_auth_members m
+ where m.roleid='prumo_s1_export_executor'::regrole and m.member='postgres'::regrole
+ and m.grantor='postgres'::regrole;
+ prior_own_grant:=found;
 -- I74 S1-only experimental PG17/GoTrue fixture. NEVER deploy to hosted DB.
 do $q$begin
  if current_user<>'postgres' or to_regrole('prumo_s1_export_executor') is null
@@ -27,12 +45,19 @@ alter table prumo_export_auth.nonces_i74 enable row level security;
 revoke all on prumo_export_auth.chaves_i74,prumo_export_auth.nonces_i74
  from public,anon,authenticated,service_role,prumo_s1_export_signed_login_ci;
 grant select on prumo_export_auth.chaves_i74 to prumo_s1_export_executor;
+-- FOR SHARE needs UPDATE ACL + an UPDATE visibility policy, even for reads.
+-- Identity-column ACL only; WITH CHECK false forbids every actual row change.
+grant update(id) on prumo_export_auth.chaves_i74 to prumo_s1_export_executor;
+create policy i74_key_lock on prumo_export_auth.chaves_i74
+ for update to prumo_s1_export_executor using (true) with check (false);
 grant insert on prumo_export_auth.nonces_i74 to prumo_s1_export_executor;
 create policy i74_keys on prumo_export_auth.chaves_i74
  for select to prumo_s1_export_executor using (true);
 create policy i74_nonces on prumo_export_auth.nonces_i74
  for insert to prumo_s1_export_executor with check (true);
 grant create on schema prumo_export_auth to prumo_s1_export_executor;
+-- Only the trusted installer receives a transient, non-inheriting SET grant.
+grant prumo_s1_export_executor to postgres with inherit false, set true;
 set role prumo_s1_export_executor;
 create function prumo_export_auth.exportar_assinado_i74(
  actor uuid,session uuid,kind text,shop uuid,cursor_id uuid,page_size integer,
@@ -113,3 +138,32 @@ do $audit$declare own text;begin
  or has_schema_privilege('prumo_s1_export_executor','prumo_export_auth','CREATE')
  then raise exception 'I74_ACL_FAILED' using errcode='42501';end if;
 end $audit$;
+
+-- Restore precisely the installer's own prior grant; other grantors untouched.
+if prior_own_grant then
+ execute pg_catalog.format('grant prumo_s1_export_executor to postgres with admin %s, inherit %s, set %s',
+   prior_admin,prior_inherit,prior_set);
+else
+ revoke prumo_s1_export_executor from postgres granted by postgres;
+end if;
+if installer_before is distinct from (
+ select coalesce(jsonb_agg(jsonb_build_array(m.grantor,m.admin_option,m.inherit_option,m.set_option)
+                          order by m.grantor),'[]'::jsonb)
+ from pg_catalog.pg_auth_members m
+ where m.roleid='prumo_s1_export_executor'::regrole and m.member='postgres'::regrole)
+then raise exception 'I74_INSTALLER_MEMBERSHIP_DRIFT' using errcode='42501';end if;
+if not has_column_privilege('prumo_s1_export_executor','prumo_export_auth.chaves_i74','id','UPDATE')
+ or has_column_privilege('prumo_s1_export_executor','prumo_export_auth.chaves_i74','secret','UPDATE')
+ or has_column_privilege('prumo_s1_export_executor','prumo_export_auth.chaves_i74','active','UPDATE')
+ or (select count(*) from pg_catalog.pg_policy where polrelid='prumo_export_auth.chaves_i74'::regclass
+     and polcmd='w' and polname='i74_key_lock'
+     and pg_catalog.pg_get_expr(polwithcheck,polrelid)='false')<>1
+then raise exception 'I74_KEY_LOCK_ACL_UNSAFE' using errcode='42501';end if;
+-- Enforce runtime isolation and RLS without giving the application SET ROLE.
+if exists(select 1 from pg_catalog.pg_roles where rolname='prumo_s1_export_executor'
+          and (rolcanlogin or rolsuper or rolbypassrls or rolcreaterole))
+ or exists(select 1 from pg_catalog.pg_proc where oid=
+ 'prumo_export_auth.exportar_assinado_i74(uuid,uuid,text,uuid,uuid,integer,uuid,bigint,uuid,text)'::regprocedure
+ and (not prosecdef or proconfig is distinct from array['search_path=""']::text[]))
+then raise exception 'I74_OWNER_OR_PATH_UNSAFE' using errcode='42501';end if;
+end $i74_install$;

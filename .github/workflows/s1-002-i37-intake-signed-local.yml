@@ -56,6 +56,8 @@ on:
       - 'supabase/tests/s1_108_export_signed_executor_local_only.sql'
       - 'supabase/tests/s1_109_export_signed_executor_aceite.sql'
       - 'scripts/test_s1_002_i74_signed_export_e2e.py'
+      - 'scripts/test_s0_i74_provisioning.py'
+      - 'scripts/test_s0_i74_security_e2e.py'
       - 'backend/s1_gateway_export_signed_local.py'
       - 'tests/test_s1_002_i74_export_signed.py'
       - 'supabase/tests/s1_104_export_ledger_unexposed_local_only.sql'

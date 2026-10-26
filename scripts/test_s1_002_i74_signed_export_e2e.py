@@ -11,6 +11,7 @@ import psycopg
 
 assert os.environ.get("CI")=="true"
 assert os.environ.get("PRUMO_S1_I37_EPHEMERAL")=="YES"
+exec(compile(Path('scripts/test_s0_i74_provisioning.py').read_text(), 'scripts/test_s0_i74_provisioning.py', 'exec'), globals())
 sql(path="supabase/tests/s1_108_export_signed_executor_local_only.sql")
 assert sql("select pg_has_role('prumo_s1_export_signed_login_ci',"
  "'prumo_s1_export_executor','MEMBER')")=="f"
@@ -120,6 +121,8 @@ try:
  assert sql(f"select count(*) from prumo_export_auth.nonces_i74 where nonce='{concurrent[-2]}'")=="1"
  assert int(sql("select count(*) from prumo_export_ledger.s1_70_export_reservas"))==before+1
  print("PASS I74-E2E-07: atomic nonce prevents concurrent double-use, no unauthorized disclosure")
+
+ exec(compile(Path('scripts/test_s0_i74_security_e2e.py').read_text(), 'scripts/test_s0_i74_security_e2e.py', 'exec'), globals())
 
  # Time window and independent key revocation both fail closed.
  expired=list(proof);expired[-3]=int(time.time())-300;expired[-2]=uuid.uuid4()
