@@ -10,6 +10,8 @@ on:
       - 'scripts/test_s1_002_i67_legacy_consumer_inventory.py'
       - 'scripts/test_s1_002_i75_g3_surface_inventory.py'
       - 'tests/test_s1_002_i75_g3_inventory.py'
+      - 'scripts/test_s1_002_i75c_pg17_effective_catalog.py'
+      - 'tests/test_s1_002_i75c_pg17_effective_catalog.py'
       - 'backend/s1_gateway_*.py'
       - 'backend/s1_signer_*.py'
       - 'backend/s1_command_validation_local.py'
@@ -64,6 +66,16 @@ jobs:
         with:
           name: s1-002-i75b-g3-inventory
           path: ${{ runner.temp }}/s1_002_i75b_g3_inventory.json
+          retention-days: 14
+      - name: I75C verificar catalogo efetivo PG17 e ACL por coluna
+        run: |
+          python3 -m unittest discover -s tests -p 'test_s1_002_i75c_pg17_effective_catalog.py' -v
+          python3 scripts/test_s1_002_i75c_pg17_effective_catalog.py
+      - name: I75C arquivar provas de catalogo PG17
+        uses: actions/upload-artifact@v4
+        with:
+          name: s1-002-i75c-effective-g3-catalog
+          path: ${{ runner.temp }}/s1_002_i75c_pg17_g3_effective_catalog.json
           retention-days: 14
       - name: I48 catalogo efetivo de roles e funcoes gateway S0
         run: psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_071_gateway_acl_catalog_local_only.sql
