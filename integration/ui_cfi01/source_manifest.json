@@ -1,0 +1,34 @@
+[
+  {
+    "front": "S0",
+    "head": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+    "path": "backend/s0_communication_contract.py",
+    "tested_file": "backend/s0_communication_contract.py",
+    "git_blob": "eb0bab47570b39134502718dbbe49c60aa5d0827",
+    "sha256": "3ce3b9f8ea220b54713ce49eaf175deb1de61c7cf783a90644aca7d68c0e84b0"
+  },
+  {
+    "front": "S0 checkpoint",
+    "head": "1b4f2841d513fb971c93379636414bf686784beb",
+    "path": "backend/s0_cfi01_atomic_commands_local.py",
+    "tested_file": "backend/s0_cfi01_atomic_commands_local.py",
+    "git_blob": "af0b38fd1f526c15a3d0ec60efe4b8f49ddc2006",
+    "sha256": "fcf4f616fcffa5b30f22b0ccab3b8024aca5f104351e69c673417085528431f0"
+  },
+  {
+    "front": "Frontend",
+    "head": "456bee6355bcf3c99b94754809f5a93a23b25004",
+    "path": "frontend/visual/s0-command-result.mjs",
+    "tested_file": "backend/tests/compat_sources/fv_command.mjs",
+    "git_blob": "044cfb95fee6eb8916dadf7de6f77aecdd3d2471",
+    "sha256": "b301248fbd551912d496622a44c4f2ed19278539601a59a747755150557a0644"
+  },
+  {
+    "front": "S1",
+    "head": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+    "path": "backend/s1_gateway_export_local.py",
+    "tested_file": "backend/tests/compat_sources/s1_export.py",
+    "git_blob": "cb9fb9cf541308fdec1c5c21f6ee02a7a6675145",
+    "sha256": "8c26239be438d12fc06b5be78e2da5e52c8e5104c840648f5731f9ee262147d2"
+  }
+]
