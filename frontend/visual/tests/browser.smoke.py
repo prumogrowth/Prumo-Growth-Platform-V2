@@ -1288,4 +1288,35 @@ with sync_playwright() as p:
     print('FV-UI-054 limpeza de filtros com escopo preservado em 8 cenarios: PASS')
     print('FV-UI-055 limpeza unica por estado em 8 cenarios: PASS')
 
+    # FV-UI-056: busca tolerante a acentos/espacos, sem alterar o isolamento por loja.
+    for search_width,search_height in ((320,640),(390,844),(900,780),(1440,900)):
+        for search_theme in ('light','dark'):
+            search_page=browser.new_page(viewport={'width':search_width,'height':search_height},color_scheme=search_theme)
+            search_page.set_default_timeout(4500)
+            errors_056=[]
+            search_page.on('pageerror',lambda e:errors_056.append(str(e)))
+            search_page.set_content(html);search_page.add_script_tag(content=script)
+            expect(search_page.locator('#visual-app')).to_have_attribute('data-theme',search_theme)
+            search_input=search_page.locator('#search-input')
+            search_input.fill('  CLIENTE   EXÉMPLO   02  ')
+            assert search_page.locator('.conversation-card').count()==1
+            assert search_page.locator('.conversation-card').filter(has_text='Cliente Exemplo 02').count()==1
+            search_input.fill('  CÁDASTRO    ENVIADO  AO BANCO ')
+            assert search_page.locator('.conversation-card').count()==1
+            assert search_page.locator('.conversation-card').filter(has_text='Cliente Exemplo 05').count()==1
+            search_input.fill(' A-105 ')
+            assert search_page.locator('.conversation-card').filter(has_text='Cliente Exemplo 05').count()==1
+            search_page.locator('#actor-select').select_option('marina')
+            search_page.locator('#shop-select').select_option('horizonte')
+            search_input.fill(' CLIENTE   EXÉMPLO   02 ')
+            assert search_page.locator('.conversation-card').count()==0
+            assert search_page.locator('.no-results').count()==1
+            search_page.locator('#shop-select').select_option('aurora')
+            search_input.fill(' CLIENTE   EXÉMPLO   02 ')
+            assert search_page.locator('.conversation-card').filter(has_text='Cliente Exemplo 02').count()==1
+            assert not search_page.evaluate('document.documentElement.scrollWidth>innerWidth')
+            assert not errors_056,errors_056
+            search_page.close()
+    print('FV-UI-056 busca normalizada e isolamento de loja em 8 cenarios: PASS')
+
     browser.close()

@@ -48,3 +48,18 @@ test('cenários de extração são claramente simulados e nunca persistidos', ()
   }
   assert.throws(()=>modelExtraction('applied'),/CENARIO_NAO_SUPORTADO/);
 });
+
+test('FV-UI-056: busca em português ignora acentos e colapsa espaços sem ampliar o escopo',()=>{
+  const rows=copyFixtures();
+  const target=rows.find(row=>row.id==='A-102');
+  assert.ok(target);
+  target.name='João  da Silva';
+  assert.deepEqual(projectQueue(rows,'rafael','aurora',{query:'  JOAO   DA    SILVA  '}).map(x=>x.id),['A-102']);
+  assert.deepEqual(projectQueue(rows,'rafael','aurora',{query:'joão da silva'}).map(x=>x.id),['A-102']);
+  assert.deepEqual(projectQueue(rows,'rafael','aurora',{query:'JOÃO da silva'.normalize('NFD')}).map(x=>x.id),['A-102']);
+  assert.deepEqual(projectQueue(rows,'marina','horizonte',{query:'joao da silva'}).map(x=>x.id),[]);
+  assert.deepEqual(projectQueue(rows,'rafael','horizonte',{query:'joao da silva'}).map(x=>x.id),[]);
+  assert.deepEqual(projectQueue(rows,'rafael','aurora',{query:'CADÁSTRO    ENVIADO  AO BANCO'}).map(x=>x.id),['A-105']);
+  assert.deepEqual(projectQueue(rows,'rafael','aurora',{query:'  A-105  '}).map(x=>x.id),['A-105']);
+  assert.deepEqual(projectQueue(rows,'rafael','aurora',{query:'    '}).map(x=>x.id),projectQueue(rows,'rafael','aurora').map(x=>x.id));
+});

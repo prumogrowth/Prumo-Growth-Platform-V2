@@ -14,14 +14,24 @@ export const DETAIL_TABS = Object.freeze([
 ]);
 export const EXTRACTION_SCENARIOS = Object.freeze(['accepted', 'partial', 'failed', 'stale']);
 
+// FV-UI-056: buscas em português aceitam acentos opcionais, espaços repetidos
+// e Unicode decomposto. Projeta SOMENTE a lista previamente autorizada.
+function normalizeQueueSearch(value) {
+  return String(value ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLocaleLowerCase('pt-BR')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
 export function projectQueue(records, actorId, shopId, { query = '', filter = 'all', status = 'all' } = {}) {
   let rows = visibleConversations(records, actorId, shopId);
   if (filter === 'unread') rows = rows.filter(row => row.unread > 0);
   if (filter === 'mine') rows = rows.filter(row => row.assignedTo === actorId);
   if (status !== 'all') rows = rows.filter(row => row.status === status);
-  const term = String(query).toLocaleLowerCase('pt-BR').trim();
+  const term = normalizeQueueSearch(query);
   if (term) rows = rows.filter(row => [row.id, row.name, row.tag, row.status]
-    .some(value => String(value ?? '').toLocaleLowerCase('pt-BR').includes(term)));
+    .some(value => normalizeQueueSearch(value).includes(term)));
   return rows;
 }
 

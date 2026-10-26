@@ -995,3 +995,23 @@ test('FV-UI-055: uma só ação de limpeza com e sem resultados',()=>{
   assert.equal(get('shop-select').value,shop);
   assert.equal(env.inbox[0].getAttribute('aria-pressed'),'true');
 });
+
+test('FV-UI-056: interface respeita busca normalizada sem trocar identidade ou contexto',()=>{
+  reset();
+  const actor=get('actor-select').value,shop=get('shop-select').value;
+  get('search-input').value='  CLIENTE    EXÉMPLO    02  ';
+  get('search-input').fire('input');
+  assert.deepEqual(env.cards().map(n=>n.getAttribute('aria-label')).filter(x=>x.includes('Exemplo 02')).length,1);
+  assert.equal(get('filter-reset-controls').hidden,false);
+  get('search-input').value='  CÁDASTRO    ENVIADO AO  BANCO ';
+  get('search-input').fire('input');
+  assert.equal(env.cards().length,1);
+  assert.match(env.cards()[0].getAttribute('aria-label'),/Cliente Exemplo 05/);
+  assert.equal(get('actor-select').value,actor);
+  assert.equal(get('shop-select').value,shop);
+  assert.equal(env.inbox[0].getAttribute('aria-pressed'),'true');
+  get('clear-list-filters').click();
+  assert.equal(get('search-input').value,'');
+  assert.equal(env.cards().length,8);
+  assert.equal(env.document.activeElement,get('search-input'));
+});

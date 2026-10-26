@@ -23,6 +23,7 @@ const teamMonitor = get('team-monitor.mjs');
 const batchMonitor = get('batch-monitor.mjs');
 const fixtureTeam = get('fixtures.mjs');
 const browserSmoke = get('tests/browser.smoke.py');
+const queueModel = get('view-model.mjs');
 const domMock = get('tests/dom-fixture.mjs');
 const offlineExport = get('tests/verify_offline_export.py');
 const offlineRunner = get('tests/run_acceptance.py');
@@ -666,4 +667,14 @@ test('FV-UI-055: uma acao visivel de limpeza conforme lista vazia ou preenchida'
   assert.match(app,/filter-reset-controls'\)\.hidden=!hasRefinements \|\| emptyHasReset/);
   assert.match(app,/clear\.addEventListener\('click',resetListRefinements\)/);
   assert.match(browserSmoke,/FV-UI-055 limpeza unica por estado em 8 cenarios: PASS/);
+});
+
+test('FV-UI-056: normalizacao textual acontece apos projecao de escopo',()=>{
+  assert.match(queueModel,/function normalizeQueueSearch\(value\)/);
+  assert.match(queueModel,/\.normalize\('NFD'\)/);
+  assert.match(queueModel,/\.toLocaleLowerCase\('pt-BR'\)/);
+  assert.match(queueModel,/let rows = visibleConversations\(records, actorId, shopId\)/);
+  assert.match(queueModel,/const term = normalizeQueueSearch\(query\)/);
+  assert.match(queueModel,/\.some\(value => normalizeQueueSearch\(value\)\.includes\(term\)\)/);
+  assert.match(browserSmoke,/FV-UI-056 busca normalizada e isolamento de loja em 8 cenarios: PASS/);
 });
