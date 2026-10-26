@@ -169,7 +169,8 @@ let finished1=false,finished2=false,finished3=false,baseline,prior;
 const cases=[
  async()=>{
   assert.equal(pg('select current_database()'),'prumo_s0_test_ci');
-  assert.equal(pg("select estado from prumo_private.outbox_intencoes_s0 where id='f7400000-0000-4000-8000-000000000002'"),'BLOQUEADA_GATES');
+  // WA61 runs immediately before WA62 and deliberately persists cancellation.
+  assert.equal(pg("select estado from prumo_private.outbox_intencoes_s0 where id='f7400000-0000-4000-8000-000000000002'"),'CANCELADA');
   pg('alter role prumo_s0_meta_wa48_client_lab login password '+q(PASS));
   for(const ts of TS)assert.equal(count(ts),0);
   baseline=Number(pg('select count(*) from prumo_private.meta_status_forense_fixture_s0'));
@@ -190,7 +191,7 @@ const cases=[
  async()=>{
   held2=await wait(()=>C.held,'append held before COMMIT');
   assert.equal(held2.event,event(TS[1]));
-  assert.equal(held2.outcome,'LAB_OBSERVED_UNVERIFIED');
+  assert.equal(held2.outcome,'LAB_LATE_UNVERIFIED');
   assert.ok(Number.isInteger(held2.db_pid));
  },
  async()=>{assert.equal(count(TS[1]),0);assert.equal(nonce(k2),0);assert.equal(finished2,false);},
