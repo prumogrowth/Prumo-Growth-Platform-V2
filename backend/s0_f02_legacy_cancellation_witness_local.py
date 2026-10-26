@@ -126,7 +126,7 @@ def _verify_chain(plan_rows,attempt_rows,event_rows):
         proof=[e for e in events.get(a[0],[])
                if e[3]=='cancelado' and e[4]==reasons[a[1]]
                and e[2] in ('programado','reservado')]
-        if len(proof)!=1 or a[4]<proof[0][5]:
+        if (len(proof)!=1 or abs((a[4]-proof[0][5]).total_seconds())>60):
             return CancelWitnessState.INCOMPLETE_LOCAL_CANCELLATION
         if proof[0][2]=='reservado' or a[3] is not None:
             return CancelWitnessState.RESERVED_PREVIOUSLY_EXTERNAL_UNKNOWN
