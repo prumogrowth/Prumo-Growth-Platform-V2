@@ -1187,7 +1187,8 @@ test('FVA-02: template local não atravessa identidade fictícia ou confirmaçã
   buttons('Selecionar e solicitar template')[0].click();
   get('template-dialog').close('confirm');
   assert.match(get('detail-content').textContent,/SOLICITADO/);
-  assert.equal(get('detail-content').textContent.includes('ENVIADO'),false);
+  assert.equal(get('detail-content').textContent.includes('Envio comprovado · fixture'),false);
+  assert.match(get('detail-content').textContent,/SOLICITADO \(demo\), não agendado, não transmitido e nunca ENVIADO/);
   env.selectActor('marina');env.selectActor('rafael');
   env.openCase('Exemplo 08');
   assert.equal(get('workflow-bar').textContent,before);
@@ -1195,16 +1196,26 @@ test('FVA-02: template local não atravessa identidade fictícia ou confirmaçã
   assert.equal(get('detail-content').textContent.includes('SOLICITADO (demo)'),false);
 });
 
-test('FVA-02: troca de concessionária descarta template local sem fabricar envio',()=>{
-  reset();env.selectActor('marina');env.openCase('Exemplo 08');
-  const template=buttons('Selecionar e solicitar template')[0];
-  assert.ok(template);template.click();get('template-dialog').close('confirm');
-  assert.match(get('detail-content').textContent,/SOLICITADO/);
+test('FVA-02: troca de concessionária limpa intenção local da fila e preserva escopo',()=>{
+  reset();env.selectActor('marina');get('team-nav').click();get('team-show-queue').click();
+  const first=env.descendants(get('team-queue')).find(n=>
+    n.tagName==='BUTTON' && n.textContent==='Solicitar assunção');
+  assert.ok(first);first.click();get('queue-action-dialog').close('confirm');
+  assert.match(get('team-queue').textContent,/FILA-A-01/);
+  assert.match(get('team-queue').textContent,/SOLICITADO LOCALMENTE/);
+  get('team-dialog').close();
   env.selectShop('horizonte');
-  assert.equal(get('template-dialog').open,false);
-  env.selectShop('aurora');env.openCase('Exemplo 08');
-  assert.ok(buttons('Selecionar e solicitar template').length>0);
-  assert.equal(get('detail-content').textContent.includes('SOLICITADO (demo)'),false);
+  get('team-nav').click();get('team-show-queue').click();
+  assert.match(get('team-queue').textContent,/FILA-H-01/);
+  assert.equal(get('team-queue').textContent.includes('FILA-A-01'),false);
+  assert.equal(get('team-queue').textContent.includes('SOLICITADO LOCALMENTE'),false);
+  get('team-dialog').close();
+  env.selectShop('aurora');get('team-nav').click();get('team-show-queue').click();
+  assert.match(get('team-queue').textContent,/FILA-A-01/);
+  assert.equal(get('team-queue').textContent.includes('SOLICITADO LOCALMENTE'),false);
+  assert.ok(env.descendants(get('team-queue')).some(n=>
+    n.tagName==='BUTTON' && n.textContent==='Solicitar assunção'));
+  get('team-dialog').close();
 });
 
 test('FVA-02: F03 erro, versão obsoleta, incerteza e indisponibilidade nunca aplicam efeitos',()=>{

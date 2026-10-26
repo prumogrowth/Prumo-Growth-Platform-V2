@@ -13,7 +13,7 @@ O código de `changeActor` já invalidava intenções de fila, equipe, resultado
 | Teste | FV-22 / proteção | Esperado |
 | --- | --- | --- |
 | Template pendente → troca de ator → callback antigo → solicitação local → troca e retorno | 08,09,10 | Sem efeito de callback antigo; solicitação local não atravessa identidade; nenhuma prova `SENT` criada |
-| Template local → troca de loja → retorno | 08,09,13 | Não reapresentar pedido local como confirmação compartilhada de outra concessionária |
+| Fila de leads → assunção local Aurora → troca para Horizonte → volta a Aurora | 12,13 | Solicitação sintética da loja anterior não aparece como atribuída ou pendente na outra concessionária; ação permanece disponível |
 | Concluir F03 → `stale`, `uncertain`, `denied`, `unavailable` → caso de banco | 04,05,06,10,15 | Nenhuma gravação, retry automático ou mudança comercial; ação antiga não altera caso bancário |
 | G2 pausa modal → troca de Gestor → callback antigo → nova pausa fictícia | 11,12,13 | Nenhuma pausa ou redistribuição aplicada por confirmação velha; monitor apresenta pedido local separado de estado confirmado |
 
@@ -28,3 +28,8 @@ O código de `changeActor` já invalidava intenções de fila, equipe, resultado
 ## Evidências de certificação
 
 **Pendente** até verificar workflow GitHub Actions para o conteúdo técnico desta execução. Não confundir execução iniciada com `FULL LOCAL ACCEPTANCE: PASS`.
+
+## Diagnóstico da execução 40355374324 (superada por correção de teste)
+
+- Preflight 59 arquivos e Python 25/25 PASS; Node 377/379 PASS, Chromium não iniciado pelo gate fail-closed. Duas falhas **nos cenários de teste FVA-02**: comparação ampla de `ENVIADO` capturou o aviso explícito de **nunca enviado**; teste de Gestor tentou oferecer template em caso cujo titular era o Consultor. Não foi evidenciada regressão nos 375 testes anteriores.
+- Correção: usar comparação de estado inequívoco (`Envio comprovado` ausente) e substituir o cenário inelegível por fila compartilhada entre duas lojas concedidas à Gestora. Os guards do produto foram preservados. **Nova execução de CI necessária.**
