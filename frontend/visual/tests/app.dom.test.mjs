@@ -964,9 +964,9 @@ test('FV-UI-054: limpeza mantém contexto, aba, foco e reabre resultados',()=>{
   get('search-input').value='fv-ui-054-historico-sem-caso';
   get('search-input').fire('input');
   assert.equal(get('filter-reset-controls').hidden,true);
-  const emptyAction=env.descendants(get('conversation-items')).find(n=>n.classList.contains('empty-reset'));
-  assert.ok(emptyAction);
-  emptyAction.click();
+  const historyEmptyAction=env.descendants(get('conversation-items')).find(n=>n.classList.contains('empty-reset'));
+  assert.ok(historyEmptyAction);
+  historyEmptyAction.click();
   assert.equal(env.inbox[1].getAttribute('aria-pressed'),'true');
   assert.equal(env.cards().length,3);
 });
