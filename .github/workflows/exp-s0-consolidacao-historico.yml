@@ -53,10 +53,14 @@ jobs:
         run: PYTHONPATH=. python3 integration/history/test_session_history.py --profile s0
       - name: All 32 certified CFI scenarios under the new history barrier
         run: PYTHONPATH=. python3 integration/cfi01/test_restricted_backend.py
-      - name: Read pinned S1 sources without merging or writing any S1 branch
-        run: |
-          git fetch --no-tags origin e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe
-          PYTHONPATH=. python3 integration/history/prepare_s1_profile.py
+      - name: Read pinned current S1 in detached checkout without branch writes
+        uses: actions/checkout@v4
+        with:
+          ref: d3e9f0a053e16d90190696dd59cec6d77b7f1e73
+          path: work-s1-sources
+          persist-credentials: false
+      - name: Verify pinned sources and materialize only in disposable database
+        run: PYTHONPATH=. python3 integration/history/prepare_s1_profile.py --source-repo work-s1-sources
       - name: Same real history suite with full S1 extensions and original I63 candidate
         run: PYTHONPATH=. python3 integration/history/test_session_history.py --profile i63
       - name: Remove disposable stack even on failure

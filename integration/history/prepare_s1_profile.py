@@ -3,6 +3,7 @@
 No merge, branch mutation, candidate adoption or rewritten S1 DDL. Must run
 after the existing CFI suite has installed its exact S1/038 reference.
 """
+import argparse
 import hashlib
 import json
 import os
@@ -15,13 +16,16 @@ ROOT=Path(__file__).resolve().parents[2]
 
 
 def main():
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--source-repo',type=Path,required=True)
+    args=parser.parse_args()
     if os.environ.get('PRUMO_HISTORY_DISPOSABLE_TEST')!='YES':
         raise RuntimeError('Disposable opt-in required')
     env=local_env()
     manifest=json.loads((ROOT/'integration/history/s1_sources.json').read_text())
     ref=manifest['ref']
-    def git(*args):return subprocess.check_output(['git','-C',str(ROOT),*args])
-    assert git('rev-parse',ref).decode().strip()==ref
+    def git(*parts):return subprocess.check_output(['git','-C',str(args.source_repo),*parts])
+    assert git('rev-parse','HEAD').decode().strip()==ref
     # The baseline and the previously installed team gate must be byte-equal
     # to S1. Abort rather than layering incompatible historical migrations.
     s1=set(git('ls-tree','-r','--name-only',ref,'supabase/migrations').decode().splitlines())

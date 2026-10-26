@@ -1,5 +1,5 @@
 {
-  "ref": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+  "ref": "d3e9f0a053e16d90190696dd59cec6d77b7f1e73",
   "purpose": "Read-only pinned S1 sources, installed only into the new loopback disposable stack after CFI regressions. No merge or source branch writes.",
   "files": [
     {

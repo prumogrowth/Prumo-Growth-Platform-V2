@@ -116,14 +116,6 @@ class HistoryTests(unittest.TestCase):
         code,_=request(self.api,self.key,'POST','/auth/v1/logout?scope=local',token=self.token if token is None else token)
         self.assertIn(code,(200,204))
 
-    def wait_blocker(self,pid):
-        deadline=time.monotonic()+8
-        while time.monotonic()<deadline:
-            with psycopg.connect(self.db) as c:
-                if c.execute("select 1 from pg_stat_activity where wait_event_type='Lock' and %s=any(pg_blocking_pids(pid))",(pid,)).fetchone(): return
-            time.sleep(.025)
-        self.fail('real PostgreSQL blocking relationship absent')
-
     def sql_reader(self,c,token=None):
         # Physical transaction with claims copied from an actually issued JWT.
         # HTTP authentication itself is proved by rows()/logout(), separately.
@@ -198,34 +190,33 @@ class HistoryTests(unittest.TestCase):
         self.assertIn(insert(1,'op'),(401,403))
         self.assertIn(insert(0,'manager'),(401,403))
 
-    def test_09_history_read_holds_session_lock_logout_waits_until_rollback(self):
-        with psycopg.connect(self.db) as c,ThreadPoolExecutor(max_workers=1) as pool:
+    def test_09_read_only_transaction_does_not_block_logout_next_statement_denied(self):
+        with psycopg.connect(self.db) as c:
+            c.execute('set transaction read only')  # Actual GET transaction mode.
             self.assertTrue(self.sql_reader(c))
-            pid=c.execute('select pg_backend_pid()').fetchone()[0]
-            pending=pool.submit(self.logout)
-            try:self.wait_blocker(pid)
-            finally:c.rollback()
-            pending.result(timeout=15)
+            self.logout()  # Must complete while the read transaction is open.
+            self.assertEqual(self.sql_reader(c),[])  # New READ COMMITTED statement.
+            c.rollback()
         self.assertEqual(self.rows(),[])
 
-    def revocation_first(self,kind,rollback=False):
+    def revocation_boundary(self,kind,rollback=False):
         self.assertTrue(self.rows())
         with psycopg.connect(self.db) as c,ThreadPoolExecutor(max_workers=1) as pool:
             sid=claims(self.token)['session_id']
             if kind=='delete':c.execute('delete from auth.sessions where id=%s',(sid,))
             else:c.execute("update auth.sessions set not_after=clock_timestamp()-interval '1 second' where id=%s",(sid,))
-            pid=c.execute('select pg_backend_pid()').fetchone()[0]
+            # A read concurrent with an UNCOMMITTED revoke sees the live
+            # committed version. Do not claim lock-based cancellation of GET.
             pending=pool.submit(self.rows)
-            try:self.wait_blocker(pid)
+            try:self.assertTrue(pending.result(timeout=4))
             finally:
                 if rollback:c.rollback()
                 else:c.commit()
-            rows=pending.result(timeout=15)
-        self.assertEqual(bool(rows),rollback)
+        self.assertEqual(bool(self.rows()),rollback)
 
-    def test_10_delete_wins_waiting_real_rest_read_denied(self):self.revocation_first('delete')
-    def test_11_expiry_update_wins_waiting_real_rest_read_denied(self):self.revocation_first('expire')
-    def test_12_revocation_rollback_unblocks_real_rest_read_authorized(self):self.revocation_first('delete',rollback=True)
+    def test_10_delete_commit_cuts_next_real_rest_read(self):self.revocation_boundary('delete')
+    def test_11_expiry_commit_cuts_next_real_rest_read(self):self.revocation_boundary('expire')
+    def test_12_revocation_rollback_preserves_real_rest_read(self):self.revocation_boundary('delete',rollback=True)
 
     def test_13_adversarial_sql_context_missing_wrong_or_expired_session(self):
         # These are intentionally NOT GoTrue-issued mutated tokens. Test the
@@ -280,6 +271,16 @@ class HistoryTests(unittest.TestCase):
                     for table in ('cfi01_consumed_nonces_local','cfi01_human_closure_events_local','cfi01_command_audit_local'))
         before=counters();self.assertTrue(self.rows());self.logout();self.assertEqual(self.rows(),[])
         self.assertEqual(counters(),before)
+
+    def test_19_existing_cfi_lock_is_incompatible_with_read_only_get_mode(self):
+        with psycopg.connect(self.db) as c:
+            c.execute('set transaction read only')
+            with self.assertRaises(psycopg.errors.ReadOnlySqlTransaction):
+                with c.transaction():
+                    c.execute('select prumo_private.cfi01_session_valid_local(%s,%s)',
+                              (self.actor,claims(self.token)['session_id']))
+            # The read predicate works in this mode; CFI retains its lock.
+            self.assertTrue(self.sql_reader(c))
 
 
 def main():
