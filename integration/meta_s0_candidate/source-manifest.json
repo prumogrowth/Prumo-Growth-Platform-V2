@@ -1,0 +1,111 @@
+{
+  "schema": "prumo.meta-s0.candidate.sources/0.1",
+  "base_sha": "cb7fc3e2eacdaad9b8d47ffca1284759ca3357a3",
+  "auxiliary_branch": "aux/meta-s0-contracts-20261026",
+  "reused": [
+    {
+      "path": "integrations/whatsapp-meta/cloud-webhook-handoff.ts",
+      "git_blob": "0f715c6e21e5908e9c3b46198da16ff0c3c4a9f4",
+      "size": 4959
+    },
+    {
+      "path": "integrations/whatsapp-meta/cloud-wire-observation.ts",
+      "git_blob": "6c9ca62e13d6797c89bba29552aff9224a403fde",
+      "size": 7228
+    },
+    {
+      "path": "integrations/whatsapp-meta/graph-outbound.ts",
+      "git_blob": "7870a499007ae2ff8c6a5558086554916b092aa7",
+      "size": 6748
+    },
+    {
+      "path": "integrations/whatsapp-meta/inbound.ts",
+      "git_blob": "dce2346f196c79c61a9dfd14347ff8d2f71f4bff",
+      "size": 9137
+    },
+    {
+      "path": "integrations/whatsapp-meta/lab/wa29_pg17_dispatch_claim.sql",
+      "git_blob": "1a0e1d7b53de88a4850be3882cc0b4286bb2930c",
+      "size": 6918
+    },
+    {
+      "path": "integrations/whatsapp-meta/lab/wa30_pg17_unknown_outcome.sql",
+      "git_blob": "458c1e71244612686bc848a27b53c32c709f3878",
+      "size": 8121
+    },
+    {
+      "path": "integrations/whatsapp-meta/wa34-service-forensic-handoff.ts",
+      "git_blob": "21bc8a5bfc30f1d991b2363674fc8fff84c1d069",
+      "size": 7885
+    }
+  ],
+  "checkpoints": [
+    {
+      "pr": 7,
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/pull/7",
+      "head": "exp/s0-meta-integracao-auditoria-20261026",
+      "head_sha": "450dcd645f35d4c8bf93e974e75d3b09467965a7",
+      "base": "feat/s0-auditoria-nucleo-operacional-20261025",
+      "base_sha": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+      "draft": true,
+      "merged": false
+    },
+    {
+      "pr": 8,
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/pull/8",
+      "head": "feat/meta-cloud-envelope-contract-20261026",
+      "head_sha": "cb7fc3e2eacdaad9b8d47ffca1284759ca3357a3",
+      "base": "docs/whatsapp-meta-concessionária de demonstração-poc-20261017",
+      "base_sha": "d9cd4b8f1de222324c92f2fec8053b0b91dcfe5d",
+      "draft": true,
+      "merged": false
+    },
+    {
+      "pr": 9,
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/pull/9",
+      "head": "exp/s0-cfi01-principal-restrito-20261026",
+      "head_sha": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+      "base": "feat/s0-auditoria-nucleo-operacional-20261025",
+      "base_sha": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+      "draft": true,
+      "merged": false
+    },
+    {
+      "pr": 11,
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/pull/11",
+      "head": "exp/s0-ui-cfi01-contrato-candidato-20261026",
+      "head_sha": "ddec1b80444bfde871d43a02d0ee94b9ed7cde11",
+      "base": "exp/s0-cfi01-principal-restrito-20261026",
+      "base_sha": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+      "draft": true,
+      "merged": false
+    }
+  ],
+  "historical_ci": [
+    {
+      "id": 40311987315,
+      "head_sha": "dbcca8b8583e4d31640f765232fb6708260ea36b",
+      "conclusion": "success",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40311987315"
+    },
+    {
+      "id": 40356607954,
+      "head_sha": "cb7fc3e2eacdaad9b8d47ffca1284759ca3357a3",
+      "conclusion": "success",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40356607954"
+    },
+    {
+      "id": 40323084692,
+      "head_sha": "1b4f2841d513fb971c93379636414bf686784beb",
+      "conclusion": "success",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40323084692"
+    },
+    {
+      "id": 40358081309,
+      "head_sha": "99238f8a3304b8cc70ef14421b74842b0740b016",
+      "conclusion": "success",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40358081309"
+    }
+  ],
+  "note": "Historical CI metadata verified read-only via GitHub API. These are not tests executed by this auxiliary task. No official branch is modified."
+}

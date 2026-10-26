@@ -1,0 +1,58 @@
+name: Auxiliary META-S0 candidate contracts - offline only
+on:
+  push:
+    branches:
+      - aux/meta-s0-contracts-20261026
+  pull_request:
+    branches:
+      - feat/meta-cloud-envelope-contract-20261026
+    paths:
+      - 'integration/meta_s0_candidate/**'
+      - 'docs/contratos/meta_s0/**'
+      - '.github/workflows/aux-meta-s0-contracts.yml'
+permissions:
+  contents: read
+jobs:
+  candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      NODE_OPTIONS: ''
+      NODE_PATH: ''
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify source blobs and additive scope
+        run: python3 integration/meta_s0_candidate/verify_sources.py
+      - name: Candidate state machine, M2M and durable crash tests (50)
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --experimental-strip-types --test --test-concurrency=1 \
+            integration/meta_s0_candidate/candidate.test.mjs \
+            integration/meta_s0_candidate/durable.test.mjs 2>&1 | tee "$RUNNER_TEMP/meta-s0-candidate.tap"
+          grep -qx '# tests 50' "$RUNNER_TEMP/meta-s0-candidate.tap"
+          grep -qx '# pass 50' "$RUNNER_TEMP/meta-s0-candidate.tap"
+          grep -qx '# fail 0' "$RUNNER_TEMP/meta-s0-candidate.tap"
+      - name: Existing Meta regression - unchanged imports and tests (161)
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --experimental-strip-types --test --test-concurrency=1 \
+            integrations/whatsapp-meta/cloud-webhook-handoff.test.ts \
+            integrations/whatsapp-meta/cloud-wire-observation.test.ts \
+            integrations/whatsapp-meta/inbound.test.ts \
+            integrations/whatsapp-meta/routed-webhook.test.ts \
+            integrations/whatsapp-meta/graph-outbound.test.ts \
+            integrations/whatsapp-meta/graph-template.test.ts \
+            integrations/whatsapp-meta/wa36-ratification-gate.test.ts \
+            integrations/whatsapp-meta/wa37-acceptance-handoff.test.ts \
+            2>&1 | tee "$RUNNER_TEMP/meta-s0-existing.tap"
+          grep -qx '# tests 161' "$RUNNER_TEMP/meta-s0-existing.tap"
+          grep -qx '# pass 161' "$RUNNER_TEMP/meta-s0-existing.tap"
+          grep -qx '# fail 0' "$RUNNER_TEMP/meta-s0-existing.tap"
