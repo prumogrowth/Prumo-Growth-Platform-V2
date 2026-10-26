@@ -16,7 +16,7 @@ jobs:
   native-checkout:
     if: github.ref == 'refs/heads/feat/frontend-plataforma-visual'
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - name: Checkout oficial, historico completo
         uses: actions/checkout@v4
@@ -55,7 +55,33 @@ jobs:
       - name: Instalar Chromium para Playwright
         run: |
           python -m pip install --no-cache-dir --disable-pip-version-check 'playwright==1.55.0'
-          python -m playwright install --with-deps chromium
+          # Evita apt --with-deps em toda execução (13 min no run 40357063810).
+          # Chromium real e verificação de bibliotecas continuam obrigatórios.
+          python -m playwright install chromium
+          if ! python - <<'PYCHECK'
+          from playwright.sync_api import sync_playwright
+          with sync_playwright() as p:
+              browser=p.chromium.launch(headless=True)
+              page=browser.new_page()
+              page.set_content('<!doctype html><title>Chromium probe</title>')
+              assert page.title()=='Chromium probe'
+              browser.close()
+          print('Chromium launch preflight: PASS')
+          PYCHECK
+          then
+            echo "Chromium launch indisponivel; instalando dependencias de sistema e exigindo nova prova."
+            python -m playwright install-deps chromium
+            python - <<'PYCHECK'
+          from playwright.sync_api import sync_playwright
+          with sync_playwright() as p:
+              browser=p.chromium.launch(headless=True)
+              page=browser.new_page()
+              page.set_content('<!doctype html><title>Chromium probe</title>')
+              assert page.title()=='Chromium probe'
+              browser.close()
+          print('Chromium launch after system-deps: PASS')
+          PYCHECK
+          fi
       - name: Preflight Git, seguranca ZIP, Node e Chromium
         env:
           PYTHONDONTWRITEBYTECODE: '1'
