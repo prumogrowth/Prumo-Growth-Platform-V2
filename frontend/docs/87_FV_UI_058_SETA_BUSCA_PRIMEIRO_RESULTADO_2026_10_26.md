@@ -44,3 +44,11 @@ A primeira otimização eliminou as oito páginas adicionais, mas o teste reutil
 - Código de ensaio corrigido em `68d9cbbb1487da4b1c603eb685b079e7c698b06e`, manifesto repinado e commit de candidato `e2bfc9c297b9163bea7d3f3e60510c08759029e8`.
 - [Run 40294929672](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40294929672): **in_progress / sem conclusão na última consulta**; permanecia na instalação de Chromium. **NÃO certificada**. Conferir primeiro o resultado desta execução antes de modificar testes ou retomar FV-UI-059.
 - As duas falhas anteriores são dos próprios testes/tempo da suíte, não de um efeito comercial. Isso não equivale à aprovação do Chromium. Nenhum merge, deploy, S0 ou `main`.
+
+## Certificação final — GitHub Actions
+
+- O status **pendente** documentado acima é um checkpoint histórico; **foi superado** pelo resultado real posterior do mesmo workflow.
+- SHA técnico testado: `e2bfc9c297b9163bea7d3f3e60510c08759029e8`.
+- [Execução 40294929672](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40294929672): `completed / success`. Inventário **59 arquivos PASS**; Python **25/25 PASS**; Node **372/372 PASS**; Chromium **PASS**.
+- Mensagens conclusivas: `FV-UI-057 Esc limpa somente busca em 8 cenarios: PASS`; `FV-UI-058 foco do primeiro caso pela seta em 8 cenarios: PASS`; **`FULL LOCAL ACCEPTANCE: PASS`**.
+- Registra-se apenas uma certificação **documental** posterior ao commit técnico testado. Não altera manifesto, código, S0, branch `main` nem efetua merge/deploy. Ainda não é homologação humana ou produtiva.
