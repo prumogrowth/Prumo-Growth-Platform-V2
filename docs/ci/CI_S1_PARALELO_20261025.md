@@ -56,6 +56,8 @@ entre início do primeiro e conclusão do último, e latência desde criação d
 runs (inclui fila). Sem afirmar economia faturável, ganho futuro garantido ou
 aprovação de promoção sem aceite do owner S1.
 
-Estado: candidato pronto para medição; resultados remotos ainda pendentes.
+Estado: duas rodadas completas, oito workflows SUCCESS. Resultados e limites em
+`CI_S1_RESULTADO_PARALELO_20261025.md`: −20,1% de intervalos de runner frente aos
+controles, feedback praticamente igual; não há aceleração consistente demonstrada.
 Rollback: remover somente o workflow e scripts novos nesta branch. Os controles,
 serial e workflows oficiais continuam disponíveis e intactos.

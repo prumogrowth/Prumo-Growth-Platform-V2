@@ -1,0 +1,82 @@
+{
+  "P1": [
+    {
+      "id": 12622422842,
+      "name": "exp-s1-parallel-I29-1",
+      "size_in_bytes": 7427,
+      "url": "https://api.github.com/repos/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/artifacts/12622422842",
+      "archive_download_url": "https://api.github.com/repos/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/artifacts/12622422842/zip",
+      "expired": false,
+      "created_at": "2026-10-26T01:45:52Z",
+      "expires_at": "2026-11-02T01:45:51Z",
+      "updated_at": "2026-10-26T01:45:52Z",
+      "digest": "sha256:421fee7b7ac68f02b7e86a059f2743acd81dd071b1e3509eb615006ec3b07ba7",
+      "workflow_run": {
+        "id": 40255607214,
+        "repository_id": 1431700201,
+        "head_repository_id": 1431700201,
+        "head_branch": "exp/ci-s1-consolidacao-20261025",
+        "head_sha": "c42dd9298b2adb32058e7ddb9f345852f86791c0"
+      }
+    },
+    {
+      "id": 12622153813,
+      "name": "exp-s1-parallel-I30-1",
+      "size_in_bytes": 7324,
+      "url": "https://api.github.com/repos/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/artifacts/12622153813",
+      "archive_download_url": "https://api.github.com/repos/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/artifacts/12622153813/zip",
+      "expired": false,
+      "created_at": "2026-10-26T01:45:49Z",
+      "expires_at": "2026-11-02T01:45:48Z",
+      "updated_at": "2026-10-26T01:45:49Z",
+      "digest": "sha256:d52e2a7f43e5f8c724062ff60126c4059b8834a19fbe8f5ba83faffb5aa3a5e1",
+      "workflow_run": {
+        "id": 40255607214,
+        "repository_id": 1431700201,
+        "head_repository_id": 1431700201,
+        "head_branch": "exp/ci-s1-consolidacao-20261025",
+        "head_sha": "c42dd9298b2adb32058e7ddb9f345852f86791c0"
+      }
+    }
+  ],
+  "P2": [
+    {
+      "id": 12622845867,
+      "name": "exp-s1-parallel-I29-1",
+      "size_in_bytes": 7425,
+      "url": "https://api.github.com/repos/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/artifacts/12622845867",
+      "archive_download_url": "https://api.github.com/repos/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/artifacts/12622845867/zip",
+      "expired": false,
+      "created_at": "2026-10-26T01:50:53Z",
+      "expires_at": "2026-11-02T01:50:52Z",
+      "updated_at": "2026-10-26T01:50:53Z",
+      "digest": "sha256:93adf286a7df2208bf113362fab33641d8662f7722f669aa7b0cabff4e38ba92",
+      "workflow_run": {
+        "id": 40256016301,
+        "repository_id": 1431700201,
+        "head_repository_id": 1431700201,
+        "head_branch": "exp/ci-s1-consolidacao-20261025",
+        "head_sha": "31af366d2e6c8d59bc34e7e4dc8a2490521cae15"
+      }
+    },
+    {
+      "id": 12622249049,
+      "name": "exp-s1-parallel-I30-1",
+      "size_in_bytes": 7324,
+      "url": "https://api.github.com/repos/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/artifacts/12622249049",
+      "archive_download_url": "https://api.github.com/repos/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/artifacts/12622249049/zip",
+      "expired": false,
+      "created_at": "2026-10-26T01:51:04Z",
+      "expires_at": "2026-11-02T01:51:04Z",
+      "updated_at": "2026-10-26T01:51:04Z",
+      "digest": "sha256:e95e2216443b5b680bf5d50d5491e12aa97e0666288c2ba45554349de8f1d67f",
+      "workflow_run": {
+        "id": 40256016301,
+        "repository_id": 1431700201,
+        "head_repository_id": 1431700201,
+        "head_branch": "exp/ci-s1-consolidacao-20261025",
+        "head_sha": "31af366d2e6c8d59bc34e7e4dc8a2490521cae15"
+      }
+    }
+  ]
+}

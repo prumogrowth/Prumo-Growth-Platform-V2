@@ -1,0 +1,92 @@
+[
+  {
+    "sha": "c42dd9298b2adb32058e7ddb9f345852f86791c0",
+    "summary": {
+      "controls": {
+        "run_ids": [
+          40255607197,
+          40255607185
+        ],
+        "jobs": 4,
+        "runner_seconds": 350,
+        "job_span_seconds": 146,
+        "feedback_from_created_seconds": 149,
+        "unit_executions": 201,
+        "unique_unit_ids": 108,
+        "e2e_scenarios": 225,
+        "scenario_proof": "225 scenario IDs; 223 exact descriptions and 2 descriptions normalized for GitHub masking of Bearer independente"
+      },
+      "parallel": {
+        "run_ids": [
+          40255607214
+        ],
+        "jobs": 2,
+        "runner_seconds": 279,
+        "job_span_seconds": 141,
+        "feedback_from_created_seconds": 144,
+        "unit_executions": 108,
+        "unique_unit_ids": 108,
+        "e2e_scenarios": 225,
+        "scenario_proof": "validated exact markers in each runner; artifact reference available"
+      },
+      "serial": {
+        "run_ids": [
+          40255607217
+        ],
+        "jobs": 1,
+        "runner_seconds": 236,
+        "job_span_seconds": 236,
+        "feedback_from_created_seconds": 240,
+        "unit_executions": 108,
+        "unique_unit_ids": 108,
+        "e2e_scenarios": 225,
+        "scenario_proof": "225 scenario IDs; 223 exact descriptions and 2 descriptions normalized for GitHub masking of Bearer independente"
+      }
+    }
+  },
+  {
+    "sha": "31af366d2e6c8d59bc34e7e4dc8a2490521cae15",
+    "summary": {
+      "controls": {
+        "run_ids": [
+          40256016509,
+          40256016312
+        ],
+        "jobs": 4,
+        "runner_seconds": 361,
+        "job_span_seconds": 147,
+        "feedback_from_created_seconds": 150,
+        "unit_executions": 201,
+        "unique_unit_ids": 108,
+        "e2e_scenarios": 225,
+        "scenario_proof": "225 scenario IDs; 223 exact descriptions and 2 descriptions normalized for GitHub masking of Bearer independente"
+      },
+      "parallel": {
+        "run_ids": [
+          40256016301
+        ],
+        "jobs": 2,
+        "runner_seconds": 289,
+        "job_span_seconds": 151,
+        "feedback_from_created_seconds": 154,
+        "unit_executions": 108,
+        "unique_unit_ids": 108,
+        "e2e_scenarios": 225,
+        "scenario_proof": "validated exact markers in each runner; artifact reference available"
+      },
+      "serial": {
+        "run_ids": [
+          40256016350
+        ],
+        "jobs": 1,
+        "runner_seconds": 223,
+        "job_span_seconds": 223,
+        "feedback_from_created_seconds": 227,
+        "unit_executions": 108,
+        "unique_unit_ids": 108,
+        "e2e_scenarios": 225,
+        "scenario_proof": "225 scenario IDs; 223 exact descriptions and 2 descriptions normalized for GitHub masking of Bearer independente"
+      }
+    }
+  }
+]
