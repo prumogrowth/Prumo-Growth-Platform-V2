@@ -1,5 +1,6 @@
 """Offline regression for selective lead pause. No DB, RLS or real users."""
 import unittest
+from dataclasses import replace
 
 from backend.operator_distribution_policy import (
     CaseSnapshot, CandidateSnapshot, propose_selective_pause_case,
@@ -114,6 +115,50 @@ class SelectivePauseContractTests(unittest.TestCase):
         propose_selective_pause_case(original_case,"rafael","marina",source)
         self.assertEqual(repr((original_case,source)),before)
         self.assertFalse(hasattr(original_case,"account_state"))
+
+
+class MalformedSnapshotTests(unittest.TestCase):
+    def test_mixed_candidate_ids_are_denied_without_sort_failure(self):
+        candidates = (person("lia"), person(123))
+        result = propose_selective_pause_case(case(), "rafael", "marina", candidates)
+        self.assertEqual(result.disposition, "DENIED_OR_UNVERIFIED")
+        self.assertIsNone(result.proposed_operator)
+        self.assertFalse(result.mutates_case)
+
+    def test_malformed_case_identity_is_denied_on_both_paths(self):
+        for field in ("case_ref", "shop_ref", "owner_operator", "manager_ref", "assignment_version"):
+            for value in (None, 7, [], "", "   "):
+                with self.subTest(field=field, value=value):
+                    malformed = replace(case(), **{field: value})
+                    self.assertEqual(propose_selective_pause_case(
+                        malformed, "rafael", "marina", (person("lia"),)
+                    ).disposition, "DENIED_OR_UNVERIFIED")
+                    self.assertEqual(classify_manual_transfer_target(
+                        malformed, "marina", person("lia")
+                    ), "DENIED")
+
+    def test_malformed_candidate_cannot_request_exception_or_standard_path(self):
+        invalid = [replace(person("lia"), **{field: value})
+                   for field, values in {
+                       "operator_ref": (None, [], 123, "", " "),
+                       "manager_ref": (None, [], 123, "", " "),
+                       "active_account": (1, "true", None),
+                       "intake_receiving": (1, "true", None),
+                       "granted_shops": (["aurora"], "aurora", None, (7,), ("",), (" ",)),
+                   }.items() for value in values]
+        for target in invalid:
+            with self.subTest(target=target):
+                self.assertEqual(propose_selective_pause_case(
+                    case(), "rafael", "marina", (person("valid"), target)
+                ).disposition, "DENIED_OR_UNVERIFIED")
+                self.assertEqual(classify_manual_transfer_target(
+                    case(), "marina", target
+                ), "DENIED")
+
+    def test_empty_valid_grants_still_require_case_scoped_authority(self):
+        self.assertEqual(classify_manual_transfer_target(
+            case(), "marina", person("lia", shops=())
+        ), "S1_CASE_SCOPED_EXCEPTION_REQUIRED")
 
 
 if __name__ == "__main__":

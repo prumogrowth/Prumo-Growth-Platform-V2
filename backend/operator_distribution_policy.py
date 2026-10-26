@@ -41,6 +41,29 @@ class PauseRoutingProposal:
     mutates_case: bool = False
 
 
+def _reference(value: object) -> bool:
+    return isinstance(value, str) and bool(value.strip())
+
+
+def _valid_case(case: object) -> bool:
+    return isinstance(case, CaseSnapshot) and all(_reference(value) for value in (
+        case.case_ref, case.shop_ref, case.owner_operator, case.manager_ref,
+        case.assignment_version,
+    ))
+
+
+def _valid_candidate(target: object) -> bool:
+    return (
+        isinstance(target, CandidateSnapshot)
+        and _reference(target.operator_ref)
+        and _reference(target.manager_ref)
+        and isinstance(target.active_account, bool)
+        and isinstance(target.intake_receiving, bool)
+        and isinstance(target.granted_shops, tuple)
+        and all(_reference(shop) for shop in target.granted_shops)
+    )
+
+
 def propose_selective_pause_case(
     case: CaseSnapshot,
     paused_operator: str,
@@ -49,14 +72,9 @@ def propose_selective_pause_case(
 ) -> PauseRoutingProposal:
     """Pure proposal only; S1 must lock/version/authorize before any transfer."""
     if (
-        not isinstance(case, CaseSnapshot)
-        or not isinstance(paused_operator, str)
-        or not paused_operator
-        or not isinstance(manager_ref, str)
-        or not manager_ref
-        or not case.case_ref
-        or not case.shop_ref
-        or not case.assignment_version
+        not _valid_case(case)
+        or not _reference(paused_operator)
+        or not _reference(manager_ref)
         or case.owner_operator != paused_operator
         or case.manager_ref != manager_ref
         or not isinstance(candidates, tuple)
@@ -69,7 +87,7 @@ def propose_selective_pause_case(
     if case.first_human_contact_confirmed is not False:
         return PauseRoutingProposal("RETAIN_CONTACT_UNVERIFIED")
     for target in candidates:
-        if not isinstance(target, CandidateSnapshot):
+        if not _valid_candidate(target):
             return PauseRoutingProposal("DENIED_OR_UNVERIFIED")
     eligible = sorted(
         {
@@ -101,9 +119,9 @@ def classify_manual_transfer_target(
     command must still verify actor/session, version and access in DB.
     """
     if (
-        not isinstance(case, CaseSnapshot)
-        or not isinstance(target, CandidateSnapshot)
-        or not manager_ref
+        not _valid_case(case)
+        or not _valid_candidate(target)
+        or not _reference(manager_ref)
         or case.manager_ref != manager_ref
         or case.active_case_confirmed is not True
         or target.manager_ref != manager_ref
