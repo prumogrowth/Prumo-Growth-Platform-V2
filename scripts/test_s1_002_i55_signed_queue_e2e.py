@@ -216,6 +216,10 @@ try:
     status,data=queue55(token53)
     ok(status,data,"QUEUE_LIST")
     print("PASS S1QUEUE-167: LIST rechecks time-expired shop grant and restores visibility only after grant recovery")
+    # I76: one unowned S0 queue, two explicitly authorized managers of
+    # distinct teams. Reuse the current live GoTrue/signer bridge and policies.
+    _i76=Path("scripts/test_s1_002_i76_two_managers_queue_e2e.py")
+    exec(compile(_i76.read_text(encoding="utf-8"),str(_i76),"exec"),globals())
 finally:
     server55.shutdown()
     server55.server_close()

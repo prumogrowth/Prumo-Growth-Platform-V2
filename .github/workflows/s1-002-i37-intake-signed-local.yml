@@ -38,6 +38,7 @@ on:
       - 'supabase/migrations/202610190054_s0_fila_humana_canonica.sql'
       - 'backend/s1_gateway_fila_canonical_local.py'
       - 'scripts/test_s1_002_i55_signed_queue_e2e.py'
+      - 'scripts/test_s1_002_i76_two_managers_queue_e2e.py'
       - 'scripts/test_s1_002_i62_excecao_signed_e2e.py'
       - 'scripts/test_s1_002_i63_canonical_rls_e2e.py'
       - 'scripts/test_s1_002_i75d_real_history_e2e.py'
