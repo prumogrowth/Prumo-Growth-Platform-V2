@@ -95,12 +95,19 @@ except Denied:
 assert int(sql("select count(*) from prumo_export_ledger.s1_70_export_reservas"))==before+1
 print("PASS I73-E2E-07: actor spoofing and JWT tampering fail before DB mutation")
 
-st,_=http("POST","/auth/v1/logout",bearer=token53,base=api)
+# Never revoke a session shared with downstream canonical I53/I62 E2E.
+# Use a new synthetic GoTrue actor solely for lifecycle verification.
+logout_actor,logout_token,_,_=person("i73-logout")
+logout_principal=verifier.verify("Bearer "+logout_token)
+assert str(logout_principal.actor_id)==logout_actor
+assert sql("select prumo_export_auth.sessao_ativa("
+ f"'{logout_principal.actor_id}'::uuid,'{logout_principal.session_id}'::uuid)")=="t"
+st,_=http("POST","/auth/v1/logout",bearer=logout_token,base=api)
 assert st in (200,204),st
 assert sql("select prumo_export_auth.sessao_ativa("
- f"'{principal.actor_id}'::uuid,'{principal.session_id}'::uuid)")=="f"
+ f"'{logout_principal.actor_id}'::uuid,'{logout_principal.session_id}'::uuid)")=="f"
 try:
- gateway.export("Bearer "+token53,payload)
+ gateway.export("Bearer "+logout_token,payload)
  raise AssertionError("I73_ACCEPTED_LOGGED_OUT_JWT")
 except Denied:
  pass

@@ -21,3 +21,7 @@ Um verificador de sessão em `prumo_export_auth.sessao_ativa(uuid,uuid)` consult
 ## Certificação
 
 Pendente de logs de CI. Commit persistido não equivale a sucesso. Nenhuma implantação hospedada autorizada.
+
+## Ajuste de isolamento da suíte GoTrue
+
+O primeiro workflow GoTrue `#40256248783` executou as **oito provas I73** com sucesso, mas a suíte total falhou posteriormente em `I53 offline signer did not fail closed`. A I73 executava em `globals()` e sobrescrevia variáveis de testes legados, além de fazer logout de uma identidade compartilhada com outros testes. A correção copia o namespace para I73 e usa nova conta GoTrue sintética apenas para testar logout. O workflow anterior não é certificação; a regressão completa exige nova prova de CI.
