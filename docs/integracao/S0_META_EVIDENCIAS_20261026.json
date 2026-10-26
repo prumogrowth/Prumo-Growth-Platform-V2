@@ -1,0 +1,612 @@
+{
+  "github_actions": {
+    "final": {
+      "run_id": 40311987315,
+      "job_id": 121535163769,
+      "head_sha": "dbcca8b8583e4d31640f765232fb6708260ea36b",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-26T11:02:07Z",
+      "completed_at": "2026-10-26T11:04:31Z",
+      "node": "22.23.3",
+      "postgres": "17.11",
+      "individual_WA_markers": 823,
+      "duplicate_WA_markers": [],
+      "verified_log_lines": [
+        "node: v22.23.3",
+        "META-COMPOSE: pinned sources verified; current S0 retained; 12 fixtures isolated",
+        "META-GUARD-43 PASS",
+        "META-GUARD-44 PASS",
+        "META-GUARD-45 PASS",
+        "META-GUARD-46 PASS",
+        "META-GUARD-47 PASS",
+        "META-GUARD-48 PASS",
+        "META-GUARD-49 PASS",
+        "META-GUARD-50 PASS",
+        "META-GUARD-51 PASS",
+        "META-GUARD-52 PASS",
+        "META-GUARD-53 PASS",
+        "META-GUARD-54 PASS",
+        "META-GUARDS: 12/12 standalone refusals; catalog/roles/ACL unchanged",
+        "Ran 58 tests in 0.441s",
+        "META-ATOMIC-43 PASS: injected failure after DDL/grants rolled back",
+        "META-ATOMIC-44 PASS: injected failure after DDL/grants rolled back",
+        "META-ATOMIC-45 PASS: injected failure after DDL/grants rolled back",
+        "META-ATOMIC-46 PASS: injected failure after DDL/grants rolled back",
+        "META-ATOMIC-47 PASS: injected failure after DDL/grants rolled back",
+        "META-ATOMIC-48 PASS: injected failure after DDL/grants rolled back",
+        "META-ATOMIC-49 PASS: injected failure after DDL/grants rolled back",
+        "META-ATOMIC-50 PASS: injected failure after DDL/grants rolled back",
+        "META-ATOMIC-51 PASS: injected failure after DDL/grants rolled back",
+        "META-ATOMIC-52 PASS: injected failure after DDL/grants rolled back",
+        "META-ATOMIC-53 PASS: injected failure after DDL/grants rolled back",
+        "PASS TX-CONC: dois clientes concorrentes, um lote/lead/ciclo/item",
+        "PASS C02-CONC: webhook repetido e dois eventos distintos em paralelo sem duplicacoes",
+        "PASS REC-RACE: reserva versus inbound serializados sem envio obsoleto",
+        "PASS C04-RACE: duas ordens reserva versus optout, sem envio elegivel",
+        "PASS C07-REC-RACE: duas revisoes concorrentes, uma auditoria, versao unica",
+        "PASS WA30-CONC-01: 8 and 9 concurrent sessions -> one lead, two events",
+        "PASS WA30-CONC-02/03: simultaneous claim + explicitly reviewed recovery, no blind retry",
+        "PASS WA31-CONC: C01/C02 and C01/C01 simultaneous 8-9 use one lead per contact",
+        "PASS WA32-CONC-01: competing settlement fenced; no stale worker or recovery",
+        "PASS WA33-CONC-01: two SQL sessions, one C02 message and one durable inbox settlement",
+        "META-ATOMIC-54 PASS: injected failure after DDL/grants rolled back",
+        "META-REGRESSION: 823/823 individual WA39–WA68 markers exactly once",
+        "META-ATOMICITY: 12/12 injected install failures fully rolled back",
+        "META-SEC-01 PASS: owners NOLOGIN; synthetic client LOGIN only; all roles restricted",
+        "META-SEC-02 PASS: client cannot assume an executor",
+        "META-SEC-03 PASS: single restricted entry; anon/authenticated/service_role denied",
+        "META-SEC-04 PASS: Meta tables RLS; no direct API/client access",
+        "META-SEC-05 PASS: original WITH CHECK true admits outbox UPDATE(id); rolled back",
+        "META-SEC-06 PASS: UPDATE(id) denied; FOR SHARE still works",
+        "META-SEC-07 PASS: UPDATE(id) denied; FOR SHARE still works",
+        "Stop and remove container: 5541601bbe4e4cef969bcc540f7bd155_postgres17_ac7ae7"
+      ],
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-26T11:02:08Z",
+          "completed_at": "2026-10-26T11:02:09Z"
+        },
+        {
+          "name": "Initialize containers",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-26T11:02:09Z",
+          "completed_at": "2026-10-26T11:02:26Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-26T11:02:26Z",
+          "completed_at": "2026-10-26T11:02:28Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-26T11:02:28Z",
+          "completed_at": "2026-10-26T11:02:29Z"
+        },
+        {
+          "name": "Run actions/setup-node@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-26T11:02:29Z",
+          "completed_at": "2026-10-26T11:02:30Z"
+        },
+        {
+          "name": "Prepare pinned temporary composition, verify shared S0 migrations",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-26T11:02:30Z",
+          "completed_at": "2026-10-26T11:02:30Z"
+        },
+        {
+          "name": "Install SQL client if missing",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-26T11:02:30Z",
+          "completed_at": "2026-10-26T11:02:30Z"
+        },
+        {
+          "name": "Reject all 12 standalone fixtures on wrong disposable database",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-10-26T11:02:30Z",
+          "completed_at": "2026-10-26T11:02:35Z"
+        },
+        {
+          "name": "Current S0 structural and backend regression",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-10-26T11:02:35Z",
+          "completed_at": "2026-10-26T11:02:36Z"
+        },
+        {
+          "name": "All original S0 and WA39–WA68 regressions with adaptations",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-10-26T11:02:36Z",
+          "completed_at": "2026-10-26T11:04:26Z"
+        },
+        {
+          "name": "Verify 823 markers and final effective privileges with negative DML",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-10-26T11:04:26Z",
+          "completed_at": "2026-10-26T11:04:27Z"
+        },
+        {
+          "name": "Post Run actions/setup-node@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 19,
+          "started_at": "2026-10-26T11:04:27Z",
+          "completed_at": "2026-10-26T11:04:27Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 20,
+          "started_at": "2026-10-26T11:04:27Z",
+          "completed_at": "2026-10-26T11:04:27Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 21,
+          "started_at": "2026-10-26T11:04:27Z",
+          "completed_at": "2026-10-26T11:04:27Z"
+        },
+        {
+          "name": "Stop containers",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 22,
+          "started_at": "2026-10-26T11:04:27Z",
+          "completed_at": "2026-10-26T11:04:28Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 23,
+          "started_at": "2026-10-26T11:04:28Z",
+          "completed_at": "2026-10-26T11:04:28Z"
+        }
+      ]
+    },
+    "initial": {
+      "run_id": 40311220714,
+      "job_id": 121532598643,
+      "head_sha": "e3b3ff65293d340c11fa0686332e7dc85af533d3",
+      "conclusion": "success",
+      "included_atomic_fault_injection": false
+    },
+    "rerun_reason": "Add actual post-DDL rollback proofs; no retry or weakening of historical tests"
+  },
+  "mission": "S0 Meta compatibility audit 2026-10-26",
+  "branch": "exp/s0-meta-integracao-auditoria-20261026",
+  "s0_checkpoint": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+  "meta_head": "04c2a355bf8ab5765855f82ab3de2062e2d5bd67",
+  "meta_certified_code": "cb4b27f2ec3ea77c0f8305c3c87387bddc5c7d6d",
+  "executable_commit": "dbcca8b8583e4d31640f765232fb6708260ea36b",
+  "prior_executable_commit": "e3b3ff65293d340c11fa0686332e7dc85af533d3",
+  "local": {
+    "postgres": "17.11",
+    "node": "24.19.0",
+    "python_backend_tests": 58,
+    "historical_WA39_WA68_markers": 823,
+    "wrong_database_guard_tests": 12,
+    "post_DDL_failure_rollback_tests": 12,
+    "effective_privilege_security_tests": 7,
+    "full_S0_SQL_regression": "PASS",
+    "container_removed": true
+  },
+  "local_log_sha256": "b7eb45269e2da36ebc58f7954e72ab9d4ec47dab39071ab44efb22f2230ba3cf",
+  "local_effective_privilege_snapshot": {
+    "roles": [
+      {
+        "rolname": "prumo_s0_meta_ingress_lab",
+        "rolcanlogin": false,
+        "rolsuper": false,
+        "rolbypassrls": false,
+        "rolcreaterole": false,
+        "rolcreatedb": false,
+        "rolreplication": false
+      },
+      {
+        "rolname": "prumo_s0_meta_signer_lab",
+        "rolcanlogin": false,
+        "rolsuper": false,
+        "rolbypassrls": false,
+        "rolcreaterole": false,
+        "rolcreatedb": false,
+        "rolreplication": false
+      },
+      {
+        "rolname": "prumo_s0_meta_wa48_client_lab",
+        "rolcanlogin": true,
+        "rolsuper": false,
+        "rolbypassrls": false,
+        "rolcreaterole": false,
+        "rolcreatedb": false,
+        "rolreplication": false
+      },
+      {
+        "rolname": "prumo_s0_meta_wa48_executor_lab",
+        "rolcanlogin": false,
+        "rolsuper": false,
+        "rolbypassrls": false,
+        "rolcreaterole": false,
+        "rolcreatedb": false,
+        "rolreplication": false
+      },
+      {
+        "rolname": "prumo_s0_meta_wa50_binding_guard_lab",
+        "rolcanlogin": false,
+        "rolsuper": false,
+        "rolbypassrls": false,
+        "rolcreaterole": false,
+        "rolcreatedb": false,
+        "rolreplication": false
+      },
+      {
+        "rolname": "prumo_s0_meta_wa50_writer_lab",
+        "rolcanlogin": false,
+        "rolsuper": false,
+        "rolbypassrls": false,
+        "rolcreaterole": false,
+        "rolcreatedb": false,
+        "rolreplication": false
+      },
+      {
+        "rolname": "prumo_s0_meta_wa52_outbox_guard_lab",
+        "rolcanlogin": false,
+        "rolsuper": false,
+        "rolbypassrls": false,
+        "rolcreaterole": false,
+        "rolcreatedb": false,
+        "rolreplication": false
+      }
+    ],
+    "functions": [
+      {
+        "proname": "meta_arquivar_handoff_assinado_fixture_s0",
+        "owner": "postgres",
+        "prosecdef": true,
+        "proconfig": [
+          "search_path=\"\""
+        ],
+        "anon_exec": false,
+        "authenticated_exec": false,
+        "service_exec": false,
+        "client_exec": false
+      },
+      {
+        "proname": "meta_material_handoff_fixture_s0",
+        "owner": "postgres",
+        "prosecdef": false,
+        "proconfig": [
+          "search_path=\"\""
+        ],
+        "anon_exec": false,
+        "authenticated_exec": false,
+        "service_exec": false,
+        "client_exec": false
+      },
+      {
+        "proname": "meta_revogar_chave_fixture_s0",
+        "owner": "postgres",
+        "prosecdef": false,
+        "proconfig": [
+          "search_path=\"\""
+        ],
+        "anon_exec": false,
+        "authenticated_exec": false,
+        "service_exec": false,
+        "client_exec": false
+      },
+      {
+        "proname": "meta_verificar_handoff_fixture_s0",
+        "owner": "prumo_s0_meta_signer_lab",
+        "prosecdef": true,
+        "proconfig": [
+          "search_path=\"\""
+        ],
+        "anon_exec": false,
+        "authenticated_exec": false,
+        "service_exec": false,
+        "client_exec": false
+      },
+      {
+        "proname": "meta_wa48_shadow_append_fixture_s0",
+        "owner": "prumo_s0_meta_wa48_executor_lab",
+        "prosecdef": true,
+        "proconfig": [
+          "search_path=\"\""
+        ],
+        "anon_exec": false,
+        "authenticated_exec": false,
+        "service_exec": false,
+        "client_exec": false
+      },
+      {
+        "proname": "meta_wa48_shadow_revoke_fixture_s0",
+        "owner": "postgres",
+        "prosecdef": false,
+        "proconfig": [
+          "search_path=\"\""
+        ],
+        "anon_exec": false,
+        "authenticated_exec": false,
+        "service_exec": false,
+        "client_exec": false
+      },
+      {
+        "proname": "meta_wa49_scoped_shadow_fixture_s0",
+        "owner": "prumo_s0_meta_wa48_executor_lab",
+        "prosecdef": true,
+        "proconfig": [
+          "search_path=\"\""
+        ],
+        "anon_exec": false,
+        "authenticated_exec": false,
+        "service_exec": false,
+        "client_exec": false
+      },
+      {
+        "proname": "meta_wa50_restricted_forensic_fixture_s0",
+        "owner": "prumo_s0_meta_wa50_writer_lab",
+        "prosecdef": true,
+        "proconfig": [
+          "search_path=\"\""
+        ],
+        "anon_exec": false,
+        "authenticated_exec": false,
+        "service_exec": false,
+        "client_exec": false
+      },
+      {
+        "proname": "meta_wa51_parity_forensic_fixture_s0",
+        "owner": "prumo_s0_meta_wa50_writer_lab",
+        "prosecdef": true,
+        "proconfig": [
+          "search_path=\"\""
+        ],
+        "anon_exec": false,
+        "authenticated_exec": false,
+        "service_exec": false,
+        "client_exec": false
+      },
+      {
+        "proname": "meta_wa51_verify_nonce_only_fixture_s0",
+        "owner": "prumo_s0_meta_wa48_executor_lab",
+        "prosecdef": true,
+        "proconfig": [
+          "search_path=\"\""
+        ],
+        "anon_exec": false,
+        "authenticated_exec": false,
+        "service_exec": false,
+        "client_exec": false
+      },
+      {
+        "proname": "meta_wa52_lock_outbox_fixture_s0",
+        "owner": "prumo_s0_meta_wa52_outbox_guard_lab",
+        "prosecdef": true,
+        "proconfig": [
+          "search_path=\"\""
+        ],
+        "anon_exec": false,
+        "authenticated_exec": false,
+        "service_exec": false,
+        "client_exec": false
+      },
+      {
+        "proname": "meta_wa52_locked_forensic_fixture_s0",
+        "owner": "prumo_s0_meta_wa50_writer_lab",
+        "prosecdef": true,
+        "proconfig": [
+          "search_path=\"\""
+        ],
+        "anon_exec": false,
+        "authenticated_exec": false,
+        "service_exec": false,
+        "client_exec": false
+      },
+      {
+        "proname": "meta_wa55_single_entry_fixture_s0",
+        "owner": "prumo_s0_meta_wa50_writer_lab",
+        "prosecdef": true,
+        "proconfig": [
+          "search_path=\"\""
+        ],
+        "anon_exec": false,
+        "authenticated_exec": false,
+        "service_exec": false,
+        "client_exec": true
+      },
+      {
+        "proname": "validar_meta_status_vinculo_fixture_s0",
+        "owner": "prumo_s0_meta_wa50_binding_guard_lab",
+        "prosecdef": true,
+        "proconfig": [
+          "search_path=\"\""
+        ],
+        "anon_exec": false,
+        "authenticated_exec": false,
+        "service_exec": false,
+        "client_exec": false
+      }
+    ],
+    "tables": [
+      {
+        "relname": "meta_apps_fixture_s0",
+        "owner": "postgres",
+        "relrowsecurity": true,
+        "anon_access": false,
+        "authenticated_access": false,
+        "service_access": false,
+        "anon_column_access": false,
+        "authenticated_column_access": false,
+        "service_column_access": false,
+        "client_access": false,
+        "client_column_access": false
+      },
+      {
+        "relname": "meta_canais_fixture_s0",
+        "owner": "postgres",
+        "relrowsecurity": true,
+        "anon_access": false,
+        "authenticated_access": false,
+        "service_access": false,
+        "anon_column_access": false,
+        "authenticated_column_access": false,
+        "service_column_access": false,
+        "client_access": false,
+        "client_column_access": false
+      },
+      {
+        "relname": "meta_servico_chaves_fixture_s0",
+        "owner": "postgres",
+        "relrowsecurity": true,
+        "anon_access": false,
+        "authenticated_access": false,
+        "service_access": false,
+        "anon_column_access": false,
+        "authenticated_column_access": false,
+        "service_column_access": false,
+        "client_access": false,
+        "client_column_access": false
+      },
+      {
+        "relname": "meta_servico_nonces_fixture_s0",
+        "owner": "postgres",
+        "relrowsecurity": true,
+        "anon_access": false,
+        "authenticated_access": false,
+        "service_access": false,
+        "anon_column_access": false,
+        "authenticated_column_access": false,
+        "service_column_access": false,
+        "client_access": false,
+        "client_column_access": false
+      },
+      {
+        "relname": "meta_status_conflitos_fixture_s0",
+        "owner": "postgres",
+        "relrowsecurity": true,
+        "anon_access": false,
+        "authenticated_access": false,
+        "service_access": false,
+        "anon_column_access": false,
+        "authenticated_column_access": false,
+        "service_column_access": false,
+        "client_access": false,
+        "client_column_access": false
+      },
+      {
+        "relname": "meta_status_forense_fixture_s0",
+        "owner": "postgres",
+        "relrowsecurity": true,
+        "anon_access": false,
+        "authenticated_access": false,
+        "service_access": false,
+        "anon_column_access": false,
+        "authenticated_column_access": false,
+        "service_column_access": false,
+        "client_access": false,
+        "client_column_access": false
+      },
+      {
+        "relname": "meta_vinculos_tentativa_fixture_s0",
+        "owner": "postgres",
+        "relrowsecurity": true,
+        "anon_access": false,
+        "authenticated_access": false,
+        "service_access": false,
+        "anon_column_access": false,
+        "authenticated_column_access": false,
+        "service_column_access": false,
+        "client_access": false,
+        "client_column_access": false
+      },
+      {
+        "relname": "meta_wa48_shadow_keys_fixture_s0",
+        "owner": "postgres",
+        "relrowsecurity": true,
+        "anon_access": false,
+        "authenticated_access": false,
+        "service_access": false,
+        "anon_column_access": false,
+        "authenticated_column_access": false,
+        "service_column_access": false,
+        "client_access": false,
+        "client_column_access": false
+      },
+      {
+        "relname": "meta_wa48_shadow_nonces_fixture_s0",
+        "owner": "postgres",
+        "relrowsecurity": true,
+        "anon_access": false,
+        "authenticated_access": false,
+        "service_access": false,
+        "anon_column_access": false,
+        "authenticated_column_access": false,
+        "service_column_access": false,
+        "client_access": false,
+        "client_column_access": false
+      },
+      {
+        "relname": "meta_wa48_shadow_receipts_fixture_s0",
+        "owner": "postgres",
+        "relrowsecurity": true,
+        "anon_access": false,
+        "authenticated_access": false,
+        "service_access": false,
+        "anon_column_access": false,
+        "authenticated_column_access": false,
+        "service_column_access": false,
+        "client_access": false,
+        "client_column_access": false
+      }
+    ],
+    "legacy_client_routes": [
+      "meta_wa55_single_entry_fixture_s0"
+    ],
+    "security_probes": "7/7"
+  },
+  "limitations": [
+    "No operational integration or Meta authorization",
+    "No hosted SQL, real credentials, public ingress, Graph API or deploy",
+    "No combined GoTrue/Meta end-to-end flow",
+    "Production JSON budget, IAM, key custody, S1 rights/revocation and global lock contract remain pending",
+    "All migrations remain laboratory fixtures; postgres owns tables and privileged legacy functions; a synthetic client LOGIN exists only in discarded cluster"
+  ],
+  "preserved_CFI01_evidence": {
+    "checkpoint": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+    "runtime": "948891714f632adb6179cf3a11f362a6eb914f91",
+    "real_transactional_run": 40298770078,
+    "real_transactional_tests": 14,
+    "backend_regression_run": 40298769996,
+    "recounted_as_meta_tests": false
+  }
+}
