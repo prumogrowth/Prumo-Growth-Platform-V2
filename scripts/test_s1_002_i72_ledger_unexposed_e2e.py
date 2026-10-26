@@ -76,3 +76,7 @@ rem=sql("select aceitos_excluidos::text from "
 assert rem=="1",rem
 print("PASS I72-E2E-07: private administrator retention still reaches relocated accepted events")
 print("I72 7/7 real GoTrue/PostgREST ledger isolation E2E; disposable only")
+
+# I73: same disposable GoTrue stack; no duplicate CI startup.
+_i73=Path('scripts/test_s1_002_i73_export_executor_e2e.py')
+exec(compile(_i73.read_text(encoding='utf-8'),str(_i73),'exec'),globals())

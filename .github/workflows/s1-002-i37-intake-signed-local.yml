@@ -49,6 +49,10 @@ on:
       - 'scripts/test_s1_002_i70_quota_e2e.py'
       - 'scripts/test_s1_002_i71_rolling_denied_e2e.py'
       - 'scripts/test_s1_002_i72_ledger_unexposed_e2e.py'
+      - 'scripts/test_s1_002_i73_export_executor_e2e.py'
+      - 'supabase/tests/s1_106_export_executor_local_only.sql'
+      - 'supabase/tests/s1_107_export_executor_aceite.sql'
+      - 'tests/test_s1_002_i73_export_boundary.py'
       - 'supabase/tests/s1_104_export_ledger_unexposed_local_only.sql'
       - 'supabase/tests/s1_105_export_ledger_unexposed_aceite.sql'
       - 'supabase/tests/s1_102_export_rolling_refusals_local_only.sql'
@@ -113,6 +117,7 @@ jobs:
           PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i55_queue_gateway.py' -v
           PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i62_excecao_gateway.py' -v
           PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i67_command_parser.py' -v
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i73_export_boundary.py' -v
   e2e-gerencia-local:
     runs-on: ubuntu-latest
     timeout-minutes: 24
