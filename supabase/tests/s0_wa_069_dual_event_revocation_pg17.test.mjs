@@ -171,7 +171,7 @@ async function assertAdmin(call,expected){
 let baseline,ka1,ka2,ka3,kb1,kb2,kb3,kc1,kc2,kc3;
 let A1,A2,A3,B1,B2,B3,B4,C1,C2,C3,C4;
 let aP1,aP2,bP1,bP2,cP1,cP2,ha1,ha2,hb1,hb2,hcCancel;
-let aCancel,ar1,ar2,bCancel,br1,br2,cr1,cP1,cP2;
+let aCancel,ar1,ar2,bCancel,br1,br2,cr1;
 let aOld1,aOld2,bOld2,cOld2,doneC1=false,doneC2=false;
 const tests=[
  // Setup authentic synthetic S0 bind for all three independent intents.
