@@ -126,6 +126,10 @@ def request_fingerprint(value):
 
 def compare_retry(previous,current):
     before,after = _candidate(previous),_candidate(current)
+    # Existing CFI recheck reuses the capture key. It is a different operation,
+    # not an idempotency conflict or a retry of capture.
+    if before.command != after.command:
+        return 'DIFFERENT_COMMAND_NOT_A_RETRY'
     if before.idempotency_key != after.idempotency_key:
         return 'NEW_INTENT_REVIEW_REQUIRED'
     if _tuple(before,logical=True) != _tuple(after,logical=True):

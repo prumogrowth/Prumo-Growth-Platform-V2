@@ -46,6 +46,7 @@ async function digest(c){
 export async function requestFingerprint(raw){return digest(parseCandidateCommand(raw));}
 export function compareRetry(previous,current){
  const a=parseCandidateCommand(previous),b=parseCandidateCommand(current);
+ if(a.command!==b.command)return 'DIFFERENT_COMMAND_NOT_A_RETRY';
  if(a.idempotency_key!==b.idempotency_key)return 'NEW_INTENT_REVIEW_REQUIRED';
  if(JSON.stringify(tuple(a,true))!==JSON.stringify(tuple(b,true)))return 'IDEMPOTENCY_CONFLICT_REVIEW_REQUIRED';
  return 'SAME_INTENT_STRUCTURE_ONLY';

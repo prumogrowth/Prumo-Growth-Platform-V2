@@ -91,9 +91,9 @@ class WireCandidateTests(unittest.TestCase):
         self.assertNotEqual(request_fingerprint(a),request_fingerprint(b))
         cases.append((a,{**b,'idempotency_key':'another-001'},'NEW_INTENT_REVIEW_REQUIRED'))
         for delta in ({'case_ref':V},{'expected_version':{'kind':'cycle','value':'8'}},
-                      {'expected_version':{'kind':'case','value':'7'}},
-                      {'command':RECHECK,'capture_request_id':V}):
+                      {'expected_version':{'kind':'case','value':'7'}}):
             cases.append((a,{**b,**delta},'IDEMPOTENCY_CONFLICT_REVIEW_REQUIRED'))
+        cases.append((a,{**b,'command':RECHECK,'capture_request_id':V},'DIFFERENT_COMMAND_NOT_A_RETRY'))
         js=probe([dict(operation='retry',previous=a,current=b) for a,b,_ in cases])
         for (a,b,expected),j in zip(cases,js):
             self.assertEqual(compare_retry(a,b),expected);self.assertEqual(j['result'],expected)
