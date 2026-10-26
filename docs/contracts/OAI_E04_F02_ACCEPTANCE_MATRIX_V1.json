@@ -1,0 +1,257 @@
+{
+  "schema": "prumo.f02.experimental_acceptance_matrix.v1",
+  "scope": "E04 synthetic F02 review; S0 authority solely Codex; no hosted or external operations",
+  "as_of": "2026-10-26",
+  "baseline": {
+    "sha": "e2258df83d9f8483c7e4b9db7a7bf56cefe9a6ff",
+    "ci_run": 40298163935,
+    "ci_conclusion": "success",
+    "python_s0": 84,
+    "python_f02_f03": 561,
+    "node_s2": 269,
+    "pg17_physical": 330
+  },
+  "classification": {
+    "LAB_VERIFIED": "negative/contract behavior demonstrated only in isolated lab; never production authorization",
+    "LAB_PARTIAL": "specific synthetic evidence exists but external or durable S0 gate is unproven",
+    "INTEGRATION_PENDING": "no adequate integrated/operational proof at this checkpoint"
+  },
+  "requirements": [
+    {
+      "id": "F02-A01",
+      "area": "S2/F02",
+      "behavior": "Model-supplied permission/send flags must never grant operational authority",
+      "status": "LAB_VERIFIED",
+      "tests": [
+        "backend/tests/test_s0_f02_posthuman_compatibility_local.py::test_04_model_permission_denied",
+        "backend/tests/test_s0_f03_pg17_integration.py::test_328_model_send_now_boolean_is_not_authority"
+      ],
+      "gate": "S0 validates independent real API/transport permission before operational use"
+    },
+    {
+      "id": "F02-A02",
+      "area": "F03/S0",
+      "behavior": "Human closure, historical cutoff and receipt bound to same store/lead/case; no invented evidence",
+      "status": "LAB_PARTIAL",
+      "tests": [
+        "backend/tests/test_s0_f03_pg17_integration.py::test_322_true_pre_handoff_c04_c08_and_f03_review_only"
+      ],
+      "gate": "Codex S0 confirms current GoTrue authority, keys/HMAC custody and immutable cutoff"
+    },
+    {
+      "id": "F02-A03",
+      "area": "S1/S0",
+      "behavior": "Manager scope, active role and session checked before synthetic intent",
+      "status": "LAB_PARTIAL",
+      "tests": [
+        "backend/tests/test_s0_f03_pg17_integration.py::test_266_manager_without_s1_role_denied_before_intent",
+        "backend/tests/test_s0_f03_pg17_integration.py::test_268_manager_scope_lost_before_intent_denied"
+      ],
+      "gate": "S0/S1 live principal/role lifecycle rechecked at ratification"
+    },
+    {
+      "id": "F02-A04",
+      "area": "C04/C08",
+      "behavior": "Late/backdated plans and mutated C04/C08 event origin are rejected",
+      "status": "LAB_VERIFIED",
+      "tests": [
+        "backend/tests/test_s0_f03_pg17_integration.py::test_301_backdated_legacy_created_after_handoff_still_refused",
+        "backend/tests/test_s0_f03_pg17_integration.py::test_305_mutated_c08_event_invalidates_origin"
+      ],
+      "gate": "Physical ledger production provenance review by Codex S0"
+    },
+    {
+      "id": "F02-A05",
+      "area": "C08/Meta",
+      "behavior": "Previously reserved attempt remains externally unknown even after local C08 cancellation",
+      "status": "LAB_PARTIAL",
+      "tests": [
+        "backend/tests/test_s0_f03_pg17_integration.py::test_306_once_reserved_never_claims_external_stop",
+        "backend/tests/test_s0_f03_pg17_integration.py::test_330_reserved_c08_history_not_promoted_by_f02_handoff"
+      ],
+      "gate": "Meta/transport supplies independent remote disposition and cancellation proof"
+    },
+    {
+      "id": "F02-A06",
+      "area": "F02/C04",
+      "behavior": "Common posthuman draft rejects canceled legacy chain even after successful reconciliation",
+      "status": "LAB_VERIFIED",
+      "tests": [
+        "backend/tests/test_s0_f03_pg17_integration.py::test_324_original_draft_path_still_blocks_true_canceled_legacy"
+      ],
+      "gate": "Separate Codex-reviewed operational replacement pathway if ever authorized"
+    },
+    {
+      "id": "F02-A07",
+      "area": "F02/F03",
+      "behavior": "Independent reconciler returns review-only and does not create executable replacement",
+      "status": "LAB_PARTIAL",
+      "tests": [
+        "backend/tests/test_s0_f03_pg17_integration.py::test_322_true_pre_handoff_c04_c08_and_f03_review_only",
+        "backend/tests/test_s0_f03_pg17_integration.py::test_323_true_observed_chain_review_is_repeatable_without_queue"
+      ],
+      "gate": "S0 validates real evidence, removes no legacy gate and authorizes any future transition separately"
+    },
+    {
+      "id": "F02-A08",
+      "area": "F02/S0",
+      "behavior": "Typed human-ratification handoff returns untrusted digest, never signature or plan",
+      "status": "LAB_VERIFIED",
+      "tests": [
+        "backend/tests/test_f02_reconciled_human_authorization_handoff.py::test_01_valid_claim_yields_only_non_authorizing_handoff",
+        "backend/tests/test_s0_f03_pg17_integration.py::test_329_local_reconciled_case_generates_only_untrusted_handoff_digest"
+      ],
+      "gate": "Independent S0 ratification event not implemented"
+    },
+    {
+      "id": "F02-A09",
+      "area": "F02/S0",
+      "behavior": "Review request rejects expired window at boundary and unbounded >48h local TTL",
+      "status": "LAB_VERIFIED",
+      "tests": [
+        "backend/tests/test_f02_reconciled_review_lifecycle.py::test_03_expired_at_exact_boundary",
+        "backend/tests/test_f02_reconciled_review_lifecycle.py::test_04_unbounded_ttl_rejected"
+      ],
+      "gate": "48h is an unapproved lab rule; S0 server-clock policy required"
+    },
+    {
+      "id": "F02-A10",
+      "area": "F02/S0",
+      "behavior": "Replay requires same key, request hash and expiry; changes conflict in claimed local timeline",
+      "status": "LAB_PARTIAL",
+      "tests": [
+        "backend/tests/test_f02_reconciled_review_lifecycle.py::test_08_exact_claimed_replay_only",
+        "backend/tests/test_f02_reconciled_review_lifecycle.py::test_09_same_key_different_digest_conflict",
+        "backend/tests/test_f02_reconciled_review_lifecycle.py::test_11_changed_expiry_is_not_exact_replay"
+      ],
+      "gate": "S0 durable ledger, atomic transactions and cross-worker concurrency needed"
+    },
+    {
+      "id": "F02-A11",
+      "area": "F02/S0",
+      "behavior": "Declared revocation blocks local review, including replay; incomplete timeline cannot prove nonrevocation",
+      "status": "LAB_PARTIAL",
+      "tests": [
+        "backend/tests/test_f02_reconciled_review_lifecycle.py::test_14_matching_revocation_claim_denies",
+        "backend/tests/test_f02_reconciled_review_lifecycle.py::test_15_revoked_exact_replay_still_denied"
+      ],
+      "gate": "Authoritative S0 revocation source, actor authenticity and race-free checks needed"
+    },
+    {
+      "id": "F02-A12",
+      "area": "F02/consent",
+      "behavior": "Later opt-out blocks synthetic drafts and reconciliation after local seal",
+      "status": "LAB_PARTIAL",
+      "tests": [
+        "backend/tests/test_s0_f03_pg17_integration.py::test_316_optout_after_intent_blocks_draft",
+        "backend/tests/test_s0_f03_pg17_integration.py::test_327_late_optout_blocks_review_even_after_seal"
+      ],
+      "gate": "Current lawful contact basis and scoped live opt-out independently verified at dispatch"
+    },
+    {
+      "id": "F02-A13",
+      "area": "S0/S2/Meta",
+      "behavior": "Unapproved category, version drift or model category relabeling are rejected locally",
+      "status": "LAB_PARTIAL",
+      "tests": [
+        "backend/tests/test_s0_f03_pg17_integration.py::test_255_template_policy_version_drift_blocks",
+        "backend/tests/test_s0_f03_pg17_integration.py::test_256_model_cannot_reclassify_marketing_to_utility",
+        "backend/tests/test_s0_f03_pg17_integration.py::test_261_catalogue_template_version_drift_denied"
+      ],
+      "gate": "Verified live Meta template status/category and versioned approval contract"
+    },
+    {
+      "id": "F02-A14",
+      "area": "F02/S0",
+      "behavior": "Cross-store/lead scope tampering rejected by typed handoff",
+      "status": "LAB_VERIFIED",
+      "tests": [
+        "backend/tests/test_f02_reconciled_human_authorization_handoff.py::test_03_scope_tenant_crossing_denied",
+        "backend/tests/test_f02_reconciled_human_authorization_handoff.py::test_04_scope_lead_crossing_denied"
+      ],
+      "gate": "S0 independently authenticates claimed evidence source and scope"
+    },
+    {
+      "id": "F02-A15",
+      "area": "F02",
+      "behavior": "Synthetic contact proposal outside 24h–7d draft window refused",
+      "status": "LAB_VERIFIED",
+      "tests": [
+        "backend/tests/test_s0_f03_pg17_integration.py::test_314_out_of_window_1h_and_10d_refused"
+      ],
+      "gate": "24h–7d window is an experimental fixture, not approved business policy"
+    },
+    {
+      "id": "F02-A16",
+      "area": "F01/F03/F02",
+      "behavior": "End-to-end posthuman recovery from actual human handover to F02 review",
+      "status": "INTEGRATION_PENDING",
+      "tests": [],
+      "gate": "Agree F01 closure/handoff interface, event IDs and ordering with S0/F03 owners; integrated scenario required"
+    },
+    {
+      "id": "F02-A17",
+      "area": "S0/S1/F02",
+      "behavior": "Real human operational approval, expiry, denial, revocation and authoritative review states",
+      "status": "INTEGRATION_PENDING",
+      "tests": [],
+      "gate": "Codex/S0 defines signed scoped human decision plus S1 manager authority and immutable audit"
+    },
+    {
+      "id": "F02-A18",
+      "area": "S0/Meta/F02",
+      "behavior": "Atomic live scheduling, opt-out race, retry deduplication and final send authorization",
+      "status": "INTEGRATION_PENDING",
+      "tests": [],
+      "gate": "Separate approved scheduler/transport; Meta disposition; server clock and atomic last-mile recheck"
+    }
+  ],
+  "non_authorizing_positive_states": [
+    {
+      "module": "backend/f02_reconciled_human_authorization_handoff.py",
+      "enum": "HandoffState",
+      "status": "HANDOFF_REVIEW_ONLY"
+    },
+    {
+      "module": "backend/f02_reconciled_review_lifecycle.py",
+      "enum": "LifecycleState",
+      "status": "READY_FOR_S0_RECHECK_ONLY"
+    },
+    {
+      "module": "backend/f02_reconciled_review_lifecycle.py",
+      "enum": "LifecycleState",
+      "status": "UNTRUSTED_EXACT_REPLAY_REVIEW_ONLY"
+    },
+    {
+      "module": "backend/s0_f02_posthuman_legacy_reconciliation_local.py",
+      "enum": "LegacyReviewState",
+      "status": "LOCAL_LEGACY_EVIDENCE_REVIEW_ONLY"
+    }
+  ],
+  "codex_coordination": [
+    {
+      "area": "GoTrue S0 transactional",
+      "observed_branch": "feat/s0-auditoria-nucleo-operacional-20261025",
+      "observed_sha": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+      "affected_interface": "backend/s0_cfi01_communication_local.py; backend/s0_communication_contract.py",
+      "action": "Codex independently compares transaction/auth boundaries before any F02 adoption"
+    },
+    {
+      "area": "Meta forensic adapter",
+      "observed_branch": "exp/s0-meta-integracao-auditoria-20261026",
+      "observed_sha": "e3b3ff65293d340c11fa0686332e7dc85af533d3",
+      "affected_interface": "integration/meta/prepare_lab.py; integration/meta/source_manifest.json",
+      "action": "Codex validates remote status/outbox race contract; no F02 assumption of external cancellation"
+    },
+    {
+      "area": "F03/receipt HMAC and history",
+      "observed_branch": "feat/s0-cfi01-f03-auth-preflight-20261020",
+      "observed_sha": "948891714f632adb6179cf3a11f362a6eb914f91",
+      "affected_interface": "backend/s0_cfi01_f03_receipt_bridge_local.py; backend/s0_human_closure_event_local.py",
+      "action": "Codex reconciles official receipt/closure provenance and key custody"
+    }
+  ],
+  "approved_operational_authorization": false,
+  "production_tests_executed": false,
+  "legacy_e02_oracles_homologated": false
+}
