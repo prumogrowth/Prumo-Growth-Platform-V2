@@ -1056,3 +1056,42 @@ test('FV-UI-057: Escape não rouba contexto de diálogo modal aberto',()=>{
   env.document.fire('keydown',{key:'Escape'});
   assert.equal(input.value,'');
 });
+
+test('FV-UI-058: seta para baixo transfere foco sem abrir atendimento',()=>{
+  reset();
+  const input=get('search-input'), actor=get('actor-select').value, shop=get('shop-select').value;
+  assert.equal(get('thread-title').textContent,'Selecione uma conversa');
+  input.value='Cliente Exemplo 05';input.fire('input');input.focus();
+  assert.equal(env.cards().length,1);
+  const first=env.cards()[0];
+  env.document.fire('keydown',{key:'ArrowDown'});
+  assert.equal(env.document.activeElement,first);
+  assert.equal(first.getAttribute('aria-pressed'),'false');
+  assert.equal(get('thread-title').textContent,'Selecione uma conversa');
+  assert.equal(get('actor-select').value,actor);
+  assert.equal(get('shop-select').value,shop);
+  assert.equal(input.value,'Cliente Exemplo 05');
+});
+
+test('FV-UI-058: zero resultados, modificadores, IME ou modal conservam foco',()=>{
+  reset();
+  const input=get('search-input');
+  input.value='FV-UI-058-sem-resultados';input.fire('input');input.focus();
+  assert.equal(env.cards().length,0);
+  env.document.fire('keydown',{key:'ArrowDown'});
+  assert.equal(env.document.activeElement,input);
+  input.value='Cliente Exemplo';input.fire('input');
+  assert.ok(env.cards().length>0);
+  for(const more of [{ctrlKey:true},{metaKey:true},{altKey:true},{isComposing:true}]){
+    env.document.fire('keydown',{key:'ArrowDown',...more});
+    assert.equal(env.document.activeElement,input);
+  }
+  input.value='Cliente Exemplo 08';input.fire('input');
+  env.openCase('Exemplo 08');
+  buttons('Selecionar e solicitar template')[0].click();
+  input.focus();
+  env.document.fire('keydown',{key:'ArrowDown'});
+  assert.equal(env.document.activeElement,input);
+  assert.equal(get('template-dialog').open,true);
+  get('template-dialog').close('cancel');
+});

@@ -1152,6 +1152,15 @@ document.addEventListener('keydown',event=>{
   // Não deslocar o foco para trás de um diálogo modal nativo.
   if(document.querySelector('dialog[open]'))return;
   const inField=['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName);
+  // FV-UI-058: a seta para baixo foca o primeiro caso visível sem selecioná-lo.
+  if(event.key==='ArrowDown' && document.activeElement===$('search-input') &&
+     !event.ctrlKey && !event.metaKey && !event.altKey && !event.isComposing){
+    const first=$('conversation-items').children[0];
+    if(first?.classList.contains('conversation-card')){
+      event.preventDefault();first.focus();
+      return;
+    }
+  }
   // FV-UI-057: Esc na busca apaga somente a consulta, sem retirar chips,
   // etapa comercial, perfil, loja ou aba selecionada. Modais têm prioridade.
   if(event.key==='Escape' && document.activeElement===$('search-input') &&

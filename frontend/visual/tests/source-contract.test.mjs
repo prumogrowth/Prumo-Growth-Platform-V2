@@ -644,7 +644,7 @@ test('FV-UI-052: contagem anuncia resultados sem duplicar o aviso de lista vazia
 });
 
 test('FV-UI-053: atalho da busca descobrivel sem nova operacao ou efeito comercial',()=>{
-  assert.match(markup,/id="search-input"[^>]*aria-keyshortcuts="Control\+K Meta\+K Escape"/);
+  assert.match(markup,/id="search-input"[^>]*aria-keyshortcuts="Control\+K Meta\+K Escape ArrowDown"/);
   assert.match(markup,/class="search-shortcut" aria-hidden="true">Ctrl\/⌘ K<\/span>/);
   assert.match(styles,/FV-UI-053 — atalho de busca visivel/);
   assert.match(styles,/@media\(max-width:760px\)\{\.list-pane \.search-shortcut\{display:none\}\}/);
@@ -680,10 +680,21 @@ test('FV-UI-056: normalizacao textual acontece apos projecao de escopo',()=>{
 });
 
 test('FV-UI-057: Escape contextual e instrucoes acessiveis de busca',()=>{
-  assert.match(markup,/aria-keyshortcuts="Control\+K Meta\+K Escape"/);
+  assert.match(markup,/aria-keyshortcuts="Control\+K Meta\+K Escape ArrowDown"/);
   assert.match(markup,/id="list-demo-guidance" role="note"[^<]*Na busca, Esc apaga somente o texto e mantém os filtros/);
   assert.match(app,/FV-UI-057: Esc na busca apaga somente a consulta/);
   assert.match(app,/document\.activeElement===\$\('search-input'\)/);
   assert.match(app,/state\.query='';\$\('search-input'\)\.value='';renderList\(\)/);
   assert.match(browserSmoke,/FV-UI-057 Esc limpa somente busca em 8 cenarios: PASS/);
+});
+
+test('FV-UI-058: atalho de foco restrito a resultados visiveis e documentado',()=>{
+  assert.match(markup,/aria-keyshortcuts="Control\+K Meta\+K Escape ArrowDown"/);
+  assert.match(markup,/seta para baixo foca a primeira conversa visível/);
+  assert.match(app,/FV-UI-058: a seta para baixo foca o primeiro caso visível/);
+  assert.match(app,/event\.key==='ArrowDown' && document\.activeElement===\$\('search-input'\)/);
+  assert.match(app,/!event\.ctrlKey && !event\.metaKey && !event\.altKey && !event\.isComposing/);
+  assert.match(app,/first\?\.classList\.contains\('conversation-card'\)/);
+  assert.match(app,/event\.preventDefault\(\);first\.focus\(\)/);
+  assert.match(browserSmoke,/FV-UI-058 foco do primeiro caso pela seta em 8 cenarios: PASS/);
 });

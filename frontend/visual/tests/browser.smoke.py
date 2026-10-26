@@ -1213,7 +1213,7 @@ with sync_playwright() as p:
             shortcut_page.set_content(html);shortcut_page.add_script_tag(content=script)
             expect(shortcut_page.locator('#visual-app')).to_have_attribute('data-theme',shortcut_theme)
             shortcut_input=shortcut_page.locator('#search-input')
-            assert shortcut_input.get_attribute('aria-keyshortcuts')=='Control+K Meta+K Escape'
+            assert shortcut_input.get_attribute('aria-keyshortcuts')=='Control+K Meta+K Escape ArrowDown'
             hint=shortcut_page.locator('.search-shortcut')
             assert hint.count()==1 and hint.get_attribute('aria-hidden')=='true'
             if shortcut_width<=760:
@@ -1329,7 +1329,7 @@ with sync_playwright() as p:
             esc_page.set_content(html);esc_page.add_script_tag(content=script)
             expect(esc_page.locator('#visual-app')).to_have_attribute('data-theme',esc_theme)
             input057=esc_page.locator('#search-input')
-            assert input057.get_attribute('aria-keyshortcuts')=='Control+K Meta+K Escape'
+            assert input057.get_attribute('aria-keyshortcuts')=='Control+K Meta+K Escape ArrowDown'
             assert 'Esc apaga somente o texto' in esc_page.locator('#list-demo-guidance').inner_text()
             actor057=esc_page.locator('#actor-select').input_value()
             shop057=esc_page.locator('#shop-select').input_value()
@@ -1354,5 +1354,37 @@ with sync_playwright() as p:
             assert not errors_057,errors_057
             esc_page.close()
     print('FV-UI-057 Esc limpa somente busca em 8 cenarios: PASS')
+
+    # FV-UI-058: seta para baixo da busca foca apenas a primeira conversa autorizada.
+    for nav_width,nav_height in ((320,640),(390,844),(900,780),(1440,900)):
+        for nav_theme in ('light','dark'):
+            nav_page=browser.new_page(viewport={'width':nav_width,'height':nav_height},color_scheme=nav_theme)
+            nav_page.set_default_timeout(4500)
+            nav_errors=[]
+            nav_page.on('pageerror',lambda e:nav_errors.append(str(e)))
+            nav_page.set_content(html);nav_page.add_script_tag(content=script)
+            expect(nav_page.locator('#visual-app')).to_have_attribute('data-theme',nav_theme)
+            nav_input=nav_page.locator('#search-input')
+            assert nav_input.get_attribute('aria-keyshortcuts')=='Control+K Meta+K Escape ArrowDown'
+            assert 'seta para baixo foca a primeira conversa visível' in nav_page.locator('#list-demo-guidance').inner_text()
+            nav_input.fill('Cliente Exemplo 05')
+            nav_first=nav_page.locator('.conversation-card').first
+            assert nav_page.locator('.conversation-card').count()==1
+            assert nav_first.get_attribute('aria-pressed')=='false'
+            nav_input.press('ArrowDown')
+            expect(nav_first).to_be_focused()
+            assert nav_first.get_attribute('aria-pressed')=='false'
+            assert nav_page.locator('#thread-title').text_content().strip()=='Selecione uma conversa'
+            assert nav_input.input_value()=='Cliente Exemplo 05'
+            nav_input.fill('FV-UI-058-nenhum-resultado-xyzz')
+            expect(nav_input).to_be_focused()
+            assert nav_page.locator('.conversation-card').count()==0
+            nav_input.press('ArrowDown')
+            expect(nav_input).to_be_focused()
+            assert nav_page.locator('.empty-reset').count()==1
+            assert not nav_page.evaluate('document.documentElement.scrollWidth>innerWidth')
+            assert not nav_errors,nav_errors
+            nav_page.close()
+    print('FV-UI-058 foco do primeiro caso pela seta em 8 cenarios: PASS')
 
     browser.close()
