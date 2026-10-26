@@ -76,6 +76,10 @@ try:
  if "INTAKE_PAUSED" not in result:raise AssertionError("I63 failed canonical A2 pause "+result)
  assert scope63(tok6)==({case63,case63h},{conv63,conv63pre},{msg63,msg63pre})
  print("PASS I63-E2E-04: paused intake does not erase authorized historical reads")
+ # I75D G3 cross-case, same-number cross-store and denied old-case write.
+ phase75="before_revocation"
+ _i75d=Path("scripts/test_s1_002_i75d_real_history_e2e.py")
+ exec(compile(_i75d.read_text(encoding="utf-8"),str(_i75d),"exec"),globals())
  status,data=http("POST","/s1/revogar_excecao",bearer=token53,base=url63,
   body={"excecao_id":exception63})
  assert status==200 and data=={"outcome":"REVOKED_CASE_ACCESS"},(status,data)
@@ -83,6 +87,8 @@ try:
  assert sql(f"select count(*) from prumo_private.s1_excecoes_caso_eventos_i61 "
    f"where excecao_id={U(exception63)} and evento='REVOGADA'")=="1"
  print("PASS I63-E2E-05: signed revoke instantly removes S0 history on the SAME real JWT; audit once")
+ phase75="after_revocation"
+ exec(compile(_i75d.read_text(encoding="utf-8"),str(_i75d),"exec"),globals())
  status,_=http("POST","/rest/v1/rpc/caso",bearer=tok6,base=api,
   body={"p_loja":store_a,"p_caso":case63,"p_lead":lead63})
  assert status in (401,403,404),status

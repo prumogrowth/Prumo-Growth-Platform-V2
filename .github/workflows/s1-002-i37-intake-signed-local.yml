@@ -40,6 +40,7 @@ on:
       - 'scripts/test_s1_002_i55_signed_queue_e2e.py'
       - 'scripts/test_s1_002_i62_excecao_signed_e2e.py'
       - 'scripts/test_s1_002_i63_canonical_rls_e2e.py'
+      - 'scripts/test_s1_002_i75d_real_history_e2e.py'
       - 'scripts/test_s1_002_i64_indirect_read_e2e.py'
       - 'scripts/test_s1_002_i65_rpc_view_surface_e2e.py'
       - 'scripts/test_s1_002_i66_legacy_interface_acl_e2e.py'
