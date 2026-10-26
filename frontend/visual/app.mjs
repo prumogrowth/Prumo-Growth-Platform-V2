@@ -780,7 +780,8 @@ function changeActor(actorId){
   if($('team-dialog').open)$('team-dialog').close();
   // Não deixar carteira do gestor anterior, nem mesmo oculta no DOM da demo.
   $('team-list').replaceChildren();$('team-monitor').replaceChildren();$('team-batches').replaceChildren();$('team-queue').replaceChildren();
-  state.teamRequests={};state.queueRequests={};state.reviewScenes={};state.processing={};state.teamPanel='members';
+  // FVA-02: pedido local de template/cadeia nunca atravessa perfil fictício.
+  state.teamRequests={};state.queueRequests={};state.followupRequests={};state.reviewScenes={};state.processing={};state.teamPanel='members';
   state.actorId=actor.id;state.shopId=actor.shops[0];state.selectedId=null;state.detailTab='overview';state.statusFilter='all';state.inboxView='active';
   state.filter='all';state.query='';$('search-input').value='';goto('list');updateSelectors();render();announceCurrentContext('Perfil alterado');
 }
@@ -789,7 +790,8 @@ $('shop-select').addEventListener('change',event=>{
   const actor=getActor(state.actorId);
   if(!visibleMockShops(state.cases,state.actorId).includes(event.target.value))return;
   closeTransientDialogs();
-  state.queueRequests={};state.reviewScenes={};state.shopId=event.target.value;state.selectedId=null;state.detailTab='overview';state.statusFilter='all';state.inboxView='active';$('status-filter').value='all';state.query='';$('search-input').value='';goto('list');render();announceCurrentContext('Concessionária alterada');
+  // FVA-02: solicitação ainda não confirmada por serviço pertence à loja anterior.
+  state.queueRequests={};state.followupRequests={};state.reviewScenes={};state.shopId=event.target.value;state.selectedId=null;state.detailTab='overview';state.statusFilter='all';state.inboxView='active';$('status-filter').value='all';state.query='';$('search-input').value='';goto('list');render();announceCurrentContext('Concessionária alterada');
 });
 $('search-input').addEventListener('input',event=>{state.query=event.target.value;renderList();});
 $('clear-list-filters').addEventListener('click',resetListRefinements);

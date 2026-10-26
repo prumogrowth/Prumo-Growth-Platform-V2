@@ -1172,3 +1172,94 @@ test('FVA-01: exceção por caso não vira concessão geral nem sobrevive a troc
   assert.match(env.cards()[0].textContent,/Exemplo 19/);
   assert.equal(get('message-input').value,'');
 });
+
+test('FVA-02: template local não atravessa identidade fictícia ou confirmação obsoleta',()=>{
+  reset();env.openCase('Exemplo 08');
+  const before=get('workflow-bar').textContent;
+  buttons('Selecionar e solicitar template')[0].click();
+  assert.equal(get('template-dialog').open,true);
+  env.selectActor('daniel');
+  assert.equal(get('template-dialog').open,false);
+  get('template-dialog').close('confirm'); // callback antigo não ressuscita solicitação
+  env.selectActor('rafael');env.openCase('Exemplo 08');
+  assert.equal(get('workflow-bar').textContent,before);
+  assert.ok(buttons('Selecionar e solicitar template').length>0);
+  buttons('Selecionar e solicitar template')[0].click();
+  get('template-dialog').close('confirm');
+  assert.match(get('detail-content').textContent,/SOLICITADO/);
+  assert.equal(get('detail-content').textContent.includes('ENVIADO'),false);
+  env.selectActor('marina');env.selectActor('rafael');
+  env.openCase('Exemplo 08');
+  assert.equal(get('workflow-bar').textContent,before);
+  assert.ok(buttons('Selecionar e solicitar template').length>0);
+  assert.equal(get('detail-content').textContent.includes('SOLICITADO (demo)'),false);
+});
+
+test('FVA-02: troca de concessionária descarta template local sem fabricar envio',()=>{
+  reset();env.selectActor('marina');env.openCase('Exemplo 08');
+  const template=buttons('Selecionar e solicitar template')[0];
+  assert.ok(template);template.click();get('template-dialog').close('confirm');
+  assert.match(get('detail-content').textContent,/SOLICITADO/);
+  env.selectShop('horizonte');
+  assert.equal(get('template-dialog').open,false);
+  env.selectShop('aurora');env.openCase('Exemplo 08');
+  assert.ok(buttons('Selecionar e solicitar template').length>0);
+  assert.equal(get('detail-content').textContent.includes('SOLICITADO (demo)'),false);
+});
+
+test('FVA-02: F03 erro, versão obsoleta, incerteza e indisponibilidade nunca aplicam efeitos',()=>{
+  reset();env.openCase('Exemplo 02');
+  const status=get('workflow-bar').textContent;
+  buttons('Concluir atendimento')[0].click();get('completion-dialog').close('confirm');
+  for(const [label,needle] of [
+    ['Versão obsoleta','Versão incompatível simulada'],
+    ['Confirmação incerta','Confirmação externa incerta'],
+    ['Permissão negada','Operação negada'],
+    ['Serviço indisponível','Serviço indisponível']
+  ]){
+    const control=env.descendants(get('detail-content')).find(n=>
+      n.tagName==='BUTTON' && n.textContent===label);
+    assert.ok(control,label+' ausente');control.click();
+    const text=get('detail-content').textContent;
+    assert.ok(text.includes(needle),label+' não sinalizado');
+    assert.match(text,/não há correção manual ou retentativa automática/i);
+    assert.equal(text.includes('Ficha gravada'),false);
+    assert.equal(text.includes('Corrigir cadastro'),false);
+  }
+  assert.match(get('workflow-bar').textContent,/em atendimento pelo operador/);
+  assert.equal(get('workflow-bar').textContent.includes('cadastro enviado ao banco'),false);
+  const obsolete=env.descendants(get('detail-content')).find(n=>
+    n.tagName==='BUTTON' && n.textContent==='Falha técnica');
+  env.openCase('Exemplo 05');
+  const bankBefore=get('workflow-bar').textContent;
+  assert.ok(obsolete);obsolete.click(); // ação do caso anterior fora de contexto
+  assert.equal(get('workflow-bar').textContent,bankBefore);
+  assert.match(get('workflow-bar').textContent,/cadastro enviado ao banco/);
+  assert.equal(status.includes('cadastro enviado ao banco'),false);
+});
+
+test('FVA-02: pausa modal obsoleta não se torna aplicada por outro Gestor',()=>{
+  reset();env.selectActor('marina');get('team-nav').click();
+  const pause=env.descendants(get('team-list')).find(n=>
+    n.tagName==='BUTTON' && n.textContent.includes('Solicitar pausa'));
+  assert.ok(pause);pause.click();
+  assert.equal(get('intake-dialog').open,true);
+  env.selectActor('daniel');
+  assert.equal(get('intake-dialog').open,false);
+  get('intake-dialog').close('confirm');
+  get('team-nav').click();
+  assert.equal(get('team-list').textContent.includes('SOLICITADO LOCALMENTE'),false);
+  get('team-dialog').close();
+  env.selectActor('marina');get('team-nav').click();
+  assert.equal(get('team-list').textContent.includes('SOLICITADO LOCALMENTE'),false);
+  const restart=env.descendants(get('team-list')).find(n=>
+    n.tagName==='BUTTON' && n.textContent.includes('Solicitar pausa'));
+  restart.click();get('intake-dialog').close('confirm');
+  assert.match(get('team-list').textContent,/SOLICITADO LOCALMENTE/);
+  assert.match(get('team-list').textContent,/NÃO aplicado/);
+  get('team-show-monitor').click();
+  const monitor=get('team-monitor').textContent;
+  assert.match(monitor,/Pedidos locais pendentes/);
+  assert.match(monitor,/Novos leads pausados/);
+  get('team-dialog').close();
+});
