@@ -655,8 +655,15 @@ test('FV-UI-054: limpeza contextual conserva os limites de demonstracao',()=>{
   assert.match(markup,/id="filter-reset-controls" hidden/);
   assert.match(markup,/id="clear-list-filters">Limpar busca e filtros/);
   assert.match(app,/function resetListRefinements\(\)/);
-  assert.match(app,/filter-reset-controls'\)\.hidden=!\(state\.query\.trim\(\) \|\| state\.filter!=='all' \|\| state\.statusFilter!=='all'\)/);
+  assert.match(app,/filter-reset-controls'\)\.hidden=!hasRefinements \|\| emptyHasReset/);
   assert.match(app,/clear-list-filters'\)\.addEventListener\('click',resetListRefinements\)/);
   assert.match(styles,/FV-UI-054 — limpeza explícita dos refinamentos da fila/);
   assert.match(browserSmoke,/FV-UI-054 limpeza de filtros com escopo preservado em 8 cenarios: PASS/);
+});
+
+test('FV-UI-055: uma acao visivel de limpeza conforme lista vazia ou preenchida',()=>{
+  assert.match(app,/const emptyHasReset = items\.length===0 && total>0 && hasRefinements && getActor\(state\.actorId\)\.teamState==='active'/);
+  assert.match(app,/filter-reset-controls'\)\.hidden=!hasRefinements \|\| emptyHasReset/);
+  assert.match(app,/clear\.addEventListener\('click',resetListRefinements\)/);
+  assert.match(browserSmoke,/FV-UI-055 limpeza unica por estado em 8 cenarios: PASS/);
 });

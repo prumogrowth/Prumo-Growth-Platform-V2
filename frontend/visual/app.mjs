@@ -247,7 +247,10 @@ function renderList() {
   const total = listProjection.length;
   // FV-UI-052: anunciar quantidades quando existirem resultados; evitar
   // anúncio duplo de zero, já explicado por .no-results[role=status].
-  $('filter-reset-controls').hidden=!(state.query.trim() || state.filter!=='all' || state.statusFilter!=='all');
+  // FV-UI-055: evitar duas ações idênticas quando o aviso vazio já oferece a limpeza.
+  const hasRefinements = Boolean(state.query.trim() || state.filter!=='all' || state.statusFilter!=='all');
+  const emptyHasReset = items.length===0 && total>0 && hasRefinements && getActor(state.actorId).teamState==='active';
+  $('filter-reset-controls').hidden=!hasRefinements || emptyHasReset;
   const listCount = $('list-count');
   listCount.setAttribute('aria-live',items.length===0?'off':'polite');
   // FV-UI-049: o contador indica resultados visíveis sem perder o total desta aba.

@@ -963,3 +963,28 @@ test('FV-UI-054: limpeza mantém contexto, aba, foco e reabre resultados',()=>{
   assert.equal(env.inbox[1].getAttribute('aria-pressed'),'true');
   assert.equal(env.cards().length,3);
 });
+
+test('FV-UI-055: uma só ação de limpeza com e sem resultados',()=>{
+  reset();
+  const actor=get('actor-select').value,shop=get('shop-select').value;
+  get('search-input').value='Cliente Exemplo';
+  get('search-input').fire('input');
+  assert.ok(env.cards().length>0);
+  assert.equal(get('filter-reset-controls').hidden,false);
+  assert.equal(env.descendants(get('conversation-items')).filter(n=>n.classList.contains('empty-reset')).length,0);
+  get('clear-list-filters').click();
+  assert.equal(get('filter-reset-controls').hidden,true);
+  get('search-input').value='FV-UI-055-resultado-inexistente-xyzz';
+  get('search-input').fire('input');
+  assert.equal(env.cards().length,0);
+  assert.equal(get('filter-reset-controls').hidden,true);
+  const empties=env.descendants(get('conversation-items')).filter(n=>n.classList.contains('empty-reset'));
+  assert.equal(empties.length,1);
+  empties[0].click();
+  assert.equal(get('filter-reset-controls').hidden,true);
+  assert.equal(env.cards().length,8);
+  assert.equal(env.document.activeElement,get('search-input'));
+  assert.equal(get('actor-select').value,actor);
+  assert.equal(get('shop-select').value,shop);
+  assert.equal(env.inbox[0].getAttribute('aria-pressed'),'true');
+});

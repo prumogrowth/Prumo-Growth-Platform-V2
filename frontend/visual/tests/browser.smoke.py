@@ -1248,8 +1248,8 @@ with sync_playwright() as p:
             reset_page.locator('#search-input').fill('FV-UI-054-busca-sem-resultado-xxyy')
             reset_page.locator('#status-filter').select_option(index=1)
             reset_page.locator('[data-filter="unread"]').click()
-            expect(reset_controls).to_be_visible()
-            reset_button=reset_page.locator('#clear-list-filters')
+            expect(reset_controls).to_be_hidden()
+            reset_button=reset_page.locator('.empty-reset')
             expect(reset_button).to_be_visible()
             assert reset_button.bounding_box()['height']>=44
             reset_button.scroll_into_view_if_needed()
@@ -1263,9 +1263,29 @@ with sync_playwright() as p:
             assert reset_page.locator('#actor-select').input_value()==original_actor
             assert reset_page.locator('#shop-select').input_value()==original_shop
             assert reset_page.locator('.conversation-card').count()>0
+            # FV-UI-055: com resultados, usar ação superior; lista vazia, apenas a ação contextual.
+            reset_page.locator('#search-input').fill('Cliente Exemplo')
+            assert reset_page.locator('.conversation-card').count()>0
+            expect(reset_controls).to_be_visible()
+            assert reset_page.locator('.empty-reset').count()==0
+            assert reset_page.get_by_role('button',name='Limpar busca e filtros').count()==1
+            reset_page.locator('#clear-list-filters').click()
+            expect(reset_controls).to_be_hidden()
+            expect(reset_page.locator('#search-input')).to_be_focused()
+            reset_page.locator('#search-input').fill('FV-UI-055-sem-resultado-impossivel-xyzz')
+            expect(reset_controls).to_be_hidden()
+            assert reset_page.locator('.conversation-card').count()==0
+            assert reset_page.locator('.empty-reset').count()==1
+            assert reset_page.get_by_role('button',name='Limpar busca e filtros').count()==1
+            reset_page.locator('.empty-reset').click()
+            assert reset_page.locator('.conversation-card').count()>0
+            assert reset_page.locator('#actor-select').input_value()==original_actor
+            assert reset_page.locator('#shop-select').input_value()==original_shop
+            expect(reset_page.locator('#search-input')).to_be_focused()
             assert not reset_page.evaluate('document.documentElement.scrollWidth>innerWidth')
             assert not errors_054,errors_054
             reset_page.close()
     print('FV-UI-054 limpeza de filtros com escopo preservado em 8 cenarios: PASS')
+    print('FV-UI-055 limpeza unica por estado em 8 cenarios: PASS')
 
     browser.close()
