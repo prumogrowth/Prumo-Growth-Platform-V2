@@ -40,3 +40,17 @@ O código de `changeActor` já invalidava intenções de fila, equipe, resultado
 - O smoke completo Chromium começou, mas o runner `run_acceptance.py` encerrou por **`TIMEOUT: Chromium Playwright smoke` aos 180 s exatos**. Não há prova de bug funcional no Chromium e **não há aprovação do aceite completo**, pois a suíte foi interrompida.
 - Mitigação específica, não relaxamento do gate: elevar **somente o orçamento de tempo do subprocesso Chromium de 180 para 300 segundos** em `frontend/visual/tests/run_acceptance.py`; manter Node, testes adversariais, exigência de Chromium real e `FULL LOCAL ACCEPTANCE` fail-closed. O workflow externo mantém `timeout-minutes: 15`.
 - **Nova execução da suíte completa necessária** após repin dos hashes; aprovação só mediante log `FULL LOCAL ACCEPTANCE: PASS`.
+
+## Certificação final FVA-02 — 26/10/2026
+
+**Aprovada** a execução nativa [40405009482](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40405009482), commit verificado `a14c46257c0d36a6a944af57e36635e1e75357f1`, `completed/success`.
+
+- `Chromium launch preflight: PASS` (navegador abriu em modo headless, sem fallback apt).
+- Manifesto de fontes: `Preflight nativo PASS: 59 arquivos`.
+- Python adversarial: **25/25 PASS** (preflight e novamente no aceite).
+- Node ESM: **379/379 PASS** (4 novos cenários FVA-02 incluídos).
+- Chromium Playwright de regressão da interface: **PASS**, incluindo a prova FV-UI-058 em oito cenários.
+- Resultado contratual: **`FULL LOCAL ACCEPTANCE: PASS`**.
+- Artefato estático `prumo-demo-visual-zip`: [ZIP gerado pela execução](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40405009482/artifacts/12690672314), **não publicado**. Dados sintéticos, sem serviços reais.
+
+**Conclusão FVA:** validação sintética automatizada da interface **fechada para preparação visual**. Ainda não há aceite humano de aparência, uso em dispositivo físico ou autorização S0; FVB/FVC continuam abertas. A frente visual deve ser avaliada e consolidada antes de handoff para ChatGPT Sites por Work.

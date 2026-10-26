@@ -103,6 +103,18 @@ jobs:
           path: out/prumo-demo-visual.zip
           if-no-files-found: error
           retention-days: 30
+      - name: Capturar matriz visual FVB-01 (somente apos aceite nativo)
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          python -B frontend/preview/collect_visual_review.py --output fv-visual-review
+      - name: Artefato de capturas FVB-01 (30 dias; SEM publicacao)
+        uses: actions/upload-artifact@v4
+        with:
+          name: fv-visual-review-screenshots
+          path: fv-visual-review/
+          if-no-files-found: error
+          retention-days: 30
       - name: Registrar resumo tecnico
         if: always()
         run: |
