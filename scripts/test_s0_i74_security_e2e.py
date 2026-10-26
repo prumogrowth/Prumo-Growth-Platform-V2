@@ -16,6 +16,22 @@ for _role in ('anon','authenticated','service_role'):
   except psycopg.errors.InsufficientPrivilege:pass
 print('PASS I74-PROV-03: actual application SET ROLE and unauthorized role EXECUTE denied')
 
+# Probe the inaccessible executor itself in a rollback-only admin transaction.
+# The lock privilege must not permit changing even id, let alone key/active.
+with psycopg.connect(db) as _con:
+ _con.execute('grant prumo_s1_export_executor to postgres with inherit false, set true')
+ _con.execute('set local role prumo_s1_export_executor')
+ for _query in ('update prumo_export_auth.chaves_i74 set id=id',
+                'update prumo_export_auth.chaves_i74 set secret=secret',
+                'update prumo_export_auth.chaves_i74 set active=active'):
+  try:
+   with _con.transaction():
+    _con.execute(_query)
+    raise AssertionError('I74_KEY_CUSTODY_DML_BYPASS')
+  except psycopg.errors.InsufficientPrivilege:pass
+ _con.rollback()  # also removes this probe's temporary grant/SET ROLE
+print('PASS I74-PROV-04: key lock privilege cannot modify id, secret or revocation state')
+
 # Same GoTrue JWT whose shop grant was revoked earlier: RLS still empty.
 _revoked=verifier.verify('Bearer '+token_g2)
 _revoked_proof=signed_gateway.proof(_revoked,fields,'Bearer '+token_g2)

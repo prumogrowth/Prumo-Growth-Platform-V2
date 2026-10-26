@@ -45,6 +45,11 @@ alter table prumo_export_auth.nonces_i74 enable row level security;
 revoke all on prumo_export_auth.chaves_i74,prumo_export_auth.nonces_i74
  from public,anon,authenticated,service_role,prumo_s1_export_signed_login_ci;
 grant select on prumo_export_auth.chaves_i74 to prumo_s1_export_executor;
+-- FOR SHARE needs UPDATE ACL + an UPDATE visibility policy, even for reads.
+-- Identity-column ACL only; WITH CHECK false forbids every actual row change.
+grant update(id) on prumo_export_auth.chaves_i74 to prumo_s1_export_executor;
+create policy i74_key_lock on prumo_export_auth.chaves_i74
+ for update to prumo_s1_export_executor using (true) with check (false);
 grant insert on prumo_export_auth.nonces_i74 to prumo_s1_export_executor;
 create policy i74_keys on prumo_export_auth.chaves_i74
  for select to prumo_s1_export_executor using (true);
@@ -147,6 +152,13 @@ if installer_before is distinct from (
  from pg_catalog.pg_auth_members m
  where m.roleid='prumo_s1_export_executor'::regrole and m.member='postgres'::regrole)
 then raise exception 'I74_INSTALLER_MEMBERSHIP_DRIFT' using errcode='42501';end if;
+if not has_column_privilege('prumo_s1_export_executor','prumo_export_auth.chaves_i74','id','UPDATE')
+ or has_column_privilege('prumo_s1_export_executor','prumo_export_auth.chaves_i74','secret','UPDATE')
+ or has_column_privilege('prumo_s1_export_executor','prumo_export_auth.chaves_i74','active','UPDATE')
+ or (select count(*) from pg_catalog.pg_policy where polrelid='prumo_export_auth.chaves_i74'::regclass
+     and polcmd='w' and polname='i74_key_lock'
+     and pg_catalog.pg_get_expr(polwithcheck,polrelid)='false')<>1
+then raise exception 'I74_KEY_LOCK_ACL_UNSAFE' using errcode='42501';end if;
 -- Enforce runtime isolation and RLS without giving the application SET ROLE.
 if exists(select 1 from pg_catalog.pg_roles where rolname='prumo_s1_export_executor'
           and (rolcanlogin or rolsuper or rolbypassrls or rolcreaterole))
