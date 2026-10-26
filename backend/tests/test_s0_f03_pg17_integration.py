@@ -4918,7 +4918,7 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
         req=intent[2]
         proposal=ReviewOnlyProposal(
            self.shop,self.lead,self.case,self.event,self.channel,
-           UUID(req.preview.template_ref),'v1',req.preview.policy_version,
+           uuid.UUID(req.preview.template_ref),'v1',req.preview.policy_version,
            proposed_at or datetime.now(timezone.utc)+timedelta(hours=48),
            'reconciled-review-0001',REQUEST_ONLY)
         return evidence,proposal
