@@ -189,6 +189,10 @@ class F02ReviewTests(checkpoint.RestrictedBackendTests):
                     self.assertFalse(c.execute('select has_table_privilege(%s,%s,\'SELECT\')',(role,'prumo_private.'+table)).fetchone()[0])
         self.deny_sql('set role prumo_s0_f02_review_owner_local')
         with psycopg.connect(self.db) as c:
+            entry='prumo_private.f02_review_signed_local(text,text,integer,uuid,uuid,uuid,bigint,uuid,text,uuid,bigint,uuid,text,text)'
+            for role in ('anon','authenticated','service_role'):
+                self.assertFalse(c.execute('select has_function_privilege(%s,%s,\'EXECUTE\')',(role,entry)).fetchone()[0])
+            self.assertFalse(c.execute("select has_schema_privilege('prumo_s0_f02_review_owner_local','prumo_private','CREATE')").fetchone()[0])
             self.assertEqual(c.execute("select pg_get_functiondef('prumo_private.cfi01_atomic_signed_closure_local(text,uuid,uuid,uuid,bigint,uuid,text,uuid,bigint,uuid,text)'::regprocedure)").fetchone()[0],self.old_definition)
             self.assertEqual(c.execute("select rolcanlogin,rolsuper,rolbypassrls from pg_roles where rolname='prumo_s0_f02_review_owner_local'").fetchone(),(False,False,False))
             self.assertFalse(c.execute("select has_column_privilege('prumo_cfi01_atomic_owner_local','public.casos_humanos','lead_id','SELECT')").fetchone()[0])
