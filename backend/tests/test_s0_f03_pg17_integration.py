@@ -4895,10 +4895,13 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
         intent,_=ctx
         status=self._f02_legacy_review_check(ctx)
         with self.pg.connect(DB) as con:
-            c08=con.execute('select cadeia_sha256 from '
+            c08_row=con.execute('select cadeia_sha256 from '
               'prumo_private.cfi01_f02_legacy_cancel_witness_local '
               'where concessionaria_id=%s and evento_fechamento_id=%s',
-              (self.shop,self.event)).fetchone()[0]
+              (self.shop,self.event)).fetchone()
+            # No C08 certificate means NO synthetic proof to forward.
+            # Pass None for strict format denial, never mint a fake hash.
+            c08=c08_row[0] if c08_row is not None else None
             ledger=con.execute('select payload_sha256 from '
               'prumo_private.cfi01_f02_c04_origin_ledger_local '
               "where concessionaria_id=%s and tipo='PLAN' "
@@ -4949,7 +4952,7 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
         ctx=self._f02_true_legacy_review(reserved=True)
         evidence,proposal=self._f02_construct_untrusted_review_request_from_pg17(ctx)
         result=prepare_handoff(evidence,proposal)
-        self.assertIs(result.status,HandoffState.S0_RECONCILIATION_REQUIRED)
+        self.assertIs(result.status,HandoffState.DENIED_MALFORMED)
         self.assertIsNone(result.untrusted_request_sha256)
 
 if __name__=='__main__':
