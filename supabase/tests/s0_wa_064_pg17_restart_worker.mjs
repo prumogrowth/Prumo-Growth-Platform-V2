@@ -22,7 +22,7 @@ const keyId=env.WA60_KEY_ID,secretHex=env.WA60_KEY_SECRET,
 if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(keyId??'')||
  !/^[a-f0-9]{96}$/.test(secretHex??'')||
  !/^[a-f0-9]{64}$/.test(password??'')||
- !['normal','precommit','postcommit'].includes(mode))
+ !['normal','precommit','postcommit','holdcommit','holdrollback'].includes(mode))
  throw Error('WA60_WORKER_BAD_CONFIG');
 // WA61 process-local fixture drift, never a real S0 binding update.
 const profile=env.WA61_BINDING_PROFILE??'current';
@@ -55,6 +55,52 @@ function sql(q){
    reject(Error('WA60_WORKER_PG_FAILED '+err.slice(-300))));
  });
 }
+// WA62 standalone PG17-only transaction barrier: no receipt/HTTP success
+// until an explicit COMMIT; ROLLBACK rejects and rolls back the nonce/append.
+let pendingWa62Release=null;
+function sqlHeld(statement,eventRef){
+ return new Promise((resolve,reject)=>{
+  const client='postgresql://prumo_s0_meta_wa48_client_lab@127.0.0.1:5432/prumo_s0_test_ci';
+  const p=spawn('psql',['-X','-qAt','-v','ON_ERROR_STOP=1',
+   '-v','VERBOSITY=verbose',client],{
+   env:{...env,PGPASSWORD:password},stdio:['pipe','pipe','pipe']});
+  let output='',err='',receipt=null,held=false,decision=null,settled=false;
+  const fail=reason=>{if(!settled){settled=true;reject(reason);}};
+  p.stderr.on('data',b=>err+=String(b));
+  p.stdout.on('data',chunk=>{
+   output+=String(chunk);
+   for(;;){
+    const pos=output.indexOf('\n');if(pos<0)break;
+    const line=output.slice(0,pos).trim();output=output.slice(pos+1);
+    if(!receipt){
+     try{const v=JSON.parse(line);
+      if(v&&v.lab_only===true){receipt=v;continue;}
+     }catch{}
+    }
+    const match=/^([0-9]+)\|WA62_HELD$/.exec(line);
+    if(match&&receipt&&!held){
+     held=true;
+     pendingWa62Release=verb=>{
+      if(decision||!['COMMIT','ROLLBACK'].includes(verb))return;
+      decision=verb;
+      p.stdin.write(verb+';\n\\q\n');
+     };
+     process.stdout.write(JSON.stringify({type:'wa62-held',pid:process.pid,
+      db_pid:Number(match[1]),event:eventRef,outcome:receipt.outcome})+'\n');
+    }
+   }
+  });
+  p.on('error',fail);
+  p.on('close',status=>{
+   pendingWa62Release=null;
+   if(status===0&&held&&decision==='COMMIT'&&receipt){
+    if(!settled){settled=true;resolve(JSON.stringify(receipt));}
+   }else fail(Error('WA62_HELD_SQL_ABORT '+status+' '+err.slice(-250)));
+  });
+  p.stdin.write('BEGIN;\n'+statement+';\n'+
+   "SELECT pg_catalog.pg_backend_pid()::text||'|WA62_HELD';\n");
+ });
+}
 const q=x=>"'"+String(x).replaceAll("'","''")+"'";
 const boundary=createWa45OfflineBoundary({
  getRegistry:async()=>R,lookupBinding:async()=>ACTIVE_BINDING,
@@ -72,8 +118,10 @@ const bridge=createWa56OfflineArchiveBridge({
   if(mode==='precommit')process.kill(process.pid,'SIGKILL');
   const args=[...ticket.candidate,ticket.macSha256]
    .map((v,i)=>i===13?String(Number(v)):q(v)).join(',');
-  const receipt=JSON.parse(await sql(
-   'select prumo_private.meta_wa55_single_entry_fixture_s0('+args+')'));
+  const statement='select prumo_private.meta_wa55_single_entry_fixture_s0('+args+')';
+  const receipt=JSON.parse(await (
+   mode==='holdcommit'||mode==='holdrollback'
+    ?sqlHeld(statement,ticket.candidate[10]):sql(statement)));
   // Evidence only on the PRIVATE test process stdout; never in the HTTP reply.
   process.stdout.write(JSON.stringify({type:'receipt',pid:process.pid,
    event:ticket.candidate[10],outcome:receipt.outcome})+'\n');
@@ -89,7 +137,12 @@ process.stdout.write(JSON.stringify({type:'ready',pid:process.pid,
  host:addr.host,port:addr.port,route:addr.route,lab_only:true})+'\n');
 process.stdin.setEncoding('utf8');
 process.stdin.on('data',async data=>{
- if(data.trim()==='STOP'){
+ const command=data.trim();
+ if(((command==='COMMIT'&&mode==='holdcommit')||
+      (command==='ROLLBACK'&&mode==='holdrollback'))&&pendingWa62Release){
+  pendingWa62Release(command);return;
+ }
+ if(command==='STOP'){
   await server.stop();
   process.exit(0);
  }
