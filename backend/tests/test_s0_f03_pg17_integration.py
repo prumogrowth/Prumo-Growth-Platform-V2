@@ -4016,5 +4016,236 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
                   (uuid.uuid4(),*record))
         self.assertEqual(ex.exception.sqlstate,'42501')
 
+
+    def _f02_legacy_witness_fixture(self,*,seed=True,cancel=True,
+                                    reserved=False,attempts=True):
+        from backend.s0_f02_legacy_cancellation_witness_local import (
+            S0F02LocalLegacyCancellationWitness,
+        )
+        from backend.s0_f02_posthuman_intent_local import IntentState
+        fixture=self._f02_intent_fixture()
+        legacy=None
+        send=None
+        if seed:
+            legacy,send=uuid.uuid4(),uuid.uuid4()
+            with self.pg.connect(DB) as con:
+                con.execute('insert into public.planos_recontato_sinteticos '
+                  '(id,concessionaria_id,lead_id,ciclo_id,canal_id,'
+                  'chave_idempotencia,fingerprint) values (%s,%s,%s,%s,%s,%s,%s)',
+                  (legacy,self.shop,self.lead,self.cycle,self.channel,
+                   'e04-c08-original-chain','legacy-f02-synthetic'))
+                if attempts:
+                    from datetime import datetime,timezone,timedelta
+                    params=[send,self.shop,legacy,fixture[0][4],1,
+                      datetime.now(timezone.utc)+timedelta(days=7),
+                      'programado', 'legacy-f02-synthetic:1',None]
+                    if reserved:
+                        params[6]='reservado'
+                        params[8]=datetime.now(timezone.utc)
+                    con.execute('insert into public.envios_template_sinteticos '
+                      '(id,concessionaria_id,plano_id,template_id,ordem,'
+                      'agendado_em,estado,chave_idempotencia,reservado_em) '
+                      'values (%s,%s,%s,%s,%s,%s,%s,%s,%s)',tuple(params))
+        if cancel and seed:
+            with self.pg.connect(DB) as con:
+                result=con.execute('select prumo_private.cancelar_recontatos_sinteticos'
+                     "(%s,%s,'handoff')",(self.shop,self.lead)).fetchone()[0]
+                self.assertEqual(result['outcome'],'APPLIED')
+                self.assertEqual(result['planos_cancelados'],1)
+                self.assertEqual(result['envios_cancelados'],1 if attempts else 0)
+                self.assertEqual(result['transmissao_externa'],'DESABILITADA')
+        if cancel or not seed:
+            self.assertIs(self._f02_intent_record(fixture),IntentState.RECORDED_AUDIT_ONLY)
+        witness=S0F02LocalLegacyCancellationWitness(fixture[1])
+        return fixture,witness,legacy,send
+
+    def _f02_cancel_witness(self,ctx,*,request=None,
+                            authorization='Bearer PINNED_S2_LOCAL_E04'):
+        fixture,witness,_,_=ctx
+        data,_,old_request=fixture
+        physical,_,_,_,_=data
+        _,fields,version,f03,proposal=physical
+        return witness.inspect_and_seal(
+            authorization,self.binding,'test-key-v1',
+            b'fixture-only-content-seal-key-more-than-32-bytes',
+            version,'request-cas-0001',fields,f03,proposal,
+            self._s2_f02_real_lifecycle(),str(self.channel),
+            old_request if request is None else request).state
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_277_c08_real_local_cancellation_becomes_sealed_s0_audit_only(self):
+        from backend.s0_f02_legacy_cancellation_witness_local import CancelWitnessState
+        ctx=self._f02_legacy_witness_fixture()
+        self.assertIs(self._f02_cancel_witness(ctx),
+                      CancelWitnessState.LOCAL_CHAIN_ATTESTED_AUDIT_ONLY)
+        with self.pg.connect(DB) as con:
+            row=con.execute('select planos_cancelados,tentativas_canceladas,'
+              'tipo from prumo_private.cfi01_f02_legacy_cancel_witness_local '
+              'where concessionaria_id=%s',(self.shop,)).fetchone()
+            self.assertEqual(row,(1,1,'C08_LOCAL_CANCELED_AUDIT_ONLY'))
+            self.assertEqual(con.execute("select count(*) from "
+              "public.planos_recontato_sinteticos where concessionaria_id=%s "
+              "and estado='ativo'",(self.shop,)).fetchone()[0],0)
+            self.assertEqual(con.execute("select count(*) from "
+              "public.envios_template_sinteticos where concessionaria_id=%s "
+              "and estado<>'cancelado'",(self.shop,)).fetchone()[0],0)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_278_exact_replay_keeps_single_c08_audit_witness(self):
+        from backend.s0_f02_legacy_cancellation_witness_local import CancelWitnessState
+        ctx=self._f02_legacy_witness_fixture()
+        self.assertIs(self._f02_cancel_witness(ctx),
+                      CancelWitnessState.LOCAL_CHAIN_ATTESTED_AUDIT_ONLY)
+        self.assertIs(self._f02_cancel_witness(ctx),
+                      CancelWitnessState.ALREADY_ATTESTED_AUDIT_ONLY)
+        with self.pg.connect(DB) as con:
+            self.assertEqual(con.execute('select count(*) from '
+              'prumo_private.cfi01_f02_legacy_cancel_witness_local '
+              'where concessionaria_id=%s',(self.shop,)).fetchone()[0],1)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_279_absent_old_plan_is_not_proof_of_cancel(self):
+        from backend.s0_f02_legacy_cancellation_witness_local import CancelWitnessState
+        ctx=self._f02_legacy_witness_fixture(seed=False)
+        self.assertIs(self._f02_cancel_witness(ctx),CancelWitnessState.NO_LEGACY_CHAIN)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_280_active_new_plan_after_intent_rejected(self):
+        from backend.s0_f02_legacy_cancellation_witness_local import CancelWitnessState
+        ctx=self._f02_legacy_witness_fixture(seed=False)
+        with self.pg.connect(DB) as con:
+            con.execute('insert into public.planos_recontato_sinteticos '
+              '(concessionaria_id,lead_id,ciclo_id,canal_id,'
+              'chave_idempotencia,fingerprint) values (%s,%s,%s,%s,%s,%s)',
+              (self.shop,self.lead,self.cycle,self.channel,
+              'c08-uncanceled-active','synthetic-fixture'))
+        self.assertIs(self._f02_cancel_witness(ctx),
+                      CancelWitnessState.S0_REVIEW_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_281_old_cancel_without_any_attempt_is_incomplete(self):
+        from backend.s0_f02_legacy_cancellation_witness_local import CancelWitnessState
+        ctx=self._f02_legacy_witness_fixture(attempts=False)
+        self.assertIs(self._f02_cancel_witness(ctx),
+                      CancelWitnessState.INCOMPLETE_LOCAL_CANCELLATION)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_282_missing_c08_attempt_event_is_incomplete(self):
+        from backend.s0_f02_legacy_cancellation_witness_local import CancelWitnessState
+        ctx=self._f02_legacy_witness_fixture()
+        with self.pg.connect(DB) as con:
+            con.execute('delete from public.eventos_envio_template_sinteticos '
+              'where concessionaria_id=%s and envio_id=%s',
+              (self.shop,ctx[3]))
+        self.assertIs(self._f02_cancel_witness(ctx),
+                      CancelWitnessState.INCOMPLETE_LOCAL_CANCELLATION)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_283_event_mutation_invalidates_sealed_digest(self):
+        from backend.s0_f02_legacy_cancellation_witness_local import CancelWitnessState
+        ctx=self._f02_legacy_witness_fixture()
+        self.assertIs(self._f02_cancel_witness(ctx),
+                      CancelWitnessState.LOCAL_CHAIN_ATTESTED_AUDIT_ONLY)
+        with self.pg.connect(DB) as con:
+            con.execute('update public.eventos_envio_template_sinteticos '
+              "set criado_em=criado_em + interval '1 second' "
+              'where concessionaria_id=%s and envio_id=%s',
+              (self.shop,ctx[3]))
+        self.assertIs(self._f02_cancel_witness(ctx),
+                      CancelWitnessState.STALE_WITNESS_REVIEW_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_284_reserved_legacy_attempt_cannot_prove_external_stop(self):
+        from backend.s0_f02_legacy_cancellation_witness_local import CancelWitnessState
+        ctx=self._f02_legacy_witness_fixture(reserved=True)
+        self.assertIs(self._f02_cancel_witness(ctx),
+                      CancelWitnessState.RESERVED_PREVIOUSLY_EXTERNAL_UNKNOWN)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_285_optout_after_c08_blocks_audit_retry(self):
+        from backend.s0_f02_legacy_cancellation_witness_local import CancelWitnessState
+        ctx=self._f02_legacy_witness_fixture()
+        self.assertIs(self._f02_cancel_witness(ctx),
+                      CancelWitnessState.LOCAL_CHAIN_ATTESTED_AUDIT_ONLY)
+        with self.pg.connect(DB) as con:
+            con.execute('insert into public.supressoes_contato_sinteticas '
+              '(concessionaria_id,lead_id,canal_id,finalidade,evento_origem) '
+              "values (%s,%s,%s,'recontato_comercial_sintetico','post-c08-optout')",
+              (self.shop,self.lead,self.channel))
+        self.assertIs(self._f02_cancel_witness(ctx),
+                      CancelWitnessState.S0_REVIEW_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_286_manager_s1_revoked_before_cancel_witness(self):
+        from backend.s0_f02_legacy_cancellation_witness_local import CancelWitnessState
+        ctx=self._f02_legacy_witness_fixture()
+        manager=ctx[0][0][3]
+        with self.pg.connect(DB) as con:
+            con.execute('update public.equipe_prumo_s1 set estado=%s '
+               'where ator_id=%s',('inativo',manager[0]))
+        self.assertIs(self._f02_cancel_witness(ctx),
+                      CancelWitnessState.S0_REVIEW_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_287_change_explicit_manager_intent_sha_denied(self):
+        from backend.s0_f02_legacy_cancellation_witness_local import CancelWitnessState
+        from backend.s0_f02_posthuman_intent_local import PostHumanIntentRequest
+        ctx=self._f02_legacy_witness_fixture()
+        req=ctx[0][2]
+        forged=PostHumanIntentRequest(req.preview,req.decision,
+                                      'b'*64,req.idempotency_key)
+        self.assertIs(self._f02_cancel_witness(ctx,request=forged),
+                      CancelWitnessState.S0_REVIEW_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_288_two_parallel_witnesses_produce_one_immutable_row(self):
+        from backend.s0_f02_legacy_cancellation_witness_local import CancelWitnessState
+        from concurrent.futures import ThreadPoolExecutor
+        ctx=self._f02_legacy_witness_fixture()
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            results=list(pool.map(lambda _: self._f02_cancel_witness(ctx),range(2)))
+        self.assertEqual(sorted(results,key=str),sorted([
+            CancelWitnessState.LOCAL_CHAIN_ATTESTED_AUDIT_ONLY,
+            CancelWitnessState.ALREADY_ATTESTED_AUDIT_ONLY],key=str))
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
+                         'requires pinned S2 JS in CI')
+    def test_289_local_c08_witness_immutable_update_and_delete(self):
+        from backend.s0_f02_legacy_cancellation_witness_local import CancelWitnessState
+        ctx=self._f02_legacy_witness_fixture()
+        self.assertIs(self._f02_cancel_witness(ctx),
+                      CancelWitnessState.LOCAL_CHAIN_ATTESTED_AUDIT_ONLY)
+        for statement in (
+          'update prumo_private.cfi01_f02_legacy_cancel_witness_local '
+          'set planos_cancelados=2 where concessionaria_id=%s',
+          'delete from prumo_private.cfi01_f02_legacy_cancel_witness_local '
+          'where concessionaria_id=%s',
+        ):
+            with self.subTest(verb=statement.split()[0]):
+                with self.assertRaises(self.pg.Error) as exc:
+                    with self.pg.connect(DB) as con:
+                        con.execute(statement,(self.shop,))
+                self.assertEqual(exc.exception.sqlstate,'42501')
+
+    def test_290_authenticated_role_cannot_read_cancel_witness(self):
+        with self.assertRaises(self.pg.Error) as exc:
+            with self.pg.connect(DB) as con:
+                con.execute('set local role authenticated')
+                con.execute('select * from '
+                            'prumo_private.cfi01_f02_legacy_cancel_witness_local')
+        self.assertIn(exc.exception.sqlstate,('42501','42P01','3F000'))
+
 if __name__=='__main__':
     unittest.main()
