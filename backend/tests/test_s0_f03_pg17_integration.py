@@ -78,7 +78,7 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
                 # INSERT by the local S0 AFTER-trigger ledger. The prior
                 # retrodated fixtures cannot satisfy that independent proof.
                 test_number=int(self._testMethodName.split('_')[1])
-                self.early_legacy=(322<=test_number<=329)
+                self.early_legacy=(322<=test_number<=330)
                 if self.early_legacy:
                     from datetime import datetime,timezone,timedelta
                     self.legacy_plan=uuid.uuid4()
@@ -4883,6 +4883,74 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
         forged={**self._s2_f02_real_lifecycle(),'sendNow':True}
         self.assertIs(self._f02_legacy_review_check(ctx,js=forged),
                       LegacyReviewState.RECHECK_S0_REQUIRED)
+
+
+    def _f02_construct_untrusted_review_request_from_pg17(self,ctx,*,proposed_at=None):
+        from datetime import datetime,timezone,timedelta
+        from backend.f02_reconciled_human_authorization_handoff import (
+            ClaimedS0Evidence,ReviewOnlyProposal,
+            LAB_SOURCE,LOCAL_ORIGIN,UNVERIFIED_EXTERNAL,UNRATIFIED_HUMAN,
+            REQUEST_ONLY
+        )
+        intent,_=ctx
+        status=self._f02_legacy_review_check(ctx)
+        with self.pg.connect(DB) as con:
+            c08=con.execute('select cadeia_sha256 from '
+              'prumo_private.cfi01_f02_legacy_cancel_witness_local '
+              'where concessionaria_id=%s and evento_fechamento_id=%s',
+              (self.shop,self.event)).fetchone()[0]
+            ledger=con.execute('select payload_sha256 from '
+              'prumo_private.cfi01_f02_c04_origin_ledger_local '
+              "where concessionaria_id=%s and tipo='PLAN' "
+              "and entidade_id=%s and etapa='CREATE'",
+              (self.shop,self.legacy_plan)).fetchone()[0]
+            intent_digest=con.execute('select proposta_sha256 from '
+              'prumo_private.cfi01_f02_posthuman_intents_local '
+              'where concessionaria_id=%s and evento_fechamento_id=%s',
+              (self.shop,self.event)).fetchone()[0]
+        # PG17 evidence binds identifiers for testing; the F02 packet still
+        # contains UNTRUSTED assertions, never an S0 authorization.
+        evidence=ClaimedS0Evidence(
+          self.shop,self.lead,self.case,self.event,
+          status.value,LOCAL_ORIGIN,LAB_SOURCE,
+          self.binding.receipt.snapshot_sha256,c08,ledger,intent_digest,
+          UNVERIFIED_EXTERNAL,UNRATIFIED_HUMAN)
+        req=intent[2]
+        proposal=ReviewOnlyProposal(
+           self.shop,self.lead,self.case,self.event,self.channel,
+           UUID(req.preview.template_ref),'v1',req.preview.policy_version,
+           proposed_at or datetime.now(timezone.utc)+timedelta(hours=48),
+           'reconciled-review-0001',REQUEST_ONLY)
+        return evidence,proposal
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),'needs pinned S2 JS')
+    def test_329_local_reconciled_case_generates_only_untrusted_handoff_digest(self):
+        from backend.f02_reconciled_human_authorization_handoff import (
+          prepare_handoff,HandoffState
+        )
+        ctx=self._f02_true_legacy_review()
+        evidence,proposal=self._f02_construct_untrusted_review_request_from_pg17(ctx)
+        result=prepare_handoff(evidence,proposal)
+        self.assertIs(result.status,HandoffState.HANDOFF_REVIEW_ONLY)
+        self.assertEqual(len(result.untrusted_request_sha256),64)
+        with self.pg.connect(DB) as con:
+            for table in ('prumo_private.cfi01_f02_posthuman_draft_local',):
+                self.assertEqual(con.execute('select count(*) from '+table+
+                    ' where concessionaria_id=%s',(self.shop,)).fetchone()[0],0)
+            self.assertEqual(con.execute('select count(*) from '
+                'public.envios_template_sinteticos where concessionaria_id=%s '
+                "and estado<>'cancelado'",(self.shop,)).fetchone()[0],0)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),'needs pinned S2 JS')
+    def test_330_reserved_c08_history_not_promoted_by_f02_handoff(self):
+        from backend.f02_reconciled_human_authorization_handoff import (
+          prepare_handoff,HandoffState
+        )
+        ctx=self._f02_true_legacy_review(reserved=True)
+        evidence,proposal=self._f02_construct_untrusted_review_request_from_pg17(ctx)
+        result=prepare_handoff(evidence,proposal)
+        self.assertIs(result.status,HandoffState.S0_RECONCILIATION_REQUIRED)
+        self.assertIsNone(result.untrusted_request_sha256)
 
 if __name__=='__main__':
     unittest.main()
