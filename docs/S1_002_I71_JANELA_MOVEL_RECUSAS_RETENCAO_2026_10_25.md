@@ -19,3 +19,7 @@ O log privado armazena recusas **de quota**; não registra todos os tipos de ten
 **Teste PG17:** prova consumo histórico migrado do I70, bloqueio após virada de hora, liberação quando expirados 60 minutos, auditoria da recusa sem exceção/rollback, isolamento dos escopos, proteção das RPCs antigas, ausência de dados de clientes, retenção administrativa e I63–I70 intactos. **Teste GoTrue real:** mesma lógica via JWT/PostgREST, seis chamadas concorrentes, recusa auditada e regressões. Resultados só serão considerados certificados após workflows concluídos.
 
 **Nenhum arquivo é migration de produção; todos os objetos I71 aparecem apenas em `supabase/tests/` e na stack descartável.**
+
+## Validação real
+
+O E2E I71 reutiliza a stack efêmera GoTrue/PostgREST do I70, sem iniciar novo workflow. Testa o histórico I70 existente, seis chamadas HTTP concorrentes para um novo escopo com exatamente quatro autorizações e duas recusas registradas, simulação de 59/61 minutos, revogação das RPCs antigas, acesso de `anon`, usuário sem gestão, revogação no mesmo JWT, proteção da auditoria privada e limpeza administrativa de registros vencidos. Logs e porcentagens serão registrados somente após CI.

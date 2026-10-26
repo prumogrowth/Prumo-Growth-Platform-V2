@@ -98,3 +98,6 @@ assert sql("select count(*) from pg_catalog.pg_proc "
  "and not prosecdef and provolatile='v'")=="2"
 print("PASS I70-E2E-08: I65 scanner remains clear, invoker exports and private quota boundary intact")
 print("I70 8/8 real GoTrue cumulative quota and concurrency E2E; disposable only")
+_i71=Path("scripts/test_s1_002_i71_rolling_denied_e2e.py")
+exec(compile(_i71.read_text(encoding="utf-8"),str(_i71),"exec"),globals())
+
