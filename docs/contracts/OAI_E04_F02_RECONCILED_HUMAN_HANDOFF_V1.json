@@ -78,7 +78,9 @@
     "backend/f02_reconciled_human_authorization_handoff.py",
     "backend/tests/test_f02_reconciled_human_authorization_handoff.py",
     "backend/tests/test_s0_f03_pg17_integration.py",
-    "scripts/run-s0-f03-pg17-local.sh"
+    "scripts/run-s0-f03-pg17-local.sh",
+    "backend/f02_reconciled_review_lifecycle.py",
+    "backend/tests/test_f02_reconciled_review_lifecycle.py"
   ],
   "s0_code_modified": false,
   "hosted_supabase_modified": false,
@@ -92,5 +94,33 @@
     "lawful_contact_basis_and_optout",
     "independent_S0_human_operational_ratification",
     "review_integration_branch_before_main"
-  ]
+  ],
+  "review_lifecycle_contract": {
+    "version": "F02_S0_REVIEW_LIFECYCLE_V1",
+    "file": "backend/f02_reconciled_review_lifecycle.py",
+    "tests": "backend/tests/test_f02_reconciled_review_lifecycle.py",
+    "max_lab_ttl_hours": 48,
+    "inputs_are_untrusted": true,
+    "clock_is_untrusted": true,
+    "records_and_revocations_are_untrusted": true,
+    "durable_idempotency": false,
+    "s0_operational_approval": false,
+    "posthuman_schedule_execution": false,
+    "positive_states": [
+      "READY_FOR_S0_RECHECK_ONLY",
+      "UNTRUSTED_EXACT_REPLAY_REVIEW_ONLY"
+    ],
+    "s0_owner_coordination_required": true,
+    "certification": {
+      "ci_run": 40297565619,
+      "code_sha": "0963af1cb41c04e38547837a2c6074f8894da3cb",
+      "python_s0": 84,
+      "python_f02_f03": 561,
+      "python_total": 645,
+      "physical_pg17": 330,
+      "node": 269,
+      "new_unit_tests": 24,
+      "new_physical_tests": 0
+    }
+  }
 }
