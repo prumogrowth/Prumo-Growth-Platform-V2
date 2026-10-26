@@ -31,3 +31,7 @@ Codex é o responsável principal pela S0. **FV-UI-058 não modifica nem depende
 ## Otimização do teste após primeira execução
 
 Na execução inicial, o preflight e Node **372/372** passaram, mas o script Chromium excedeu o limite de execução de 180 s ao abrir oito páginas adicionais. O roteiro FV-UI-058 foi incorporado às mesmas oito páginas já abertas pela FV-UI-057, sem remover cobertura de viewport/tema nem alterar o timeout ou o código de negócio. Novo aceite completo obrigatório.
+
+## Reparo de regressão de navegador
+
+A primeira otimização eliminou as oito páginas adicionais, mas o teste reutilizado ainda supunha incorretamente que o painel de conversa começaria com o texto `Selecione uma conversa`. A seleção inicial não faz parte do contrato de seta. O teste foi corrigido para comparar antes/depois de `aria-pressed` e do título, comprovando ausência de seleção/abertura nova. Oito cenários de foco por seta continuam presentes (4 viewports × 2 temas); a ausência de resultados é coberta no Chromium em uma largura e no Node com modificadores, IME e modal, sem expandir o tempo do gate.
