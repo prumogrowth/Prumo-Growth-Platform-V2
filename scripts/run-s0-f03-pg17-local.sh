@@ -65,4 +65,5 @@ python3 -m unittest backend.tests.test_s0_f03_history_manifest_local \
   backend.tests.test_s0_f02_posthuman_preview_local \
   backend.tests.test_s0_f02_posthuman_intent_local \
   backend.tests.test_s0_f02_legacy_cancellation_witness_local \
+  backend.tests.test_s0_f02_legacy_observed_origin_local \
   backend.tests.test_s0_f03_pg17_integration -v
