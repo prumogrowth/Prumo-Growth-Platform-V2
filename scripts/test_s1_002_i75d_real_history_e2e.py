@@ -101,7 +101,7 @@ elif phase75 == "after_revocation":
     """)
     assert sql("select count(*) from public.mensagens where id::text like 'e7750000-%'")=="0"
     assert sql("select count(*) from public.conversas where id::text like 'e7750000-%'")=="0"
-    assert sql("select count(*) from public.leads_loja where id='{foreignlead75}'")=="0"
+    assert sql(f"select count(*) from public.leads_loja where id='{foreignlead75}'")=="0"
     assert sql("select count(*) from pg_catalog.pg_policy "
        "where polname like 's1_63_canon_%'")=="8"
     print("PASS I75D-E2E-07: extra histories torn down; 8 candidate I63 policies unchanged")
