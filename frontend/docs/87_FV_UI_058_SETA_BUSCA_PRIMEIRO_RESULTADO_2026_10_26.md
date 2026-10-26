@@ -35,3 +35,12 @@ Na execução inicial, o preflight e Node **372/372** passaram, mas o script Chr
 ## Reparo de regressão de navegador
 
 A primeira otimização eliminou as oito páginas adicionais, mas o teste reutilizado ainda supunha incorretamente que o painel de conversa começaria com o texto `Selecione uma conversa`. A seleção inicial não faz parte do contrato de seta. O teste foi corrigido para comparar antes/depois de `aria-pressed` e do título, comprovando ausência de seleção/abertura nova. Oito cenários de foco por seta continuam presentes (4 viewports × 2 temas); a ausência de resultados é coberta no Chromium em uma largura e no Node com modificadores, IME e modal, sem expandir o tempo do gate.
+
+## Checkpoint de validação — execução pendente (26/10/2026)
+
+- Commit de implementação original: `167c1261e679c8d8e0fa642579126f04de05a740`.
+- [Run 40293552813](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40293552813): inventário e Node **372/372 PASS**; Chromium excedeu timeout nativo de 180 s devido a oito novas sessões de página.
+- [Run 40294237964](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40294237964): inventário e Node **372/372 PASS**; Chromium revelou asserção incorreta sobre nome de conversa inicialmente selecionada; regressão corrigida para comparar estado antes/depois sem assumir seleção inicial.
+- Código de ensaio corrigido em `68d9cbbb1487da4b1c603eb685b079e7c698b06e`, manifesto repinado e commit de candidato `e2bfc9c297b9163bea7d3f3e60510c08759029e8`.
+- [Run 40294929672](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40294929672): **in_progress / sem conclusão na última consulta**; permanecia na instalação de Chromium. **NÃO certificada**. Conferir primeiro o resultado desta execução antes de modificar testes ou retomar FV-UI-059.
+- As duas falhas anteriores são dos próprios testes/tempo da suíte, não de um efeito comercial. Isso não equivale à aprovação do Chromium. Nenhum merge, deploy, S0 ou `main`.
