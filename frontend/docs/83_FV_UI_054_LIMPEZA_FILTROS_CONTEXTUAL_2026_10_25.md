@@ -19,3 +19,13 @@ Antes da FV-UI-054, o botão para limpar busca e filtros aparecia apenas com lis
 **Gate:** Python, Node, Chromium e `FULL LOCAL ACCEPTANCE: PASS` em GitHub Actions no manifesto repinado antes da certificação; não equivale a testes humanos por leitor de tela ou integração. Sem `main`, PR, merge, deploy, S0/S1, dados reais, autenticação ou WhatsApp.
 
 **Anterior:** [FV-UI-053](./82_FV_UI_053_ATALHO_BUSCA_VISIVEL_2026_10_25.md).
+
+## Certificação GitHub Actions — 25/10/2026
+
+- Commit de conteúdo: `c805c53397e6774cbd3cf56784b33ca5d75c276b`.
+- Manifesto repinado e **commit efetivamente testado**: `969d120883f0112882598dc723d96964ba1082f8`.
+- [GitHub Actions run 40249445210](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40249445210): **completed / success** no SHA testado.
+- Preflight nativo: **59 arquivos PASS**; segurança Python **25/25 PASS**; Node **361/361 PASS** e **0 falhas**; Chromium/Playwright **PASS**, inclusive `FV-UI-054 limpeza de filtros com escopo preservado em 8 cenarios: PASS`.
+- Log final: `FULL LOCAL ACCEPTANCE: PASS`.
+- Os resultados homologam apenas a consistência técnica do protótipo sintético. Sem API produtiva S0/S1, Meta/WhatsApp, autenticação, concessões, remessa bancária, leitor de tela humano ou deploy.
+- O commit documental de certificação altera apenas este arquivo, preservando os 59 arquivos do checkout técnico aprovado e mantendo `main` intacta.
