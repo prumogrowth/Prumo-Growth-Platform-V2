@@ -4331,7 +4331,7 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
 
     @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
                          'requires pinned S2 JS in CI')
-    def test_296_fake_handoff_after_closure_is_chronology_block(self):
+    def test_296_preexisting_s0_blocks_handoff_after_closure(self):
         from backend.s0_f02_legacy_cancellation_witness_local import CancelWitnessState
         from datetime import timedelta
         ctx=self._f02_legacy_witness_fixture()
@@ -4342,11 +4342,11 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
             con.execute('update public.casos_humanos set criado_em=%s '
                 'where id=%s',(closed+timedelta(minutes=2),self.case))
         self.assertIs(self._f02_cancel_witness(ctx),
-                      CancelWitnessState.LEGACY_CHRONOLOGY_REVIEW_REQUIRED)
+                      CancelWitnessState.S0_REVIEW_REQUIRED)
 
     @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
                          'requires pinned S2 JS in CI')
-    def test_297_forged_assignment_after_closure_fails(self):
+    def test_297_preexisting_s0_blocks_assignment_after_closure(self):
         from backend.s0_f02_legacy_cancellation_witness_local import CancelWitnessState
         from datetime import timedelta
         ctx=self._f02_legacy_witness_fixture()
@@ -4357,11 +4357,11 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
             con.execute('update public.atribuicoes_humanas set atribuida_em=%s '
                 'where id=%s',(closed+timedelta(minutes=2),self.assignment))
         self.assertIs(self._f02_cancel_witness(ctx),
-                      CancelWitnessState.LEGACY_CHRONOLOGY_REVIEW_REQUIRED)
+                      CancelWitnessState.S0_REVIEW_REQUIRED)
 
     @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
                          'requires pinned S2 JS in CI')
-    def test_298_changed_case_start_invalidates_existing_seal(self):
+    def test_298_preexisting_s0_blocks_changed_case_start(self):
         from backend.s0_f02_legacy_cancellation_witness_local import CancelWitnessState
         from datetime import timedelta
         ctx=self._f02_legacy_witness_fixture()
@@ -4372,7 +4372,7 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
                 "set criado_em=criado_em - interval '1 second' "
                 'where id=%s',(self.case,))
         self.assertIs(self._f02_cancel_witness(ctx),
-                      CancelWitnessState.STALE_WITNESS_REVIEW_REQUIRED)
+                      CancelWitnessState.S0_REVIEW_REQUIRED)
 
     @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),
                          'requires pinned S2 JS in CI')
