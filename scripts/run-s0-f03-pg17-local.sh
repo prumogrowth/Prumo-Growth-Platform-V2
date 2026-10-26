@@ -71,4 +71,5 @@ python3 -m unittest backend.tests.test_s0_f03_history_manifest_local \
   backend.tests.test_s0_f02_posthuman_legacy_reconciliation_local \
   backend.tests.test_f02_reconciled_human_authorization_handoff \
   backend.tests.test_f02_reconciled_review_lifecycle \
+  backend.tests.test_f02_acceptance_matrix_contract \
   backend.tests.test_s0_f03_pg17_integration -v
