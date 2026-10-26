@@ -45,6 +45,10 @@ jobs:
           command -v psql || (sudo apt-get update -qq && sudo apt-get install -y postgresql-client)
           python3 -m pip install -r backend/requirements-s0-local.txt
       - name: Start unlinked disposable PostgreSQL17 GoTrue PostgREST
+        # CLI v2.84.2 internal/utils/docker.go supports docker.io directly.
+        # GHCR pulls hit toomanyrequests in two attempts; retain CLI/tags/checks.
+        env:
+          SUPABASE_INTERNAL_IMAGE_REGISTRY: docker.io
         run: supabase start --exclude realtime,storage-api,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
       - name: Existing real Auth REST and RLS regression
         run: PYTHONPATH=. python3 scripts/test_s0_auth_rest_local.py
