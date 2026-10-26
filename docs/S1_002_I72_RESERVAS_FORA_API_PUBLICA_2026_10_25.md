@@ -22,6 +22,14 @@ I72 elimina o caminho HTTP **direto pela API pública** nas configurações test
 
 O schema interno **não pode** ser incluído em `pgrst.db_schemas` nem liberado por profile na implantação. Políticas candidatas I63–I72 continuam exclusivamente nas fixtures locais; proteção definitiva requer revisão de ameaça, controles operacionais, LGPD e gate de integração.
 
-## Evidência
+## Certificação de laboratório — 25/10/2026 (Brasil)
 
-Status de CI: aguardando resultados das execuções ligadas ao commit I72. Verificar logs de workflow com `PASS I72-01..06` (PG17) e `PASS I72-E2E-01..07` (GoTrue real) antes de certificar. Um commit salvo não equivale a certificação.
+**PG17 SUCCESS — 6/6 testes I72**: [workflow #40253772146](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40253772146), job `121351106972`, commit `5fe5beceda0f938c95c587eef003aa0c9085cc92`. Logs conferidos: `PASS I72-01` até `PASS I72-06`, precedidos de regressões S0+S1 I52–I71 e seguidos do `ROLLBACK` externo.
+
+**GoTrue real + PostgREST SUCCESS — 7/7 testes I72**: [workflow #40253828656](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40253828656), job E2E `121351318669`, commit `b91843355874a09e2b59a4a70229cebc4ed62c02`. Logs conferidos: `PASS I72-E2E-01` até `PASS I72-E2E-07`, sem omissões. Job unitário `121351318467` também SUCCESS.
+
+**Alinhamento de revisões:** a prova PG17 executou na revisão `5fe5bec`; a revisão `b918433` acrescentou apenas o gatilho do workflow GoTrue para os novos arquivos. O SQL, os testes SQL e o código E2E I72 testados permaneceram idênticos. A revisão final deste documento é somente certificação, não código de aplicação.
+
+**Correções intermediárias registradas:** ajuste da chamada de cabeçalhos no E2E para a assinatura real do helper HTTP e correção do preflight PostgreSQL para verificar `INSERT` *por coluna*, não na tabela inteira. Workflows anteriores interrompidos por novos commits **não** são contabilizados como sucesso.
+
+**Resultado: I72 concluída e certificada em laboratório** na branch S1-002. A quota histórica móvel I71 continua validada, mas I72 cobre especificamente a não exposição da tabela no PostgREST. A ameaça de SQL arbitrário com `authenticated` continua **aberta** e precisa de gateway autenticado com papel dedicado. A promoção para banco hospedado, `main` ou produção permanece **bloqueada**; nada foi implantado.
