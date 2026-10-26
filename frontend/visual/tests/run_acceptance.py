@@ -273,7 +273,7 @@ def main():
         print("Chromium BLOCKED — " + error, flush=True)
     else:
         browser_step = run_step("Chromium Playwright smoke",
-                                [sys.executable, str(TESTS / "browser.smoke.py")], timeout=180)
+                                [sys.executable, str(TESTS / "browser.smoke.py")], timeout=300)
         report["steps"].append(browser_step)
         report["browser_executed"] = browser_step["executed"]
     report["full_acceptance"] = all(s["passed"] and s["executed"]

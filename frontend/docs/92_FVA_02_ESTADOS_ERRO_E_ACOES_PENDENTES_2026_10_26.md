@@ -33,3 +33,10 @@ O código de `changeActor` já invalidava intenções de fila, equipe, resultado
 
 - Preflight 59 arquivos e Python 25/25 PASS; Node 377/379 PASS, Chromium não iniciado pelo gate fail-closed. Duas falhas **nos cenários de teste FVA-02**: comparação ampla de `ENVIADO` capturou o aviso explícito de **nunca enviado**; teste de Gestor tentou oferecer template em caso cujo titular era o Consultor. Não foi evidenciada regressão nos 375 testes anteriores.
 - Correção: usar comparação de estado inequívoco (`Envio comprovado` ausente) e substituir o cenário inelegível por fila compartilhada entre duas lojas concedidas à Gestora. Os guards do produto foram preservados. **Nova execução de CI necessária.**
+
+## FVA-02 — revisão do limite da validação nativa (run 40356069436)
+
+- Git checkout/preflight **59 arquivos PASS**; Python **25/25 PASS**; Node **379/379 PASS**, inclusive **4/4 novos testes FVA-02**. 
+- O smoke completo Chromium começou, mas o runner `run_acceptance.py` encerrou por **`TIMEOUT: Chromium Playwright smoke` aos 180 s exatos**. Não há prova de bug funcional no Chromium e **não há aprovação do aceite completo**, pois a suíte foi interrompida.
+- Mitigação específica, não relaxamento do gate: elevar **somente o orçamento de tempo do subprocesso Chromium de 180 para 300 segundos** em `frontend/visual/tests/run_acceptance.py`; manter Node, testes adversariais, exigência de Chromium real e `FULL LOCAL ACCEPTANCE` fail-closed. O workflow externo mantém `timeout-minutes: 15`.
+- **Nova execução da suíte completa necessária** após repin dos hashes; aprovação só mediante log `FULL LOCAL ACCEPTANCE: PASS`.
