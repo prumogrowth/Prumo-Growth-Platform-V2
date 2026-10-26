@@ -25,3 +25,7 @@ Pendente de logs de CI. Commit persistido não equivale a sucesso. Nenhuma impla
 ## Ajuste de isolamento da suíte GoTrue
 
 O primeiro workflow GoTrue `#40256248783` executou as **oito provas I73** com sucesso, mas a suíte total falhou posteriormente em `I53 offline signer did not fail closed`. A I73 executava em `globals()` e sobrescrevia variáveis de testes legados, além de fazer logout de uma identidade compartilhada com outros testes. A correção copia o namespace para I73 e usa nova conta GoTrue sintética apenas para testar logout. O workflow anterior não é certificação; a regressão completa exige nova prova de CI.
+
+## Correção adicional no runner de CI
+
+O workflow GoTrue [#40256646366](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40256646366) terminou SUCCESS para o conjunto antigo, mas **NÃO executou I73**: uma sequência literal de caracteres \n ficou dentro de um comentário e neutralizou `exec`. Logo, sucesso do job **não** foi considerado evidência I73. Esta revisão repõe uma linha Python executável real; a certificação exige os oito marcadores `PASS I73-E2E-01..08` e sucesso das regressões posteriores.
