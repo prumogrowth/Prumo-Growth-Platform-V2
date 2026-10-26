@@ -106,11 +106,16 @@ class RestrictedBackendTests(checkpoint.TransactionalCommunicationTests):
                               ('public.conversas','id'), ('public.mensagens','id'),
                               ('public.vinculos_papel_escopo','id'), ('public.equipe_prumo_s1','ator_id'),
                               ('prumo_private.cfi01_signing_keys_local','key_id')]:
-            with self.assertRaises(psycopg.errors.InsufficientPrivilege):
-                with psycopg.connect(self.db) as c:
-                    c.execute('grant prumo_cfi01_atomic_owner_local to postgres with inherit false,set true')
-                    c.execute('set local role prumo_cfi01_atomic_owner_local')
-                    c.execute(sql.SQL('update {} set {}={}').format(sql.Identifier(*table.split('.')),sql.Identifier(column),sql.Identifier(column)))
+            with psycopg.connect(self.db) as c:
+                # Setup must succeed outside assertRaises; a failed GRANT is
+                # not evidence that UPDATE under the executor was denied.
+                c.execute('grant prumo_cfi01_atomic_owner_local to postgres with inherit false,set true')
+                c.execute('set local role prumo_cfi01_atomic_owner_local')
+                self.assertEqual(c.execute('select current_user').fetchone()[0], 'prumo_cfi01_atomic_owner_local')
+                with self.assertRaises(psycopg.errors.InsufficientPrivilege):
+                    with c.transaction():
+                        c.execute(sql.SQL('update {} set {}={}').format(sql.Identifier(*table.split('.')),sql.Identifier(column),sql.Identifier(column)))
+                c.rollback()  # Also restores exact installer membership.
         self.capture()  # All FOR UPDATE/SHARE locks still work after tightening.
 
     def test_17_capture_and_recheck_are_audited_with_distinct_nonces(self):
@@ -231,6 +236,7 @@ class RestrictedBackendTests(checkpoint.TransactionalCommunicationTests):
 
     def test_27_session_expiry_update_waits_for_inflight_command(self):
         params=self.proof()
+        next_proof=self.proof()  # Signed while GoTrue/session are still valid.
         def expire():
             with psycopg.connect(self.db) as c:
                 c.execute("update auth.sessions set not_after=clock_timestamp()-interval '1 second' where id=%s",(params[2],))
@@ -241,7 +247,7 @@ class RestrictedBackendTests(checkpoint.TransactionalCommunicationTests):
             try:self.wait_for_any_blocker(pid)
             finally:c.commit()
             future.result(timeout=15)
-        self.deny_sql(atomic._ATOMIC_INTERNAL_SQL,self.proof())
+        self.deny_sql(atomic._ATOMIC_INTERNAL_SQL,next_proof)
         self.assertEqual(self.audit_count(),1)
 
 
