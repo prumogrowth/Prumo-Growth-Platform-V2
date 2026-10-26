@@ -1,0 +1,99 @@
+{
+  "schema": "prumo.f02.s0_codex_handoff.v1",
+  "as_of": "2026-10-26",
+  "owner": "F02 experimental branch; Codex principal steward of official S0",
+  "repository": "0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA",
+  "branch": "feat/oai-s0-f03-history-port-20261023",
+  "base_branch": "feat/s0-cfi01-f03-auth-preflight-20261020",
+  "draft_pr": 1,
+  "checked_sha": "631d8eca3a5ba93c1d7ce40f1a9eb555071b7104",
+  "gate": "PROPOSAL_ONLY_REQUIRES_S0_CODEX_COORDINATION",
+  "allowed_environment": "disposable_postgresql_17_github_ci",
+  "forbidden_actions": [
+    "merge_without_approval",
+    "main_changes",
+    "hosted_supabase_migration",
+    "real_customer_contact",
+    "meta_api_send",
+    "assume_synthetic_test_is_operational_authorization",
+    "modify_other_front_workflows_without_coordination"
+  ],
+  "candidate_f02_adapter_files": [
+    "backend/s0_f02_posthuman_compatibility_local.py",
+    "backend/s0_f02_posthuman_preview_local.py",
+    "backend/s0_f02_posthuman_intent_local.py",
+    "backend/s0_f02_legacy_cancellation_witness_local.py",
+    "backend/s0_f02_legacy_observed_origin_local.py",
+    "backend/s0_f02_posthuman_legacy_reconciliation_local.py",
+    "backend/s0_f02_posthuman_draft_local.py"
+  ],
+  "s0_f03_experimental_proposals_requires_codex_review": [
+    "backend/s0_f03_bound_content_seal_local.py",
+    "backend/s0_f03_content_integrity_local.py",
+    "backend/s0_f03_crossfront_contract_local.py",
+    "backend/s0_f03_crossfront_evidence_local.py",
+    "backend/s0_f03_field_application_local.py",
+    "backend/s0_f03_history_manifest_local.py",
+    "backend/s0_f03_history_seal_local.py",
+    "backend/s0_f03_identity_human_review_local.py",
+    "backend/s0_f03_identity_ratification_local.py",
+    "backend/s0_f03_identity_resolution_local.py",
+    "backend/s0_f03_identity_resolution_verify_local.py",
+    "backend/s0_f03_identity_uniqueness_local.py",
+    "backend/s0_f03_media_attestation_local.py",
+    "backend/s0_f03_operational_contracts_local.py",
+    "backend/s0_f03_version_reservation_local.py"
+  ],
+  "f02_sql_fixtures_not_migrations": [
+    "supabase/tests/s0_f02_posthuman_template_policy_local_only.sql",
+    "supabase/tests/s0_f02_posthuman_intent_local_only.sql",
+    "supabase/tests/s0_f02_legacy_cancel_witness_local_only.sql",
+    "supabase/tests/s0_f02_c04_origin_ledger_local_only.sql",
+    "supabase/tests/s0_f02_posthuman_draft_local_only.sql"
+  ],
+  "cross_front_files": [
+    "scripts/run-s0-f03-pg17-local.sh",
+    ".github/workflows/s0-f03-pg17.yml"
+  ],
+  "read_only_existing_facts": {
+    "last_successful_ci_run": 40258297937,
+    "python_s0": 84,
+    "python_f02_f03": 514,
+    "pg17_physical": 328,
+    "node_pinned": 269
+  },
+  "dependencies": [
+    {
+      "contract": "S0 authenticated identity/session, immutable F03 signed close and snapshot",
+      "source": "backend/identity_boundary.py; backend/s0_cfi01_f03_receipt_bridge_local.py; backend/s0_human_closure_event_local.py",
+      "gate": "Codex S0 validation of physical source authority, HMAC key custody, session lifetime, immutable history cutoff"
+    },
+    {
+      "contract": "S1 active team, gestor role, concessionaria scope",
+      "source": "auth.sessions; public.equipe_prumo_s1; public.vinculos_papel_escopo",
+      "gate": "S0/S1 coordinated validation and production permission model"
+    },
+    {
+      "contract": "C04 synthetic eligibility and C08 local cancellation",
+      "source": "public.planos_recontato_sinteticos; public.envios_template_sinteticos; public.eventos_envio_template_sinteticos; prumo_private.cancelar_recontatos_sinteticos",
+      "gate": "S0 owner approves event provenance, atomicity and no bypass; transport proof separate"
+    },
+    {
+      "contract": "S2 F02/F03 proposal shape",
+      "source": "pinned S2 commit ebf6fe4e546f2fe990bdaefe2df25aa0cf18e74c",
+      "gate": "versioned adapter handshake; JS never owns identity, template approval, real scheduling or send"
+    },
+    {
+      "contract": "Template policy/consent",
+      "source": "public.catalogo_templates_sinteticos; prumo_private.cfi01_f02_posthuman_template_policy_local",
+      "gate": "Meta category, approved template, scoped opt-out and real lawful basis verified separately"
+    },
+    {
+      "contract": "Operational plan & dispatch",
+      "source": "future independent posthuman scheduler/transport not implemented",
+      "gate": "Explicit S0/S1 approval, retry/idempotence, business windows, authorization, runtime logs before implementation"
+    }
+  ],
+  "approved_promotion_to_s0": false,
+  "approved_operational_scheduling": false
+}
