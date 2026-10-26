@@ -66,15 +66,15 @@ select pg_catalog.set_config('request.jwt.claim.sub',
 do $verify$ declare s jsonb;begin
  s:=public.s1_71_exportar_resumo('lotes',
  '86320000-0000-4000-8000-000000000001',null,1);
- if s->>'estado'<>'LIMITE_ATINGIDO' then
- raise exception 'I71_MGR4_OLD_USE_NOT_COUNTED: %',s;end if;
+ if s->>'estado'<>'OK' or jsonb_array_length(s->'linhas')<>1 then
+ raise exception 'I71_MGR4_OWN_REMAINING_BUDGET_WRONG: %',s;end if;
  s:=public.s1_71_exportar_resumo('canais',
  '86320000-0000-4000-8000-000000000001',null,1);
  if s->>'estado'<>'OK' or jsonb_array_length(s->'linhas')<>1
  then raise exception 'I71_MANAGER_OTHER_KIND_DENIED: %',s;end if;
 end $verify$;
 reset role;
-\echo 'PASS I71-05: per-type rolling quotas independent for same manager; other actor isolated'
+\echo 'PASS I71-05: per-type and per-actor rolling quotas remain independent; second manager retains own budget'
 
 set local role authenticated;
 select pg_catalog.set_config('request.jwt.claim.sub',
