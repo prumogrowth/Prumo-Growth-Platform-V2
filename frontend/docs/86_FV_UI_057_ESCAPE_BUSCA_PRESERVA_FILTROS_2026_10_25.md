@@ -23,3 +23,15 @@ O FV-UI-057 implementa **Escape para limpar somente o texto da busca** quando es
 **Anterior:** [FV-UI-056](./85_FV_UI_056_BUSCA_PTBR_ACENTOS_ESPACOS_2026_10_25.md).
 
 **Certificação:** pendente até aprovação nativa. `main` não deve ser alterada; sem PR, merge ou deploy.
+
+## Certificação GitHub Actions — 25/10/2026
+
+- Commit visual inicial: `155f1ce908f74d7ba9b203c2feccd0ac37c882c6`.
+- Primeira execução de teste: [40255654928](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40255654928), **não aprovada**: o ensaio Node supunha um número fixo de conversas não lidas (um) enquanto a fixture real disponibilizava duas. Chromium permaneceu bloqueado pelo gate.
+- Correção da suposição do teste, sem modificar o comportamento de busca: `4b6e37687457713ea5ff99d107a0aac431c2929d`, manifesto repinado. Segunda execução [40255859149](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40255859149): Node **369/369 PASS**, mas o Chromium bloqueou o aceite porque uma asserção antiga do FV-UI-053 exigia metadados `Control+K Meta+K` sem `Escape`.
+- Atualização de contrato antigo de navegador: `2e669da716741661425d76aefcfadbae71cc5608`, manifesto repinado.
+- **SHA efetivamente aprovado:** `8de0a27f37f7050d986b12b691bb03364387ee0b`.
+- **[Run 40256225951](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40256225951): completed / success.** Preflight de **59 arquivos PASS**; Python adversarial **25/25 PASS**; Node ESM **369/369 PASS**; Chromium/Playwright **PASS**, inclusive `FV-UI-053 atalho de busca teclado e reflow em 8 cenarios: PASS` e `FV-UI-057 Esc limpa somente busca em 8 cenarios: PASS`.
+- Evidência terminal: **`FULL LOCAL ACCEPTANCE: PASS`**.
+- Certificação técnica de **protótipo sintético**; não comprova autenticação produtiva S0/S1, WhatsApp, IA, operação bancária, segurança de backend ou testes com leitores de tela humanos.
+- Este commit posterior modifica **exclusivamente esta documentação**, preservando o código testado. A branch `main` não é alterada; sem PR, merge ou deploy.
