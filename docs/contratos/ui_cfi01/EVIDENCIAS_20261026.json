@@ -1,0 +1,170 @@
+{
+  "date": "2026-10-26",
+  "scope": "Pure unratified UI/S0 CFI01 contract compatibility",
+  "branch": "exp/s0-ui-cfi01-contrato-candidato-20261026",
+  "base_pr": 9,
+  "base_head": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+  "preserved_operational_checkpoint": "1b4f2841d513fb971c93379636414bf686784beb",
+  "code_sha": "99238f8a3304b8cc70ef14421b74842b0740b016",
+  "schemas": {
+    "command": "prumo.s0.cfi01.command/0.1-candidate",
+    "response": "prumo.s0.cfi01.result/0.1-candidate",
+    "ratified": false
+  },
+  "ci": {
+    "run_id": 40358081309,
+    "job_id": 121695820681,
+    "head_sha": "99238f8a3304b8cc70ef14421b74842b0740b016",
+    "job": {
+      "id": 121695820681,
+      "run_id": 40358081309,
+      "workflow_name": "S0 UI CFI01 - candidate contract compatibility",
+      "head_branch": "exp/s0-ui-cfi01-contrato-candidato-20261026",
+      "run_url": "https://api.github.com/repos/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40358081309",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOVVYC6c8AAAAcVaLbiQ",
+      "head_sha": "99238f8a3304b8cc70ef14421b74842b0740b016",
+      "url": "https://api.github.com/repos/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/jobs/121695820681",
+      "html_url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40358081309/job/121695820681",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-10-26T16:19:57Z",
+      "started_at": "2026-10-26T16:20:00Z",
+      "completed_at": "2026-10-26T16:20:08Z",
+      "name": "pure-contract-and-core-regression",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-26T16:20:01Z",
+          "completed_at": "2026-10-26T16:20:02Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-26T16:20:02Z",
+          "completed_at": "2026-10-26T16:20:03Z"
+        },
+        {
+          "name": "Run actions/setup-node@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-26T16:20:03Z",
+          "completed_at": "2026-10-26T16:20:04Z"
+        },
+        {
+          "name": "Candidate Python and Web Crypto compatibility plus all existing backend unit tests",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-26T16:20:04Z",
+          "completed_at": "2026-10-26T16:20:05Z"
+        },
+        {
+          "name": "Verify browser-reference module syntax without starting transport",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-26T16:20:05Z",
+          "completed_at": "2026-10-26T16:20:05Z"
+        },
+        {
+          "name": "Post Run actions/setup-node@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-10-26T16:20:05Z",
+          "completed_at": "2026-10-26T16:20:05Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-10-26T16:20:05Z",
+          "completed_at": "2026-10-26T16:20:06Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-10-26T16:20:06Z",
+          "completed_at": "2026-10-26T16:20:06Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/check-runs/121695820681",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000000615,
+      "runner_name": "GitHub Actions 1000000615",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    "verified_log_lines": [
+      "node: v22.23.3",
+      "test_08_technical_results_remain_noncommercial_in_python_and_js (test_s0_cfi01_ui_contract.ResponseCandidateTests.test_08_technical_results_remain_noncommercial_in_python_and_js) ... ok",
+      "test_09_all_response_correlators_and_digest_are_checked (test_s0_cfi01_ui_contract.ResponseCandidateTests.test_09_all_response_correlators_and_digest_are_checked) ... ok",
+      "test_10_late_response_from_prior_attempt_is_not_current_success (test_s0_cfi01_ui_contract.ResponseCandidateTests.test_10_late_response_from_prior_attempt_is_not_current_success) ... ok",
+      "test_11_actor_store_case_epoch_change_rejects_even_matching_response (test_s0_cfi01_ui_contract.ResponseCandidateTests.test_11_actor_store_case_epoch_change_rejects_even_matching_response) ... ok",
+      "test_12_response_also_binds_version_key_and_capture_reference (test_s0_cfi01_ui_contract.ResponseCandidateTests.test_12_response_also_binds_version_key_and_capture_reference) ... ok",
+      "test_13_wrong_operation_and_commercial_states_are_never_projected (test_s0_cfi01_ui_contract.ResponseCandidateTests.test_13_wrong_operation_and_commercial_states_are_never_projected) ... ok",
+      "test_14_existing_frontend_and_s1_do_not_gain_an_unapproved_command (test_s0_cfi01_ui_contract.ResponseCandidateTests.test_14_existing_frontend_and_s1_do_not_gain_an_unapproved_command) ... ok",
+      "test_15_current_sources_match_recorded_git_blobs_and_hashes (test_s0_cfi01_ui_contract.ResponseCandidateTests.test_15_current_sources_match_recorded_git_blobs_and_hashes) ... ok",
+      "test_01_shared_vectors_python_browser_reference_and_golden_digest (test_s0_cfi01_ui_contract.WireCandidateTests.test_01_shared_vectors_python_browser_reference_and_golden_digest) ... ok",
+      "test_02_raw_json_rejects_duplicate_decoded_keys_and_non_json (test_s0_cfi01_ui_contract.WireCandidateTests.test_02_raw_json_rejects_duplicate_decoded_keys_and_non_json) ... ok",
+      "test_03_case_never_becomes_cycle_and_recheck_never_mints_binding (test_s0_cfi01_ui_contract.WireCandidateTests.test_03_case_never_becomes_cycle_and_recheck_never_mints_binding) ... ok",
+      "test_04_explicit_physical_cycle_preserves_full_int64_and_actual_validator (test_s0_cfi01_ui_contract.WireCandidateTests.test_04_explicit_physical_cycle_preserves_full_int64_and_actual_validator) ... ok",
+      "test_05_dto_revalidation_immutable_snapshot_and_fixed_errors (test_s0_cfi01_ui_contract.WireCandidateTests.test_05_dto_revalidation_immutable_snapshot_and_fixed_errors) ... ok",
+      "test_06_retry_ids_are_distinct_from_idempotency_and_payload_conflicts (test_s0_cfi01_ui_contract.WireCandidateTests.test_06_retry_ids_are_distinct_from_idempotency_and_payload_conflicts) ... ok",
+      "test_07_fingerprint_ignores_object_order_without_normalizing_values (test_s0_cfi01_ui_contract.WireCandidateTests.test_07_fingerprint_ignores_object_order_without_normalizing_values) ... ok",
+      "Ran 171 tests in 0.961s"
+    ],
+    "backend_tests": 171,
+    "preserved_tests": 156,
+    "new_contract_tests": 15,
+    "shared_vectors": 34,
+    "valid_vectors": 4,
+    "invalid_vectors": 30,
+    "failed": 0
+  },
+  "earlier_ci": {
+    "run_id": 40357750561,
+    "code_sha": "ca6968a6a9120be94234804396e4a18a5ec84bc3",
+    "conclusion": "success",
+    "reason_for_next_revision": "Preserve legitimate capture/recheck use of the same idempotency key while distinguishing operations"
+  },
+  "local": {
+    "backend_tests": 171,
+    "new_contract_tests": 15,
+    "node": "24.19.0",
+    "browser_reference_syntax": "PASS"
+  },
+  "recovered_heads": {
+    "s0": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+    "s1": "e868b5dbd98b107f4ebd3f9f7087e24ec8518dbe",
+    "frontend": "456bee6355bcf3c99b94754809f5a93a23b25004"
+  },
+  "approvals_pending": [
+    "D1: command/result envelope and visual names",
+    "D2: authoritative version binding, case/cycle and lossless representation",
+    "D3: server-owned recheck binding, durable request correlation and retention",
+    "D4: authenticated transport and mapping existing S0/S1 eligibility to UI"
+  ],
+  "limits": [
+    "No endpoint, transport, dispatcher or database access",
+    "No authentication, authorization or transaction evidence added by these tests",
+    "No production ratification, deployment, merge or Frontend branch changes",
+    "Candidate JS is outside frontend/; existing Frontend intentionally rejects proposed schema",
+    "Every recheck remains RECHECK_SERVER_BINDING_REQUIRED; case version stays unconverted",
+    "Fingerprint is correlation only, not signature/nonce/HMAC/receipt or permission",
+    "No durable idempotency ledger or UI correlation persistence implemented",
+    "CFI01 operational runtime, SQL, all 14 checkpoint tests and PR9 real evidence remain unchanged; not recounted here"
+  ]
+}
