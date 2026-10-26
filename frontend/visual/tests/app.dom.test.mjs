@@ -1095,3 +1095,80 @@ test('FV-UI-058: zero resultados, modificadores, IME ou modal conservam foco',()
   assert.equal(get('template-dialog').open,true);
   get('template-dialog').close('cancel');
 });
+
+test('FVA-01: O2 O3 em sequência não migram rascunho, F03 ou autorização entre perfis',()=>{
+  reset();
+  env.openCase('Exemplo 02');
+  get('message-input').value='FVA-01 rascunho local confidencial';
+  const originalActor=get('actor-select').value;
+  assert.equal(originalActor,'rafael');
+  env.openCase('Exemplo 09');
+  env.descendants(get('detail-content')).filter(n=>n.attrs.role==='tab')
+    .find(n=>n.textContent==='Extração').click();
+  assert.match(get('detail-content').textContent,/f03-a108-1/);
+  env.selectActor('marina');
+  assert.equal(get('message-input').value,'');
+  assert.equal(get('thread-body').textContent.includes('FVA-01 rascunho'),false);
+  env.openCase('Exemplo 09');
+  env.descendants(get('detail-content')).filter(n=>n.attrs.role==='tab')
+    .find(n=>n.textContent==='Extração').click();
+  assert.equal(get('detail-content').textContent.includes('f03-a108-1'),false);
+  assert.equal(get('message-input').disabled,true);
+  env.selectActor('daniel');
+  assert.equal(env.cards().some(n=>n.textContent.includes('Exemplo 09')),false);
+  assert.equal(get('thread-body').textContent.includes('FVA-01 rascunho'),false);
+  env.selectActor('otavio');
+  assert.equal(env.cards().length,0);
+  assert.equal(get('team-nav').hidden,true);
+  assert.equal(get('message-input').disabled,true);
+  assert.equal(get('detail-content').textContent.includes('f03-a108-1'),false);
+  env.selectActor('rafael');
+  env.openCase('Exemplo 02');
+  assert.equal(get('message-input').value,'');
+  assert.equal(get('thread-body').textContent.includes('FVA-01 rascunho'),false);
+});
+
+test('FVA-01: G2 fila compartilhada nao transforma pedido local em atribuição de outro Gestor',()=>{
+  reset();env.selectActor('marina');get('team-nav').click();get('team-show-queue').click();
+  assert.match(get('team-queue').textContent,/FILA-A-01/);
+  const request=env.descendants(get('team-queue')).find(n=>
+    n.tagName==='BUTTON' && n.textContent==='Solicitar assunção');
+  assert.ok(request);request.click();
+  assert.equal(get('queue-action-dialog').open,true);
+  get('queue-action-dialog').close('confirm');
+  assert.match(get('team-queue').textContent,/SOLICITADO LOCALMENTE · NÃO ATRIBUÍDO/);
+  get('team-dialog').close();
+  env.selectActor('daniel');
+  get('team-nav').click();get('team-show-queue').click();
+  assert.match(get('team-queue').textContent,/FILA-A-01/);
+  assert.equal(get('team-queue').textContent.includes('SOLICITADO LOCALMENTE'),false);
+  assert.ok(env.descendants(get('team-queue')).some(n=>
+    n.tagName==='BUTTON' && n.textContent==='Solicitar assunção'));
+  get('team-dialog').close();
+  env.selectActor('marina');
+  get('team-nav').click();get('team-show-queue').click();
+  assert.equal(get('team-queue').textContent.includes('SOLICITADO LOCALMENTE'),false);
+  assert.match(get('team-queue').textContent,/FILA-A-01/);
+  get('team-dialog').close();
+});
+
+test('FVA-01: exceção por caso não vira concessão geral nem sobrevive a troca de identidade',()=>{
+  reset();env.selectActor('lia');
+  assert.ok(get('shop-select').textContent.includes('somente caso excepcional'));
+  env.selectShop('aurora');
+  assert.equal(env.cards().length,1);
+  env.openCase('Exemplo 19');
+  assert.match(get('thread-meta').textContent,/A-117/);
+  assert.match(get('workflow-bar').textContent,/Acesso excepcional: SOMENTE este caso/);
+  assert.equal(env.cards().some(n=>n.textContent.includes('Exemplo 02')),false);
+  env.selectActor('daniel');
+  assert.equal(env.cards().some(n=>n.textContent.includes('Exemplo 19')),false);
+  assert.equal(get('thread-meta').textContent.includes('A-117'),false);
+  env.selectActor('rafael');
+  assert.equal(env.cards().some(n=>n.textContent.includes('Exemplo 19')),false);
+  env.selectActor('lia');
+  env.selectShop('aurora');
+  assert.equal(env.cards().length,1);
+  assert.match(env.cards()[0].textContent,/Exemplo 19/);
+  assert.equal(get('message-input').value,'');
+});
