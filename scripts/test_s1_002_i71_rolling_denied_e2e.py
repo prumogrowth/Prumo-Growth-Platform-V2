@@ -115,3 +115,7 @@ assert ret=="1:1",ret
 assert int(sql("select count(*) from public.s1_70_export_reservas"))>1
 print("PASS I71-E2E-08: admin-only 30-day purge deletes exactly aged accepted and denied events, retains recent")
 print("I71 8/8 real GoTrue rolling quota, denied audit, concurrency, retention E2E; disposable only")
+
+# I72: same ephemeral GoTrue/PostgREST stack, no duplicated CI startup.
+_i72=Path('scripts/test_s1_002_i72_ledger_unexposed_e2e.py')
+exec(compile(_i72.read_text(encoding='utf-8'),str(_i72),'exec'),globals())
