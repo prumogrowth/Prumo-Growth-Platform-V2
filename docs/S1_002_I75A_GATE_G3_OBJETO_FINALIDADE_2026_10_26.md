@@ -43,3 +43,7 @@ Solicitar apenas informações/contratos, **sem dados pessoais nem credenciais**
 - Estratégia de validar regressões em ambiente descartável; nenhuma mudança ao núcleo oficial nem migração hospedada sem coordenação.
 
 **Próximo passo I75B:** produzir inventário rastreável por objeto real e ampliar provas negativas apenas para lacunas confirmadas. NÃO repetir o desenvolvimento do signer/exportador I74, nem liberar dados brutos por hipótese.
+
+## Continuidade executada — I75B
+
+O contrato de oito cenários permanece como critério de produto, **não como oito testes realizados**. A I75B criou o inventário lexical reproduzível e o executou com sucesso no workflow [#40312496327](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40312496327), preservando testes antigos. [Relatório de execução e limitações](S1_002_I75B_G3_INVENTARIO_EXECUTAVEL_2026_10_26.md). Próxima validação depende do catálogo físico S0; não presumir serviços de mídia ou D3/D4 ainda não rastreados.

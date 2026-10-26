@@ -50,3 +50,9 @@ O mapa inicial é `docs/S1_002_I50_REVALIDACAO_E_GATES_2026_10_23.md`, mas está
 **Próxima execução recomendada (I75):** auditoria de prontidão **G3** orientada a objeto e coluna (D2/D3/D4, mídias, indiretos), conciliando as políticas candidatas I63–I68 com os consumidores reais e identificando exatamente quais interfaces/entitlements ainda dependem da S0. Produzir contrato de integração e testes negativos isolados; **não promover migrações nem refazer permissões já testadas**. A infraestrutura operacional S0 e as dependências que requeiram alterações do núcleo permanecem sob coordenação do Codex.
 
 **Checkpoint:** I74 laboratório PASS; S1-002 como produto **ainda aberta em G1–G6**, sem percentual total inferível de uma contagem de execuções. Issue #3 de otimização CI continua fora do escopo.
+
+## Checkpoint I75B — 26/10/2026
+
+**I75B implementada e certificada como INVENTÁRIO ESTÁTICO, não como RLS operacional:** commit `40336b7b3ff7de2d7d864333ffad4135c480f2c1`; [PG17 oficial #40312496327](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40312496327) SUCCESS, 6 unitários + 3/3 gates I75B, regressões I63–I74 preservadas. Varredura: 57 migrations, 45 tabelas adicionais, 25 arquivos runtime, 11 superfícies canônicas e 8 policies I63 somente de bancada. [Relatório I75B](S1_002_I75B_G3_INVENTARIO_EXECUTAVEL_2026_10_26.md). Artefato JSON disponível nesse workflow.
+
+**Próximo objetivo I75C:** confrontar com o catálogo S0 físico as outras superfícies, D2/D3/D4 e mídia/anexo, por objeto, coluna e finalidade, e preparar provas reais de autorização/revogação. Proibido declarar G3 concluído a partir de análise lexical. Nenhuma alteração na S0, `main` ou produção.
