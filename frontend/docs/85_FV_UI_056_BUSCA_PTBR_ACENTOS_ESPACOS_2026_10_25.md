@@ -21,3 +21,14 @@ A busca da fila convertia texto para minúsculas, mas exigia correspondência li
 - **Certificação condicionada ao GitHub Actions:** preflight, Python, Node, Chromium, `FULL LOCAL ACCEPTANCE: PASS`. Não homologar S0/S1/WhatsApp, permissões produtivas ou leitor de tela humano. Não modificar `main`, nem PR, merge ou deploy.
 
 **Anterior:** [FV-UI-055](./84_FV_UI_055_ACAO_UNICA_LIMPEZA_FILA_2026_10_25.md).
+
+## Certificação nativa — GitHub Actions, 25/10/2026
+
+- Commit de implementação: `edb85ab28f8f5201c2731649fd296d3ea278f352`.
+- Manifesto repinado e **commit integralmente testado**: `5a109517288dcc5296d6932b6277cf1d70d13ad6`.
+- [GitHub Actions 40253661175](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40253661175): **completed / success** exatamente no SHA de teste.
+- Preflight de integridade: **59 arquivos PASS**; Python de segurança: **25/25 PASS**; Node ESM: **366/366 PASS**, **0 falhas**.
+- Chromium/Playwright: **PASS**, inclusive `FV-UI-056 busca normalizada e isolamento de loja em 8 cenarios: PASS`.
+- Evidência no log: `FULL LOCAL ACCEPTANCE: PASS`.
+- Esta homologação atesta a consistência do **frontend demonstrativo sintético**, não conexão produtiva, autenticação real, autorização S0/S1, WhatsApp, IA, banco, leitor de tela humano ou implantação.
+- O commit documental final não modifica nenhum arquivo visual testado. A branch `main` permanece intacta; sem merge ou deploy.
