@@ -4561,5 +4561,139 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
                 'where id=%s',(plan,))
         self.assertEqual(self._c04_origin_state(case),'MUTATED_ORIGIN')
 
+
+    def _f02_draft_fixture(self):
+        from datetime import datetime,timezone,timedelta
+        from backend.s0_f02_posthuman_draft_local import S0F02PostHumanDraftLocal,PostHumanDraftRequest
+        from backend.s0_f02_posthuman_intent_local import IntentState
+        a=self._f02_intent_fixture()
+        self.assertIs(self._f02_intent_record(a),IntentState.RECORDED_AUDIT_ONLY)
+        return a,S0F02PostHumanDraftLocal(a[0][1]),PostHumanDraftRequest(
+          a[2],datetime.now(timezone.utc)+timedelta(hours=48),'draft-e04-0001')
+
+    def _f02_draft_record(self,fixture,*,request=None,js=None):
+        data,store,original=fixture
+        _,fields,version,f03,proposal=data[0][0]
+        return store.record('Bearer PINNED_S2_LOCAL_E04',self.binding,'test-key-v1',
+          b'fixture-only-content-seal-key-more-than-32-bytes',
+          version,'request-cas-0001',fields,f03,proposal,
+          self._s2_f02_real_lifecycle() if js is None else js,
+          str(self.channel),original if request is None else request).state
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),'needs pinned S2 JS')
+    def test_311_no_legacy_draft_does_not_create_c04_plan_or_send(self):
+        from backend.s0_f02_posthuman_draft_local import DraftState
+        a=self._f02_draft_fixture()
+        self.assertIs(self._f02_draft_record(a),DraftState.DRAFT_RECORDED_REVIEW_ONLY)
+        with self.pg.connect(DB) as con:
+            self.assertEqual(con.execute('select estado from '
+              'prumo_private.cfi01_f02_posthuman_draft_local '
+              'where concessionaria_id=%s',(self.shop,)).fetchone(),
+              ('REVIEW_ONLY_C04_BLOCKED',))
+            for t in ('public.planos_recontato_sinteticos',
+                      'public.envios_template_sinteticos'):
+                self.assertEqual(con.execute('select count(*) from '+t+
+                  ' where concessionaria_id=%s',(self.shop,)).fetchone()[0],0)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),'needs pinned S2 JS')
+    def test_312_exact_draft_replay_is_idempotent(self):
+        from backend.s0_f02_posthuman_draft_local import DraftState
+        a=self._f02_draft_fixture()
+        self.assertIs(self._f02_draft_record(a),DraftState.DRAFT_RECORDED_REVIEW_ONLY)
+        self.assertIs(self._f02_draft_record(a),DraftState.DRAFT_REPLAY_REVIEW_ONLY)
+        with self.pg.connect(DB) as con:
+            self.assertEqual(con.execute('select count(*) from '
+               'prumo_private.cfi01_f02_posthuman_draft_local '
+               'where concessionaria_id=%s',(self.shop,)).fetchone()[0],1)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),'needs pinned S2 JS')
+    def test_313_changed_time_same_closure_is_conflict(self):
+        from backend.s0_f02_posthuman_draft_local import DraftState,PostHumanDraftRequest
+        from datetime import timedelta
+        a=self._f02_draft_fixture()
+        self.assertIs(self._f02_draft_record(a),DraftState.DRAFT_RECORDED_REVIEW_ONLY)
+        q=a[2]
+        b=PostHumanDraftRequest(q.intent,q.proposed_at+timedelta(hours=1),q.draft_key)
+        self.assertIs(self._f02_draft_record(a,request=b),DraftState.CONFLICT_REVIEW_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),'needs pinned S2 JS')
+    def test_314_out_of_window_1h_and_10d_refused(self):
+        from backend.s0_f02_posthuman_draft_local import DraftState,PostHumanDraftRequest
+        from datetime import datetime,timezone,timedelta
+        a=self._f02_draft_fixture()
+        for amount in (timedelta(hours=1),timedelta(days=10)):
+            q=a[2]
+            with self.subTest(delay=amount):
+                b=PostHumanDraftRequest(q.intent,datetime.now(timezone.utc)+amount,q.draft_key)
+                self.assertIs(self._f02_draft_record(a,request=b),
+                              DraftState.POLICY_TIME_REVIEW_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),'needs pinned S2 JS')
+    def test_315_canceled_legacy_still_requires_reconciliation(self):
+        from backend.s0_f02_posthuman_draft_local import DraftState
+        a=self._f02_draft_fixture()
+        with self.pg.connect(DB) as con:
+            con.execute('insert into public.planos_recontato_sinteticos '
+              '(concessionaria_id,lead_id,ciclo_id,canal_id,'
+              'chave_idempotencia,fingerprint) values (%s,%s,%s,%s,%s,%s)',
+              (self.shop,self.lead,self.cycle,self.channel,'old-chain-draft','synthetic'))
+            v=con.execute('select prumo_private.cancelar_recontatos_sinteticos'
+              "(%s,%s,'handoff')",(self.shop,self.lead)).fetchone()[0]
+            self.assertEqual(v['planos_cancelados'],1)
+        self.assertIs(self._f02_draft_record(a),
+                      DraftState.LEGACY_RECONCILIATION_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),'needs pinned S2 JS')
+    def test_316_optout_after_intent_blocks_draft(self):
+        from backend.s0_f02_posthuman_draft_local import DraftState
+        a=self._f02_draft_fixture()
+        with self.pg.connect(DB) as con:
+            con.execute('insert into public.supressoes_contato_sinteticas '
+              '(concessionaria_id,lead_id,canal_id,finalidade,evento_origem) '
+              "values (%s,%s,%s,'recontato_comercial_sintetico','draft-optout')",
+              (self.shop,self.lead,self.channel))
+        self.assertIs(self._f02_draft_record(a),DraftState.S0_REVIEW_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),'needs pinned S2 JS')
+    def test_317_forged_js_send_permission_rejected(self):
+        from backend.s0_f02_posthuman_draft_local import DraftState
+        a=self._f02_draft_fixture()
+        js={**self._s2_f02_real_lifecycle(),'sendNow':True}
+        self.assertIs(self._f02_draft_record(a,js=js),DraftState.DENIED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),'needs pinned S2 JS')
+    def test_318_immutable_draft_update_and_delete(self):
+        from backend.s0_f02_posthuman_draft_local import DraftState
+        a=self._f02_draft_fixture()
+        self.assertIs(self._f02_draft_record(a),DraftState.DRAFT_RECORDED_REVIEW_ONLY)
+        for stmt in (
+          'update prumo_private.cfi01_f02_posthuman_draft_local '
+          "set estado='REVIEW_ONLY_C04_BLOCKED' where concessionaria_id=%s",
+          'delete from prumo_private.cfi01_f02_posthuman_draft_local '
+          'where concessionaria_id=%s',
+        ):
+            with self.subTest(verb=stmt.split()[0]):
+                with self.assertRaises(self.pg.Error) as ex:
+                    with self.pg.connect(DB) as con: con.execute(stmt,(self.shop,))
+                self.assertEqual(ex.exception.sqlstate,'42501')
+
+    def test_319_authenticated_cannot_read_draft(self):
+        with self.assertRaises(self.pg.Error) as ex:
+            with self.pg.connect(DB) as con:
+                con.execute('set local role authenticated')
+                con.execute('select * from prumo_private.cfi01_f02_posthuman_draft_local')
+        self.assertIn(ex.exception.sqlstate,('42501','42P01','3F000'))
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),'needs pinned S2 JS')
+    def test_320_parallel_same_draft_one_record(self):
+        from concurrent.futures import ThreadPoolExecutor
+        from backend.s0_f02_posthuman_draft_local import DraftState
+        a=self._f02_draft_fixture()
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            states=list(pool.map(lambda _:self._f02_draft_record(a),range(2)))
+        self.assertEqual(sorted(states,key=str),sorted([
+            DraftState.DRAFT_RECORDED_REVIEW_ONLY,
+            DraftState.DRAFT_REPLAY_REVIEW_ONLY],key=str))
+
 if __name__=='__main__':
     unittest.main()
