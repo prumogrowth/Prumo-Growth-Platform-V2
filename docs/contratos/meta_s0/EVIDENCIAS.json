@@ -1,0 +1,131 @@
+{
+  "schema": "prumo.meta-s0.candidate.evidence/0.1",
+  "status": "CANDIDATE_NOT_RATIFIED",
+  "code_sha": "92703c34fd4a2b9bae0d00768969c7c53cc16da3",
+  "base_sha": "cb7fc3e2eacdaad9b8d47ffca1284759ca3357a3",
+  "auxiliary_branch": "aux/meta-s0-contracts-20261026",
+  "run": {
+    "id": 40370618576,
+    "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40370618576",
+    "head_sha": "92703c34fd4a2b9bae0d00768969c7c53cc16da3",
+    "conclusion": "success",
+    "attempt": 1
+  },
+  "job": {
+    "id": 121740049996,
+    "conclusion": "success",
+    "node_version": "22.23.3"
+  },
+  "assertions": {
+    "candidate_tests": 52,
+    "candidate_pass": 52,
+    "candidate_fail": 0,
+    "existing_meta_tests": 161,
+    "existing_meta_pass": 161,
+    "existing_meta_fail": 0,
+    "skipped": 0,
+    "cancelled": 0,
+    "unchanged_source_blobs": 7,
+    "actual_child_process_crash_cases": 2
+  },
+  "logs_checked": true,
+  "local_execution": false,
+  "new_test_names": [
+    "requires an explicit disposable laboratory opt-in",
+    "GoTrue-shaped identity is not M2M and writes no nonce",
+    "wrong MAC, issuer, audience, principal kind and expired key are denied",
+    "M2M operation ACL prevents ingress from dispatch and dispatcher from review",
+    "expired, future, overlong TTL and noninteger clock envelopes fail closed",
+    "canonical internal JSON rejects duplicates, escaped names, BOM and extras",
+    "unknown body authority and invalid int64 preconditions roll back nonce/audit",
+    "tenant, channel and technical route are selected from server-side M2M ACL",
+    "reserve atomically creates attempt, idempotency record, nonce and audit",
+    "20 concurrent reservations produce one attempt and no new execution on replay",
+    "same idempotency key with changed intent conflicts; a fresh key does not bypass occupancy",
+    "M2M nonce replay and divergent reuse never execute twice",
+    "rollback on persistence failure leaves no attempt, nonce or audit",
+    "lost result after commit does not open a second reservation",
+    "one begin winner and no reusable permission after concurrent begin/restart",
+    "stale revision and each existing authority gate refuse reservation",
+    "S0/S1/cancel/opt-out before begin prevent execution and keep tombstone",
+    "both modeled begin/revocation orderings preserve uncertainty and never reopen",
+    "key and route revocation deny authenticated packets queued for later",
+    "observation requires previous begin and correct tenant/attempt binding",
+    "reuse existing Cloud classifier for timeout, 429, 503 and malformed 2xx without retry",
+    "API acceptance is technical evidence and never delivered or a cadence failure",
+    "explicit rejection stays occupied and never creates an automatic retry",
+    "uncertainty followed by late acceptance refines readback without another begin",
+    "same observation replay is idempotent and a variant under that ref quarantines",
+    "incompatible wamids or accepted/rejected evidence across refs quarantines",
+    "late evidence survives human S1 revocation, cancellation and opt-out without reopening",
+    "authorized reconciliation is annotation only, references evidence, never releases",
+    "response and audit exclude raw response text and provider secrets",
+    "in-memory receipt never claims durable ACK; every item retains position",
+    "raw batch replay with new nonce and alias reuses full receipt",
+    "same batch id with different raw bytes refuses ACK, variants with new id are preserved",
+    "invalid Meta signature, mixed scope or one invalid item reject whole batch",
+    "stale route, wrong M2M route and revoked ingress cannot archive or ACK",
+    "S1 revocation does not erase callback evidence or turn status into inbound/closure",
+    "batch memory rollback undoes every item, nonce, receipt and audit",
+    "candidate global order preserves final WA55 outbox/event/key relative order",
+    "lock plan rejects historical key/event inversion and sorts multiple resources by byte order",
+    "identical callback items in one lot remain two observations; 101 items deny whole lot",
+    "conflict fingerprints are retained without overwriting the original observation",
+    "technical attempt correlation is server-owned and durable audit binds request, scope and receipt",
+    "a review ref reused with different evidence cannot overwrite reconciliation",
+    "file receipt follows file sync, atomic rename and directory sync; restart sees whole lot",
+    "ACK candidate stays pending while persistence is blocked before fsync",
+    "failure before rename leaves no batch, nonce or audit; retry is fresh and complete",
+    "failure after rename is uncertain and readback reuses the persisted receipt",
+    "lost durable result: old nonce cannot yield ACK and fresh proof recovers exact receipt",
+    "actual child process loss after fsync+commit and before response recovers all items",
+    "actual process loss before rename leaves original state and no partial ACK",
+    "restart after begin with no observation remains unknown, occupied and never reusable",
+    "reinitialization cannot erase existing durable state",
+    "proof and raw envelope are snapshotted before awaiting a transaction"
+  ],
+  "verification_excerpt": [
+    "2026-10-26T17:39:18.2056923Z node: v22.23.3",
+    "2026-10-26T17:39:18.3184576Z PROVENANCE PASS: 7 unchanged source blobs; additive auxiliary scope",
+    "2026-10-26T17:39:19.3723313Z ok 48 - actual child process loss after fsync+commit and before response recovers all items",
+    "2026-10-26T17:39:19.6455858Z ok 49 - actual process loss before rename leaves original state and no partial ACK",
+    "2026-10-26T17:39:19.6872436Z # tests 52",
+    "2026-10-26T17:39:19.6874719Z # pass 52",
+    "2026-10-26T17:39:19.6875691Z # fail 0",
+    "2026-10-26T17:39:19.6876642Z # cancelled 0",
+    "2026-10-26T17:39:19.6878451Z # skipped 0",
+    "2026-10-26T17:39:21.9064083Z # tests 161",
+    "2026-10-26T17:39:21.9064963Z # pass 161",
+    "2026-10-26T17:39:21.9065414Z # fail 0",
+    "2026-10-26T17:39:21.9065846Z # cancelled 0",
+    "2026-10-26T17:39:21.9066304Z # skipped 0"
+  ],
+  "official_pr_heads_rechecked": [
+    {
+      "pr": 7,
+      "head_sha": "450dcd645f35d4c8bf93e974e75d3b09467965a7",
+      "unchanged_since_recovery": true
+    },
+    {
+      "pr": 8,
+      "head_sha": "cb7fc3e2eacdaad9b8d47ffca1284759ca3357a3",
+      "unchanged_since_recovery": true
+    },
+    {
+      "pr": 9,
+      "head_sha": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+      "unchanged_since_recovery": true
+    },
+    {
+      "pr": 11,
+      "head_sha": "ddec1b80444bfde871d43a02d0ee94b9ed7cde11",
+      "unchanged_since_recovery": true
+    }
+  ],
+  "limits": [
+    "No production M2M identity, keys, Graph, HTTP ACK or Supabase hosted.",
+    "Concurrency tests serialize a candidate model; no PostgreSQL/S1 physical lock proof.",
+    "FileStore durability is disposable single-process filesystem evidence, not PG or HA certification.",
+    "No merge, deploy, migrations or final integration."
+  ]
+}

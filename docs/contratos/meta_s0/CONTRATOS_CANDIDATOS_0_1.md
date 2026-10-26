@@ -173,6 +173,6 @@ node --experimental-strip-types --test --test-concurrency=1 integration/meta_s0_
 
 Workflow executa **161 regressões Meta existentes** selecionadas no PR #8 (12 Cloud webhook + 20 Cloud wire + 129 anteriores), sem copiar/recontar WA39–68. **52 testes novos** cobrem modelo candidato/fixture de filesystem; não substituem certificação PG17/GoTrue dos PRs #7/#9.
 
-Revisor: conferir diff aditivo/manifesto; ler C1–C7; examinar CI no SHA executável; confirmar ausência de direito de envio/produção/ACK externo; exigir corridas físicas/instalação mínima futuras. Resultados desta proposta em EVIDENCIAS.md; até sua verificação, testes estão preparados, não certificados.
+Revisor: conferir diff aditivo/manifesto; ler C1–C7; examinar CI no SHA executável; confirmar ausência de direito de envio/produção/ACK externo; exigir corridas físicas/instalação mínima futuras. Resultados confirmados em EVIDENCIAS.md: CI SUCCESS no SHA executável 92703c34fd4a2b9bae0d00768969c7c53cc16da3, 52/52 novos + 161/161 preservados. Guia operacional de revisão em AVALIACAO_CODEX_PRINCIPAL.md.
 
 Sem merge, deploy, Graph, credenciais reais, migration hospedada ou integração final.
