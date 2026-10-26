@@ -113,3 +113,7 @@ except Denied:
  pass
 print("PASS I73-E2E-08: GoTrue logout invalidates private DB session; old JWT denied")
 print("I73 8/8 real GoTrue, SQL grants and executor-only export E2E; disposable only")
+
+# I74: isolated signed exporter; no mutation of downstream E2E globals.
+_i74=Path('scripts/test_s1_002_i74_signed_export_e2e.py')
+exec(compile(_i74.read_text(encoding='utf-8'),str(_i74),'exec'),dict(globals()))

@@ -23,7 +23,7 @@ from backend.s1_command_validation_local import _fields
 from backend.s1_gateway_signed_local import _COMMAND, _action_args, _proof_material, _SQL_SIGNED
 
 _MATERIAL = re.compile(
-    rb"prumo-s1-i20-v1\|(MOVER|PAUSAR|REATIVAR|INTAKE53|INTAKE|FILA55L|FILA55C|EXC62M|EXC62R)\|"
+    rb"prumo-s1-i20-v1\|(MOVER|PAUSAR|REATIVAR|INTAKE53|INTAKE|FILA55L|FILA55C|EXC62M|EXC62R|EXPORT74)\|"
     rb"[0-9a-f-]{36}\|[0-9a-f-]{36}\|[A-Z0-9a-f|_:\-]{5,350}"
 )
 _MAX_MATERIAL = 600
@@ -130,6 +130,13 @@ def _worker(operations, control, independent_auth=None):
                         elif (str(uuid.UUID(parts[5])) != parts[5]
                               or re.fullmatch(r"C:[1-9][0-9]{0,18}",parts[9]) is None
                               or int(parts[9][2:]) > 9223372036854775807):
+                            raise ValueError()
+                    elif parts[1] == "EXPORT74":
+                        # Domain-bound signed export, never generic bearer signing.
+                        if (str(uuid.UUID(parts[4])) != parts[4]
+                            or (parts[5] != "-" and str(uuid.UUID(parts[5])) != parts[5])
+                            or parts[6:9] != ["-"] * 3
+                            or re.fullmatch(r"E:[LC]:(?:[1-9]|1[0-9]|20)",parts[9]) is None):
                             raise ValueError()
                     else:
                         raise ValueError()
