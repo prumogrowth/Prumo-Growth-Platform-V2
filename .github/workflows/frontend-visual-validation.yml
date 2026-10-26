@@ -5,6 +5,7 @@ on:
       - feat/frontend-plataforma-visual
     paths:
       - "frontend/visual/**"
+      - "frontend/preview/**"
       - ".github/workflows/frontend-visual-validation.yml"
 permissions:
   contents: read
@@ -63,6 +64,19 @@ jobs:
           python -B frontend/visual/tests/run_acceptance.py \
             --expected-head "$GITHUB_SHA" \
             --json-report fv-native-validation/report.json
+      - name: Gerar exportacao publica SOMENTE apos gate nativo completo
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          python -B -m unittest discover -s frontend/preview -p 'test_*.py'
+          python -B frontend/preview/build_preview.py --output out/prumo-demo-visual.zip
+      - name: Artefato ZIP visual para avaliacao (30 dias; SEM deploy)
+        uses: actions/upload-artifact@v4
+        with:
+          name: prumo-demo-visual-zip
+          path: out/prumo-demo-visual.zip
+          if-no-files-found: error
+          retention-days: 30
       - name: Registrar resumo tecnico
         if: always()
         run: |
