@@ -31,3 +31,12 @@ A auditoria parte do contrato vigente FV-DOC-03 (FV-22-01..16) e distingue cada 
 ## Regra de governança
 
 Codex é responsável principal pelo S0. Propostas que afetem o núcleo ficam isoladas e documentadas, sem implementação no núcleo oficial antes da coordenação. `main`, PRs/branches existentes e deploy preservados. A interface e a plataforma seguem sem nome comercial aprovado (LiberaCred é o produto bancário).
+
+## Certificação GitHub Actions — FVA-01
+
+- **Execução:** [40300012152](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40300012152), `completed / success`.
+- **SHA técnico completo testado:** `c9e7dd75f3a50dd0727eaeac808c412e26de9258`; conteúdo de regressão: `a9f56031bfe6d8f8bd2bca2c94daf2815ef4cdb3`.
+- **Preflight:** 59 arquivos PASS; **Python:** 25/25 PASS; **Node:** 375/375 PASS (três testes cruzados novos FVA-01, todos `ok`); **Chromium/Playwright:** PASS; `FV-UI-058 foco do primeiro caso pela seta em 8 cenarios: PASS`.
+- **Gate final:** `FULL LOCAL ACCEPTANCE: PASS`.
+- A conclusão refere-se ao **modelo local de dados fictícios** e ao escopo visual; não é teste de autenticação, RLS, Supabase, simultaneidade real de Gestores, OpenAI/F03 efetiva, Meta ou banco. Sem alteração ao núcleo S0.
+- Próximo marco de FVA: **FVA-02, estados de erro/ação e recortes de jornada**, evitando novas sessões Chromium desnecessárias. Esta atualização é documental, não altera o SHA técnico testado nem a `main`.
