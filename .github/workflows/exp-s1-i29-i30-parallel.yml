@@ -1,0 +1,68 @@
+name: EXP S1 CI - I29 I30 parallel isolated
+on:
+  push:
+    branches: [exp/ci-s1-consolidacao-20261025]
+    paths:
+      - '.github/workflows/exp-s1-i29-i30-parallel.yml'
+      - 'scripts/ci/s1_pair_*'
+      - 'docs/ci/CI_S1_I29_I30_TRIGGER_20261025.md'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: exp-s1-i29-i30-parallel-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  isolated-pair:
+    if: github.ref == 'refs/heads/exp/ci-s1-consolidacao-20261025'
+    name: EXP ${{ matrix.gate }} units + isolated E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        gate: [I29, I30]
+    env:
+      CI: 'true'
+      PYTHONDONTWRITEBYTECODE: '1'
+      SUPABASE_DISABLE_TELEMETRY: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 2.84.2
+      - name: Local SQL client and pinned driver
+        run: |
+          set -euo pipefail
+          command -v psql || (sudo apt-get update -qq && sudo apt-get install -y postgresql-client)
+          python3 -m pip install --user 'psycopg[binary]==3.2.13'
+      - name: Preserve union of control syntax gates
+        if: matrix.gate == 'I30'
+        run: PYTHONPATH=. python3 -m compileall -q backend/s1_gateway_http_policy_local.py backend/s1_signer_process_local.py backend/s1_signer_independent_gotrue_local.py backend/s1_signer_mtls_local.py backend/s1_i27_ephemeral_certificates.py backend/s1_i28_rotating_certificates.py backend/s1_signer_mtls_rotation_local.py tests/test_s1_002_i23_http_policy.py tests/test_s1_002_i25_signer_process.py tests/test_s1_002_i26_independent_auth.py tests/test_s1_002_i27_mtls.py tests/test_s1_002_i28_cert_lifecycle.py tests/test_s1_002_i29_persistent_revocation.py backend/s1_i29_persistent_certificate_store.py backend/s1_signer_mtls_persistent_local.py scripts/test_s1_002_i29_persistent_revocation_local.py backend/s1_i30_signed_revocation_authority_local.py backend/s1_signer_mtls_authority_local.py tests/test_s1_002_i30_authenticated_authority.py scripts/test_s1_002_i30_signed_authority_local.py
+      - name: Overlap unit shard with fresh stack startup, then full E2E
+        env:
+          PAIR_GATE: ${{ matrix.gate }}
+        run: bash scripts/ci/s1_pair_parallel.sh "$PAIR_GATE"
+      - name: Ensure disposable stack is stopped even after cancellation
+        if: always()
+        env:
+          PAIR_GATE: ${{ matrix.gate }}
+        run: |
+          set -euo pipefail
+          file="$RUNNER_TEMP/ci-pair-workdir-$PAIR_GATE"
+          if [ -f "$file" ]; then
+            cd "$(cat "$file")"
+            supabase stop --no-backup
+          fi
+          rm -f "$RUNNER_TEMP/ci-pair-$PAIR_GATE.env"
+      - name: Preserve test identifiers and timing only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: exp-s1-parallel-${{ matrix.gate }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/ci-pair-${{ matrix.gate }}/
+          if-no-files-found: warn
+          retention-days: 7
