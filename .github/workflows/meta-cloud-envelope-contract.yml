@@ -1,0 +1,51 @@
+name: Meta Cloud webhook handoff - offline contract
+on:
+  push:
+    branches:
+      - feat/meta-cloud-envelope-contract-20261026
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - docs/whatsapp-meta-concessionária de demonstração-poc-20261017
+    paths:
+      - 'integrations/whatsapp-meta/**'
+      - '.github/workflows/meta-cloud-envelope-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  cloud-webhook-contract:
+    name: Contract-only, no S0 and no Meta network
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      NODE_OPTIONS: ''
+      NODE_PATH: ''
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Targeted Cloud webhook handoff contract (12 checks)
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --experimental-strip-types --test --test-concurrency=1 \
+            integrations/whatsapp-meta/cloud-webhook-handoff.test.ts \
+            2>&1 | tee "$RUNNER_TEMP/cloud-meta-contract.tap"
+          grep -qx '# tests 12' "$RUNNER_TEMP/cloud-meta-contract.tap"
+          grep -qx '# pass 12' "$RUNNER_TEMP/cloud-meta-contract.tap"
+          grep -qx '# fail 0' "$RUNNER_TEMP/cloud-meta-contract.tap"
+      - name: Reuse existing HMAC, Graph and WA36/37 contracts, no duplicates
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --experimental-strip-types --test --test-concurrency=1 \
+            integrations/whatsapp-meta/inbound.test.ts \
+            integrations/whatsapp-meta/routed-webhook.test.ts \
+            integrations/whatsapp-meta/graph-outbound.test.ts \
+            integrations/whatsapp-meta/graph-template.test.ts \
+            integrations/whatsapp-meta/wa36-ratification-gate.test.ts \
+            integrations/whatsapp-meta/wa37-acceptance-handoff.test.ts
