@@ -4028,24 +4028,30 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
         send=None
         if seed:
             legacy,send=uuid.uuid4(),uuid.uuid4()
+            from datetime import datetime,timezone,timedelta
             with self.pg.connect(DB) as con:
+                handoff=con.execute('select criado_em from public.casos_humanos '
+                                    'where id=%s',(self.case,)).fetchone()[0]
+                plan_created=handoff-timedelta(hours=2)
+                attempt_created=handoff-timedelta(hours=1)
                 con.execute('insert into public.planos_recontato_sinteticos '
                   '(id,concessionaria_id,lead_id,ciclo_id,canal_id,'
-                  'chave_idempotencia,fingerprint) values (%s,%s,%s,%s,%s,%s,%s)',
+                  'chave_idempotencia,fingerprint,criado_em) '
+                  'values (%s,%s,%s,%s,%s,%s,%s,%s)',
                   (legacy,self.shop,self.lead,self.cycle,self.channel,
-                   'e04-c08-original-chain','legacy-f02-synthetic'))
+                   'e04-c08-original-chain','legacy-f02-synthetic',plan_created))
                 if attempts:
-                    from datetime import datetime,timezone,timedelta
                     params=[send,self.shop,legacy,fixture[0][4],1,
                       datetime.now(timezone.utc)+timedelta(days=7),
-                      'programado', 'legacy-f02-synthetic:1',None]
+                      'programado', 'legacy-f02-synthetic:1',None,
+                      attempt_created]
                     if reserved:
                         params[6]='reservado'
                         params[8]=datetime.now(timezone.utc)
                     con.execute('insert into public.envios_template_sinteticos '
                       '(id,concessionaria_id,plano_id,template_id,ordem,'
-                      'agendado_em,estado,chave_idempotencia,reservado_em) '
-                      'values (%s,%s,%s,%s,%s,%s,%s,%s,%s)',tuple(params))
+                      'agendado_em,estado,chave_idempotencia,reservado_em,criado_em) '
+                      'values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',tuple(params))
         if cancel and seed:
             with self.pg.connect(DB) as con:
                 result=con.execute('select prumo_private.cancelar_recontatos_sinteticos'
