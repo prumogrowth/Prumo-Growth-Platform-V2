@@ -204,6 +204,19 @@
       "status": "INTEGRATION_PENDING",
       "tests": [],
       "gate": "Separate approved scheduler/transport; Meta disposition; server clock and atomic last-mile recheck"
+    },
+    {
+      "id": "F02-A19",
+      "area": "F02/S0",
+      "behavior": "Review lifecycle recomputes and matches the untrusted SHA-256 against the exact current evidence, scope and proposal before any review-only status",
+      "status": "LAB_VERIFIED",
+      "tests": [
+        "backend/tests/test_f02_bound_review_preflight.py::test_03_changed_proposed_contact_time_rejected",
+        "backend/tests/test_f02_bound_review_preflight.py::test_05_changed_evidence_digest_rejected",
+        "backend/tests/test_f02_bound_review_preflight.py::test_09_fake_handoff_contract_version_rejected_on_both_paths",
+        "backend/tests/test_f02_bound_review_preflight.py::test_13_equal_utc_instant_in_other_offset_is_equivalent"
+      ],
+      "gate": "Codex/S0 still must authenticate source evidence and ratify authoritative human decision; digest consistency does not prove authenticity"
     }
   ],
   "non_authorizing_positive_states": [
@@ -253,5 +266,15 @@
   ],
   "approved_operational_authorization": false,
   "production_tests_executed": false,
-  "legacy_e02_oracles_homologated": false
+  "legacy_e02_oracles_homologated": false,
+  "bound_review_preflight": {
+    "version": "F02_S0_BOUND_REVIEW_PREFLIGHT_V1",
+    "implementation": "backend/f02_reconciled_review_lifecycle.py",
+    "tests": "backend/tests/test_f02_bound_review_preflight.py",
+    "documentation": "docs/contracts/OAI_E04_F02_BOUND_REVIEW_PREFLIGHT_V1.md",
+    "untrusted_evidence": true,
+    "authenticity_attested": false,
+    "approval": false,
+    "durable_idempotency": false
+  }
 }

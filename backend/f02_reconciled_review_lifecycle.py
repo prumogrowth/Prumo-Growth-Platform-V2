@@ -10,13 +10,15 @@ Experimental review TTL: <=48 hours; not adopted business policy.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from hmac import compare_digest
 from datetime import datetime, timedelta, timezone
 from enum import Enum
 import re
 from uuid import UUID
 
 from backend.f02_reconciled_human_authorization_handoff import (
-    HandoffResult, HandoffState, ReviewOnlyProposal,
+    ClaimedS0Evidence, CONTRACT_VERSION, HandoffResult, HandoffState,
+    ReviewOnlyProposal, prepare_handoff,
 )
 
 _REVIEW_TTL = timedelta(hours=48)
@@ -119,6 +121,7 @@ def evaluate_review_lifecycle(
         or type(timeline) is not UntrustedTimeline):
         return state(LifecycleState.DENIED_MALFORMED)
     if (handoff.status is not HandoffState.HANDOFF_REVIEW_ONLY
+        or handoff.contract_version != CONTRACT_VERSION
         or not _digest(handoff.untrusted_request_sha256)):
         return state(LifecycleState.RECONCILIATION_RECHECK_REQUIRED)
     scope = _scope(proposal)
@@ -179,3 +182,36 @@ def evaluate_review_lifecycle(
             return state(LifecycleState.IDEMPOTENCY_CONFLICT_REVIEW_REQUIRED)
         return state(LifecycleState.UNTRUSTED_EXACT_REPLAY_REVIEW_ONLY)
     return state(LifecycleState.READY_FOR_S0_RECHECK_ONLY)
+
+
+def evaluate_bound_review_lifecycle(
+    evidence: ClaimedS0Evidence,
+    handoff: HandoffResult,
+    proposal: ReviewOnlyProposal,
+    window: ReviewWindow,
+    timeline: UntrustedTimeline,
+) -> LifecycleResult:
+    """Bind the *untrusted* handoff to exactly these evidence/proposal fields.
+
+    This is a pure, non-authorizing F02 preflight. Recomputing a plain SHA256
+    only detects mismatch between caller-supplied claims; it is NOT an HMAC,
+    signature, persisted record, S0 authenticity or consent verification.
+    Future S0 consumers must use this bound path rather than assuming the
+    legacy evaluate_review_lifecycle digest matches its proposal.
+    """
+    if (type(evidence) is not ClaimedS0Evidence
+        or type(handoff) is not HandoffResult
+        or type(proposal) is not ReviewOnlyProposal
+        or type(window) is not ReviewWindow
+        or type(timeline) is not UntrustedTimeline):
+        return LifecycleResult(LifecycleState.DENIED_MALFORMED)
+    expected = prepare_handoff(evidence, proposal)
+    if (expected.status is not HandoffState.HANDOFF_REVIEW_ONLY
+        or handoff.status is not HandoffState.HANDOFF_REVIEW_ONLY
+        or handoff.contract_version != CONTRACT_VERSION
+        or not _digest(expected.untrusted_request_sha256)
+        or not _digest(handoff.untrusted_request_sha256)
+        or not compare_digest(expected.untrusted_request_sha256,
+                              handoff.untrusted_request_sha256)):
+        return LifecycleResult(LifecycleState.RECONCILIATION_RECHECK_REQUIRED)
+    return evaluate_review_lifecycle(handoff, proposal, window, timeline)
