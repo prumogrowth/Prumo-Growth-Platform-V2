@@ -217,6 +217,21 @@
         "backend/tests/test_f02_bound_review_preflight.py::test_13_equal_utc_instant_in_other_offset_is_equivalent"
       ],
       "gate": "Codex/S0 still must authenticate source evidence and ratify authoritative human decision; digest consistency does not prove authenticity"
+    },
+    {
+      "id": "F02-A20",
+      "area": "F02/S0",
+      "behavior": "Untrusted resumed review compares previously supplied snapshot to current snapshot: detects disappearing declared revocations/requests, backward clock, request mutation and previously denied claims",
+      "status": "LAB_VERIFIED",
+      "tests": [
+        "backend/tests/test_f02_reconciled_review_recovery.py::test_03_prior_claimed_replay_cannot_vanish",
+        "backend/tests/test_f02_reconciled_review_recovery.py::test_04_prior_foreign_revocation_cannot_vanish",
+        "backend/tests/test_f02_reconciled_review_recovery.py::test_06_valid_but_different_evidence_is_not_continuity",
+        "backend/tests/test_f02_reconciled_review_recovery.py::test_10_clock_regression_cannot_reopen_review",
+        "backend/tests/test_f02_reconciled_review_recovery.py::test_11_prior_revoked_claim_cannot_be_resumed",
+        "backend/tests/test_f02_reconciled_review_recovery.py::test_13_new_revocation_blocks_even_with_continuity"
+      ],
+      "gate": "Codex/S0 must supply trusted persisted snapshots, completeness proofs, authoritative revocations, S1 rights and server clock; this guard cannot prove any real history"
     }
   ],
   "non_authorizing_positive_states": [
@@ -276,5 +291,16 @@
     "authenticity_attested": false,
     "approval": false,
     "durable_idempotency": false
+  },
+  "review_recovery": {
+    "contract": "F02_REVIEW_RECOVERY_V1",
+    "module": "backend/f02_reconciled_review_recovery.py",
+    "tests": "backend/tests/test_f02_reconciled_review_recovery.py",
+    "documentation": "docs/contracts/OAI_E04_F02_REVIEW_RECOVERY_V1.md",
+    "inputs_caller_supplied": true,
+    "s0_authority": false,
+    "durable_history": false,
+    "meta_transport": false,
+    "approval": false
   }
 }
