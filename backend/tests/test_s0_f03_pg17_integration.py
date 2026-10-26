@@ -4192,7 +4192,7 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
         manager=ctx[0][0][3]
         with self.pg.connect(DB) as con:
             con.execute('update public.equipe_prumo_s1 set estado=%s '
-               'where ator_id=%s',('inativo',manager[0]))
+               'where ator_id=%s',('suspenso',manager[0]))
         self.assertIs(self._f02_cancel_witness(ctx),
                       CancelWitnessState.S0_REVIEW_REQUIRED)
 
