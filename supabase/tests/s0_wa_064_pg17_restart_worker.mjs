@@ -26,7 +26,7 @@ if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(keyId?
  throw Error('WA60_WORKER_BAD_CONFIG');
 // WA61 process-local fixture drift, never a real S0 binding update.
 const profile=env.WA61_BINDING_PROFILE??'current';
-if(!['current','stale-attempt','disabled-route','wa63-a','wa63-b','wa63-c','wa64-a','wa64-b','wa64-c','wa65-a','wa65-b','wa66-a','wa66-b','wa67-a'].includes(profile))
+if(!['current','stale-attempt','disabled-route','wa63-a','wa63-b','wa63-c','wa64-a','wa64-b','wa64-c','wa65-a','wa65-b','wa66-a','wa66-b','wa67-a','wa68-a'].includes(profile))
  throw Error('WA61_WORKER_PROFILE_DENIED');
 const INTERNAL=Buffer.from(secretHex,'hex'),META=Buffer.alloc(48,0x4d);
 const NOW=()=>Math.floor(Date.now()/1000);
@@ -76,7 +76,9 @@ const WA66_BINDINGS=Object.freeze({
 const WA67_BINDING=Object.freeze({...B,
  intentRef:'f7400000-0000-4000-8000-000000000073',
  attemptRef:'ATTEMPT_WA67_A',correlationRef:'CORR_WA67_A',wamid:'wamid.WA67.A'});
-const ACTIVE_BINDING=(profile==='wa67-a'?WA67_BINDING:null)??WA66_BINDINGS[profile]??WA65_BINDINGS[profile]??WA64_BINDINGS[profile]??WA63_BINDINGS[profile]??(profile==='stale-attempt'
+const WA68_BINDING=Object.freeze({...B,intentRef:'f7400000-0000-4000-8000-000000000074',
+attemptRef:'ATTEMPT_WA68_A',correlationRef:'CORR_WA68_A',wamid:'wamid.WA68.A'});
+const ACTIVE_BINDING=(profile==='wa68-a'?WA68_BINDING:null)??(profile==='wa67-a'?WA67_BINDING:null)??WA66_BINDINGS[profile]??WA65_BINDINGS[profile]??WA64_BINDINGS[profile]??WA63_BINDINGS[profile]??(profile==='stale-attempt'
  ?Object.freeze({...B,attemptRef:'ATTEMPT_WA61_STALE'}):B);
 function sql(q){
  return new Promise((resolve,reject)=>{
