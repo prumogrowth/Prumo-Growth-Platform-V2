@@ -4753,5 +4753,136 @@ class PostgresF03ManifestIntegration(unittest.TestCase):
         self.assertIs(self._f02_draft_record(a),
                       DraftState.LEGACY_RECONCILIATION_REQUIRED)
 
+
+    def _f02_true_legacy_review(self,*,reserved=False):
+        from backend.s0_f02_posthuman_intent_local import IntentState
+        from backend.s0_f02_legacy_cancellation_witness_local import (
+            S0F02LocalLegacyCancellationWitness
+        )
+        from backend.s0_f02_legacy_observed_origin_local import (
+            S0F02LegacyObservedOriginBridge
+        )
+        from backend.s0_f02_posthuman_legacy_reconciliation_local import (
+            S0F02LegacyReconciliationReview
+        )
+        self.assertTrue(self.early_legacy)
+        with self.pg.connect(DB) as con:
+            if reserved:
+                con.execute('update public.envios_template_sinteticos '
+                            "set estado='reservado',reservado_em=statement_timestamp() "
+                            'where id=%s',(self.legacy_attempt,))
+        with self.pg.connect(DB) as con:
+            cancelled=con.execute('select prumo_private.cancelar_recontatos_sinteticos'
+                "(%s,%s,'handoff')",(self.shop,self.lead)).fetchone()[0]
+            self.assertEqual(cancelled['outcome'],'APPLIED')
+            self.assertEqual(cancelled['planos_cancelados'],1)
+            self.assertEqual(cancelled['envios_cancelados'],1)
+        intent=self._f02_intent_fixture()
+        self.assertIs(self._f02_intent_record(intent),IntentState.RECORDED_AUDIT_ONLY)
+        witness=S0F02LocalLegacyCancellationWitness(intent[1])
+        origin=S0F02LegacyObservedOriginBridge(witness)
+        review=S0F02LegacyReconciliationReview(origin)
+        return (intent,review)
+
+    def _f02_legacy_review_check(self,ctx,*,js=None):
+        intent,review=ctx
+        data,_,request=intent
+        _,fields,version,f03,proposal=data[0]
+        return review.inspect('Bearer PINNED_S2_LOCAL_E04',self.binding,
+            'test-key-v1',b'fixture-only-content-seal-key-more-than-32-bytes',
+            version,'request-cas-0001',fields,f03,proposal,
+            self._s2_f02_real_lifecycle() if js is None else js,
+            str(self.channel),request).state
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),'needs pinned S2 JS')
+    def test_322_true_pre_handoff_c04_c08_and_f03_review_only(self):
+        from backend.s0_f02_posthuman_legacy_reconciliation_local import LegacyReviewState
+        ctx=self._f02_true_legacy_review()
+        self.assertIs(self._f02_legacy_review_check(ctx),
+                      LegacyReviewState.LOCAL_LEGACY_EVIDENCE_REVIEW_ONLY)
+        with self.pg.connect(DB) as con:
+            self.assertEqual(con.execute('select count(*) from '
+                'prumo_private.cfi01_f02_legacy_cancel_witness_local '
+                'where concessionaria_id=%s',(self.shop,)).fetchone()[0],1)
+            self.assertEqual(con.execute('select count(*) from '
+                'prumo_private.cfi01_f02_posthuman_draft_local '
+                'where concessionaria_id=%s',(self.shop,)).fetchone()[0],0)
+            self.assertEqual(con.execute('select count(*) from '
+                'public.envios_template_sinteticos where concessionaria_id=%s '
+                "and estado<>'cancelado'",(self.shop,)).fetchone()[0],0)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),'needs pinned S2 JS')
+    def test_323_true_observed_chain_review_is_repeatable_without_queue(self):
+        from backend.s0_f02_posthuman_legacy_reconciliation_local import LegacyReviewState
+        ctx=self._f02_true_legacy_review()
+        self.assertIs(self._f02_legacy_review_check(ctx),
+                      LegacyReviewState.LOCAL_LEGACY_EVIDENCE_REVIEW_ONLY)
+        self.assertIs(self._f02_legacy_review_check(ctx),
+                      LegacyReviewState.LOCAL_LEGACY_EVIDENCE_REVIEW_ONLY)
+        with self.pg.connect(DB) as con:
+            self.assertEqual(con.execute('select count(*) from '
+                'prumo_private.cfi01_f02_posthuman_draft_local '
+                'where concessionaria_id=%s',(self.shop,)).fetchone()[0],0)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),'needs pinned S2 JS')
+    def test_324_original_draft_path_still_blocks_true_canceled_legacy(self):
+        from backend.s0_f02_posthuman_draft_local import (
+          S0F02PostHumanDraftLocal,PostHumanDraftRequest,DraftState)
+        from datetime import datetime,timezone,timedelta
+        ctx=self._f02_true_legacy_review()
+        intent,review=ctx
+        draft=S0F02PostHumanDraftLocal(intent[0][1])
+        data,_,request=intent
+        _,fields,version,f03,proposal=data[0]
+        result=draft.record('Bearer PINNED_S2_LOCAL_E04',self.binding,
+            'test-key-v1',b'fixture-only-content-seal-key-more-than-32-bytes',
+            version,'request-cas-0001',fields,f03,proposal,
+            self._s2_f02_real_lifecycle(),str(self.channel),
+            PostHumanDraftRequest(request,datetime.now(timezone.utc)+
+                 timedelta(hours=48),'gated-original-draft-key'))
+        self.assertIs(result.state,DraftState.LEGACY_RECONCILIATION_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),'needs pinned S2 JS')
+    def test_325_previous_reservation_remains_external_unknown(self):
+        from backend.s0_f02_posthuman_legacy_reconciliation_local import LegacyReviewState
+        ctx=self._f02_true_legacy_review(reserved=True)
+        self.assertIs(self._f02_legacy_review_check(ctx),
+                      LegacyReviewState.EXTERNAL_DISPATCH_UNKNOWN)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),'needs pinned S2 JS')
+    def test_326_changed_c08_cancel_event_invalidates_review(self):
+        from backend.s0_f02_posthuman_legacy_reconciliation_local import LegacyReviewState
+        ctx=self._f02_true_legacy_review()
+        self.assertIs(self._f02_legacy_review_check(ctx),
+                      LegacyReviewState.LOCAL_LEGACY_EVIDENCE_REVIEW_ONLY)
+        with self.pg.connect(DB) as con:
+            con.execute('update public.eventos_envio_template_sinteticos '
+                "set criado_em=criado_em + interval '1 second' "
+                'where envio_id=%s',(self.legacy_attempt,))
+        self.assertIs(self._f02_legacy_review_check(ctx),
+                      LegacyReviewState.RECHECK_S0_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),'needs pinned S2 JS')
+    def test_327_late_optout_blocks_review_even_after_seal(self):
+        from backend.s0_f02_posthuman_legacy_reconciliation_local import LegacyReviewState
+        ctx=self._f02_true_legacy_review()
+        self.assertIs(self._f02_legacy_review_check(ctx),
+                      LegacyReviewState.LOCAL_LEGACY_EVIDENCE_REVIEW_ONLY)
+        with self.pg.connect(DB) as con:
+            con.execute('insert into public.supressoes_contato_sinteticas '
+              '(concessionaria_id,lead_id,canal_id,finalidade,evento_origem) '
+              "values (%s,%s,%s,'recontato_comercial_sintetico','legacy-review-optout')",
+              (self.shop,self.lead,self.channel))
+        self.assertIs(self._f02_legacy_review_check(ctx),
+                      LegacyReviewState.RECHECK_S0_REQUIRED)
+
+    @unittest.skipUnless(os.environ.get('PRUMO_S2_F03_GATE_PATH'),'needs pinned S2 JS')
+    def test_328_model_send_now_boolean_is_not_authority(self):
+        from backend.s0_f02_posthuman_legacy_reconciliation_local import LegacyReviewState
+        ctx=self._f02_true_legacy_review()
+        forged={**self._s2_f02_real_lifecycle(),'sendNow':True}
+        self.assertIs(self._f02_legacy_review_check(ctx,js=forged),
+                      LegacyReviewState.RECHECK_S0_REQUIRED)
+
 if __name__=='__main__':
     unittest.main()

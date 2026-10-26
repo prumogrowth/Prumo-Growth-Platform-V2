@@ -62,6 +62,8 @@ class S0F02LegacyObservedOriginBridge:
         prior=self._witness.inspect_and_seal(authorization,binding,
              key_version,secret,version,request_ref,fields,f03_output,
              f03_proposal,s2_f02_result,channel_ref,request)
+        if prior.state is CancelWitnessState.RESERVED_PREVIOUSLY_EXTERNAL_UNKNOWN:
+            return OriginResult(OriginState.RESERVED_EXTERNAL_UNKNOWN)
         if prior.state not in (
             CancelWitnessState.LOCAL_CHAIN_ATTESTED_AUDIT_ONLY,
             CancelWitnessState.ALREADY_ATTESTED_AUDIT_ONLY):
