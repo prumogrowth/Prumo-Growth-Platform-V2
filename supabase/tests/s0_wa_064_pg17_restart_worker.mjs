@@ -24,6 +24,10 @@ if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(keyId?
  !/^[a-f0-9]{64}$/.test(password??'')||
  !['normal','precommit','postcommit'].includes(mode))
  throw Error('WA60_WORKER_BAD_CONFIG');
+// WA61 process-local fixture drift, never a real S0 binding update.
+const profile=env.WA61_BINDING_PROFILE??'current';
+if(!['current','stale-attempt','disabled-route'].includes(profile))
+ throw Error('WA61_WORKER_PROFILE_DENIED');
 const INTERNAL=Buffer.from(secretHex,'hex'),META=Buffer.alloc(48,0x4d);
 const NOW=()=>Math.floor(Date.now()/1000);
 const R=Object.freeze({appTechnical:'12346000002',wabaTechnical:'22346000002',
@@ -34,7 +38,9 @@ const B=Object.freeze({appRef:R.appRef,tenantRef:R.tenantRef,channelRef:R.channe
  correlationRef:'CORR_B',recipient:'5581900000000',wamid:'wamid.WA40.SHARED',
  bindingRevision:3});
 const REG=Object.freeze({routeRef:'WA60_LOOPBACK',revision:1,...R,
- secretSlot:'WA60_TEST_SECRET_ONLY',enabled:true});
+ secretSlot:'WA60_TEST_SECRET_ONLY',enabled:profile!=='disabled-route'});
+const ACTIVE_BINDING=profile==='stale-attempt'
+ ?Object.freeze({...B,attemptRef:'ATTEMPT_WA61_STALE'}):B;
 function sql(q){
  return new Promise((resolve,reject)=>{
   const client='postgresql://prumo_s0_meta_wa48_client_lab@127.0.0.1:5432/prumo_s0_test_ci';
@@ -51,7 +57,7 @@ function sql(q){
 }
 const q=x=>"'"+String(x).replaceAll("'","''")+"'";
 const boundary=createWa45OfflineBoundary({
- getRegistry:async()=>R,lookupBinding:async()=>B,
+ getRegistry:async()=>R,lookupBinding:async()=>ACTIVE_BINDING,
  getInternalKey:async()=>Buffer.from(INTERNAL),newNonce:async()=>randomUUID(),
  nowSeconds:NOW
 },keyId);
