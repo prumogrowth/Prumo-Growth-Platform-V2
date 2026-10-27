@@ -194,7 +194,7 @@ export async function inspectSignedMetaButtonReplies(
  rawBody:Uint8Array,signature:string|null,appSecret:string,
  trustedRoute:CloudRouteScope,limits?:{maxBodyBytes?:number;maxEvents?:number},
 ):Promise<ButtonReplyHandoff>{
- return await inspectSelectionBatch(rawBody,signature,appSecret,trustedRoute,limits,false)
+ return (await inspectSelectionBatch(rawBody,signature,appSecret,trustedRoute,limits,false))
    as ButtonReplyHandoff;
 }
 /**
