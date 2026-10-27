@@ -480,10 +480,10 @@ body[data-theme="dark"] .team-dialog .team-mode button[aria-pressed="true"]{
 .visual-app .inbox-mode{margin:6px 0 5px}
 .visual-app .inbox-tab.selected{border-color:#515b65;color:#2c343c}
 .visual-app .filters{padding-top:4px}
-.visual-app .filter-chip{background:#f3f4f5;color:#46515c;min-height:36px;padding:6px 10px}
+.visual-app .filter-chip{background:#f3f4f5;color:#46515c;min-height:44px;padding:7px 10px}
 .visual-app .filter-chip.selected{background:#e1e4e7;color:#252c33}
 .visual-app .list-extra{margin-top:3px;font-size:11px;color:#56626b}
-.visual-app .list-extra>summary{cursor:pointer;display:inline-flex;align-items:center;gap:5px;min-height:30px;font-weight:700}
+.visual-app .list-extra>summary{cursor:pointer;display:inline-flex;align-items:center;gap:5px;min-height:44px;font-weight:700}
 .visual-app .list-extra-content{padding:3px 0 6px}
 .visual-app .list-heading .queue-summary{margin-top:9px}
 .visual-app .queue-heading{padding:9px 16px}
