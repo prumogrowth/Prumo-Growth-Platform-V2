@@ -248,6 +248,21 @@
         "backend/tests/test_f02_s0_review_projection_candidate.py::test_28_pinned_s0_manifest_tracks_all_known_states_and_schema"
       ],
       "gate": "S0/Frontend must ratify transport and server-owned binding; S0 contract remains candidate, S0 F03/C08/Meta proofs and actual S1 human ratification remain pending"
+    },
+    {
+      "id": "F02-A22",
+      "area": "F02/S0",
+      "behavior": "Exhaustive read-only followup classification for all 13 S0 review-result candidate states distinguishes original-key query, context refresh, conflict, expiration, terminal request and contract contradiction without any retry/approval/send capability",
+      "status": "LAB_VERIFIED",
+      "tests": [
+        "backend/tests/test_f02_s0_review_followup_candidate.py::test_09_conflict_cannot_choose_a_new_key",
+        "backend/tests/test_f02_s0_review_followup_candidate.py::test_13_unavailable_requires_original_s0_read_not_resubmit",
+        "backend/tests/test_f02_s0_review_followup_candidate.py::test_14_negative_response_does_not_erase_prior_persisted_claim",
+        "backend/tests/test_f02_s0_review_followup_candidate.py::test_15_terminal_reopening_is_blocked",
+        "backend/tests/test_f02_s0_review_followup_candidate.py::test_23_followup_never_exposes_payload_or_operations",
+        "backend/tests/test_f02_s0_review_followup_candidate.py::test_24_pinned_s0_candidate_states_all_classified_exhaustively"
+      ],
+      "gate": "Codex S0 must ratify endpoint, principal/binding and authorized lookup. Classification never invokes S0 nor ratifies F03/C08/Meta, S1 manager or commercial permissions"
     }
   ],
   "non_authorizing_positive_states": [
@@ -329,5 +344,16 @@
     "source_s0_ci_run": 40414847271,
     "authority_verified_by_f02": false,
     "operational_approval": false
+  },
+  "s0_review_followup_candidate": {
+    "contract_schema": "prumo.s0.f02.review.result/0.1-candidate",
+    "implementation": "backend/f02_s0_review_followup_candidate.py",
+    "tests": "backend/tests/test_f02_s0_review_followup_candidate.py",
+    "documentation": "docs/contracts/OAI_E04_F02_S0_REVIEW_FOLLOWUP_V1.md",
+    "read_only": true,
+    "caller_input_untrusted": true,
+    "retry_automatic": false,
+    "send_authorized": false,
+    "operational_ratification": false
   }
 }
