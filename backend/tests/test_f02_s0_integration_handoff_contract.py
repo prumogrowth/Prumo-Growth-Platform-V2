@@ -26,7 +26,7 @@ class IntegrationHandoffTests(unittest.TestCase):
         source = ROOT / p["pinned_schema_file"]
         original = source.read_bytes()
         blob = hashlib.sha1(
-            b"blob " + str(len(original)).encode() + b"\\0" + original
+            b"blob " + str(len(original)).encode() + b"\0" + original
         ).hexdigest()
         self.assertEqual(blob, p["source_checkpoints"]["s0"]["candidate_schema_blob_sha"])
         self.assertEqual(blob, "61598ba702dc03f9f715673118c88f9359e64113")
