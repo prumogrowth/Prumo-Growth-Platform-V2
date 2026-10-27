@@ -1,0 +1,304 @@
+{
+  "scope": "I79/G2 internal experimental integration, disposable PG17/GoTrue/PostgREST",
+  "date": "2026-10-27",
+  "timezone": "America/Sao_Paulo",
+  "branch": "exp/s0-s1-i79-profissionais-20261027",
+  "code_commit": "ab96b5d2d2aae293e239b38bccec82c29dd72a15",
+  "code_tree": "f227e3bee079b3ec12f674a3315d911973b2a5f9",
+  "base_s0_pr20": "4775091ac6207e1593daf1d8fb3b3b3f414224de",
+  "source_s1_i78": "8780b576aa18bd3983c063339e2e42d2452af22c",
+  "i78_code": "f8268bc35c4701a8b522a66504e080628673b11d",
+  "i78_verified_ci": 40475205913,
+  "run": {
+    "id": 40484344324,
+    "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40484344324",
+    "status": "completed",
+    "conclusion": "success",
+    "started_at": "2026-10-27T09:54:20Z",
+    "completed_at": "2026-10-27T09:58:29Z",
+    "elapsed_seconds": 249,
+    "jobs": [
+      {
+        "id": 122122262229,
+        "name": "real-history-and-cfi",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 122122262376,
+        "name": "s1-pinned-i54-i78-regressions",
+        "status": "completed",
+        "conclusion": "success"
+      }
+    ]
+  },
+  "results": {
+    "s0_units": {
+      "passed": 280,
+      "existing_pr20": 272,
+      "new_i79": 8
+    },
+    "s1_units": {
+      "original_fifteen_suites": 179,
+      "catalogue_i75b": 6,
+      "catalogue_i75c": 8
+    },
+    "real_history": {
+      "s0": 19,
+      "i63": 19
+    },
+    "real_cfi_f02": {
+      "total": 56,
+      "cfi": 32,
+      "f02": 24
+    },
+    "real_g1_before_i79": 36,
+    "real_i79_profile": {
+      "total": 62,
+      "inherited_g1_assertions": 36,
+      "new_i79": 26
+    },
+    "legacy_sql_synthetic_identity": {
+      "I54": 8,
+      "I56": 6,
+      "I57": 5,
+      "I58": 6,
+      "I61": 9,
+      "total": 34
+    },
+    "native_s1": {
+      "checkout": "8780b576aa18bd3983c063339e2e42d2452af22c",
+      "i78_markers": 8,
+      "i74": 6,
+      "regression": "run-s1-002-i12-local.sh plus run-s1-002-i52-local.sh, original I46/I48/I75B/I75C checks"
+    },
+    "resource_warnings": 0,
+    "cleanup": "both jobs SUCCESS"
+  },
+  "main_unittest_counts": [
+    {
+      "count": 280,
+      "seconds": 0.962
+    },
+    {
+      "count": 19,
+      "seconds": 20.815
+    },
+    {
+      "count": 56,
+      "seconds": 33.433
+    },
+    {
+      "count": 19,
+      "seconds": 21.209
+    },
+    {
+      "count": 36,
+      "seconds": 11.806
+    },
+    {
+      "count": 62,
+      "seconds": 21.48
+    }
+  ],
+  "native_unittest_counts": [
+    {
+      "count": 30,
+      "seconds": 1.031
+    },
+    {
+      "count": 10,
+      "seconds": 0.952
+    },
+    {
+      "count": 10,
+      "seconds": 1.614
+    },
+    {
+      "count": 13,
+      "seconds": 3.67
+    },
+    {
+      "count": 15,
+      "seconds": 5.788
+    },
+    {
+      "count": 15,
+      "seconds": 7.98
+    },
+    {
+      "count": 15,
+      "seconds": 9.923
+    },
+    {
+      "count": 15,
+      "seconds": 10.568
+    },
+    {
+      "count": 15,
+      "seconds": 0.003
+    },
+    {
+      "count": 8,
+      "seconds": 0.001
+    },
+    {
+      "count": 11,
+      "seconds": 0.002
+    },
+    {
+      "count": 10,
+      "seconds": 0.002
+    },
+    {
+      "count": 3,
+      "seconds": 0.001
+    },
+    {
+      "count": 5,
+      "seconds": 0.001
+    },
+    {
+      "count": 4,
+      "seconds": 0.001
+    },
+    {
+      "count": 6,
+      "seconds": 0.011
+    },
+    {
+      "count": 8,
+      "seconds": 0.001
+    }
+  ],
+  "real_profile_test_names": [
+    "test_01_normal_store_grant_needs_no_exception (__main__.I79Tests.test_01_normal_store_grant_needs_no_exception) ... ok",
+    "test_02_case_only_exception_and_real_rls_two_teams (__main__.I79Tests.test_02_case_only_exception_and_real_rls_two_teams) ... ok",
+    "test_03_other_team_consultant_denied_even_same_store (__main__.I79Tests.test_03_other_team_consultant_denied_even_same_store) ... ok",
+    "test_04_self_claim_is_a_different_operation (__main__.I79Tests.test_04_self_claim_is_a_different_operation) ... ok",
+    "test_05_a2_paused_consultant_with_existing_exception_cannot_get_new_case (__main__.I79Tests.test_05_a2_paused_consultant_with_existing_exception_cannot_get_new_case) ... ok",
+    "test_06_invalid_real_bearer_signature_denied (__main__.I79Tests.test_06_invalid_real_bearer_signature_denied) ... ok",
+    "test_07_expired_live_session_denied (__main__.I79Tests.test_07_expired_live_session_denied) ... ok",
+    "test_08_revoked_a_does_not_grant_or_revoke_b (__main__.I79Tests.test_08_revoked_a_does_not_grant_or_revoke_b) ... ok",
+    "test_09_team_change_while_waiting_is_rechecked (__main__.I79Tests.test_09_team_change_while_waiting_is_rechecked) ... ok",
+    "test_10_pause_wins_during_lead_wait (__main__.I79Tests.test_10_pause_wins_during_lead_wait) ... ok",
+    "test_11_manager_grant_revoked_during_lead_wait (__main__.I79Tests.test_11_manager_grant_revoked_during_lead_wait) ... ok",
+    "test_12_session_delete_commits_before_command_gets_session_lock (__main__.I79Tests.test_12_session_delete_commits_before_command_gets_session_lock) ... ok",
+    "test_13_signed_i55_claim_wins (__main__.I79Tests.test_13_signed_i55_claim_wins) ... ok",
+    "test_14_manual_wins_over_signed_i55_claim (__main__.I79Tests.test_14_manual_wins_over_signed_i55_claim) ... ok",
+    "test_15_original_automatic_distribution_wins (__main__.I79Tests.test_15_original_automatic_distribution_wins) ... ok",
+    "test_16_manual_wins_over_original_distribution (__main__.I79Tests.test_16_manual_wins_over_original_distribution) ... ok",
+    "test_17_two_managers_each_with_own_team_one_winner (__main__.I79Tests.test_17_two_managers_each_with_own_team_one_winner) ... ok",
+    "test_18_exact_retry_returns_same_receipt_without_new_assignment (__main__.I79Tests.test_18_exact_retry_returns_same_receipt_without_new_assignment) ... ok",
+    "test_19_key_reused_with_another_destination_conflicts (__main__.I79Tests.test_19_key_reused_with_another_destination_conflicts) ... ok",
+    "test_20_key_reused_on_another_cycle_conflicts (__main__.I79Tests.test_20_key_reused_on_another_cycle_conflicts) ... ok",
+    "test_21_nonce_replay_and_tampered_destination_denied (__main__.I79Tests.test_21_nonce_replay_and_tampered_destination_denied) ... ok",
+    "test_22_original_i62_signed_revocation_removes_access_and_blocks_replay (__main__.I79Tests.test_22_original_i62_signed_revocation_removes_access_and_blocks_replay) ... ok",
+    "test_23_exception_creation_failure_rolls_back_case (__main__.I79Tests.test_23_exception_creation_failure_rolls_back_case) ... ok",
+    "test_24_assignment_failure_rolls_back_exception (__main__.I79Tests.test_24_assignment_failure_rolls_back_exception) ... ok",
+    "test_25_late_audit_failure_rolls_back_queue_case_nonce_and_request (__main__.I79Tests.test_25_late_audit_failure_rolls_back_queue_case_nonce_and_request) ... ok",
+    "test_26_deferred_commit_failure_never_returns_success (__main__.I79Tests.test_26_deferred_commit_failure_never_returns_success) ... ok",
+    "test_27_response_validation_is_before_commit (__main__.I79Tests.test_27_response_validation_is_before_commit) ... ok",
+    "test_28_grant_expiry_is_checked_after_lock_wait (__main__.I79Tests.test_28_grant_expiry_is_checked_after_lock_wait) ... ok",
+    "test_29_real_logout_revokes_same_jwt (__main__.I79Tests.test_29_real_logout_revokes_same_jwt) ... ok",
+    "test_30_intake_pause_waits_for_committing_assignment (__main__.I79Tests.test_30_intake_pause_waits_for_committing_assignment) ... ok",
+    "test_31_no_queue_signal_and_no_self_transfer (__main__.I79Tests.test_31_no_queue_signal_and_no_self_transfer) ... ok",
+    "test_32_private_acl_no_global_grant_or_owner_role (__main__.I79Tests.test_32_private_acl_no_global_grant_or_owner_role) ... ok",
+    "test_33_external_i56_case_creation_wins_without_duplicate (__main__.I79Tests.test_33_external_i56_case_creation_wins_without_duplicate) ... ok",
+    "test_34_second_manager_without_b_grant_cannot_forward_b (__main__.I79Tests.test_34_second_manager_without_b_grant_cannot_forward_b) ... ok",
+    "test_35_case_exception_does_not_expose_other_store_or_team_cases (__main__.I79Tests.test_35_case_exception_does_not_expose_other_store_or_team_cases) ... ok",
+    "test_36_concurrent_same_key_creates_one_assignment_and_one_request (__main__.I79Tests.test_36_concurrent_same_key_creates_one_assignment_and_one_request) ... ok",
+    "test_40_director_registers_pending_and_atomically_activates_consultant (__main__.I79Tests.test_40_director_registers_pending_and_atomically_activates_consultant) ... ok",
+    "test_41_active_consultant_without_manager_cannot_commit (__main__.I79Tests.test_41_active_consultant_without_manager_cannot_commit) ... ok",
+    "test_42_manager_without_children_has_authoritative_role_and_accepts_transfer (__main__.I79Tests.test_42_manager_without_children_has_authoritative_role_and_accepts_transfer) ... ok",
+    "test_43_manager_cannot_register_or_transfer_as_director (__main__.I79Tests.test_43_manager_cannot_register_or_transfer_as_director) ... ok",
+    "test_44_duplicate_active_manager_rejected_physically (__main__.I79Tests.test_44_duplicate_active_manager_rejected_physically) ... ok",
+    "test_45_two_director_commands_one_cas_winner (__main__.I79Tests.test_45_two_director_commands_one_cas_winner) ... ok",
+    "test_46_old_relation_cas_stale_even_if_destination_still_manager (__main__.I79Tests.test_46_old_relation_cas_stale_even_if_destination_still_manager) ... ok",
+    "test_47_concurrent_identical_key_one_durable_request (__main__.I79Tests.test_47_concurrent_identical_key_one_durable_request) ... ok",
+    "test_48_key_reuse_payload_conflict (__main__.I79Tests.test_48_key_reuse_payload_conflict) ... ok",
+    "test_49_real_logout_revokes_same_director_jwt (__main__.I79Tests.test_49_real_logout_revokes_same_director_jwt) ... ok",
+    "test_50_global_director_competence_revoked_no_shop_grant_fallback (__main__.I79Tests.test_50_global_director_competence_revoked_no_shop_grant_fallback) ... ok",
+    "test_51_revocation_commits_while_command_waits_then_rechecks (__main__.I79Tests.test_51_revocation_commits_while_command_waits_then_rechecks) ... ok",
+    "test_52_director_revocation_waits_for_inflight_commit (__main__.I79Tests.test_52_director_revocation_waits_for_inflight_commit) ... ok",
+    "test_53_session_expiry_denied_with_unexpired_jwt (__main__.I79Tests.test_53_session_expiry_denied_with_unexpired_jwt) ... ok",
+    "test_54_transfer_changes_supervision_not_cases_grants_or_paused_intake (__main__.I79Tests.test_54_transfer_changes_supervision_not_cases_grants_or_paused_intake) ... ok",
+    "test_55_manager_cannot_deactivate_leaving_active_consultant_orphan (__main__.I79Tests.test_55_manager_cannot_deactivate_leaving_active_consultant_orphan) ... ok",
+    "test_56_partial_failure_restores_previous_relation_and_audit (__main__.I79Tests.test_56_partial_failure_restores_previous_relation_and_audit) ... ok",
+    "test_57_deferred_commit_failure_rolls_back_and_closes_connection (__main__.I79Tests.test_57_deferred_commit_failure_rolls_back_and_closes_connection) ... ok",
+    "test_58_nonce_replay_and_payload_tamper_denied (__main__.I79Tests.test_58_nonce_replay_and_payload_tamper_denied) ... ok",
+    "test_59_malformed_return_rolls_back_before_commit (__main__.I79Tests.test_59_malformed_return_rolls_back_before_commit) ... ok",
+    "test_60_legacy_unclassified_account_cannot_receive_new_assignment (__main__.I79Tests.test_60_legacy_unclassified_account_cannot_receive_new_assignment) ... ok",
+    "test_61_private_acl_does_not_grant_director_to_sql_login (__main__.I79Tests.test_61_private_acl_does_not_grant_director_to_sql_login) ... ok",
+    "test_62_auto_distribution_skips_unclassified_and_uses_canonical_classifier (__main__.I79Tests.test_62_auto_distribution_skips_unclassified_and_uses_canonical_classifier) ... ok",
+    "test_63_empty_manager_can_self_claim_but_is_not_a_consultant_destination (__main__.I79Tests.test_63_empty_manager_can_self_claim_but_is_not_a_consultant_destination) ... ok",
+    "test_64_old_case_exception_never_revives_after_return_to_original_manager (__main__.I79Tests.test_64_old_case_exception_never_revives_after_return_to_original_manager) ... ok",
+    "test_65_busy_i61_exception_aborts_chefia_transfer_without_lock_inversion (__main__.I79Tests.test_65_busy_i61_exception_aborts_chefia_transfer_without_lock_inversion) ... ok"
+  ],
+  "legacy_sql_pass_markers": [
+    "PASS I54-01: leads and cycles without explicit human event are NOT a queue",
+    "PASS I54-02: S0 commercial status explicitly produces five durable minimal queue events",
+    "PASS I54-03: S0 auto-dispatch creates one real case/assignment, skips paused C1, CAS replay conflicts",
+    "PASS I54-04: real manual manager claim requires exact shop, creates canonical case and assignment",
+    "PASS I54-05: no eligible consultant => queue remains pending, no case/owner fabricated",
+    "PASS I54-06: resumed consultant can receive previously queued case once, CAS",
+    "PASS I54-07: no cross-store assignment; only own manager can claim own shop",
+    "PASS I54-08: append-only handoff audit, four unique owners, no authenticated direct SQL privilege",
+    "PASS I56-01: no explicit signal => no queue",
+    "PASS I56-02: external case reconciled and audited with CAS",
+    "PASS I56-03: legitimate I54 claim stays assigned, no false event",
+    "PASS I56-04: same-cycle second case rejected",
+    "PASS I56-05: all pending cycles of same lead reconciled",
+    "PASS I56-06: stale claim conflicts, trigger private",
+    "PASS I57-01: valid shop grant enables canonical assignment",
+    "PASS I57-02: cross-store assignment denied",
+    "PASS I57-03: A2 paused intake continues blocking new assignment",
+    "PASS I57-04: older assignment may be closed after grant expiry",
+    "PASS I57-05: SQL direct execution denied; failed writes did not mutate cases",
+    "PASS I58-01: authorized manager sees shared LIST gate and wins exact S0 CAS",
+    "PASS I58-02: authorized stale CAS remains conflict without duplicate",
+    "PASS I58-03: revoked grant denied BEFORE stale CAS and no tenant metadata leaked",
+    "PASS I58-04: cross-store manager fails signed LIST predicate",
+    "PASS I58-05: manager account suspension denies LIST even with store grant",
+    "PASS I58-06: denied operations preserve pending queue, ACL remains private",
+    "PASS I61-01: without exact exception default S0 no-grant denial remains",
+    "PASS I61-02: other manager cannot exercise case exception",
+    "PASS I61-03: A2 pause blocks even exceptional assignment",
+    "PASS I61-04: S0 canonical assignment now accepts exact case exception only",
+    "PASS I61-05: stale assignment cannot claim a second owner",
+    "PASS I61-06: only owning manager revokes and authorization stops without moving S0 case",
+    "PASS I61-07: private grants denied, event audit append-only",
+    "PASS I61-08: exception of previous case cannot authorize assignment of another case",
+    "PASS I61-09: assignment closure synchronously revokes exception and appends event"
+  ],
+  "native_i78_pass_markers": [
+    "PASS I78-G2-01: existing partial unique index enforces AT MOST one active principal manager",
+    "PASS I78-G2-02: existing Director-only onboarding and Gestor team boundaries preserved",
+    "PASS I78-G2-03: second simultaneous ACTIVE management link rejected, no side effect",
+    "PASS I78-G2-04: ACTIVE consultant without manager is structurally possible; EXACTLY ONE is NOT certified",
+    "PASS I78-G2-05: test-only principal transfer denies Gestor acting as Diretor and preserves owner",
+    "PASS I78-G2-06: Director-only candidate transfer keeps one active manager and closes old link",
+    "PASS I78-G2-07: stale principal CAS is rejected, unique active manager preserved",
+    "PASS I78-G2-08: no direct authenticated DML on authority or manager-link tables"
+  ],
+  "code_files_sha256": {
+    ".github/workflows/exp-s0-s1-i79-professionals.yml": "ea2535eb734fc325960bf83324943d4bd328848d0e925212dd3d1b2ee39f6496",
+    "backend/s1_professionals_local.py": "752d4513f5955e6ef510309bec4da6ac73ddb8e29f5381621114247e0b29ac8b",
+    "backend/tests/test_s1_professionals_contract.py": "470b95abc1eb0949a48bbba5e0b4c8c8596bce7b667f8f7573bcbf14ae7c8c1f",
+    "integration/g1/s1_sources.json": "66f9ee4a7aeed7892d314582078b077d8a49486b919a51e17832183982f83cf2",
+    "integration/g1/test_manual_handoff.py": "5f08090dbf8b245749dd42e524ed128f672509a9f43828ec5ec96d6db07eba52",
+    "integration/i79/install_local.py": "131b3b26c86e99134330a2273206c6881ba4145db88e485a5c43b45f46a3de2d",
+    "integration/i79/test_professionals.py": "769c8f6ed8ea4269804fcdd714e8bddbc3a3c82e2cc7bf3f4b67c426d27e4af7",
+    "supabase/tests/s1_i79_profissionais_local_only.sql": "992fff7018e53f30ae6e45a591134e8d637916a9361fb4b98858e6566f31b4dd"
+  },
+  "limitations": [
+    "No public endpoint, hosted provisioning, merge or deployment",
+    "New signup/invite in GoTrue not implemented: REGISTER binds existing verified Auth UUID",
+    "Unclassified legacy records remain NULL; new assignment denied, old records not inferred or deleted",
+    "Private business bridge uses postgres because unchanged I46/I57/I61 require it; production owner separation pending",
+    "Historical native SQL tests use synthetic identities; new I79 and inherited G1 use real GoTrue",
+    "Native I78 orphan-detection fixture runs on original pre-I79 schema; I79-41 rejects classified active orphan after delta",
+    "Only exercised writers/order certified; NOWAIT conflict returns UNAVAILABLE for safe retry",
+    "G1-G6 operational gates not concluded by these laboratory results"
+  ]
+}
