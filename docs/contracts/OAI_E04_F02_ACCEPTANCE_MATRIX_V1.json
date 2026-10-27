@@ -309,6 +309,20 @@
         "backend/tests/test_f02_s0_integration_handoff_contract.py::test_14_lab_runner_includes_gate_and_handoff_regression"
       ],
       "gate": "Codex/S0 must explicitly review/ratify schema and server-owned authenticated integration; pinned source is candidate and provenance marker is not S0 authenticity or operational approval"
+    },
+    {
+      "id": "F02-A26",
+      "area": "F02/S0/F03",
+      "behavior": "Post-S0-audit H01 proof-source inventory identifies four existing producer modules, verifies offline symbols and missing canonical binding without promoting claimed evidence or operational ratification",
+      "status": "LAB_VERIFIED",
+      "tests": [
+        "backend/tests/test_f02_s0_four_proof_source_map.py::test_01_four_expected_claimed_fields_only",
+        "backend/tests/test_f02_s0_four_proof_source_map.py::test_02_producers_exist_with_documented_methods",
+        "backend/tests/test_f02_s0_four_proof_source_map.py::test_05_field_claims_resolve_to_existing_handoff_dataclass",
+        "backend/tests/test_f02_s0_four_proof_source_map.py::test_08_audit_reconciliation_preserves_all_seven_gates",
+        "backend/tests/test_f02_s0_four_proof_source_map.py::test_11_audit_map_is_only_a_lab_artifact"
+      ],
+      "gate": "S0/F03 and owners must confirm canonical source IDs, versions, cutoff, HMAC/verifier, authenticated replay, session/role and negative paths; no F02 authority from producer code existence"
     }
   ],
   "non_authorizing_positive_states": [
@@ -429,5 +443,22 @@
     "documentation": "docs/OAI_E04_F02_S0_COORDENACAO_CODEX_20261027.md",
     "all_seven_gates_still_pending": true,
     "no_production": true
+  },
+  "f02_s0_audit_reconciliation": {
+    "audit_branch": "aux/f02-s0-auditoria-integracao-20261027",
+    "audit_sha": "7c282df5f6e5942729f15187c199dffb5e872797",
+    "g01_to_g06": "PARTIALLY_MET_NOT_RATIFIED",
+    "g07": "PENDING",
+    "map": "docs/contracts/OAI_E04_F02_S0_MAPA_QUATRO_PROVAS_V1.json",
+    "tests": "backend/tests/test_f02_s0_four_proof_source_map.py",
+    "source_provenance_only": true
+  },
+  "project_architecture_decision": {
+    "reference": "docs/contracts/OAI_ARQUITETURA_BACKEND_SUPABASE_OPENAI_V1.json",
+    "owner_approved": true,
+    "backend_target": "SUPABASE",
+    "model_api": "OPENAI_API_DIRECT",
+    "n8n_optional": true,
+    "deployed": false
   }
 }

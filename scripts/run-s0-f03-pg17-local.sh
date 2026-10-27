@@ -78,5 +78,7 @@ python3 -m unittest backend.tests.test_s0_f03_history_manifest_local \
   backend.tests.test_f02_s0_review_bound_bridge_candidate \
   backend.tests.test_f02_s0_joint_homologation_candidate \
   backend.tests.test_f02_s0_integration_handoff_contract \
+  backend.tests.test_f02_s0_four_proof_source_map \
+  backend.tests.test_prumo_architecture_decision_contract \
   backend.tests.test_f02_acceptance_matrix_contract \
   backend.tests.test_s0_f03_pg17_integration -v

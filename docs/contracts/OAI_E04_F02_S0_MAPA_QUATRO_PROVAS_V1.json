@@ -1,0 +1,118 @@
+{
+  "schema": "prumo.f02.s0.proof_source_map/0.1-lab",
+  "dated": "2026-10-27",
+  "status": "PRODUCERS_LOCATED_CANONICAL_BINDING_NOT_HOMOLOGATED",
+  "f02_branch": "feat/oai-s0-f03-history-port-20261023",
+  "base_sha": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+  "source_audit": {
+    "branch": "aux/f02-s0-auditoria-integracao-20261027",
+    "sha": "7c282df5f6e5942729f15187c199dffb5e872797",
+    "finding": "G01_G06_PARTIAL_G07_PENDING",
+    "document": "docs/auditoria/f02_s0_20261027/05_RESPOSTA_F02.md"
+  },
+  "handover": {
+    "producer": "backend/s0_human_closure_event_local.py",
+    "symbol": "S0LocalClosureStore.capture",
+    "transport": "backend/s0_cfi01_f03_receipt_bridge_local.py",
+    "transport_symbol": "S0CFI01F03ReceiptBridgeLocal.capture",
+    "state": "LOCAL_CFI_CLOSURE_ONLY_NOT_F01_F03_COMPLETE",
+    "gap": "F01 physical handover event/ordering and integrated F03 versioned receipt still need canonical contract"
+  },
+  "fields": [
+    {
+      "field": "f03_receipt_sha256",
+      "owner": "F03/S0",
+      "producer": "backend/s0_f03_history_manifest_local.py",
+      "symbol": "S0F03LocalHistoryManifestBridge.inspect",
+      "additional": "backend/s0_f03_crossfront_evidence_local.py",
+      "additional_symbol": "S0F03LocalEvidenceReviewBridge.inspect",
+      "existing_reviewer": "backend/s0_cfi01_f03_receipt_bridge_local.py",
+      "stage": "HISTORY_AND_SYNTHETIC_EVIDENCE_REVIEW_ONLY",
+      "identity_needed": [
+        "final_receipt_id",
+        "case_version",
+        "form_version",
+        "assignment_version",
+        "field_catalog_version",
+        "cutoff",
+        "authorized_minimized_source"
+      ],
+      "required_verification": "Choose canonical completed F03 receipt with source/versions/hash/verifier, not bare CFI metadata",
+      "operationally_verified": false
+    },
+    {
+      "field": "c08_local_witness_sha256",
+      "owner": "C08/S0",
+      "producer": "backend/s0_f02_legacy_cancellation_witness_local.py",
+      "symbol": "S0F02LocalLegacyCancellationWitness.inspect_and_seal",
+      "stage": "LOCAL_CANCELLATION_AUDIT_ONLY",
+      "identity_needed": [
+        "store",
+        "lead",
+        "case",
+        "closure",
+        "plan_attempt_ids",
+        "chain_digest",
+        "hmac_version",
+        "cutoff",
+        "external_meta_disposition"
+      ],
+      "required_verification": "Read durable local C08 snapshot and HMAC under approved S0 lock/order; external Meta outcome remains unknown",
+      "operationally_verified": false
+    },
+    {
+      "field": "origin_ledger_sha256",
+      "owner": "S0/F02",
+      "producer": "backend/s0_f02_legacy_observed_origin_local.py",
+      "symbol": "S0F02LegacyObservedOriginBridge.inspect",
+      "stage": "AFTER_LEDGER_LOCAL_AUDIT_ONLY",
+      "identity_needed": [
+        "ledger_event_id",
+        "source_create_time",
+        "source_revision",
+        "cutoff",
+        "ledger_completeness",
+        "concessionaria_scope"
+      ],
+      "required_verification": "Revalidate observed AFTER ledger; backdated claim and partial history must fail closed",
+      "operationally_verified": false
+    },
+    {
+      "field": "human_intent_sha256",
+      "owner": "S0/S1/F02",
+      "producer": "backend/s0_f02_posthuman_intent_local.py",
+      "symbol": "S0F02LocalPostHumanIntentStore.record",
+      "stage": "MANAGER_INTENT_SYNTHETIC_AUDIT_ONLY",
+      "identity_needed": [
+        "manager_actor",
+        "manager_session",
+        "team_rights",
+        "scope",
+        "intent_record_id",
+        "policy_version",
+        "decision_expiry",
+        "revocation"
+      ],
+      "required_verification": "A stored synthetic manager intent is not S1 distinct-manager approve/deny/revoke; future action requires G04 ratification",
+      "operationally_verified": false
+    }
+  ],
+  "consumer": {
+    "module": "backend/f02_reconciled_human_authorization_handoff.py",
+    "type": "ClaimedS0Evidence",
+    "method": "prepare_handoff",
+    "status": "UNSIGNED_ALLEGATIONS_NEVER_SOURCE_PROOF"
+  },
+  "status_current": "G03_PARTIAL_G07_PENDING",
+  "hard_gates_unchanged": [
+    "G01",
+    "G02",
+    "G03",
+    "G04",
+    "G05",
+    "G06",
+    "G07"
+  ],
+  "instructed_next_step": "S0/F03 map ID, version, canonicalization, integrity verifier, owner, cutoff, scope, freshness/revocation and negative path for each field before any adapter integration",
+  "schema_cannot_authorize_send": true
+}

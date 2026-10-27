@@ -1,0 +1,45 @@
+{
+  "schema": "prumo.architecture.backend/1.0",
+  "decision_id": "ADR-2026-10-27-SUPABASE-OPENAI-DIRECT",
+  "date": "2026-10-27",
+  "status": "APPROVED_BY_PRODUCT_OWNER_FOR_TARGET_ARCHITECTURE",
+  "implementation_status": "DESIGN_ONLY_NO_PRODUCTION_DEPLOYMENT",
+  "application": "Prumo Growth",
+  "backend": {
+    "primary_host": "SUPABASE",
+    "runtime": "SUPABASE_EDGE_FUNCTIONS_PRIMARY_CANDIDATE",
+    "database": "SUPABASE_POSTGRESQL",
+    "authentication": "SUPABASE_AUTH_WITH_S0_AUTHORITY_GATES",
+    "queues_and_jobs": "SUPABASE_NATIVE_OR_COMPATIBLE_ASYNC_WORKERS_SUBJECT_TO_LIMITS",
+    "external_host_default": false
+  },
+  "ai": {
+    "provider": "OPENAI_API",
+    "integration": "SERVER_SIDE_DIRECT_HTTPS_FROM_SUPABASE_BACKEND",
+    "operational_agent": "SEPARATE_FROM_ANALYST_AGENT",
+    "client_exposes_openai_credentials": false,
+    "chatgpt_subscription_is_api_billing": false
+  },
+  "automation": {
+    "n8n_required": false,
+    "n8n_default_in_realtime_path": false,
+    "n8n_usage": "OPTIONAL_WHEN_JUSTIFIED_BY_MEASURABLE_TECHNICAL_OR_ECONOMIC_NEED",
+    "n8n_cannot_authorize_commercial_actions": true
+  },
+  "ownership": {
+    "server_authority": "S0_WITH_APPROVED_DOMAIN_CONTRACTS",
+    "data_truth": "SUPABASE_POSTGRESQL",
+    "commercial_dispatch_requires_independent_guards": true
+  },
+  "operational_scope": {
+    "deployment_approved": false,
+    "openai_api_calls_approved": false,
+    "meta_live_calls_approved": false,
+    "hosted_supabase_migrations_approved": false,
+    "production_secrets_approved": false,
+    "real_customer_data_approved": false
+  },
+  "exceptions": "If Edge Functions limits prove insufficient, obtain explicit architecture amendment before external hosting, n8n, or long-running workers; decision does not ban optional n8n or other needed supporting services",
+  "approval_source": "Explicit project-owner instruction in conversation on 2026-10-27",
+  "documentation": "docs/decisoes/ADR_20261027_BACKEND_SUPABASE_OPENAI_DIRETO.md"
+}
