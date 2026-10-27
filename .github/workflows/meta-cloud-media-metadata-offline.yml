@@ -1,0 +1,49 @@
+name: Meta inbound media metadata - offline
+on:
+  push:
+    branches: [feat/meta-cloud-media-metadata-20261027]
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [feat/meta-cloud-reaction-handoff-20261027]
+    paths:
+      - 'integrations/whatsapp-meta/**'
+      - '.github/workflows/meta-cloud-media-metadata-offline.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  media-metadata:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: New media metadata checks (20 synthetic cases)
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --experimental-strip-types --test --test-concurrency=1 \
+            integrations/whatsapp-meta/cloud-media-metadata-handoff.test.ts \
+            2>&1 | tee "$RUNNER_TEMP/meta-media.tap"
+          grep -qx '# tests 20' "$RUNNER_TEMP/meta-media.tap"
+          grep -qx '# pass 20' "$RUNNER_TEMP/meta-media.tap"
+          grep -qx '# fail 0' "$RUNNER_TEMP/meta-media.tap"
+      - name: Existing reaction, selection, HMAC and routing regressions
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --experimental-strip-types --test --test-concurrency=1 \
+            integrations/whatsapp-meta/cloud-reaction-handoff.test.ts \
+            integrations/whatsapp-meta/cloud-list-reply-handoff.test.ts \
+            integrations/whatsapp-meta/cloud-button-reply-handoff.test.ts \
+            integrations/whatsapp-meta/cloud-webhook-handoff.test.ts \
+            integrations/whatsapp-meta/inbound.test.ts \
+            integrations/whatsapp-meta/routed-webhook.test.ts \
+            2>&1 | tee "$RUNNER_TEMP/meta-media-regressions.tap"
+          grep -qx '# tests 100' "$RUNNER_TEMP/meta-media-regressions.tap"
+          grep -qx '# pass 100' "$RUNNER_TEMP/meta-media-regressions.tap"
+          grep -qx '# fail 0' "$RUNNER_TEMP/meta-media-regressions.tap"
