@@ -160,3 +160,34 @@ test('AUDIT-14 different signed body under original signature is rejected',async
  assert.equal(denied(await inspect(b,sig(a),SECRET,A)),
   'VERIFICATION_DENIED');
 });
+
+
+test('AUDIT-15 base HMAC scope cannot be switched from mismatched to matching midflight',async()=>{
+ const {inspectCloudWebhookForHandoff}=await import('./cloud-webhook-handoff.ts');
+ const b=raw(payload([text()],[],A));
+ const route={...B};
+ const task=inspectCloudWebhookForHandoff(b,sig(b),SECRET,route);
+ Object.assign(route,A);
+ assert.equal((await task).outcome,'DENIED');
+});
+test('AUDIT-16 base HMAC scope initially correct cannot be revoked by caller mutation',async()=>{
+ const {inspectCloudWebhookForHandoff}=await import('./cloud-webhook-handoff.ts');
+ const b=raw(payload([text()],[],A));
+ const route={...A};
+ const task=inspectCloudWebhookForHandoff(b,sig(b),SECRET,route);
+ Object.assign(route,B);
+ assert.equal((await task).outcome,'AUTHENTICATED_NOT_DURABLE');
+});
+test('AUDIT-17 independent reaction reader also honors entry-time WABA scope',async()=>{
+ const {inspectSignedMetaReactions}=await import('./cloud-reaction-handoff.ts');
+ const msg={
+  from:'5581888800000',id:'wamid.REACT',
+  timestamp:stamp,type:'reaction',
+  reaction:{message_id:'wamid.TARGET',emoji:'👍'},
+ };
+ const b=raw(payload([msg],[],A));
+ const route={...B};
+ const task=inspectSignedMetaReactions(b,sig(b),SECRET,route);
+ Object.assign(route,A);
+ assert.equal((await task).decision,'DENIED');
+});
