@@ -9,7 +9,9 @@ export function settings(read: (key:string)=>string|undefined): Settings {
   const db = new URL(read("PRUMO_I82_DATABASE_URL") ?? "");
   const hosts = ["127.0.0.1", "localhost"];
   if (auth.protocol !== "http:" || ![...hosts,"supabase_kong_prumo-s0-auth-ci"].includes(auth.hostname) || auth.username || auth.password || auth.search || auth.hash || auth.pathname !== "/") throw new Error("I82_CONFIG_BLOCKED");
-  if (!["postgres:","postgresql:"].includes(db.protocol) || ![...hosts,"supabase_db_prumo-s0-auth-ci"].includes(db.hostname) || db.username !== "prumo_cfi01_pgtest_login" || !db.password || db.pathname !== "/postgres" || db.search || db.hash) throw new Error("I82_CONFIG_BLOCKED");
+  const login=read("PRUMO_I83_DEDICATED")==="YES"?"prumo_s1_admin_edge_local":"prumo_cfi01_pgtest_login";
+  if (read("PRUMO_I83_DEDICATED") && read("PRUMO_I83_DEDICATED")!=="YES") throw new Error("I82_CONFIG_BLOCKED");
+  if (!["postgres:","postgresql:"].includes(db.protocol) || ![...hosts,"supabase_db_prumo-s0-auth-ci"].includes(db.hostname) || db.username !== login || !db.password || db.pathname !== "/postgres" || db.search || db.hash) throw new Error("I82_CONFIG_BLOCKED");
   // npm's Node DNS adapter in the pinned local Edge Runtime cannot resolve
   // the DB container name. Installer pins its own Docker-network IPv4 only;
   // no client-supplied host or extra DB privilege is accepted.

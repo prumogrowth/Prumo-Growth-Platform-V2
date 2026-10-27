@@ -42,6 +42,7 @@ class EdgeTests(I80Tests):
         env=dict(PRUMO_I82_DISPOSABLE='YES',PRUMO_I82_AUTH_URL='http://supabase_kong_prumo-s0-auth-ci:8000',
             PRUMO_I82_DATABASE_URL=internal,PRUMO_I82_DATABASE_IPV4=addresses[0],PRUMO_I82_ANON_KEY=cls.anon,PRUMO_I82_KEY_ID=str(cls.key_id),
             PRUMO_I82_HMAC_HEX=cls.secret.hex(),PRUMO_I82_ALLOW_ORIGIN='http://localhost:3000')
+        env=cls.edge_environment(env)
         file=Path(cls.temporary.name)/'edge.env'
         file.write_text('\n'.join(k+'='+v for k,v in env.items())+'\n');file.chmod(0o600)
         cls.runtime_log=Path(os.environ.get('RUNNER_TEMP',cls.temporary.name))/'prumo_i82_runtime.log'
@@ -65,6 +66,11 @@ class EdgeTests(I80Tests):
         else:raise RuntimeError('I82 actual Edge runtime did not become ready within 60 seconds')
         code,body,_=cls.raw('i80',cls.wire('INVENTORY',limit=1),cls.director_token)
         if code!=200 or body.get('state')!='INVENTORY':raise RuntimeError('I82 authenticated SQL startup probe failed; inspect bounded I82_CORE_FAILURE diagnostics')
+
+    @classmethod
+    def edge_environment(cls,env):
+        """I83 may supply independently provisioned server credentials only."""
+        return env
 
     @classmethod
     def raw(cls,family,p=None,token=None,method='POST',body=None,headers=None,base=None):
