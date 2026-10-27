@@ -77,10 +77,17 @@ def private_material_transaction(c):
     """
     desired=(('log_statement','none'),('log_parameter_max_length','0'),
       ('log_parameter_max_length_on_error','0'),('log_min_error_statement','panic'),('pgaudit.log','none'))
+    statements={'log_statement':"set local log_statement='none'",
+      'log_parameter_max_length':"set local log_parameter_max_length=0",
+      'log_parameter_max_length_on_error':"set local log_parameter_max_length_on_error=0",
+      'log_min_error_statement':"set local log_min_error_statement='panic'",
+      'pgaudit.log':"set local pgaudit.log='none'"}
     for name,value in desired:
         current=c.execute('select current_setting(%s,true)',(name,)).fetchone()[0]
         if current is None or current==value:continue
-        try:c.execute('select set_config(%s,%s,true)',(name,value))
+        # Supautils authorizes its existing allowlist through VariableSetStmt;
+        # SELECT set_config does not use that hook. No grant is added here.
+        try:c.execute(statements[name])
         except Exception as error:
             code=getattr(error,'sqlstate',None)
             raise MaterialLoggingBlocked(name,code) from None
