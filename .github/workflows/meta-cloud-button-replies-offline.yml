@@ -1,0 +1,48 @@
+name: Meta Cloud signed button replies - offline contract
+on:
+  push:
+    branches: [feat/meta-cloud-button-replies-20261027]
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [feat/meta-template-list-pages-offline-20261027]
+    paths:
+      - 'integrations/whatsapp-meta/**'
+      - '.github/workflows/meta-cloud-button-replies-offline.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline-button-replies:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      NODE_OPTIONS: ''
+      NODE_PATH: ''
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify only new signed button reply semantics (18 tests)
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --experimental-strip-types --test --test-concurrency=1 \
+            integrations/whatsapp-meta/cloud-button-reply-handoff.test.ts \
+            2>&1 | tee "$RUNNER_TEMP/button-replies.tap"
+          grep -qx '# tests 18' "$RUNNER_TEMP/button-replies.tap"
+          grep -qx '# pass 18' "$RUNNER_TEMP/button-replies.tap"
+          grep -qx '# fail 0' "$RUNNER_TEMP/button-replies.tap"
+      - name: Focused reused Meta HMAC, routing and interactive template contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --experimental-strip-types --test --test-concurrency=1 \
+            integrations/whatsapp-meta/inbound.test.ts \
+            integrations/whatsapp-meta/routed-webhook.test.ts \
+            integrations/whatsapp-meta/cloud-webhook-handoff.test.ts \
+            integrations/whatsapp-meta/graph-template-interactive.test.ts \
+            2>&1 | tee "$RUNNER_TEMP/existing-meta-contracts.tap"
+          grep -qx '# fail 0' "$RUNNER_TEMP/existing-meta-contracts.tap"
