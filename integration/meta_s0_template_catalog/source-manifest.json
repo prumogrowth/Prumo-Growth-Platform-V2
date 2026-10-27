@@ -1,0 +1,154 @@
+{
+  "contract": "META-S0-TEMPLATE-CATALOG-05",
+  "schema_version": "0.1-candidate",
+  "base_sha": "45618df4fc135c33d59b087a98efd5ef53f30c04",
+  "branch": "aux/meta-s0-template-catalog-05-20261026",
+  "reused": [
+    {
+      "path": "integrations/whatsapp-meta/graph-template.ts",
+      "git_blob": "bcb0a1422f3526624cfbfac43bfb9ad79c496518"
+    },
+    {
+      "path": "integrations/whatsapp-meta/graph-template.test.ts",
+      "git_blob": "5245c06fde641ed16588f5f11220bfe1ac8a3004"
+    },
+    {
+      "path": "integrations/whatsapp-meta/graph-template-interactive.ts",
+      "git_blob": "ef6187f0e89a0603aa7b0aea34ab9da93a983524"
+    },
+    {
+      "path": "integrations/whatsapp-meta/graph-template-interactive.test.ts",
+      "git_blob": "4c2e4faac0be1e1f783d8d748f6d2e6f00105068"
+    },
+    {
+      "path": "integrations/whatsapp-meta/template-mcp-multiformat.ts",
+      "git_blob": "53a474f3ed82fade291f31a638ce84460e91340c"
+    },
+    {
+      "path": "integrations/whatsapp-meta/template-mcp-multiformat.test.ts",
+      "git_blob": "9f718c6502262def959d799637cb9b58741445ae"
+    },
+    {
+      "path": "integrations/whatsapp-meta/template-catalog-control.ts",
+      "git_blob": "666bff197a4c6d40b14708614a707d61d4521e3f"
+    },
+    {
+      "path": "integrations/whatsapp-meta/template-catalog-control.test.ts",
+      "git_blob": "5cde3c6e81affd4c5822a14044e98c76e0808cb9"
+    },
+    {
+      "path": "integrations/whatsapp-meta/template-purpose-eligibility.ts",
+      "git_blob": "26c05e29ec8809bed8043395b7eff65dda65d0d5"
+    },
+    {
+      "path": "integrations/whatsapp-meta/template-purpose-eligibility.test.ts",
+      "git_blob": "a2e32042327b0f869841c76e7e0027a0c868c4c4"
+    },
+    {
+      "path": "integrations/whatsapp-meta/s0-template-purpose-bridge.ts",
+      "git_blob": "9196033efaa83872eb16789506e31d5634e7be5b"
+    },
+    {
+      "path": "integrations/whatsapp-meta/s0-template-purpose-bridge.test.ts",
+      "git_blob": "9ef8da333b3b6bcfd61dbbfbe0f0b1b712e9de99"
+    },
+    {
+      "path": "integrations/whatsapp-meta/mcp-template-tools.v0.json",
+      "git_blob": "da914a310a760a4d3e5079eca9a6bcee5333d02b"
+    }
+  ],
+  "checkpoints": [
+    {
+      "pr": 15,
+      "head": "feat/meta-cloud-interactive-template-20261026",
+      "head_sha": "45618df4fc135c33d59b087a98efd5ef53f30c04",
+      "base": "feat/meta-cloud-envelope-contract-20261026",
+      "base_sha": "cb7fc3e2eacdaad9b8d47ffca1284759ca3357a3",
+      "draft": true,
+      "merged": false
+    },
+    {
+      "pr": 14,
+      "head": "aux/meta-s0-contracts-20261026",
+      "head_sha": "31bb84fa524f4ecfdf02360988471d7f989506d7",
+      "base": "feat/meta-cloud-envelope-contract-20261026",
+      "base_sha": "cb7fc3e2eacdaad9b8d47ffca1284759ca3357a3",
+      "draft": true,
+      "merged": false
+    },
+    {
+      "pr": 18,
+      "head": "exp/s0-f02-revisao-autoritativa-20261026",
+      "head_sha": "88af4aea3aeb2c403bab4c078fdc04d560f2cba0",
+      "base": "exp/s0-consolidacao-sessao-historico-20261026",
+      "base_sha": "b298252c26c69f668b3c3fdb86e9252faff9e44b",
+      "draft": true,
+      "merged": false
+    },
+    {
+      "pr": 16,
+      "head": "exp/s0-consolidacao-sessao-historico-20261026",
+      "head_sha": "b298252c26c69f668b3c3fdb86e9252faff9e44b",
+      "base": "exp/s0-cfi01-recheck-precommit-20261026",
+      "base_sha": "c79020f16f9ed36dcc00257e7e8aa133b5739867",
+      "draft": true,
+      "merged": false
+    },
+    {
+      "pr": 9,
+      "head": "exp/s0-cfi01-principal-restrito-20261026",
+      "head_sha": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+      "base": "feat/s0-auditoria-nucleo-operacional-20261025",
+      "base_sha": "060b472b03e9e7b89f5b3d7e19b72b98836f106d",
+      "draft": true,
+      "merged": false
+    },
+    {
+      "pr": 11,
+      "head": "exp/s0-ui-cfi01-contrato-candidato-20261026",
+      "head_sha": "ddec1b80444bfde871d43a02d0ee94b9ed7cde11",
+      "base": "exp/s0-cfi01-principal-restrito-20261026",
+      "base_sha": "ff623482fca0eb1857a64b51959e3716bc0216d7",
+      "draft": true,
+      "merged": false
+    }
+  ],
+  "source_inventory": {
+    "s0_migrations_scanned": 38,
+    "synthetic_catalog_path": "supabase/migrations/202610170012_s0_recontatos_sinteticos.sql",
+    "synthetic_catalog_blob": "60565a97d4465a17891a1d4ef6bbee26bba0295c",
+    "production_catalog_source": "NOT_IMPLEMENTED"
+  },
+  "consulted_documents": [
+    {
+      "pr": 15,
+      "ref": "45618df4fc135c33d59b087a98efd5ef53f30c04",
+      "path": "docs/integracoes/whatsapp-meta/cloud-quick-reply-catalog-handoff-2026-10-26.md",
+      "blob": "3c078ca6cf0dfb6401a1b6c2399aa85918ef57f0"
+    },
+    {
+      "pr": 15,
+      "ref": "45618df4fc135c33d59b087a98efd5ef53f30c04",
+      "path": "docs/integracoes/whatsapp-meta/wa17-gestao-manual-templates-variaveis-e-aprovacao-meta-2026-10-20.md",
+      "blob": "5e413b8bfa342be82ab4cc75d09f48dc47c6db52"
+    },
+    {
+      "pr": 15,
+      "ref": "45618df4fc135c33d59b087a98efd5ef53f30c04",
+      "path": "docs/integracoes/whatsapp-meta/wa26-ponte-s0-catalogo-politicas-fases-offline-2026-10-22.md",
+      "blob": "7e5bcc10ebf089996451a7c2a8e5257e935deeac"
+    },
+    {
+      "pr": 18,
+      "ref": "88af4aea3aeb2c403bab4c078fdc04d560f2cba0",
+      "path": "docs/consolidacao/s0_20261026/REVISAO_E_ENCAMINHAMENTOS.md",
+      "blob": "cf1d036f6634c4a882ee5f7de41603aa351ed53b"
+    },
+    {
+      "pr": 18,
+      "ref": "88af4aea3aeb2c403bab4c078fdc04d560f2cba0",
+      "path": "docs/contratos/f02_s0_review/CONTRATO_CANDIDATO_0_1.md",
+      "blob": "1d4279029c09f1b730cffebf340bec6a8ea3a5e3"
+    }
+  ]
+}

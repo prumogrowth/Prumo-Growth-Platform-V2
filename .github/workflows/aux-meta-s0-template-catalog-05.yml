@@ -1,0 +1,57 @@
+name: Auxiliary META-S0-TEMPLATE-CATALOG-05 - offline
+on:
+  push:
+    branches:
+      - aux/meta-s0-template-catalog-05-20261026
+    paths:
+      - 'integration/meta_s0_template_catalog/**'
+      - '.github/workflows/aux-meta-s0-template-catalog-05.yml'
+  pull_request:
+    branches:
+      - feat/meta-cloud-interactive-template-20261026
+    paths:
+      - 'integration/meta_s0_template_catalog/**'
+      - '.github/workflows/aux-meta-s0-template-catalog-05.yml'
+permissions:
+  contents: read
+jobs:
+  catalog:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      NODE_OPTIONS: ''
+      NODE_PATH: ''
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.23.3'
+      - name: Verify existing sources and isolated additive scope
+        run: python3 integration/meta_s0_template_catalog/verify_sources.py
+      - name: Candidate catalog provenance and adapter (42)
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --experimental-strip-types --test --test-reporter=tap --test-concurrency=1 \
+            integration/meta_s0_template_catalog/catalog.test.ts 2>&1 | tee "$RUNNER_TEMP/catalog05.tap"
+          grep -qx '# tests 42' "$RUNNER_TEMP/catalog05.tap"
+          grep -qx '# pass 42' "$RUNNER_TEMP/catalog05.tap"
+          grep -qx '# fail 0' "$RUNNER_TEMP/catalog05.tap"
+      - name: Existing catalog and builders, unchanged (120)
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --experimental-strip-types --test --test-reporter=tap --test-concurrency=1 \
+            integrations/whatsapp-meta/graph-template.test.ts \
+            integrations/whatsapp-meta/graph-template-interactive.test.ts \
+            integrations/whatsapp-meta/template-catalog-control.test.ts \
+            integrations/whatsapp-meta/template-mcp-multiformat.test.ts \
+            integrations/whatsapp-meta/template-purpose-eligibility.test.ts \
+            integrations/whatsapp-meta/s0-template-purpose-bridge.test.ts \
+            2>&1 | tee "$RUNNER_TEMP/catalog05-existing.tap"
+          grep -qx '# tests 120' "$RUNNER_TEMP/catalog05-existing.tap"
+          grep -qx '# pass 120' "$RUNNER_TEMP/catalog05-existing.tap"
+          grep -qx '# fail 0' "$RUNNER_TEMP/catalog05-existing.tap"
