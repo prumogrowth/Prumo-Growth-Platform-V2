@@ -75,7 +75,7 @@ jobs:
       - name: Original S1 canonical queue and exception regressions, SQL fixture identities only
         run: |
           for test in s1_078_fila_s0_canonica_aceite.sql s1_080_fila_reconciliacao_aceite.sql s1_081_atribuicao_grant_i57_aceite.sql s1_082_fila_gestor_autorizacao_aceite.sql s1_085_excecao_caso_canonica_aceite.sql; do
-            python3 integration/g1/run_pinned_sql.py "work-s1-sources/supabase/tests/$test"
+            PYTHONPATH=. python3 integration/g1/run_pinned_sql.py "work-s1-sources/supabase/tests/$test"
           done
       - name: Remove disposable stack even on failure
         if: always()

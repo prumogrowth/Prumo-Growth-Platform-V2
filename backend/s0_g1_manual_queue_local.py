@@ -4,6 +4,7 @@ No public endpoint. Never accept actor/session/role from the command. Queue
 version is NOT case/cycle version. No send, first-contact or transfer action.
 """
 from dataclasses import dataclass
+from contextlib import closing
 from enum import Enum
 import hashlib
 import hmac
@@ -100,12 +101,15 @@ class S0ManualQueueHandoffLocal:
         proof=self._proof(principal,command)
         try:
             import psycopg
-            with psycopg.connect(self._s0._dsn,connect_timeout=5) as c:
-                c.execute("set local lock_timeout='8s'")
-                c.execute("set local statement_timeout='15s'")
-                rows=c.execute(_SQL,proof).fetchall()
-                if len(rows)!=1 or len(rows[0])!=1:raise ValueError('G1_SQL_RESULT')
-                result=safe_result(rows[0][0],command)  # Before COMMIT, as CFI #13.
+            # Also close if the driver's transaction __exit__ raises at COMMIT
+            # (for example a deferred constraint failure).
+            with closing(psycopg.connect(self._s0._dsn,connect_timeout=5)) as c:
+                with c:
+                    c.execute("set local lock_timeout='8s'")
+                    c.execute("set local statement_timeout='15s'")
+                    rows=c.execute(_SQL,proof).fetchall()
+                    if len(rows)!=1 or len(rows[0])!=1:raise ValueError('G1_SQL_RESULT')
+                    result=safe_result(rows[0][0],command)  # Before COMMIT, as CFI #13.
             return Result(State(result['outcome']),result)
         except ValueError:return Result(State.UNAVAILABLE)
         except Exception as exc:

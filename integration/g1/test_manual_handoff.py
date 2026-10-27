@@ -288,10 +288,14 @@ class G1Tests(unittest.TestCase):
     def fault(self,table,deferred=False):
         name='g1_fault_'+uuid4().hex
         with psycopg.connect(self.db) as c:
+            open_before=c.execute("select count(*) from pg_stat_activity where usename='prumo_cfi01_pgtest_login'").fetchone()[0]
             c.execute(sql.SQL("create function prumo_private.{}() returns trigger language plpgsql as $$ begin raise exception 'G1_DISPOSABLE_FAULT'; end $$").format(sql.Identifier(name)))
             trigger=('create constraint trigger {} after insert on {} deferrable initially deferred for each row execute function prumo_private.{}()' if deferred else 'create trigger {} before insert on {} for each row execute function prumo_private.{}()')
             c.execute(sql.SQL(trigger).format(sql.Identifier(name),sql.Identifier('prumo_private' if table!='atribuicoes_humanas' else 'public',table),sql.Identifier(name)))
-        try:self.reject('UNAVAILABLE')
+        try:
+            self.reject('UNAVAILABLE')
+            with psycopg.connect(self.db) as c:
+                self.assertLessEqual(c.execute("select count(*) from pg_stat_activity where usename='prumo_cfi01_pgtest_login'").fetchone()[0],open_before)
         finally:
             with psycopg.connect(self.db) as c:
                 c.execute(sql.SQL('drop trigger {} on {}').format(sql.Identifier(name),sql.Identifier('prumo_private' if table!='atribuicoes_humanas' else 'public',table)))
@@ -340,6 +344,8 @@ class G1Tests(unittest.TestCase):
                 for fn in signatures:self.assertFalse(c.execute('select has_function_privilege(%s,%s,\'EXECUTE\')',(role,fn)).fetchone()[0])
             self.assertFalse(c.execute('select has_function_privilege(%s,%s,\'EXECUTE\')',('prumo_cfi01_pgtest_login',signatures[1])).fetchone()[0])
             self.assertEqual(c.execute("select rolcanlogin,rolsuper,rolbypassrls from pg_roles where rolname='prumo_s0_g1_executor_local'").fetchone(),(False,False,False))
+            self.assertFalse(c.execute("select has_schema_privilege('prumo_s0_g1_executor_local','prumo_private','CREATE')").fetchone()[0])
+            self.assertFalse(c.execute("select pg_has_role('prumo_cfi01_pgtest_login','prumo_s0_g1_executor_local','MEMBER')").fetchone()[0])
         for query in ('set role prumo_s0_g1_executor_local','select * from prumo_private.s0_fila_humana','select * from prumo_private.g1_manual_requests_local'):
             with self.assertRaises(psycopg.errors.InsufficientPrivilege):
                 with psycopg.connect(self.dsn) as c:c.execute(query)
@@ -356,6 +362,22 @@ class G1Tests(unittest.TestCase):
     def test_34_second_manager_without_b_grant_cannot_forward_b(self):
         self.reject('DENIED',who='m2',shop='B',target='c3')
         self.assigned(shop='B')
+
+    def test_35_case_exception_does_not_expose_other_store_or_team_cases(self):
+        own=self.assigned()
+        other_store=self.assigned(shop='B',target='c1')
+        other_team=self.assigned(who='m2',target='c3',item=self.queue(),key='g1-other-team-visibility')
+        ids=','.join(x['case_id'] for x in (own,other_store,other_team))
+        code,rows=request(self.api,self.anon,'GET','/rest/v1/casos_humanos?select=id&id=in.('+ids+')',token=self.tokens['c2'])
+        self.assertEqual(code,200);self.assertEqual({r['id'] for r in rows},{own['case_id']})
+
+    def test_36_concurrent_same_key_creates_one_assignment_and_one_request(self):
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            futures=[pool.submit(self.call) for _ in range(2)]
+            results=[f.result(timeout=15) for f in futures]
+        self.assertEqual({r.state for r in results},{g1.State.MANUAL_ASSIGNED,g1.State.ALREADY_MANUAL_ASSIGNED})
+        self.assertEqual(results[0].receipt['request_id'],results[1].receipt['request_id'])
+        self.assertEqual(self.facts()[0:3],(1,1,1));self.assertEqual(self.facts()[4:6],(1,2))
 
 
 if __name__=='__main__':unittest.main(verbosity=2)
