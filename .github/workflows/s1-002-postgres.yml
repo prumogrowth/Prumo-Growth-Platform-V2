@@ -54,6 +54,8 @@ jobs:
         run: bash scripts/run-s1-002-i12-local.sh
       - name: I52 etapa canonica S0-S1 apos regressao historica
         run: bash scripts/run-s1-002-i52-local.sh
+      - name: I78 G2 chefia unica, autoridade Diretor e lacuna de on-boarding
+        run: psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_109_i78_g2_chefia_diretor_local_only.sql
       - name: I46 inventario completo das migrations SQL rastreadas
         run: python3 scripts/test_s1_002_i46_acl_inventory.py
       - name: I46 catalogo ACL efetivo no PG17 descartavel
