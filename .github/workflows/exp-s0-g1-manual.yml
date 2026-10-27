@@ -70,13 +70,15 @@ jobs:
         run: PYTHONPATH=. python3 integration/history/prepare_s1_profile.py --source-repo work-s1-sources --manifest integration/g1/s1_sources.json
       - name: Same real history suite with full S1 extensions and original I63 candidate
         run: PYTHONPATH=. python3 integration/history/test_session_history.py --profile i63
-      - name: Real GoTrue manual handoff, both race orders, I61 I62 revocation and rollback
-        run: PYTHONPATH=. python3 integration/g1/test_manual_handoff.py
+      - name: Install guarded G1 delta before populating G1 request data
+        run: PYTHONPATH=. python3 integration/g1/install_local.py
       - name: Original S1 canonical queue and exception regressions, SQL fixture identities only
         run: |
           for test in s1_078_fila_s0_canonica_aceite.sql s1_080_fila_reconciliacao_aceite.sql s1_081_atribuicao_grant_i57_aceite.sql s1_082_fila_gestor_autorizacao_aceite.sql s1_085_excecao_caso_canonica_aceite.sql; do
             PYTHONPATH=. python3 integration/g1/run_pinned_sql.py "work-s1-sources/supabase/tests/$test"
           done
+      - name: Real GoTrue manual handoff, both race orders, I61 I62 revocation and rollback
+        run: PYTHONPATH=. python3 integration/g1/test_manual_handoff.py
       - name: Remove disposable stack even on failure
         if: always()
         run: supabase stop --no-backup

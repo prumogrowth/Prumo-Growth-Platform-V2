@@ -54,8 +54,7 @@ class G1Tests(unittest.TestCase):
             c.execute('set role prumo_s1_i22_custodio')
             c.execute("insert into prumo_s1_signed_i20.chaves(id,segredo,valido_desde,valido_ate) values (%s,%s,clock_timestamp()-interval '1 hour',clock_timestamp()+interval '1 hour')",(cls.s1_key,cls.s1_secret))
             c.execute('reset role')
-            c.execute("set prumo.g1_disposable='YES'")
-            c.execute(Path('supabase/tests/s0_g1_manual_queue_local_only.sql').read_text())
+            assert c.execute("select to_regprocedure('prumo_private.g1_manual_signed_local(uuid,uuid,uuid,uuid,uuid,bigint,text,uuid,bigint,uuid,text)') is not null").fetchone()[0], 'Run integration/g1/install_local.py first'
         u=urlsplit(cls.db)
         cls.dsn=f'postgresql://prumo_cfi01_pgtest_login:{password}@{u.hostname}:{u.port}/postgres'
         cls.s1_dsn=f'postgresql://prumo_s1_signed_login_ci:{s1_password}@{u.hostname}:{u.port}/postgres'
