@@ -154,6 +154,33 @@ create table prumo_private.s1_i79_audit (
  resultado text not null check(resultado in('APPLIED','ALREADY_APPLIED')),
  criado_em timestamptz not null default clock_timestamp()
 );
+-- B1: loss of management authority must not let an old I61 entitlement revive
+-- when a later, distinct principal-management relation is created.
+create function prumo_private.s1_i79_revogar_excecoes(p_consultor uuid,p_gestor uuid,p_autor uuid)
+returns void language plpgsql security invoker set search_path='' as $$
+declare x record;
+begin
+ -- Existing I61/I62 revoker takes exception -> team. Administration already
+ -- holds team: NOWAIT avoids adding the opposite blocking edge/deadlock.
+ for x in select id from prumo_private.s1_excecoes_caso_i61
+  where operador_id=p_consultor and gestor_id=p_gestor and revogada_em is null
+  order by id for update nowait
+ loop
+  update prumo_private.s1_excecoes_caso_i61 set revogada_em=greatest(criada_em,clock_timestamp()) where id=x.id;
+  insert into prumo_private.s1_excecoes_caso_eventos_i61(excecao_id,evento,solicitante_id)
+   values(x.id,'REVOGADA',p_autor);
+ end loop;
+end $$;
+create function prumo_private.s1_i79_excecoes_fecho_chefia()
+returns trigger language plpgsql security invoker set search_path='' as $$
+begin
+ if old.encerrado_em is null and new.encerrado_em is not null then
+  perform prumo_private.s1_i79_revogar_excecoes(old.operador_id,old.gestor_id,old.gestor_id);
+ end if;
+ return new;
+end $$;
+create trigger s1_i79_revoke_after_management_close after update of encerrado_em on prumo_private.s1_gestor_operadores
+ for each row execute function prumo_private.s1_i79_excecoes_fecho_chefia();
 alter table prumo_private.s1_i79_requests enable row level security;
 alter table prumo_private.s1_i79_audit enable row level security;
 revoke all on prumo_private.s1_i79_requests,prumo_private.s1_i79_audit from public,anon,authenticated,service_role,prumo_cfi01_pgtest_login;
@@ -225,6 +252,7 @@ begin
     if coalesce(v_relation,0)<>p_previous then raise exception 'I79_STALE_RELATION' using errcode='40001';end if;
     if p_action='TRANSFER' then
      if v_old_manager=p_manager then raise exception 'I79_SAME_MANAGER' using errcode='40001';end if;
+     perform prumo_private.s1_i79_revogar_excecoes(p_target,v_old_manager,p_actor);
      update prumo_private.s1_gestor_operadores set encerrado_em=greatest(atribuido_em,clock_timestamp()) where id=v_relation;
     end if;
     insert into prumo_private.s1_gestor_operadores(gestor_id,operador_id) values(p_manager,p_target) returning id into v_relation;
@@ -282,5 +310,7 @@ revoke prumo_s0_g1_executor_local from postgres;
 revoke create on schema prumo_private from prumo_s0_g1_executor_local;
 revoke all on function prumo_private.s1_i79_cargo(uuid),prumo_private.s1_i79_validar_profissional(uuid),
  prumo_private.s1_i79_consistencia(),prumo_private.s1_i79_relacao_lock(),prumo_private.s1_i79_assignment_guard(),prumo_private.s1_i79_g1_guard()
+ from public,anon,authenticated,service_role,prumo_cfi01_pgtest_login;
+revoke all on function prumo_private.s1_i79_revogar_excecoes(uuid,uuid,uuid),prumo_private.s1_i79_excecoes_fecho_chefia()
  from public,anon,authenticated,service_role,prumo_cfi01_pgtest_login;
 commit;

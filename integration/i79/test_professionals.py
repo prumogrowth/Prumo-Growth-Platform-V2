@@ -291,7 +291,28 @@ class I79Tests(OriginalG1):
         # No B grant and no subordinate: the former inference would mistake it
         # for a consultant, so the new G1 role guard must roll back that attempt.
         before=self.facts();p={**self.payload(shop='B'),'consultor_id':str(actor)}
-        self.assertEqual(self.call(payload=p).state.value,'DENIED');self.assertEqual(self.facts(),before)
+        self.assertEqual(self.call(payload=p).state.value,'DESTINATION_INELIGIBLE');self.assertEqual(self.facts(),before)
+
+    def test_64_old_case_exception_never_revives_after_return_to_original_manager(self):
+        case=self.assigned();exception=UUID(case['exception_id'])
+        try:self.assertEqual(self.transfer().state,'APPLIED')
+        finally:self.assertEqual(self.transfer(manager='m1').state,'APPLIED')
+        with psycopg.connect(self.db) as c:
+            self.assertIsNotNone(c.execute('select revogada_em from prumo_private.s1_excecoes_caso_i61 where id=%s',(exception,)).fetchone()[0])
+            self.assertEqual(c.execute("select count(*) from prumo_private.s1_excecoes_caso_eventos_i61 where excecao_id=%s and evento='REVOGADA' and solicitante_id=%s",(exception,self.director)).fetchone()[0],1)
+        code,rows=request(self.api,self.anon,'GET','/rest/v1/casos_humanos?select=id&id=eq.'+case['case_id'],token=self.tokens['c2'])
+        self.assertEqual((code,rows),(200,[]));self.reject('DENIED')
+
+    def test_65_busy_i61_exception_aborts_chefia_transfer_without_lock_inversion(self):
+        case=self.assigned();before=self.relation();p=self.transfer_payload()
+        with psycopg.connect(self.db) as c,ThreadPoolExecutor(max_workers=1) as pool:
+            c.execute('select id from prumo_private.s1_excecoes_caso_i61 where id=%s for update',(case['exception_id'],))
+            pending=pool.submit(self.admin_call,p)
+            result=pending.result(timeout=5)  # Must not wait on the exception while holding team.
+            self.assertEqual(result.state,'UNAVAILABLE');self.assertEqual(self.relation(),before)
+            c.commit()
+        try:self.assertEqual(self.admin_call(p).state,'APPLIED')
+        finally:self.assertEqual(self.transfer(manager='m1').state,'APPLIED')
 
 
 if __name__=='__main__':

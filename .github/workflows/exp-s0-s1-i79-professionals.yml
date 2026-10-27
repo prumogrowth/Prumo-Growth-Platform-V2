@@ -114,6 +114,23 @@ jobs:
         with:
           ref: 8780b576aa18bd3983c063339e2e42d2452af22c
           persist-credentials: false
+      - name: Preserve original S1 179 unit tests pinned to I78
+        run: |
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i23_http_policy.py' -v
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i25_signer_process.py' -v
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i26_independent_auth.py' -v
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i27_mtls.py' -v
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i28_cert_lifecycle.py' -v
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i29_persistent_revocation.py' -v
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i30_authenticated_authority.py' -v
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i31_monotonic_witness.py' -v
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i37_intake_gateway.py' -v
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i53_canonical_gateway.py' -v
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i55_queue_gateway.py' -v
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i62_excecao_gateway.py' -v
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i67_command_parser.py' -v
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i73_export_boundary.py' -v
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i74_export_signed.py' -v
       - name: Instalar cliente PostgreSQL se necessario
         run: command -v psql || (sudo apt-get update -qq && sudo apt-get install -y postgresql-client)
       - name: Criar base local descartavel
