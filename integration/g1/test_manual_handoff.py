@@ -49,7 +49,11 @@ class G1Tests(unittest.TestCase):
             c.execute('insert into prumo_private.cfi01_signing_keys_local(key_id,secret) values (%s,%s)',(cls.key_id,cls.secret))
             c.execute(sql.SQL('alter role prumo_cfi01_pgtest_login password {}').format(sql.Literal(password)))
             c.execute(sql.SQL('alter role prumo_s1_signed_login_ci password {}').format(sql.Literal(s1_password)))
+            # I22 deliberately removes installer's implicit key-table access.
+            # Use its existing explicit custodian membership, never new grants.
+            c.execute('set role prumo_s1_i22_custodio')
             c.execute("insert into prumo_s1_signed_i20.chaves(id,segredo,valido_desde,valido_ate) values (%s,%s,clock_timestamp()-interval '1 hour',clock_timestamp()+interval '1 hour')",(cls.s1_key,cls.s1_secret))
+            c.execute('reset role')
             c.execute("set prumo.g1_disposable='YES'")
             c.execute(Path('supabase/tests/s0_g1_manual_queue_local_only.sql').read_text())
         u=urlsplit(cls.db)

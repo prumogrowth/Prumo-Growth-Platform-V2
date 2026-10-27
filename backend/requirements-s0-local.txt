@@ -1,2 +1,0 @@
-# Somente testes de integração S0 em Supabase local. Não usar em navegador/producao.
-psycopg[binary]==3.2.9
