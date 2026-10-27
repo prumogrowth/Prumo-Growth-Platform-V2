@@ -50,7 +50,10 @@ begin
  then raise exception 'I79_MANAGER_STILL_HAS_ACTIVE_CONSULTANTS' using errcode='23514';end if;
 end $$;
 create function prumo_private.s1_i79_consistencia()
-returns trigger language plpgsql security invoker set search_path='' as $$
+-- Deferred events execute at COMMIT after the signed DEFINER has returned.
+-- Validate under a private fixed owner; do NOT grant helper/table access to
+-- the application login merely to satisfy the deferred callback.
+returns trigger language plpgsql security definer set search_path='' as $$
 begin
  if tg_table_name='equipe_prumo_s1' then
   perform prumo_private.s1_i79_validar_profissional(new.ator_id);
