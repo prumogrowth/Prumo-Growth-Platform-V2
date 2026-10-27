@@ -1,0 +1,58 @@
+{
+  "schema": "prumo.f02.s0.joint_homologation_gates/1.0-lab",
+  "as_of": "2026-10-27",
+  "f02_branch": "feat/oai-s0-f03-history-port-20261023",
+  "s0_candidate_branch": "exp/s0-f02-revisao-autoritativa-20261026",
+  "f02_baseline_sha": "dcac0d17196daadce6e095cbbb2650f7c74fbbdd",
+  "s0_candidate_sha": "88af4aea3aeb2c403bab4c078fdc04d560f2cba0",
+  "s0_schema": "prumo.s0.f02.review.result/0.1-candidate",
+  "s0_ci_provenance": 40414847271,
+  "criteria_type": "HARD_BLOCKERS_NEVER_SELF_RATIFIED",
+  "real_s0_e2e_homologated": false,
+  "production_authorization": false,
+  "source_of_truth": "S0_and_responsible_domain_owners_only",
+  "gates": [
+    {
+      "id": "G01_S0_SCHEMA_RATIFICATION",
+      "owner": "Codex/S0",
+      "status": "INTEGRATION_PENDING",
+      "needed": "Ratified and versioned S0 F02 result/command contract; migration and compatibility rules"
+    },
+    {
+      "id": "G02_AUTHENTICATED_TRANSPORT_AND_LOOKUP",
+      "owner": "Codex/S0 + Frontend + S1",
+      "status": "INTEGRATION_PENDING",
+      "needed": "Server-owned CFI binding reconstruction, authenticated S0 response/provenance, D3 lookup and session transfer decision"
+    },
+    {
+      "id": "G03_F03_C08_ORIGIN_PROVENANCE",
+      "owner": "S0 + F01/F03 + F02",
+      "status": "INTEGRATION_PENDING",
+      "needed": "Authentic F03 receipt and cutoff, local C08 witness and origin ledger attestation; no promotion of claimed hashes"
+    },
+    {
+      "id": "G04_S1_DISTINCT_MANAGER_RATIFICATION",
+      "owner": "S0 + S1",
+      "status": "INTEGRATION_PENDING",
+      "needed": "Role/assignment scope, distinct manager authority, signed audited approve/deny/revoke decision with expiry"
+    },
+    {
+      "id": "G05_META_OPTOUT_TEMPLATE_DISPOSITION",
+      "owner": "S0 + Meta + Privacidade",
+      "status": "INTEGRATION_PENDING",
+      "needed": "Authoritative external reserved/uncertain disposition, current opt-out/consent and approved template/channel policy"
+    },
+    {
+      "id": "G06_APPROVED_TIME_RETENTION_POLICY",
+      "owner": "S0 + Produto + Privacidade",
+      "status": "INTEGRATION_PENDING",
+      "needed": "Business-approved TTL, contact windows, server clock, retention/minimization and policy version independent of lab constants"
+    },
+    {
+      "id": "G07_F01_F03_F02_INTEGRATED_PATH",
+      "owner": "S0 + F01/F03 + F02 + S1",
+      "status": "INTEGRATION_PENDING",
+      "needed": "Integrated physical test from human handover to persisted S0 review including concurrent revocation and negative paths"
+    }
+  ]
+}

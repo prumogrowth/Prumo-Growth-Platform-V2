@@ -124,7 +124,10 @@ def inspect_s0_review_projection(
         or _SHA.fullmatch(handoff.untrusted_request_sha256) is None
         or not _aware(window.requested_at)
         or not _aware(window.expires_at)
-        or window.requested_at >= window.expires_at):
+        # Compare absolute instants: same ZoneInfo tzinfo compares wall time
+        # around DST folds in Python, which can reverse the real chronology.
+        or window.requested_at.astimezone(timezone.utc)
+           >= window.expires_at.astimezone(timezone.utc)):
         return outcome(ProjectionGate.REQUEST_BINDING_RECHECK_REQUIRED)
 
     if not _data(projection) or (previous is not None and not _data(previous)):

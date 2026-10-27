@@ -278,6 +278,22 @@
         "backend/tests/test_f02_s0_review_bound_bridge_candidate.py::test_24_tampered_handoff_proposal_recomputed_even_on_negative_result"
       ],
       "gate": "Non-authorizing lab consistency only; S0 must ratify an authenticated lookup and real F03/C08/S1/Meta evidence before any commercial decision"
+    },
+    {
+      "id": "F02-A24",
+      "area": "F02/S0/S1/F03/Meta",
+      "behavior": "Machine-checkable joint S0/F02 review candidate assessment retains seven independently ratified integration blockers across all 13 candidate states; UTC-instant window validation prevents DST fold chronology inversion",
+      "status": "LAB_VERIFIED",
+      "tests": [
+        "backend/tests/test_f02_s0_joint_homologation_candidate.py::test_01_consistent_persisted_result_still_all_gates_pending",
+        "backend/tests/test_f02_s0_joint_homologation_candidate.py::test_05_unavailable_is_read_original_only_with_all_gates",
+        "backend/tests/test_f02_s0_joint_homologation_candidate.py::test_08_nonratified_human_claim_cannot_be_elevated",
+        "backend/tests/test_f02_s0_joint_homologation_candidate.py::test_13_joint_gates_manifest_matches_enum_and_owners",
+        "backend/tests/test_f02_s0_joint_homologation_candidate.py::test_17_dst_fall_back_reversed_absolute_window_is_refused",
+        "backend/tests/test_f02_s0_joint_homologation_candidate.py::test_18_dst_fall_back_valid_absolute_window_must_not_be_rejected",
+        "backend/tests/test_f02_s0_joint_homologation_candidate.py::test_20_all_states_explicitly_deny_homologation"
+      ],
+      "gate": "Lab compatibility is not integration approval. S0 must authenticate source and ratify schema/lookup, F03/C08 provenance, S1 human decision, Meta consent/transport, temporal policy and integrated physical scenarios"
     }
   ],
   "non_authorizing_positive_states": [
@@ -380,5 +396,14 @@
     "transport_authenticated": false,
     "ratification": false,
     "send": false
+  },
+  "joint_s0_review_candidate": {
+    "module": "backend/f02_s0_joint_homologation_candidate.py",
+    "tests": "backend/tests/test_f02_s0_joint_homologation_candidate.py",
+    "documentation": "docs/contracts/OAI_E04_F02_S0_JOINT_HOMOLOGATION_V1.md",
+    "gate_manifest": "docs/contracts/OAI_E04_F02_S0_JOINT_GATES_V1.json",
+    "gate_count": 7,
+    "hard_blockers_not_removable_by_input": true,
+    "production_homologation": false
   }
 }
