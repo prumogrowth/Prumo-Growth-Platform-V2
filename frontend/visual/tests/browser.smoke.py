@@ -778,6 +778,9 @@ with sync_playwright() as p:
         touch_errors=[]
         touch.on('pageerror',lambda error:touch_errors.append(str(error)))
         touch.set_content(html);touch.add_script_tag(content=script)
+        expect(touch.locator('#ui-settings > summary')).to_be_visible()
+        assert touch.locator('#ui-settings > summary').bounding_box()['width']>=44
+        touch.locator('#ui-settings').evaluate('e => e.open = true')
         for theme in ('light','dark'):
             btn=touch.locator('#theme-'+theme)
             btn.click()
@@ -786,6 +789,8 @@ with sync_playwright() as p:
             assert box and box['width']>=44 and box['height']>=44,(theme_width,theme,box)
             assert touch.locator('#theme-light').is_visible() and touch.locator('#theme-dark').is_visible()
             assert not touch.evaluate('document.documentElement.scrollWidth > innerWidth')
+        touch.locator('#ui-settings').evaluate('e => e.open = false')
+        assert not touch.locator('#theme-light').is_visible()
         assert not touch_errors,repr(touch_errors)
         touch.close()
     print('FV-UI-039 botoes de tema 44px e reflow em quatro larguras: PASS')
