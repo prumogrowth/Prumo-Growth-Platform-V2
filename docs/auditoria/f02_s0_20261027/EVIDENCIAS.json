@@ -1,0 +1,1586 @@
+{
+  "schema": "prumo.audit.f02_s0.evidence/1.0-documentary",
+  "as_of": "2026-10-27T07:15:45-03:00",
+  "repository": "0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA",
+  "scope": "INSPECAO_E_TESTES_DOCUMENTAIS_SEM_HOMOLOGACAO",
+  "audit_base": "dace737ab7afb7ae3f5a3a6f5cb522e6def8b43a",
+  "checkpoints": [
+    {
+      "key": "F02",
+      "pr": 1,
+      "branch": "feat/oai-s0-f03-history-port-20261023",
+      "head": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "executable": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "run": 40480580349,
+      "ci_conclusion": "success",
+      "workflow": ".github/workflows/s0-f03-pg17.yml",
+      "post_ci_files": []
+    },
+    {
+      "key": "S0_HISTORICO",
+      "pr": 16,
+      "branch": "exp/s0-consolidacao-sessao-historico-20261026",
+      "head": "b298252c26c69f668b3c3fdb86e9252faff9e44b",
+      "executable": "8be6e194bfb5b8694c1010ff8560c8ec19ed4fd8",
+      "run": 40405271785,
+      "ci_conclusion": "success",
+      "workflow": ".github/workflows/exp-s0-consolidacao-historico.yml",
+      "post_ci_files": [
+        "docs/consolidacao/s0_20261026/EVIDENCIAS.json",
+        "docs/consolidacao/s0_20261026/REVISAO_E_ENCAMINHAMENTOS.md"
+      ]
+    },
+    {
+      "key": "S0_F02",
+      "pr": 18,
+      "branch": "exp/s0-f02-revisao-autoritativa-20261026",
+      "head": "88af4aea3aeb2c403bab4c078fdc04d560f2cba0",
+      "executable": "4a3d248d46fad5c195398324b3ee98ae6236365f",
+      "run": 40414847271,
+      "ci_conclusion": "success",
+      "workflow": ".github/workflows/exp-s0-f02-revisao.yml",
+      "post_ci_files": [
+        "docs/contratos/f02_s0_review/CONTRATO_CANDIDATO_0_1.md",
+        "docs/contratos/f02_s0_review/ENCAMINHAMENTO_F02.md",
+        "docs/contratos/f02_s0_review/EVIDENCIAS.json",
+        "docs/contratos/f02_s0_review/result.schema.json"
+      ]
+    },
+    {
+      "key": "S0_G1",
+      "pr": 20,
+      "branch": "exp/s0-g1-encaminhamento-manual-20261026",
+      "head": "4775091ac6207e1593daf1d8fb3b3b3f414224de",
+      "executable": "d53c40a6ef55e82d2282c482b299cff1dbf990bd",
+      "run": 40434954253,
+      "ci_conclusion": "success",
+      "workflow": ".github/workflows/exp-s0-g1-manual.yml",
+      "post_ci_files": [
+        "docs/contratos/g1_issue17/CONTRATO_G1_MANUAL_V1.md",
+        "docs/contratos/g1_issue17/RELATORIO_E_REPRODUCAO.md",
+        "docs/contratos/g1_issue17/evidencias.json"
+      ]
+    },
+    {
+      "key": "S1_I78",
+      "pr": null,
+      "branch": "feat/s1-002-equipe-prumo",
+      "head": "8780b576aa18bd3983c063339e2e42d2452af22c",
+      "executable": "f8268bc35c4701a8b522a66504e080628673b11d",
+      "run": 40475205913,
+      "ci_conclusion": "success",
+      "workflow": ".github/workflows/s1-002-postgres.yml",
+      "post_ci_files": [
+        "docs/S1_002_CHECKPOINT_I74_E_GATES_2026_10_26.md",
+        "docs/S1_002_I78_G2_CHEFIA_DIRETOR_2026_10_27.md"
+      ]
+    },
+    {
+      "key": "S0_S1_I79",
+      "pr": 26,
+      "branch": "exp/s0-s1-i79-profissionais-20261027",
+      "head": "8068db1c42216fb1da6855401146eab257f3eff1",
+      "executable": "ab96b5d2d2aae293e239b38bccec82c29dd72a15",
+      "run": 40484344324,
+      "ci_conclusion": "success",
+      "workflow": ".github/workflows/exp-s0-s1-i79-professionals.yml",
+      "post_ci_files": [
+        "docs/S1_002_CHECKPOINT_I79_G2_2026_10_27.md",
+        "docs/contratos/i79_g2/CONTRATO_E_CHECKPOINT.md",
+        "docs/contratos/i79_g2/RELATORIO_DE_EXECUCAO.md",
+        "docs/contratos/i79_g2/evidencias.json"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "backend/f02_reconciled_human_authorization_handoff.py",
+      "blob_sha": "ef6803df9d97b3fe3ad804669fc5be17555fbdbe",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/backend/f02_reconciled_human_authorization_handoff.py"
+    },
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "backend/f02_reconciled_review_lifecycle.py",
+      "blob_sha": "11a9e71eabefdf63195fd01a431d1bf19c603ee3",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/backend/f02_reconciled_review_lifecycle.py"
+    },
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "backend/f02_reconciled_review_recovery.py",
+      "blob_sha": "b049b9765e9126ad4230ece85009689f2d49473b",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/backend/f02_reconciled_review_recovery.py"
+    },
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "backend/f02_s0_joint_homologation_candidate.py",
+      "blob_sha": "a8ce1186e6812a209f03afccaff3ffd0d069f21c",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/backend/f02_s0_joint_homologation_candidate.py"
+    },
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "backend/f02_s0_review_followup_candidate.py",
+      "blob_sha": "6eaa41598ea5d1cf8b76f92cea282faf4d210c32",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/backend/f02_s0_review_followup_candidate.py"
+    },
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "backend/f02_s0_review_projection_candidate.py",
+      "blob_sha": "fd7a6768b96e31f29ce5dd42321821a4abb0b303",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/backend/f02_s0_review_projection_candidate.py"
+    },
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "backend/s0_cfi01_f03_receipt_bridge_local.py",
+      "blob_sha": "fb659c5c9032d4b577c971a08b8fb86fae628f63",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/backend/s0_cfi01_f03_receipt_bridge_local.py"
+    },
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "backend/s0_f02_legacy_cancellation_witness_local.py",
+      "blob_sha": "fce30e595d5670cce9b1164ac1bfbd7f229b9f54",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/backend/s0_f02_legacy_cancellation_witness_local.py"
+    },
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "backend/s0_f02_legacy_observed_origin_local.py",
+      "blob_sha": "35d261e3746da6363ed46a8bf1e282a373937100",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/backend/s0_f02_legacy_observed_origin_local.py"
+    },
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "backend/s0_f02_posthuman_compatibility_local.py",
+      "blob_sha": "e7a6f85ddce35a1e929ba1019f6492e3dd49b68f",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/backend/s0_f02_posthuman_compatibility_local.py"
+    },
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "backend/s0_f02_posthuman_draft_local.py",
+      "blob_sha": "7ab4464aa114d5fc484bf56d269ee0a43120deb0",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/backend/s0_f02_posthuman_draft_local.py"
+    },
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "backend/s0_f02_posthuman_intent_local.py",
+      "blob_sha": "7d84ad93117db66a5b6650f7d19da5fa537546be",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/backend/s0_f02_posthuman_intent_local.py"
+    },
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "backend/s0_f02_posthuman_legacy_reconciliation_local.py",
+      "blob_sha": "e44756139f87e0ad3aec11af153596540bcf5260",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/backend/s0_f02_posthuman_legacy_reconciliation_local.py"
+    },
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "backend/s0_f02_posthuman_preview_local.py",
+      "blob_sha": "c1fd623cfc39d0d62b3fa8ad167a69825b95a023",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/backend/s0_f02_posthuman_preview_local.py"
+    },
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "backend/s0_human_closure_event_local.py",
+      "blob_sha": "0286a566d950ae85daeaef41c740110c03b5634f",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/backend/s0_human_closure_event_local.py"
+    },
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "backend/tests/test_f02_acceptance_matrix_contract.py",
+      "blob_sha": "0b24bc79ca6a709a691c5dea54790fc5220f3460",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/backend/tests/test_f02_acceptance_matrix_contract.py"
+    },
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "backend/tests/test_f02_bound_review_preflight.py",
+      "blob_sha": "26fe21b7504f6e8b37b6f6b5ec3778706d746625",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/backend/tests/test_f02_bound_review_preflight.py"
+    },
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "backend/tests/test_f02_reconciled_human_authorization_handoff.py",
+      "blob_sha": "e9c6da8b95bd35552d2c99c2aecd47ec3fb7a5e6",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/backend/tests/test_f02_reconciled_human_authorization_handoff.py"
+    },
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "backend/tests/test_f02_reconciled_review_lifecycle.py",
+      "blob_sha": "744ac75a6375997aed19f89a95ca7a86de0336cd",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/backend/tests/test_f02_reconciled_review_lifecycle.py"
+    },
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "backend/tests/test_f02_reconciled_review_recovery.py",
+      "blob_sha": "7024517905ae1329cfe6711d1e25a1524427d866",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/backend/tests/test_f02_reconciled_review_recovery.py"
+    },
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "backend/tests/test_f02_s0_integration_handoff_contract.py",
+      "blob_sha": "e0d498f2b26da95205776df04fe39e0530cb8ef7",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/backend/tests/test_f02_s0_integration_handoff_contract.py"
+    },
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "backend/tests/test_f02_s0_joint_homologation_candidate.py",
+      "blob_sha": "9d56a3efc1ebd8049c5448da25fc62f5c0436b47",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/backend/tests/test_f02_s0_joint_homologation_candidate.py"
+    },
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "backend/tests/test_f02_s0_review_bound_bridge_candidate.py",
+      "blob_sha": "367ab4d47e2beec550627b08683053ec07db4873",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/backend/tests/test_f02_s0_review_bound_bridge_candidate.py"
+    },
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "backend/tests/test_f02_s0_review_followup_candidate.py",
+      "blob_sha": "3eca6be0a9ed0ff8181a0587304f55bd43fef3bd",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/backend/tests/test_f02_s0_review_followup_candidate.py"
+    },
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "backend/tests/test_f02_s0_review_projection_candidate.py",
+      "blob_sha": "8a8d0c2ffb51fe152b9edd234fa8ff06edd389e5",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/backend/tests/test_f02_s0_review_projection_candidate.py"
+    },
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "docs/contracts/OAI_E04_F02_ACCEPTANCE_MATRIX_V1.json",
+      "blob_sha": "4cf1a78dbb9346cfcf6700790d1171c1244545e3",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/docs/contracts/OAI_E04_F02_ACCEPTANCE_MATRIX_V1.json"
+    },
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "docs/contracts/OAI_E04_F02_BOUND_REVIEW_PREFLIGHT_V1.md",
+      "blob_sha": "da62d6e65103f904f863dd2fa7555259f44d7ee8",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/docs/contracts/OAI_E04_F02_BOUND_REVIEW_PREFLIGHT_V1.md"
+    },
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "docs/contracts/OAI_E04_F02_RECONCILED_HUMAN_HANDOFF_V1.json",
+      "blob_sha": "68d5828a992150d04f5a2ef85632c5e2abe9a28a",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/docs/contracts/OAI_E04_F02_RECONCILED_HUMAN_HANDOFF_V1.json"
+    },
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "docs/contracts/OAI_E04_F02_RECONCILED_HUMAN_HANDOFF_V1.md",
+      "blob_sha": "3b9018a147dd63e0da4bedebe6b2601bd086dfd6",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/docs/contracts/OAI_E04_F02_RECONCILED_HUMAN_HANDOFF_V1.md"
+    },
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "docs/contracts/OAI_E04_F02_REVIEW_LIFECYCLE_V1.md",
+      "blob_sha": "ce09e4c3e6937d3d34b978055649778b0be391f0",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/docs/contracts/OAI_E04_F02_REVIEW_LIFECYCLE_V1.md"
+    },
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "docs/contracts/OAI_E04_F02_REVIEW_RECOVERY_V1.md",
+      "blob_sha": "8002ac72f2788a6e2fdaea593d22f191eba4b69a",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/docs/contracts/OAI_E04_F02_REVIEW_RECOVERY_V1.md"
+    },
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "docs/contracts/OAI_E04_F02_S0_BOUND_FOLLOWUP_BRIDGE_V1.md",
+      "blob_sha": "5e40291baee2b64dc170d304556d21e9e24411a6",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/docs/contracts/OAI_E04_F02_S0_BOUND_FOLLOWUP_BRIDGE_V1.md"
+    },
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "docs/contracts/OAI_E04_F02_S0_CODEX_HANDOFF_V1.json",
+      "blob_sha": "4299ca7f71637dfe4fc3a5ddfa742090c00d7202",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/docs/contracts/OAI_E04_F02_S0_CODEX_HANDOFF_V1.json"
+    },
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "docs/contracts/OAI_E04_F02_S0_INTEGRATION_HANDOFF_V1.json",
+      "blob_sha": "d6a1b519a0c12f9fd8041d287cc69ec620a9073c",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/docs/contracts/OAI_E04_F02_S0_INTEGRATION_HANDOFF_V1.json"
+    },
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "docs/contracts/OAI_E04_F02_S0_JOINT_GATES_V1.json",
+      "blob_sha": "07db24bd3db1c4aa5887e260e1594dc802c5a6a8",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/docs/contracts/OAI_E04_F02_S0_JOINT_GATES_V1.json"
+    },
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "docs/contracts/OAI_E04_F02_S0_JOINT_HOMOLOGATION_V1.md",
+      "blob_sha": "b83da7bfb238b0d18a7f9c342e033110f5c1794a",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/docs/contracts/OAI_E04_F02_S0_JOINT_HOMOLOGATION_V1.md"
+    },
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "docs/contracts/OAI_E04_F02_S0_REVIEW_FOLLOWUP_V1.md",
+      "blob_sha": "c0952f953dbb750310a1ea382c22e766582e768d",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/docs/contracts/OAI_E04_F02_S0_REVIEW_FOLLOWUP_V1.md"
+    },
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "docs/contracts/OAI_E04_F02_S0_REVIEW_PROJECTION_CANDIDATE_V1.md",
+      "blob_sha": "ed30ec3b4eed64af84de505a6983829bb27399e7",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/docs/contracts/OAI_E04_F02_S0_REVIEW_PROJECTION_CANDIDATE_V1.md"
+    },
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "docs/contracts/OAI_E04_F02_S0_REVIEW_PROJECTION_PIN.json",
+      "blob_sha": "2a532a66c871664d51102a8b56adf2bd2b49bd06",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/docs/contracts/OAI_E04_F02_S0_REVIEW_PROJECTION_PIN.json"
+    },
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "docs/contracts/upstream/OAI_S0_F02_REVIEW_RESULT_SCHEMA_0_1_PINNED.json",
+      "blob_sha": "61598ba702dc03f9f715673118c88f9359e64113",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/docs/contracts/upstream/OAI_S0_F02_REVIEW_RESULT_SCHEMA_0_1_PINNED.json"
+    },
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "scripts/run-s0-f03-pg17-local.sh",
+      "blob_sha": "ca3f10558f5e984441b867be14bf279e40216657",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/scripts/run-s0-f03-pg17-local.sh"
+    },
+    {
+      "snapshot": "s0",
+      "commit": "88af4aea3aeb2c403bab4c078fdc04d560f2cba0",
+      "path": "backend/s0_cfi01_communication_local.py",
+      "blob_sha": "a1297798d2294cad2b7a2bc1d6407fccd7e52b7d",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/88af4aea3aeb2c403bab4c078fdc04d560f2cba0/backend/s0_cfi01_communication_local.py"
+    },
+    {
+      "snapshot": "s0",
+      "commit": "88af4aea3aeb2c403bab4c078fdc04d560f2cba0",
+      "path": "backend/s0_f02_review_registry_local.py",
+      "blob_sha": "b288db3c8d1160d6c38ca35508726028ea156644",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/88af4aea3aeb2c403bab4c078fdc04d560f2cba0/backend/s0_f02_review_registry_local.py"
+    },
+    {
+      "snapshot": "s0",
+      "commit": "88af4aea3aeb2c403bab4c078fdc04d560f2cba0",
+      "path": "docs/contratos/f02_s0_review/CONTRATO_CANDIDATO_0_1.md",
+      "blob_sha": "1d4279029c09f1b730cffebf340bec6a8ea3a5e3",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/88af4aea3aeb2c403bab4c078fdc04d560f2cba0/docs/contratos/f02_s0_review/CONTRATO_CANDIDATO_0_1.md"
+    },
+    {
+      "snapshot": "s0",
+      "commit": "88af4aea3aeb2c403bab4c078fdc04d560f2cba0",
+      "path": "docs/contratos/f02_s0_review/ENCAMINHAMENTO_F02.md",
+      "blob_sha": "756329210642b4cd2ff716f81c476534cd7934bf",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/88af4aea3aeb2c403bab4c078fdc04d560f2cba0/docs/contratos/f02_s0_review/ENCAMINHAMENTO_F02.md"
+    },
+    {
+      "snapshot": "s0",
+      "commit": "88af4aea3aeb2c403bab4c078fdc04d560f2cba0",
+      "path": "docs/contratos/f02_s0_review/EVIDENCIAS.json",
+      "blob_sha": "d6dcfde837af76f4f87f21415fa0bb1c6ace52a8",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/88af4aea3aeb2c403bab4c078fdc04d560f2cba0/docs/contratos/f02_s0_review/EVIDENCIAS.json"
+    },
+    {
+      "snapshot": "s0",
+      "commit": "88af4aea3aeb2c403bab4c078fdc04d560f2cba0",
+      "path": "docs/contratos/f02_s0_review/result.schema.json",
+      "blob_sha": "61598ba702dc03f9f715673118c88f9359e64113",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/88af4aea3aeb2c403bab4c078fdc04d560f2cba0/docs/contratos/f02_s0_review/result.schema.json"
+    },
+    {
+      "snapshot": "s0",
+      "commit": "88af4aea3aeb2c403bab4c078fdc04d560f2cba0",
+      "path": "integration/f02/f02_source_manifest.json",
+      "blob_sha": "65f76a30085a4689973df282fbc0210d65668742",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/88af4aea3aeb2c403bab4c078fdc04d560f2cba0/integration/f02/f02_source_manifest.json"
+    },
+    {
+      "snapshot": "s0",
+      "commit": "88af4aea3aeb2c403bab4c078fdc04d560f2cba0",
+      "path": "integration/f02/test_authoritative_review.py",
+      "blob_sha": "5c0b308cb86795b3511a9ce2111245678fb879a3",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/88af4aea3aeb2c403bab4c078fdc04d560f2cba0/integration/f02/test_authoritative_review.py"
+    },
+    {
+      "snapshot": "s0",
+      "commit": "88af4aea3aeb2c403bab4c078fdc04d560f2cba0",
+      "path": "supabase/tests/s0_f02_review_registry_local_only.sql",
+      "blob_sha": "07536436c352962c141001b61fa09afdd94e14fa",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/88af4aea3aeb2c403bab4c078fdc04d560f2cba0/supabase/tests/s0_f02_review_registry_local_only.sql"
+    },
+    {
+      "snapshot": "s0",
+      "commit": "88af4aea3aeb2c403bab4c078fdc04d560f2cba0",
+      "path": "supabase/tests/s0_history_session_gate_local_only.sql",
+      "blob_sha": "e1f537a9e69095fb45186ef454a3b8bb76c64f4c",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/88af4aea3aeb2c403bab4c078fdc04d560f2cba0/supabase/tests/s0_history_session_gate_local_only.sql"
+    },
+    {
+      "snapshot": "i79",
+      "commit": "8068db1c42216fb1da6855401146eab257f3eff1",
+      "path": ".github/workflows/exp-s0-s1-i79-professionals.yml",
+      "blob_sha": "9c11c72f7da49a383b9fa1f48ea12e224f8d5ffa",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/8068db1c42216fb1da6855401146eab257f3eff1/.github/workflows/exp-s0-s1-i79-professionals.yml"
+    },
+    {
+      "snapshot": "i79",
+      "commit": "8068db1c42216fb1da6855401146eab257f3eff1",
+      "path": "backend/s0_g1_manual_queue_local.py",
+      "blob_sha": "c4e7dd15b8fb257a969c720968922a0897d04313",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/8068db1c42216fb1da6855401146eab257f3eff1/backend/s0_g1_manual_queue_local.py"
+    },
+    {
+      "snapshot": "i79",
+      "commit": "8068db1c42216fb1da6855401146eab257f3eff1",
+      "path": "backend/tests/test_s0_g1_manual_contract.py",
+      "blob_sha": "732d96674a38b08a67e9d9f50165e5abee018e4f",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/8068db1c42216fb1da6855401146eab257f3eff1/backend/tests/test_s0_g1_manual_contract.py"
+    },
+    {
+      "snapshot": "i79",
+      "commit": "8068db1c42216fb1da6855401146eab257f3eff1",
+      "path": "docs/S1_002_CHECKPOINT_I79_G2_2026_10_27.md",
+      "blob_sha": "573aae012a2035f5d9bbebcdf8ba180b3befc758",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/8068db1c42216fb1da6855401146eab257f3eff1/docs/S1_002_CHECKPOINT_I79_G2_2026_10_27.md"
+    },
+    {
+      "snapshot": "i79",
+      "commit": "8068db1c42216fb1da6855401146eab257f3eff1",
+      "path": "docs/contratos/g1_issue17/CONTRATO_G1_MANUAL_V1.md",
+      "blob_sha": "ff7708c779615cfcef997d6ddb2d5d350ffaf6de",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/8068db1c42216fb1da6855401146eab257f3eff1/docs/contratos/g1_issue17/CONTRATO_G1_MANUAL_V1.md"
+    },
+    {
+      "snapshot": "i79",
+      "commit": "8068db1c42216fb1da6855401146eab257f3eff1",
+      "path": "docs/contratos/g1_issue17/RELATORIO_E_REPRODUCAO.md",
+      "blob_sha": "e44603d3883f6d839e6940b1056d2b7e2f320b38",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/8068db1c42216fb1da6855401146eab257f3eff1/docs/contratos/g1_issue17/RELATORIO_E_REPRODUCAO.md"
+    },
+    {
+      "snapshot": "i79",
+      "commit": "8068db1c42216fb1da6855401146eab257f3eff1",
+      "path": "docs/contratos/g1_issue17/evidencias.json",
+      "blob_sha": "8e656e9bbf291c9929ade00d94f5c69bbd327b53",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/8068db1c42216fb1da6855401146eab257f3eff1/docs/contratos/g1_issue17/evidencias.json"
+    },
+    {
+      "snapshot": "i79",
+      "commit": "8068db1c42216fb1da6855401146eab257f3eff1",
+      "path": "docs/contratos/i79_g2/CONTRATO_E_CHECKPOINT.md",
+      "blob_sha": "169b6871a8ef3c8c9f9ebf6b2167772ff4fcd7a0",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/8068db1c42216fb1da6855401146eab257f3eff1/docs/contratos/i79_g2/CONTRATO_E_CHECKPOINT.md"
+    },
+    {
+      "snapshot": "i79",
+      "commit": "8068db1c42216fb1da6855401146eab257f3eff1",
+      "path": "docs/contratos/i79_g2/RELATORIO_DE_EXECUCAO.md",
+      "blob_sha": "a5120dbbf667e97c0b460be181acc65a0175ae7a",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/8068db1c42216fb1da6855401146eab257f3eff1/docs/contratos/i79_g2/RELATORIO_DE_EXECUCAO.md"
+    },
+    {
+      "snapshot": "i79",
+      "commit": "8068db1c42216fb1da6855401146eab257f3eff1",
+      "path": "docs/contratos/i79_g2/evidencias.json",
+      "blob_sha": "3754d1bbf910cadd1311f20f0912d3b065207d3c",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/8068db1c42216fb1da6855401146eab257f3eff1/docs/contratos/i79_g2/evidencias.json"
+    },
+    {
+      "snapshot": "i79",
+      "commit": "8068db1c42216fb1da6855401146eab257f3eff1",
+      "path": "integration/i79/install_local.py",
+      "blob_sha": "57b660f3899f1dd01cd8096a8cdda747d9890d7b",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/8068db1c42216fb1da6855401146eab257f3eff1/integration/i79/install_local.py"
+    },
+    {
+      "snapshot": "i79",
+      "commit": "8068db1c42216fb1da6855401146eab257f3eff1",
+      "path": "integration/i79/test_professionals.py",
+      "blob_sha": "f8bb25c940db9b3d14706abd0683aa291c74d6ba",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/8068db1c42216fb1da6855401146eab257f3eff1/integration/i79/test_professionals.py"
+    },
+    {
+      "snapshot": "i79",
+      "commit": "8068db1c42216fb1da6855401146eab257f3eff1",
+      "path": "supabase/tests/s0_g1_manual_queue_local_only.sql",
+      "blob_sha": "fe0f48523a6f632e8915c16999019134b2aa00b1",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/8068db1c42216fb1da6855401146eab257f3eff1/supabase/tests/s0_g1_manual_queue_local_only.sql"
+    },
+    {
+      "snapshot": "i79",
+      "commit": "8068db1c42216fb1da6855401146eab257f3eff1",
+      "path": "supabase/tests/s1_i79_profissionais_local_only.sql",
+      "blob_sha": "d668f5855daa51ec689628886486bb1b9f7c082e",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/8068db1c42216fb1da6855401146eab257f3eff1/supabase/tests/s1_i79_profissionais_local_only.sql"
+    },
+    {
+      "snapshot": "s1",
+      "commit": "8780b576aa18bd3983c063339e2e42d2452af22c",
+      "path": "docs/S1_002_CHECKPOINT_I74_E_GATES_2026_10_26.md",
+      "blob_sha": "4745d2cfe47b636785ae62f3c47e886cb65941fa",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/8780b576aa18bd3983c063339e2e42d2452af22c/docs/S1_002_CHECKPOINT_I74_E_GATES_2026_10_26.md"
+    },
+    {
+      "snapshot": "s1",
+      "commit": "8780b576aa18bd3983c063339e2e42d2452af22c",
+      "path": "docs/S1_002_COORDENACAO_S0_CODEX_2026_10_26.md",
+      "blob_sha": "9f4d9ee3ce9234821041557ffe27f4c6c28f1ab4",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/8780b576aa18bd3983c063339e2e42d2452af22c/docs/S1_002_COORDENACAO_S0_CODEX_2026_10_26.md"
+    },
+    {
+      "snapshot": "s1",
+      "commit": "8780b576aa18bd3983c063339e2e42d2452af22c",
+      "path": "docs/S1_002_I75A_GATE_G3_OBJETO_FINALIDADE_2026_10_26.md",
+      "blob_sha": "4622063bc74958b34d8e90da72d579e7d40e23ae",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/8780b576aa18bd3983c063339e2e42d2452af22c/docs/S1_002_I75A_GATE_G3_OBJETO_FINALIDADE_2026_10_26.md"
+    },
+    {
+      "snapshot": "s1",
+      "commit": "8780b576aa18bd3983c063339e2e42d2452af22c",
+      "path": "docs/S1_002_I75B_G3_INVENTARIO_EXECUTAVEL_2026_10_26.md",
+      "blob_sha": "049c96871717f3dabc2d923fed6376ea4bdc4d81",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/8780b576aa18bd3983c063339e2e42d2452af22c/docs/S1_002_I75B_G3_INVENTARIO_EXECUTAVEL_2026_10_26.md"
+    },
+    {
+      "snapshot": "s1",
+      "commit": "8780b576aa18bd3983c063339e2e42d2452af22c",
+      "path": "docs/S1_002_I75C_CATALOGO_EFETIVO_G3_2026_10_26.md",
+      "blob_sha": "b3b51af13b9ba294da2a9babffdeb2fffe882a7a",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/8780b576aa18bd3983c063339e2e42d2452af22c/docs/S1_002_I75C_CATALOGO_EFETIVO_G3_2026_10_26.md"
+    },
+    {
+      "snapshot": "s1",
+      "commit": "8780b576aa18bd3983c063339e2e42d2452af22c",
+      "path": "docs/S1_002_I75D_GOTRUE_HISTORICO_CRUZADO_2026_10_26.md",
+      "blob_sha": "4eec70d8ab0b6e706c0d5bb7ea5583d038178ae0",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/8780b576aa18bd3983c063339e2e42d2452af22c/docs/S1_002_I75D_GOTRUE_HISTORICO_CRUZADO_2026_10_26.md"
+    },
+    {
+      "snapshot": "s1",
+      "commit": "8780b576aa18bd3983c063339e2e42d2452af22c",
+      "path": "docs/S1_002_I76_G1_FILA_MULTIGESTORES_2026_10_26.md",
+      "blob_sha": "865f586fb4fb53a2d209b40cb02324043cfb2627",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/8780b576aa18bd3983c063339e2e42d2452af22c/docs/S1_002_I76_G1_FILA_MULTIGESTORES_2026_10_26.md"
+    },
+    {
+      "snapshot": "s1",
+      "commit": "8780b576aa18bd3983c063339e2e42d2452af22c",
+      "path": "docs/S1_002_I77_G1_PR20_ACEITE_TECNICO_2026_10_27.md",
+      "blob_sha": "bedaa6b0f5160947d77dcfdb2fb2b3b95ac381f2",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/8780b576aa18bd3983c063339e2e42d2452af22c/docs/S1_002_I77_G1_PR20_ACEITE_TECNICO_2026_10_27.md"
+    },
+    {
+      "snapshot": "s1",
+      "commit": "8780b576aa18bd3983c063339e2e42d2452af22c",
+      "path": "docs/S1_002_I78_G2_CHEFIA_DIRETOR_2026_10_27.md",
+      "blob_sha": "28ca10ef6a40ceec3c3d625f6657597275b3a866",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/8780b576aa18bd3983c063339e2e42d2452af22c/docs/S1_002_I78_G2_CHEFIA_DIRETOR_2026_10_27.md"
+    },
+    {
+      "snapshot": "meta",
+      "commit": "d453a22f7160c4e9ff146d21aebe0c2679c9840a",
+      "path": "README.md",
+      "blob_sha": "5b4e9f50eb2353a8a6061e6ec8dc117541a8cdf0",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/d453a22f7160c4e9ff146d21aebe0c2679c9840a/README.md"
+    },
+    {
+      "snapshot": "meta",
+      "commit": "d453a22f7160c4e9ff146d21aebe0c2679c9840a",
+      "path": "docs/contratos/meta_s0_template_catalog/CONSUMO_FUTURO_META.md",
+      "blob_sha": "308a382b7a95181ca9ed085d1ad8e1e009a9f699",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/d453a22f7160c4e9ff146d21aebe0c2679c9840a/docs/contratos/meta_s0_template_catalog/CONSUMO_FUTURO_META.md"
+    },
+    {
+      "snapshot": "meta",
+      "commit": "d453a22f7160c4e9ff146d21aebe0c2679c9840a",
+      "path": "docs/contratos/meta_s0_template_catalog/CONTRATO_CANDIDATO_0_1.md",
+      "blob_sha": "50b114f1bc05ae6259e91229b91cdb4d1f387c36",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/d453a22f7160c4e9ff146d21aebe0c2679c9840a/docs/contratos/meta_s0_template_catalog/CONTRATO_CANDIDATO_0_1.md"
+    },
+    {
+      "snapshot": "meta",
+      "commit": "d453a22f7160c4e9ff146d21aebe0c2679c9840a",
+      "path": "docs/contratos/meta_s0_template_catalog/EVIDENCIAS.md",
+      "blob_sha": "1d596800d1478c2485869642c34f02fbb3625d4e",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/d453a22f7160c4e9ff146d21aebe0c2679c9840a/docs/contratos/meta_s0_template_catalog/EVIDENCIAS.md"
+    },
+    {
+      "snapshot": "meta",
+      "commit": "d453a22f7160c4e9ff146d21aebe0c2679c9840a",
+      "path": "docs/integracoes/whatsapp-meta/README.md",
+      "blob_sha": "b6375a23387171c4da8246febe42e959583a51ff",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/d453a22f7160c4e9ff146d21aebe0c2679c9840a/docs/integracoes/whatsapp-meta/README.md"
+    },
+    {
+      "snapshot": "meta",
+      "commit": "d453a22f7160c4e9ff146d21aebe0c2679c9840a",
+      "path": "docs/integracoes/whatsapp-meta/cloud-quick-reply-catalog-handoff-2026-10-26.md",
+      "blob_sha": "3c078ca6cf0dfb6401a1b6c2399aa85918ef57f0",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/d453a22f7160c4e9ff146d21aebe0c2679c9840a/docs/integracoes/whatsapp-meta/cloud-quick-reply-catalog-handoff-2026-10-26.md"
+    },
+    {
+      "snapshot": "meta",
+      "commit": "d453a22f7160c4e9ff146d21aebe0c2679c9840a",
+      "path": "docs/integracoes/whatsapp-meta/wa02b-graph-templates-c06-v0_1.md",
+      "blob_sha": "901ba138cddacd8f02dcba115c99856e0b6f28db",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/d453a22f7160c4e9ff146d21aebe0c2679c9840a/docs/integracoes/whatsapp-meta/wa02b-graph-templates-c06-v0_1.md"
+    },
+    {
+      "snapshot": "meta",
+      "commit": "d453a22f7160c4e9ff146d21aebe0c2679c9840a",
+      "path": "docs/integracoes/whatsapp-meta/wa07-contrato-janela-e-templates-cf-op-02-v0_1.md",
+      "blob_sha": "90c1d188d74667c03efc13c8de7a17165a4cd40b",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/d453a22f7160c4e9ff146d21aebe0c2679c9840a/docs/integracoes/whatsapp-meta/wa07-contrato-janela-e-templates-cf-op-02-v0_1.md"
+    },
+    {
+      "snapshot": "meta",
+      "commit": "d453a22f7160c4e9ff146d21aebe0c2679c9840a",
+      "path": "docs/integracoes/whatsapp-meta/wa17-gestao-manual-templates-variaveis-e-aprovacao-meta-2026-10-20.md",
+      "blob_sha": "5e413b8bfa342be82ab4cc75d09f48dc47c6db52",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/d453a22f7160c4e9ff146d21aebe0c2679c9840a/docs/integracoes/whatsapp-meta/wa17-gestao-manual-templates-variaveis-e-aprovacao-meta-2026-10-20.md"
+    },
+    {
+      "snapshot": "meta",
+      "commit": "d453a22f7160c4e9ff146d21aebe0c2679c9840a",
+      "path": "docs/integracoes/whatsapp-meta/wa17b-mcp-templates-multimidia-ia-delegada-2026-10-20.md",
+      "blob_sha": "a99331fc7cfda7f1d6ed0015ba0d1cf855fbe757",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/d453a22f7160c4e9ff146d21aebe0c2679c9840a/docs/integracoes/whatsapp-meta/wa17b-mcp-templates-multimidia-ia-delegada-2026-10-20.md"
+    },
+    {
+      "snapshot": "meta",
+      "commit": "d453a22f7160c4e9ff146d21aebe0c2679c9840a",
+      "path": "docs/integracoes/whatsapp-meta/wa18c-falhas-consecutivas-taxonomia-interna-templates-2026-10-20.md",
+      "blob_sha": "ffc6bfe82efdd6c2d28547bd9e17c75794a7b7f3",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/d453a22f7160c4e9ff146d21aebe0c2679c9840a/docs/integracoes/whatsapp-meta/wa18c-falhas-consecutivas-taxonomia-interna-templates-2026-10-20.md"
+    },
+    {
+      "snapshot": "meta",
+      "commit": "d453a22f7160c4e9ff146d21aebe0c2679c9840a",
+      "path": "docs/integracoes/whatsapp-meta/wa26-ponte-s0-catalogo-politicas-fases-offline-2026-10-22.md",
+      "blob_sha": "7e5bcc10ebf089996451a7c2a8e5257e935deeac",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/d453a22f7160c4e9ff146d21aebe0c2679c9840a/docs/integracoes/whatsapp-meta/wa26-ponte-s0-catalogo-politicas-fases-offline-2026-10-22.md"
+    },
+    {
+      "snapshot": "meta",
+      "commit": "d453a22f7160c4e9ff146d21aebe0c2679c9840a",
+      "path": "integrations/whatsapp-meta/README.md",
+      "blob_sha": "6ba444b718688b327611df84dd07af907a77f884",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/d453a22f7160c4e9ff146d21aebe0c2679c9840a/integrations/whatsapp-meta/README.md"
+    },
+    {
+      "snapshot": "meta_pr14",
+      "commit": "31bb84fa524f4ecfdf02360988471d7f989506d7",
+      "path": "docs/contratos/meta_s0/CONTRATOS_CANDIDATOS_0_1.md",
+      "blob_sha": "1bba7a975425586ebd83cc736853ea4bb96d81a3",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/31bb84fa524f4ecfdf02360988471d7f989506d7/docs/contratos/meta_s0/CONTRATOS_CANDIDATOS_0_1.md"
+    },
+    {
+      "snapshot": "meta_pr14",
+      "commit": "31bb84fa524f4ecfdf02360988471d7f989506d7",
+      "path": "docs/contratos/meta_s0/AVALIACAO_CODEX_PRINCIPAL.md",
+      "blob_sha": "0e1b5c0fa3ab328cb528b8f80df1fff6cbbfee09",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/31bb84fa524f4ecfdf02360988471d7f989506d7/docs/contratos/meta_s0/AVALIACAO_CODEX_PRINCIPAL.md"
+    },
+    {
+      "snapshot": "meta_exp",
+      "commit": "450dcd645f35d4c8bf93e974e75d3b09467965a7",
+      "path": "docs/integracao/S0_META_DECISAO_INTEGRACAO_20261026.md",
+      "blob_sha": "983bf9a89ebbdd9d877fcec0ddb11ce6fd380aee",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/450dcd645f35d4c8bf93e974e75d3b09467965a7/docs/integracao/S0_META_DECISAO_INTEGRACAO_20261026.md"
+    },
+    {
+      "snapshot": "i79",
+      "commit": "8068db1c42216fb1da6855401146eab257f3eff1",
+      "path": "backend/s0_cfi01_f03_receipt_bridge_local.py",
+      "blob_sha": "08bbb9a917653baf7dc9d6a4927560f425e4e11b",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/8068db1c42216fb1da6855401146eab257f3eff1/backend/s0_cfi01_f03_receipt_bridge_local.py"
+    },
+    {
+      "snapshot": "i79",
+      "commit": "8068db1c42216fb1da6855401146eab257f3eff1",
+      "path": "backend/s1_professionals_local.py",
+      "blob_sha": "41677ad29f6a14a238166cca022ba8562c0da4f0",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/8068db1c42216fb1da6855401146eab257f3eff1/backend/s1_professionals_local.py"
+    },
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "docs/OAI_E04_F02_S0_COORDENACAO_CODEX_20261027.md",
+      "blob_sha": "194975d3973f8a5f77c379bc776eb97423707e3b",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/docs/OAI_E04_F02_S0_COORDENACAO_CODEX_20261027.md"
+    },
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "backend/s0_f03_identity_resolution_local.py",
+      "blob_sha": "a1b3682b1d95e322d4ef3dca31529a7018007f9f",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/backend/s0_f03_identity_resolution_local.py"
+    },
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "backend/s0_f03_identity_resolution_verify_local.py",
+      "blob_sha": "d6338e24d437874665b5089b709ef7ceb5b45ec5",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/backend/s0_f03_identity_resolution_verify_local.py"
+    },
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "backend/s0_f03_crossfront_evidence_local.py",
+      "blob_sha": "97edd5921530b5a61c71e40e125b03944d55d08a",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/backend/s0_f03_crossfront_evidence_local.py"
+    },
+    {
+      "snapshot": "f02",
+      "commit": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+      "path": "backend/s0_f03_history_manifest_local.py",
+      "blob_sha": "527f554dd50ddfdb2c035973e399e2d9667dd7cb",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/dc18e41034329647f38737a8d8b87befcdd94eb6/backend/s0_f03_history_manifest_local.py"
+    },
+    {
+      "snapshot": "frontend",
+      "commit": "8c9498d72cf9551edc50d7f0da8d15c48049e835",
+      "path": "frontend/docs/07_CONCILIACAO_INTERFRENTES_FV_S0_OAI_v0_1.md",
+      "blob_sha": "bf8f5e0f56fb2560d00082db88adef04c421053a",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/8c9498d72cf9551edc50d7f0da8d15c48049e835/frontend/docs/07_CONCILIACAO_INTERFRENTES_FV_S0_OAI_v0_1.md"
+    },
+    {
+      "snapshot": "frontend",
+      "commit": "8c9498d72cf9551edc50d7f0da8d15c48049e835",
+      "path": "frontend/docs/92_FVA_02_ESTADOS_ERRO_E_ACOES_PENDENTES_2026_10_26.md",
+      "blob_sha": "47e9b87fab1152d9aac46753edb2181922183e78",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/8c9498d72cf9551edc50d7f0da8d15c48049e835/frontend/docs/92_FVA_02_ESTADOS_ERRO_E_ACOES_PENDENTES_2026_10_26.md"
+    },
+    {
+      "snapshot": "i79",
+      "commit": "8068db1c42216fb1da6855401146eab257f3eff1",
+      "path": "backend/s0_f02_review_registry_local.py",
+      "blob_sha": "b288db3c8d1160d6c38ca35508726028ea156644",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/8068db1c42216fb1da6855401146eab257f3eff1/backend/s0_f02_review_registry_local.py"
+    },
+    {
+      "snapshot": "i79",
+      "commit": "8068db1c42216fb1da6855401146eab257f3eff1",
+      "path": "docs/contratos/f02_s0_review/result.schema.json",
+      "blob_sha": "61598ba702dc03f9f715673118c88f9359e64113",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/8068db1c42216fb1da6855401146eab257f3eff1/docs/contratos/f02_s0_review/result.schema.json"
+    },
+    {
+      "snapshot": "frontend_new",
+      "commit": "4f03396467a9ce6fc927671a8b4b66a3ea101e79",
+      "path": "frontend/docs/97_FV_UX_01_CODEX_IMPLEMENTACAO_E_PREVIA_2026_10_27.md",
+      "blob_sha": "221954a69694a4feabc8b37979fccc10bbd3179e",
+      "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/4f03396467a9ce6fc927671a8b4b66a3ea101e79/frontend/docs/97_FV_UX_01_CODEX_IMPLEMENTACAO_E_PREVIA_2026_10_27.md"
+    }
+  ],
+  "evidence_ids": {
+    "E01": "F02 checkpoint e CI 40480580349: 269 Node/S2, 84 S0, 718 F02/F03 Python em suites distintas; não jornadas operacionais.",
+    "E02": "S0 PR18: CI 40414847271 no executável 4a3d248, 264 unitários, 56 CFI/F02 (32+24), 19+19 histórico; GoTrue/PG/PostgREST reais, dados fictícios.",
+    "E03": "S0 PR16: CI 40405271785 no executável 8be6e19 e barreira SELECT de sessão nas onze tabelas; limite por snapshot READ COMMITTED.",
+    "E04": "S0 PR20: CI 40434954253 no executável d53c40a, G1 manual autenticado, 36 cenários reais; não ratificação F02.",
+    "E05": "Schemas F02/S0/I79 blob 61598ba702dc03f9f715673118c88f9359e64113; três módulos puros F02 com blobs idênticos nas três árvores.",
+    "E06": "I79 PR26: CI 40484344324 no executável ab96b5d; 280 unitários, 36 G1 antes e 62 (36 G1+26 I79) depois do delta; 56 CFI/F02 executados ANTES do delta I79.",
+    "E07": "S1 I78: CI 40475205913 no executável f8268bc; oito marcadores SQL de bancada, original não é serviço; I79 é a evolução autenticada posterior.",
+    "E08": "F02 contém C08/origem/intenção/F03 experimentais; PR18 recebe quatro digests como alegações; test_33 grava b*64 sem autenticar testemunha.",
+    "E09": "Meta PR14 quatro contratos candidatos, CI 40370618576 no executável 92703c3 success: modelo 52 + 161 regressões; sem portas PG/ACK/M2M operacionais.",
+    "E10": "Meta TEMPLATE-CATALOG-05 candidato d453a22; PR21/22/24/25 posteriores continuam offline nas descrições; sem origem operacional aprovada.",
+    "E11": "Reexecução local desta auditoria: 197 testes puros F02, 9 módulos unittest, zero falhas; sem banco, Auth, rede ou I/O comercial nos testes.",
+    "E12": "G07/A16-A18 continuam pendentes nos contratos; nenhuma jornada real integrada F01/F03/F02 até ledger S0 foi identificada no recorte inspecionado.",
+    "E13": "Frontend posterior FV-UX-01 4f033964: prévia/composição/áudio locais; documento 97 mantém D1-D4 candidatos e não implementa transporte/DTO/autenticação operacionais. Não altera G02/G04."
+  },
+  "ci_observed_jobs": [
+    {
+      "run": 40480580349,
+      "jobs": [
+        {
+          "id": 122109964189,
+          "name": "f03-pg17-disposable",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "conclusion": "success"
+            },
+            {
+              "name": "Initialize containers",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/setup-python@v5",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run native Node E04 F01 F02 F03 suites from pinned S2 commit",
+              "conclusion": "success"
+            },
+            {
+              "name": "Expose pinned S2 gate to S0 physical tests",
+              "conclusion": "success"
+            },
+            {
+              "name": "Install isolated PG client",
+              "conclusion": "success"
+            },
+            {
+              "name": "Create disposable test database",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run existing S0 signed closure suite plus F03 PG17 fixtures",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/setup-python@v5",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Stop containers",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "conclusion": "success"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "run": 40414847271,
+      "jobs": [
+        {
+          "id": 121894443928,
+          "name": "real-history-and-cfi",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Preserve all 173 S0 tests plus pinned F02 contracts and S0 review compatibility",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run supabase/setup-cli@v3",
+              "conclusion": "success"
+            },
+            {
+              "name": "Fixed driver and CLI",
+              "conclusion": "success"
+            },
+            {
+              "name": "Start only new unlinked disposable PG17 GoTrue PostgREST",
+              "conclusion": "success"
+            },
+            {
+              "name": "Existing Auth REST RLS and original CFI regressions",
+              "conclusion": "success"
+            },
+            {
+              "name": "Reproduce actual logout gap then test history session barrier",
+              "conclusion": "success"
+            },
+            {
+              "name": "All 32 certified CFI plus 24 actual GoTrue F02 registry scenarios",
+              "conclusion": "success"
+            },
+            {
+              "name": "Read pinned current S1 in detached checkout without branch writes",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify pinned sources and materialize only in disposable database",
+              "conclusion": "success"
+            },
+            {
+              "name": "Same real history suite with full S1 extensions and original I63 candidate",
+              "conclusion": "success"
+            },
+            {
+              "name": "Remove disposable stack even on failure",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Read pinned current S1 in detached checkout without branch writes",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run supabase/setup-cli@v3",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "conclusion": "success"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "run": 40405271785,
+      "jobs": [
+        {
+          "id": 121861289648,
+          "name": "real-history-and-cfi",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Preserve all 173 S0 and UI compatibility tests",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run supabase/setup-cli@v3",
+              "conclusion": "success"
+            },
+            {
+              "name": "Fixed driver and CLI",
+              "conclusion": "success"
+            },
+            {
+              "name": "Start only new unlinked disposable PG17 GoTrue PostgREST",
+              "conclusion": "success"
+            },
+            {
+              "name": "Existing Auth REST RLS and original CFI regressions",
+              "conclusion": "success"
+            },
+            {
+              "name": "Reproduce actual logout gap then test history session barrier",
+              "conclusion": "success"
+            },
+            {
+              "name": "All 32 certified CFI scenarios under the new history barrier",
+              "conclusion": "success"
+            },
+            {
+              "name": "Read pinned current S1 in detached checkout without branch writes",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify pinned sources and materialize only in disposable database",
+              "conclusion": "success"
+            },
+            {
+              "name": "Same real history suite with full S1 extensions and original I63 candidate",
+              "conclusion": "success"
+            },
+            {
+              "name": "Remove disposable stack even on failure",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Read pinned current S1 in detached checkout without branch writes",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run supabase/setup-cli@v3",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "conclusion": "success"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "run": 40434954253,
+      "jobs": [
+        {
+          "id": 121961301434,
+          "name": "real-history-and-cfi",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Preserve 264 S0 F02 tests plus G1 strict compatibility",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run supabase/setup-cli@v3",
+              "conclusion": "success"
+            },
+            {
+              "name": "Fixed driver and CLI",
+              "conclusion": "success"
+            },
+            {
+              "name": "Start only new unlinked disposable PG17 GoTrue PostgREST",
+              "conclusion": "success"
+            },
+            {
+              "name": "Existing Auth REST RLS and original CFI regressions",
+              "conclusion": "success"
+            },
+            {
+              "name": "Reproduce actual logout gap then test history session barrier",
+              "conclusion": "success"
+            },
+            {
+              "name": "All 32 certified CFI plus 24 actual GoTrue F02 registry scenarios",
+              "conclusion": "success"
+            },
+            {
+              "name": "Read pinned current S1 in detached checkout without branch writes",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify pinned sources and materialize only in disposable database",
+              "conclusion": "success"
+            },
+            {
+              "name": "Same real history suite with full S1 extensions and original I63 candidate",
+              "conclusion": "success"
+            },
+            {
+              "name": "Install guarded G1 delta before populating G1 request data",
+              "conclusion": "success"
+            },
+            {
+              "name": "Original S1 canonical queue and exception regressions, SQL fixture identities only",
+              "conclusion": "success"
+            },
+            {
+              "name": "Real GoTrue manual handoff, both race orders, I61 I62 revocation and rollback",
+              "conclusion": "success"
+            },
+            {
+              "name": "Remove disposable stack even on failure",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Read pinned current S1 in detached checkout without branch writes",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run supabase/setup-cli@v3",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "conclusion": "success"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "run": 40484344324,
+      "jobs": [
+        {
+          "id": 122122262229,
+          "name": "real-history-and-cfi",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Preserve 264 S0 F02 tests plus G1 strict compatibility",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run supabase/setup-cli@v3",
+              "conclusion": "success"
+            },
+            {
+              "name": "Fixed driver and CLI",
+              "conclusion": "success"
+            },
+            {
+              "name": "Start only new unlinked disposable PG17 GoTrue PostgREST",
+              "conclusion": "success"
+            },
+            {
+              "name": "Existing Auth REST RLS and original CFI regressions",
+              "conclusion": "success"
+            },
+            {
+              "name": "Reproduce actual logout gap then test history session barrier",
+              "conclusion": "success"
+            },
+            {
+              "name": "All 32 certified CFI plus 24 actual GoTrue F02 registry scenarios",
+              "conclusion": "success"
+            },
+            {
+              "name": "Read pinned current S1 in detached checkout without branch writes",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify pinned sources and materialize only in disposable database",
+              "conclusion": "success"
+            },
+            {
+              "name": "Same real history suite with full S1 extensions and original I63 candidate",
+              "conclusion": "success"
+            },
+            {
+              "name": "Install guarded G1 delta before populating G1 request data",
+              "conclusion": "success"
+            },
+            {
+              "name": "Original S1 canonical queue and exception regressions, SQL fixture identities only",
+              "conclusion": "success"
+            },
+            {
+              "name": "Real GoTrue manual handoff, both race orders, I61 I62 revocation and rollback",
+              "conclusion": "success"
+            },
+            {
+              "name": "Install I79 authoritative professional foundation atomically",
+              "conclusion": "success"
+            },
+            {
+              "name": "I79 real Director administration and all 36 G1 regressions under explicit roles",
+              "conclusion": "success"
+            },
+            {
+              "name": "Remove disposable stack even on failure",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Read pinned current S1 in detached checkout without branch writes",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run supabase/setup-cli@v3",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "conclusion": "success"
+            }
+          ]
+        },
+        {
+          "id": 122122262376,
+          "name": "s1-pinned-i54-i78-regressions",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "conclusion": "success"
+            },
+            {
+              "name": "Initialize containers",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Preserve original S1 179 unit tests pinned to I78",
+              "conclusion": "success"
+            },
+            {
+              "name": "Instalar cliente PostgreSQL se necessario",
+              "conclusion": "success"
+            },
+            {
+              "name": "Criar base local descartavel",
+              "conclusion": "success"
+            },
+            {
+              "name": "Executar regressao S0 e gate equipe S1-002",
+              "conclusion": "success"
+            },
+            {
+              "name": "I52 etapa canonica S0-S1 apos regressao historica",
+              "conclusion": "success"
+            },
+            {
+              "name": "I78 G2 chefia unica, autoridade Diretor e lacuna de on-boarding",
+              "conclusion": "success"
+            },
+            {
+              "name": "I46 inventario completo das migrations SQL rastreadas",
+              "conclusion": "success"
+            },
+            {
+              "name": "I46 catalogo ACL efetivo no PG17 descartavel",
+              "conclusion": "success"
+            },
+            {
+              "name": "I75B inventario lexical de objetos G3, historico e referencias a midia",
+              "conclusion": "success"
+            },
+            {
+              "name": "I75B preservar inventario G3 para revisao de objetos e colunas",
+              "conclusion": "success"
+            },
+            {
+              "name": "I75C verificar catalogo efetivo PG17 e ACL por coluna",
+              "conclusion": "success"
+            },
+            {
+              "name": "I75C arquivar provas de catalogo PG17",
+              "conclusion": "success"
+            },
+            {
+              "name": "I48 catalogo efetivo de roles e funcoes gateway S0",
+              "conclusion": "success"
+            },
+            {
+              "name": "I48 cruzamento de fontes S0 013-037",
+              "conclusion": "success"
+            },
+            {
+              "name": "Arquivar cruzamento I48",
+              "conclusion": "success"
+            },
+            {
+              "name": "Arquivar inventario estatico I46",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Stop containers",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "conclusion": "success"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "log_summary": [
+    {
+      "job": 122109964189,
+      "lines": [
+        "2026-10-27T09:26:13.5667803Z # tests 269",
+        "2026-10-27T09:26:13.5669854Z # pass 269",
+        "2026-10-27T09:26:13.5670146Z # fail 0",
+        "2026-10-27T09:26:13.5670732Z # skipped 0",
+        "2026-10-27T09:26:23.4358237Z Ran 84 tests in 6.919s",
+        "2026-10-27T09:28:26.8081473Z Ran 718 tests in 121.963s"
+      ]
+    },
+    {
+      "job": 121894443928,
+      "lines": [
+        "2026-10-26T22:45:30.2249932Z Ran 264 tests in 0.668s",
+        "2026-10-26T22:47:50.1493793Z Ran 19 tests in 18.123s",
+        "2026-10-26T22:48:20.4649649Z Ran 56 tests in 30.099s",
+        "2026-10-26T22:48:41.9563602Z Ran 19 tests in 18.535s",
+        "2026-10-26T22:48:54.2133176Z Stopped supabase local development setup."
+      ]
+    },
+    {
+      "job": 122122262229,
+      "lines": [
+        "2026-10-27T09:54:29.4224180Z Ran 280 tests in 0.962s",
+        "2026-10-27T09:56:37.2099131Z Ran 19 tests in 20.815s",
+        "2026-10-27T09:57:10.9484076Z Ran 56 tests in 33.433s",
+        "2026-10-27T09:57:35.7546980Z Ran 19 tests in 21.209s",
+        "2026-10-27T09:57:49.3572039Z Ran 36 tests in 11.806s",
+        "2026-10-27T09:58:11.4652459Z Ran 62 tests in 21.480s",
+        "2026-10-27T09:58:24.0884402Z Stopped supabase local development setup."
+      ]
+    }
+  ],
+  "branch_snapshot": [
+    {
+      "branch": "aux/meta-s0-contracts-20261026",
+      "head": "31bb84fa524f4ecfdf02360988471d7f989506d7"
+    },
+    {
+      "branch": "aux/meta-s0-template-catalog-05-20261026",
+      "head": "d453a22f7160c4e9ff146d21aebe0c2679c9840a"
+    },
+    {
+      "branch": "aux/s1-g3-issue10-catalogo-20261026",
+      "head": "e3bf423a8fbf2064e536c416364c8cc318f1998a"
+    },
+    {
+      "branch": "codex/fv-ux-01-comunicacao-20261027",
+      "head": "4f03396467a9ce6fc927671a8b4b66a3ea101e79"
+    },
+    {
+      "branch": "coord/s0-openai-cfi01-c09-20261019",
+      "head": "d1e1ebefb7bf1bef24a18d8f24078a381e7c1647"
+    },
+    {
+      "branch": "docs/cf-op-02-cadeias-contextuais-20261018",
+      "head": "ce7bbdd8171c2a28903b60d9c2b2ade4584b91e8"
+    },
+    {
+      "branch": "docs/whatsapp-meta-concessionária de demonstração-poc-20261017",
+      "head": "d9cd4b8f1de222324c92f2fec8053b0b91dcfe5d"
+    },
+    {
+      "branch": "exp/ci-s1-consolidacao-20261025",
+      "head": "31ac07bf860d67ff935fa0c96c1cc00224f06f8b"
+    },
+    {
+      "branch": "exp/s0-cfi01-principal-restrito-20261026",
+      "head": "ff623482fca0eb1857a64b51959e3716bc0216d7"
+    },
+    {
+      "branch": "exp/s0-cfi01-recheck-precommit-20261026",
+      "head": "c79020f16f9ed36dcc00257e7e8aa133b5739867"
+    },
+    {
+      "branch": "exp/s0-consolidacao-sessao-historico-20261026",
+      "head": "b298252c26c69f668b3c3fdb86e9252faff9e44b"
+    },
+    {
+      "branch": "exp/s0-f02-revisao-autoritativa-20261026",
+      "head": "88af4aea3aeb2c403bab4c078fdc04d560f2cba0"
+    },
+    {
+      "branch": "exp/s0-g1-encaminhamento-manual-20261026",
+      "head": "4775091ac6207e1593daf1d8fb3b3b3f414224de"
+    },
+    {
+      "branch": "exp/s0-i74-provisionamento-20261026",
+      "head": "8e91bd9f1e7d1e80d677d8334a529a58782c978c"
+    },
+    {
+      "branch": "exp/s0-meta-integracao-auditoria-20261026",
+      "head": "450dcd645f35d4c8bf93e974e75d3b09467965a7"
+    },
+    {
+      "branch": "exp/s0-s1-i79-profissionais-20261027",
+      "head": "8068db1c42216fb1da6855401146eab257f3eff1"
+    },
+    {
+      "branch": "exp/s0-ui-cfi01-contrato-candidato-20261026",
+      "head": "ddec1b80444bfde871d43a02d0ee94b9ed7cde11"
+    },
+    {
+      "branch": "feat/frontend-plataforma-visual",
+      "head": "8c9498d72cf9551edc50d7f0da8d15c48049e835"
+    },
+    {
+      "branch": "feat/meta-cloud-button-replies-20261027",
+      "head": "008b869e20d71f80be81e55dd31d4342d427219f"
+    },
+    {
+      "branch": "feat/meta-cloud-envelope-contract-20261026",
+      "head": "cb7fc3e2eacdaad9b8d47ffca1284759ca3357a3"
+    },
+    {
+      "branch": "feat/meta-cloud-interactive-template-20261026",
+      "head": "45618df4fc135c33d59b087a98efd5ef53f30c04"
+    },
+    {
+      "branch": "feat/meta-cloud-list-replies-20261027",
+      "head": "b0ac7959cbe21b8bf1d6d663e7e5a72c7439825b"
+    },
+    {
+      "branch": "feat/meta-template-list-pages-offline-20261027",
+      "head": "e08a8b3ec216bcb45be0e6dc1514ecb1e4ade943"
+    },
+    {
+      "branch": "feat/meta-template-provider-observation-20261027",
+      "head": "ec4b9002677f593e09afa84520756e7fbea56304"
+    },
+    {
+      "branch": "feat/oai-s0-f03-history-port-20261023",
+      "head": "dc18e41034329647f38737a8d8b87befcdd94eb6"
+    },
+    {
+      "branch": "feat/s0-auditoria-nucleo-operacional-20261025",
+      "head": "060b472b03e9e7b89f5b3d7e19b72b98836f106d"
+    },
+    {
+      "branch": "feat/s0-cfi01-f03-auth-preflight-20261020",
+      "head": "948891714f632adb6179cf3a11f362a6eb914f91"
+    },
+    {
+      "branch": "feat/s0-fundacao-prumo",
+      "head": "75095fe9b6050c704df37c663bb92595bc6513b6"
+    },
+    {
+      "branch": "feat/s1-002-equipe-prumo",
+      "head": "8780b576aa18bd3983c063339e2e42d2452af22c"
+    },
+    {
+      "branch": "feat/s2-openai-adapter-sintetico",
+      "head": "ebf6fe4e546f2fe990bdaefe2df25aa0cf18e74c"
+    },
+    {
+      "branch": "feat/wa39-s0-meta-forensic-bridge-20261023",
+      "head": "04c2a355bf8ab5765855f82ab3de2062e2d5bd67"
+    },
+    {
+      "branch": "main",
+      "head": "dace737ab7afb7ae3f5a3a6f5cb522e6def8b43a"
+    }
+  ],
+  "limits": {
+    "live_credentials_used": false,
+    "hosted_supabase_accessed": false,
+    "commercial_calls": false,
+    "physical_stack_started_by_this_audit": false,
+    "contract_ratified": false,
+    "send_authorized": false,
+    "auxiliary_ci": "NAO_EXECUTADO_RELATORIOS_E_VERIFICACAO_LOCAL"
+  },
+  "source_tree_comparison": [
+    {
+      "path": "backend/f02_reconciled_human_authorization_handoff.py",
+      "f02": "ef6803df9d97b3fe3ad804669fc5be17555fbdbe",
+      "s0": "ef6803df9d97b3fe3ad804669fc5be17555fbdbe",
+      "i79": "ef6803df9d97b3fe3ad804669fc5be17555fbdbe"
+    },
+    {
+      "path": "backend/f02_reconciled_review_lifecycle.py",
+      "f02": "11a9e71eabefdf63195fd01a431d1bf19c603ee3",
+      "s0": "11a9e71eabefdf63195fd01a431d1bf19c603ee3",
+      "i79": "11a9e71eabefdf63195fd01a431d1bf19c603ee3"
+    },
+    {
+      "path": "backend/f02_reconciled_review_recovery.py",
+      "f02": "b049b9765e9126ad4230ece85009689f2d49473b",
+      "s0": "b049b9765e9126ad4230ece85009689f2d49473b",
+      "i79": "b049b9765e9126ad4230ece85009689f2d49473b"
+    },
+    {
+      "path": "docs/contratos/f02_s0_review/result.schema.json",
+      "f02": null,
+      "s0": "61598ba702dc03f9f715673118c88f9359e64113",
+      "i79": "61598ba702dc03f9f715673118c88f9359e64113"
+    },
+    {
+      "path": "backend/s0_f02_review_registry_local.py",
+      "f02": null,
+      "s0": "b288db3c8d1160d6c38ca35508726028ea156644",
+      "i79": "b288db3c8d1160d6c38ca35508726028ea156644"
+    }
+  ],
+  "branch_snapshot_observed_at": "2026-10-27T07:15:45-03:00"
+}

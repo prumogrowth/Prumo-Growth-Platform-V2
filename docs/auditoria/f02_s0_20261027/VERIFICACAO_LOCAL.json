@@ -1,0 +1,26 @@
+{
+  "schema": "prumo.audit.f02_s0.local_verification/1.0",
+  "date": "2026-10-27",
+  "timezone": "America/Sao_Paulo",
+  "documentary": {
+    "command": "python3 docs/auditoria/f02_s0_20261027/verificar_auditoria.py --sources-root /workspace/work/sources",
+    "result": "PASS_DOCUMENTARY_INTEGRITY_ONLY",
+    "sources_verified": 102,
+    "schema_blob": "61598ba702dc03f9f715673118c88f9359e64113",
+    "states_compared": 13,
+    "gates_traced": 7
+  },
+  "f02_pure_tests": {
+    "checkpoint": "dc18e41034329647f38737a8d8b87befcdd94eb6",
+    "command": "python3 -m unittest backend.tests.test_f02_reconciled_human_authorization_handoff backend.tests.test_f02_reconciled_review_lifecycle backend.tests.test_f02_bound_review_preflight backend.tests.test_f02_reconciled_review_recovery backend.tests.test_f02_s0_review_projection_candidate backend.tests.test_f02_s0_review_followup_candidate backend.tests.test_f02_s0_review_bound_bridge_candidate backend.tests.test_f02_s0_joint_homologation_candidate backend.tests.test_f02_s0_integration_handoff_contract",
+    "working_directory": "snapshot F02 dc18e410 (arquivos originais conferidos por blob)",
+    "tests": 197,
+    "result": "OK",
+    "failures": 0,
+    "errors": 0
+  },
+  "physical_tests_rerun": false,
+  "operational_homologation": false,
+  "send_authorized": false,
+  "auxiliary_ci": "NAO_EXECUTADO; validacao local documental; CIs das fontes conferidos em EVIDENCIAS.json"
+}
