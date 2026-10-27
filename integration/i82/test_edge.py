@@ -21,6 +21,7 @@ from uuid import uuid4
 import psycopg
 from psycopg import sql
 from integration.i80.test_regularization import I80Tests
+from integration.i82.gateway_local import configure as configure_gateway
 from scripts.test_s0_cfi01_auth_rest_local import register,request
 
 
@@ -29,6 +30,7 @@ class EdgeTests(I80Tests):
     def setUpClass(cls):
         if os.environ.get('PRUMO_I82_DISPOSABLE_TEST')!='YES':raise RuntimeError('I82 opt-in required')
         super().setUpClass()
+        cls.addClassCleanup(configure_gateway())
         cls.http_base=cls.api+'/functions/v1/prumo-admin-i82/v1/'
         cls.temporary=tempfile.TemporaryDirectory(prefix='prumo-i82-')
         cls.addClassCleanup(cls.temporary.cleanup)
@@ -276,6 +278,9 @@ class EdgeTests(I80Tests):
     def test_edge_20_transport_headers_local_cors_no_secrets_or_private_auth(self):
         code,b,h=self.raw('i80',self.wire('INVENTORY',limit=1),self.director_token,headers={'Origin':'http://localhost:3000','X-Request-ID':str(self.director)})
         self.assertEqual(code,200);self.assertEqual(h.get('access-control-allow-origin'),'http://localhost:3000')
+        code,_,h=self.raw('i80',method='OPTIONS',headers={'Origin':'http://localhost:3000','Access-Control-Request-Method':'POST','Access-Control-Request-Headers':'authorization,content-type'})
+        self.assertEqual(code,204);self.assertEqual(h.get('access-control-allow-origin'),'http://localhost:3000')
+        self.assertEqual(self.raw('i80',method='OPTIONS',headers={'Origin':'http://localhost:3000','Access-Control-Request-Method':'POST','Access-Control-Request-Headers':'x-actor-id'})[0],403)
         text=json.dumps(b)
         for forbidden in (self.secret.hex(),self.dsn,self.director_token,'session_id','email','secret'):self.assertNotIn(forbidden,text)
         self.assertNotEqual(b['correlation_id'],str(self.director))
