@@ -6,7 +6,6 @@ The existing nonce FK gets an INACTIVE zero-material anchor, not the Edge HMAC.
 """
 from base64 import b64encode
 from dataclasses import dataclass,field
-from datetime import timedelta
 import hashlib
 import hmac
 import os
@@ -70,7 +69,7 @@ def rotate(db):
     SHARE key locks order an in-flight command before revocation, or revocation
     before denial. Password rotation alone does not revoke pooled sessions.
     """
-    guard(db);value=Credential()
+    guard(db);value=Credential();stage="BEGIN"
     try:
         with psycopg.connect(db) as c:
             c.execute("select pg_advisory_xact_lock(hashtextextended('s1-i83:provision',0))")
@@ -82,15 +81,20 @@ def rotate(db):
             c.execute('update '+TABLE+' set enabled=false,secret=null,revoked_at=clock_timestamp() where enabled')
             c.execute('reset role')
             # FK compatibility only; never place the actual signing key here.
+            stage='ANCHOR'
             c.execute('insert into prumo_private.cfi01_signing_keys_local(key_id,secret,active) values (%s,%s,false)',(value.key_id,bytes(32)))
             c.execute('set local role prumo_s1_edge_custodian_local')
+            stage='KEY'
             c.execute('insert into '+TABLE+'(key_id,secret,not_before,expires_at) values (%s,%s,clock_timestamp()-interval \'1 second\',clock_timestamp()+interval \'1 hour\')',(value.key_id,value.secret))
             c.execute('reset role')
             c.execute('revoke prumo_s1_edge_custodian_local from postgres')
             until=c.execute("select clock_timestamp()+interval '1 hour'").fetchone()[0]
-            c.execute(sql.SQL('alter role prumo_s1_admin_edge_local login password {} valid until {}').format(sql.Literal(value.verifier),sql.Literal(until)))
-    except Exception:
-        raise RuntimeError('I83 credential provisioning failed (credentials withheld)') from None
+            stage='SQL_ADMISSION'
+            c.execute(sql.SQL('alter role prumo_s1_admin_edge_local login password {} valid until {}').format(sql.Literal(value.verifier),sql.Literal(until.isoformat())))
+    except Exception as error:
+        code=getattr(error,'sqlstate',None)
+        code=code if isinstance(code,str) and len(code)==5 and code.isascii() and code.isalnum() else 'UNCLASSIFIED'
+        raise RuntimeError('I83 credential provisioning failed stage='+stage+' code='+code+' (credentials withheld)') from None
     return value
 
 

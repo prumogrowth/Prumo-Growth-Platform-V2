@@ -14,6 +14,7 @@ import unittest
 from urllib import error as httperror
 from uuid import uuid4
 from types import SimpleNamespace
+from unittest.mock import patch
 import psycopg
 from psycopg import sql
 from integration.i82.test_edge import EdgeTests
@@ -50,12 +51,19 @@ class DedicatedEdgeTests(EdgeTests):
 
     @classmethod
     def stop_runtime(cls):
-        if hasattr(cls,'process'):
-            cls.process.terminate()
-            try:cls.process.wait(timeout=10)
-            except subprocess.TimeoutExpired:cls.process.kill();cls.process.wait(timeout=5)
-        # CLI process exit alone is not a proof that container env was discarded.
-        subprocess.run(['docker','rm','-f',EDGE_CONTAINER],stdout=subprocess.PIPE,stderr=subprocess.PIPE,check=True,timeout=20)
+        failure=None
+        try:
+            if hasattr(cls,'process'):cls.scan_logs()
+        except Exception as error:failure=error
+        finally:
+            if hasattr(cls,'process'):
+                cls.process.terminate()
+                try:cls.process.wait(timeout=10)
+                except subprocess.TimeoutExpired:cls.process.kill();cls.process.wait(timeout=5)
+            # CLI exit alone does not prove that container env was discarded.
+            result=subprocess.run(['docker','rm','-f',EDGE_CONTAINER],stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=20)
+            if result.returncode and failure is None:failure=AssertionError('I83 expected runtime container could not be removed')
+        if failure is not None:raise failure
 
     @classmethod
     def restart(cls,env,ready=True):
@@ -110,16 +118,17 @@ class DedicatedEdgeTests(EdgeTests):
         (Path(os.environ.get('RUNNER_TEMP','/tmp'))/'prumo_i83_custody.json').write_text(json.dumps(proof,indent=2)+'\n')
         print('I83-CUSTODY: container/CLI logs scanned without secret values; runtime container and temporary env removed; key material wiped and SQL login disabled/password cleared; sessions terminated',flush=True)
 
-    def proof_for(self,value,p,family='i79'):
+    def proof_for(self,value,p,family='i79',nonce=None):
         principal=self.gateway._identity.verify('Bearer '+self.director_token)
         module=professionals if family=='i79' else legacy
         cls=professionals.S1ProfessionalsLocal if family=='i79' else legacy.S1LegacyRegularizationLocal
         port=object.__new__(cls)
         port.gateway=SimpleNamespace(_key_id=value.key_id,_secret=value.secret)
-        return module.SQL,port.proof(principal,module.command(p))
+        if nonce is None:return module.SQL,port.proof(principal,module.command(p))
+        with patch.object(module,'uuid4',return_value=nonce):return module.SQL,port.proof(principal,module.command(p))
 
-    def signed(self,value,p=None,family='i79',dsn=None):
-        query,proof=self.proof_for(value,p or self.dto('REGISTER',register(self.api,self.anon)[0]),family)
+    def signed(self,value,p=None,family='i79',dsn=None,nonce=None):
+        query,proof=self.proof_for(value,p or self.dto('REGISTER',register(self.api,self.anon)[0]),family,nonce)
         with psycopg.connect(dsn or value.dsn(self.db)) as c:return c.execute(query,proof).fetchone()[0]
 
     def test_i83_01_dedicated_role_has_only_two_domain_ports_no_data_or_escalation(self):
@@ -203,7 +212,14 @@ class DedicatedEdgeTests(EdgeTests):
         with psycopg.connect(self.db) as blocker,ThreadPoolExecutor(max_workers=2) as pool:
             blocker.execute('select ator_id from public.equipe_prumo_s1 where ator_id=%s for update',(self.director,));pid=blocker.execute('select pg_backend_pid()').fetchone()[0]
             future=pool.submit(self.edge,'i79',self.professional('REGISTER',actor));self.wait_blocker(pid)
-            revoked=pool.submit(revoke,self.db,self.credential.key_id);time.sleep(.2);self.assertFalse(revoked.done())
+            revoked=pool.submit(revoke,self.db,self.credential.key_id)
+            end=time.monotonic()+5;observed=False
+            while time.monotonic()<end:
+                with psycopg.connect(self.db) as monitor:
+                    observed=bool(monitor.execute("select 1 from pg_stat_activity a where a.wait_event_type='Lock' and exists(select 1 from pg_stat_activity b where b.pid=any(pg_blocking_pids(a.pid)) and b.usename=%s)",(LOGIN,)).fetchone())
+                if observed:break
+                time.sleep(.025)
+            self.assertTrue(observed,'real credential revoker lock was not observed');self.assertFalse(revoked.done())
             blocker.commit();self.assertEqual(future.result(timeout=15)[1]['state'],'APPLIED');revoked.result(timeout=15)
         try:self.assertEqual(self.edge('i80',self.wire('INVENTORY',limit=1))[1]['state'],'DENIED')
         finally:self.rotate_runtime()
@@ -231,6 +247,37 @@ class DedicatedEdgeTests(EdgeTests):
         try:
             with self.assertRaises(psycopg.OperationalError):psycopg.connect(self.credential.dsn(self.db))
         finally:self.rotate_runtime()
+
+    def test_i83_13_key_expires_during_domain_wait_entire_command_rolls_back(self):
+        actor,_=register(self.api,self.anon);before=self.counters()
+        with psycopg.connect(self.db) as c:
+            c.execute('grant prumo_s1_edge_custodian_local to postgres with inherit false,set true');c.execute('set local role prumo_s1_edge_custodian_local')
+            c.execute('update '+TABLE+" set expires_at=clock_timestamp()+interval '2 seconds' where key_id=%s",(self.credential.key_id,))
+            c.execute('reset role');c.execute('revoke prumo_s1_edge_custodian_local from postgres')
+        try:
+            with psycopg.connect(self.db) as holder,ThreadPoolExecutor(max_workers=1) as pool:
+                holder.execute('select ator_id from public.equipe_prumo_s1 where ator_id=%s for update',(self.director,));pid=holder.execute('select pg_backend_pid()').fetchone()[0]
+                future=pool.submit(self.edge,'i79',self.professional('REGISTER',actor));self.wait_blocker(pid)
+                time.sleep(2.1)
+                holder.commit();self.assertEqual(future.result(timeout=15)[1]['state'],'DENIED')
+            self.assertEqual(self.counters(),before)
+            with psycopg.connect(self.db) as c:self.assertEqual(c.execute('select count(*) from public.equipe_prumo_s1 where ator_id=%s',(actor,)).fetchone()[0],0)
+        finally:self.rotate_runtime()
+
+    def test_i83_14_i80_preview_survives_credential_rotation_not_human_authority_change(self):
+        actor,_,_=self.legacy(pending=True);p=self.http_preview(actor)
+        self.rotate_runtime()
+        wire=self.apply_wire(p);a=self.edge('i80',wire)[1];self.assertEqual(a['state'],'APPLIED')
+        self.rotate_runtime()
+        b=self.edge('i80',wire)[1];self.assertEqual(b['state'],'ALREADY_APPLIED');self.assertEqual(a['receipt']['request_id'],b['receipt']['request_id'])
+        self.assertEqual(self.preserved(actor)['state'],'pendente')
+
+    def test_i83_15_nonce_remains_global_across_key_rotation(self):
+        actor,_=register(self.api,self.anon);p=self.dto('REGISTER',actor);nonce=uuid4()
+        self.assertEqual(self.signed(self.credential,p,nonce=nonce)['outcome'],'APPLIED')
+        self.rotate_runtime();before=self.counters()
+        with self.assertRaises(psycopg.errors.InsufficientPrivilege):self.signed(self.credential,p,nonce=nonce)
+        self.assertEqual(self.counters(),before)
 
 
 if __name__=='__main__':
