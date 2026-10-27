@@ -1,6 +1,6 @@
 # FV-UX-01 — Continuidade no Codex, implementação e prévia integral
 
-27/10/2026. Branch própria: `codex/fv-ux-01-comunicacao-20261027`. Base: `8c9498d72cf9551edc50d7f0da8d15c48049e835`, HEAD remoto da branch visual conferido antes do trabalho. A consulta de refs confirmou a mesma base; não havia commits posteriores naquela branch. CI de origem informado: [40477589480](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40477589480). Nenhum módulo foi reconstruído ou excluído.
+27/10/2026. Branch própria: `codex/fv-ux-01-comunicacao-20261027`. Base: `8c9498d72cf9551edc50d7f0da8d15c48049e835`, HEAD remoto da branch visual conferido antes do trabalho. A consulta de refs confirmou a mesma base; não havia commits posteriores naquela branch. CI de origem consultado e confirmado SUCCESS: [40477589480](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40477589480). Nenhum módulo foi reconstruído ou excluído.
 
 ## Implementado e preservado
 
@@ -32,7 +32,7 @@ Nenhum arquivo S0/S1, migration, serviço, segredo ou branch de terceiro foi alt
 
 Novas suítes `local-audio.test.mjs` e `communication-composer.test.mjs`; todas as suítes anteriores preservadas. `browser.communication.py`, chamado pelo smoke obrigatório, usa ESM por HTTP loopback e MediaRecorder real com dispositivo sintético do Chromium. Seis combinações 320/390/1440 × claro/escuro verificam cursor, limite, teclado, foco, toque, gravação, playback, exclusão, anexo, bloqueio e limpeza. Nove cenários adicionais verificam negativas, permissão tardia, perfis, página oculta/saída, loja, ator e reset. Chamadas externas e persistência são bloqueadas nas jornadas principais; assets HTTP não podem retornar erro.
 
-O gate nativo continua sequencial: revisão/branch limpa e inventário pinado → Python adversarial → todas as suítes Node → Chromium histórico e comunicação. A lista de branches é explícita (origem e esta branch); nenhuma branch arbitrária é aceita. O manifesto identifica a branch efetiva desta entrega. O checkpoint final de commits e CI será registrado ao concluir o gate.
+O gate nativo continua sequencial: revisão/branch limpa e inventário pinado → Python adversarial → todas as suítes Node → Chromium histórico e comunicação. A lista de branches é explícita (origem e esta branch); nenhuma branch arbitrária é aceita. O manifesto identifica a branch efetiva desta entrega. O checkpoint final de commits, CI e artefatos está registrado na seção de fechamento abaixo.
 
 ## Prévia integral, sem publicação
 
@@ -49,3 +49,49 @@ Para servir a exportação extraída: `python3 -m http.server 4174 --bind 127.0.
 2. Verificação em Safari/iOS/Android físicos, teclado virtual e leitor de tela. Chromium e DOM sintético não substituem esses dispositivos ou tecnologias assistivas.
 3. Ratificação/interligação S0/S1/Meta, política produtiva de mídia e testes de autenticação/transporte em escopo próprio futuro.
 4. Merge, deploy, publicação no Sites e integração operacional continuam fora da autorização desta entrega.
+
+## Fechamento técnico executado
+
+Código e testes no commit `d9c1bb8fc90d394c6738070d2c647b0b735d9182`; primeiro manifesto `cfcb0a63be7720f40d71e408f6a9b9b3a5e11590`; alinhamento da expectativa de aviso curto e pacote integral em `ddb9f93f1eb66fe4fa0931168b6bbd82c3407268`; manifesto final e **HEAD técnico validado** `b770ccd2551586bbb2164aa4d01a7fccdda5a304`. Os quatro commits foram enviados somente à branch própria.
+
+Gate local em checkout limpo: **PASS**, 64 arquivos conferidos no inventário Git, 30 suítes Node com **393/393 testes**, Python adversarial **27/27**, Chromium histórico completo mais seis jornadas de comunicação e nove cenários adicionais **PASS**. Os **2/2** testes do exportador também passaram. O HTML integral foi servido por localhost e exercitado com os dois perfis, emoji, áudio e fila; sem dependências externas. A navegação direta `file://` não foi certificada porque o Chromium gerenciado bloqueia esse protocolo por política; o caminho localhost foi validado. Matriz final: **22/22 capturas geradas**, sem erro de script ou overflow horizontal.
+
+CI independente no GitHub: **[40485648685](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40485648685) — completed/SUCCESS**, SHA `b770ccd2551586bbb2164aa4d01a7fccdda5a304`, job `122126648766`. Logs conferidos: preflight 64 arquivos, 27/27 Python, 393/393 Node22, `FULL LOCAL ACCEPTANCE: PASS`, exportação com 24 arquivos de runtime e matriz de 22 capturas..
+
+Artefatos privados (retenção de 30 dias): [prévia integral HTML + ZIP + instruções + proveniência, ID 12723914613](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40485648685/artifacts/12723914613) e [22 capturas e índice, ID 12725007932](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40485648685/artifacts/12725007932). A prévia inclui `LEIA-ME.md`, `ENTREGA.md`, HTML único, ZIP ESM e `PROVENIENCIA.json` com branch/HEAD, lista de alterações e hashes SHA-256. Não há publicação, compartilhamento com terceiros, merge ou integração operacional.
+
+O checkpoint documental de fechamento posterior preserva a árvore `frontend/visual/` certificada acima; não declara um novo teste de código por editar documentação.
+
+### Arquivos alterados em relação à base
+
+```text
+.github/workflows/frontend-visual-validation.yml
+frontend/docs/00_COMECE_POR_AQUI_DECISOES_VIGENTES_2026_10_21.md
+frontend/docs/96_FV_UX_01_COMUNICACAO_LIMPEZA_AUDIO_EMOJI_2026_10_26.md
+frontend/docs/97_FV_UX_01_CODEX_IMPLEMENTACAO_E_PREVIA_2026_10_27.md
+frontend/preview/PREVIA_LOCAL.md
+frontend/preview/build_preview.py
+frontend/preview/build_standalone_preview.py
+frontend/preview/collect_visual_review.py
+frontend/visual/README.md
+frontend/visual/app.mjs
+frontend/visual/communication-composer.mjs
+frontend/visual/index.html
+frontend/visual/local-audio.mjs
+frontend/visual/styles.css
+frontend/visual/tests/acceptance-matrix.json
+frontend/visual/tests/browser.communication.py
+frontend/visual/tests/browser.smoke.py
+frontend/visual/tests/communication-composer.test.mjs
+frontend/visual/tests/dom-fixture.mjs
+frontend/visual/tests/local-audio.test.mjs
+frontend/visual/tests/offline-export-manifest.test.mjs
+frontend/visual/tests/run_acceptance.py
+frontend/visual/tests/source-contract.test.mjs
+frontend/visual/tests/source-module-graph.test.mjs
+frontend/visual/tests/test_offline_export.py
+frontend/visual/tests/validation-layers.json
+frontend/visual/tests/verify_offline_export.py
+```
+
+O `ENTREGA.md` dentro do artefato é o retrato documental do SHA técnico usado no CI; esta seção online acrescenta o resultado final do próprio CI e os IDs dos artefatos após sua conclusão.
