@@ -20,15 +20,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Security snapshot and 100-event adversarial audit (14)
+      - name: Security snapshot and 100-event adversarial audit (17)
         shell: bash
         run: |
           set -euo pipefail
           node --experimental-strip-types --test --test-concurrency=1 \
             integrations/whatsapp-meta/cloud-composed-security-audit.test.ts \
             2>&1 | tee "$RUNNER_TEMP/security-audit.tap"
-          grep -qx '# tests 14' "$RUNNER_TEMP/security-audit.tap"
-          grep -qx '# pass 14' "$RUNNER_TEMP/security-audit.tap"
+          grep -qx '# tests 17' "$RUNNER_TEMP/security-audit.tap"
+          grep -qx '# pass 17' "$RUNNER_TEMP/security-audit.tap"
           grep -qx '# fail 0' "$RUNNER_TEMP/security-audit.tap"
       - name: Compose and previous focused regressions (174)
         shell: bash
