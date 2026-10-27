@@ -1,0 +1,87 @@
+{
+  "contract": "prumo.admin.edge.provisioning.local.v1",
+  "status": "EXPERIMENTAL_DISPOSABLE_ONLY",
+  "http_contract_unchanged": "prumo.admin.v1",
+  "base_i82_checkpoint": "3dec252e5711c075781984d899d6c46b66b8ec74",
+  "identities": {
+    "installer": "postgres on validated disposable loopback PG17 only",
+    "edge_login": "prumo_s1_admin_edge_local",
+    "key_custodian_nologin": "prumo_s1_edge_custodian_local",
+    "existing_hmac_executor_nologin": "prumo_s0_g1_executor_local",
+    "existing_admin_domain_nologin": "prumo_s1_admin_domain_local",
+    "existing_deferred_validator_nologin": "prumo_s1_professional_validator_local",
+    "human": "verified GoTrue user/session plus existing SQL Director competence"
+  },
+  "admission": {
+    "role_initial_state": "NOLOGIN, password absent",
+    "runtime_profile": "PRUMO_I83_DEDICATED=YES",
+    "restricted_sql_login_only": true,
+    "connection_limit": 4,
+    "role_membership_for_runtime": false,
+    "schema_create": false,
+    "database_create": false,
+    "private_table_data_privileges": false,
+    "domain_function_execute_allowlist": [
+      "prumo_private.s1_i79_admin_signed(uuid,uuid,text,uuid,text,uuid,bigint,text,uuid,bigint,uuid,text)",
+      "prumo_private.s1_i80_signed(uuid,uuid,text,uuid,text,uuid,text,uuid,uuid,integer,text,uuid,bigint,uuid,text)"
+    ],
+    "public_postgres_defaults": "catalog/TEMP/CONNECT capabilities inventoried separately; no global PUBLIC changes"
+  },
+  "material": {
+    "generation": "fresh per disposable provisioning, secrets module",
+    "password_sql_transport": "SCRAM verifier, no plaintext password literal",
+    "hmac_store": "prumo_private.s1_i83_edge_credentials",
+    "laboratory_validity_seconds": 3600,
+    "server_clock": "PostgreSQL",
+    "existing_nonce_ledger": "prumo_private.cfi01_consumed_nonces_local",
+    "legacy_key_anchor": "inactive zero bytes, never the actual Edge HMAC",
+    "key_fallback": false,
+    "env_directory_mode": "0700",
+    "env_file_mode": "0600",
+    "secret_values_in_git_logs_http_ci_artifacts": false,
+    "publishable_or_anon_key_is_admin_secret": false,
+    "logging_privacy": {
+      "scope": "trusted installer transaction only, SET LOCAL via existing Supautils allowlist",
+      "already_secure_defaults": "retained without requiring a new SET",
+      "parameter_or_role_grants_added": false,
+      "global_or_role_logging_change": false,
+      "business_audit_change": false,
+      "physical_preflight_required": true,
+      "unavailable_capability": "deny before transmitting material",
+      "error_logging_threshold_unchanged": true,
+      "material_sql_transport": "bound backend-local transaction-local parameters, anonymous INVOKER write blocks sanitize failures",
+      "persistent_privileged_helpers_added": false,
+      "forced_secret_row_and_password_errors_tested": true
+    }
+  },
+  "revocation": {
+    "old_key_material": "set NULL with disabled tombstone",
+    "transaction_order": "SHARE key lock serializes operation before revocation or denial after revocation",
+    "password_expiry_or_rotation_alone_revokes_open_connections": false,
+    "live_execution_barrier": "dedicated key status/expiry plus existing human session/authority checks",
+    "expiry_recheck": "initial key read and after domain waits",
+    "rotation_cutover": "atomic credential replacement then local worker restart; zero downtime not asserted",
+    "automatic_mutation_retry": false,
+    "reconciliation": "same command/idempotency key with valid technical credential and live human authority",
+    "rotation_reapplies_business_command": false,
+    "rotation_renews_i80_preview": false
+  },
+  "cleanup": [
+    "scan own disposable runtime/container logs in memory without emitting matches",
+    "remove secret-bearing runtime container",
+    "wipe signing material and preserve only nonsecret revocation metadata",
+    "NOLOGIN and PASSWORD NULL",
+    "terminate dedicated SQL sessions",
+    "unlink temporary server environment",
+    "attest metadata catalog and custody proof without secret values",
+    "supabase stop --no-backup"
+  ],
+  "not_certified_here": [
+    "hosted runtime or deployment",
+    "production secret management or zero-downtime rotation",
+    "forensic RAM/WAL/storage erasure",
+    "TLS and distributed abuse control",
+    "Frontend product acceptance",
+    "commercial permissions or F02 ratification"
+  ]
+}
