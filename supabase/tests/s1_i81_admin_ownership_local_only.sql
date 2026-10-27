@@ -22,12 +22,28 @@ begin
  ('prumo_private.s1_prova_excecao_i61(uuid,uuid,uuid,uuid)','89bcd3febf28e8da6a1ec03f74c3a2fc1fe53b242b4b64f6b716b4edf94ea57c',false)
  ) v(signature,digest,is_definer)
  loop
-  select pg_get_userbyid(proowner) as owner,prosecdef,prosrc into p
+  select pg_get_userbyid(proowner) as owner,prosecdef,prosrc,proconfig into p
   from pg_proc where oid=to_regprocedure(x.signature);
   if not found or p.owner<>'postgres' or p.prosecdef<>x.is_definer
    or encode(sha256(convert_to(p.prosrc,'UTF8')),'hex')<>x.digest
+   or p.proconfig is distinct from case when x.signature like 'prumo_private.s1_i80_%'
+       then array['search_path=""','TimeZone=UTC'] else array['search_path=""'] end
   then raise exception 'I81_PREREQUISITE_DRIFT: %',x.signature using errcode='42501';end if;
  end loop;
+ -- A bridge with an unexpected EXECUTE grantee must not be re-owned under
+ -- the assumption that its original private boundary is still intact.
+ if exists(select 1 from pg_proc f cross join lateral aclexplode(coalesce(f.proacl,acldefault('f',f.proowner))) a
+  where f.oid in (
+   'prumo_private.s1_i79_admin_bridge(uuid,uuid,text,uuid,text,uuid,bigint,text,uuid)'::regprocedure,
+   'prumo_private.s1_i80_bridge(uuid,uuid,text,uuid,text,uuid,text,uuid,uuid,integer,text,uuid)'::regprocedure)
+  and (a.grantee not in(f.proowner,'prumo_s0_g1_executor_local'::regrole)
+       or (a.is_grantable and a.grantee<>f.proowner)))
+ then raise exception 'I81_BRIDGE_ACL_DRIFT' using errcode='42501';end if;
+ if exists(select 1 from pg_roles where rolname='prumo_s0_g1_executor_local'
+  and (rolcanlogin or rolinherit or rolsuper or rolcreatedb or rolcreaterole or rolreplication or rolbypassrls))
+ or exists(select 1 from pg_auth_members where roleid='prumo_s0_g1_executor_local'::regrole
+  and not(member='postgres'::regrole and admin_option and not inherit_option and not set_option))
+ then raise exception 'I81_HMAC_EXECUTOR_ROLE_DRIFT' using errcode='42501';end if;
 end $guard$;
 
 create role prumo_s1_admin_domain_local nologin noinherit nosuperuser nocreatedb nocreaterole noreplication nobypassrls;
@@ -163,8 +179,14 @@ do $final$
 begin
  if current_setting('prumo.i81_fail_before_commit',true)='YES' then
   raise exception 'I81_INSTALL_ROLLBACK_PROBE' using errcode='23514';end if;
+ -- PG17 keeps a separate creator ADMIN-only row granted by the bootstrap
+ -- superuser. It cannot be SET or inherited. Never confuse it with the
+ -- installer's temporary executable grant, or grant it to application roles.
  if exists(select 1 from pg_auth_members m join pg_roles r on r.oid=m.roleid
-  where r.rolname in('prumo_s1_admin_domain_local','prumo_s1_professional_validator_local'))
+  where r.rolname in('prumo_s1_admin_domain_local','prumo_s1_professional_validator_local')
+   and not(m.member='postgres'::regrole and m.admin_option and not m.inherit_option and not m.set_option))
+ or exists(select 1 from pg_auth_members where member in(
+  'prumo_s1_admin_domain_local'::regrole,'prumo_s1_professional_validator_local'::regrole))
  then raise exception 'I81_OWNER_MEMBERSHIP_REMAINS' using errcode='42501';end if;
 end $final$;
 commit;

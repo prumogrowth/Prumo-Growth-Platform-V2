@@ -39,7 +39,7 @@ class OwnershipTests(I80Tests):
         with self.assertRaises(psycopg.errors.InsufficientPrivilege):
             with psycopg.connect(self.dsn) as c:c.execute(statement)
 
-    def test_i81_01_fixed_owners_no_login_no_memberships_no_schema_create(self):
+    def test_i81_01_fixed_owners_no_login_no_executable_membership_no_schema_create(self):
         with psycopg.connect(self.db) as c:
             for signature in BRIDGES:
                 owner,definer,config=c.execute('select pg_get_userbyid(proowner),prosecdef,proconfig from pg_proc where oid=to_regprocedure(%s)',(signature,)).fetchone()
@@ -47,7 +47,10 @@ class OwnershipTests(I80Tests):
             self.assertEqual(c.execute("select pg_get_userbyid(proowner),prosecdef from pg_proc where oid='prumo_private.s1_i79_consistencia()'::regprocedure").fetchone(),(VALIDATOR,True))
             for role in (DOMAIN,VALIDATOR):
                 self.assertEqual(c.execute('select rolcanlogin,rolinherit,rolsuper,rolcreatedb,rolcreaterole,rolreplication,rolbypassrls from pg_roles where rolname=%s',(role,)).fetchone(),(False,)*7)
-                self.assertEqual(c.execute('select count(*) from pg_auth_members where roleid=(select oid from pg_roles where rolname=%s) or member=(select oid from pg_roles where rolname=%s)',(role,role)).fetchone()[0],0)
+                self.assertEqual(c.execute('''select count(*) from pg_auth_members
+                    where (roleid=(select oid from pg_roles where rolname=%s)
+                      and not(member='postgres'::regrole and admin_option and not inherit_option and not set_option))
+                    or member=(select oid from pg_roles where rolname=%s)''',(role,role)).fetchone()[0],0)
                 self.assertFalse(c.execute("select has_schema_privilege(%s,'prumo_private','CREATE')",(role,)).fetchone()[0])
                 self.assertEqual(c.execute('select count(*) from pg_class where relowner=(select oid from pg_roles where rolname=%s)',(role,)).fetchone()[0],0)
                 self.deny_app('set role '+role)
