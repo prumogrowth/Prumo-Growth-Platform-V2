@@ -70,7 +70,9 @@ def main(output):
             page.add_script_tag(content=js)
             expect(page.locator('#visual-app')).to_have_attribute('data-theme', 'light')
             if theme == 'dark':
+                page.locator('#ui-settings').evaluate('e => e.open = true')
                 page.locator('#theme-dark').click()
+                page.locator('#ui-settings').evaluate('e => e.open = false')
             expect(page.locator('#visual-app')).to_have_attribute('data-theme', theme)
             if actor != 'rafael':
                 page.locator('#actor-select').select_option(actor)
