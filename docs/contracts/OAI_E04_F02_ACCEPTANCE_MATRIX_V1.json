@@ -376,6 +376,26 @@
         "backend/tests/test_f02_s0_proof_binding_candidate.py::test_42_event_self_approval_extra_flag_rejected"
       ],
       "gate": "G03 source authenticity and canonical event time semantics remain pending S0-owned contracts; candidate does not enable approval or dispatch"
+    },
+    {
+      "id": "F02-A30",
+      "area": "OpenAI F01/F02/F03",
+      "behavior": "Multi-route pure ledger accepts repeated prehuman F01↔F02, distinct human closure→F03→posthuman F02, and routes to human again; return to F01 never automatic, requires claimed S0 reconciliation and explicit S0 resume event, posthuman F02 cannot silently resume seller AI",
+      "status": "LAB_VERIFIED",
+      "tests": [
+        "backend/tests/test_f01_f02_f03_route_ledger_candidate.py::test_01_user_cycle_F01_F02_F01_F03_F02",
+        "backend/tests/test_f01_f02_f03_route_ledger_candidate.py::test_02_original_F01_F03_F02_is_still_possible",
+        "backend/tests/test_f01_f02_f03_route_ledger_candidate.py::test_04_repeat_F01_F02_cycle_before_human",
+        "backend/tests/test_f01_f02_f03_route_ledger_candidate.py::test_08_F01_resume_requires_reconciled_pre_human_cadence",
+        "backend/tests/test_f01_f02_f03_route_ledger_candidate.py::test_09_F01_resume_cannot_follow_post_human_F02",
+        "backend/tests/test_f01_f02_f03_route_ledger_candidate.py::test_11_F03_cannot_run_after_handoff_without_close",
+        "backend/tests/test_f01_f02_f03_route_ledger_candidate.py::test_14_second_human_close_second_F03_and_F02_possible",
+        "backend/tests/test_f01_f02_f03_route_ledger_candidate.py::test_18_meta_uncertainty_prevents_AI_return",
+        "backend/tests/test_f01_f02_f03_route_ledger_candidate.py::test_20_cross_shop_and_lead_case_scope_denied",
+        "backend/tests/test_f01_f02_f03_route_ledger_candidate.py::test_26_cross_closure_F02_after_F03_rejected",
+        "backend/tests/test_f01_f02_f03_route_ledger_candidate.py::test_29_result_never_contains_action_or_source_proof"
+      ],
+      "gate": "All route events are untrusted synthetic claims. G01–G07 remain non-homologated; S0 owns real transitions, Meta disposition, cancellation and human boundaries"
     }
   ],
   "non_authorizing_positive_states": [
@@ -545,5 +565,14 @@
     "document": "docs/OAI_E04_F02_A29_EVENTO_HISTORICO_VS_INSPECAO_20261027.md",
     "s0_edited": false,
     "source_authenticated": false
+  },
+  "openai_route_graph_candidate": {
+    "module": "backend/f01_f02_f03_route_ledger_candidate.py",
+    "tests": "backend/tests/test_f01_f02_f03_route_ledger_candidate.py",
+    "document": "docs/contracts/OAI_E04_OPENAI_ROTAS_MULTIPLAS_F01_F02_F03_V1.md",
+    "lab_schema": "prumo.openai.f01_f02_f03.route_ledger/0.1-lab",
+    "supports_multiple_routes": true,
+    "physical_s0_transitions_authenticated": false,
+    "commercial_authority": false
   }
 }

@@ -80,6 +80,7 @@ python3 -m unittest backend.tests.test_s0_f03_history_manifest_local \
   backend.tests.test_f02_s0_integration_handoff_contract \
   backend.tests.test_f02_s0_four_proof_source_map \
   backend.tests.test_f02_s0_proof_binding_candidate \
+  backend.tests.test_f01_f02_f03_route_ledger_candidate \
   backend.tests.test_openai_s0_ownership_contract \
   backend.tests.test_prumo_architecture_decision_contract \
   backend.tests.test_f02_acceptance_matrix_contract \
