@@ -503,7 +503,7 @@ body[data-theme="dark"] .team-dialog .team-mode button[aria-pressed="true"]{
 .visual-app .settings-panel h2{font-size:16px;margin:0 0 12px}
 .visual-app .settings-panel .theme-switch{margin-bottom:16px}
 .visual-app .settings-panel :is(.actor-control,.shop-control){margin-bottom:12px}
-.visual-app .settings-panel select,.visual-app .settings-panel .theme-option{min-height:42px}
+.visual-app .settings-panel select,.visual-app .settings-panel .theme-option{min-height:44px}
 .visual-app .settings-note{margin:4px 0 0;font-size:11px;line-height:1.5;color:#707b83}
 .visual-app :is(.ui-settings>summary,.list-extra>summary):focus-visible{outline:3px solid #63717e;outline-offset:2px}
 @media(max-width:760px){.visual-app .list-heading{padding:12px 16px 4px}.visual-app .list-topline{margin-bottom:3px}.visual-app .search-box{margin-top:3px}.visual-app .filters{padding-top:3px}.visual-app .queue-heading{padding:8px 16px}.visual-app .conversation-card{padding-block:11px}}
