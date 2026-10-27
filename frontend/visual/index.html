@@ -49,7 +49,7 @@
                 <h2>Configurações</h2>
                 <div class="theme-switch" role="group" aria-label="Tema visual da interface"><button type="button" id="theme-light" class="theme-option selected" aria-pressed="true">Claro</button><button type="button" id="theme-dark" class="theme-option" aria-pressed="false">Escuro</button></div>
                 <div class="actor-control"><label for="actor-select">Perfil da demonstração</label><div class="select-wrap"><select id="actor-select" aria-label="Selecionar perfil fictício"></select><svg class="icon small"><use href="#i-chevron"/></svg></div></div>
-                <div class="shop-control"><label for="shop-select">Concessionária</label><div class="select-wrap"><select id="shop-select" aria-label="Selecionar concessionária fictícia"></select><svg class="icon small"><use href="#i-chevron"/></svg></div></div>
+                <div class="shop-control"><label for="shop-select">Concessionária (filtro de conversas, não altera concessões)</label><div class="select-wrap"><select id="shop-select" aria-label="Selecionar concessionária fictícia"></select><svg class="icon small"><use href="#i-chevron"/></svg></div></div>
                 <p class="settings-note">Dados fictícios. Estes seletores não são autenticação nem alteram permissões reais.</p>
               </div>
             </details>
@@ -64,11 +64,10 @@
             <div class="queue-summary" id="queue-summary" aria-label="Indicadores fictícios do escopo"></div>
           </div></details>
         <div class="filter-reset-controls" id="filter-reset-controls" hidden><button type="button" class="clear-list-filters" id="clear-list-filters">Limpar busca e filtros</button></div>
-        <div class="queue-summary" id="queue-summary" aria-label="Indicadores fictícios do escopo"></div>
       </header>
       <div class="queue-heading"><span id="list-count" role="status" aria-live="polite" aria-atomic="true">Atendimentos</span><span class="queue-sub" id="list-context"></span></div>
       <div class="conversation-items" id="conversation-items" aria-label="Conversas disponíveis no contexto"></div>
-      <footer class="list-footer"><span id="list-demo-guidance" role="note" class="sr-only">Dados fictícios. Perfil de teste não autentica nem autoriza. A busca e os filtros operam somente sobre exemplos.</span></footer>
+      <footer class="list-footer"><span id="list-demo-guidance" role="note" class="sr-only">Dados fictícios. Perfil de teste não autentica nem autoriza. Na busca, Esc apaga somente o texto e mantém os filtros; seta para baixo foca a primeira conversa visível.</span></footer>
     </section>
 
     <section class="thread-pane" id="thread-pane" aria-labelledby="thread-title" tabindex="-1">
