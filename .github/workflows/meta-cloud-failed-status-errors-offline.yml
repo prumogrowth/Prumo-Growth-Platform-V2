@@ -1,0 +1,51 @@
+name: Meta signed failed status errors - offline
+on:
+  push:
+    branches: [feat/meta-cloud-failed-status-errors-20261027]
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [feat/meta-cloud-unsupported-inbound-20261027]
+    paths:
+      - 'integrations/whatsapp-meta/**'
+      - '.github/workflows/meta-cloud-failed-status-errors-offline.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  failed-status-errors:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: New failed-status error inspections (18)
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --experimental-strip-types --test --test-concurrency=1 \
+            integrations/whatsapp-meta/cloud-failed-status-errors-handoff.test.ts \
+            2>&1 | tee "$RUNNER_TEMP/status-errors.tap"
+          grep -qx '# tests 18' "$RUNNER_TEMP/status-errors.tap"
+          grep -qx '# pass 18' "$RUNNER_TEMP/status-errors.tap"
+          grep -qx '# fail 0' "$RUNNER_TEMP/status-errors.tap"
+      - name: Prior unsupported, media, reactions, selection and HMAC regressions (136)
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --experimental-strip-types --test --test-concurrency=1 \
+            integrations/whatsapp-meta/cloud-unsupported-inbound-handoff.test.ts \
+            integrations/whatsapp-meta/cloud-media-metadata-handoff.test.ts \
+            integrations/whatsapp-meta/cloud-reaction-handoff.test.ts \
+            integrations/whatsapp-meta/cloud-list-reply-handoff.test.ts \
+            integrations/whatsapp-meta/cloud-button-reply-handoff.test.ts \
+            integrations/whatsapp-meta/cloud-webhook-handoff.test.ts \
+            integrations/whatsapp-meta/inbound.test.ts \
+            integrations/whatsapp-meta/routed-webhook.test.ts \
+            2>&1 | tee "$RUNNER_TEMP/status-errors-regressions.tap"
+          grep -qx '# tests 136' "$RUNNER_TEMP/status-errors-regressions.tap"
+          grep -qx '# pass 136' "$RUNNER_TEMP/status-errors-regressions.tap"
+          grep -qx '# fail 0' "$RUNNER_TEMP/status-errors-regressions.tap"
