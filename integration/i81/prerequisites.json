@@ -1,0 +1,42 @@
+{
+  "prumo_private.s1_exigir_executor_interno_equipe()": {
+    "source": "S1@8780b576:supabase/migrations/202610190046_s1_admin_negacao_por_padrao.sql",
+    "prosrc_sha256": "bd4a56f41cf9bcd39e26ebbb1e2aa3e1024ce27a4d4bd7173ff738af4f6a98ff",
+    "security_definer": false
+  },
+  "prumo_private.s1_i79_admin_bridge(uuid,uuid,text,uuid,text,uuid,bigint,text,uuid)": {
+    "source": "supabase/tests/s1_i79_profissionais_local_only.sql",
+    "prosrc_sha256": "8e3414e01794e3a3d8a3c3bdcd20382343a44056be67470781d137935794646d",
+    "security_definer": true
+  },
+  "prumo_private.s1_i80_snapshot(uuid,uuid)": {
+    "source": "supabase/tests/s1_i80_regularizacao_local_only.sql",
+    "prosrc_sha256": "53659cd61ee4f51c998dd6446bbf2612780d90d38aa2c4820a5471b5ed7090e4",
+    "security_definer": false
+  },
+  "prumo_private.s1_i80_bridge(uuid,uuid,text,uuid,text,uuid,text,uuid,uuid,integer,text,uuid)": {
+    "source": "supabase/tests/s1_i80_regularizacao_local_only.sql",
+    "prosrc_sha256": "5c6c608b5efde5b4a12f3bb65e1d97fec981f2a534c19496dc14eb87788668bb",
+    "security_definer": true
+  },
+  "prumo_private.s1_i79_consistencia()": {
+    "source": "supabase/tests/s1_i79_profissionais_local_only.sql",
+    "prosrc_sha256": "a57ff123bd7adffbadd0cf0856a93d8ea92b89acb3377b33b25935c75fead416",
+    "security_definer": true
+  },
+  "public.s0_verificar_atribuicao()": {
+    "source": "S1@8780b576:supabase/migrations/202610190059_s0_s1_excecao_caso_canonica.sql",
+    "prosrc_sha256": "2f4033ec636f13e4f9465d75e2855def28e0957ce5f61cb8f3a8a9b7bb116821",
+    "security_definer": false
+  },
+  "prumo_private.s1_validar_nova_atribuicao()": {
+    "source": "S1@8780b576:supabase/migrations/202610190059_s0_s1_excecao_caso_canonica.sql",
+    "prosrc_sha256": "92cd4b2cfd212ca931e41ea90c33a29d6013d459736543b9562ba18d325fdc0f",
+    "security_definer": false
+  },
+  "prumo_private.s1_prova_excecao_i61(uuid,uuid,uuid,uuid)": {
+    "source": "S1@8780b576:supabase/migrations/202610190059_s0_s1_excecao_caso_canonica.sql",
+    "prosrc_sha256": "89bcd3febf28e8da6a1ec03f74c3a2fc1fe53b242b4b64f6b716b4edf94ea57c",
+    "security_definer": false
+  }
+}
