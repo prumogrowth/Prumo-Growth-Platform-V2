@@ -323,6 +323,23 @@
         "backend/tests/test_f02_s0_four_proof_source_map.py::test_11_audit_map_is_only_a_lab_artifact"
       ],
       "gate": "S0/F03 and owners must confirm canonical source IDs, versions, cutoff, HMAC/verifier, authenticated replay, session/role and negative paths; no F02 authority from producer code existence"
+    },
+    {
+      "id": "F02-A27",
+      "area": "F02/S0/F03",
+      "behavior": "Local candidate envelope of four proof-source references strictly binds every alleged source, scope, hash, claimed revision and UTC chronological sequence to the original unsigned F02 review proposal while refusing extra data and retaining zero S0 attestation or commercial authority",
+      "status": "LAB_VERIFIED",
+      "tests": [
+        "backend/tests/test_f02_s0_proof_binding_candidate.py::test_02_map_and_runtime_sources_agree",
+        "backend/tests/test_f02_s0_proof_binding_candidate.py::test_04_cross_lead_proof_rejected",
+        "backend/tests/test_f02_s0_proof_binding_candidate.py::test_07_changed_evidence_after_handoff_rejected",
+        "backend/tests/test_f02_s0_proof_binding_candidate.py::test_13_bad_version_or_source_ref_rejected",
+        "backend/tests/test_f02_s0_proof_binding_candidate.py::test_15_evidence_cutoff_after_proposal_rejected",
+        "backend/tests/test_f02_s0_proof_binding_candidate.py::test_19_non_authorized_flags_never_accepted",
+        "backend/tests/test_f02_s0_proof_binding_candidate.py::test_22_output_has_only_status",
+        "backend/tests/test_f02_s0_proof_binding_candidate.py::test_24_no_s0_authentication_claim_in_result"
+      ],
+      "gate": "G03 partially met, G07 pending: S0 must own physical IDs/canonicalization/verifier/cutoff and authenticate all sources; this candidate is an untrusted shape check only, not a verified S0 receipt"
     }
   ],
   "non_authorizing_positive_states": [
@@ -460,5 +477,15 @@
     "model_api": "OPENAI_API_DIRECT",
     "n8n_optional": true,
     "deployed": false
+  },
+  "f02_candidate_proof_binding": {
+    "module": "backend/f02_s0_proof_binding_candidate.py",
+    "tests": "backend/tests/test_f02_s0_proof_binding_candidate.py",
+    "contract": "docs/contracts/OAI_E04_F02_S0_PROOF_BINDING_CANDIDATE_V1.md",
+    "source_map": "docs/contracts/OAI_E04_F02_S0_MAPA_QUATRO_PROVAS_V1.json",
+    "lab_schema": "prumo.f02.s0.claimed_proof_binding/0.1-lab",
+    "source_attested": false,
+    "s0_contract_ratified": false,
+    "commercial_authorization": false
   }
 }
