@@ -21,6 +21,7 @@ Deno.test("DTO: reject every client actor/session/permission field",()=>{
     rejects(()=>command("i79",envelope({...dto,[key]:fixture.principal.actor})));
     rejects(()=>command("i79",{...envelope(dto),[key]:fixture.principal.actor}));
   }
+  rejects(()=>command("i79",{"command|version":dto}));
 });
 Deno.test("DTO: bigint decimal preserves full PostgreSQL range without Number coercion",()=>{
   equal(decimal("9223372036854775807"),"9223372036854775807");

@@ -13,7 +13,7 @@ const record = (v: unknown): Document => {
 };
 const exact = (v: unknown, fields: string[]): Document => {
   const o = record(v);
-  if (Object.keys(o).sort().join("|") !== fields.sort().join("|")) throw new Invalid();
+  if (Object.keys(o).length !== fields.length || Object.keys(o).sort().join("|") !== fields.sort().join("|")) throw new Invalid();
   return o;
 };
 const oneOf = (v: unknown, options: unknown[]): void => { if (!options.includes(v)) throw new Invalid(); };

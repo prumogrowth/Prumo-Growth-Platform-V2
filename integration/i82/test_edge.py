@@ -4,7 +4,7 @@ Python is test orchestration/fixtures only. All asserted administrative HTTP
 operations run TypeScript inside supabase functions serve, never a Python API.
 """
 from concurrent.futures import ThreadPoolExecutor
-import http.client
+import http.client as http_client
 from http.server import BaseHTTPRequestHandler,ThreadingHTTPServer
 import json
 import os
@@ -58,6 +58,8 @@ class EdgeTests(I80Tests):
             if cls.process.poll() is not None:raise RuntimeError('I82 serve exited; inspect sanitized local runtime log')
             time.sleep(.25)
         else:raise RuntimeError('I82 actual Edge runtime did not become ready within 60 seconds')
+        code,body,_=cls.raw('i80',cls.wire('INVENTORY',limit=1),cls.director_token)
+        if code!=200 or body.get('state')!='INVENTORY':raise RuntimeError('I82 authenticated SQL startup probe failed; inspect bounded I82_CORE_FAILURE diagnostics')
 
     @classmethod
     def raw(cls,family,p=None,token=None,method='POST',body=None,headers=None,base=None):
@@ -213,7 +215,7 @@ class EdgeTests(I80Tests):
                 self.close_connection=True;self.connection.shutdown(2);self.connection.close()
         server=ThreadingHTTPServer(('127.0.0.1',0),Loss);thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start()
         try:
-            with self.assertRaises((http.client.RemoteDisconnected,httperror.URLError,ConnectionError)):
+            with self.assertRaises((http_client.RemoteDisconnected,httperror.URLError,ConnectionError)):
                 self.raw('i79',p,self.director_token,base='http://127.0.0.1:'+str(server.server_port)+'/')
         finally:server.shutdown();server.server_close();thread.join(timeout=5)
         self.assertEqual((observed['code'],observed['state']),(200,'APPLIED'))

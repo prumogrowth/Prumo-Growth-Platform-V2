@@ -40,6 +40,12 @@ export function createHandler(read:(key:string)=>string|undefined) {
         return respond(200,receipt.outcome as string,"CONFIRMED",receipt);
       } catch(error) {
         const code=(error as {code?:string}).code;
+        // Server-only, bounded diagnostics: no error message/detail, SQL,
+        // parameters, credentials, JWT, request payload or Auth response.
+        const kind=(error as {name?:string}).name;
+        const locations=String((error as {stack?:string}).stack??"").split("\n").slice(1,5)
+          .map(line=>line.match(/(?:file|ext|node):[^\s)]+:\d+:\d+/)?.[0]).filter(Boolean);
+        console.warn(JSON.stringify({event:"I82_CORE_FAILURE",kind:["Error","TypeError","PostgresError"].includes(kind??"")?kind:"ERROR",code:code&&/^[A-Z0-9_]{2,40}$/.test(code)?code:"UNCLASSIFIED",locations}));
         const state=({"42501":"DENIED","23514":"DENIED","40001":"STALE","23505":"CONFLICT",...(family==="i80"?{"55P03":"CONCURRENT_CHANGE","P3180":"EXPIRED","P3181":"BLOCKED"}:{})} as Record<string,string>)[code??""];
         if(state)return respond(["DENIED"].includes(state)?403:409,state,"REJECTED");
         return respond(503,"UNAVAILABLE","UNKNOWN"); // includes COMMIT I/O/result uncertainty

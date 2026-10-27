@@ -34,6 +34,9 @@ if __name__=='__main__':
                 else:assert old['body_sha256']==item['body_sha256'],old['signature']
             for role in ('anon','authenticated','service_role','prumo_cfi01_pgtest_login','prumo_s0_g1_executor_local'):
                 assert not c.execute("select has_function_privilege(%s,'prumo_private.s1_i82_metadata_fence()','EXECUTE')",(role,)).fetchone()[0]
+            for role in ('prumo_s1_admin_domain_local','prumo_s1_professional_validator_local'):
+                for schema in ('public','prumo_private'):
+                    assert not c.execute("select has_schema_privilege(%s,%s,'CREATE')",(role,schema)).fetchone()[0]
     (root/('prumo_i82_catalog_'+args.phase+'.json')).write_text(json.dumps(current,indent=2)+'\n')
     print('I82-CATALOG',args.phase,'functions',len(current['functions']),'triggers',len(current['triggers']),'constraints',len(current['constraints']),flush=True)
     if args.phase=='final':print('I82-ACCEPTANCE: all I81 owners/data ACL/policies/guards preserved; only one prefix call per bridge and one private INVOKER metadata fence; after=final',flush=True)
