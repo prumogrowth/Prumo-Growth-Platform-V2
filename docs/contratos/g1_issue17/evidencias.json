@@ -1,0 +1,172 @@
+{
+  "contract": "s0.g1.manual-queue.v1",
+  "scope": "disposable PG17/GoTrue/PostgREST; no public endpoint or hosted certification",
+  "date_local": "2026-10-26",
+  "timezone": "America/Sao_Paulo",
+  "branch": "exp/s0-g1-encaminhamento-manual-20261026",
+  "code_commit": "d53c40a6ef55e82d2282c482b299cff1dbf990bd",
+  "code_tree": "d3793f51dbf44feae33355fb5ffe882503f4ad6f",
+  "base_pr18": "88af4aea3aeb2c403bab4c078fdc04d560f2cba0",
+  "s1_checkpoint": "b71ebf4479c9a0a3527519471cca04ec7e178e18",
+  "s1_i76_commit": "781fc839165ae3e420ff6b435f3e1f95b3f2db5a",
+  "s1_i76_run": 40413807995,
+  "run": {
+    "id": 40434954253,
+    "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40434954253",
+    "conclusion": "success",
+    "started_at": "2026-10-27T01:50:44Z",
+    "updated_at": "2026-10-27T01:54:08Z",
+    "job_id": 121961301434,
+    "elapsed_seconds": 204
+  },
+  "results": {
+    "unit": {
+      "passed": 272,
+      "preserved": 264,
+      "new_g1": 8
+    },
+    "gotrue_g1": {
+      "passed": 36,
+      "seconds": 8.207
+    },
+    "gotrue_cfi_f02": {
+      "passed": 56,
+      "cfi01": 32,
+      "f02": 24
+    },
+    "gotrue_history": {
+      "s0": 19,
+      "s1_i63": 19
+    },
+    "gotrue_bootstrap": {
+      "auth_numbered_families": 18,
+      "cfi01_scenarios": 10
+    },
+    "postgres_sql_synthetic_identities": {
+      "I54": 8,
+      "I56": 6,
+      "I57": 5,
+      "I58": 6,
+      "I61": 9,
+      "total": 34
+    },
+    "resource_warnings": 0,
+    "cleanup": "success"
+  },
+  "unittest_runs_in_log": [
+    {
+      "count": 272,
+      "seconds": 0.551
+    },
+    {
+      "count": 19,
+      "seconds": 15.439
+    },
+    {
+      "count": 56,
+      "seconds": 24.353
+    },
+    {
+      "count": 19,
+      "seconds": 14.898
+    },
+    {
+      "count": 36,
+      "seconds": 8.207
+    }
+  ],
+  "gotrue_g1_names": [
+    "test_01_normal_store_grant_needs_no_exception (__main__.G1Tests.test_01_normal_store_grant_needs_no_exception) ... ok",
+    "test_02_case_only_exception_and_real_rls_two_teams (__main__.G1Tests.test_02_case_only_exception_and_real_rls_two_teams) ... ok",
+    "test_03_other_team_consultant_denied_even_same_store (__main__.G1Tests.test_03_other_team_consultant_denied_even_same_store) ... ok",
+    "test_04_self_claim_is_a_different_operation (__main__.G1Tests.test_04_self_claim_is_a_different_operation) ... ok",
+    "test_05_a2_paused_consultant_with_existing_exception_cannot_get_new_case (__main__.G1Tests.test_05_a2_paused_consultant_with_existing_exception_cannot_get_new_case) ... ok",
+    "test_06_invalid_real_bearer_signature_denied (__main__.G1Tests.test_06_invalid_real_bearer_signature_denied) ... ok",
+    "test_07_expired_live_session_denied (__main__.G1Tests.test_07_expired_live_session_denied) ... ok",
+    "test_08_revoked_a_does_not_grant_or_revoke_b (__main__.G1Tests.test_08_revoked_a_does_not_grant_or_revoke_b) ... ok",
+    "test_09_team_change_while_waiting_is_rechecked (__main__.G1Tests.test_09_team_change_while_waiting_is_rechecked) ... ok",
+    "test_10_pause_wins_during_lead_wait (__main__.G1Tests.test_10_pause_wins_during_lead_wait) ... ok",
+    "test_11_manager_grant_revoked_during_lead_wait (__main__.G1Tests.test_11_manager_grant_revoked_during_lead_wait) ... ok",
+    "test_12_session_delete_commits_before_command_gets_session_lock (__main__.G1Tests.test_12_session_delete_commits_before_command_gets_session_lock) ... ok",
+    "test_13_signed_i55_claim_wins (__main__.G1Tests.test_13_signed_i55_claim_wins) ... ok",
+    "test_14_manual_wins_over_signed_i55_claim (__main__.G1Tests.test_14_manual_wins_over_signed_i55_claim) ... ok",
+    "test_15_original_automatic_distribution_wins (__main__.G1Tests.test_15_original_automatic_distribution_wins) ... ok",
+    "test_16_manual_wins_over_original_distribution (__main__.G1Tests.test_16_manual_wins_over_original_distribution) ... ok",
+    "test_17_two_managers_each_with_own_team_one_winner (__main__.G1Tests.test_17_two_managers_each_with_own_team_one_winner) ... ok",
+    "test_18_exact_retry_returns_same_receipt_without_new_assignment (__main__.G1Tests.test_18_exact_retry_returns_same_receipt_without_new_assignment) ... ok",
+    "test_19_key_reused_with_another_destination_conflicts (__main__.G1Tests.test_19_key_reused_with_another_destination_conflicts) ... ok",
+    "test_20_key_reused_on_another_cycle_conflicts (__main__.G1Tests.test_20_key_reused_on_another_cycle_conflicts) ... ok",
+    "test_21_nonce_replay_and_tampered_destination_denied (__main__.G1Tests.test_21_nonce_replay_and_tampered_destination_denied) ... ok",
+    "test_22_original_i62_signed_revocation_removes_access_and_blocks_replay (__main__.G1Tests.test_22_original_i62_signed_revocation_removes_access_and_blocks_replay) ... ok",
+    "test_23_exception_creation_failure_rolls_back_case (__main__.G1Tests.test_23_exception_creation_failure_rolls_back_case) ... ok",
+    "test_24_assignment_failure_rolls_back_exception (__main__.G1Tests.test_24_assignment_failure_rolls_back_exception) ... ok",
+    "test_25_late_audit_failure_rolls_back_queue_case_nonce_and_request (__main__.G1Tests.test_25_late_audit_failure_rolls_back_queue_case_nonce_and_request) ... ok",
+    "test_26_deferred_commit_failure_never_returns_success (__main__.G1Tests.test_26_deferred_commit_failure_never_returns_success) ... ok",
+    "test_27_response_validation_is_before_commit (__main__.G1Tests.test_27_response_validation_is_before_commit) ... ok",
+    "test_28_grant_expiry_is_checked_after_lock_wait (__main__.G1Tests.test_28_grant_expiry_is_checked_after_lock_wait) ... ok",
+    "test_29_real_logout_revokes_same_jwt (__main__.G1Tests.test_29_real_logout_revokes_same_jwt) ... ok",
+    "test_30_intake_pause_waits_for_committing_assignment (__main__.G1Tests.test_30_intake_pause_waits_for_committing_assignment) ... ok",
+    "test_31_no_queue_signal_and_no_self_transfer (__main__.G1Tests.test_31_no_queue_signal_and_no_self_transfer) ... ok",
+    "test_32_private_acl_no_global_grant_or_owner_role (__main__.G1Tests.test_32_private_acl_no_global_grant_or_owner_role) ... ok",
+    "test_33_external_i56_case_creation_wins_without_duplicate (__main__.G1Tests.test_33_external_i56_case_creation_wins_without_duplicate) ... ok",
+    "test_34_second_manager_without_b_grant_cannot_forward_b (__main__.G1Tests.test_34_second_manager_without_b_grant_cannot_forward_b) ... ok",
+    "test_35_case_exception_does_not_expose_other_store_or_team_cases (__main__.G1Tests.test_35_case_exception_does_not_expose_other_store_or_team_cases) ... ok",
+    "test_36_concurrent_same_key_creates_one_assignment_and_one_request (__main__.G1Tests.test_36_concurrent_same_key_creates_one_assignment_and_one_request) ... ok"
+  ],
+  "original_s1_sql_pass_markers": [
+    "PASS I54-01: leads and cycles without explicit human event are NOT a queue",
+    "PASS I54-02: S0 commercial status explicitly produces five durable minimal queue events",
+    "PASS I54-03: S0 auto-dispatch creates one real case/assignment, skips paused C1, CAS replay conflicts",
+    "PASS I54-04: real manual manager claim requires exact shop, creates canonical case and assignment",
+    "PASS I54-05: no eligible consultant => queue remains pending, no case/owner fabricated",
+    "PASS I54-06: resumed consultant can receive previously queued case once, CAS",
+    "PASS I54-07: no cross-store assignment; only own manager can claim own shop",
+    "PASS I54-08: append-only handoff audit, four unique owners, no authenticated direct SQL privilege",
+    "PASS I56-01: no explicit signal => no queue",
+    "PASS I56-02: external case reconciled and audited with CAS",
+    "PASS I56-03: legitimate I54 claim stays assigned, no false event",
+    "PASS I56-04: same-cycle second case rejected",
+    "PASS I56-05: all pending cycles of same lead reconciled",
+    "PASS I56-06: stale claim conflicts, trigger private",
+    "PASS I57-01: valid shop grant enables canonical assignment",
+    "PASS I57-02: cross-store assignment denied",
+    "PASS I57-03: A2 paused intake continues blocking new assignment",
+    "PASS I57-04: older assignment may be closed after grant expiry",
+    "PASS I57-05: SQL direct execution denied; failed writes did not mutate cases",
+    "PASS I58-01: authorized manager sees shared LIST gate and wins exact S0 CAS",
+    "PASS I58-02: authorized stale CAS remains conflict without duplicate",
+    "PASS I58-03: revoked grant denied BEFORE stale CAS and no tenant metadata leaked",
+    "PASS I58-04: cross-store manager fails signed LIST predicate",
+    "PASS I58-05: manager account suspension denies LIST even with store grant",
+    "PASS I58-06: denied operations preserve pending queue, ACL remains private",
+    "PASS I61-01: without exact exception default S0 no-grant denial remains",
+    "PASS I61-02: other manager cannot exercise case exception",
+    "PASS I61-03: A2 pause blocks even exceptional assignment",
+    "PASS I61-04: S0 canonical assignment now accepts exact case exception only",
+    "PASS I61-05: stale assignment cannot claim a second owner",
+    "PASS I61-06: only owning manager revokes and authorization stops without moving S0 case",
+    "PASS I61-07: private grants denied, event audit append-only",
+    "PASS I61-08: exception of previous case cannot authorize assignment of another case",
+    "PASS I61-09: assignment closure synchronously revokes exception and appends event"
+  ],
+  "files_sha256": {
+    ".github/workflows/exp-s0-g1-manual.yml": "dd123b06ef2726845a288bf3901124211388e371768e0af2a9c1e0e6d8cfe001",
+    "backend/s0_g1_manual_queue_local.py": "e3e363ed6873480c9ef4813b69027b9184f37717b3c411a40846d299aeae5357",
+    "backend/tests/test_s0_g1_manual_contract.py": "6410f740699edea2adb58510b38b42c58cc7d290a66eed90e734ea463b349b0b",
+    "integration/g1/equivalence_scan.json": "d336a4a4e23a557083412e7ef74dcbd6358eca698b2760fcdf814c9850d3b863",
+    "integration/g1/install_local.py": "c9a2134a9e675187283995e07af61445186cb8653df36e19428fa571bd7102a4",
+    "integration/g1/run_pinned_sql.py": "365008dc2dd6daa13f3685ebf955bc4453898e538ee17740ca5c60dd99686897",
+    "integration/g1/s1_sources.json": "f44a763ecffb350162bdc5bd6f3f6340d25df1a93057a220a72b91d343b1aa38",
+    "integration/g1/test_manual_handoff.py": "cd2c66d0b23c7903ed133dc1329423c863c6196057a3fffdc8fd7b8f19a50db4",
+    "integration/history/prepare_s1_profile.py": "dceb246a01416e96cc072c23536d88d427c0653523a88bea4337a334e6dc1255",
+    "supabase/tests/s0_g1_manual_queue_local_only.sql": "775216b383faa0e3958b784787f930d66a360251a9b0eb0c8cf97411dec6b6c2"
+  },
+  "limits": [
+    "G1 internal experimental adapter; S1 adoption/review pending",
+    "Private postgres-owned business bridge required by unchanged I57/I61 guards; hosted ownership gate not certified",
+    "No first contact, UI, CFI/F03 case-exception closure, commercial sending, sale or Meta activation",
+    "No guarantee of global lock ordering beyond exercised writers",
+    "Unchanged I61 SQL fixture requires no unrelated I61 records; it ran after G1 DDL and before G1 data",
+    "No real credentials, hosted migrations, merges or deployment"
+  ]
+}
