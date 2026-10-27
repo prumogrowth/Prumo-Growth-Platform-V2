@@ -42,6 +42,8 @@ def sample():
           "verifier_version":"pending-01","digest_sha256":getattr(e,k),
           "observed_at":t.isoformat(),
           "cutoff_at":(t+timedelta(minutes=10)).isoformat(),
+          "source_event_at":(closure_time-timedelta(days=3)).isoformat()
+                               if k=="f03_receipt_sha256" else None,
           "scope":dict(ids),"source_state":SOURCE_STATE}
     window=ReviewWindow(datetime(2026,11,10,19,tzinfo=timezone.utc),
                         datetime(2026,11,13,19,tzinfo=timezone.utc))
@@ -295,6 +297,56 @@ class ProofBindingTests(unittest.TestCase):
                       if not isinstance(invalid,ReviewWindow)
                       else ProofBindingGate.WINDOW_RECHECK_REQUIRED)
             self.assertIs(result(e,p,invalid,q),expected)
+
+    def test_35_historical_F03_event_before_closure_allowed_only_as_claim(self):
+        e,p,w,q=sample()
+        f=q["proofs"]["f03_receipt_sha256"]
+        self.assertLess(datetime.fromisoformat(f["source_event_at"]),
+                        datetime.fromisoformat(q["closure_at"]))
+        self.assertIs(result(e,p,w,q),ProofBindingGate.CANDIDATE_CONSISTENT_NOT_ATTESTED)
+
+    def test_36_source_event_later_than_inspection_denied(self):
+        e,p,w,q=sample()
+        self.assertIs(result(e,p,w,alter(q,"f03_receipt_sha256",
+                      source_event_at="2026-11-08T12:00:00+00:00")),
+                      ProofBindingGate.TEMPORAL_RECHECK_REQUIRED)
+
+    def test_37_naive_or_invalid_source_event_denied(self):
+        e,p,w,q=sample()
+        for bad in ("2026-10-31T10:00:00","2026-10-31",True,{},17):
+            self.assertIs(result(e,p,w,alter(q,"f03_receipt_sha256",
+                          source_event_at=bad)),ProofBindingGate.TEMPORAL_RECHECK_REQUIRED)
+
+    def test_38_null_unknown_event_does_not_assert_attestation(self):
+        e,p,w,q=sample()
+        self.assertIs(result(e,p,w,alter(q,"f03_receipt_sha256",
+                      source_event_at=None)),ProofBindingGate.CANDIDATE_CONSISTENT_NOT_ATTESTED)
+
+    def test_39_source_event_field_cannot_be_removed(self):
+        e,p,w,q=sample()
+        f="f03_receipt_sha256";src=dict(q["proofs"][f]);src.pop("source_event_at")
+        self.assertIs(result(e,p,w,dict(q,proofs=dict(q["proofs"],**{f:src}))),
+                      ProofBindingGate.SOURCE_CONTRACT_RECHECK_REQUIRED)
+
+    def test_40_offset_equivalent_history_event_keeps_review_only(self):
+        e,p,w,q=sample()
+        value=datetime.fromisoformat(q["proofs"]["f03_receipt_sha256"]["source_event_at"])
+        other=value.astimezone(timezone(timedelta(hours=-3))).isoformat()
+        self.assertIs(result(e,p,w,alter(q,"f03_receipt_sha256",
+                      source_event_at=other)),ProofBindingGate.CANDIDATE_CONSISTENT_NOT_ATTESTED)
+
+    def test_41_original_event_time_not_in_unsigned_handoff_digest(self):
+        e,p,w,q=sample()
+        value=prepare_handoff(e,p).untrusted_request_sha256
+        changed=alter(q,"f03_receipt_sha256",
+                      source_event_at="2026-10-01T00:00:00+00:00")
+        self.assertEqual(changed["handoff_sha256"],value)
+        self.assertIs(result(e,p,w,changed),ProofBindingGate.CANDIDATE_CONSISTENT_NOT_ATTESTED)
+
+    def test_42_event_self_approval_extra_flag_rejected(self):
+        e,p,w,q=sample()
+        self.assertIs(result(e,p,w,alter(q,"human_intent_sha256",
+                      event_authorized=True)),ProofBindingGate.SOURCE_CONTRACT_RECHECK_REQUIRED)
 
 if __name__=="__main__":
     unittest.main()

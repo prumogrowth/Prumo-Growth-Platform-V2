@@ -48,7 +48,7 @@ _PACKET_KEYS = frozenset((
 _PROOF_KEYS = frozenset((
     "producer", "symbol", "source_ref", "source_revision",
     "canonicalization_version", "verifier_version", "digest_sha256",
-    "observed_at", "cutoff_at", "scope", "source_state",
+    "observed_at", "cutoff_at", "source_event_at", "scope", "source_state",
 ))
 _SCOPE_KEYS = frozenset(("shop_id", "lead_id", "case_id", "closure_id"))
 _HEX = re.compile(r"[0-9a-f]{64}\Z", re.ASCII)
@@ -189,8 +189,14 @@ def inspect_claimed_proof_binding(
             or not compare_digest(digest, getattr(evidence, field))):
             return out(ProofBindingGate.DIGEST_RECHECK_REQUIRED)
         seen, cutoff = _time(p["observed_at"]), _time(p["cutoff_at"])
-        if (seen is None or cutoff is None or not
-            (closure <= seen <= cutoff <= proposed)):
+        # Original F03 messages may predate closure. Their event time is
+        # distinct from the claimed post-closure inspection/cutoff times.
+        source_time = p["source_event_at"]
+        original = None if source_time is None else _time(source_time)
+        if (seen is None or cutoff is None
+            or (source_time is not None and original is None)
+            or not (closure <= seen <= cutoff <= proposed)
+            or (original is not None and original > seen)):
             return out(ProofBindingGate.TEMPORAL_RECHECK_REQUIRED)
 
     return out(ProofBindingGate.CANDIDATE_CONSISTENT_NOT_ATTESTED)

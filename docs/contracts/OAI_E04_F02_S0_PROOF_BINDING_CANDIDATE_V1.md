@@ -39,3 +39,7 @@ A S0 mantém as decisões G01–G07 e futura implementação de verificação de
 O SHA do handoff F02 não inclui o prazo do pedido, mas o registro físico S0 exige um documento integral que inclui os dois instantes de `ReviewWindow`. O formato candidato da F02 agora exige `review_window.requested_at/expires_at` e confere igualdade UTC com o objeto `window` recebido independentemente. Isso reduz troca acidental do contexto temporal sem alegar autenticação, HMAC ou TTL de negócio. Ver `docs/OAI_E04_F01_F02_F03_S0_AUDITORIA_CONTRATOS_20261027.md`.
 
 `observed_at` candidato é horário de **inspeção alegado**: não equivale a data de criação da mensagem F03 (possivelmente anterior ao fechamento). A ordenação antiga continua somente um pressuposto de laboratório; S0/F03 deverão definir a semântica canônica antes da integração real.
+
+## A29 — Instante original e instante de inspeção
+
+O envelope candidato agora inclui `proofs[field].source_event_at`: instante da ocorrência original declarado, com fuso, ou `null` quando desconhecido. O campo não substitui `observed_at` (inspeção de prova alegada). A verificação permite fonte histórica F03 anterior ao fechamento, mas nega evento futuro em relação à inspeção. Nenhum campo concede autoridade; a S0 ainda precisa revalidar a origem. Ver `docs/OAI_E04_F02_A29_EVENTO_HISTORICO_VS_INSPECAO_20261027.md`.

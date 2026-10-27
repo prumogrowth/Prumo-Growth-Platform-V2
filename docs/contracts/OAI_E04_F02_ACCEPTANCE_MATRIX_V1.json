@@ -359,6 +359,23 @@
         "backend/tests/test_f02_s0_proof_binding_candidate.py::test_34_invalid_window_object_or_naive_datetime"
       ],
       "gate": "G01-G06 only partially attended, G07 pending. No S0 source attestation, hosted SQL, Meta transport, human ratification or production approval"
+    },
+    {
+      "id": "F02-A29",
+      "area": "OpenAI F02/F03",
+      "behavior": "Candidate proof reference distinguishes optional historical source event time from later claimed inspection; F03 preclosure history supported without treating SHA or timestamps as S0 authenticated proof",
+      "status": "LAB_VERIFIED",
+      "tests": [
+        "backend/tests/test_f02_s0_proof_binding_candidate.py::test_35_historical_F03_event_before_closure_allowed_only_as_claim",
+        "backend/tests/test_f02_s0_proof_binding_candidate.py::test_36_source_event_later_than_inspection_denied",
+        "backend/tests/test_f02_s0_proof_binding_candidate.py::test_37_naive_or_invalid_source_event_denied",
+        "backend/tests/test_f02_s0_proof_binding_candidate.py::test_38_null_unknown_event_does_not_assert_attestation",
+        "backend/tests/test_f02_s0_proof_binding_candidate.py::test_39_source_event_field_cannot_be_removed",
+        "backend/tests/test_f02_s0_proof_binding_candidate.py::test_40_offset_equivalent_history_event_keeps_review_only",
+        "backend/tests/test_f02_s0_proof_binding_candidate.py::test_41_original_event_time_not_in_unsigned_handoff_digest",
+        "backend/tests/test_f02_s0_proof_binding_candidate.py::test_42_event_self_approval_extra_flag_rejected"
+      ],
+      "gate": "G03 source authenticity and canonical event time semantics remain pending S0-owned contracts; candidate does not enable approval or dispatch"
     }
   ],
   "non_authorizing_positive_states": [
@@ -521,5 +538,12 @@
     "source_s0_sha": "88af4aea3aeb2c403bab4c078fdc04d560f2cba0",
     "source_s2_sha": "ebf6fe4e546f2fe990bdaefe2df25aa0cf18e74c",
     "window_bound_in_f02_candidate": true
+  },
+  "f02_event_time_A29": {
+    "code": "backend/f02_s0_proof_binding_candidate.py",
+    "tests": "backend/tests/test_f02_s0_proof_binding_candidate.py",
+    "document": "docs/OAI_E04_F02_A29_EVENTO_HISTORICO_VS_INSPECAO_20261027.md",
+    "s0_edited": false,
+    "source_authenticated": false
   }
 }
