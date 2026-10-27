@@ -263,6 +263,21 @@
         "backend/tests/test_f02_s0_review_followup_candidate.py::test_24_pinned_s0_candidate_states_all_classified_exhaustively"
       ],
       "gate": "Codex S0 must ratify endpoint, principal/binding and authorized lookup. Classification never invokes S0 nor ratifies F03/C08/Meta, S1 manager or commercial permissions"
+    },
+    {
+      "id": "F02-A23",
+      "area": "F02/S0",
+      "behavior": "Bound read-only bridge recomputes the full original unsigned F02 handoff from current claimed evidence and proposal before classifying candidate S0 projection or negative reply; preserves voluntary S0 expiry distinct from F02 48h test TTL",
+      "status": "LAB_VERIFIED",
+      "tests": [
+        "backend/tests/test_f02_s0_review_bound_bridge_candidate.py::test_04_evidence_witness_changed_cannot_reuse_packet",
+        "backend/tests/test_f02_s0_review_bound_bridge_candidate.py::test_06_changed_channel_template_version_policy_rejected",
+        "backend/tests/test_f02_s0_review_bound_bridge_candidate.py::test_09_forged_fresh_handoff_but_old_projection_rejected",
+        "backend/tests/test_f02_s0_review_bound_bridge_candidate.py::test_16_conflicting_s0_result_requires_manual_review",
+        "backend/tests/test_f02_s0_review_bound_bridge_candidate.py::test_20_well_formed_long_voluntary_s0_window_not_forced_to_48h",
+        "backend/tests/test_f02_s0_review_bound_bridge_candidate.py::test_24_tampered_handoff_proposal_recomputed_even_on_negative_result"
+      ],
+      "gate": "Non-authorizing lab consistency only; S0 must ratify an authenticated lookup and real F03/C08/S1/Meta evidence before any commercial decision"
     }
   ],
   "non_authorizing_positive_states": [
@@ -355,5 +370,15 @@
     "retry_automatic": false,
     "send_authorized": false,
     "operational_ratification": false
+  },
+  "s0_review_bound_followup_candidate": {
+    "source_s0_schema": "prumo.s0.f02.review.result/0.1-candidate",
+    "function": "backend.f02_s0_review_followup_candidate.classify_bound_s0_review_followup",
+    "tests": "backend/tests/test_f02_s0_review_bound_bridge_candidate.py",
+    "documentation": "docs/contracts/OAI_E04_F02_S0_BOUND_FOLLOWUP_BRIDGE_V1.md",
+    "untrusted_inputs": true,
+    "transport_authenticated": false,
+    "ratification": false,
+    "send": false
   }
 }

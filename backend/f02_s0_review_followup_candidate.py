@@ -7,9 +7,13 @@ non-executable guidance for a future S0-authenticated workflow.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from hmac import compare_digest
 from enum import Enum
 
-from backend.f02_reconciled_human_authorization_handoff import HandoffResult
+from backend.f02_reconciled_human_authorization_handoff import (
+    ClaimedS0Evidence, HandoffResult, HandoffState, ReviewOnlyProposal,
+    prepare_handoff,
+)
 from backend.f02_reconciled_review_lifecycle import ReviewWindow
 from backend.f02_s0_review_projection_candidate import (
     ProjectionGate, inspect_s0_review_projection,
@@ -80,4 +84,47 @@ def classify_s0_review_followup(
     return FollowupResult(
         code if code is not None
         else FollowupState.BLOCK_AND_RECHECK_CONTRACT_ONLY
+    )
+
+
+def classify_bound_s0_review_followup(
+    evidence: ClaimedS0Evidence,
+    proposal: ReviewOnlyProposal,
+    handoff: HandoffResult,
+    window: ReviewWindow,
+    projection: dict,
+    *,
+    previous: dict | None = None,
+) -> FollowupResult:
+    """Prefer this full-claim binding over the legacy projection-only path.
+
+    Rebuilds the exact unsigned F02 request from the currently supplied
+    evidence and proposal BEFORE interpreting any supplied S0 result.
+    This prevents accidental acceptance of a stale/substituted proposal
+    with a merely well-formed but unrelated handoff SHA256.
+
+    This does NOT authenticate evidence, S0 projection, principal or session,
+    nor does it perform lookup, ratification, persistence, retry, dispatch,
+    plan creation or any other operational action. The S0 review-request
+    expiry is voluntary and NOT the 48h synthetic F02 lifecycle policy.
+    """
+    blocked = FollowupResult(FollowupState.BLOCK_AND_RECHECK_CONTRACT_ONLY)
+    if (type(evidence) is not ClaimedS0Evidence
+        or type(proposal) is not ReviewOnlyProposal
+        or type(handoff) is not HandoffResult
+        or type(window) is not ReviewWindow
+        or type(projection) is not dict
+        or (previous is not None and type(previous) is not dict)):
+        return blocked
+    expected = prepare_handoff(evidence, proposal)
+    if (expected.status is not HandoffState.HANDOFF_REVIEW_ONLY
+        or handoff.status is not HandoffState.HANDOFF_REVIEW_ONLY
+        or handoff.contract_version != expected.contract_version
+        or type(expected.untrusted_request_sha256) is not str
+        or type(handoff.untrusted_request_sha256) is not str
+        or not compare_digest(expected.untrusted_request_sha256,
+                              handoff.untrusted_request_sha256)):
+        return blocked
+    return classify_s0_review_followup(
+        projection, handoff, window, previous=previous
     )
