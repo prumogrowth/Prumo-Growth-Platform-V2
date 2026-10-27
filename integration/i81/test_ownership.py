@@ -14,6 +14,7 @@ from uuid import uuid4
 import psycopg
 from psycopg import sql
 
+from backend.s0_cfi01_communication_local import S0CFI01CommunicationLocal
 from integration.i80.test_regularization import I80Tests
 from scripts.test_s0_cfi01_auth_rest_local import request,register
 
@@ -51,7 +52,8 @@ class OwnershipTests(I80Tests):
                     where (roleid=(select oid from pg_roles where rolname=%s)
                       and not(member='postgres'::regrole and admin_option and not inherit_option and not set_option))
                     or member=(select oid from pg_roles where rolname=%s)''',(role,role)).fetchone()[0],0)
-                self.assertFalse(c.execute("select has_schema_privilege(%s,'prumo_private','CREATE')",(role,)).fetchone()[0])
+                for schema in ('public','prumo_private'):
+                    self.assertFalse(c.execute("select has_schema_privilege(%s,%s,'CREATE')",(role,schema)).fetchone()[0])
                 self.assertEqual(c.execute('select count(*) from pg_class where relowner=(select oid from pg_roles where rolname=%s)',(role,)).fetchone()[0],0)
                 self.deny_app('set role '+role)
             self.deny_app('set role '+OUTER)
@@ -133,7 +135,17 @@ class OwnershipTests(I80Tests):
         with self.as_installer_probe(DOMAIN) as c:
             c.execute('reset role')
             c.execute('grant execute on function prumo_private.s1_prova_excecao_i61(uuid,uuid,uuid,uuid) to '+DOMAIN)
+            # Also make the proof's store row readable in this reverted probe:
+            # false must come from executor identity, not a hidden RLS row.
+            c.execute('grant select(id,ativo) on public.concessionarias to '+DOMAIN)
+            c.execute('create policy i81_probe_store on public.concessionarias for select to '+DOMAIN+' using(true)')
             c.execute('set local role '+DOMAIN)
+            self.assertTrue(c.execute('''select exists(select 1 from prumo_private.s1_excecoes_caso_i61 x
+                join public.equipe_prumo_s1 e on e.ator_id=x.operador_id and e.estado='ativo'
+                join public.equipe_prumo_s1 g on g.ator_id=x.gestor_id and g.estado='ativo'
+                join prumo_private.s1_gestor_operadores rel on rel.gestor_id=x.gestor_id and rel.operador_id=x.operador_id and rel.encerrado_em is null
+                join public.concessionarias l on l.id=x.concessionaria_id and l.ativo
+                where x.id=%s and x.revogada_em is null)''',(case['exception_id'],)).fetchone()[0])
             self.assertFalse(c.execute('select prumo_private.s1_prova_excecao_i61(%s,%s,%s,%s)',
                 (self.shops['A'],case['case_id'],case['assignment_id'],self.people['c2'][0])).fetchone()[0])
 
@@ -233,6 +245,31 @@ class OwnershipTests(I80Tests):
             self.assertEqual(pending.result(timeout=10).state,'DENIED')
         with psycopg.connect(self.db) as c:
             self.assertEqual(c.execute('select count(*) from public.equipe_prumo_s1 where ator_id=%s',(target,)).fetchone()[0],0)
+
+    def test_i81_14_cfi_capture_recheck_and_revocation_after_restricted_admission(self):
+        # c1 was REGISTERed/ACTIVATEd via real GoTrue under the NEW domain owner
+        # during this class bootstrap. G1 supplies its actual canonical case.
+        receipt=self.assigned(target='c1')
+        with psycopg.connect(self.db) as c:
+            channel=c.execute('insert into public.canais_loja(concessionaria_id,identificador_emissor) values (%s,%s) returning id',
+                (self.shops['A'],'i81-'+uuid4().hex)).fetchone()[0]
+            conversation=c.execute('insert into public.conversas(concessionaria_id,lead_id,canal_id,caso_id) values (%s,%s,%s,%s) returning id',
+                (self.shops['A'],self.items['A'][0],channel,receipt['case_id'])).fetchone()[0]
+            c.execute("insert into public.mensagens(concessionaria_id,conversa_id,canal_id,caso_id,direcao,conteudo_sintetico,id_externo) values (%s,%s,%s,%s,'entrada','I81 disposable context',%s)",
+                (self.shops['A'],conversation,channel,receipt['case_id'],'i81-'+uuid4().hex))
+            cycle_version,status=c.execute('select versao_registro,status_comercial from public.ciclos_comerciais where id=%s',(self.items['A'][1],)).fetchone()
+        adapter=S0CFI01CommunicationLocal(self.gateway)
+        capture=adapter.capture('Bearer '+self.tokens['c1'],{'case_ref':receipt['case_id'],'expected_cycle_version':cycle_version,'idempotency_key':'i81-cfi-'+uuid4().hex})
+        self.assertEqual(capture.state,'VERIFIED_CONTRACT_PENDING')
+        self.assertFalse(capture.public_projection()['confirmed_persisted'])
+        self.assertEqual(adapter.recheck('Bearer '+self.tokens['c1'],capture.binding).state,'VERIFIED_CONTRACT_PENDING')
+        self.assertEqual(adapter.recheck('Bearer '+self.tokens['c3'],capture.binding).state,'DENIED')
+        with psycopg.connect(self.db) as c:
+            c.execute('update public.vinculos_papel_escopo set valido_ate=clock_timestamp() where ator_id=%s and concessionaria_id=%s',
+                (self.people['c1'][0],self.shops['A']))
+        self.assertEqual(adapter.recheck('Bearer '+self.tokens['c1'],capture.binding).state,'DENIED')
+        with psycopg.connect(self.db) as c:
+            self.assertEqual(c.execute('select status_comercial from public.ciclos_comerciais where id=%s',(self.items['A'][1],)).fetchone()[0],status)
 
 
 if __name__=='__main__':

@@ -26,8 +26,8 @@ begin
   from pg_proc where oid=to_regprocedure(x.signature);
   if not found or p.owner<>'postgres' or p.prosecdef<>x.is_definer
    or encode(sha256(convert_to(p.prosrc,'UTF8')),'hex')<>x.digest
-   or p.proconfig is distinct from case when x.signature like 'prumo_private.s1_i80_%'
-       then array['search_path=""','TimeZone=UTC'] else array['search_path=""'] end
+   or p.proconfig is distinct from (case when x.signature like 'prumo_private.s1_i80_%'
+       then array['search_path=""','TimeZone=UTC'] else array['search_path=""'] end)
   then raise exception 'I81_PREREQUISITE_DRIFT: %',x.signature using errcode='42501';end if;
  end loop;
  -- A bridge with an unexpected EXECUTE grantee must not be re-owned under
