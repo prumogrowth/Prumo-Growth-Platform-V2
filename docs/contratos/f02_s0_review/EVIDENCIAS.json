@@ -1,0 +1,330 @@
+{
+  "schema": "prumo.s0.f02.review.evidence/0.1-candidate",
+  "as_of": "2026-10-26",
+  "timezone": "America/Sao_Paulo",
+  "branch": "exp/s0-f02-revisao-autoritativa-20261026",
+  "base": {
+    "pr": 16,
+    "sha": "b298252c26c69f668b3c3fdb86e9252faff9e44b",
+    "certified_code": "8be6e194bfb5b8694c1010ff8560c8ec19ed4fd8",
+    "run": 40405271785,
+    "conclusion_rechecked": "success"
+  },
+  "sources": {
+    "f02_pr1": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+    "f02_certification_run": 40362538933,
+    "f02_source_run_conclusion_rechecked": "success",
+    "pr12": "e3bf423a8fbf2064e536c416364c8cc318f1998a",
+    "pr13": "c79020f16f9ed36dcc00257e7e8aa133b5739867",
+    "pr14": "31bb84fa524f4ecfdf02360988471d7f989506d7",
+    "s1_profile": "d3e9f0a053e16d90190696dd59cec6d77b7f1e73"
+  },
+  "final_ci": {
+    "run_id": 40414847271,
+    "job_id": 121894443928,
+    "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40414847271",
+    "sha": "4a3d248d46fad5c195398324b3ee98ae6236365f",
+    "conclusion": "success",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1
+      },
+      {
+        "name": "Run actions/checkout@v4",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2
+      },
+      {
+        "name": "Run actions/setup-node@v4",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3
+      },
+      {
+        "name": "Preserve all 173 S0 tests plus pinned F02 contracts and S0 review compatibility",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 4
+      },
+      {
+        "name": "Run supabase/setup-cli@v3",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 5
+      },
+      {
+        "name": "Fixed driver and CLI",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 6
+      },
+      {
+        "name": "Start only new unlinked disposable PG17 GoTrue PostgREST",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 7
+      },
+      {
+        "name": "Existing Auth REST RLS and original CFI regressions",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 8
+      },
+      {
+        "name": "Reproduce actual logout gap then test history session barrier",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 9
+      },
+      {
+        "name": "All 32 certified CFI plus 24 actual GoTrue F02 registry scenarios",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 10
+      },
+      {
+        "name": "Read pinned current S1 in detached checkout without branch writes",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 11
+      },
+      {
+        "name": "Verify pinned sources and materialize only in disposable database",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 12
+      },
+      {
+        "name": "Same real history suite with full S1 extensions and original I63 candidate",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 13
+      },
+      {
+        "name": "Remove disposable stack even on failure",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 14
+      },
+      {
+        "name": "Post Read pinned current S1 in detached checkout without branch writes",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 25
+      },
+      {
+        "name": "Post Run supabase/setup-cli@v3",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 26
+      },
+      {
+        "name": "Post Run actions/setup-node@v4",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 27
+      },
+      {
+        "name": "Post Run actions/checkout@v4",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 28
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 29
+      }
+    ],
+    "unit_tests": {
+      "total": 264,
+      "preserved_s0": 173,
+      "reused_original_f02": 83,
+      "new_s0_compatibility": 8
+    },
+    "auth_rest_families": 18,
+    "original_cfi_scenarios": 10,
+    "combined_actual_gotrue_pg17_cases": 56,
+    "preserved_cfi_cases": 32,
+    "new_review_registry_cases": 24,
+    "history_s0_cases": 19,
+    "history_i63_cases": 19,
+    "s1_original_sources_verified": 22,
+    "cleanup_verified": true,
+    "log_excerpt": [
+      "Ran 264 tests in 0.668s",
+      "PASS AUTH-01: GoTrue login e REST/RLS gestoras A e B isoladas com cliente comum",
+      "PASS AUTH-02: operador designado somente caso A; usuario sem vinculo bloqueado",
+      "PASS AUTH-07: pendencia C02 legivel apenas pela gestora da loja A",
+      "PASS AUTH-08: recontatos 4 tabelas, RLS gestor A/B e negativa OP/anon/POST",
+      "PASS AUTH-10: C04 RLS gestor A/B, OP/anon negados e sem escrita REST",
+      "PASS AUTH-11: C07 callback/pendencias/vinculos/auditoria RLS A/B e POST negado",
+      "PASS AUTH-03: anon sem SELECT",
+      "PASS AUTH-04: insert sintético designado autorizado, escrita interloja e em leads negadas",
+      "PASS AUTH-05: remanejamento revoga leitura/escrita sem reemitir JWT",
+      "PASS AUTH-06: revogacao do vinculo do gestor prevalece sobre JWT ainda valido",
+      "PASS AUTH-09: revogacao do gestor remove leitura de todos recontatos com JWT existente",
+      "PASS AUTH-14: senha SQL isolada nao chama wrappers legadas ou sem HMAC",
+      "PASS AUTH-13: papel SQL restrito, vinculo sessao/gestor, RLS e auditoria atomica",
+      "PASS AUTH-13-REVOKE: sessao revogada impede uso de role restrito",
+      "PASS AUTH-12: GoTrue->sessao viva->funcao privada, ator autenticado e escopo/expiracao",
+      "PASS AUTH-15: 028-034 tabelas RLS, FKs/guardas C02 e funcoes privadas sem grants",
+      "PASS AUTH-16: nenhuma tabela privada ou RPC C02/lease exposta ao REST",
+      "PASS AUTH-17: Supabase managed admite owner assinado restrito sem REST publico",
+      "PASS AUTH-18: inventario completo ACL de funcoes privadas e search_path seguro",
+      "PASS CFI01-AUTH-01 real GoTrue bearer + S0/S1 PG17 capture",
+      "PASS CFI01-AUTH-02 verified real token on separate post-F03 recheck",
+      "PASS CFI01-AUTH-09 GoTrue-backed internal receipt matches S0 metadata",
+      "PASS CFI01-AUTH-10 real S0 receipt bridge remains contract-pending",
+      "PASS CFI01-AUTH-03 authenticated outside operator blocked from case",
+      "PASS CFI01-AUTH-04 invalid signature rejected by real GoTrue",
+      "PASS CFI01-AUTH-05 team suspension revokes review with same GoTrue JWT",
+      "PASS CFI01-AUTH-06 changed conversation invalidates F03 review",
+      "PASS CFI01-AUTH-07 GoTrue session deletion revokes review",
+      "PASS CFI01-AUTH-08 exactly one technical receipt and no sale/bank state",
+      "HISTORY-GAP-REAL: unexpired real GoTrue token still reads after logout, before barrier",
+      "HISTORY-FIX-REAL: same logged-out token denied; existing ACL/policies/CFI helpers intact",
+      "HISTORY-S0: 19 scenarios passed; real GoTrue/PostgREST/PG17",
+      "Ran 19 tests in 18.123s",
+      "Ran 56 tests in 30.099s",
+      "HISTORY-I63-SOURCES: 22 pinned original files verified and installed in loopback disposable DB",
+      "HISTORY-I63: 19 scenarios passed; real GoTrue/PostgREST/PG17",
+      "Ran 19 tests in 18.535s",
+      "Stopped supabase local development setup.",
+      "test_01_authorized_capture_recheck_and_no_commercial_effect (__main__.F02ReviewTests.test_01_authorized_capture_recheck_and_no_commercial_effect) ... ok",
+      "test_02_concurrent_same_key_one_technical_receipt (__main__.F02ReviewTests.test_02_concurrent_same_key_one_technical_receipt) ... ok",
+      "test_03_invalid_jwt_signature_rejected_by_real_gotrue (__main__.F02ReviewTests.test_03_invalid_jwt_signature_rejected_by_real_gotrue) ... ok",
+      "test_04_real_logout_revokes_session_before_recheck (__main__.F02ReviewTests.test_04_real_logout_revokes_session_before_recheck) ... ok",
+      "test_05_live_shop_grant_revocation_denies_same_jwt (__main__.F02ReviewTests.test_05_live_shop_grant_revocation_denies_same_jwt) ... ok",
+      "test_06_s1_team_suspension_denies_same_jwt (__main__.F02ReviewTests.test_06_s1_team_suspension_denies_same_jwt) ... ok",
+      "test_07_stale_cycle_blocks_capture_and_later_recheck (__main__.F02ReviewTests.test_07_stale_cycle_blocks_capture_and_later_recheck) ... ok",
+      "test_08_new_committed_message_invalidates_bound_snapshot (__main__.F02ReviewTests.test_08_new_committed_message_invalidates_bound_snapshot) ... ok",
+      "test_09_revoked_authority_takes_precedence_over_staleness (__main__.F02ReviewTests.test_09_revoked_authority_takes_precedence_over_staleness) ... ok",
+      "test_10_recheck_waits_for_grant_revocation_commit (__main__.F02ReviewTests.test_10_recheck_waits_for_grant_revocation_commit) ... ok",
+      "test_11_recheck_waits_for_inbound_commit_and_returns_stale (__main__.F02ReviewTests.test_11_recheck_waits_for_inbound_commit_and_returns_stale) ... ok",
+      "test_12_failed_receipt_insert_rolls_back_nonce_and_retry_is_safe (__main__.F02ReviewTests.test_12_failed_receipt_insert_rolls_back_nonce_and_retry_is_safe) ... ok",
+      "test_13_authenticated_other_user_cannot_capture_case (__main__.F02ReviewTests.test_13_authenticated_other_user_cannot_capture_case) ... ok",
+      "test_14_forged_binding_and_pending_ui_intent_never_gain_authority (__main__.F02ReviewTests.test_14_forged_binding_and_pending_ui_intent_never_gain_authority) ... ok",
+      "test_15_application_has_only_atomic_entry_no_table_or_owner_role (__main__.F02ReviewTests.test_15_application_has_only_atomic_entry_no_table_or_owner_role) ... ok",
+      "test_16_lock_owner_cannot_update_domain_or_secrets (__main__.F02ReviewTests.test_16_lock_owner_cannot_update_domain_or_secrets) ... ok",
+      "test_17_capture_and_recheck_are_audited_with_distinct_nonces (__main__.F02ReviewTests.test_17_capture_and_recheck_are_audited_with_distinct_nonces) ... ok",
+      "test_18_audit_failure_rolls_back_receipt_nonce_and_retry (__main__.F02ReviewTests.test_18_audit_failure_rolls_back_receipt_nonce_and_retry) ... ok",
+      "test_19_expired_live_session_denies_already_signed_command (__main__.F02ReviewTests.test_19_expired_live_session_denies_already_signed_command) ... ok",
+      "test_20_revoked_key_denies_valid_proof_and_published_key_is_disabled (__main__.F02ReviewTests.test_20_revoked_key_denies_valid_proof_and_published_key_is_disabled) ... ok",
+      "test_21_replay_rolls_back_without_second_audit (__main__.F02ReviewTests.test_21_replay_rolls_back_without_second_audit) ... ok",
+      "test_22_logout_waits_for_inflight_transaction_then_revokes (__main__.F02ReviewTests.test_22_logout_waits_for_inflight_transaction_then_revokes) ... ok",
+      "test_23_key_revocation_waits_for_command_commit (__main__.F02ReviewTests.test_23_key_revocation_waits_for_command_commit) ... ok",
+      "test_24_receipt_and_audit_are_immutable_even_for_installer (__main__.F02ReviewTests.test_24_receipt_and_audit_are_immutable_even_for_installer) ... ok",
+      "test_25_malformed_sql_result_rolls_back_before_commit (__main__.F02ReviewTests.test_25_malformed_sql_result_rolls_back_before_commit) ... ok",
+      "test_26_same_operator_two_stores_audit_uses_database_scope (__main__.F02ReviewTests.test_26_same_operator_two_stores_audit_uses_database_scope) ... ok",
+      "test_27_session_expiry_update_waits_for_inflight_command (__main__.F02ReviewTests.test_27_session_expiry_update_waits_for_inflight_command) ... ok",
+      "test_28_owner_has_only_required_column_grants (__main__.F02ReviewTests.test_28_owner_has_only_required_column_grants) ... ok",
+      "test_29_every_nonrequest_receipt_dimension_rolls_back_when_mismatched (__main__.F02ReviewTests.test_29_every_nonrequest_receipt_dimension_rolls_back_when_mismatched) ... ok",
+      "test_30_raw_internal_recheck_control_vs_complete_expected_binding (__main__.F02ReviewTests.test_30_raw_internal_recheck_control_vs_complete_expected_binding) ... ok",
+      "test_31_caller_payload_mutation_cannot_change_returned_capture_key (__main__.F02ReviewTests.test_31_caller_payload_mutation_cannot_change_returned_capture_key) ... ok",
+      "test_32_concurrent_matching_and_mismatched_rechecks_only_one_commits (__main__.F02ReviewTests.test_32_concurrent_matching_and_mismatched_rechecks_only_one_commits) ... ok",
+      "test_33_intake_is_durable_but_claimed_witnesses_never_gain_authority (__main__.F02ReviewTests.test_33_intake_is_durable_but_claimed_witnesses_never_gain_authority) ... ok",
+      "test_34_new_broker_recovers_server_withdrawal_without_client_timeline (__main__.F02ReviewTests.test_34_new_broker_recovers_server_withdrawal_without_client_timeline) ... ok",
+      "test_35_exact_replay_keeps_request_and_immutable_deadline (__main__.F02ReviewTests.test_35_exact_replay_keeps_request_and_immutable_deadline) ... ok",
+      "test_36_payload_or_deadline_change_conflicts_without_any_committed_nonce (__main__.F02ReviewTests.test_36_payload_or_deadline_change_conflicts_without_any_committed_nonce) ... ok",
+      "test_37_two_actual_connections_one_request_under_same_key (__main__.F02ReviewTests.test_37_two_actual_connections_one_request_under_same_key) ... ok",
+      "test_38_real_logout_revokes_request_read_and_replay (__main__.F02ReviewTests.test_38_real_logout_revokes_request_read_and_replay) ... ok",
+      "test_39_revoked_store_permission_blocks_intake (__main__.F02ReviewTests.test_39_revoked_store_permission_blocks_intake) ... ok",
+      "test_40_changed_physical_version_blocks_intake (__main__.F02ReviewTests.test_40_changed_physical_version_blocks_intake) ... ok",
+      "test_41_new_messages_block_intake (__main__.F02ReviewTests.test_41_new_messages_block_intake) ... ok",
+      "test_42_sql_password_or_old_cfi_mac_cannot_sign_a_review_document (__main__.F02ReviewTests.test_42_sql_password_or_old_cfi_mac_cannot_sign_a_review_document) ... ok",
+      "test_43_nonce_replay_denied_without_second_review_audit (__main__.F02ReviewTests.test_43_nonce_replay_denied_without_second_review_audit) ... ok",
+      "test_44_review_audit_failure_rolls_back_cfi_nonce_audit_and_request (__main__.F02ReviewTests.test_44_review_audit_failure_rolls_back_cfi_nonce_audit_and_request) ... ok",
+      "test_45_pr13_full_receipt_comparison_still_precedes_commit (__main__.F02ReviewTests.test_45_pr13_full_receipt_comparison_still_precedes_commit) ... ok",
+      "test_46_server_clock_rejects_already_expired_request (__main__.F02ReviewTests.test_46_server_clock_rejects_already_expired_request) ... ok",
+      "test_47_expiry_is_terminal_and_replay_cannot_extend_deadline (__main__.F02ReviewTests.test_47_expiry_is_terminal_and_replay_cannot_extend_deadline) ... ok",
+      "test_48_future_persisted_clock_fault_cannot_reopen_or_append_history (__main__.F02ReviewTests.test_48_future_persisted_clock_fault_cannot_reopen_or_append_history) ... ok",
+      "test_49_private_scope_acl_and_original_cfi_definition_preserved (__main__.F02ReviewTests.test_49_private_scope_acl_and_original_cfi_definition_preserved) ... ok",
+      "test_50_live_session_expiry_waits_for_whole_registry_transaction (__main__.F02ReviewTests.test_50_live_session_expiry_waits_for_whole_registry_transaction) ... ok",
+      "test_51_claimed_lead_and_channel_must_match_actual_locked_case (__main__.F02ReviewTests.test_51_claimed_lead_and_channel_must_match_actual_locked_case) ... ok",
+      "test_52_withdraw_read_race_has_one_terminal_state_no_reactivation (__main__.F02ReviewTests.test_52_withdraw_read_race_has_one_terminal_state_no_reactivation) ... ok",
+      "test_53_future_cursor_cannot_claim_complete_recovery (__main__.F02ReviewTests.test_53_future_cursor_cannot_claim_complete_recovery) ... ok",
+      "test_54_request_scope_and_audit_cannot_be_deleted_or_rewritten (__main__.F02ReviewTests.test_54_request_scope_and_audit_cannot_be_deleted_or_rewritten) ... ok",
+      "test_55_invalid_returned_review_revision_rolls_back_all_four_facts (__main__.F02ReviewTests.test_55_invalid_returned_review_revision_rolls_back_all_four_facts) ... ok",
+      "test_56_private_lock_owner_cannot_mutate_key_or_case (__main__.F02ReviewTests.test_56_private_lock_owner_cannot_mutate_key_or_case) ... ok"
+    ]
+  },
+  "previous_ci": {
+    "run_id": 40414076278,
+    "job_id": 121891828989,
+    "sha": "3cd7a39258326e92bc1daf26c669e7ca6bee47d8",
+    "conclusion": "success",
+    "meaning": "First full implementation run passed the same 264 units, 56 CFI/F02 and 19+19 history scenarios. Final commit adds explicit function EXECUTE denials and temporary schema CREATE revocation assertions, without changing implementation.",
+    "cleanup_verified": true
+  },
+  "local_units": {
+    "passed": 264,
+    "log": "/workspace/work/f02-unit-code.log",
+    "meaning": "Pure tests only; actual identity/SQL evidence comes from CI, not local stubs."
+  },
+  "security": {
+    "new_owner": "prumo_s0_f02_review_owner_local",
+    "new_owner_nologin_nosuperuser_nobypassrls_verified": true,
+    "application_cannot_set_owner_role": true,
+    "application_no_direct_private_table_select": true,
+    "anon_authenticated_service_role_no_new_entry_execute": true,
+    "temporary_schema_create_revoked": true,
+    "existing_cfi_definition_unchanged": true,
+    "existing_cfi_owner_column_grants_not_widened": true,
+    "deliberate_cfi_acl_addition": "EXECUTE only to the new inaccessible NOLOGIN owner; no membership in the CFI owner role granted to application.",
+    "hmac_domains": [
+      "cfi01-atomic-local-v1",
+      "s0-f02-review-local-v1"
+    ],
+    "hmac_key_material": "Same established S0 lab key, domain separated; not independent production credentials. Random actual test key; published fixture key disabled by inherited harness."
+  },
+  "semantics": {
+    "accepted_request_state": "PENDING_EVIDENCE",
+    "verified_source": "Existing current CFI actor/session/team/grant/assignment/case/receipt + physical lead/channel scope ONLY",
+    "unverified_claims": [
+      "F03 complete receipt",
+      "C08 local witness",
+      "observed-origin ledger",
+      "synthetic human-intent",
+      "template/policy authority",
+      "external Meta disposition"
+    ],
+    "idempotency_scope": [
+      "store",
+      "actor",
+      "request_key"
+    ],
+    "idempotency_not_ratified_as_business_rule": "No global closure/cardinality or replacement-send policy adopted.",
+    "expiry": "Immutable voluntary request deadline checked with DB clock; no 48h or 24h-7d policy promoted. Expired/withdrawn states cannot reopen.",
+    "clock_test_limit": "Scenario 48 injects a future last_checked_at in the disposable private row as privileged fault, not an NTP or cluster clock certification.",
+    "recovery_limit": "New broker object reads persisted request/withdrawal; original server-held CFI binding is still required. Not crash/failover or approved durable binding lookup (UI D3).",
+    "c04_c08": "No original scheduler changes, no legacy cancellation query promoted as external proof, no plan/send/commercial transition.",
+    "commit_uncertainty": "UNAVAILABLE does not assert rollback if commit/result was lost. Same-key recovery required; no external automatic retry.",
+    "response_not_a_bearer": true,
+    "human_ratification_implemented": false
+  },
+  "pending": [
+    "F03/C08/origin/intent authoritative mapping",
+    "independent manager authority + S1 scope",
+    "binding lookup and cross-session continuity",
+    "UI D1-D4 transport",
+    "review TTL max/default + retention/minimization",
+    "Meta C1-C7 / template / consent / dispatch"
+  ],
+  "scope": {
+    "f02_branch_written": false,
+    "s1_meta_frontend_f03_branch_written": false,
+    "automatic_aux_merge": false,
+    "hosted_migration": false,
+    "external_commercial_calls": false,
+    "public_endpoint": false,
+    "deploy": false,
+    "merge": false,
+    "operational_approval": false
+  }
+}

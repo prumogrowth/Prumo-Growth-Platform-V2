@@ -1,0 +1,41 @@
+{
+  "ref": "a7ba0136ae7c7907cc5b7f9ad0ee6b6ae499125e",
+  "scope": "Only three pure review-only F02 modules and their original four test suites. No F03 SQL/adapters or operational authority promoted.",
+  "files": [
+    {
+      "path": "backend/f02_reconciled_human_authorization_handoff.py",
+      "sha256": "e6308184f83a3b7e824aa96bf6e5869d44d09a9af1c2c53e4b9cd13e0666a1e6",
+      "blob": "ef6803df9d97b3fe3ad804669fc5be17555fbdbe"
+    },
+    {
+      "path": "backend/f02_reconciled_review_lifecycle.py",
+      "sha256": "4661fbf063a1be3ae6beab112742e98b6c0cc0c40df6bdae4dd5748588b15106",
+      "blob": "11a9e71eabefdf63195fd01a431d1bf19c603ee3"
+    },
+    {
+      "path": "backend/f02_reconciled_review_recovery.py",
+      "sha256": "5520a199d7c3bf5442ceb29adc093336adddf5f6b67f0c2db5c513e3b433f724",
+      "blob": "b049b9765e9126ad4230ece85009689f2d49473b"
+    },
+    {
+      "path": "backend/tests/test_f02_reconciled_human_authorization_handoff.py",
+      "sha256": "61d1fb53d8a29f0ec372a526bb0ec571250c5783377e4516367a8e861db4f9df",
+      "blob": "e9c6da8b95bd35552d2c99c2aecd47ec3fb7a5e6"
+    },
+    {
+      "path": "backend/tests/test_f02_reconciled_review_lifecycle.py",
+      "sha256": "7d11066f12e92fb780d028fc249ac33ec0efef3c56c7053059aca315bb1413ff",
+      "blob": "744ac75a6375997aed19f89a95ca7a86de0336cd"
+    },
+    {
+      "path": "backend/tests/test_f02_bound_review_preflight.py",
+      "sha256": "aeadb2e6ca386f14d22a82a02135bb17b381b06d5af3c13e0e47a423346df169",
+      "blob": "26fe21b7504f6e8b37b6f6b5ec3778706d746625"
+    },
+    {
+      "path": "backend/tests/test_f02_reconciled_review_recovery.py",
+      "sha256": "ba38f05fc7edd47894558076593cb6555f15bb4e27f1d7a4736dfce31e7cf5e0",
+      "blob": "7024517905ae1329cfe6711d1e25a1524427d866"
+    }
+  ]
+}

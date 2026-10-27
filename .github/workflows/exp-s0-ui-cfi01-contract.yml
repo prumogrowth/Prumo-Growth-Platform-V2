@@ -1,0 +1,33 @@
+name: S0 UI CFI01 - candidate contract compatibility
+on:
+  push:
+    branches: [exp/s0-ui-cfi01-contrato-candidato-20261026]
+    paths:
+      - 'backend/s0_cfi01_ui_contract.py'
+      - 'backend/tests/test_s0_cfi01_ui_contract.py'
+      - 'integration/ui_cfi01/**'
+      - '.github/workflows/exp-s0-ui-cfi01-contract.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: s0-ui-cfi01-contract-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  pure-contract-and-core-regression:
+    if: github.ref == 'refs/heads/exp/s0-ui-cfi01-contrato-candidato-20261026'
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Candidate Python and Web Crypto compatibility plus all existing backend unit tests
+        run: python3 -m unittest discover -s backend/tests -v
+      - name: Verify browser-reference module syntax without starting transport
+        run: node --check integration/ui_cfi01/reference_contract.mjs

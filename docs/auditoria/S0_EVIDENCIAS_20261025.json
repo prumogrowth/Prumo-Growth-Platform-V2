@@ -1,0 +1,430 @@
+{
+  "observed_at": "2026-10-26T02:20:31Z",
+  "source_snapshot": [
+    {
+      "name": "coord/s0-openai-cfi01-c09-20261019",
+      "commit": {
+        "sha": "d1e1ebefb7bf1bef24a18d8f24078a381e7c1647",
+        "url": "https://api.github.com/repos/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/commits/d1e1ebefb7bf1bef24a18d8f24078a381e7c1647"
+      },
+      "protected": false
+    },
+    {
+      "name": "docs/cf-op-02-cadeias-contextuais-20261018",
+      "commit": {
+        "sha": "ce7bbdd8171c2a28903b60d9c2b2ade4584b91e8",
+        "url": "https://api.github.com/repos/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/commits/ce7bbdd8171c2a28903b60d9c2b2ade4584b91e8"
+      },
+      "protected": false
+    },
+    {
+      "name": "docs/whatsapp-meta-concessionária de demonstração-poc-20261017",
+      "commit": {
+        "sha": "d9cd4b8f1de222324c92f2fec8053b0b91dcfe5d",
+        "url": "https://api.github.com/repos/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/commits/d9cd4b8f1de222324c92f2fec8053b0b91dcfe5d"
+      },
+      "protected": false
+    },
+    {
+      "name": "exp/ci-s1-consolidacao-20261025",
+      "commit": {
+        "sha": "31ac07bf860d67ff935fa0c96c1cc00224f06f8b",
+        "url": "https://api.github.com/repos/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/commits/31ac07bf860d67ff935fa0c96c1cc00224f06f8b"
+      },
+      "protected": false
+    },
+    {
+      "name": "feat/frontend-plataforma-visual",
+      "commit": {
+        "sha": "6d245d11e23bb3b0918d8594e87d242f2fbad815",
+        "url": "https://api.github.com/repos/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/commits/6d245d11e23bb3b0918d8594e87d242f2fbad815"
+      },
+      "protected": false
+    },
+    {
+      "name": "feat/oai-s0-f03-history-port-20261023",
+      "commit": {
+        "sha": "26cb7d73beb10a08e0f7dc9c3a5c287d183db67f",
+        "url": "https://api.github.com/repos/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/commits/26cb7d73beb10a08e0f7dc9c3a5c287d183db67f"
+      },
+      "protected": false
+    },
+    {
+      "name": "feat/s0-cfi01-f03-auth-preflight-20261020",
+      "commit": {
+        "sha": "948891714f632adb6179cf3a11f362a6eb914f91",
+        "url": "https://api.github.com/repos/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/commits/948891714f632adb6179cf3a11f362a6eb914f91"
+      },
+      "protected": false
+    },
+    {
+      "name": "feat/s0-fundacao-prumo",
+      "commit": {
+        "sha": "75095fe9b6050c704df37c663bb92595bc6513b6",
+        "url": "https://api.github.com/repos/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/commits/75095fe9b6050c704df37c663bb92595bc6513b6"
+      },
+      "protected": false
+    },
+    {
+      "name": "feat/s1-002-equipe-prumo",
+      "commit": {
+        "sha": "3cfa2b77c733fd36f1284e3adfd45fa198720162",
+        "url": "https://api.github.com/repos/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/commits/3cfa2b77c733fd36f1284e3adfd45fa198720162"
+      },
+      "protected": false
+    },
+    {
+      "name": "feat/s2-openai-adapter-sintetico",
+      "commit": {
+        "sha": "ebf6fe4e546f2fe990bdaefe2df25aa0cf18e74c",
+        "url": "https://api.github.com/repos/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/commits/ebf6fe4e546f2fe990bdaefe2df25aa0cf18e74c"
+      },
+      "protected": false
+    },
+    {
+      "name": "feat/wa39-s0-meta-forensic-bridge-20261023",
+      "commit": {
+        "sha": "54d790dc7eb2cf73c564ad0cfea0496554bf9287",
+        "url": "https://api.github.com/repos/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/commits/54d790dc7eb2cf73c564ad0cfea0496554bf9287"
+      },
+      "protected": false
+    },
+    {
+      "name": "main",
+      "commit": {
+        "sha": "dace737ab7afb7ae3f5a3a6f5cb522e6def8b43a",
+        "url": "https://api.github.com/repos/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/commits/dace737ab7afb7ae3f5a3a6f5cb522e6def8b43a"
+      },
+      "protected": false
+    }
+  ],
+  "pending_prs": [
+    {
+      "number": 2,
+      "draft": true,
+      "base": "feat/s0-fundacao-prumo",
+      "head": "feat/wa39-s0-meta-forensic-bridge-20261023",
+      "head_sha": "54d790dc7eb2cf73c564ad0cfea0496554bf9287"
+    },
+    {
+      "number": 1,
+      "draft": true,
+      "base": "feat/s0-cfi01-f03-auth-preflight-20261020",
+      "head": "feat/oai-s0-f03-history-port-20261023",
+      "head_sha": "26cb7d73beb10a08e0f7dc9c3a5c287d183db67f"
+    }
+  ],
+  "audit": {
+    "sha": "4ea1fe87107f435635a0c7cf650b5b4097b01241",
+    "run_id": 40258537422,
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "id": 121365581736,
+        "conclusion": "success",
+        "started_at": "2026-10-26T02:19:37Z",
+        "completed_at": "2026-10-26T02:20:30Z",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-10-26T02:19:38Z",
+            "completed_at": "2026-10-26T02:19:39Z"
+          },
+          {
+            "name": "Initialize containers",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-10-26T02:19:39Z",
+            "completed_at": "2026-10-26T02:20:01Z"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-10-26T02:20:01Z",
+            "completed_at": "2026-10-26T02:20:02Z"
+          },
+          {
+            "name": "Instalar cliente PostgreSQL quando ausente",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-10-26T02:20:02Z",
+            "completed_at": "2026-10-26T02:20:02Z"
+          },
+          {
+            "name": "Criar banco de testes descartável",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-10-26T02:20:02Z",
+            "completed_at": "2026-10-26T02:20:02Z"
+          },
+          {
+            "name": "Testar fronteira de identidade sem rede externa",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-10-26T02:20:02Z",
+            "completed_at": "2026-10-26T02:20:03Z"
+          },
+          {
+            "name": "Testar migrations e isolamento de concessionárias",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-10-26T02:20:03Z",
+            "completed_at": "2026-10-26T02:20:28Z"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13,
+            "started_at": "2026-10-26T02:20:28Z",
+            "completed_at": "2026-10-26T02:20:28Z"
+          },
+          {
+            "name": "Stop containers",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14,
+            "started_at": "2026-10-26T02:20:28Z",
+            "completed_at": "2026-10-26T02:20:29Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-10-26T02:20:29Z",
+            "completed_at": "2026-10-26T02:20:29Z"
+          }
+        ]
+      }
+    ],
+    "log_evidence": [
+      "Ran 38 tests in 0.004s",
+      "OK",
+      "PASS S0-PG17-PREFLIGHT-TEST: 10/10 synthetic cases (not a real PostgreSQL test)",
+      "PASS S0-PG17-PREFLIGHT: PostgreSQL 17 e banco descartavel confirmados (somente leitura).",
+      "PASS DORG-S0-01: one Prumo identity N concessionaria grants, assignment scoped",
+      "PASS DORG-S0-02: manager Prumo A+B sees D2 of both, not ungranted C",
+      "PASS DORG-S0-03: multi-shop operator reads only assigned cases; exclusive operator none",
+      "PASS DORG-S0-04: manager self-assignment and case transfer revoke operator A",
+      "PASS DORG-S0-05: B grant revoked independently; A and identities preserved",
+      "PASS DORG-S0-06: unlinked JWT denied; cannot self-grant shop access",
+      "PASS S0-A2/A5: lotes, reencontro, canal e inbound idempotentes",
+      "PASS AP41-01/02/03: gestor A le D2 proprio completo",
+      "PASS AP41-05/06/09: remanejamento e autoatribuicao",
+      "PASS TX-C01: reimportacao, itens rejeitados, idempotencia, duas lojas",
+      "PASS TX-AUTH: operacoes privadas sem grant a cliente",
+      "PASS TX-STATUS: versao, evento correlacionado, reentrega, prova escopada",
+      "PASS TX-HANDOFF: humano definitivo, sem retorno IA e sem evento comercial",
+      "PASS C02-01: cliente A/B, canal exclusivo, mensagem deduplicada e evento correlato",
+      "PASS C02-02: emissor unico, canal e identificadores validados, API sem EXECUTE",
+      "PASS C02-03: continuacao de conversa IA nao duplica ciclo nem evento",
+      "PASS C02-04: resposta apos primeiro envio simulado promove IA com evento",
+      "PASS C02-05: retorno pos-remessa abre caso humano sem mudar status comercial",
+      "PASS C02-06: retorno pos-venda cria nova ocorrencia humana sem IA nem reversao",
+      "PASS C02-07: multiplos ciclos preservam mensagem para revisao sem acionar IA",
+      "PASS C02-08: gestor A/B isolados para o mesmo telefone cliente",
+      "PASS REC-01: plano idempotente, so templates aprovados, segregacao A/B e 3 envios programados",
+      "PASS REC-02: apenas reserva sintética, estado técnico separado, sem entrega",
+      "PASS REC-03: inbound cancela reservado/programado na mesma transacao sem afetar B",
+      "PASS REC-04: envio obsoleto nao reserva de novo; trilha tecnica preservada",
+      "PASS REC-05: cancelamento explicito idempotente nao altera 8 estados comerciais",
+      "PASS REC-06: RLS A/B eventos/envios, sem escrita por usuarios autenticados",
+      "PASS C05-APPROVAL: template nao aprovado negado antes do plano, sem escrita parcial",
+      "PASS C08-GESTOR: escopo, expected_version, repeticao e auditoria tecnica",
+      "PASS C08-PRIVATE: gestor usa adaptador confiavel, sem funcao acessivel pelo navegador",
+      "PASS AUD-REC-01: idempotencia inclui ciclo/canal, ordem cronologica, revalida template",
+      "PASS C04-01: sem prova explicita, indeciso e agendamento proibido",
+      "PASS C04-02: apenas prova ficticia do canal A, sem autorização presumida B",
+      "PASS C04-03: optout preservado, cancela C08, reserva negada e replay seguro",
+      "PASS C04-04: inbound optout permanece humano sem IA, status nem optin",
+      "PASS C04-05: mesmo telefone A/B sem compartilhar optout ou autorizacao",
+      "PASS C04-06: RLS por loja e escrita por cliente negada",
+      "PASS C04-REPLAY: chave idempotente não simula plano ativo após opt-out",
+      "PASS C07-01: correlacao simulada a envio reservado sem enviar",
+      "PASS C07-02: duplicidade, conflito, ordem tardia, falha/incerteza sem alterar comercial",
+      "PASS C07-03: callback nao correlacionado vai a pendencia, mesmo ID em outra loja isolado",
+      "PASS C07-04: callback apos optout preserva cancelamento e evento sem disparo",
+      "PASS C07-05: RLS callbacks A/B e escrita por gestor negada",
+      "PASS C07-REC-01: triagem de incerto, falha, contradicao e callback desconhecido sem duplicar",
+      "PASS C07-REC-02: duas falhas do mesmo envio contam uma tentativa, bloqueio de nova reserva",
+      "PASS C07-AUD-01: replay de plano ativo com falha retorna nao executavel",
+      "PASS C07-REC-03: conciliacao com versao/escopo, auditoria imutavel e replay idempotente",
+      "PASS C07-REC-04: historico de falha bloqueia novo plano mesmo apos fechamento da revisao",
+      "PASS C07-REC-05: RLS de pendencias, associacoes e auditoria por concessionaria",
+      "PASS GW-01: gateway sem leitura direta e sem acesso ao legado nao assinado",
+      "PASS GW-02: senha SQL isolada, prova adulterada ou expirada negadas",
+      "PASS GW-03: assinaturas validas aplicam, repeticao de nonce negada e novo nonce idempotente",
+      "PASS GW-04: auditoria de tres comandos e tres provas consumidas, sem extras",
+      "PASS GW-05: sessao revogada bloqueia mesmo prova valida, sem efeito adicional",
+      "PASS GW-06: somente wrappers assinadas, tabelas de segredos e provas inacessiveis",
+      "PASS GW-07: auditoria preserva fingerprint sem guardar UUID da sessao",
+      "PASS KEY-01: registro inativo, ativacao versionada, sobreposicao, chave futura negada",
+      "PASS KEY-02: versao antiga negada, revogacao irreversivel e material imutavel",
+      "PASS KEY-03: assinatura chave revogada negada, substituta aceita e nonce unico",
+      "PASS KEY-04: expurgo minimo 10 minutos, nonce recente preservado e contagem auditada",
+      "PASS KEY-05: gateway sem permissao de rotacao, expurgo ou historico",
+      "PASS OWNER-01: validador HMAC tem dono restrito NOLOGIN e nao e executavel externamente",
+      "PASS OWNER-02: dono do validador tem somente grants tecnicos e nao acessa dados comerciais",
+      "PASS OWNER-03: limite declarado -- wrappers comerciais legadas ainda pertencem ao postgres",
+      "PASS OWNER-04: assinadas têm dono técnico NOLOGIN e acesso gateway mínimo",
+      "PASS OWNER-05: executor sem leitura comercial/segredos/sessoes, apenas chamadas delegadas",
+      "PASS OWNER-06: legadas postgres restritas, gateway sem rota sem HMAC",
+      "PASS AUD-036A-01: ALL private functions checked; gateway only two signed calls",
+      "PASS AUD-036A-02: signer/executor execute only necessary functions",
+      "PASS AUD-036A-03: all private SECURITY DEFINER routines have empty search_path",
+      "PASS AUD-036A-04: gateway denied direct trigger routine EXECUTE",
+      "PASS OWNER37-01: two legacy definer wrappers and domain postgres-only guards verified",
+      "PASS OWNER37-02: executor retains only delegated signed-chain capability",
+      "PASS OWNER37-03: no-login nonprivileged owner cannot execute guarded domain functions",
+      "PASS OWNER37-04: SELECT grant alone does not bypass row security",
+      "PASS OWNER37-05: no persistent privilege granted and no owner transfer performed",
+      "PASS OWNER37B-01: two shops and separate C07 pendencies; session/audit gates closed",
+      "PASS OWNER37B-02: tenant-bound RLS reads, C08 plan/send CAS and audit DML (simulation only)",
+      "PASS OWNER37B-03: C07 tenant-bound optimistic update plus append-only audit (simulation only)",
+      "PASS OWNER37B-04: no private audit read or raw domain EXECUTE; B remains hidden",
+      "PASS OWNER37B-05: temporary grants do not touch actual signed roles",
+      "PASS OWNER37C-01: gateway cannot mutate directly or bypass invalid HMAC",
+      "PASS OWNER37C-02: C08 signed, single-use nonce, idempotency",
+      "PASS OWNER37C-03: C07 both human decisions, cross-store denies",
+      "PASS OWNER37C-04: signed chain commits audit/nonce/domain once; no B effect or state change",
+      "PASS AUD37-01: valid HMAC not sufficient for mismatched actor/session or cross-store gestor",
+      "PASS AUD37-02: identical C07 decision idempotent; changed decision conflicts on version",
+      "PASS AUD37-03: failed signed attempts rollback nonce; C07 replay does not duplicate domain events",
+      "PASS AUTHATOM-01/02: audit injection refused C08/C07; domain and HMAC nonce rolled back",
+      "PASS AUTHATOM-03: original proof reusable after audit outage; C08 and C07 each commit once",
+      "PASS OWNER37C-05: GoTrue-session revocation blocks signed operations atomically",
+      "PASS OWNER37D-01: forged GUC and direct capability insertion denied",
+      "PASS OWNER37D-02: capability permits only A target/version and rejects replay/B",
+      "PASS OWNER37D-03: C07 close/link action-bound updates and B isolation",
+      "PASS OWNER37D-04: real gateway/executor stay locked; test role/grants will rollback",
+      "PASS ISSUERF-01: lab executor NOLOGIN owned, no direct gateway DML or secret access",
+      "PASS AUD-ISSUERF-01/02: forged actor/session and stale signed version denied",
+      "PASS ISSUERF-02: signed mock C08/C07, cross-store and HMAC negatives atomic",
+      "PASS ISSUERF-03: audit failure rollback includes HMAC nonce and retry succeeds",
+      "PASS ISSUERF-04: mock session revocation, cross-tenant isolation and audit intact",
+      "PASS WA-ID-01: 9->8 + replay idempotente + duas lojas independentes",
+      "PASS WA-ID-02: 8->9 mesmo lead com trilha de aliases",
+      "PASS WA-ID-03: evidencia ambigua preservada sem fusao automatica",
+      "PASS WA-ID-04: colisao entre leads preservada em pendencia",
+      "PASS WA-ID-05: ACLs privadas e sem API Meta publica",
+      "PASS WA-IN-01: quatro eventos POST, quatro tarefas atomicas e dois escopos",
+      "PASS WA-IN-02: item invalido e fingerprint divergente nao deixam commit parcial",
+      "PASS WA-IN-03: lease de worker evita duplo claim e valida canal da loja",
+      "PASS WA-OUT-01: outbox unificada sem estado executavel, idempotencia C03/C12/C06",
+      "PASS WA-SEC-01: nenhuma API publica ou gateway comercial recebe acesso",
+      "PASS WA30-ID-01: replay pendente identico e aceito; conflitos rejeitados sem sobrescrita",
+      "PASS WA30-ID-02: FK composta protege alias/lead e prova de variante consistente",
+      "PASS WA30-IN-01: 2 lojas em 1 transacao, 2 statuses distintos e replay de payload",
+      "PASS WA30-IN-02: spoof de loja/app negado e rollback integral",
+      "PASS WA30-SEC-01: registro Meta sintetico e batch inacessiveis a papeis publicos",
+      "PASS WA40-01: one WABA/phone binding per internal channel",
+      "PASS WA40-02: one channel per WABA/phone binding",
+      "PASS WA40-03: Meta App dealership ownership enforced",
+      "PASS WA40-04: two senders, same dealership, unique inbox+task+replay",
+      "PASS WA40-05: no public or gateway access to synthetic Meta registry",
+      "PASS WA31-01: C01 com alias por loja, replay isolado do legado e itens rejeitados",
+      "PASS WA31-02: inbound C02 usa lead importado C01 pela variante 8/9",
+      "PASS WA31-03: legado sem prova e colisao entre dois leads ficam rejeitados no lote",
+      "PASS WA31-04: gestor restrito, telefone inelegivel e nenhuma API exposta",
+      "PASS WA32-01: conclusao versionada, worker errado, replay e auditoria imutavel",
+      "PASS WA32-02: retry conhecido com backoff, limite 3 e dead-letter sem auto-envio",
+      "PASS WA32-03: resultado incerto mantido em quarentena, sem retomada",
+      "PASS WA32-04: lease vencida exige reconciliação versionada e isolamento",
+      "PASS WA32-05: retentativa so apos declaração manual ficticia sem efeito",
+      "PASS WA32-06: DLQ definitivo, FK por loja e sem grants a roles publicos",
+      "PASS WA33-01: C02 e settlement atomicos, replay, 8/9 e lojas isoladas",
+      "PASS WA33-02: failure after C02 rolls back message, task and audit together",
+      "PASS WA33-03: lease vencido nao altera dominio nem tarefa",
+      "PASS WA33-04: identidade ambigua preservada em pendencia e quarentena atomica",
+      "PASS WA33-05: app/canal/loja, message-id e ACL privada",
+      "PASS WA34-01: sem APPLIED C02 sem prova, nem via função genérica ou UPDATE direto",
+      "PASS WA34-02: integridade loja+canal+inbox/mensagem e verificação de conteúdo",
+      "PASS WA34-03: pendencia e quarentena atômicas com causa NEEDS_REVIEW",
+      "PASS WA34-04: dois leads em colisão preservam IDENTITY_CONFLICT distinto",
+      "PASS WA34-05: quarentena nao pode forjar pendência; sem grants públicos",
+      "PASS WA34B-CB-01: um message ID comporta varias observacoes, repeticoes e evento atrasado",
+      "PASS WA34B-CB-02: p_evento nao pode receber statuses[].id como ID unico de callback",
+      "PASS WA34B-CB-03: desconhecido fica pendente sem vazamento entre canal ou loja",
+      "PASS WA34B-CB-04: limite S0-030 demonstrado (NAO autoriza dedupe Meta)",
+      "PASS TX-CONC: dois clientes concorrentes, um lote/lead/ciclo/item",
+      "PASS TX-CROSS-SHOP: mesmo cliente em A e B sob concorrencia; historicos isolados",
+      "PASS C02-CONC: webhook repetido e dois eventos distintos em paralelo sem duplicacoes",
+      "PASS REC-RACE: reserva versus inbound serializados sem envio obsoleto",
+      "PASS C04-RACE: duas ordens reserva versus optout, sem envio elegivel",
+      "PASS C07-REC-RACE: duas revisoes concorrentes, uma auditoria, versao unica",
+      "PASS WA30-CONC-01: 8 and 9 concurrent sessions -> one lead, two events",
+      "PASS WA30-CONC-02/03: simultaneous claim + explicitly reviewed recovery, no blind retry",
+      "PASS WA31-CONC: C01/C02 and C01/C01 simultaneous 8-9 use one lead per contact",
+      "PASS WA32-CONC-01: competing settlement fenced; no stale worker or recovery",
+      "PASS WA33-CONC-01: two SQL sessions, one C02 message and one durable inbox settlement",
+      "PASS WA14C-01: two-session scoped invariant",
+      "PASS WA14C-02: two-session scoped invariant",
+      "PASS WA14C-03: two-session scoped invariant",
+      "PASS WA14C: 3 confirmed rows, no blind retry",
+      "Teste local concluído. Não houve escrita no Supabase."
+    ]
+  },
+  "other_fronts": {
+    "oai": {
+      "sha": "26cb7d73beb10a08e0f7dc9c3a5c287d183db67f",
+      "run": 40257851993,
+      "conclusion": "success",
+      "unit_summaries": [
+        "2026-10-26T02:12:34.1076992Z # tests 269",
+        "2026-10-26T02:12:34.1078004Z # pass 269",
+        "2026-10-26T02:12:34.1078423Z # fail 0",
+        "2026-10-26T02:12:45.2264393Z Ran 84 tests in 7.402s",
+        "2026-10-26T02:15:11.1943387Z Ran 514 tests in 144.276s"
+      ]
+    },
+    "wa66": {
+      "sha": "54d790dc7eb2cf73c564ad0cfea0496554bf9287",
+      "run": 40258058272,
+      "conclusion": "success",
+      "scenario_markers": [
+        "# WA66-01 PASS",
+        "# WA66-02 PASS",
+        "# WA66-03 PASS",
+        "# WA66-04 PASS",
+        "# WA66-05 PASS",
+        "# WA66-06 PASS",
+        "# WA66-07 PASS",
+        "# WA66-08 PASS",
+        "# WA66-09 PASS",
+        "# WA66-10 PASS",
+        "# WA66-11 PASS",
+        "# WA66-12 PASS",
+        "# WA66-13 PASS",
+        "# WA66-14 PASS",
+        "# WA66-15 PASS",
+        "# WA66-16 PASS",
+        "# WA66-17 PASS",
+        "# WA66-18 PASS",
+        "# WA66-19 PASS",
+        "# WA66-20 PASS",
+        "# WA66-21 PASS",
+        "# WA66-22 PASS",
+        "# WA66-23 PASS",
+        "# WA66-24 PASS"
+      ]
+    }
+  },
+  "limits": [
+    "No hosted Supabase",
+    "No Meta, OpenAI or banking API calls",
+    "No production authorization inferred from synthetic tests",
+    "No merge or deploy"
+  ]
+}

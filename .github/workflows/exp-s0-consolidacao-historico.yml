@@ -1,0 +1,68 @@
+name: S0 consolidation - live history session and preserved CFI
+on:
+  push:
+    branches: [exp/s0-consolidacao-sessao-historico-20261026]
+    paths:
+      - 'backend/**'
+      - 'integration/history/**'
+      - 'supabase/tests/s0_history_*'
+      - '.github/workflows/exp-s0-consolidacao-historico.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: s0-history-consolidation-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  real-history-and-cfi:
+    if: github.ref == 'refs/heads/exp/s0-consolidacao-sessao-historico-20261026'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      SUPABASE_DISABLE_TELEMETRY: '1'
+      PRUMO_CFI01_TRANSACTIONAL_TEST: 'YES'
+      PRUMO_HISTORY_DISPOSABLE_TEST: 'YES'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Preserve all 173 S0 and UI compatibility tests
+        run: python3 -m unittest discover -s backend/tests -v
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 2.84.2
+      - name: Fixed driver and CLI
+        run: |
+          supabase --version
+          supabase start --help > /dev/null
+          command -v psql || (sudo apt-get update -qq && sudo apt-get install -y postgresql-client)
+          python3 -m pip install -r backend/requirements-s0-local.txt
+      - name: Start only new unlinked disposable PG17 GoTrue PostgREST
+        env:
+          SUPABASE_INTERNAL_IMAGE_REGISTRY: docker.io
+        run: supabase start --exclude realtime,storage-api,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
+      - name: Existing Auth REST RLS and original CFI regressions
+        run: |
+          PYTHONPATH=. python3 scripts/test_s0_auth_rest_local.py
+          PYTHONPATH=. python3 scripts/test_s0_cfi01_auth_rest_local.py
+      - name: Reproduce actual logout gap then test history session barrier
+        run: PYTHONPATH=. python3 integration/history/test_session_history.py --profile s0
+      - name: All 32 certified CFI scenarios under the new history barrier
+        run: PYTHONPATH=. python3 integration/cfi01/test_restricted_backend.py
+      - name: Read pinned current S1 in detached checkout without branch writes
+        uses: actions/checkout@v4
+        with:
+          ref: d3e9f0a053e16d90190696dd59cec6d77b7f1e73
+          path: work-s1-sources
+          persist-credentials: false
+      - name: Verify pinned sources and materialize only in disposable database
+        run: PYTHONPATH=. python3 integration/history/prepare_s1_profile.py --source-repo work-s1-sources
+      - name: Same real history suite with full S1 extensions and original I63 candidate
+        run: PYTHONPATH=. python3 integration/history/test_session_history.py --profile i63
+      - name: Remove disposable stack even on failure
+        if: always()
+        run: supabase stop --no-backup

@@ -1,0 +1,82 @@
+name: S0 G1 - authenticated manual queue handoff
+on:
+  push:
+    branches: [exp/s0-g1-encaminhamento-manual-20261026]
+    paths:
+      - 'backend/**'
+      - 'integration/history/**'
+      - 'integration/f02/**'
+      - 'integration/g1/**'
+      - 'supabase/tests/s0_g1_manual_queue_local_only.sql'
+      - 'supabase/tests/s0_f02_review_registry_local_only.sql'
+      - 'supabase/tests/s0_history_*'
+      - '.github/workflows/exp-s0-g1-manual.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: s0-g1-manual-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  real-history-and-cfi:
+    if: github.ref == 'refs/heads/exp/s0-g1-encaminhamento-manual-20261026'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      SUPABASE_DISABLE_TELEMETRY: '1'
+      PRUMO_CFI01_TRANSACTIONAL_TEST: 'YES'
+      PRUMO_HISTORY_DISPOSABLE_TEST: 'YES'
+      PRUMO_F02_DISPOSABLE_TEST: 'YES'
+      PRUMO_G1_DISPOSABLE_TEST: 'YES'
+      PRUMO_G1_SOURCE_REPO: work-s1-sources
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Preserve 264 S0 F02 tests plus G1 strict compatibility
+        run: python3 -m unittest discover -s backend/tests -v
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 2.84.2
+      - name: Fixed driver and CLI
+        run: |
+          supabase --version
+          supabase start --help > /dev/null
+          command -v psql || (sudo apt-get update -qq && sudo apt-get install -y postgresql-client)
+          python3 -m pip install -r backend/requirements-s0-local.txt
+      - name: Start only new unlinked disposable PG17 GoTrue PostgREST
+        env:
+          SUPABASE_INTERNAL_IMAGE_REGISTRY: docker.io
+        run: supabase start --exclude realtime,storage-api,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
+      - name: Existing Auth REST RLS and original CFI regressions
+        run: |
+          PYTHONPATH=. python3 scripts/test_s0_auth_rest_local.py
+          PYTHONPATH=. python3 scripts/test_s0_cfi01_auth_rest_local.py
+      - name: Reproduce actual logout gap then test history session barrier
+        run: PYTHONPATH=. python3 integration/history/test_session_history.py --profile s0
+      - name: All 32 certified CFI plus 24 actual GoTrue F02 registry scenarios
+        run: PYTHONPATH=. python3 integration/f02/test_authoritative_review.py
+      - name: Read pinned current S1 in detached checkout without branch writes
+        uses: actions/checkout@v4
+        with:
+          ref: b71ebf4479c9a0a3527519471cca04ec7e178e18
+          path: work-s1-sources
+          persist-credentials: false
+      - name: Verify pinned sources and materialize only in disposable database
+        run: PYTHONPATH=. python3 integration/history/prepare_s1_profile.py --source-repo work-s1-sources --manifest integration/g1/s1_sources.json
+      - name: Same real history suite with full S1 extensions and original I63 candidate
+        run: PYTHONPATH=. python3 integration/history/test_session_history.py --profile i63
+      - name: Real GoTrue manual handoff, both race orders, I61 I62 revocation and rollback
+        run: PYTHONPATH=. python3 integration/g1/test_manual_handoff.py
+      - name: Original S1 canonical queue and exception regressions, SQL fixture identities only
+        run: |
+          for test in s1_078_fila_s0_canonica_aceite.sql s1_080_fila_reconciliacao_aceite.sql s1_081_atribuicao_grant_i57_aceite.sql s1_082_fila_gestor_autorizacao_aceite.sql s1_085_excecao_caso_canonica_aceite.sql; do
+            python3 integration/g1/run_pinned_sql.py "work-s1-sources/supabase/tests/$test"
+          done
+      - name: Remove disposable stack even on failure
+        if: always()
+        run: supabase stop --no-backup

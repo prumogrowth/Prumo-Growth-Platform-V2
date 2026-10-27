@@ -1,0 +1,288 @@
+{
+  "schema": "prumo.s0.consolidacao.evidence/0.1",
+  "date_local": "2026-10-26",
+  "timezone": "America/Sao_Paulo",
+  "branch": "exp/s0-consolidacao-sessao-historico-20261026",
+  "base_pr": 13,
+  "base_sha": "c79020f16f9ed36dcc00257e7e8aa133b5739867",
+  "certified_cfi_checkpoint_preserved": "1b4f2841d513fb971c93379636414bf686784beb",
+  "references": {
+    "pr11": "ddec1b80444bfde871d43a02d0ee94b9ed7cde11",
+    "pr12": "e3bf423a8fbf2064e536c416364c8cc318f1998a",
+    "pr13": "c79020f16f9ed36dcc00257e7e8aa133b5739867",
+    "pr14": "31bb84fa524f4ecfdf02360988471d7f989506d7",
+    "s1_current": "d3e9f0a053e16d90190696dd59cec6d77b7f1e73",
+    "frontend_current": "e44a14dbc89e8c443bed08ea06c20a1f16f4ac12"
+  },
+  "final_executable_sha": "8be6e194bfb5b8694c1010ff8560c8ec19ed4fd8",
+  "final_ci": {
+    "run_id": 40405271785,
+    "job_id": 121861289648,
+    "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40405271785",
+    "sha": "8be6e194bfb5b8694c1010ff8560c8ec19ed4fd8",
+    "conclusion": "success",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1
+      },
+      {
+        "name": "Run actions/checkout@v4",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2
+      },
+      {
+        "name": "Run actions/setup-node@v4",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3
+      },
+      {
+        "name": "Preserve all 173 S0 and UI compatibility tests",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 4
+      },
+      {
+        "name": "Run supabase/setup-cli@v3",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 5
+      },
+      {
+        "name": "Fixed driver and CLI",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 6
+      },
+      {
+        "name": "Start only new unlinked disposable PG17 GoTrue PostgREST",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 7
+      },
+      {
+        "name": "Existing Auth REST RLS and original CFI regressions",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 8
+      },
+      {
+        "name": "Reproduce actual logout gap then test history session barrier",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 9
+      },
+      {
+        "name": "All 32 certified CFI scenarios under the new history barrier",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 10
+      },
+      {
+        "name": "Read pinned current S1 in detached checkout without branch writes",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 11
+      },
+      {
+        "name": "Verify pinned sources and materialize only in disposable database",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 12
+      },
+      {
+        "name": "Same real history suite with full S1 extensions and original I63 candidate",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 13
+      },
+      {
+        "name": "Remove disposable stack even on failure",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 14
+      },
+      {
+        "name": "Post Read pinned current S1 in detached checkout without branch writes",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 25
+      },
+      {
+        "name": "Post Run supabase/setup-cli@v3",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 26
+      },
+      {
+        "name": "Post Run actions/setup-node@v4",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 27
+      },
+      {
+        "name": "Post Run actions/checkout@v4",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 28
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 29
+      }
+    ],
+    "unit_tests": 173,
+    "auth_rest_families": 18,
+    "original_cfi_scenarios": 10,
+    "restricted_cfi_scenarios": 32,
+    "history_s0_scenarios": 19,
+    "history_i63_scenarios": 19,
+    "positive_history_tables_before_logout": 11,
+    "s1_original_sources_verified": 22,
+    "cleanup_verified": true,
+    "log_excerpt": [
+      "Ran 173 tests in 0.604s",
+      "PASS AUTH-01: GoTrue login e REST/RLS gestoras A e B isoladas com cliente comum",
+      "PASS AUTH-02: operador designado somente caso A; usuario sem vinculo bloqueado",
+      "PASS AUTH-07: pendencia C02 legivel apenas pela gestora da loja A",
+      "PASS AUTH-08: recontatos 4 tabelas, RLS gestor A/B e negativa OP/anon/POST",
+      "PASS AUTH-10: C04 RLS gestor A/B, OP/anon negados e sem escrita REST",
+      "PASS AUTH-11: C07 callback/pendencias/vinculos/auditoria RLS A/B e POST negado",
+      "PASS AUTH-03: anon sem SELECT",
+      "PASS AUTH-04: insert sintético designado autorizado, escrita interloja e em leads negadas",
+      "PASS AUTH-05: remanejamento revoga leitura/escrita sem reemitir JWT",
+      "PASS AUTH-06: revogacao do vinculo do gestor prevalece sobre JWT ainda valido",
+      "PASS AUTH-09: revogacao do gestor remove leitura de todos recontatos com JWT existente",
+      "PASS AUTH-14: senha SQL isolada nao chama wrappers legadas ou sem HMAC",
+      "PASS AUTH-13: papel SQL restrito, vinculo sessao/gestor, RLS e auditoria atomica",
+      "PASS AUTH-13-REVOKE: sessao revogada impede uso de role restrito",
+      "PASS AUTH-12: GoTrue->sessao viva->funcao privada, ator autenticado e escopo/expiracao",
+      "PASS AUTH-15: 028-034 tabelas RLS, FKs/guardas C02 e funcoes privadas sem grants",
+      "PASS AUTH-16: nenhuma tabela privada ou RPC C02/lease exposta ao REST",
+      "PASS AUTH-17: Supabase managed admite owner assinado restrito sem REST publico",
+      "PASS AUTH-18: inventario completo ACL de funcoes privadas e search_path seguro",
+      "PASS CFI01-AUTH-01 real GoTrue bearer + S0/S1 PG17 capture",
+      "PASS CFI01-AUTH-02 verified real token on separate post-F03 recheck",
+      "PASS CFI01-AUTH-09 GoTrue-backed internal receipt matches S0 metadata",
+      "PASS CFI01-AUTH-10 real S0 receipt bridge remains contract-pending",
+      "PASS CFI01-AUTH-03 authenticated outside operator blocked from case",
+      "PASS CFI01-AUTH-04 invalid signature rejected by real GoTrue",
+      "PASS CFI01-AUTH-05 team suspension revokes review with same GoTrue JWT",
+      "PASS CFI01-AUTH-06 changed conversation invalidates F03 review",
+      "PASS CFI01-AUTH-07 GoTrue session deletion revokes review",
+      "PASS CFI01-AUTH-08 exactly one technical receipt and no sale/bank state",
+      "HISTORY-GAP-REAL: unexpired real GoTrue token still reads after logout, before barrier",
+      "HISTORY-FIX-REAL: same logged-out token denied; existing ACL/policies/CFI helpers intact",
+      "HISTORY-S0: 19 scenarios passed; real GoTrue/PostgREST/PG17",
+      "Ran 19 tests in 14.776s",
+      "Ran 32 tests in 12.202s",
+      "HISTORY-I63-SOURCES: 22 pinned original files verified and installed in loopback disposable DB",
+      "HISTORY-I63: 19 scenarios passed; real GoTrue/PostgREST/PG17",
+      "Ran 19 tests in 14.949s",
+      "Stopped supabase local development setup."
+    ]
+  },
+  "previous_attempts": [
+    {
+      "sha": "080e0249969166a88a3fab0ee98d5150c20caa65",
+      "run": 40403830469,
+      "job": 121856339978,
+      "conclusion": "failure",
+      "passed": [
+        "173 units",
+        "18 Auth REST families",
+        "10 original CFI scenarios",
+        "real logged-out unexpired token still read before barrier"
+      ],
+      "failure": "PostgREST GET returned HTTP 405 when RLS invoked the CFI helper with FOR SHARE; physical READ ONLY SQLSTATE 25006 reproduced in revised scenario 19",
+      "not_executed": [
+        "history scenarios",
+        "32 restricted backend scenarios",
+        "S1 I63 profile"
+      ],
+      "cleanup_verified": true
+    },
+    {
+      "sha": "6c7898bb992bd853c353c10dbf13a9f34d13a401",
+      "run": 40404600593,
+      "job": 121858983733,
+      "conclusion": "success",
+      "passed": [
+        "173 units",
+        "Auth REST families",
+        "10 original CFI",
+        "19 S0 history",
+        "32 restricted CFI",
+        "22 S1 sources verified",
+        "19 I63 history"
+      ],
+      "cleanup_verified": true,
+      "limitation": "Four administrative relations were initially empty in the history seed. Final revision adds positive rows in all eleven tables before logout, with no runtime change."
+    }
+  ],
+  "local": {
+    "units": {
+      "passed": 173,
+      "log": "/workspace/work/consolidacao-unit-final.log"
+    },
+    "meta": {
+      "checkout_sha": "31bb84fa524f4ecfdf02360988471d7f989506d7",
+      "node": "24.19.0",
+      "unchanged_source_blobs_verified": 7,
+      "candidate_tests": 52,
+      "existing_regression_tests": 161,
+      "failures": 0,
+      "skipped": 0,
+      "network_or_provider_calls": false,
+      "meaning": "Serialized model and single-process disposable filesystem, NOT PostgreSQL locks, real M2M, external ACK or Meta authorization",
+      "logs": [
+        "/workspace/work/consolidacao-meta-candidate.log",
+        "/workspace/work/consolidacao-meta-regression.log"
+      ],
+      "initial_command_failure": "Inherited runtime configuration failed durable test file; same code passed after NODE_OPTIONS and NODE_PATH cleared. No model/test changes."
+    }
+  },
+  "physical_semantics": {
+    "history": "Read-only statement snapshot of auth.sessions actor/session/not_after and JWT expiry; committed revocation cuts subsequent READ COMMITTED reads. Inflight queries and delivered bytes are not recalled.",
+    "cfi": "Original row-locking helper, SQL, nonce, audit and precommit expected-receipt check unchanged; 32 scenarios run after history barrier installation.",
+    "sql_context_test": "Adversarial claims mutated only inside a privileged physical SQL test. They are not counted as authentication of forged JWTs by HTTP.",
+    "s1_profile": "Original 21 S1 extensions and I63 fixture materialized only in new loopback PG17 stack, not merged; full I64-I75D certification is not claimed.",
+    "meta_global_lock_proof": "Pending C1/C3/C5 mapping and ratification. Candidate rank planner is not a DB lock manager; no new dispatch/ACK physical certification claimed."
+  },
+  "pending_decisions": {
+    "ui": [
+      "D1",
+      "D2",
+      "D3",
+      "D4"
+    ],
+    "meta": [
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "C6",
+      "C7"
+    ]
+  },
+  "scope": {
+    "backend_cfi_changed": false,
+    "previous_cfi_sql_changed": false,
+    "ui_candidate_changed": false,
+    "official_migrations_changed": false,
+    "new_public_endpoint": false,
+    "other_front_branch_written": false,
+    "auxiliary_auto_merge": false,
+    "commercial_rule_ratified": false,
+    "hosted_access": false,
+    "deploy": false,
+    "merge": false
+  }
+}
