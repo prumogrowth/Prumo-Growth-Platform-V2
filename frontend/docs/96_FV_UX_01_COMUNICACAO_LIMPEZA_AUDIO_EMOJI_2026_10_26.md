@@ -1,6 +1,17 @@
 # FV-UX-01 — Conversa em primeiro lugar, voz e emojis (decisões de alinhamento)
 
-**Data:** 26/10/2026. **Projeto:** Prumo Growth / LiberaCred. **Frente:** frontend visual. **Situação:** diretriz autoral aprovada para orientar incrementos subsequentes; **NÃO equivale à implementação da gravação ou transmissão real**.
+**Data da diretriz:** 26/10/2026. **Atualização de implementação:** 27/10/2026. **Projeto:** plataforma da Prumo. **Frente:** frontend visual. **Situação atual:** hierarquia inicial reaproveitada; emoji, captura e reprodução de áudio **locais** implementados na branch `codex/fv-ux-01-comunicacao-20261027`. Transmissão real e aceite visual continuam pendentes. Consulte o [checkpoint de migração e implementação](./97_FV_UX_01_CODEX_IMPLEMENTACAO_E_PREVIA_2026_10_27.md).
+
+| Requisito | Estado atual |
+| --- | --- |
+| Lista primeiro, busca, filtros avançados e configurações recolhidos | Implementação anterior preservada; reset passou aos três pontos, inclusive no celular. |
+| Paleta neutra claro/escuro e conversa menos densa | Implementado; removidos os matizes remanescentes e o badge de janela aberta; resumo funcional preservado nos Detalhes. |
+| Consultor/Gestor em base única | Implementado com cenários `?perfil=consultor` e `?perfil=gestor`; seletores continuam ferramentas fictícias, sem autenticação. |
+| Emoji no cursor, teclado, rascunho e limite | Implementado com Unicode, seleção/substituição e acesso por teclado; escolha não envia. |
+| Áudio: permissão, gravar/parar, duração, ouvir/excluir/anexar localmente | Implementado com MediaRecorder e URLs efêmeras; não persistido, convertido ou enviado. |
+| Limpeza de áudio e bloqueio conservador | Implementados para troca de caso/ator/loja, perda de elegibilidade, reset, página oculta/saída e navegação móvel que oculta a conversa. |
+| Integração produtiva e política de mídia | Planejadas e dependentes de S0/Meta; nenhuma ativação nesta entrega. |
+| Avaliação estética e dispositivos físicos | Pendentes do responsável; testes e capturas não constituem aceite humano. |
 
 ## 1. Contexto e intenção do autor
 
@@ -91,4 +102,4 @@ https://www.twilio.com/docs/whatsapp/key-concepts
 
 **Fonte autoral:** feedback do responsável e imagens de 26/10/2026. **Pesquisa externa:** links da seção anterior. **Proposta de desenho/interação:** organização dos §§2–6, a ser executada incrementalmente sob testes. Esta decisão passa a guiar a lapidação visual e substitui a hipótese de que a prévia será aceita esteticamente só por passar nos testes.
 
-**Persistido aqui:** contrato de UI e obrigações futuras, **sem mudança de runtime**, sem revisão do manifesto, sem deploy, sem modificação em main ou S0. A preparação anterior de entrega no ChatGPT Sites deve aguardar a lapidação desta UX antes da próxima rodada de avaliação.
+**Registro original de 26/10:** contrato de UI e obrigações futuras, então sem mudança de runtime. **Atualização de 27/10:** a implementação local está discriminada na tabela inicial e no doc.97; manifesto, testes e prévia foram atualizados na branch própria. Não houve deploy, merge ou modificação em main/S0/S1. A publicação no Sites continua fora desta entrega.

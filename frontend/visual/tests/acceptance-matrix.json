@@ -66,7 +66,8 @@
       "coverage": "prototype_only",
       "tests": [
         "app.dom.test.mjs",
-        "attention-integration.test.mjs"
+        "attention-integration.test.mjs",
+        "communication-composer.test.mjs"
       ]
     },
     {
@@ -74,7 +75,8 @@
       "coverage": "prototype_only",
       "tests": [
         "cf-op-02.test.mjs",
-        "app.dom.test.mjs"
+        "app.dom.test.mjs",
+        "communication-composer.test.mjs"
       ]
     },
     {
@@ -84,7 +86,8 @@
         "transport-state-view.test.mjs",
         "operation-feedback.test.mjs",
         "s0-command-result.test.mjs",
-        "integration-gate-view.test.mjs"
+        "integration-gate-view.test.mjs",
+        "local-audio.test.mjs"
       ]
     },
     {

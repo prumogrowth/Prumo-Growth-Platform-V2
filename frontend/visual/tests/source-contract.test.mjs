@@ -203,7 +203,7 @@ test('G3 alertas S0 só aceitam projeção de fonte e espera observada sem cron�
 });
 
 test('Chromium smoke usa ambos módulos G3 e só lê painel depois de ativá-lo',()=>{
-  assert.match(browserSmoke, /'team-monitor\.mjs','team-monitoring\.mjs','batch-monitor\.mjs','distribution-view\.mjs','transport-state-view\.mjs','conversation-attention\.mjs','app\.mjs'/);
+  assert.match(browserSmoke, /'team-monitor\.mjs','team-monitoring\.mjs','batch-monitor\.mjs','distribution-view\.mjs','transport-state-view\.mjs','conversation-attention\.mjs','local-audio\.mjs','communication-composer\.mjs','app\.mjs'/);
   assert.match(browserSmoke, /page\.locator\('#team-show-monitor'\)\.click\(\)/);
   assert.match(browserSmoke, /page\.locator\('#team-show-members'\)\.click\(\)/);
 });
@@ -222,7 +222,7 @@ test('G4 não executa uploads, edição de concessão ou mudança de status come
   assert.doesNotMatch(batchMonitor, /\bfetch\s*\(|\bXMLHttpRequest\b|\bWebSocket\b|\bFileReader\b/);
   assert.doesNotMatch(batchMonitor, /\.assignedTo\s*=(?!=)|\.shops\s*=(?!=)|\.status\s*=(?!=)/);
   assert.match(app, /Somente leitura\. Upload, aceitação de linhas, roteamento/);
-  assert.match(browserSmoke, /'batch-monitor\.mjs','distribution-view\.mjs','transport-state-view\.mjs','conversation-attention\.mjs','app\.mjs'/);
+  assert.match(browserSmoke, /'batch-monitor\.mjs','distribution-view\.mjs','transport-state-view\.mjs','conversation-attention\.mjs','local-audio\.mjs','communication-composer\.mjs','app\.mjs'/);
   assert.match(browserSmoke, /page\.locator\('#team-show-batches'\)\.click\(\)/);
 });
 
@@ -231,7 +231,7 @@ test('FV-UI-013 UX: intro detalhável, contraste e toque, indicadores gerenciais
   assert.match(markup, /Solicitar pausa ou retomada de novos leads alcança TODAS as lojas/);
   assert.match(styles, /\.team-mode \.btn\{min-height:44px/);
   assert.match(styles, /\.team-dialog \.icon-button\{width:44px;height:44px/);
-  assert.match(styles, /\.team-dialog \.team-monitor-metric span\{color:#536d75;font-size:11px/);
+  assert.match(styles, /\.team-dialog \.team-monitor-metric span\{color:#696969;font-size:11px/);
   assert.match(app, /target\.replaceChildren\(title,note,indicators,workload,signals/);
 });
 
@@ -390,7 +390,7 @@ test('FV-UI-028: aria-expanded móvel e foco contrastante têm contrato de orige
   assert.match(app,/String\(view==='detail'\)/);
   assert.match(app,/if\(window\.matchMedia\('\(max-width:760px\)'\)\.matches\)/);
   assert.match(styles,/\.workspace :is\(button,input,select,textarea,summary\):focus-visible/);
-  assert.match(styles,/outline:3px solid #11685d/);
+  assert.match(styles,/outline:3px solid #5c5c5c/);
   assert.match(browserSmoke,/FV-UI-028 acessibilidade teclado/);
 });
 
@@ -484,7 +484,7 @@ test('FV-UI-038: contraste do modal gerencial no tema escuro é verificado no na
   assert.match(styles,/body\[data-theme="dark"\] \.team-dialog \.team-batch-summary/);
   assert.match(styles,/body\[data-theme="dark"\] \.team-dialog :is\(/);
   assert.match(styles,/\.team-help summary/);
-  assert.match(styles,/outline-color:#8ad6c5/);
+  assert.match(styles,/outline-color:#c8c8c8/);
   assert.match(browserSmoke,/FV-UI-038 contraste de painel gerencial em dark desktop e mobile: PASS/);
   assert.match(browserSmoke,/ratio>=4\.5/);
 });
@@ -538,7 +538,7 @@ test('FV-UI-042: tipografia da conversa e contraste de cores preservam estados',
 
 test('FV-UI-043: estados e compositor legiveis sem alterar permissao de envio',()=>{
   assert.match(styles,/FV-UI-043: estados e compositor legíveis/);
-  assert.match(styles,/\.thread-pane \.status-indicator\.human\{background:#e1f4ee;color:#1b6457/);
+  assert.match(styles,/\.thread-pane \.status-indicator\.human\{background:#f0f0f0;color:#595959/);
   assert.match(styles,/\.thread-pane \.composer input\{min-width:0;flex:1;height:48px;font-size:14px/);
   assert.match(styles,/\.thread-pane \.send-button\{width:48px;height:48px/);
   assert.match(styles,/\.thread-pane \.composer input:disabled/);
@@ -554,7 +554,7 @@ test('FV-UI-044: foco teclado da barra e compositor sem recorte',()=>{
   assert.match(styles,/padding-inline:6px/);
   assert.match(styles,/scroll-padding:8px/);
   assert.match(styles,/\.thread-pane :is\(\.workflow-bar \.btn,\.thread-heading \.icon-button,\.composer input,\.send-button\):focus-visible/);
-  assert.match(styles,/outline:3px solid #11685d/);
+  assert.match(styles,/outline:3px solid #5c5c5c/);
   assert.match(styles,/\.visual-app\[data-theme="dark"\] \.thread-pane :is\(/);
   assert.match(browserSmoke,/FV-UI-044 foco teclado sem recorte em 8 cenarios: PASS/);
   assert.match(browserSmoke,/focus_044.keyboard.press\('Shift\+Tab'\)/);
@@ -624,7 +624,7 @@ test('FV-UI-051: orientacoes dos tres paineis associadas aos controles e coerent
   assert.match(markup,/id="list-demo-guidance" role="note"/);
   assert.match(markup,/id="message-input"[^>]*aria-describedby="composer-demo-guidance"/);
   assert.match(markup,/id="composer-demo-guidance" role="note">Dados fictícios/);
-  assert.match(markup,/Nenhum envio pelo WhatsApp/);
+  assert.match(markup,/Dados fictícios · sem envios reais/);
   assert.match(app,/FV-UI-051: o alcance fictício também é explícito no painel de detalhes/);
   assert.match(app,/guidance\.id='case-demo-guidance';guidance\.setAttribute\('role','note'\)/);
   assert.match(app,/content\.setAttribute\('aria-describedby','case-demo-guidance'\)/);

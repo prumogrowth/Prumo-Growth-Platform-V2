@@ -16,7 +16,7 @@ assert html.count(css_link) == 1, 'Link CSS duplicado ou inexistente'
 assert html.count(module_tag) == 1, 'Script de entrada duplicado ou inexistente'
 html = html.replace(css_link, '<style>'+css+'</style>')
 html = html.replace(module_tag, '')
-script = '\n'.join((base / name).read_text(encoding='utf-8') for name in ('fixtures.mjs','view-model.mjs','cf-op-02.mjs','registration-view.mjs','human-cycle-view.mjs','operation-feedback.mjs','bank-view.mjs','postmark-view.mjs','team-operations.mjs','team-pause-preview.mjs','team-monitor.mjs','team-monitoring.mjs','batch-monitor.mjs','distribution-view.mjs','transport-state-view.mjs','conversation-attention.mjs','app.mjs'))
+script = '\n'.join((base / name).read_text(encoding='utf-8') for name in ('fixtures.mjs','view-model.mjs','cf-op-02.mjs','registration-view.mjs','human-cycle-view.mjs','operation-feedback.mjs','bank-view.mjs','postmark-view.mjs','team-operations.mjs','team-pause-preview.mjs','team-monitor.mjs','team-monitoring.mjs','batch-monitor.mjs','distribution-view.mjs','transport-state-view.mjs','conversation-attention.mjs','local-audio.mjs','communication-composer.mjs','app.mjs'))
 script = re.sub(r'(?ms)^import \{.*?\} from ["\']\./[^"\']+["\'];\s*', '', script)
 script = re.sub(r'(?m)^export ', '', script)
 assert 'import {' not in script and 'export ' not in script, 'Módulo não concatenado com segurança'
@@ -75,7 +75,7 @@ with sync_playwright() as p:
         elif width<=1040: page.locator('#detail-close').click()
         # FV-UI-017: prévia de autoria, confirmação APENAS local e alerta não resolvido.
         page.locator('#message-input').fill('Resposta em demonstração')
-        page.locator('#composer button').click()
+        page.locator('#composer .send-button').click()
         expect(page.locator('#message-preview-dialog')).to_be_visible()
         assert page.locator('#message-preview-body').inner_text().startswith('Consultor Rafael Lima:')
         page.locator('#message-preview-form button[value=confirm]').click()
@@ -107,7 +107,7 @@ with sync_playwright() as p:
     dark_preference.locator('#ui-settings').evaluate('e => e.open = false')
     dark_preference.locator('#team-nav').click()
     modal_surface=dark_preference.locator('#team-dialog').evaluate("node => getComputedStyle(node).backgroundColor")
-    assert modal_surface=='rgb(20, 30, 37)',modal_surface
+    assert modal_surface=='rgb(29, 29, 29)',modal_surface
     dark_preference.locator('#team-close').click()
     dark_preference.locator('#ui-settings').evaluate('e => e.open = true')
     dark_preference.locator('#theme-light').click()
@@ -467,7 +467,7 @@ with sync_playwright() as p:
     focus_page.add_script_tag(content=script)
     focus_page.get_by_role('button',name='Abrir conversa Cliente Exemplo 02',exact=False).click()
     focus_page.locator('#message-input').fill('Rascunho de teste não enviado')
-    focus_page.locator('#composer button').click()
+    focus_page.locator('#composer .send-button').click()
     assert focus_page.locator('#message-preview-dialog').is_visible()
     focus_page.keyboard.press('Escape')
     assert focus_page.locator('#message-preview-dialog').is_hidden()
@@ -674,7 +674,7 @@ with sync_playwright() as p:
             outline:getComputedStyle(document.activeElement).outlineColor,
             width:getComputedStyle(document.activeElement).outlineWidth})""")
         assert focus['tag']=='BUTTON',focus
-        assert focus['width']=='3px' and focus['outline']=='rgb(17, 104, 93)',focus
+        assert focus['width']=='3px' and focus['outline']=='rgb(92, 92, 92)',focus
         assert not aria_page.evaluate('document.documentElement.scrollWidth > innerWidth')
         assert not aria_errors,aria_errors
         aria_page.close()
@@ -948,7 +948,7 @@ with sync_playwright() as p:
             assert input_043.bounding_box()['height']>=48
             assert send_043.bounding_box()['width']>=48 and send_043.bounding_box()['height']>=48
             assert float(input_043.evaluate('e=>parseFloat(getComputedStyle(e).fontSize)')) >=(16 if composer_width<=760 else 14)
-            for selector in ('.thread-pane .window-indicator','.thread-pane .status-indicator','.thread-pane .tiny-note'):
+            for selector in ('.thread-pane .status-indicator','.thread-pane .tiny-note'):
                 node=bottom_page.locator(selector).first
                 assert node.count()>0,(composer_width,composer_theme,selector)
                 assert float(node.evaluate('e=>parseFloat(getComputedStyle(e).fontSize)'))>=11
@@ -998,6 +998,8 @@ with sync_playwright() as p:
             # Testa o retorno do campo para a ação anterior SEM clicar nem concluir.
             focus_044.locator('#message-input').focus()
             focus_044.keyboard.press('Shift+Tab')
+            expect(focus_044.locator('#emoji-toggle')).to_be_focused()
+            focus_044.keyboard.press('Shift+Tab')
             expect(focus_044.locator('#request-completion')).to_be_focused()
             ring=focus_044.evaluate("""() => {
               const e=document.activeElement,bar=document.querySelector('#workflow-bar');
@@ -1006,11 +1008,15 @@ with sync_playwright() as p:
                 left:r.left-b.left,top:r.top-b.top,right:b.right-r.right,bottom:b.bottom-r.bottom};
             }""")
             assert ring['width']=='3px' and ring['style']=='solid',(focus_width,focus_theme,ring)
-            assert ring['color']==('rgb(131, 218, 201)' if focus_theme=='dark' else 'rgb(17, 104, 93)')
+            assert ring['color']==('rgb(202, 202, 202)' if focus_theme=='dark' else 'rgb(92, 92, 92)')
             assert all(ring[side]>=5 for side in ('left','right','top','bottom')),(focus_width,focus_theme,ring)
+            focus_044.keyboard.press('Tab')
+            expect(focus_044.locator('#emoji-toggle')).to_be_focused()
             focus_044.keyboard.press('Tab')
             expect(focus_044.locator('#message-input')).to_be_focused()
             assert focus_044.locator('#message-input').evaluate('e=>getComputedStyle(e).outlineWidth')=='3px'
+            focus_044.keyboard.press('Tab')
+            expect(focus_044.locator('#audio-record')).to_be_focused()
             focus_044.keyboard.press('Tab')
             expect(focus_044.locator('.send-button')).to_be_focused()
             assert focus_044.locator('.send-button').evaluate('e=>getComputedStyle(e).outlineWidth')=='3px'
@@ -1186,7 +1192,7 @@ with sync_playwright() as p:
             assert float(toast.evaluate('e=>parseFloat(getComputedStyle(e).fontSize)'))>=13
             colors=toast.evaluate("""e=>({foreground:getComputedStyle(e).color,background:getComputedStyle(e).backgroundColor,
                 bottom:getComputedStyle(e).bottom,events:getComputedStyle(e).pointerEvents})""")
-            assert colors['foreground']=='rgb(255, 255, 255)' and colors['background']=='rgb(25, 62, 72)'
+            assert colors['foreground']=='rgb(255, 255, 255)' and colors['background']=='rgb(57, 57, 57)'
             # Chromium pode resolver bottom:auto em pixels; a geometria real foi validada acima.
             assert colors['events']=='none',(notice_width,notice_theme,colors)
             assert not notice_page.evaluate('document.documentElement.scrollWidth>innerWidth')
@@ -1456,3 +1462,7 @@ with sync_playwright() as p:
     print('FV-UI-058 foco do primeiro caso pela seta em 8 cenarios: PASS')
 
     browser.close()
+
+# O mesmo gate obrigatório inclui agora carga ESM por HTTP e captura sintética real.
+from runpy import run_path
+run_path(str(base / 'tests' / 'browser.communication.py'), run_name='__main__')

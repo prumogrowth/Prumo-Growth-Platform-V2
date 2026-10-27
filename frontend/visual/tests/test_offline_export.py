@@ -271,6 +271,16 @@ class NativeCheckoutPreflightTests(unittest.TestCase):
         self.assertFalse(result["passed"])
         self.assertFalse(result["executed"])
 
+    def test_native_revision_accepts_only_explicitly_authorized_frontend_branches(self):
+        self.assertTrue(self.runner.check_git_revision(self.head)["passed"])
+        self.git("switch", "-c", "codex/fv-ux-01-comunicacao-20261027")
+        self.assertTrue(self.runner.check_git_revision(self.head)["passed"])
+
+    def test_native_revision_rejects_unlisted_branch_and_wrong_head(self):
+        self.assertFalse(self.runner.check_git_revision("b" * 40)["passed"])
+        self.git("switch", "-c", "codex/unapproved-fixture")
+        self.assertFalse(self.runner.check_git_revision(self.head)["passed"])
+
 class AcceptanceInventoryGuardTests(unittest.TestCase):
     """FV-UI-046: impede que o runner deixe um *.test.mjs sem registro."""
 

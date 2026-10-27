@@ -32,18 +32,37 @@ import {
   ATTENTION_PROPOSAL_VERSION, stageConversationAttention,
   canStageReadAcknowledgment
 } from './conversation-attention.mjs';
+import { installCommunicationComposer, audioDuration } from './communication-composer.mjs';
 
 const $ = id => document.getElementById(id);
 const app = $('visual-app');
 const list = $('conversation-items');
 // FV-UI-037: acompanhar a preferência do SO enquanto não houver escolha manual.
 const systemColorScheme = window.matchMedia('(prefers-color-scheme: dark)');
+// Cenários de avaliação da MESMA base. Não representam identidade autenticada.
+const initialDemoActor = new URLSearchParams(window.location?.search ?? '').get('perfil') === 'gestor' ? 'marina' : 'rafael';
 const state = {
-  actorId: 'rafael', shopId: 'aurora', filter: 'all', statusFilter: 'all', detailTab: 'overview', query: '',
-  selectedId: 'A-102', cases: copyCFDemoFixtures(), processing: {}, reviewScenes: {}, followupRequests: {}, inboxView: 'active',
+  actorId: initialDemoActor, shopId: 'aurora', filter: 'all', statusFilter: 'all', detailTab: 'overview', query: '',
+  selectedId: initialDemoActor === 'rafael' ? 'A-102' : null, cases: copyCFDemoFixtures(), processing: {}, reviewScenes: {}, followupRequests: {}, inboxView: 'active',
   mobileView: 'list', theme: systemColorScheme.matches ? 'dark' : 'light', themeOverride:false,
   dialogContext: { completion: null, template: null, message: null }, intakeDialogContext:null, queueDialogContext:null, queueRequests:{}, teamRequests:{}, teamPanel:'members'
 };
+const communication = installCommunicationComposer({
+  getContext: () => ({ key: `${state.actorId}:${state.shopId}:${state.selectedId}`,
+    allowed: Boolean(selectedCase() && canMockMessage(selectedCase())) }),
+  onNotice: showToast,
+  onAttach: clip => {
+    const item = selectedCase();
+    if (!item || !canMockMessage(item)) return;
+    const actor = getActor(state.actorId);
+    item.messages.push({ id: `demo-audio-${item.messages.length+1}`, side:'out',
+      body: `${humanRoleLabel(actor)} ${actor.name} · Áudio local (${audioDuration(clip.duration)})`,
+      localAudioId: clip.id, time:'Agora · fictício', authorId:actor.id,
+      deliveryState:'local_demo_not_sent' });
+    render();
+    showToast('Áudio anexado somente nesta demonstração. Sem upload ou envio pelo WhatsApp.');
+  }
+});
 
 function el(tag, className='', text=null) {
   const n = document.createElement(tag);
@@ -83,6 +102,7 @@ function stageHumanMessagePreview(actor, rawText) {
 }
 function clearComposerContext() {
   // Falha fechada: texto digitado nunca atravessa caso, pessoa ou loja.
+  communication.reset();
   $('message-input').value='';
   $('message-preview-body').textContent='';
   state.dialogContext.message=null;
@@ -204,6 +224,8 @@ function announceCurrentContext(detail=''){
   $('context-announcement').textContent=context.join(' · ');
 }
 function goto(view) {
+  if (view !== 'thread' && window.matchMedia('(max-width:760px)').matches)
+    communication.reset();
   state.mobileView = view;
   app.dataset.mobileView = view;
   // FV-UI-028: o estado acessível acompanha o painel móvel de fato visível.
@@ -338,23 +360,37 @@ function renderList() {
   });
 }
 function renderThread() {
+  // Revalida também em rerenders de conclusão, perda de elegibilidade e troca de contexto.
+  communication.sync();
   const item = selectedCase();
   $('thread-title').textContent = item?.name ?? 'Selecione uma conversa';
-  $('thread-meta').textContent = item ? `${getShop(item.shopId).name} · Caso ${item.id} · ${isInActiveInbox(item)?'Lista ativa':'Histórico preservado'} · demo` : 'Nenhum atendimento selecionado';
+  $('thread-meta').textContent = item ? `${getShop(item.shopId).name} · Caso ${item.id}` : 'Nenhum atendimento selecionado';
   const body = $('thread-body'); const bar = $('workflow-bar');
   const input = $('message-input'); const button = document.querySelector('.send-button');
   if (!item) {
     const empty = el('div','thread-placeholder');
     empty.append(el('h2','', 'Sua central de conversas'),el('p','', 'Selecione um atendimento na lista. Apenas dados fictícios serão exibidos.'));
     body.replaceChildren(empty); bar.replaceChildren(); input.disabled = true; button.disabled = true;
+    $('composer-availability').hidden = true;
     $('detail-toggle').disabled = true; return;
   }
   $('detail-toggle').disabled = false;
   const isExceptional=hasMockCaseOnlyScope(item,state.actorId,state.shopId);
-  const children = [el('span','day-separator','CONVERSA SINTÉTICA · EXEMPLO VISUAL')];
+  const children = [el('span','day-separator','Demonstração · dados fictícios')];
   for (const m of item.messages) {
     const bubble = el('div', 'message ' + m.side);
     bubble.append(el('p','', m.body), el('small','',m.time));
+    if (m.localAudioId) {
+      const clip = communication.getClip(m.localAudioId);
+      if (clip) {
+        const player = el('audio','local-audio-message');
+        player.dataset.localAudioId = m.localAudioId;
+        player.controls = true; player.preload = 'metadata'; player.src = clip.url;
+        player.setAttribute('aria-label','Ouvir áudio local, não enviado');
+        player.addEventListener('error',()=>showToast('Não foi possível reproduzir este áudio local.'));
+        bubble.append(player);
+      } else bubble.append(el('small','', 'Prévia de áudio descartada ao sair do contexto.'));
+    }
     if(m.deliveryState==='local_demo_not_sent') {
       bubble.append(el('small','message-send-state','Somente simulação · NÃO ENVIADA'));
     } else if(m.side==='out') {
@@ -375,13 +411,12 @@ function renderThread() {
   body.scrollTop = body.scrollHeight;
   const note = el('div','workflow-copy');
   const s = el('span', 'status-indicator ' + statusTone(item.status), item.status);
-  const t = el('span', 'tiny-note', 'Estado comercial · não alterado pela interface');
+  const t = el('span', 'tiny-note sr-only', 'Estado comercial · não alterado pela interface');
   note.append(s,t);
   bar.replaceChildren(note);
   if(isExceptional)bar.append(el('span','status-indicator',
     'Acesso excepcional: SOMENTE este caso · projeção fictícia'));
   const meta=projectedMetaWindow(item);
-  bar.append(el('span','window-indicator '+(meta==='open'?'open':'closed'),meta==='open'?'Janela Meta aberta · projeção':meta==='expired'?'Janela Meta expirada · projeção':'Janela Meta não confirmada'));
   const completionState = humanCompletion(item,Boolean(state.processing[item.id]));
   if(item.reviewSceneVersion)bar.append(el('span','status-indicator',
     'Esclarecimento · CENÁRIO ALTERNATIVO fictício, não reaberto no S0'));
@@ -438,7 +473,10 @@ function renderThread() {
   const composeAllowed = canMockMessage(item);
   input.disabled = !composeAllowed;
   button.disabled = !composeAllowed;
-  input.placeholder = composeAllowed ? 'Escrever mensagem de demonstração…' : meta==='expired' ? 'Janela de 24h encerrada · somente template aprovado' : 'Texto livre indisponível neste contexto';
+  const availability = $('composer-availability');
+  availability.hidden = composeAllowed;
+  availability.textContent = composeAllowed ? '' : meta==='expired' ? 'Janela de conversa encerrada' : 'Envio indisponível no momento';
+  input.placeholder = composeAllowed ? 'Escrever mensagem…' : 'Composição indisponível';
 }
 function detailSection(title) {
   const section = el('section','detail-section'); section.append(el('h3','detail-label',title)); return section;
@@ -818,6 +856,16 @@ $('thread-back').addEventListener('click',()=>{mobileBackNavigation();});
 $('detail-back').addEventListener('click',()=>{mobileBackNavigation();});
 $('theme-light').addEventListener('click',()=>{state.themeOverride=true;applyTheme('light');});
 $('theme-dark').addEventListener('click',()=>{state.themeOverride=true;applyTheme('dark');});
+// Fechamento de configurações por teclado e clique fora, sem roubar foco.
+$('ui-settings').addEventListener('keydown',event=>{
+  if(event.key==='Escape' && $('ui-settings').open){
+    event.preventDefault();event.stopPropagation?.();$('ui-settings').open=false;
+    $('ui-settings').querySelector('summary')?.focus();
+  }
+});
+document.addEventListener('click',event=>{
+  if($('ui-settings').open && !$('ui-settings').contains(event.target))$('ui-settings').open=false;
+});
 $('detail-toggle').addEventListener('click',()=>{
   if (window.matchMedia('(max-width:760px)').matches) {goto('detail');$('detail-back').focus();return;}
   const hidden=app.classList.toggle('details-hidden');$('detail-toggle').setAttribute('aria-expanded',String(!hidden));
@@ -1129,6 +1177,7 @@ function openTeamSummary(){
   if(!canSeeTeamSummary(state.actorId,state.shopId)){
     showToast('A visão da equipe está disponível somente no perfil fictício de gestor.');return;
   }
+  communication.reset();
   switchTeamPanel('members');
   $('team-action-announcement').textContent='';
   const dialog=$('team-dialog');dialog.returnValue='';dialog.showModal();
@@ -1192,7 +1241,7 @@ document.addEventListener('keydown',event=>{
   }
 });
 $('reset-app').addEventListener('click',()=>{
-  state.cases=copyCFDemoFixtures();state.processing={};state.reviewScenes={};state.followupRequests={};changeActor('rafael');showToast('Dados de demonstração restaurados.');
+  state.cases=copyCFDemoFixtures();state.processing={};state.reviewScenes={};state.followupRequests={};changeActor(initialDemoActor);showToast('Dados de demonstração restaurados.');
 });
 $('composer').addEventListener('submit',event=>{
   event.preventDefault();

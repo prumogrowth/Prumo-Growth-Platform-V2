@@ -1,6 +1,10 @@
 # COMECE AQUI — fontes vigentes do Frontend da plataforma Prumo
 **Corte inicial:** 21/10/2026. **Última precedência:** 22/10/2026. **Função:** índice de consulta com **precedência**, não autorização para executar operações. Esta frente documenta produto e interface; a implementação real depende de S0/S1/Meta/OpenAI/Banco e aceite próprio.
 
+## Continuidade visual no Codex — 27/10/2026
+
+[FV-UX-01 implementado e prévia integral local](./97_FV_UX_01_CODEX_IMPLEMENTACAO_E_PREVIA_2026_10_27.md): continuidade em branch própria desde `8c9498d7`, hierarquia inicial reaproveitada, paleta neutra, emoji e áudio efêmero no navegador. [Diretriz 96 atualizada](./96_FV_UX_01_COMUNICACAO_LIMPEZA_AUDIO_EMOJI_2026_10_26.md) distingue implementado e planejado. Nenhum aceite visual, merge, deploy ou integração S0/S1/Meta é inferido.
+
 ## Precedência mais recente — plataforma sem nome e contrato visual (22/10/2026)
 
 **[FV-DOC-03 — Contrato funcional vigente do Frontend](./38_FV_DOC_03_CONTRATO_FUNCIONAL_FRONTEND_2026_10_22.md)**: fonte prioritária atual para **plataforma sem nome ≠ LiberaCred (produto da instituição financeira)**, ficha sem edição manual pelo Consultor, F01/F02/F03, handoff, autoria no WhatsApp, mensagens, fila e dependências de outras frentes. **[FV-DOC-04 — auditoria documental de 22/10](./39_FV_DOC_04_AUDITORIA_DOCUMENTAL_FRONTEND_2026_10_22.md)** registra o que foi verificado e o que ainda está pendente. Documentos anteriores continuam disponíveis para histórico, **não competem com a decisão posterior**.

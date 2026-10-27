@@ -1,8 +1,9 @@
-name: LiberaCred - Validacao do frontend visual
+name: Prumo - Validacao do frontend visual
 on:
   push:
     branches:
       - feat/frontend-plataforma-visual
+      - codex/fv-ux-01-comunicacao-20261027
     paths:
       - "frontend/visual/**"
       - "frontend/preview/**"
@@ -14,7 +15,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   native-checkout:
-    if: github.ref == 'refs/heads/feat/frontend-plataforma-visual'
+    if: github.ref == 'refs/heads/feat/frontend-plataforma-visual' || github.ref == 'refs/heads/codex/fv-ux-01-comunicacao-20261027'
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
@@ -96,11 +97,14 @@ jobs:
         run: |
           python -B -m unittest discover -s frontend/preview -p 'test_*.py'
           python -B frontend/preview/build_preview.py --output out/prumo-demo-visual.zip
+          python -B frontend/preview/build_standalone_preview.py --output out/prumo-preview-integral.html
       - name: Artefato ZIP visual para avaliacao (30 dias; SEM deploy)
         uses: actions/upload-artifact@v4
         with:
           name: prumo-demo-visual-zip
-          path: out/prumo-demo-visual.zip
+          path: |
+            out/prumo-demo-visual.zip
+            out/prumo-preview-integral.html
           if-no-files-found: error
           retention-days: 30
       - name: Capturar matriz visual FVB-01 (somente apos aceite nativo)

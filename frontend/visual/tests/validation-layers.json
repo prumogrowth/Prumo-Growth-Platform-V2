@@ -25,7 +25,8 @@
         "team-operations.test.mjs",
         "team-pause-preview.test.mjs",
         "transport-state-view.test.mjs",
-        "view-model.test.mjs"
+        "view-model.test.mjs",
+        "local-audio.test.mjs"
       ]
     },
     "interaction": {
@@ -34,7 +35,8 @@
         "app.dom.test.mjs",
         "app.mobile.dom.test.mjs",
         "app.tablet.dom.test.mjs",
-        "attention-integration.test.mjs"
+        "attention-integration.test.mjs",
+        "communication-composer.test.mjs"
       ]
     },
     "source": {

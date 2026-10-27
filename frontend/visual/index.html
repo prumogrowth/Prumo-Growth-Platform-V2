@@ -24,6 +24,8 @@
   <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="m12 3 1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3ZM19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8L19 16Z"/></symbol>
   <symbol id="i-close" viewBox="0 0 24 24"><path d="M5 5 19 19M19 5 5 19"/></symbol>
   <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="i-smile" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 14a4 4 0 0 0 8 0M8 9h.01M16 9h.01"/></symbol>
+  <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="13" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3M8 22h8"/></symbol>
 </svg>
 <div class="visual-app" id="visual-app" data-mobile-view="list">
   <aside class="rail" aria-label="Área de navegação demonstrativa">
@@ -34,7 +36,7 @@
       <div class="rail-label">CENTRAL</div>
       <button class="rail-icon" title="Equipe: visualização de demonstração" aria-label="Equipe: demonstrativo" type="button" id="team-nav"><svg class="icon"><use href="#i-people"/></svg></button>
     </nav>
-    <div class="rail-bottom"><button class="rail-icon" id="reset-app" title="Restaurar simulação" aria-label="Restaurar simulação" type="button"><svg class="icon"><use href="#i-refresh"/></svg></button><div class="avatar rail-avatar" aria-hidden="true">P</div></div>
+    <div class="rail-bottom"><div class="avatar rail-avatar" aria-hidden="true">P</div></div>
   </aside>
 
   <main class="workspace" aria-label="Central de atendimento visual">
@@ -51,6 +53,7 @@
                 <div class="actor-control"><label for="actor-select">Perfil da demonstração</label><div class="select-wrap"><select id="actor-select" aria-label="Selecionar perfil fictício"></select><svg class="icon small"><use href="#i-chevron"/></svg></div></div>
                 <div class="shop-control"><label for="shop-select">Concessionária (filtro de conversas, não altera concessões)</label><div class="select-wrap"><select id="shop-select" aria-label="Selecionar concessionária fictícia"></select><svg class="icon small"><use href="#i-chevron"/></svg></div></div>
                 <p class="settings-note">Dados fictícios. Estes seletores não são autenticação nem alteram permissões reais.</p>
+                <button id="reset-app" class="btn btn-light settings-reset" type="button">Restaurar simulação</button>
               </div>
             </details>
           </div></div>
@@ -80,8 +83,18 @@
       <div class="thread-body" id="thread-body" role="log" aria-label="Mensagens fictícias do atendimento" aria-live="off"></div>
       <div class="thread-bottom">
         <div class="workflow-bar" id="workflow-bar"></div>
-        <form class="composer" id="composer" autocomplete="off"><input id="message-input" name="message" placeholder="Escrever mensagem de demonstração…" aria-label="Mensagem sintética para a conversa" aria-describedby="composer-demo-guidance" maxlength="500"><button type="submit" class="send-button" aria-label="Conferir prévia de mensagem fictícia" title="Conferir prévia de mensagem fictícia"><svg class="icon"><use href="#i-send"/></svg></button></form>
-        <p class="composer-note" id="composer-demo-guidance" role="note">Dados fictícios. Texto digitado → prévia → registro somente na demonstração. Nenhum envio pelo WhatsApp.</p>
+        <div class="communication-tools">
+          <div id="emoji-picker" class="emoji-picker" role="group" aria-label="Escolher emoji. Use as setas para navegar e Escape para voltar ao texto." hidden></div>
+          <div id="audio-draft" class="audio-draft" role="region" aria-label="Rascunho local de áudio" hidden>
+            <div class="audio-draft-heading"><span id="audio-status" role="status" aria-live="polite"></span><span id="audio-duration" aria-label="Duração da gravação">0:00</span></div>
+            <audio id="audio-preview" controls preload="metadata" aria-label="Ouvir rascunho de áudio" hidden></audio>
+            <div class="audio-actions"><button type="button" id="audio-stop" class="btn btn-primary" hidden>Parar gravação</button><button type="button" id="audio-delete" class="btn btn-light">Excluir rascunho</button><button type="button" id="audio-attach" class="btn btn-primary" hidden>Anexar só na demo</button></div>
+            <p class="audio-local-note">Áudio somente neste navegador. Sem upload ou envio.</p>
+          </div>
+        </div>
+        <p id="composer-availability" class="composer-availability" role="status" hidden></p>
+        <form class="composer" id="composer" autocomplete="off"><button type="button" id="emoji-toggle" class="icon-button composer-tool" aria-label="Inserir emoji" aria-expanded="false" aria-controls="emoji-picker" title="Inserir emoji"><svg class="icon"><use href="#i-smile"/></svg></button><input id="message-input" name="message" placeholder="Escrever mensagem…" aria-label="Mensagem sintética para a conversa" aria-describedby="composer-demo-guidance" maxlength="500"><button type="button" id="audio-record" class="icon-button composer-tool" aria-label="Gravar áudio local" aria-pressed="false" aria-controls="audio-draft" title="Gravar áudio local"><svg class="icon"><use href="#i-mic"/></svg></button><button type="submit" class="send-button" aria-label="Conferir prévia de mensagem fictícia" title="Conferir prévia de mensagem fictícia"><svg class="icon"><use href="#i-send"/></svg></button></form>
+        <p class="composer-note" id="composer-demo-guidance" role="note">Dados fictícios · sem envios reais.</p>
       </div>
     </section>
 

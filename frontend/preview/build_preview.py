@@ -38,7 +38,7 @@ def pinned_manifest():
                 and isinstance(value.args[0], ast.Constant)
                 and isinstance(value.args[0].value, str)):
             manifest = json.loads(value.args[0].value)
-            if manifest.get("source_branch") != "feat/frontend-plataforma-visual":
+            if manifest.get("source_branch") not in {"feat/frontend-plataforma-visual", "codex/fv-ux-01-comunicacao-20261027"}:
                 raise ValueError("Unrecognized source branch")
             return manifest
     raise ValueError("No valid pinned manifest")

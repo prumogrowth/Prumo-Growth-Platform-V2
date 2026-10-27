@@ -76,7 +76,9 @@ export function installMockDOM({ mobile = false, tablet = false, prefersDark = f
     'team-show-members', 'team-show-monitor', 'team-show-batches',
     'context-announcement', 'toast', 'team-nav', 'team-nav-mobile', 'team-close',
     'reset-app', 'composer', 'thread-back', 'detail-back', 'detail-close',
-    'theme-light', 'theme-dark'
+    'theme-light', 'theme-dark', 'emoji-toggle', 'emoji-picker', 'audio-record',
+    'audio-draft', 'audio-preview', 'audio-status', 'audio-duration', 'audio-stop',
+    'audio-attach', 'audio-delete', 'composer-availability', 'ui-settings'
   ];
   const nodes = new Map(ids.map(id => {
     const tag=id.endsWith('dialog') ? 'dialog' :
