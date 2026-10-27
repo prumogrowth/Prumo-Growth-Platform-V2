@@ -57,6 +57,9 @@ Deno.test("receipt: inventory contains no private fields or unordered pagination
 Deno.test("config: hosted URLs privileged SQL users absent opt-in and remote origins blocked",()=>{
   settings(k=>config[k]);
   for(const patch of [{PRUMO_I82_DISPOSABLE:"NO"},{PRUMO_I82_AUTH_URL:"https://example.supabase.co"},{PRUMO_I82_DATABASE_URL:"postgresql://postgres:x@localhost/postgres"},{PRUMO_I82_ALLOW_ORIGIN:"https://frontend.example"}])rejects(()=>settings(k=>({...config,...patch} as Record<string,string|undefined>)[k]));
+  const docker={...config,PRUMO_I82_DATABASE_URL:"postgresql://prumo_cfi01_pgtest_login:synthetic-only@supabase_db_prumo-s0-auth-ci:5432/postgres",PRUMO_I82_DATABASE_IPV4:"172.18.0.2"};
+  equal(settings(k=>docker[k as keyof typeof docker]).databaseAddress,"172.18.0.2");
+  for(const ip of ["169.254.169.254","8.8.8.8","172.999.0.2","localhost",""]){rejects(()=>settings(k=>({...docker,PRUMO_I82_DATABASE_IPV4:ip} as Record<string,string>)[k]));}
 });
 Deno.test("HTTP: invalid DTO no auth networking, secret echo, or chosen correlation",async()=>{
   const h=createHandler(k=>config[k]);const r=await h(new Request("http://localhost/prumo-admin-i82/v1/i79",{method:"POST",headers:{"content-type":"application/json","x-request-id":fixture.principal.actor},body:JSON.stringify(envelope({...dto,actor_id:fixture.principal.actor}))}));

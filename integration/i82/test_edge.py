@@ -34,8 +34,11 @@ class EdgeTests(I80Tests):
         cls.addClassCleanup(cls.temporary.cleanup)
         u=urlsplit(cls.dsn)
         internal=urlunsplit((u.scheme,u.netloc.replace(u.hostname+':'+str(u.port),'supabase_db_prumo-s0-auth-ci:5432'),u.path,'',''))
+        networks=json.loads(subprocess.check_output(['docker','inspect','--format','{{json .NetworkSettings.Networks}}','supabase_db_prumo-s0-auth-ci']))
+        addresses=[v['IPAddress'] for k,v in networks.items() if k=='supabase_network_prumo-s0-auth-ci' and v.get('IPAddress')]
+        if len(addresses)!=1:raise RuntimeError('I82 own disposable DB network address required')
         env=dict(PRUMO_I82_DISPOSABLE='YES',PRUMO_I82_AUTH_URL='http://supabase_kong_prumo-s0-auth-ci:8000',
-            PRUMO_I82_DATABASE_URL=internal,PRUMO_I82_ANON_KEY=cls.anon,PRUMO_I82_KEY_ID=str(cls.key_id),
+            PRUMO_I82_DATABASE_URL=internal,PRUMO_I82_DATABASE_IPV4=addresses[0],PRUMO_I82_ANON_KEY=cls.anon,PRUMO_I82_KEY_ID=str(cls.key_id),
             PRUMO_I82_HMAC_HEX=cls.secret.hex(),PRUMO_I82_ALLOW_ORIGIN='http://localhost:3000')
         file=Path(cls.temporary.name)/'edge.env'
         file.write_text('\n'.join(k+'='+v for k,v in env.items())+'\n');file.chmod(0o600)

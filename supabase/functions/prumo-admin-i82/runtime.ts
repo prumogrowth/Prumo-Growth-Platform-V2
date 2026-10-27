@@ -2,7 +2,7 @@ import postgres from "postgres";
 import { Family, Document, Principal, proofArgs, receipt, sign, uuid } from "./contract.ts";
 
 export class AuthenticationDenied extends Error {}
-export type Settings = {authUrl:string; anon:string; database:string; keyId:string; secret:Uint8Array; origin:string};
+export type Settings = {authUrl:string; anon:string; database:string; databaseAddress:string; keyId:string; secret:Uint8Array; origin:string};
 export function settings(read: (key:string)=>string|undefined): Settings {
   if (read("PRUMO_I82_DISPOSABLE") !== "YES") throw new Error("I82_CONFIG_BLOCKED");
   const auth = new URL(read("PRUMO_I82_AUTH_URL") ?? "");
@@ -10,12 +10,22 @@ export function settings(read: (key:string)=>string|undefined): Settings {
   const hosts = ["127.0.0.1", "localhost"];
   if (auth.protocol !== "http:" || ![...hosts,"supabase_kong_prumo-s0-auth-ci"].includes(auth.hostname) || auth.username || auth.password || auth.search || auth.hash || auth.pathname !== "/") throw new Error("I82_CONFIG_BLOCKED");
   if (!["postgres:","postgresql:"].includes(db.protocol) || ![...hosts,"supabase_db_prumo-s0-auth-ci"].includes(db.hostname) || db.username !== "prumo_cfi01_pgtest_login" || !db.password || db.pathname !== "/postgres" || db.search || db.hash) throw new Error("I82_CONFIG_BLOCKED");
+  // npm's Node DNS adapter in the pinned local Edge Runtime cannot resolve
+  // the DB container name. Installer pins its own Docker-network IPv4 only;
+  // no client-supplied host or extra DB privilege is accepted.
+  const pin=read("PRUMO_I82_DATABASE_IPV4");let databaseAddress=db.hostname;
+  if(db.hostname==="supabase_db_prumo-s0-auth-ci") {
+    if(!pin || !/^\d{1,3}(\.\d{1,3}){3}$/.test(pin))throw new Error("I82_CONFIG_BLOCKED");
+    const octets=pin.split(".").map(Number);
+    if(octets.some(n=>n>255) || !(octets[0]===10 || (octets[0]===172 && octets[1]>=16 && octets[1]<=31) || (octets[0]===192 && octets[1]===168)))throw new Error("I82_CONFIG_BLOCKED");
+    databaseAddress=pin;
+  } else if(pin)throw new Error("I82_CONFIG_BLOCKED");
   const hex=read("PRUMO_I82_HMAC_HEX") ?? "";
   const anon=read("PRUMO_I82_ANON_KEY") ?? "";
   if (hex.length<64 || hex.length>256 || /[^0-9a-f]/.test(hex) || hex.length%2 || /[^\x21-\x7e]/.test(anon) || !anon) throw new Error("I82_CONFIG_BLOCKED");
   const origin=read("PRUMO_I82_ALLOW_ORIGIN") ?? "";
   if (origin) { const u=new URL(origin); if(u.protocol!=="http:" || !hosts.includes(u.hostname) || u.origin!==origin) throw new Error("I82_CONFIG_BLOCKED"); }
-  return {authUrl:auth.origin, database:db.href, anon, keyId:uuid(read("PRUMO_I82_KEY_ID")), secret:Uint8Array.from(hex.match(/../g)!,h=>parseInt(h,16)), origin};
+  return {authUrl:auth.origin, database:db.href, databaseAddress, anon, keyId:uuid(read("PRUMO_I82_KEY_ID")), secret:Uint8Array.from(hex.match(/../g)!,h=>parseInt(h,16)), origin};
 }
 
 export async function boundedBody(body: ReadableStream<Uint8Array>|null, max: number): Promise<Uint8Array> {
@@ -47,7 +57,7 @@ export async function authenticate(authorization: string|null, c: Settings): Pro
 // Exactly the existing SQL application login and signed ports. Never query a
 // domain table, SET ROLE, impersonate a JWT role, or retry after an I/O failure.
 export function core(c: Settings) {
-  const client=postgres(c.database,{max:2,prepare:false,ssl:false,connect_timeout:5,idle_timeout:5,max_lifetime:60,onnotice:()=>{},connection:{application_name:"prumo-i82-local"}});
+  const client=postgres(c.database,{host:c.databaseAddress,max:2,prepare:false,ssl:false,connect_timeout:5,idle_timeout:5,max_lifetime:60,onnotice:()=>{},connection:{application_name:"prumo-i82-local"}});
   return async(family:Family,p:Document,principal:Principal):Promise<Document>=>{
     const args=proofArgs(family,p,principal,c.keyId,Math.floor(Date.now()/1000),crypto.randomUUID());
     args.push(await sign(family,args,c.secret));
