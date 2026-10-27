@@ -41,8 +41,8 @@ with sync_playwright() as p:
         light_workspace = page.locator('.workspace').evaluate("node => getComputedStyle(node).backgroundColor")
         light_message = page.locator('.message').first.evaluate("node => getComputedStyle(node).backgroundColor")
         page.locator('#ui-settings').evaluate('e => e.open = true')
-            page.locator('#theme-dark').click()
-            page.locator('#ui-settings').evaluate('e => e.open = false')
+        page.locator('#theme-dark').click()
+        page.locator('#ui-settings').evaluate('e => e.open = false')
         expect(page.locator('#visual-app')).to_have_attribute('data-theme', 'dark')
         expect(page.locator('#theme-dark')).to_have_attribute('aria-pressed','true')
         dark_workspace = page.locator('.workspace').evaluate("node => getComputedStyle(node).backgroundColor")
@@ -50,8 +50,8 @@ with sync_playwright() as p:
         assert light_workspace != dark_workspace
         assert light_message != dark_message
         page.locator('#ui-settings').evaluate('e => e.open = true')
-            page.locator('#theme-light').click()
-            page.locator('#ui-settings').evaluate('e => e.open = false')
+        page.locator('#theme-light').click()
+        page.locator('#ui-settings').evaluate('e => e.open = false')
         expect(page.locator('#visual-app')).to_have_attribute('data-theme', 'light')
         expect(page.locator('#theme-light')).to_have_attribute('aria-pressed','true')
         # Um único indicador: numérico sem leitura, sem número após leitura por titular.
@@ -108,8 +108,8 @@ with sync_playwright() as p:
     assert modal_surface=='rgb(20, 30, 37)',modal_surface
     dark_preference.locator('#team-close').click()
     dark_preference.locator('#ui-settings').evaluate('e => e.open = true')
-            dark_preference.locator('#theme-light').click()
-            dark_preference.locator('#ui-settings').evaluate('e => e.open = false')
+    dark_preference.locator('#theme-light').click()
+    dark_preference.locator('#ui-settings').evaluate('e => e.open = false')
     expect(dark_preference.locator('body')).to_have_attribute('data-theme','light')
     dark_preference.close()
     print('FV-UI-036 preferência nativa escura e modais externos: PASS')
@@ -173,7 +173,7 @@ with sync_playwright() as p:
     page.locator('#shop-select').select_option('horizonte')
     assert page.locator('.conversation-card').count() == 2
     page.locator('#list-extra').evaluate('e => e.open = true')
-            page.locator('#status-filter').select_option('em atendimento pelo operador')
+    page.locator('#status-filter').select_option('em atendimento pelo operador')
     assert page.locator('.conversation-card').count() == 1
     # O3: profissional atribuído enxerga apenas dados aplicados na projeção fictícia.
     page.locator('#actor-select').select_option('rafael')
@@ -1254,7 +1254,7 @@ with sync_playwright() as p:
             original_shop=reset_page.locator('#shop-select').input_value()
             reset_page.locator('#search-input').fill('FV-UI-054-busca-sem-resultado-xxyy')
             reset_page.locator('#list-extra').evaluate('e => e.open = true')
-            page.locator('#status-filter').select_option(index=1)
+            reset_page.locator('#status-filter').select_option(index=1)
             reset_page.locator('[data-filter="unread"]').click()
             expect(reset_controls).to_be_hidden()
             reset_button=reset_page.locator('.empty-reset')
