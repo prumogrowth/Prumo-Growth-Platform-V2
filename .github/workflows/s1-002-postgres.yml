@@ -111,7 +111,7 @@ jobs:
       - name: Checkout S1 to own branch HEAD for fail-closed reconciliation
         uses: actions/checkout@v4
         with:
-          ref: \${{ github.sha }}
+          ref: ${{ github.sha }}
           persist-credentials: false
       - name: Checkout exact executable PR20 S0 code into isolated directory
         uses: actions/checkout@v4
@@ -122,7 +122,7 @@ jobs:
       - name: Checkout current S1 SHA into G1 disposable source directory
         uses: actions/checkout@v4
         with:
-          ref: \${{ github.sha }}
+          ref: ${{ github.sha }}
           path: work-g1/work-s1-sources
           persist-credentials: false
       - name: Reconcile all 34 pinned source hashes and ENCAMINHADO contract
@@ -133,7 +133,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: s1-002-i77-pr20-pinned-compatibility
-          path: \${{ runner.temp }}/s1_i77_g1_pinned_compatibility.json
+          path: ${{ runner.temp }}/s1_i77_g1_pinned_compatibility.json
           retention-days: 14
       - uses: actions/setup-node@v4
         with:
@@ -187,5 +187,8 @@ jobs:
         run: PYTHONPATH=. python3 integration/g1/test_manual_handoff.py
       - name: Delete disposable stack on success or failure
         if: always()
-        working-directory: work-g1
-        run: supabase stop --no-backup
+        run: |
+          if command -v supabase >/dev/null 2>&1 && test -f work-g1/supabase/config.toml; then
+            cd work-g1
+            supabase stop --no-backup
+          fi
