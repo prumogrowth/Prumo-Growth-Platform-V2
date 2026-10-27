@@ -24,7 +24,11 @@ class OwnershipScopeTests(unittest.TestCase):
             self.assertIn(word,s)
     def test_04_operational_blocks_still_present(self):
         d=json.loads(M.read_text(encoding="utf-8"))
-        self.assertEqual(len(d["requirements"]),28)
+        # Ownership A28 must remain, without freezing future F02 additions.
+        ids = {entry["id"] for entry in d["requirements"]}
+        self.assertIn("F02-A28", ids)
+        self.assertGreaterEqual(len(ids), 28)
+        self.assertEqual(len(ids), len(d["requirements"]))
         self.assertFalse(d["approved_operational_authorization"])
         self.assertFalse(d["production_tests_executed"])
         self.assertFalse(d["ownership_audit_f01_f02_f03_s0"]["s0_changes_made"])
