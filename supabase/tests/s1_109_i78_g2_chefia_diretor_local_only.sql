@@ -157,6 +157,14 @@ begin
 end $i78$;
 \echo 'PASS I78-G2-06: Director-only candidate transfer keeps one active manager and closes old link'
 
+-- Keep the previous manager credential observable by assigning a different
+-- synthetic consultant; otherwise the conservative temporary role check
+-- refuses the old manager BEFORE the intentionally stale CAS is reached.
+-- I78-G2-04 already established that a formerly active orphan can exist.
+insert into prumo_private.s1_gestor_operadores(gestor_id,operador_id)
+ values('f1780000-0000-4000-8000-000000000002',
+        'f1780000-0000-4000-8000-000000000006');
+
 do $i78$ declare stale bigint;
 begin
  select id into stale from prumo_private.s1_gestor_operadores
