@@ -1,5 +1,8 @@
 # FVC-01 — Pacote candidato para ChatGPT Work → ChatGPT Sites
 
+> **FV-UX-01 — DIRETRIZ VISUAL POSTERIOR (26/10/2026):** o responsável avaliou a prévia interativa e solicitou **menos poluição, hierarquia centrada nas conversas, paleta verdadeiramente neutra, áudio, emojis e visões distintas de Consultor/Gestor**. **Não utilizar este handoff antigo para publicar nova rodada do Sites sem antes executar a lapidação UX**, preservando a única base do frontend. Leia [96_FV_UX_01_COMUNICACAO_LIMPEZA_AUDIO_EMOJI_2026_10_26.md](./96_FV_UX_01_COMUNICACAO_LIMPEZA_AUDIO_EMOJI_2026_10_26.md). A atual prévia existente não deve ser apresentada como a versão refinada. O material deste FVC-01 permanece válido como inventário técnico, mas **a recomendação temporal de publicar agora foi superada**.
+
+
 **26/10/2026 · Frente visual de Prumo · pronto para alinhamento de escopo com o responsável.**  
 **Este documento NÃO autoriza publicação; é um roteiro para preparar prévia privada navegável.**
 
