@@ -1,0 +1,50 @@
+name: Meta signed webhook composition - offline
+on:
+  push:
+    branches: [feat/meta-cloud-composed-observation-20261027]
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [feat/meta-cloud-failed-status-errors-20261027]
+    paths:
+      - 'integrations/whatsapp-meta/**'
+      - '.github/workflows/meta-cloud-composed-observation-offline.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  composed-webhook:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: New heterogeneous batch composition (20)
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --experimental-strip-types --test --test-concurrency=1 \
+            integrations/whatsapp-meta/cloud-composed-observation-handoff.test.ts \
+            2>&1 | tee "$RUNNER_TEMP/meta-composed-new.tap"
+          grep -qx '# tests 20' "$RUNNER_TEMP/meta-composed-new.tap"
+          grep -qx '# pass 20' "$RUNNER_TEMP/meta-composed-new.tap"
+          grep -qx '# fail 0' "$RUNNER_TEMP/meta-composed-new.tap"
+      - name: Legacy status errors, unsupported, media, reactions and selections (154)
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --experimental-strip-types --test --test-concurrency=1 \
+            integrations/whatsapp-meta/cloud-failed-status-errors-handoff.test.ts \
+            integrations/whatsapp-meta/cloud-unsupported-inbound-handoff.test.ts \
+            integrations/whatsapp-meta/cloud-media-metadata-handoff.test.ts \
+            integrations/whatsapp-meta/cloud-reaction-handoff.test.ts \
+            integrations/whatsapp-meta/cloud-list-reply-handoff.test.ts \
+            integrations/whatsapp-meta/cloud-button-reply-handoff.test.ts \
+            integrations/whatsapp-meta/cloud-webhook-handoff.test.ts \
+            integrations/whatsapp-meta/inbound.test.ts \
+            integrations/whatsapp-meta/routed-webhook.test.ts \
+            2>&1 | tee "$RUNNER_TEMP/meta-composed-regressions.tap"
+          grep -qx '# tests 154' "$RUNNER_TEMP/meta-composed-regressions.tap"
+          grep -qx '# pass 154' "$RUNNER_TEMP/meta-composed-regressions.tap"
+          grep -qx '# fail 0' "$RUNNER_TEMP/meta-composed-regressions.tap"
