@@ -1,0 +1,47 @@
+name: Meta template provider observation - offline
+on:
+  push:
+    branches: [feat/meta-template-provider-observation-20261027]
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [feat/meta-cloud-interactive-template-20261026]
+    paths:
+      - 'integrations/whatsapp-meta/**'
+      - '.github/workflows/meta-template-provider-observation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      NODE_OPTIONS: ''
+      NODE_PATH: ''
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: New provider record shape tests (18)
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --experimental-strip-types --test --test-concurrency=1 \
+            integrations/whatsapp-meta/graph-template-provider-observation.test.ts \
+            2>&1 | tee "$RUNNER_TEMP/provider-shape.tap"
+          grep -qx '# tests 18' "$RUNNER_TEMP/provider-shape.tap"
+          grep -qx '# pass 18' "$RUNNER_TEMP/provider-shape.tap"
+          grep -qx '# fail 0' "$RUNNER_TEMP/provider-shape.tap"
+      - name: Focused existing builders and WA17B source mapping
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --experimental-strip-types --test --test-concurrency=1 \
+            integrations/whatsapp-meta/graph-template.test.ts \
+            integrations/whatsapp-meta/graph-template-interactive.test.ts \
+            integrations/whatsapp-meta/template-mcp-multiformat.test.ts \
+            2>&1 | tee "$RUNNER_TEMP/existing-builders.tap"
+          grep -qx '# fail 0' "$RUNNER_TEMP/existing-builders.tap"
