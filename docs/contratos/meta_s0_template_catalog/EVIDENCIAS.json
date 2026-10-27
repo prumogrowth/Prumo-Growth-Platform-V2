@@ -1,0 +1,162 @@
+{
+  "contract": "META-S0-TEMPLATE-CATALOG-05",
+  "schema_version": "0.1-candidate",
+  "status": "CANDIDATE_NOT_RATIFIED",
+  "code_sha": "e8b49faea3fe11ebc1001600cb271e92009a5bce",
+  "base_sha": "45618df4fc135c33d59b087a98efd5ef53f30c04",
+  "branch": "aux/meta-s0-template-catalog-05-20261026",
+  "ci": {
+    "id": 40433120503,
+    "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40433120503",
+    "head_sha": "e8b49faea3fe11ebc1001600cb271e92009a5bce",
+    "conclusion": "success",
+    "attempt": 1,
+    "job_id": 121955342124,
+    "node_version": "22.23.3",
+    "logs_checked": true,
+    "candidate": {
+      "tests": 42,
+      "pass": 42,
+      "fail": 0,
+      "skipped": 0,
+      "cancelled": 0
+    },
+    "original": {
+      "tests": 120,
+      "pass": 120,
+      "fail": 0,
+      "skipped": 0,
+      "cancelled": 0
+    },
+    "unchanged_source_blobs": 13
+  },
+  "local": {
+    "node_version": "24.19.0",
+    "candidate_pass": 42,
+    "existing_pass": 120,
+    "unchanged_blobs": 13,
+    "files_materialized_via": "GitHub connector; blob bytes verified",
+    "command_mode": "--experimental-strip-types --test --test-isolation=none --test-reporter=tap --test-concurrency=1",
+    "note": "Default local subprocess runner reported only one file and was not counted as proof of individual tests."
+  },
+  "production_source": "NOT_IMPLEMENTED; productive entry always returns SOURCE_NOT_IMPLEMENTED",
+  "fixture_origin": "LAB_FIXTURE / SYNTHETIC_NOT_META_APPROVAL",
+  "test_names": [
+    "production source is absent; a caller APPROVED object cannot enable it",
+    "fixture opt-in is explicit and the returned snapshot never attests real approval",
+    "complete five-field scope, version domains and manifest are preserved in a typed snapshot",
+    "one record produces mutually consistent base-text and button projections and a reused builder descriptor",
+    "base builder text-only compatibility requires a complete manifest with no buttons",
+    "all 1..3 quick replies are retained in catalog order without phantom buttons",
+    "PENDING PAUSED REJECTED DISABLED and unknown status deny before producing a handle",
+    "self-declared source, source mismatch or production-shaped provenance deny",
+    "record source and current head source must both match server composition",
+    "each concessionaria channel App WABA and phone mismatch is denied independently",
+    "definition tenant WABA name and language must match the scoped query",
+    "missing completeness, omitted whole components or undeclared provider accessories deny",
+    "complete provider labels/order/content must equal the existing WA17B definition projection",
+    "header media URL PHONE_NUMBER Flow and named formats fail closed without stripping",
+    "four or duplicate-label quick replies cannot evade the existing WA17B validator",
+    "missing body/header variable binding and unknown source are denied using WA17B mappings",
+    "gapped placeholders and >10 positional body fields are never translated to the base builder",
+    "button policy requires exact quantity contiguous integer indices and QUICK_REPLY type",
+    "opaque backend payloads reject dynamic mode URL whitespace Unicode controls and overlength",
+    "stale template catalog and binding preconditions have independent domains",
+    "canonical int64 string revisions survive beyond JS safe integers and reject coercion/overflow",
+    "status and manifest observations must both be fresh and never future-dated",
+    "expiry at the exact max-age boundary denies cached preparation",
+    "clock rollback is denied even when observation values would fit the local TTL",
+    "changed record bytes cannot pass a head digest check and a digest alone grants no trust",
+    "head status provider identity and revisions must bind the entire record",
+    "raw JSON clones and handles from a different reader are not accepted as trusted local receipts",
+    "a newer PAUSED observation revokes a handle immediately despite a fresh TTL",
+    "after observing PAUSED the same reader refuses replay of the old APPROVED epoch",
+    "source epochs cannot mutate in place or roll back even with recomputed valid hashes",
+    "same approved template revision cannot remap a frozen source or alter provider-visible text",
+    "same payload policy revision cannot change an opaque button value",
+    "new backend payload policy revision requires new catalog revision and invalidates old handle",
+    "even a same-content refresh with a new source epoch requires a newly issued handle",
+    "body/header parameter counts and types remain enforced by the unchanged builders",
+    "caller cannot inject a button payload or change tenant revision or language at preparation",
+    "descriptors use catalog payloads while text parameters remain separate and never grant sending",
+    "untrusted accessors symbols sparse arrays and exotic prototypes deny without invoking getters",
+    "input snapshots and generated descriptor graphs are deeply immutable and do not alias source memory",
+    "port failures return sanitized denial and never leak source errors",
+    "intent is snapshotted before awaiting the source recheck",
+    "Meta category is part of an immutable approved content revision, independently of S0 purpose"
+  ],
+  "tap_excerpt": [
+    "2026-10-27T01:32:06.0128178Z node: v22.23.3",
+    "2026-10-27T01:32:06.1043658Z CATALOG-05 PROVENANCE PASS: 13 original blobs unchanged",
+    "2026-10-27T01:32:06.5616744Z # tests 42",
+    "2026-10-27T01:32:06.5631462Z # pass 42",
+    "2026-10-27T01:32:06.5631896Z # fail 0",
+    "2026-10-27T01:32:06.5632296Z # cancelled 0",
+    "2026-10-27T01:32:06.5632687Z # skipped 0",
+    "2026-10-27T01:32:07.8135649Z # tests 120",
+    "2026-10-27T01:32:07.8136270Z # pass 120",
+    "2026-10-27T01:32:07.8136503Z # fail 0",
+    "2026-10-27T01:32:07.8136730Z # cancelled 0",
+    "2026-10-27T01:32:07.8136978Z # skipped 0"
+  ],
+  "checkpoints_rechecked": [
+    {
+      "pr": 14,
+      "head_sha": "31bb84fa524f4ecfdf02360988471d7f989506d7",
+      "unchanged_since_start": true
+    },
+    {
+      "pr": 15,
+      "head_sha": "45618df4fc135c33d59b087a98efd5ef53f30c04",
+      "unchanged_since_start": true
+    },
+    {
+      "pr": 16,
+      "head_sha": "b298252c26c69f668b3c3fdb86e9252faff9e44b",
+      "unchanged_since_start": true
+    },
+    {
+      "pr": 18,
+      "head_sha": "88af4aea3aeb2c403bab4c078fdc04d560f2cba0",
+      "unchanged_since_start": true
+    }
+  ],
+  "historical_ci": [
+    {
+      "id": 40403869847,
+      "head_sha": "b1d926c6cdee4de3d19676dd83182802b4dd5770",
+      "conclusion": "success"
+    },
+    {
+      "id": 40370618576,
+      "head_sha": "92703c34fd4a2b9bae0d00768969c7c53cc16da3",
+      "conclusion": "success"
+    },
+    {
+      "id": 40414847271,
+      "head_sha": "4a3d248d46fad5c195398324b3ee98ae6236365f",
+      "conclusion": "success"
+    },
+    {
+      "id": 40405271785,
+      "head_sha": "8be6e194bfb5b8694c1010ff8560c8ec19ed4fd8",
+      "conclusion": "success"
+    }
+  ],
+  "pending": [
+    "T1 authenticated source",
+    "T2 local revision and binding model",
+    "T3 complete normalization",
+    "T4 backend payload policy",
+    "T5 durable invalidation and freshness",
+    "T6 access and integration"
+  ],
+  "limits": [
+    "No actual Meta approval observed",
+    "No Graph/credentials/hosted Supabase/merge/deploy",
+    "Reader watermarks are volatile, not durable/distributed anti-rollback",
+    "Fixture source is not authenticated I/O or transactional integration",
+    "Template approval is never send authorization",
+    "No final integration"
+  ]
+}

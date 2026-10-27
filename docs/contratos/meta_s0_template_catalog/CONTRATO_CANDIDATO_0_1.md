@@ -129,7 +129,7 @@ Arquivos auxiliares: contract.ts (tipos e bloqueio produtivo), adapter.ts (leitu
 
 **42 testes novos**: fonte ausente/não confiada, escopo completo, manifesto parcial/divergente, status, índices/quantidades/payloads, parâmetros, int64, integridade, clocks/TTL, pause/replay, revisão imutável, clone de handle, isolamento de memória e await. **120 regressões originais**, sem alterar arquivos: builders 24+18; WA17A 18; WA17B 16; WA25 18; WA26 26. Não reexecuta DISPATCH/ACK/LOCK, WA39–68 ou as suítes PG/GoTrue históricas.
 
-Local: Node 24.19.0, fontes materializadas pelo conector e 13 blobs byte a byte conferidos. Git fetch não conseguiu conectar ao proxy; a branch/remoto são tratados pelo conector. O runner local com subprocessos contabilizou apenas um arquivo, por comportamento do ambiente, e não foi usado como prova de 42 testes. Execução com test-isolation=none produziu TAP de 42/42 e 120/120, sem skips. CI separado em Node22 exige as mesmas contagens; resultado final em EVIDENCIAS.md/JSON após consulta dos logs.
+Local: Node 24.19.0, fontes materializadas pelo conector e 13 blobs byte a byte conferidos. Git fetch não conseguiu conectar ao proxy; a branch/remoto são tratados pelo conector. O runner local com subprocessos contabilizou apenas um arquivo, por comportamento do ambiente, e não foi usado como prova de 42 testes. Execução com test-isolation=none produziu TAP de 42/42 e 120/120, sem skips. CI separado Node22.23.3 SUCCESS no SHA e8b49faea3fe11ebc1001600cb271e92009a5bce, run 40433120503: 42/42 novos + 120/120 originais e 13/13 blobs, logs conferidos. Detalhes em EVIDENCIAS.md/JSON.
 
 ## Decisões pendentes para ratificação
 
