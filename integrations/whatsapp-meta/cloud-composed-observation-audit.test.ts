@@ -175,3 +175,40 @@ test('AUDIT-16 caller byte mutation remains isolated under selective dispatch',a
  assert.deepEqual(r.occurrences.map(e=>e.kind),
   ['uninterpreted_inbound','incoming_reaction']);
 });
+
+test('AUDIT-17 a full 100-generic-event batch needs one HMAC',async()=>{
+ const events=Array.from({length:100},(_,i)=>msg('text','wamid.T_'+i,{
+  text:{body:'offline'}}));
+ const x=await countHmac(()=>run(bodyFor(events)));
+ assert.equal(x.count,1);
+ const o=valid(x.result);
+ assert.equal(o.occurrences.length,100);
+ assert.ok(o.occurrences.every(e=>e.kind==='uninterpreted_inbound'));
+ assert.equal(new Set(o.occurrences.map(e=>JSON.stringify(e.position))).size,100);
+});
+test('AUDIT-18 a full 100-reaction-event batch verifies twice, not 101 times',async()=>{
+ const events=Array.from({length:100},(_,i)=>msg('reaction','wamid.R_'+i,{
+  reaction:{message_id:'wamid.ORIGINAL',emoji:'👍'}}));
+ const x=await countHmac(()=>run(bodyFor(events)));
+ assert.equal(x.count,2);
+ assert.equal(valid(x.result).occurrences.length,100);
+ assert.equal(x.result.deduplicated,false);
+});
+test('AUDIT-19 full 100-event mixed-kind envelope retains all six guards',async()=>{
+ const ordinary=Array.from({length:95},(_,i)=>msg('text','wamid.T_'+i,{
+  text:{body:'inert'}}));
+ const x=await countHmac(()=>run(bodyFor([
+  ...ordinary,button(),reaction(),media(),unsupported()],[failed()])));
+ assert.equal(x.count,6);
+ const o=valid(x.result);
+ assert.equal(o.occurrences.length,100);
+ assert.equal(o.occurrences[95].kind,'template_quick_reply');
+ assert.equal(o.occurrences[99].kind,'provider_reported_failed_status_errors');
+});
+test('AUDIT-20 event-cap overflow blocks signed batch before specialist work',async()=>{
+ const events=Array.from({length:101},(_,i)=>msg('text','wamid.T_'+i,{
+  text:{body:'inert'}}));
+ const x=await countHmac(()=>run(bodyFor(events)));
+ assert.equal(x.count,1);
+ denied(x.result);
+});
