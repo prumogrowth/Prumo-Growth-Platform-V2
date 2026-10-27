@@ -21,7 +21,9 @@ if __name__=='__main__':
     db=local_env()['DB_URL'];guard(db);value=Credential();stage='LOGGING_GUARD'
     try:
         with psycopg.connect(db) as c:
-            before=settings(c);private_material_transaction(c);during=settings(c)
+            before=settings(c)
+            (Path(os.environ.get('RUNNER_TEMP','/tmp'))/'prumo_i83_logging_preflight.json').write_text(json.dumps({'status':'CHECKING_EXISTING_PRIVILEGES','settings_before':before},indent=2)+'\n')
+            private_material_transaction(c);during=settings(c)
             stage='NONLOGIN_PROBE'
             c.execute(sql.SQL('create role prumo_i83_logging_probe nologin noinherit nosuperuser nocreatedb nocreaterole noreplication nobypassrls password {}').format(sql.Literal(value.verifier)))
             c.execute('create temporary table i83_logging_probe(secret bytea) on commit drop')
@@ -43,4 +45,4 @@ if __name__=='__main__':
         code=getattr(error,'sqlstate',None)
         code=code if isinstance(code,str) and len(code)==5 and code.isascii() and code.isalnum() else 'UNCLASSIFIED'
         # Deliberately no server error/detail/configuration or credential output.
-        raise SystemExit('I83-LOGGING-PREFLIGHT BLOCKED stage='+stage+' code='+code+' (values withheld)') from None
+        raise SystemExit('I83-LOGGING-PREFLIGHT BLOCKED stage='+stage+' code='+code+' parameter='+getattr(error,'parameter','NONE')+' (values withheld)') from None

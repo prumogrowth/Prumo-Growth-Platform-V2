@@ -63,19 +63,27 @@ class Credential:
         return [self.password,self.verifier,self.secret.hex(),self.dsn(db),self.dsn(db,True)]
 
 
-def private_material_transaction(c):
-    """Suppress material-bearing SQL only in this trusted installer's tx.
+class MaterialLoggingBlocked(RuntimeError):
+    def __init__(self,parameter,code):
+        self.parameter=parameter;self.sqlstate=code
+        super().__init__('I83_MATERIAL_LOGGING_BLOCKED parameter='+parameter)
 
-    No parameter ACL grant or global/role setting is changed. If the existing
-    installer cannot set a logging parameter, fail BEFORE transmitting material.
-    Business audit tables and all operation-session logging remain unchanged.
+
+def private_material_transaction(c):
+    """Transaction-local privacy using existing installer capability only.
+
+    Already secure values do not need a new SET privilege. No parameter ACL,
+    global/role setting or business audit table is changed.
     """
-    c.execute("set local log_statement='none'")
-    c.execute("set local log_parameter_max_length=0")
-    c.execute("set local log_parameter_max_length_on_error=0")
-    c.execute("set local log_min_error_statement='panic'")
-    if c.execute("select current_setting('pgaudit.log',true)").fetchone()[0] is not None:
-        c.execute("set local pgaudit.log='none'")
+    desired=(('log_statement','none'),('log_parameter_max_length','0'),
+      ('log_parameter_max_length_on_error','0'),('log_min_error_statement','panic'),('pgaudit.log','none'))
+    for name,value in desired:
+        current=c.execute('select current_setting(%s,true)',(name,)).fetchone()[0]
+        if current is None or current==value:continue
+        try:c.execute('select set_config(%s,%s,true)',(name,value))
+        except Exception as error:
+            code=getattr(error,'sqlstate',None)
+            raise MaterialLoggingBlocked(name,code) from None
 
 
 def rotate(db):
@@ -111,7 +119,7 @@ def rotate(db):
     except Exception as error:
         code=getattr(error,'sqlstate',None)
         code=code if isinstance(code,str) and len(code)==5 and code.isascii() and code.isalnum() else 'UNCLASSIFIED'
-        raise RuntimeError('I83 credential provisioning failed stage='+stage+' code='+code+' (credentials withheld)') from None
+        raise RuntimeError('I83 credential provisioning failed stage='+stage+' code='+code+' parameter='+getattr(error,'parameter','NONE')+' (credentials withheld)') from None
     return value
 
 
