@@ -173,9 +173,13 @@ test('STATUS-ERR-12 absent optional titles/details are not fabricated',async()=>
   [{code:131026,error_subcode:null}]);
 });
 test('STATUS-ERR-13 invalid wamid for failed report denied',async()=>{
- for(const id of ['not-wamid','', 'wamid.BAD ID','wamid.'+'x'.repeat(1025)]){
+ for(const id of ['not-wamid','wamid.BAD ID']){
   const s=failed(id);
   assert.equal(denied(await run(root([s]))),'MALFORMED_STATUS_ERRORS');
+ }
+ for(const id of ['', 'wamid.'+'x'.repeat(1025)]){
+  const s=failed(id);
+  assert.equal(denied(await run(root([s]))),'VERIFICATION_DENIED');
  }
 });
 test('STATUS-ERR-14 invalid or missing HMAC and incorrect App secret reveal no data',async()=>{
