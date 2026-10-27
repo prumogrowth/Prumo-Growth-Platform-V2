@@ -582,7 +582,9 @@ test('FV-UI-048: lista compacta preserva controles indicadores e scroll',()=>{
   assert.match(styles,/\.list-pane\{scroll-padding-block:12px\}/);
   assert.match(styles,/\.list-pane \.conversation-items\{min-height:170px\}/);
   assert.match(browserSmoke,/FV-UI-048 lista compacta e conteudo acessivel em oito cenarios: PASS/);
-  assert.match(browserSmoke,/compact\.locator\('\.list-footer'\)\.scroll_into_view_if_needed\(\)/);
+  // FV-UX-02: nota acessível sem rodapé visual; o teste verifica a prioridade das conversas.
+  assert.match(browserSmoke,/compact\.locator\('#list-demo-guidance'\)\.count\(\)==1/);
+  assert.match(browserSmoke,/compact\.locator\('#ui-settings'\)\.evaluate/);
   assert.match(browserSmoke,/compact\.locator\('\.conversation-card'\)\.first\.scroll_into_view_if_needed\(\)/);
 });
 
