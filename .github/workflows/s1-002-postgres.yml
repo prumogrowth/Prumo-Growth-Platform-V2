@@ -17,6 +17,7 @@ on:
       - 'backend/s1_command_validation_local.py'
       - 'scripts/test_s1_002_*.sh'
       - '.github/workflows/s1-002-postgres.yml'
+      - 'scripts/test_s1_002_i77_g1_pr20_compatibility.py'
   workflow_dispatch:
 permissions:
   contents: read
@@ -93,3 +94,98 @@ jobs:
           name: s1-002-i46-acl-inventory
           path: ${{ runner.temp }}/s1_002_i46_acl_inventory.json
           retention-days: 14
+
+  g1-pr20-compatibility:
+    name: I77 G1 PR20 pinned reproduction on live S1 source
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      SUPABASE_DISABLE_TELEMETRY: '1'
+      PRUMO_CFI01_TRANSACTIONAL_TEST: 'YES'
+      PRUMO_HISTORY_DISPOSABLE_TEST: 'YES'
+      PRUMO_F02_DISPOSABLE_TEST: 'YES'
+      PRUMO_G1_DISPOSABLE_TEST: 'YES'
+      PRUMO_G1_SOURCE_REPO: work-s1-sources
+    steps:
+      - name: Checkout S1 to own branch HEAD for fail-closed reconciliation
+        uses: actions/checkout@v4
+        with:
+          ref: \${{ github.sha }}
+          persist-credentials: false
+      - name: Checkout exact executable PR20 S0 code into isolated directory
+        uses: actions/checkout@v4
+        with:
+          ref: d53c40a6ef55e82d2282c482b299cff1dbf990bd
+          path: work-g1
+          persist-credentials: false
+      - name: Checkout current S1 SHA into G1 disposable source directory
+        uses: actions/checkout@v4
+        with:
+          ref: \${{ github.sha }}
+          path: work-g1/work-s1-sources
+          persist-credentials: false
+      - name: Reconcile all 34 pinned source hashes and ENCAMINHADO contract
+        run: |
+          python3 scripts/test_s1_002_i77_g1_pr20_compatibility.py \
+            --g1 work-g1 --s1 work-g1/work-s1-sources --s1-sha "$GITHUB_SHA"
+      - name: Preserve I77 reconciliation evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: s1-002-i77-pr20-pinned-compatibility
+          path: \${{ runner.temp }}/s1_i77_g1_pinned_compatibility.json
+          retention-days: 14
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Recheck original S0 F02 + G1 units without changing S1 code
+        working-directory: work-g1
+        run: python3 -m unittest discover -s backend/tests -v
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 2.84.2
+      - name: Fixed dependencies for PR20 test harness
+        working-directory: work-g1
+        run: |
+          supabase --version
+          supabase start --help > /dev/null
+          command -v psql || (sudo apt-get update -qq && sudo apt-get install -y postgresql-client)
+          python3 -m pip install -r backend/requirements-s0-local.txt
+      - name: Start isolated disposable GoTrue and PostgreSQL 17 stack
+        working-directory: work-g1
+        env:
+          SUPABASE_INTERNAL_IMAGE_REGISTRY: docker.io
+        run: supabase start --exclude realtime,storage-api,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
+      - name: Recheck existing S0 Auth REST and CFI regressions
+        working-directory: work-g1
+        run: |
+          PYTHONPATH=. python3 scripts/test_s0_auth_rest_local.py
+          PYTHONPATH=. python3 scripts/test_s0_cfi01_auth_rest_local.py
+      - name: Verify historical session gates on disposable S0
+        working-directory: work-g1
+        run: PYTHONPATH=. python3 integration/history/test_session_history.py --profile s0
+      - name: Recheck 32 CFI and 24 F02 tests
+        working-directory: work-g1
+        run: PYTHONPATH=. python3 integration/f02/test_authoritative_review.py
+      - name: Reuse S1 current hashes in G1 disposable PG17
+        working-directory: work-g1
+        run: PYTHONPATH=. python3 integration/history/prepare_s1_profile.py --source-repo work-s1-sources --manifest integration/g1/s1_sources.json
+      - name: Recheck I63 candidate history in same isolated DB
+        working-directory: work-g1
+        run: PYTHONPATH=. python3 integration/history/test_session_history.py --profile i63
+      - name: Install guarded ENCAMINHADO G1 delta in disposable DB only
+        working-directory: work-g1
+        run: PYTHONPATH=. python3 integration/g1/install_local.py
+      - name: Reproduce five original S1 SQL queue and exception acceptances
+        working-directory: work-g1
+        run: |
+          for test in s1_078_fila_s0_canonica_aceite.sql s1_080_fila_reconciliacao_aceite.sql s1_081_atribuicao_grant_i57_aceite.sql s1_082_fila_gestor_autorizacao_aceite.sql s1_085_excecao_caso_canonica_aceite.sql; do
+            PYTHONPATH=. python3 integration/g1/run_pinned_sql.py "work-s1-sources/supabase/tests/$test"
+          done
+      - name: Reproduce 36 real G1 manual handoff tests from PR20
+        working-directory: work-g1
+        run: PYTHONPATH=. python3 integration/g1/test_manual_handoff.py
+      - name: Delete disposable stack on success or failure
+        if: always()
+        working-directory: work-g1
+        run: supabase stop --no-backup
