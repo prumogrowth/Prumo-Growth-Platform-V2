@@ -294,6 +294,21 @@
         "backend/tests/test_f02_s0_joint_homologation_candidate.py::test_20_all_states_explicitly_deny_homologation"
       ],
       "gate": "Lab compatibility is not integration approval. S0 must authenticate source and ratify schema/lookup, F03/C08 provenance, S1 human decision, Meta consent/transport, temporal policy and integrated physical scenarios"
+    },
+    {
+      "id": "F02-A25",
+      "area": "F02/S0",
+      "behavior": "Codex-ready machine-readable coordination packet pins byte-exact S0 candidate result schema and its blob identity, checks all seven outstanding gates and original A16–A18 integration blockers without auto-ratification",
+      "status": "LAB_VERIFIED",
+      "tests": [
+        "backend/tests/test_f02_s0_integration_handoff_contract.py::test_01_exact_s0_git_blob_pinned",
+        "backend/tests/test_f02_s0_integration_handoff_contract.py::test_03_all_s0_candidate_states_match_runtime",
+        "backend/tests/test_f02_s0_integration_handoff_contract.py::test_06_all_hard_gates_have_exactly_one_owner_request_and_proof",
+        "backend/tests/test_f02_s0_integration_handoff_contract.py::test_08_integration_pending_criteria_unchanged",
+        "backend/tests/test_f02_s0_integration_handoff_contract.py::test_11_candidate_contract_never_ratifies_itself",
+        "backend/tests/test_f02_s0_integration_handoff_contract.py::test_14_lab_runner_includes_gate_and_handoff_regression"
+      ],
+      "gate": "Codex/S0 must explicitly review/ratify schema and server-owned authenticated integration; pinned source is candidate and provenance marker is not S0 authenticity or operational approval"
     }
   ],
   "non_authorizing_positive_states": [
@@ -405,5 +420,14 @@
     "gate_count": 7,
     "hard_blockers_not_removable_by_input": true,
     "production_homologation": false
+  },
+  "s0_coordination_handoff": {
+    "manifest": "docs/contracts/OAI_E04_F02_S0_INTEGRATION_HANDOFF_V1.json",
+    "upstream_pinned_schema": "docs/contracts/upstream/OAI_S0_F02_REVIEW_RESULT_SCHEMA_0_1_PINNED.json",
+    "s0_schema_blob_sha": "61598ba702dc03f9f715673118c88f9359e64113",
+    "tests": "backend/tests/test_f02_s0_integration_handoff_contract.py",
+    "documentation": "docs/OAI_E04_F02_S0_COORDENACAO_CODEX_20261027.md",
+    "all_seven_gates_still_pending": true,
+    "no_production": true
   }
 }

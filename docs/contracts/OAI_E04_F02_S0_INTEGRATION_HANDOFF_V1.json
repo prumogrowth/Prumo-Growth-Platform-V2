@@ -1,0 +1,117 @@
+{
+  "schema": "prumo.f02.s0.integration_handoff/1.0-lab",
+  "emitted_on": "2026-10-27",
+  "mode": "READ_ONLY_COORDINATION_NOT_AUTHORIZATION",
+  "repository": "0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA",
+  "source_checkpoints": {
+    "f02": {
+      "branch": "feat/oai-s0-f03-history-port-20261023",
+      "sha": "84d76c1340f5ab831e10a6e9c3c76fa1ee01d72e",
+      "ci_run_id": 40475244137,
+      "ci_conclusion": "success",
+      "pr_number": 1,
+      "pr_draft": true
+    },
+    "s0": {
+      "branch": "exp/s0-f02-revisao-autoritativa-20261026",
+      "sha": "88af4aea3aeb2c403bab4c078fdc04d560f2cba0",
+      "verified_executable_commit": "4a3d248d46fad5c195398324b3ee98ae6236365f",
+      "ci_run_id": 40414847271,
+      "ci_conclusion": "success",
+      "candidate_schema_blob_sha": "61598ba702dc03f9f715673118c88f9359e64113",
+      "contract_path": "docs/contratos/f02_s0_review/result.schema.json"
+    }
+  },
+  "pinned_schema_file": "docs/contracts/upstream/OAI_S0_F02_REVIEW_RESULT_SCHEMA_0_1_PINNED.json",
+  "joint_gates_manifest": "docs/contracts/OAI_E04_F02_S0_JOINT_GATES_V1.json",
+  "f02_acceptance_matrix": "docs/contracts/OAI_E04_F02_ACCEPTANCE_MATRIX_V1.json",
+  "lab_evidence": {
+    "f02_criteria": [
+      "F02-A19",
+      "F02-A20",
+      "F02-A21",
+      "F02-A22",
+      "F02-A23",
+      "F02-A24"
+    ],
+    "s0_candidate_registry": "S0F02ReviewRegistryLocal",
+    "s0_verified_scope": "CFI_CONTEXT_ONLY_F02_EVIDENCE_PENDING",
+    "fully_authorized": false
+  },
+  "integration_pending_criteria": [
+    "F02-A16",
+    "F02-A17",
+    "F02-A18"
+  ],
+  "handoff_requests": [
+    {
+      "gate_id": "G01_S0_SCHEMA_RATIFICATION",
+      "owner": "Codex/S0",
+      "status": "INTEGRATION_PENDING",
+      "source_requirement": "Ratified and versioned S0 F02 result/command contract; migration and compatibility rules",
+      "question": "Qual versao de envelope request/result a S0 aceita como contrato aprovado, e como sera detectada mudanca de schema?",
+      "expected_evidence": "Schema assinado/aprovado e CI de compatibilidade em contrato versionado, sem habilitar envio"
+    },
+    {
+      "gate_id": "G02_AUTHENTICATED_TRANSPORT_AND_LOOKUP",
+      "owner": "Codex/S0 + Frontend + S1",
+      "status": "INTEGRATION_PENDING",
+      "source_requirement": "Server-owned CFI binding reconstruction, authenticated S0 response/provenance, D3 lookup and session transfer decision",
+      "question": "Como a F02 consultara a S0 com binding CFI server-owned apos perda de resposta, logout ou troca de sessao?",
+      "expected_evidence": "Consulta real GoTrue/CFI + D3 e provas de acesso negado, stale, segredo nao exposto e lookup da mesma chave"
+    },
+    {
+      "gate_id": "G03_F03_C08_ORIGIN_PROVENANCE",
+      "owner": "S0 + F01/F03 + F02",
+      "status": "INTEGRATION_PENDING",
+      "source_requirement": "Authentic F03 receipt and cutoff, local C08 witness and origin ledger attestation; no promotion of claimed hashes",
+      "question": "Como cada uma das quatro testemunhas alegadas sera validada contra fontes S0/F03/C08 e corte historico?",
+      "expected_evidence": "Mapeamento prova-por-prova com origem autenticada, rejeicao de troca de caso, lead, canal, cutoff e ausencia de testemunha"
+    },
+    {
+      "gate_id": "G04_S1_DISTINCT_MANAGER_RATIFICATION",
+      "owner": "S0 + S1",
+      "status": "INTEGRATION_PENDING",
+      "source_requirement": "Role/assignment scope, distinct manager authority, signed audited approve/deny/revoke decision with expiry",
+      "question": "Quem pode ratificar ou negar, com independencia do capturador e revogacao por S1?",
+      "expected_evidence": "Ato autenticado/auditado de gestor com escopo e estado de recusa/revogacao/expiracao; sem autorizacao implícita"
+    },
+    {
+      "gate_id": "G05_META_OPTOUT_TEMPLATE_DISPOSITION",
+      "owner": "S0 + Meta + Privacidade",
+      "status": "INTEGRATION_PENDING",
+      "source_requirement": "Authoritative external reserved/uncertain disposition, current opt-out/consent and approved template/channel policy",
+      "question": "Qual fonte confirma opt-out, template permitido, tentativa reservada/incerta e estado Meta no instante decisorio?",
+      "expected_evidence": "Rechecks de opt-out e provider, testes de reserva incerta sem reenvio, fonte de template e fronteira M2M"
+    },
+    {
+      "gate_id": "G06_APPROVED_TIME_RETENTION_POLICY",
+      "owner": "S0 + Produto + Privacidade",
+      "status": "INTEGRATION_PENDING",
+      "source_requirement": "Business-approved TTL, contact windows, server clock, retention/minimization and policy version independent of lab constants",
+      "question": "Qual TTL oficial para pedido, janela de contato e retencao, sem adotar automaticamente fixtures F02?",
+      "expected_evidence": "Versoes/politica produto-privacidade com UTC e retencao/minimizacao; distincao 48h versus pedido voluntario"
+    },
+    {
+      "gate_id": "G07_F01_F03_F02_INTEGRATED_PATH",
+      "owner": "S0 + F01/F03 + F02 + S1",
+      "status": "INTEGRATION_PENDING",
+      "source_requirement": "Integrated physical test from human handover to persisted S0 review including concurrent revocation and negative paths",
+      "question": "Qual cadeia testada conecta fechamento humano F01/F03, registro S0, consulta F02, retirada e concorrencia?",
+      "expected_evidence": "Cenario fisico integrado sob PG17/GoTrue descartavel com corridas, rollback, idempotencia e nenhum transporte real"
+    }
+  ],
+  "forbidden_actions": [
+    "MERGE",
+    "DEPLOY",
+    "SEND",
+    "SCHEDULE",
+    "PRODUCTION_MIGRATION",
+    "S0_SOURCE_PATCH_FROM_F02"
+  ],
+  "schema_ratified": false,
+  "s0_transport_authenticated_for_f02": false,
+  "s1_operational_ratification": false,
+  "meta_external_disposition_verified": false,
+  "production_homologation": false
+}
