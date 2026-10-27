@@ -15,7 +15,6 @@ from urllib.parse import urlsplit,urlunsplit,quote
 from uuid import uuid4
 
 import psycopg
-from psycopg import sql
 
 LOGIN='prumo_s1_admin_edge_local'
 CUSTODIAN='prumo_s1_edge_custodian_local'
@@ -76,11 +75,10 @@ def private_material_transaction(c):
     global/role setting or business audit table is changed.
     """
     desired=(('log_statement','none'),('log_parameter_max_length','0'),
-      ('log_parameter_max_length_on_error','0'),('log_min_error_statement','panic'),('pgaudit.log','none'))
+      ('log_parameter_max_length_on_error','0'),('pgaudit.log','none'))
     statements={'log_statement':"set local log_statement='none'",
       'log_parameter_max_length':"set local log_parameter_max_length=0",
       'log_parameter_max_length_on_error':"set local log_parameter_max_length_on_error=0",
-      'log_min_error_statement':"set local log_min_error_statement='panic'",
       'pgaudit.log':"set local pgaudit.log='none'"}
     for name,value in desired:
         current=c.execute('select current_setting(%s,true)',(name,)).fetchone()[0]
@@ -91,6 +89,40 @@ def private_material_transaction(c):
         except Exception as error:
             code=getattr(error,'sqlstate',None)
             raise MaterialLoggingBlocked(name,code) from None
+
+
+def material_parameter(c,name,value):
+    # Custom GUC is backend-local and transaction-local. The SQL source contains
+    # only placeholders; bind/error parameter logging was already disabled.
+    c.execute('select set_config(%s,%s,true)',('prumo_i83.'+name,value))
+
+
+def private_password(c,verifier,until,probe=False):
+    material_parameter(c,'verifier',verifier);material_parameter(c,'until',until)
+    role='prumo_i83_logging_probe' if probe else LOGIN
+    state='nologin' if probe else 'login'
+    # role/state come from this fixed allowlist, never the request/operator.
+    c.execute("""do $password$ begin
+      begin
+        execute format('alter role %s %s password %%L valid until %%L',
+          current_setting('prumo_i83.verifier'),current_setting('prumo_i83.until'));
+      exception when others then
+        raise exception 'I83_SQL_ADMISSION_FAILED' using errcode=sqlstate;
+      end;
+    end $password$;""" % (role,state))
+
+
+def private_key(c,key,secret):
+    material_parameter(c,'key',str(key));material_parameter(c,'hmac',secret.hex())
+    c.execute("""do $key$ begin
+      begin
+        insert into prumo_private.s1_i83_edge_credentials(key_id,secret,not_before,expires_at)
+        values(current_setting('prumo_i83.key')::uuid,decode(current_setting('prumo_i83.hmac'),'hex'),
+          clock_timestamp()-interval '1 second',clock_timestamp()+interval '1 hour');
+      exception when others then
+        raise exception 'I83_KEY_WRITE_FAILED' using errcode=sqlstate;
+      end;
+    end $key$;""")
 
 
 def rotate(db):
@@ -117,12 +149,12 @@ def rotate(db):
             c.execute('insert into prumo_private.cfi01_signing_keys_local(key_id,secret,active) values (%s,%s,false)',(value.key_id,bytes(32)))
             c.execute('set local role prumo_s1_edge_custodian_local')
             stage='KEY'
-            c.execute('insert into '+TABLE+'(key_id,secret,not_before,expires_at) values (%s,%s,clock_timestamp()-interval \'1 second\',clock_timestamp()+interval \'1 hour\')',(value.key_id,value.secret))
+            private_key(c,value.key_id,value.secret)
             c.execute('reset role')
             c.execute('revoke prumo_s1_edge_custodian_local from postgres')
             until=c.execute("select clock_timestamp()+interval '1 hour'").fetchone()[0]
             stage='SQL_ADMISSION'
-            c.execute(sql.SQL('alter role prumo_s1_admin_edge_local login password {} valid until {}').format(sql.Literal(value.verifier),sql.Literal(until.isoformat())))
+            private_password(c,value.verifier,until.isoformat())
     except Exception as error:
         code=getattr(error,'sqlstate',None)
         code=code if isinstance(code,str) and len(code)==5 and code.isascii() and code.isalnum() else 'UNCLASSIFIED'
