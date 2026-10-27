@@ -1,0 +1,48 @@
+name: Meta interactive list replies - offline
+on:
+  push:
+    branches: [feat/meta-cloud-list-replies-20261027]
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [feat/meta-cloud-button-replies-20261027]
+    paths:
+      - 'integrations/whatsapp-meta/**'
+      - '.github/workflows/meta-cloud-list-replies-offline.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  list-replies:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      NODE_OPTIONS: ''
+      NODE_PATH: ''
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: New list reply contract (15 focused tests)
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --experimental-strip-types --test --test-concurrency=1 \
+            integrations/whatsapp-meta/cloud-list-reply-handoff.test.ts \
+            2>&1 | tee "$RUNNER_TEMP/cloud-list-reply.tap"
+          grep -qx '# tests 15' "$RUNNER_TEMP/cloud-list-reply.tap"
+          grep -qx '# pass 15' "$RUNNER_TEMP/cloud-list-reply.tap"
+          grep -qx '# fail 0' "$RUNNER_TEMP/cloud-list-reply.tap"
+      - name: Existing PR24 behavior and HMAC/routing regression
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --experimental-strip-types --test --test-concurrency=1 \
+            integrations/whatsapp-meta/cloud-button-reply-handoff.test.ts \
+            integrations/whatsapp-meta/cloud-webhook-handoff.test.ts \
+            integrations/whatsapp-meta/inbound.test.ts \
+            integrations/whatsapp-meta/routed-webhook.test.ts \
+            2>&1 | tee "$RUNNER_TEMP/existing-replies.tap"
+          grep -qx '# fail 0' "$RUNNER_TEMP/existing-replies.tap"
