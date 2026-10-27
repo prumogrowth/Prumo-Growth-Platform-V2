@@ -82,13 +82,30 @@ export async function inspectSignedMetaComposedWebhook(
  trustedRoute:CloudRouteScope,limits?:{maxBodyBytes?:number;maxEvents?:number},
 ):Promise<ComposedWebhookHandoff>{
  if(!(rawBody instanceof Uint8Array))return deny('VERIFICATION_DENIED');
- const max=limits?.maxBodyBytes??256*1024;
+ // AUDIT: Route scope and event/body ceilings must be captured BEFORE the
+ // first awaited HMAC. A caller-owned mutable registry snapshot/limits object
+ // must never redirect the inspected WABA/phone or change limits mid-flight.
+ // Only inert primitive values are copied; no reference to caller objects
+ // survives the first await. The underlying HMAC checks remain unchanged.
+ let stableRoute:CloudRouteScope;
+ let stableLimits:{maxBodyBytes?:number;maxEvents?:number}|undefined;
+ try{
+  stableRoute=Object.freeze({
+   waba_id:trustedRoute.waba_id,
+   phone_number_id:trustedRoute.phone_number_id,
+   revision:trustedRoute.revision,
+  });
+  stableLimits=limits===undefined?undefined:Object.freeze({
+   maxBodyBytes:limits.maxBodyBytes,maxEvents:limits.maxEvents,
+  });
+ }catch{return deny('VERIFICATION_DENIED');}
+ const max=stableLimits?.maxBodyBytes??256*1024;
  if(!Number.isSafeInteger(max)||max<1||rawBody.byteLength>max)
   return deny('VERIFICATION_DENIED');
  const body=Uint8Array.from(rawBody);
  let base:Awaited<ReturnType<typeof inspectCloudWebhookForHandoff>>;
  try{base=await inspectCloudWebhookForHandoff(
-  body,signature,appSecret,trustedRoute,limits);
+  body,signature,appSecret,stableRoute,stableLimits);
  }catch{return deny('VERIFICATION_DENIED');}
  if(base.outcome!=='AUTHENTICATED_NOT_DURABLE')
   return deny('VERIFICATION_DENIED');
@@ -107,7 +124,7 @@ export async function inspectSignedMetaComposedWebhook(
  const grouped:SpecializedEvidence[][]=[];
  try{
   for(const reader of readers){
-   parts=await reader(body,signature,appSecret,trustedRoute,limits);
+   parts=await reader(body,signature,appSecret,stableRoute,stableLimits);
    if(parts.decision==='DENIED')return deny('COMPONENT_DENIED');
    if(parts.raw_sha256!==base.raw_sha256)
     return deny('INCONSISTENT_SNAPSHOT');
