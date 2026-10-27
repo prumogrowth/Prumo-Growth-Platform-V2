@@ -52,8 +52,10 @@ const allowedStatus=new Set(['APPROVED','PENDING','PAUSED','REJECTED','DISABLED'
 const allowedCategory=new Set(['MARKETING','UTILITY','AUTHENTICATION']);
 const invalidUtf16=/(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])/;
 class Invalid extends Error {
- constructor(readonly code:Extract<ProviderTemplateObservation,{decision:'DENIED'}>['reason']){
+ readonly code:Extract<ProviderTemplateObservation,{decision:'DENIED'}>['reason'];
+ constructor(code:Extract<ProviderTemplateObservation,{decision:'DENIED'}>['reason']){
   super(code);
+  this.code=code;
  }
 }
 function fail(code:Invalid['code']):never {throw new Invalid(code);}
