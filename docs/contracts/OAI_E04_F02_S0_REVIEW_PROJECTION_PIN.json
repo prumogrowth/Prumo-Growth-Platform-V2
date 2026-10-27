@@ -1,0 +1,47 @@
+{
+  "schema": "prumo.s0.f02.review.result/0.1-candidate",
+  "source_branch": "exp/s0-f02-revisao-autoritativa-20261026",
+  "source_head_checked": "88af4aea3aeb2c403bab4c078fdc04d560f2cba0",
+  "source_code_ci_sha": "4a3d248d46fad5c195398324b3ee98ae6236365f",
+  "source_ci_run": 40414847271,
+  "source_contract_path": "docs/contratos/f02_s0_review/result.schema.json",
+  "source_contract_blob_sha": "61598ba702dc03f9f715673118c88f9359e64113",
+  "schema_contract_status": "0.1-candidate-not-ratified",
+  "required_keys": [
+    "schema",
+    "state",
+    "review_ref",
+    "revision",
+    "observed_at",
+    "request_sha256",
+    "expires_at",
+    "evidence_scope",
+    "human_ratification",
+    "send_authorized",
+    "scheduling_authorized",
+    "commercial_transition_authorized"
+  ],
+  "evidence_scope": "CFI_CONTEXT_ONLY_F02_EVIDENCE_PENDING",
+  "human_ratification": "NOT_IMPLEMENTED_CONTRACT_PENDING",
+  "persisted_states": [
+    "RECORDED_REVIEW_ONLY",
+    "REPLAY_REVIEW_ONLY",
+    "CURRENT_REVIEW_ONLY",
+    "WITHDRAWN_REVIEW_ONLY",
+    "EXPIRED_REVIEW_ONLY"
+  ],
+  "negative_states": [
+    "INPUT_REJECTED",
+    "DENIED",
+    "STALE",
+    "IDEMPOTENCY_CONFLICT",
+    "REQUEST_EXPIRED",
+    "REVIEW_REQUEST_NOT_FOUND",
+    "CLOCK_RECHECK_REQUIRED",
+    "UNAVAILABLE"
+  ],
+  "operationally_ratified": false,
+  "has_authenticated_transport": false,
+  "allows_send": false,
+  "allows_scheduling": false
+}

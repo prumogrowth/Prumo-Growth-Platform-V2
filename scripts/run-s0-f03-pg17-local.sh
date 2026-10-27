@@ -73,5 +73,6 @@ python3 -m unittest backend.tests.test_s0_f03_history_manifest_local \
   backend.tests.test_f02_reconciled_review_lifecycle \
   backend.tests.test_f02_bound_review_preflight \
   backend.tests.test_f02_reconciled_review_recovery \
+  backend.tests.test_f02_s0_review_projection_candidate \
   backend.tests.test_f02_acceptance_matrix_contract \
   backend.tests.test_s0_f03_pg17_integration -v

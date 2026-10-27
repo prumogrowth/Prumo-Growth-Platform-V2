@@ -232,6 +232,22 @@
         "backend/tests/test_f02_reconciled_review_recovery.py::test_13_new_revocation_blocks_even_with_continuity"
       ],
       "gate": "Codex/S0 must supply trusted persisted snapshots, completeness proofs, authoritative revocations, S1 rights and server clock; this guard cannot prove any real history"
+    },
+    {
+      "id": "F02-A21",
+      "area": "F02/S0",
+      "behavior": "Candidate S0 review projection is strictly validated and bound to the local untrusted request; persisted/terminal/negative states remain non-authorizing and claimed continuity cannot reopen terminal status",
+      "status": "LAB_VERIFIED",
+      "tests": [
+        "backend/tests/test_f02_s0_review_projection_candidate.py::test_01_record_is_review_only",
+        "backend/tests/test_f02_s0_review_projection_candidate.py::test_05_true_boolean_authority_flags_rejected",
+        "backend/tests/test_f02_s0_review_projection_candidate.py::test_08_request_digest_tamper_rejected",
+        "backend/tests/test_f02_s0_review_projection_candidate.py::test_16_changed_reference_cannot_claim_same_continuity",
+        "backend/tests/test_f02_s0_review_projection_candidate.py::test_19_withdrawn_or_expired_does_not_reopen",
+        "backend/tests/test_f02_s0_review_projection_candidate.py::test_21_transient_negative_never_erases_prior_record",
+        "backend/tests/test_f02_s0_review_projection_candidate.py::test_28_pinned_s0_manifest_tracks_all_known_states_and_schema"
+      ],
+      "gate": "S0/Frontend must ratify transport and server-owned binding; S0 contract remains candidate, S0 F03/C08/Meta proofs and actual S1 human ratification remain pending"
     }
   ],
   "non_authorizing_positive_states": [
@@ -302,5 +318,16 @@
     "durable_history": false,
     "meta_transport": false,
     "approval": false
+  },
+  "s0_review_projection_candidate": {
+    "contract_schema": "prumo.s0.f02.review.result/0.1-candidate",
+    "manifest": "docs/contracts/OAI_E04_F02_S0_REVIEW_PROJECTION_PIN.json",
+    "implementation": "backend/f02_s0_review_projection_candidate.py",
+    "tests": "backend/tests/test_f02_s0_review_projection_candidate.py",
+    "documentation": "docs/contracts/OAI_E04_F02_S0_REVIEW_PROJECTION_CANDIDATE_V1.md",
+    "codex_owned_source_branch": "exp/s0-f02-revisao-autoritativa-20261026",
+    "source_s0_ci_run": 40414847271,
+    "authority_verified_by_f02": false,
+    "operational_approval": false
   }
 }
