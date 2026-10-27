@@ -98,6 +98,7 @@ class I80Tests(FoundationTests):
     def test_i80_03_apply_preserves_both_stores_case_history_intake_and_grants(self):
         actor,token,case=self.legacy(orphan=True);before=self.preserved(actor)
         p,_=self.preview(actor,manager=self.people['m1'][0]);r=self.apply(p)
+        self.assertTrue(p['impact']['consultant_intake_gate_after']);self.assertTrue(p['impact']['must_recheck_assignment_authority'])
         self.assertEqual(r.state,'APPLIED');self.assertEqual(self.cargo(actor),'consultor')
         self.assertEqual(self.relation(actor)[1],self.people['m1'][0]);self.assertEqual(self.preserved(actor),before)
         code,rows=request(self.api,self.anon,'GET','/rest/v1/casos_humanos?select=id&id=eq.'+case['case_id'],token=token)
@@ -169,7 +170,8 @@ class I80Tests(FoundationTests):
         actor,_,_=self.legacy()
         with psycopg.connect(self.db) as c:c.execute('select prumo_private.s1_definir_intake(%s,%s,true,1)',(self.people['m1'][0],actor))
         p,_=self.preview(actor,manager=self.people['m1'][0]);before=self.preserved(actor)
-        self.assertTrue(p['impact']['intake_paused']);self.assertEqual(self.apply(p).state,'APPLIED');self.assertEqual(self.preserved(actor),before)
+        self.assertTrue(p['impact']['intake_paused']);self.assertFalse(p['impact']['consultant_intake_gate_after'])
+        self.assertEqual(self.apply(p).state,'APPLIED');self.assertEqual(self.preserved(actor),before)
         denied=self.call(payload={**self.payload(item=self.queue(),key='i80-paused-new-lead'),'consultor_id':str(actor)})
         self.assertEqual(denied.state.value,'INTAKE_PAUSED')
 
@@ -312,8 +314,14 @@ class I80Tests(FoundationTests):
                 self.assertFalse(c.execute("select has_function_privilege(%s,%s,'EXECUTE')",(role,signature)).fetchone()[0])
         with self.assertRaises(psycopg.errors.InsufficientPrivilege):
             with psycopg.connect(self.dsn) as c:c.execute('update prumo_private.s1_i80_previews set cargo=\'gestor\' where id=%s',(p['preview_id'],))
-        with self.assertRaises(psycopg.errors.CheckViolation):
+        with self.assertRaises(psycopg.errors.InsufficientPrivilege):
             with psycopg.connect(self.db) as c:c.execute('update prumo_private.s1_i80_previews set cargo=\'gestor\' where id=%s',(p['preview_id'],))
+
+    def test_i80_33_revoked_and_regranted_director_competence_needs_new_preview(self):
+        actor,_,_=self.legacy(pending=True);p,_=self.preview(actor)
+        self.set_director(False);self.set_director(True)
+        self.assertEqual(self.apply(p).state,'STALE');self.assertIsNone(self.cargo(actor))
+        fresh,_=self.preview(actor);self.assertEqual(self.apply(fresh).state,'APPLIED')
 
 
 if __name__=='__main__':

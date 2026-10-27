@@ -79,10 +79,12 @@ def receipt(value,p):
         if type(value['blockers']) is not list or any(type(b) is not str or b not in BLOCKERS for b in value['blockers']):raise ValueError('I80_BLOCKERS')
         if value['outcome']!=('BLOCKED' if value['blockers'] else 'READY'):raise ValueError('I80_PREVIEW_STATUS')
         i=value['impact']
-        if type(i) is not dict or set(i)!={'state_preserved','current_relationship_id','complete','change_relationship','revoke_exception_ids','grant_count','assignment_count','case_count','intake_paused'}:
+        if type(i) is not dict or set(i)!={'state_preserved','current_relationship_id','complete','consultant_intake_gate_after','must_recheck_assignment_authority','change_relationship','revoke_exception_ids','grant_count','assignment_count','case_count','intake_paused'}:
             raise ValueError('I80_IMPACT_FIELDS')
         if (i['state_preserved'] not in (None,'pendente','ativo','suspenso','desligado') or type(i['complete']) is not bool
-            or type(i['change_relationship']) is not bool or (i['intake_paused'] is not None and type(i['intake_paused']) is not bool)):
+            or type(i['change_relationship']) is not bool or type(i['consultant_intake_gate_after']) is not bool
+            or i['must_recheck_assignment_authority'] is not True
+            or (i['intake_paused'] is not None and type(i['intake_paused']) is not bool)):
             raise ValueError('I80_IMPACT_STATE')
         relation(i['current_relationship_id'])
         if type(i['revoke_exception_ids']) is not list or len(set(i['revoke_exception_ids']))!=len(i['revoke_exception_ids']):raise ValueError('I80_IMPACT_EXCEPTIONS')

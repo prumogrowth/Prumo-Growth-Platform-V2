@@ -61,7 +61,8 @@ begin
   'auth_identity_exists',exists(select 1 from auth.users u where u.id=p_target),
   'authority',(select to_jsonb(r) from(select x.ator_id,x.ativo,x.xmin::text as row_version
    from prumo_private.s1_responsaveis_plataforma x where x.ator_id=p_target) r),
-  'candidate_manager',(select to_jsonb(m) from(select e.ator_id,e.cargo,e.estado,e.xmin::text as row_version
+  'candidate_manager',(select to_jsonb(m) from(select e.ator_id,e.cargo,e.estado,e.xmin::text as row_version,
+   exists(select 1 from prumo_private.s1_responsaveis_plataforma d where d.ator_id=e.ator_id) as director_authority_exists
    from public.equipe_prumo_s1 e where e.ator_id=p_manager) m),'bounded',n<=2000);
  if n>2000 then return v||jsonb_build_object('row_count',n);end if;
  return v||jsonb_build_object(
@@ -88,6 +89,16 @@ begin
     from prumo_private.s1_excecoes_caso_i61 x where x.operador_id=p_target or x.gestor_id=p_target) e),'[]'::jsonb)
  );
 end $$;
+
+-- Bind the preview to the Director's authoritative row versions as well as
+-- its live session. Revoking and regranting competence cannot revive a plan.
+create function prumo_private.s1_i80_context(p_actor uuid,p_target uuid,p_manager uuid)
+returns jsonb language sql stable security invoker set search_path='' as $$
+ select prumo_private.s1_i80_snapshot(p_target,p_manager)||jsonb_build_object('director_authority',(
+  select jsonb_build_object('actor_id',e.ator_id,'cargo',e.cargo,'estado',e.estado,
+   'team_row_version',e.xmin::text,'active',d.ativo,'authority_row_version',d.xmin::text)
+  from public.equipe_prumo_s1 e join prumo_private.s1_responsaveis_plataforma d on d.ator_id=e.ator_id where e.ator_id=p_actor))
+$$;
 
 -- No classification is inferred. Facts only validate the Director's proposal.
 create function prumo_private.s1_i80_plan(p_state jsonb,p_cargo text,p_manager uuid)
@@ -121,7 +132,7 @@ begin
   then b:=b||'"PENDING_CHEFIA_USE_I79_ACTIVATION"'::jsonb;end if;
   if p_manager is null and (t->>'estado'='ativo' or n>0) then b:=b||'"MANAGER_REQUIRED"'::jsonb;end if;
   if p_manager is not null and (m='null'::jsonb or m is null or m->>'cargo' is distinct from 'gestor'
-    or m->>'estado' is distinct from 'ativo' or p_manager::text=p_state->>'target_id')
+    or m->>'estado' is distinct from 'ativo' or m->>'director_authority_exists'='true' or p_manager::text=p_state->>'target_id')
   then b:=b||'"MANAGER_NOT_CLASSIFIED_ACTIVE"'::jsonb;end if;
  end if;
  change_link:=p_cargo='consultor' and p_manager is distinct from v_current;
@@ -140,6 +151,9 @@ begin
  return jsonb_build_object('blockers',b,'impact',jsonb_build_object(
   'state_preserved',t->>'estado','current_relationship_id',v_relation::text,
   'complete',p_state->'bounded',
+  'consultant_intake_gate_after',b='[]'::jsonb and p_cargo='consultor' and t->>'estado'='ativo'
+    and p_manager is not null and not coalesce((p_state->'intake'->>'pausado')::boolean,false),
+  'must_recheck_assignment_authority',true,
   'change_relationship',change_link,'revoke_exception_ids',revoke_ids,
   'grant_count',case when p_state->>'bounded'='true' then jsonb_array_length(coalesce(p_state->'grants','[]')) else null end,
   'assignment_count',case when p_state->>'bounded'='true' then jsonb_array_length(coalesce(p_state->'assignments','[]')) else null end,
@@ -157,6 +171,13 @@ begin
   or exists(select 1 from prumo_private.s1_gestor_operadores g where
    (g.operador_id=p_target and g.gestor_id=e.ator_id) or (g.gestor_id=p_target and g.operador_id=e.ator_id))
   order by e.ator_id for update nowait;
+ -- Prelock sibling rows used by I79's deferred validator. The account fence
+ -- above prevents new links from committing while this second snapshot runs.
+ perform 1 from public.equipe_prumo_s1 e where exists(
+  select 1 from prumo_private.s1_gestor_operadores g where g.operador_id=e.ator_id and g.encerrado_em is null
+   and (g.gestor_id in(p_target,p_manager) or exists(select 1 from prumo_private.s1_gestor_operadores parent
+    where parent.operador_id=p_target and parent.gestor_id=g.gestor_id and parent.encerrado_em is null)))
+ order by e.ator_id for share nowait;
  perform 1 from prumo_private.s1_gestor_operadores g where g.operador_id=p_target or g.gestor_id=p_target order by g.id for update nowait;
  perform 1 from public.vinculos_papel_escopo g where g.ator_id=p_target order by g.id for share nowait;
  perform 1 from prumo_private.s1_intake_estado d where d.operador_id=p_target for share nowait;
@@ -217,7 +238,7 @@ begin
   if p_action='PREVIEW' then
    s:=prumo_private.s1_i80_snapshot(p_target,null);
    if prumo_private.s1_i80_digest(s)<>p_expected then raise exception 'I80_STALE_INVENTORY' using errcode='40001';end if;
-   s:=prumo_private.s1_i80_snapshot(p_target,p_manager);d:=prumo_private.s1_i80_digest(s);
+   s:=prumo_private.s1_i80_context(p_actor,p_target,p_manager);d:=prumo_private.s1_i80_digest(s);
    select * into p from prumo_private.s1_i80_previews where diretor_id=p_actor and request_key=p_request;
    if found then
     if p.target_id<>p_target or p.cargo<>p_cargo or p.manager_id is distinct from p_manager or p.inventory_sha256<>p_expected
@@ -239,7 +260,7 @@ begin
    if p.target_id<>p_target or p.cargo<>p_cargo or p.manager_id is distinct from p_manager or p.snapshot_sha256<>p_expected
    then raise exception 'I80_PREVIEW_BINDING_MISMATCH' using errcode='40001';end if;
    select * into r from prumo_private.s1_i80_applications where diretor_id=p_actor and request_key=p_request;
-   s:=prumo_private.s1_i80_snapshot(p_target,p_manager);d:=prumo_private.s1_i80_digest(s);
+   s:=prumo_private.s1_i80_context(p_actor,p_target,p_manager);d:=prumo_private.s1_i80_digest(s);
    if found then
     if r.preview_id<>p_preview then raise exception 'I80_APPLICATION_KEY_CONFLICT' using errcode='23505';end if;
     if r.receipt->>'after_sha256'<>d then raise exception 'I80_REPLAY_STATE_CHANGED' using errcode='40001';end if;
@@ -267,7 +288,7 @@ begin
     end if;
     update public.equipe_prumo_s1 set cargo=p_cargo where ator_id=p_target and cargo is null;
     perform prumo_private.s1_i79_validar_profissional(p_target);
-    request_id:=gen_random_uuid();d:=prumo_private.s1_i80_digest(prumo_private.s1_i80_snapshot(p_target,p_manager));
+    request_id:=gen_random_uuid();d:=prumo_private.s1_i80_digest(prumo_private.s1_i80_context(p_actor,p_target,p_manager));
     result:=jsonb_build_object('outcome','APPLIED','request_id',request_id,'preview_id',p_preview,'target_id',p_target,
      'cargo',p_cargo,'estado',p.impact->>'state_preserved','manager_id',p_manager,'relationship_id',relation_id::text,
      'revoked_exception_count',revoked,'before_sha256',p.snapshot_sha256,'after_sha256',d);
@@ -323,7 +344,7 @@ grant prumo_s0_g1_executor_local to postgres with inherit false,set true;
 alter function prumo_private.s1_i80_signed(uuid,uuid,text,uuid,text,uuid,text,uuid,uuid,integer,text,uuid,bigint,uuid,text) owner to prumo_s0_g1_executor_local;
 revoke prumo_s0_g1_executor_local from postgres;
 revoke create on schema prumo_private from prumo_s0_g1_executor_local;
-revoke all on function prumo_private.s1_i80_digest(jsonb),prumo_private.s1_i80_snapshot(uuid,uuid),
+revoke all on function prumo_private.s1_i80_digest(jsonb),prumo_private.s1_i80_snapshot(uuid,uuid),prumo_private.s1_i80_context(uuid,uuid,uuid),
  prumo_private.s1_i80_plan(jsonb,text,uuid),prumo_private.s1_i80_locks(uuid,uuid,uuid),prumo_private.s1_i80_preview_result(uuid)
  from public,anon,authenticated,service_role,prumo_cfi01_pgtest_login;
 commit;
