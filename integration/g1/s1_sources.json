@@ -1,5 +1,5 @@
 {
-  "ref": "b71ebf4479c9a0a3527519471cca04ec7e178e18",
+  "ref": "8780b576aa18bd3983c063339e2e42d2452af22c",
   "purpose": "Read-only current S1/I76: reuse exact I54-I62 SQL and I63 in disposable PG17; no S1 branch changes.",
   "files": [
     {

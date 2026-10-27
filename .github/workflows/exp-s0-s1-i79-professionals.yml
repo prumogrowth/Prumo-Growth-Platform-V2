@@ -1,0 +1,166 @@
+name: S0 S1 I79 - Director professional administration
+on:
+  push:
+    branches: [exp/s0-s1-i79-profissionais-20261027]
+    paths:
+      - 'backend/**'
+      - 'integration/history/**'
+      - 'integration/f02/**'
+      - 'integration/g1/**'
+      - 'integration/i79/**'
+      - 'supabase/tests/s1_i79_profissionais_local_only.sql'
+      - 'supabase/tests/s0_g1_manual_queue_local_only.sql'
+      - 'supabase/tests/s0_f02_review_registry_local_only.sql'
+      - 'supabase/tests/s0_history_*'
+      - '.github/workflows/exp-s0-s1-i79-professionals.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: s0-s1-i79-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  real-history-and-cfi:
+    if: github.ref == 'refs/heads/exp/s0-s1-i79-profissionais-20261027'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      SUPABASE_DISABLE_TELEMETRY: '1'
+      PRUMO_CFI01_TRANSACTIONAL_TEST: 'YES'
+      PRUMO_HISTORY_DISPOSABLE_TEST: 'YES'
+      PRUMO_F02_DISPOSABLE_TEST: 'YES'
+      PRUMO_G1_DISPOSABLE_TEST: 'YES'
+      PRUMO_I79_DISPOSABLE_TEST: 'YES'
+      PRUMO_G1_SOURCE_REPO: work-s1-sources
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Preserve 264 S0 F02 tests plus G1 strict compatibility
+        run: python3 -m unittest discover -s backend/tests -v
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 2.84.2
+      - name: Fixed driver and CLI
+        run: |
+          supabase --version
+          supabase start --help > /dev/null
+          command -v psql || (sudo apt-get update -qq && sudo apt-get install -y postgresql-client)
+          python3 -m pip install -r backend/requirements-s0-local.txt
+      - name: Start only new unlinked disposable PG17 GoTrue PostgREST
+        env:
+          SUPABASE_INTERNAL_IMAGE_REGISTRY: docker.io
+        run: supabase start --exclude realtime,storage-api,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
+      - name: Existing Auth REST RLS and original CFI regressions
+        run: |
+          PYTHONPATH=. python3 scripts/test_s0_auth_rest_local.py
+          PYTHONPATH=. python3 scripts/test_s0_cfi01_auth_rest_local.py
+      - name: Reproduce actual logout gap then test history session barrier
+        run: PYTHONPATH=. python3 integration/history/test_session_history.py --profile s0
+      - name: All 32 certified CFI plus 24 actual GoTrue F02 registry scenarios
+        run: PYTHONPATH=. python3 integration/f02/test_authoritative_review.py
+      - name: Read pinned current S1 in detached checkout without branch writes
+        uses: actions/checkout@v4
+        with:
+          ref: 8780b576aa18bd3983c063339e2e42d2452af22c
+          path: work-s1-sources
+          persist-credentials: false
+      - name: Verify pinned sources and materialize only in disposable database
+        run: PYTHONPATH=. python3 integration/history/prepare_s1_profile.py --source-repo work-s1-sources --manifest integration/g1/s1_sources.json
+      - name: Same real history suite with full S1 extensions and original I63 candidate
+        run: PYTHONPATH=. python3 integration/history/test_session_history.py --profile i63
+      - name: Install guarded G1 delta before populating G1 request data
+        run: PYTHONPATH=. python3 integration/g1/install_local.py
+      - name: Original S1 canonical queue and exception regressions, SQL fixture identities only
+        run: |
+          for test in s1_078_fila_s0_canonica_aceite.sql s1_080_fila_reconciliacao_aceite.sql s1_081_atribuicao_grant_i57_aceite.sql s1_082_fila_gestor_autorizacao_aceite.sql s1_085_excecao_caso_canonica_aceite.sql; do
+            PYTHONPATH=. python3 integration/g1/run_pinned_sql.py "work-s1-sources/supabase/tests/$test"
+          done
+      - name: Real GoTrue manual handoff, both race orders, I61 I62 revocation and rollback
+        run: PYTHONPATH=. python3 integration/g1/test_manual_handoff.py
+      - name: Install I79 authoritative professional foundation atomically
+        run: PYTHONPATH=. python3 integration/i79/install_local.py
+      - name: I79 real Director administration and all 36 G1 regressions under explicit roles
+        run: PYTHONPATH=. python3 integration/i79/test_professionals.py
+      - name: Remove disposable stack even on failure
+        if: always()
+        run: supabase stop --no-backup
+
+  s1-pinned-i54-i78-regressions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd=pg_isready
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=10
+    env:
+      PGPASSWORD: postgres
+      PRUMO_TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/prumo_s0_test_s1ci
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 8780b576aa18bd3983c063339e2e42d2452af22c
+          persist-credentials: false
+      - name: Instalar cliente PostgreSQL se necessario
+        run: command -v psql || (sudo apt-get update -qq && sudo apt-get install -y postgresql-client)
+      - name: Criar base local descartavel
+        run: psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c 'CREATE DATABASE prumo_s0_test_s1ci'
+      - name: Executar regressao S0 e gate equipe S1-002
+        run: bash scripts/run-s1-002-i12-local.sh
+      - name: I52 etapa canonica S0-S1 apos regressao historica
+        run: bash scripts/run-s1-002-i52-local.sh
+      - name: I78 G2 chefia unica, autoridade Diretor e lacuna de on-boarding
+        run: psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_109_i78_g2_chefia_diretor_local_only.sql
+      - name: I46 inventario completo das migrations SQL rastreadas
+        run: python3 scripts/test_s1_002_i46_acl_inventory.py
+      - name: I46 catalogo ACL efetivo no PG17 descartavel
+        run: psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_067_catalog_i46_local_only.sql
+      - name: I75B inventario lexical de objetos G3, historico e referencias a midia
+        run: |
+          python3 -m unittest discover -s tests -p 'test_s1_002_i75_g3_inventory.py' -v
+          python3 scripts/test_s1_002_i75_g3_surface_inventory.py
+      - name: I75B preservar inventario G3 para revisao de objetos e colunas
+        uses: actions/upload-artifact@v4
+        with:
+          name: s1-002-i75b-g3-inventory
+          path: ${{ runner.temp }}/s1_002_i75b_g3_inventory.json
+          retention-days: 14
+      - name: I75C verificar catalogo efetivo PG17 e ACL por coluna
+        run: |
+          python3 -m unittest discover -s tests -p 'test_s1_002_i75c_pg17_effective_catalog.py' -v
+          python3 scripts/test_s1_002_i75c_pg17_effective_catalog.py
+      - name: I75C arquivar provas de catalogo PG17
+        uses: actions/upload-artifact@v4
+        with:
+          name: s1-002-i75c-effective-g3-catalog
+          path: ${{ runner.temp }}/s1_002_i75c_pg17_g3_effective_catalog.json
+          retention-days: 14
+      - name: I48 catalogo efetivo de roles e funcoes gateway S0
+        run: psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_071_gateway_acl_catalog_local_only.sql
+      - name: I48 cruzamento de fontes S0 013-037
+        run: python3 scripts/test_s1_002_i48_acl_crosswalk.py
+      - name: Arquivar cruzamento I48
+        uses: actions/upload-artifact@v4
+        with:
+          name: s1-002-i48-crosswalk
+          path: ${{ runner.temp }}/s1_002_i48_crosswalk.json
+          retention-days: 14
+      - name: Arquivar inventario estatico I46
+        uses: actions/upload-artifact@v4
+        with:
+          name: s1-002-i46-acl-inventory
+          path: ${{ runner.temp }}/s1_002_i46_acl_inventory.json
+          retention-days: 14

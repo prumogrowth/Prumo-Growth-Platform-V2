@@ -61,6 +61,10 @@ class G1Tests(unittest.TestCase):
         cls.gateway=S0CFI01AtomicCommandsLocal(cls.api,cls.anon,cls.dsn,key_id=cls.key_id,signing_key=cls.secret)
         cls.command=g1.S0ManualQueueHandoffLocal(cls.gateway)
         cls.people={name:register(cls.api,cls.anon) for name in ('m1','m2','c1','c2','c3')}
+        cls.seed_professionals()
+
+    @classmethod
+    def seed_professionals(cls):
         with psycopg.connect(cls.db) as c:
             for actor,_ in cls.people.values():
                 c.execute('insert into public.atores(id) values (%s)',(actor,))
@@ -194,10 +198,11 @@ class G1Tests(unittest.TestCase):
                 if restore:restore()
 
     def test_09_team_change_while_waiting_is_rechecked(self):
-        def change(end):
-            with psycopg.connect(self.db) as c:c.execute('update prumo_private.s1_gestor_operadores set encerrado_em='+('clock_timestamp()' if end else 'null')+' where operador_id=%s',(self.people['c2'][0],))
-        self.after_lead_wait(lambda:change(True),'DESTINATION_INELIGIBLE',lambda:change(False))
+        self.after_lead_wait(lambda:self.change_team_for_test(True),'DESTINATION_INELIGIBLE',lambda:self.change_team_for_test(False))
         self.assertEqual(self.facts()[0:3],(0,0,0))
+
+    def change_team_for_test(self,end):
+        with psycopg.connect(self.db) as c:c.execute('update prumo_private.s1_gestor_operadores set encerrado_em='+('clock_timestamp()' if end else 'null')+' where operador_id=%s',(self.people['c2'][0],))
 
     def test_10_pause_wins_during_lead_wait(self):
         self.after_lead_wait(lambda:self.pause(True),'INTAKE_PAUSED',lambda:self.pause(False))
