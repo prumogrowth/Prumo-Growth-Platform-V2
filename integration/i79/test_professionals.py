@@ -33,6 +33,14 @@ class I79Tests(OriginalG1):
             manager=None if cargo=='gestor' else cls.people['m2' if name=='c3' else 'm1'][0]
             for action in ('REGISTER','ACTIVATE'):
                 result=cls.admin.execute('Bearer '+cls.director_token,cls.dto(action,target,cargo,manager if action=='ACTIVATE' else None))
+                if result.state!='APPLIED':
+                    # Fixed SQL diagnostic only; never log proof/DSN/JWT/keys.
+                    p=cls.dto(action,target,cargo,manager if action=='ACTIVATE' else None)
+                    principal=cls.gateway._identity.verify('Bearer '+cls.director_token)
+                    try:
+                        with psycopg.connect(cls.dsn) as c:c.execute(admin_module.SQL,cls.admin.proof(principal,admin_module.command(p)))
+                    except psycopg.Error as error:
+                        raise RuntimeError('I79 bootstrap SQL '+str(error.sqlstate)+' '+str(error.diag.message_primary)) from None
                 assert result.state=='APPLIED',(name,action,result.state)
 
     @staticmethod
@@ -257,10 +265,33 @@ class I79Tests(OriginalG1):
                 self.assertFalse(c.execute("select has_function_privilege(%s,'prumo_private.s1_i79_admin_signed(uuid,uuid,text,uuid,text,uuid,bigint,text,uuid,bigint,uuid,text)','EXECUTE')",(role,)).fetchone()[0])
 
     def test_62_auto_distribution_skips_unclassified_and_uses_canonical_classifier(self):
+        # Both classified candidates have one open case; the legacy candidate
+        # has zero. Without the selector adaptation it would win and fail late.
+        self.assigned(target='c1',item=self.queue(),key='i79-auto-load-c1')
+        self.assigned(who='m2',target='c3',item=self.queue(),key='i79-auto-load-c3')
+        actor,_=register(self.api,self.anon)
+        with psycopg.connect(self.db) as c:
+            c.execute('insert into public.atores(id) values (%s)',(actor,))
+            c.execute("insert into public.equipe_prumo_s1(ator_id,estado) values (%s,'ativo')",(actor,))
+            c.execute('insert into prumo_private.s1_gestor_operadores(gestor_id,operador_id) values (%s,%s)',(self.people['m1'][0],actor))
+            c.execute("insert into public.vinculos_papel_escopo(ator_id,concessionaria_id,papel) values (%s,%s,'operador')",(actor,self.shops['A']))
         with psycopg.connect(self.db) as c:
             result=c.execute('select prumo_private.s0_fila_distribuir(%s,%s,1)',(self.shops['A'],self.items['A'][1])).fetchone()[0]
             self.assertEqual(result['outcome'],'ASSIGNED_NEW')
             self.assertEqual(c.execute('select cargo from public.equipe_prumo_s1 where ator_id=%s',(result['operator_id'],)).fetchone()[0],'consultor')
+
+    def test_63_empty_manager_can_self_claim_but_is_not_a_consultant_destination(self):
+        actor,token=self.new_person('gestor',True);self.tokens['empty_manager']=token
+        with psycopg.connect(self.db) as c:c.execute("insert into public.vinculos_papel_escopo(ator_id,concessionaria_id,papel) values (%s,%s,'gestor')",(actor,self.shops['A']))
+        principal,issued,nonce,mac=self.s1_proof('FILA55C',(self.shops['A'],self.items['A'][1],None,None,None,'C:1'),'empty_manager')
+        with psycopg.connect(self.s1_dsn) as c:
+            result=c.execute('select prumo_s1_signed_i20.invocar_fila_v55(%s,%s,%s,%s,%s,%s,%s,%s,%s)',
+                (principal.actor_id,principal.session_id,self.shops['A'],self.items['A'][1],1,self.s1_key,issued,nonce,mac)).fetchone()[0]
+        self.assertEqual(result['outcome'],'CLAIMED_BY_MANAGER')
+        # No B grant and no subordinate: the former inference would mistake it
+        # for a consultant, so the new G1 role guard must roll back that attempt.
+        before=self.facts();p={**self.payload(shop='B'),'consultor_id':str(actor)}
+        self.assertEqual(self.call(payload=p).state.value,'DENIED');self.assertEqual(self.facts(),before)
 
 
 if __name__=='__main__':
