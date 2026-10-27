@@ -14,6 +14,7 @@ from hmac import compare_digest
 import re
 from uuid import UUID
 
+from backend.f02_reconciled_review_lifecycle import ReviewWindow
 from backend.f02_reconciled_human_authorization_handoff import (
     ClaimedS0Evidence, ReviewOnlyProposal, HandoffState, prepare_handoff,
 )
@@ -40,7 +41,7 @@ _PROOF_SOURCES = {
     ),
 }
 _PACKET_KEYS = frozenset((
-    "schema", "scope", "closure_at", "handoff_sha256", "proofs",
+    "schema", "scope", "closure_at", "handoff_sha256", "review_window", "proofs",
     "source_state", "source_authority", "s1_ratified", "meta_verified",
     "send_authorized",
 ))
@@ -64,6 +65,7 @@ class ProofBindingGate(str, Enum):
     HANDOFF_RECHECK_REQUIRED = "HANDOFF_RECHECK_REQUIRED"
     DIGEST_RECHECK_REQUIRED = "DIGEST_RECHECK_REQUIRED"
     TEMPORAL_RECHECK_REQUIRED = "TEMPORAL_RECHECK_REQUIRED"
+    WINDOW_RECHECK_REQUIRED = "WINDOW_RECHECK_REQUIRED"
 
 
 @dataclass(frozen=True, slots=True)
@@ -93,10 +95,12 @@ def _scope(x: object, ids: tuple[UUID, ...]) -> bool:
 def inspect_claimed_proof_binding(
     evidence: ClaimedS0Evidence,
     proposal: ReviewOnlyProposal,
+    window: ReviewWindow,
     packet: dict,
 ) -> ProofBindingResult:
     """Structure/correlation-only gate; no database, signature, send or approval.
 
+    Even a matching time window is caller supplied and cannot be trusted.
     Every source ID/revision, even a locally consistent one, remains entirely
     unauthenticated. In particular C08 local cancellation is not Meta cancel,
     and a synthetic manager intent is not human operational ratification.
@@ -106,6 +110,7 @@ def inspect_claimed_proof_binding(
 
     if (type(evidence) is not ClaimedS0Evidence
         or type(proposal) is not ReviewOnlyProposal
+        or type(window) is not ReviewWindow
         or type(packet) is not dict
         or frozenset(packet) != _PACKET_KEYS):
         return out(ProofBindingGate.DENIED_MALFORMED)
@@ -124,6 +129,26 @@ def inspect_claimed_proof_binding(
         or not compare_digest(handoff.untrusted_request_sha256,
                                packet["handoff_sha256"])):
         return out(ProofBindingGate.HANDOFF_RECHECK_REQUIRED)
+
+    # The F02 unsigned handoff hash does NOT include the original time window.
+    # S0's persisted document does. Compare UTC instants before proceeding.
+    # Neither this window nor the rest of the packet is authenticated.
+    original = packet["review_window"]
+    if (type(original) is not dict
+        or set(original) != {"requested_at", "expires_at"}
+        or type(window.requested_at) is not datetime
+        or type(window.expires_at) is not datetime
+        or window.requested_at.tzinfo is None
+        or window.requested_at.utcoffset() is None
+        or window.expires_at.tzinfo is None
+        or window.expires_at.utcoffset() is None):
+        return out(ProofBindingGate.WINDOW_RECHECK_REQUIRED)
+    requested, expires = _time(original["requested_at"]), _time(original["expires_at"])
+    start = window.requested_at.astimezone(timezone.utc)
+    end = window.expires_at.astimezone(timezone.utc)
+    if (requested is None or expires is None
+        or not start < end or requested != start or expires != end):
+        return out(ProofBindingGate.WINDOW_RECHECK_REQUIRED)
 
     ids = (evidence.shop_id, evidence.lead_id,
            evidence.case_id, evidence.closure_id)

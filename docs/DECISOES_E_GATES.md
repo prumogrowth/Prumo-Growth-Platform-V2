@@ -57,3 +57,7 @@ O módulo puro `backend/operator_distribution_policy.py` é um **planejador isol
 **ADR-2026-10-27-SUPABASE-OPENAI-DIRECT — APROVADA:** o backend principal da Prumo ficará **dentro do Supabase** (Edge Functions como execução inicial; PostgreSQL/Auth e filas internas quando adequadas), chamando a **OpenAI API diretamente no servidor**. Não adotar n8n como camada obrigatória; usá-lo apenas se necessidade concreta justificar. Não contratar servidor externo como arquitetura padrão. Ver [ADR detalhada](./decisoes/ADR_20261027_BACKEND_SUPABASE_OPENAI_DIRETO.md) e [contrato JSON](./contracts/OAI_ARQUITETURA_BACKEND_SUPABASE_OPENAI_V1.json).
 
 **Precedência:** essa aprovação substitui a *indefinição arquitetural* sobre Supabase versus n8n de 17/10, mas **não** autoriza hospedar migrações, usar OpenAI/Meta reais, implantar backend, introduzir credenciais, ignorar gates S0/S1 ou alterar a estratégia E04 de testes locais antes da integração geral. O dimensionamento final Edge Functions/filas requer validação; qualquer exceção de hospedagem precisa justificativa e nova deliberação.
+
+## Titularidade F01/F02/F03 × S0 — 27/10/2026
+
+**APROVADA:** auditoria e correções nas frentes OpenAI (F01/F02/F03/S2) são da nossa frente. Consulta/auditoria **somente leitura** de S0 permitida; alteração em S0 é exclusiva da frente S0, acionada somente diante de modificação necessária e fundamentada. Ver [ADR](./decisoes/ADR_20261027_GOVERNANCA_FRENTES_OPENAI_S0.md) e [auditoria](./OAI_E04_F01_F02_F03_S0_AUDITORIA_CONTRATOS_20261027.md). Nenhuma autorização de produção decorre disso.

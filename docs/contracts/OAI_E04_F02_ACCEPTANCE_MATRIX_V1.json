@@ -340,6 +340,25 @@
         "backend/tests/test_f02_s0_proof_binding_candidate.py::test_24_no_s0_authentication_claim_in_result"
       ],
       "gate": "G03 partially met, G07 pending: S0 must own physical IDs/canonicalization/verifier/cutoff and authenticate all sources; this candidate is an untrusted shape check only, not a verified S0 receipt"
+    },
+    {
+      "id": "F02-A28",
+      "area": "OpenAI F01/F02/F03 x S0",
+      "behavior": "Read-only S0 contract audit showed F02 unsigned handoff digest excludes original review window although S0 signed internal document includes it; local F02 candidate binding now cross-checks exact UTC requested/expires instant without importing any S0 authority",
+      "status": "LAB_VERIFIED",
+      "tests": [
+        "backend/tests/test_f02_s0_proof_binding_candidate.py::test_25_swapped_original_window_rejected_even_with_same_handoff",
+        "backend/tests/test_f02_s0_proof_binding_candidate.py::test_26_tampered_packet_expiry_refused",
+        "backend/tests/test_f02_s0_proof_binding_candidate.py::test_27_packet_window_missing_extra_or_naive_refused",
+        "backend/tests/test_f02_s0_proof_binding_candidate.py::test_28_window_reversal_refused",
+        "backend/tests/test_f02_s0_proof_binding_candidate.py::test_29_window_equivalent_offset_stays_candidate_only",
+        "backend/tests/test_f02_s0_proof_binding_candidate.py::test_30_voluntary_window_longer_than_48h_is_not_capped",
+        "backend/tests/test_f02_s0_proof_binding_candidate.py::test_31_DST_fold_reversed_absolute_order_refused",
+        "backend/tests/test_f02_s0_proof_binding_candidate.py::test_32_DST_fold_forward_absolute_order_candidate_only",
+        "backend/tests/test_f02_s0_proof_binding_candidate.py::test_33_extra_authority_flag_rejected",
+        "backend/tests/test_f02_s0_proof_binding_candidate.py::test_34_invalid_window_object_or_naive_datetime"
+      ],
+      "gate": "G01-G06 only partially attended, G07 pending. No S0 source attestation, hosted SQL, Meta transport, human ratification or production approval"
     }
   ],
   "non_authorizing_positive_states": [
@@ -487,5 +506,20 @@
     "source_attested": false,
     "s0_contract_ratified": false,
     "commercial_authorization": false
+  },
+  "ownership_audit_f01_f02_f03_s0": {
+    "decision": "docs/decisoes/ADR_20261027_GOVERNANCA_FRENTES_OPENAI_S0.md",
+    "report": "docs/OAI_E04_F01_F02_F03_S0_AUDITORIA_CONTRATOS_20261027.md",
+    "s0_read_only": true,
+    "owned_fronts": [
+      "F01",
+      "F02",
+      "F03",
+      "S2/OpenAI"
+    ],
+    "s0_changes_made": false,
+    "source_s0_sha": "88af4aea3aeb2c403bab4c078fdc04d560f2cba0",
+    "source_s2_sha": "ebf6fe4e546f2fe990bdaefe2df25aa0cf18e74c",
+    "window_bound_in_f02_candidate": true
   }
 }

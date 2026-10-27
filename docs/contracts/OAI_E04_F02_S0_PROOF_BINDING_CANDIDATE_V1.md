@@ -4,7 +4,7 @@
 
 ## Código adicionado
 
-`backend/f02_s0_proof_binding_candidate.py`: `inspect_claimed_proof_binding(evidence, proposal, packet)` verifica exclusivamente a **consistência do formato candidato** entre os quatro campos de `ClaimedS0Evidence` e suas referências **declaradas pelo chamador**. A função:
+`backend/f02_s0_proof_binding_candidate.py`: `inspect_claimed_proof_binding(evidence, proposal, window, packet)` verifica exclusivamente a **consistência do formato candidato** entre os quatro campos de `ClaimedS0Evidence` e suas referências **declaradas pelo chamador**. A função:
 
 - Refaz `prepare_handoff`, confronta `handoff_sha256`, valida loja/lead/caso/encerramento no envelope e em **cada** uma das quatro referências.
 - Exige os caminhos/métodos de produtor local previamente inventariados, rejeita campos extras ou ausentes, examina `source_ref`, revisão e versões alegadas de canonicalização/verificador.
@@ -33,3 +33,9 @@ A S0 mantém as decisões G01–G07 e futura implementação de verificação de
 `backend/tests/test_f02_s0_proof_binding_candidate.py`: 24 novos testes unitários offline, com escopos adversariais, trocas de digest/proposta, campos desconhecidos, falsos flags, ordenação temporal e ausência de capacidades. Runner PG17 de E04 inclui a suíte apenas para regressão; não transforma a implementação em integração física. A matriz passa para F02-A27 `LAB_VERIFIED` **após** CI SUCCESS no commit correspondente.
 
 **Sem chamadas a Supabase hospedado, OpenAI real, Meta, banco, produção, migração, frontend, S0 oficial ou n8n.**
+
+## Ajuste depois da auditoria F01/F02/F03 × S0 (27/10/2026)
+
+O SHA do handoff F02 não inclui o prazo do pedido, mas o registro físico S0 exige um documento integral que inclui os dois instantes de `ReviewWindow`. O formato candidato da F02 agora exige `review_window.requested_at/expires_at` e confere igualdade UTC com o objeto `window` recebido independentemente. Isso reduz troca acidental do contexto temporal sem alegar autenticação, HMAC ou TTL de negócio. Ver `docs/OAI_E04_F01_F02_F03_S0_AUDITORIA_CONTRATOS_20261027.md`.
+
+`observed_at` candidato é horário de **inspeção alegado**: não equivale a data de criação da mensagem F03 (possivelmente anterior ao fechamento). A ordenação antiga continua somente um pressuposto de laboratório; S0/F03 deverão definir a semântica canônica antes da integração real.
