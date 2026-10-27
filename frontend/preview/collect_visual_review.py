@@ -75,7 +75,9 @@ def main(output):
                 page.locator('#ui-settings').evaluate('e => e.open = false')
             expect(page.locator('#visual-app')).to_have_attribute('data-theme', theme)
             if actor != 'rafael':
+                page.locator('#ui-settings').evaluate('e => e.open = true')
                 page.locator('#actor-select').select_option(actor)
+                page.locator('#ui-settings').evaluate('e => e.open = false')
 
             if scene in ('thread', 'details', 'extraction'):
                 page.get_by_role('button', name='Abrir conversa Cliente Exemplo 02',
