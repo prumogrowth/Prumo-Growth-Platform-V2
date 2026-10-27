@@ -2,9 +2,10 @@
  * Meta Cloud webhook technical composition: ONE ordered observation per
  * SIGNED raw callback occurrence, no lost generic items or doubled slots.
  *
- * Independent existing narrow readers each verify the same immutable raw
- * snapshot (including HMAC and trusted WABA/phone routing). Expensive by
- * design: no bypass of their security boundaries and no implicit S0 handoff.
+ * Existing narrow readers independently authenticate the same immutable
+ * raw snapshot (including HMAC and trusted WABA/phone routing) ONLY WHEN
+ * the already-authenticated base envelope contains their supported kind.
+ * No bypass of any invoked reader's HMAC and no implicit S0 handoff.
  * Collisions, component denials, divergent raw hashes or missing expected
  * evidence deny the ENTIRE aggregate; nothing is persisted or ACKed.
  */
@@ -82,13 +83,29 @@ export async function inspectSignedMetaComposedWebhook(
  trustedRoute:CloudRouteScope,limits?:{maxBodyBytes?:number;maxEvents?:number},
 ):Promise<ComposedWebhookHandoff>{
  if(!(rawBody instanceof Uint8Array))return deny('VERIFICATION_DENIED');
- const max=limits?.maxBodyBytes??256*1024;
+ // Snapshot caller-owned trusted configuration BEFORE the first await. The
+ // same route/revision/limits MUST be used by the base and every narrow
+ // inspector; late caller mutations cannot alter provenance or decisions.
+ let scope:CloudRouteScope;
+ let cap:{maxBodyBytes?:number;maxEvents?:number}|undefined;
+ try{
+  scope=Object.freeze({
+   waba_id:trustedRoute.waba_id,
+   phone_number_id:trustedRoute.phone_number_id,
+   revision:trustedRoute.revision,
+  });
+  cap=limits===undefined?undefined:Object.freeze({
+   maxBodyBytes:limits.maxBodyBytes,
+   maxEvents:limits.maxEvents,
+  });
+ }catch{return deny('VERIFICATION_DENIED');}
+ const max=cap?.maxBodyBytes??256*1024;
  if(!Number.isSafeInteger(max)||max<1||rawBody.byteLength>max)
   return deny('VERIFICATION_DENIED');
  const body=Uint8Array.from(rawBody);
  let base:Awaited<ReturnType<typeof inspectCloudWebhookForHandoff>>;
  try{base=await inspectCloudWebhookForHandoff(
-  body,signature,appSecret,trustedRoute,limits);
+  body,signature,appSecret,scope,cap);
  }catch{return deny('VERIFICATION_DENIED');}
  if(base.outcome!=='AUTHENTICATED_NOT_DURABLE')
   return deny('VERIFICATION_DENIED');
@@ -97,17 +114,27 @@ export async function inspectSignedMetaComposedWebhook(
   Awaited<ReturnType<typeof inspectSignedMetaMediaMetadata>>|
   Awaited<ReturnType<typeof inspectSignedMetaUnsupportedMessages>>|
   Awaited<ReturnType<typeof inspectSignedMetaFailedStatusErrors>>;
+ // Dispatch only readers relevant to an AUTHENTICATED event class.
+ // This never trusts unsigned JSON and never skips the status guard when
+ // sent/delivered/read callbacks need malformed-errors detection.
+ // HMAC checks now range from 1 (generic-only) to 6 (fully mixed batch).
  const readers=[
-  inspectSignedMetaSelections,
-  inspectSignedMetaReactions,
-  inspectSignedMetaMediaMetadata,
-  inspectSignedMetaUnsupportedMessages,
-  inspectSignedMetaFailedStatusErrors,
+  {needed:(e:CloudObservation)=>e.kind==='inbound_message'&&
+    selectedMessage(e.provider_kind),inspect:inspectSignedMetaSelections},
+  {needed:(e:CloudObservation)=>e.kind==='inbound_message'&&
+    e.provider_kind==='reaction',inspect:inspectSignedMetaReactions},
+  {needed:(e:CloudObservation)=>e.kind==='inbound_message'&&
+    mediaMessage(e.provider_kind),inspect:inspectSignedMetaMediaMetadata},
+  {needed:(e:CloudObservation)=>e.kind==='inbound_message'&&
+    e.provider_kind==='unsupported',inspect:inspectSignedMetaUnsupportedMessages},
+  {needed:(e:CloudObservation)=>e.kind==='status_callback',
+   inspect:inspectSignedMetaFailedStatusErrors},
  ] as const;
  const grouped:SpecializedEvidence[][]=[];
  try{
   for(const reader of readers){
-   parts=await reader(body,signature,appSecret,trustedRoute,limits);
+   if(!base.observations.some(reader.needed))continue;
+   parts=await reader.inspect(body,signature,appSecret,scope,cap);
    if(parts.decision==='DENIED')return deny('COMPONENT_DENIED');
    if(parts.raw_sha256!==base.raw_sha256)
     return deny('INCONSISTENT_SNAPSHOT');
