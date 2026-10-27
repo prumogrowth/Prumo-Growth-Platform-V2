@@ -51,6 +51,13 @@ class ProvisioningTests(unittest.TestCase):
             c.execute("set local prumo.i81_disposable='YES'")
             with self.assertRaisesRegex(psycopg.errors.InsufficientPrivilege,'I81_PREREQUISITE_DRIFT'):c.execute(self.ddl)
             c.execute('rollback')
+    def test_06_added_content_column_does_not_gain_domain_select_without_review(self):
+        with psycopg.connect(self.db,autocommit=True) as c:
+            c.execute('begin')
+            c.execute('alter table public.casos_humanos add column i81_unreviewed_content text')
+            c.execute("set local prumo.i81_disposable='YES'")
+            with self.assertRaisesRegex(psycopg.errors.InsufficientPrivilege,'I81_METADATA_TABLE_SHAPE_DRIFT'):c.execute(self.ddl)
+            c.execute('rollback')
 
 
 if __name__=='__main__':unittest.main(verbosity=2)

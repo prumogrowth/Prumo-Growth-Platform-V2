@@ -44,6 +44,16 @@ begin
  or exists(select 1 from pg_auth_members where roleid='prumo_s0_g1_executor_local'::regrole
   and not(member='postgres'::regrole and admin_option and not inherit_option and not set_option))
  then raise exception 'I81_HMAC_EXECUTOR_ROLE_DRIFT' using errcode='42501';end if;
+ -- xmin is a system attribute: PG17 requires table SELECT, not SELECT of all
+ -- individual user columns. Freeze these metadata-only shapes before granting
+ -- table SELECT; an added customer/content column requires a separate review.
+ if (select array_agg(attname::text order by attnum) from pg_attribute
+     where attrelid='public.atribuicoes_humanas'::regclass and attnum>0 and not attisdropped)
+    is distinct from array['id','concessionaria_id','caso_id','operador_id','atribuida_em','encerrada_em']
+ or (select array_agg(attname::text order by attnum) from pg_attribute
+     where attrelid='public.casos_humanos'::regclass and attnum>0 and not attisdropped)
+    is distinct from array['id','concessionaria_id','lead_id','ciclo_id','origem','criado_em','motivo_simulado']
+ then raise exception 'I81_METADATA_TABLE_SHAPE_DRIFT' using errcode='42501';end if;
 end $guard$;
 
 create role prumo_s1_admin_domain_local nologin noinherit nosuperuser nocreatedb nocreaterole noreplication nobypassrls;
@@ -104,9 +114,7 @@ grant update(ator_id) on prumo_private.s1_responsaveis_plataforma to prumo_s1_ad
 grant select on public.vinculos_papel_escopo,prumo_private.s1_intake_estado to prumo_s1_admin_domain_local;
 grant update(id) on public.vinculos_papel_escopo to prumo_s1_admin_domain_local;
 grant update(operador_id) on prumo_private.s1_intake_estado to prumo_s1_admin_domain_local;
-grant select(id,concessionaria_id,caso_id,operador_id,atribuida_em,encerrada_em),update(id)
- on public.atribuicoes_humanas to prumo_s1_admin_domain_local;
-grant select(id,concessionaria_id,lead_id,ciclo_id),update(id) on public.casos_humanos to prumo_s1_admin_domain_local;
+grant select,update(id) on public.atribuicoes_humanas,public.casos_humanos to prumo_s1_admin_domain_local;
 grant select,update(revogada_em) on prumo_private.s1_excecoes_caso_i61 to prumo_s1_admin_domain_local;
 grant insert(excecao_id,evento,solicitante_id) on prumo_private.s1_excecoes_caso_eventos_i61 to prumo_s1_admin_domain_local;
 grant usage on sequence prumo_private.s1_gestor_operadores_id_seq,prumo_private.s1_excecoes_caso_eventos_i61_id_seq

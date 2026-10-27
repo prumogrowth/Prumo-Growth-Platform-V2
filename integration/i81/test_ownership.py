@@ -107,6 +107,10 @@ class OwnershipTests(I80Tests):
 
     def test_i81_05_lock_acl_never_authorizes_business_row_mutation(self):
         case=self.assigned(target='c1')
+        with self.as_installer_probe(DOMAIN) as c:
+            for table,identifier in (('casos_humanos',case['case_id']),('atribuicoes_humanas',case['assignment_id'])):
+                row=c.execute('select id,xmin::text from public.'+table+' where id=%s',(identifier,)).fetchone()
+                self.assertEqual(str(row[0]),identifier);self.assertTrue(row[1])
         statements=(
             ('update public.casos_humanos set id=id where id=%s',case['case_id']),
             ('update public.atribuicoes_humanas set id=id where id=%s',case['assignment_id']),
