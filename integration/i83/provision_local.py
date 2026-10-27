@@ -63,6 +63,21 @@ class Credential:
         return [self.password,self.verifier,self.secret.hex(),self.dsn(db),self.dsn(db,True)]
 
 
+def private_material_transaction(c):
+    """Suppress material-bearing SQL only in this trusted installer's tx.
+
+    No parameter ACL grant or global/role setting is changed. If the existing
+    installer cannot set a logging parameter, fail BEFORE transmitting material.
+    Business audit tables and all operation-session logging remain unchanged.
+    """
+    c.execute("set local log_statement='none'")
+    c.execute("set local log_parameter_max_length=0")
+    c.execute("set local log_parameter_max_length_on_error=0")
+    c.execute("set local log_min_error_statement='panic'")
+    if c.execute("select current_setting('pgaudit.log',true)").fetchone()[0] is not None:
+        c.execute("set local pgaudit.log='none'")
+
+
 def rotate(db):
     """Atomic old-key tombstones + new key/password; caller restarts local worker.
 
@@ -72,6 +87,8 @@ def rotate(db):
     guard(db);value=Credential();stage="BEGIN"
     try:
         with psycopg.connect(db) as c:
+            stage='MATERIAL_LOGGING'
+            private_material_transaction(c)
             c.execute("select pg_advisory_xact_lock(hashtextextended('s1-i83:provision',0))")
             assert c.execute('select current_user,session_user').fetchone()==('postgres','postgres')
             # Existing PG17 installer capability only, revoked in the same tx.

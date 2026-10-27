@@ -43,6 +43,7 @@ class DedicatedEdgeTests(EdgeTests):
         subprocess.run(['docker','rm','-f',EDGE_CONTAINER],stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=20)
         remaining=subprocess.check_output(['docker','container','ls','-a','--filter','name=^/'+EDGE_CONTAINER+'$','--format','{{.ID}}'])
         if remaining.strip():raise RuntimeError('I83 previous own runtime was not removed')
+        cls.runtime_removed=False;cls.log_leak_detected=False
         cls.credentials=[];cls.credential=rotate(cls.db);cls.credentials.append(cls.credential)
         cls.addClassCleanup(cls.retire_credentials)
         cls.base_env=dict(env);cls.runtime_env=cls.environment(cls.credential)
@@ -79,9 +80,10 @@ class DedicatedEdgeTests(EdgeTests):
 
     @classmethod
     def stop_runtime(cls):
+        if cls.runtime_removed:return
         failure=None
         try:
-            if hasattr(cls,'process'):cls.scan_logs()
+            if hasattr(cls,'process') and not cls.runtime_removed:cls.scan_logs()
         except Exception as error:failure=error
         finally:
             if hasattr(cls,'process'):
@@ -90,6 +92,7 @@ class DedicatedEdgeTests(EdgeTests):
                 except subprocess.TimeoutExpired:cls.process.kill();cls.process.wait(timeout=5)
             # CLI exit alone does not prove that container env was discarded.
             result=subprocess.run(['docker','rm','-f',EDGE_CONTAINER],stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=20)
+            cls.runtime_removed=True
             if result.returncode and failure is None:failure=AssertionError('I83 expected runtime container could not be removed')
         if failure is not None:raise failure
 
@@ -98,6 +101,7 @@ class DedicatedEdgeTests(EdgeTests):
         cls.stop_runtime()
         write_env(Path(cls.temporary.name)/'edge.env',env)
         log=cls.runtime_log.open('a');cls.addClassCleanup(log.close)
+        cls.runtime_removed=False
         cls.process=subprocess.Popen(['supabase','functions','serve','prumo-admin-i82','--env-file',str(Path(cls.temporary.name)/'edge.env'),'--no-verify-jwt'],stdout=log,stderr=subprocess.STDOUT)
         until=time.monotonic()+60
         while time.monotonic()<until:
@@ -116,20 +120,26 @@ class DedicatedEdgeTests(EdgeTests):
     @classmethod
     def scan_logs(cls):
         # Read in memory only. Never archive raw container config/logs.
-        needles=[s.encode() for v in cls.credentials for s in v.sensitive(cls.db)]
+        labels=('SQL_PASSWORD','SCRAM_VERIFIER','HMAC_HEX','LOCAL_SQL_DSN','DOCKER_SQL_DSN')
+        needles=[(label,s.encode()) for v in cls.credentials for label,s in zip(labels,v.sensitive(cls.db))]
         for container in (EDGE_CONTAINER,'supabase_db_prumo-s0-auth-ci','supabase_auth_prumo-s0-auth-ci','supabase_kong_prumo-s0-auth-ci'):
             result=subprocess.run(['docker','logs',container],stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=20)
             if result.returncode:raise AssertionError('I83 own disposable container log unavailable: '+container)
             data=result.stdout+result.stderr
-            if any(n in data for n in needles):raise AssertionError('I83 credential found in container log (value withheld)')
-        if any(n in cls.runtime_log.read_bytes() for n in needles):raise AssertionError('I83 credential found in CLI runtime log (value withheld)')
+            for label,n in needles:
+                if n in data:
+                    cls.log_leak_detected=True
+                    raise AssertionError('I83 credential found in '+container+' kind='+label+' (value withheld)')
+        if any(n in cls.runtime_log.read_bytes() for _,n in needles):
+            cls.log_leak_detected=True
+            raise AssertionError('I83 credential found in CLI runtime log (value withheld)')
 
     @classmethod
     def retire_credentials(cls):
         # Registered during environment creation, so it also runs on setup error.
         failure=None
         try:
-            if hasattr(cls,'process'):cls.scan_logs()
+            if hasattr(cls,'process') and not cls.runtime_removed:cls.scan_logs()
         except Exception as error:failure=error
         finally:
             try:
@@ -142,7 +152,7 @@ class DedicatedEdgeTests(EdgeTests):
         # Subsequent container log calls must fail: no environment kept alive.
         result=subprocess.run(['docker','inspect','--format','{{.State.Status}}',EDGE_CONTAINER],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         if result.returncode==0:raise AssertionError('I83 secret-bearing runtime container survived')
-        proof={'status':'CLEANED','container_logs_scanned_without_credential_matches':True,'cli_logs_scanned_without_credential_matches':True,'secret_bearing_container_removed':True,'server_env_removed':True,'active_or_secret_key_rows':0,'sql_login_disabled':True,'sql_password_null':True,'live_sql_sessions':0}
+        proof={'status':'CLEANED','container_logs_scanned_without_credential_matches':not cls.log_leak_detected,'cli_logs_scanned_without_credential_matches':not cls.log_leak_detected,'secret_bearing_container_removed':True,'server_env_removed':True,'active_or_secret_key_rows':0,'sql_login_disabled':True,'sql_password_null':True,'live_sql_sessions':0}
         (Path(os.environ.get('RUNNER_TEMP','/tmp'))/'prumo_i83_custody.json').write_text(json.dumps(proof,indent=2)+'\n')
         print('I83-CUSTODY: container/CLI logs scanned without secret values; runtime container and temporary env removed; key material wiped and SQL login disabled/password cleared; sessions terminated',flush=True)
 
@@ -310,4 +320,4 @@ class DedicatedEdgeTests(EdgeTests):
 
 if __name__=='__main__':
     suite=unittest.TestSuite(DedicatedEdgeTests(n) for n in unittest.defaultTestLoader.getTestCaseNames(DedicatedEdgeTests) if n.startswith(('test_edge_','test_i83_')))
-    raise SystemExit(not unittest.TextTestRunner(verbosity=2).run(suite).wasSuccessful())
+    raise SystemExit(not unittest.TextTestRunner(verbosity=2,failfast=True).run(suite).wasSuccessful())

@@ -29,7 +29,48 @@ concurrency:
   group: s0-s1-i83-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  credential-logging-preflight:
+    if: github.ref == 'refs/heads/exp/s0-s1-i83-edge-provisionamento-20261027'
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      SUPABASE_DISABLE_TELEMETRY: '1'
+      PRUMO_I83_DISPOSABLE_TEST: 'YES'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 2.84.2
+      - name: Fixed client and local CLI help
+        run: |
+          supabase --version
+          supabase start --help > /dev/null
+          python3 -m pip install -r backend/requirements-s0-local.txt
+      - name: New unlinked PG17 stack for metadata and private-material logging proof
+        env:
+          SUPABASE_INTERNAL_IMAGE_REGISTRY: docker.io
+        run: supabase start --exclude realtime,storage-api,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor > "${{ runner.temp }}/prumo_i83_logging_start_private.log" 2>&1
+      - name: Fail before transmitting material if existing installer cannot isolate LOCAL logging
+        run: PYTHONPATH=. python3 integration/i83/test_logging_preflight.py
+      - name: Archive credential-free logging preflight metadata only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: s0-s1-i83-material-logging-preflight
+          path: ${{ runner.temp }}/prumo_i83_logging_preflight.json
+          retention-days: 14
+      - name: Remove preflight stack and volumes even on refusal
+        if: always()
+        run: supabase stop --no-backup
+
   real-history-and-cfi:
+    needs: credential-logging-preflight
     if: github.ref == 'refs/heads/exp/s0-s1-i83-edge-provisionamento-20261027'
     runs-on: ubuntu-latest
     timeout-minutes: 20
