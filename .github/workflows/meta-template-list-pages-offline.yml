@@ -1,0 +1,48 @@
+name: Meta template list pagination - offline structural contract
+on:
+  push:
+    branches: [feat/meta-template-list-pages-offline-20261027]
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [feat/meta-template-provider-observation-20261027]
+    paths:
+      - 'integrations/whatsapp-meta/**'
+      - '.github/workflows/meta-template-list-pages-offline.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  list-pages:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      NODE_OPTIONS: ''
+      NODE_PATH: ''
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: New paginated list contract (20, offline)
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --experimental-strip-types --test --test-concurrency=1 \
+            integrations/whatsapp-meta/graph-template-list-page.test.ts \
+            2>&1 | tee "$RUNNER_TEMP/template-pages.tap"
+          grep -qx '# tests 20' "$RUNNER_TEMP/template-pages.tap"
+          grep -qx '# pass 20' "$RUNNER_TEMP/template-pages.tap"
+          grep -qx '# fail 0' "$RUNNER_TEMP/template-pages.tap"
+      - name: Revalidate provider-by-ID, text, quick reply and WA17B builders
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --experimental-strip-types --test --test-concurrency=1 \
+            integrations/whatsapp-meta/graph-template-provider-observation.test.ts \
+            integrations/whatsapp-meta/graph-template.test.ts \
+            integrations/whatsapp-meta/graph-template-interactive.test.ts \
+            integrations/whatsapp-meta/template-mcp-multiformat.test.ts \
+            2>&1 | tee "$RUNNER_TEMP/existing-template-contracts.tap"
+          grep -qx '# fail 0' "$RUNNER_TEMP/existing-template-contracts.tap"
