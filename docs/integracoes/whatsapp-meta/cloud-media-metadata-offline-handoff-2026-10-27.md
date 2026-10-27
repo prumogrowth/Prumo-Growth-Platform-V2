@@ -8,7 +8,7 @@
 
 A coleção oficial Meta/WhatsApp Business Platform descreve `Media Object` com `id`, `mime_type`, `sha256`, `caption` e `filename` (para documentos):
 - [Meta — Media Object](https://www.postman.com/meta/whatsapp-business-platform/folder/t8iajsk/media-object)
-- [Meta — Messages Object](https://www.postman.com/meta/whatsapp-business-platform/folder/il0b0ts/messages-object)
+- [Exemplo complementar — Messages Object (coleção comunitária, não oficial)](https://www.postman.com/postman/brewing-postman-flows/folder/il0b0ts/messages-object)
 - [Meta — webhook Received Media Message with Sticker](https://www.postman.com/meta/whatsapp-business-platform/request/g1ktufl/received-media-message-with-sticker)
 
 Essas referências orientam apenas o shape experimental, sem certificar entrega operacional, versões da Graph API ou suporte universal a todos os formatos.
