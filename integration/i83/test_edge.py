@@ -28,11 +28,39 @@ EDGE_CONTAINER='supabase_edge_runtime_prumo-s0-auth-ci'
 
 class DedicatedEdgeTests(EdgeTests):
     @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        current=subprocess.check_output(['docker','container','ls','-a','--filter','name=^/'+EDGE_CONTAINER+'$','--format','{{.ID}}']).strip()
+        if not current or current==cls.previous_runtime_id:raise AssertionError('I83 actual runtime was not replaced')
+        print('I83-RUNTIME: fresh container identity after physical old-worker removal and dedicated HTTP SQL readiness',flush=True)
+
+    @classmethod
     def edge_environment(cls,env):
         if os.environ.get('PRUMO_I83_DISPOSABLE_TEST')!='YES':raise RuntimeError('I83 explicit opt-in required')
+        # Previous I82 CLI exit leaves its container running. Never accept its
+        # 405/SQL response as readiness of a newly configured worker.
+        cls.previous_runtime_id=subprocess.check_output(['docker','container','ls','-a','--filter','name=^/'+EDGE_CONTAINER+'$','--format','{{.ID}}']).strip()
+        subprocess.run(['docker','rm','-f',EDGE_CONTAINER],stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=20)
+        remaining=subprocess.check_output(['docker','container','ls','-a','--filter','name=^/'+EDGE_CONTAINER+'$','--format','{{.ID}}'])
+        if remaining.strip():raise RuntimeError('I83 previous own runtime was not removed')
         cls.credentials=[];cls.credential=rotate(cls.db);cls.credentials.append(cls.credential)
-        cls.base_env=dict(env);cls.runtime_env=cls.environment(cls.credential)
         cls.addClassCleanup(cls.retire_credentials)
+        cls.base_env=dict(env);cls.runtime_env=cls.environment(cls.credential)
+        # Physical SQL admission proof before starting the actual Edge worker.
+        # No identity/SQL stub and no secret-bearing diagnostic.
+        principal=cls.gateway._identity.verify('Bearer '+cls.director_token)
+        port=object.__new__(legacy.S1LegacyRegularizationLocal)
+        port.gateway=SimpleNamespace(_key_id=cls.credential.key_id,_secret=cls.credential.secret)
+        try:
+            with psycopg.connect(cls.credential.dsn(cls.db)) as c:
+                assert c.execute('select session_user,current_user').fetchone()==(LOGIN,LOGIN)
+                result=c.execute(legacy.SQL,port.proof(principal,legacy.command(cls.wire('INVENTORY',limit=1)))).fetchone()[0]
+                if result.get('outcome')!='INVENTORY':raise RuntimeError('I83 unexpected SQL admission receipt')
+        except Exception as error:
+            code=getattr(error,'sqlstate',None)
+            code=code if isinstance(code,str) and len(code)==5 and code.isascii() and code.isalnum() else 'UNCLASSIFIED'
+            raise RuntimeError('I83 dedicated SQL admission failed code='+code+' (details withheld)') from None
+        print('I83-SQL-PROBE: dedicated session authenticated, signed I80 inventory committed',flush=True)
         return cls.runtime_env
 
     @classmethod
@@ -91,7 +119,7 @@ class DedicatedEdgeTests(EdgeTests):
         needles=[s.encode() for v in cls.credentials for s in v.sensitive(cls.db)]
         for container in (EDGE_CONTAINER,'supabase_db_prumo-s0-auth-ci','supabase_auth_prumo-s0-auth-ci','supabase_kong_prumo-s0-auth-ci'):
             result=subprocess.run(['docker','logs',container],stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=20)
-            if result.returncode:raise AssertionError('I83 expected own disposable container log unavailable')
+            if result.returncode:raise AssertionError('I83 own disposable container log unavailable: '+container)
             data=result.stdout+result.stderr
             if any(n in data for n in needles):raise AssertionError('I83 credential found in container log (value withheld)')
         if any(n in cls.runtime_log.read_bytes() for n in needles):raise AssertionError('I83 credential found in CLI runtime log (value withheld)')
