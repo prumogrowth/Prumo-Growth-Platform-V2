@@ -1,0 +1,334 @@
+{
+  "status": "CERTIFIED_DISPOSABLE_LAB_ONLY",
+  "base_i81": "c267c5604c1a879726824a3a3f26b7fb63f48127",
+  "code_commit": "c8817429184d4fb3d5bef29cb9e99d6f2b970f63",
+  "code_tree": "3c529f119441019c8948a1dec7a7d3bea1b1bc13",
+  "branch": "exp/s0-s1-i82-edge-administrativa-local-20261027",
+  "draft_pr": 35,
+  "implementation_files_sha256": {
+    ".github/workflows/exp-s0-s1-i82-edge.yml": "f806b3cd3a736c940abe617b2d4862ce42ad7b7ccfbb4f76051fd4c42f18a86f",
+    "integration/i82/catalog.py": "a17a497f60a1ae63b05ae9c23780b951a9fc8fd04bbd017423be970424ca4441",
+    "integration/i82/compat_vectors.json": "07b67cbc7244202fed193e0d883c6b63e84ce49a36598ae3066c4ed43a62666c",
+    "integration/i82/contract_test.ts": "f207958db149fa7dfffafa636d50b04d2e5465df2639269e90a8015f88f7bc1b",
+    "integration/i82/gateway_local.py": "52079e1a461fc3be5cdbfe47a8c75b647bae66283e0cf4010243053967c2ded0",
+    "integration/i82/install_local.py": "24b54f7a937d7938cf68f54e24f7fa46f580e646ceb83679e1650ee32ff3a01f",
+    "integration/i82/sanitize_runtime_log.py": "ec9919f97d34b72c5ab1171216e379a616f55b639b814db6a1fd4c453076d48a",
+    "integration/i82/test_codec_compat.py": "31b0165670b067b043a146fa9e4abbc4720c37882d54f351232dfb745913f265",
+    "integration/i82/test_edge.py": "a6d8231cdcbc2a0e3d045df7ad56ba0afed215c6abb8c7a39a8d64062cda3116",
+    "supabase/functions/prumo-admin-i82/contract.ts": "8af7d7bdf86dc8a1c35b4b0cd4bd2e4a46e1a685686ccb7ac82510210a91051b",
+    "supabase/functions/prumo-admin-i82/deno.json": "f75f62787052949039b3edaf546009ab051ad00b7ee65ffe771a4678d33149b0",
+    "supabase/functions/prumo-admin-i82/deno.lock": "207f257b6437b5b5d95a83c279caca49377fdb052d49cff31686d6c62ee4ccaf",
+    "supabase/functions/prumo-admin-i82/handler.ts": "2f01e3ae544ce6f8afdf755be1a53810769fe4dfb2ec7ffa636ca29b71bd4c3c",
+    "supabase/functions/prumo-admin-i82/index.ts": "8030efbd686216addf24fb5094fdf6e66fc713c2603fb14b03bf7fee7e1987eb",
+    "supabase/functions/prumo-admin-i82/runtime.ts": "1b13860d460341b643a39ca07908b95af2555008c06d658454a91d17b54abba0",
+    "supabase/tests/s1_i82_metadata_fence_local_only.sql": "8329119db8c01641c8cf58ae9c1246551ea3629717d0d45a54e3de952d24a79a"
+  },
+  "http_scenarios": [
+    "test_edge_01_real_director_registers_and_activates_consultant",
+    "test_edge_02_manager_has_no_director_competence_even_with_shop_grant",
+    "test_edge_03_expired_real_session_rechecked_by_sql",
+    "test_edge_04_actual_logout_and_invalid_signature_denied",
+    "test_edge_05_payload_identity_duplicates_utf8_and_limits_rejected",
+    "test_edge_06_chefia_transfer_cas_and_durable_idempotency",
+    "test_edge_07_inventory_preview_does_not_apply_then_explicit_apply_preserves_cases",
+    "test_edge_08_stale_preview_refused_after_context_change",
+    "test_edge_09_concurrent_identical_apply_has_one_commit_and_one_replay",
+    "test_edge_10_preview_session_and_director_binding_cannot_be_reassigned",
+    "test_edge_11_director_revocation_while_waiting_rechecked_under_locks",
+    "test_edge_12_partial_failure_rolls_back_i61_role_relation_nonce",
+    "test_edge_13_deferred_commit_failure_never_returns_success",
+    "test_edge_14_response_lost_after_actual_commit_reconciles_same_key",
+    "test_edge_15_unreviewed_ddl_quarantines_both_ports_without_mutation",
+    "test_edge_16_metadata_lock_fences_ddl_until_real_http_transaction_commits",
+    "test_edge_17_private_sql_roles_and_public_rest_do_not_bypass_edge",
+    "test_edge_18_two_teams_and_stores_history_visibility_preserved",
+    "test_edge_19_blocked_preview_never_promotes_active_orphan_without_manager",
+    "test_edge_20_transport_headers_local_cors_no_secrets_or_private_auth"
+  ],
+  "ci": {
+    "run": 40554841552,
+    "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40554841552",
+    "conclusion": "success",
+    "head_sha": "c8817429184d4fb3d5bef29cb9e99d6f2b970f63",
+    "started_at_utc": "2026-10-27T17:53:40Z",
+    "updated_at_utc": "2026-10-27T18:00:28Z",
+    "elapsed_between_these_records_seconds": 408,
+    "jobs": {
+      "integrated_edge_and_regressions": {
+        "id": 122368004210,
+        "conclusion": "success"
+      },
+      "pinned_original_s1": {
+        "id": 122368003850,
+        "conclusion": "success"
+      }
+    }
+  },
+  "test_results": {
+    "edge_http_actual": {
+      "passed": 20,
+      "total": 20,
+      "seconds": 33.063
+    },
+    "deno_compatibility_units": 12,
+    "python_codec": {
+      "test_methods": 1,
+      "synthetic_vectors": 7
+    },
+    "s0_existing_units": 288,
+    "s1_native_existing_units": 179,
+    "s1_catalog_existing_units": 14,
+    "i79_g1_real_each_profile": 62,
+    "i80_real_each_profile": 33,
+    "profiles": [
+      "before I81",
+      "after I81",
+      "after I82 fence"
+    ],
+    "i81_existing_provisioning": 6,
+    "i81_existing_cutover": 1,
+    "i81_existing_ownership": 14,
+    "g1_real_before_i79": 36,
+    "cfi_f02_existing": 56,
+    "session_history_each_profile": 19,
+    "history_profiles": [
+      "s0",
+      "i63"
+    ],
+    "canonical_queue_sql_fixture_checks": 34,
+    "all_success": true,
+    "aggregate_unique_count": "NOT_ASSERTED: repeated profiles and inherited suites overlap",
+    "i78_orphan_gap": "historical original checkout before I79; not a post-I79 result",
+    "resource_warnings": 0
+  },
+  "catalog": {
+    "artifact_id": 12756677846,
+    "artifact_url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40554841552/artifacts/12756677846",
+    "artifact_retention_days": 14,
+    "zip_sha256": "2cb0b3087d426308a31878feecb2dbe22436a30677bd66f61379972a3f2fd1c0",
+    "files_sha256": {
+      "prumo_i82_catalog_after.json": "5e11921c26892b6e68356c2fda3af870212b4814c477c040105274a2a1b58e06",
+      "prumo_i82_catalog_before.json": "a6a9df71115a172b28d9ec3f81ce7d82f22a561cbf85cd9ce333b66523cd8a71",
+      "prumo_i82_catalog_final.json": "5e11921c26892b6e68356c2fda3af870212b4814c477c040105274a2a1b58e06",
+      "prumo_i82_runtime_sanitized.txt": "7d09d8e93c4a69902aac4e7280470b0962f3a39f38e7b6c47e340d8e21b16a34"
+    },
+    "after_equals_final": true,
+    "counts_before_after": {
+      "roles": [
+        10,
+        10
+      ],
+      "memberships": [
+        31,
+        31
+      ],
+      "functions": [
+        106,
+        107
+      ],
+      "tables": [
+        82,
+        82
+      ],
+      "column_acl": [
+        87,
+        87
+      ],
+      "policies": [
+        145,
+        145
+      ],
+      "triggers": [
+        57,
+        57
+      ],
+      "constraints": [
+        418,
+        418
+      ],
+      "catalog_dependencies": [
+        202,
+        204
+      ],
+      "effective_function_acl": [
+        210,
+        210
+      ],
+      "effective_table_acl": [
+        700,
+        700
+      ]
+    },
+    "unchanged_sections": [
+      "roles",
+      "memberships",
+      "tables",
+      "column_acl",
+      "policies",
+      "triggers",
+      "constraints",
+      "effective_function_acl",
+      "effective_table_acl"
+    ],
+    "domain_roles": [
+      {
+        "rolname": "prumo_s1_admin_domain_local",
+        "rolcanlogin": false,
+        "rolinherit": false,
+        "rolsuper": false,
+        "rolcreatedb": false,
+        "rolcreaterole": false,
+        "rolreplication": false,
+        "rolbypassrls": false
+      },
+      {
+        "rolname": "prumo_s1_professional_validator_local",
+        "rolcanlogin": false,
+        "rolinherit": false,
+        "rolsuper": false,
+        "rolcreatedb": false,
+        "rolcreaterole": false,
+        "rolreplication": false,
+        "rolbypassrls": false
+      }
+    ],
+    "domain_memberships": [
+      {
+        "role": "prumo_s1_admin_domain_local",
+        "member": "postgres",
+        "grantor": "supabase_admin",
+        "admin_option": true,
+        "inherit_option": false,
+        "set_option": false
+      },
+      {
+        "role": "prumo_s1_professional_validator_local",
+        "member": "postgres",
+        "grantor": "supabase_admin",
+        "admin_option": true,
+        "inherit_option": false,
+        "set_option": false
+      }
+    ],
+    "functions_before": [
+      {
+        "signature": "prumo_private.s1_i79_admin_bridge(uuid,uuid,text,uuid,text,uuid,bigint,text,uuid)",
+        "owner": "prumo_s1_admin_domain_local",
+        "prosecdef": true,
+        "proconfig": [
+          "search_path=\"\""
+        ],
+        "acl": "{prumo_s1_admin_domain_local=X/prumo_s1_admin_domain_local,prumo_s0_g1_executor_local=X/prumo_s1_admin_domain_local}",
+        "body_sha256": "ecbe3e7c9e4f9729320b896abd293fbb8c218b61498316848dec56fff91a250e"
+      },
+      {
+        "signature": "prumo_private.s1_i79_consistencia()",
+        "owner": "prumo_s1_professional_validator_local",
+        "prosecdef": true,
+        "proconfig": [
+          "search_path=\"\""
+        ],
+        "acl": "{prumo_s1_professional_validator_local=X/prumo_s1_professional_validator_local}",
+        "body_sha256": "a57ff123bd7adffbadd0cf0856a93d8ea92b89acb3377b33b25935c75fead416"
+      },
+      {
+        "signature": "prumo_private.s1_i80_bridge(uuid,uuid,text,uuid,text,uuid,text,uuid,uuid,integer,text,uuid)",
+        "owner": "prumo_s1_admin_domain_local",
+        "prosecdef": true,
+        "proconfig": [
+          "search_path=\"\"",
+          "TimeZone=UTC"
+        ],
+        "acl": "{prumo_s1_admin_domain_local=X/prumo_s1_admin_domain_local,prumo_s0_g1_executor_local=X/prumo_s1_admin_domain_local}",
+        "body_sha256": "5c6c608b5efde5b4a12f3bb65e1d97fec981f2a534c19496dc14eb87788668bb"
+      }
+    ],
+    "functions_after": [
+      {
+        "signature": "prumo_private.s1_i79_admin_bridge(uuid,uuid,text,uuid,text,uuid,bigint,text,uuid)",
+        "owner": "prumo_s1_admin_domain_local",
+        "prosecdef": true,
+        "proconfig": [
+          "search_path=\"\""
+        ],
+        "acl": "{prumo_s1_admin_domain_local=X/prumo_s1_admin_domain_local,prumo_s0_g1_executor_local=X/prumo_s1_admin_domain_local}",
+        "body_sha256": "1edc6b6016214adc9c6575f29b0fcbf1292e03ea9185b1a8edd36d1f7d36bdac"
+      },
+      {
+        "signature": "prumo_private.s1_i79_consistencia()",
+        "owner": "prumo_s1_professional_validator_local",
+        "prosecdef": true,
+        "proconfig": [
+          "search_path=\"\""
+        ],
+        "acl": "{prumo_s1_professional_validator_local=X/prumo_s1_professional_validator_local}",
+        "body_sha256": "a57ff123bd7adffbadd0cf0856a93d8ea92b89acb3377b33b25935c75fead416"
+      },
+      {
+        "signature": "prumo_private.s1_i80_bridge(uuid,uuid,text,uuid,text,uuid,text,uuid,uuid,integer,text,uuid)",
+        "owner": "prumo_s1_admin_domain_local",
+        "prosecdef": true,
+        "proconfig": [
+          "search_path=\"\"",
+          "TimeZone=UTC"
+        ],
+        "acl": "{prumo_s1_admin_domain_local=X/prumo_s1_admin_domain_local,prumo_s0_g1_executor_local=X/prumo_s1_admin_domain_local}",
+        "body_sha256": "48ad4afe3303deb0c30f216326e64a10cc6fa05482f335d54ee3e5bc1f8d6a12"
+      },
+      {
+        "signature": "prumo_private.s1_i82_metadata_fence()",
+        "owner": "postgres",
+        "prosecdef": false,
+        "proconfig": [
+          "search_path=\"\""
+        ],
+        "acl": "{postgres=X/postgres,prumo_s1_admin_domain_local=X/postgres}",
+        "body_sha256": "c8263e50055f1d610b4ec7263ed1a099731618c51629fe08057067ead5e59ec7"
+      }
+    ],
+    "business_body_equivalence": "catalog.py removed exactly one fence prefix per bridge and verified prior SHA256; all other function bodies unchanged",
+    "new_helper_privilege": "INVOKER; owner postgres; EXECUTE postgres/admin-domain only; no owner privilege elevation; app/API/outer denied",
+    "schema_create_after_final": {
+      "domain_public": false,
+      "domain_private": false,
+      "validator_public": false,
+      "validator_private": false
+    }
+  },
+  "runtime": {
+    "supabase_cli": "2.84.2",
+    "typecheck_deno": "2.2.8",
+    "postgres_major": 17,
+    "sql_driver": "postgres npm 3.4.7",
+    "physical_stack": "actual Supabase local Edge Runtime + GoTrue + PostgREST + PostgreSQL; no Python HTTP server in operation path",
+    "diagnostic_previous_attempt": {
+      "run": 40551255788,
+      "observed_runtime": "1.73.0 (compatible with Deno v2.1.4)",
+      "failure": "ENOTFOUND Node DNS adapter; resolved by server-only own-container private IPv4 pin"
+    }
+  },
+  "failed_attempts": [
+    {
+      "run": 40549209419,
+      "code": "35d662118370776b159db833b87b0afbf7eff203",
+      "result": "20 HTTP scenarios: 3 pass, 16 fail, 1 proxy alias error; not certified"
+    },
+    {
+      "run": 40551255788,
+      "code": "12a20f4e10af0b7628b1fa2d3de24547f95d3fbd",
+      "result": "authenticated startup SQL probe ENOTFOUND; zero HTTP scenarios executed; not certified"
+    },
+    {
+      "run": 40552937146,
+      "code": "9dad3a5489160eafd67808471fca0b1d10896b3c",
+      "result": "19/20 HTTP pass; wildcard CORS overwritten by CLI Kong; not certified"
+    }
+  ],
+  "not_production_ready": [
+    "dedicated least-privilege local Edge login/key provisioning and independent custody/rotation",
+    "hosted TLS/runtime and operational validation require separate scope/authorization",
+    "distributed abuse/rate control",
+    "Frontend contract review and visual product acceptance",
+    "future metadata-only DDL review including types/constraints/policies beyond exact column-list fence"
+  ]
+}

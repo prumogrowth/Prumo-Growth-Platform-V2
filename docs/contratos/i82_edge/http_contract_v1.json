@@ -1,0 +1,138 @@
+{
+  "contract": "prumo.admin.v1",
+  "status": "EXPERIMENTAL_LOCAL_CANDIDATE",
+  "authority": "GoTrue identity plus existing SQL I79/I80 under I81 owners",
+  "base_checkpoint": "c267c5604c1a879726824a3a3f26b7fb63f48127",
+  "runtime": "Supabase Edge Functions local / TypeScript Deno",
+  "envelope": {
+    "exact_fields": [
+      "version",
+      "command"
+    ],
+    "version": "prumo.admin.v1",
+    "client_identity_fields": "FORBIDDEN"
+  },
+  "routes": {
+    "POST /functions/v1/prumo-admin-i82/v1/i79": {
+      "actions": [
+        "REGISTER",
+        "ACTIVATE",
+        "TRANSFER"
+      ],
+      "exact_command_fields": [
+        "action",
+        "target_id",
+        "cargo",
+        "manager_id",
+        "expected_relationship_id",
+        "idempotency_key"
+      ],
+      "expected_relationship_id": {
+        "wire_type": "canonical decimal string",
+        "min": "0",
+        "max": "9223372036854775807",
+        "number_input": "REJECTED"
+      },
+      "authority": "Director only, rechecked in SQL"
+    },
+    "POST /functions/v1/prumo-admin-i82/v1/i80": {
+      "actions": [
+        "INVENTORY",
+        "PREVIEW",
+        "APPLY"
+      ],
+      "exact_command_fields": [
+        "action",
+        "target_id",
+        "cargo",
+        "manager_id",
+        "expected_sha256",
+        "preview_id",
+        "cursor",
+        "limit",
+        "idempotency_key"
+      ],
+      "authority": "Director only, preview session binding and CAS remain SQL authoritative"
+    }
+  },
+  "response": {
+    "exact_fields": [
+      "version",
+      "correlation_id",
+      "state",
+      "commit",
+      "scope",
+      "receipt"
+    ],
+    "scope": "ADMINISTRATIVE_ONLY",
+    "correlation_id": "server-generated UUID",
+    "commit_values": [
+      "CONFIRMED",
+      "NOT_ATTEMPTED",
+      "REJECTED",
+      "UNKNOWN"
+    ],
+    "states": [
+      "APPLIED",
+      "ALREADY_APPLIED",
+      "INVENTORY",
+      "READY",
+      "BLOCKED",
+      "INPUT_REJECTED",
+      "DENIED",
+      "STALE",
+      "CONFLICT",
+      "CONCURRENT_CHANGE",
+      "EXPIRED",
+      "BUSY",
+      "UNAVAILABLE",
+      "NOT_FOUND",
+      "METHOD_NOT_ALLOWED"
+    ],
+    "receipt": "validated existing I79/I80 administrative receipt; null on error"
+  },
+  "recovery": {
+    "automatic_mutation_retry": false,
+    "network_timeout_means_rollback": false,
+    "unknown_requires": "same command/idempotency key with live authority/session; current denial is not evidence of prior rollback",
+    "preview_ready_implies_apply": false
+  },
+  "limits": {
+    "max_request_bytes": 8192,
+    "body_deadline_ms": 5000,
+    "auth_timeout_ms": 5000,
+    "connection_timeout_seconds": 5,
+    "lock_timeout_seconds": 8,
+    "statement_timeout_seconds": 15,
+    "pool_per_worker": 2,
+    "inflight_per_worker": 4,
+    "inventory_page_max": 50,
+    "global_distributed_rate_limit": false
+  },
+  "database_privilege_changes": {
+    "table_grants": false,
+    "role_membership_for_application": false,
+    "business_function_ownership": false,
+    "new_helper": "private INVOKER metadata fence, executable only by existing administrative domain",
+    "protected_metadata_tables": [
+      "public.atribuicoes_humanas",
+      "public.casos_humanos"
+    ]
+  },
+  "does_not_authorize": [
+    "sale conclusion",
+    "sending",
+    "scheduling",
+    "F02 human ratification",
+    "hosted deployment",
+    "UI product acceptance"
+  ],
+  "local_runtime_configuration": {
+    "hosted_urls": "REJECTED",
+    "database_login": "prumo_cfi01_pgtest_login (existing disposable laboratory login)",
+    "docker_database_ipv4": "server-only pin from the exact disposable DB container/network; RFC1918 only",
+    "functions_gateway_cors": "only default Functions wildcard plugin removed during local rehearsal; original declarative config restored",
+    "auth_verification": "real GoTrue getUser on every command plus authoritative SQL live-session and Director recheck",
+    "frontend_product_acceptance": false
+  }
+}
