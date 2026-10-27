@@ -10,6 +10,7 @@ from collect_visual_review import offline_page_source
 def build(output):
     assets, manifest = collect_assets()  # Falha se houver bytes fora do manifesto.
     html, script = offline_page_source()
+    html = html.replace('<head>', '<head>\n<!-- Prumo: '+manifest['source_branch']+' @ '+manifest['source_head']+'; synthetic local preview, no deploy. -->')
     # Impede encerramento do elemento script por literais de texto no código-fonte.
     script = script.replace('</script', '<\\/script')
     html = html.replace('</body>', '<script>\n'+script+'\n</script></body>')

@@ -1,6 +1,6 @@
 """FVB-01. Capture synthetic interactive UI for consolidated visual review.
 
-No business APIs, no real users, no publishing. Browser + local in-memory HTML/CSS/JS.
+No business APIs, no real users, no publishing. Browser + localhost HTTP, with source-derived standalone support.
 This intentionally mirrors the loader used by the certified browser.smoke.py.
 Screenshots are evidence for HUMAN review, never an automatic aesthetic approval.
 """
@@ -64,7 +64,7 @@ def local_preview_server():
 def main(output):
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
-    html, js = offline_page_source()
+    offline_page_source()  # Validate the same module order used by standalone and smoke.
     captures = []
 
     with local_preview_server() as origin, sync_playwright() as p:

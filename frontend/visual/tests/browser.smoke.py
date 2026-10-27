@@ -1221,7 +1221,7 @@ with sync_playwright() as p:
             expect(message_note).to_be_visible()
             assert message_note.get_attribute('role')=='note'
             assert 'Dados fictícios' in message_note.inner_text()
-            assert 'Nenhum envio pelo WhatsApp' in message_note.inner_text()
+            assert 'Dados fictícios · sem envios reais' in message_note.inner_text()
             if not guide.locator('#detail-pane').is_visible():
                 guide.locator('#detail-toggle').click()
             expect(guide.locator('#detail-pane')).to_be_visible()

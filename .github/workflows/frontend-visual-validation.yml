@@ -98,13 +98,32 @@ jobs:
           python -B -m unittest discover -s frontend/preview -p 'test_*.py'
           python -B frontend/preview/build_preview.py --output out/prumo-demo-visual.zip
           python -B frontend/preview/build_standalone_preview.py --output out/prumo-preview-integral.html
-      - name: Artefato ZIP visual para avaliacao (30 dias; SEM deploy)
+          cp frontend/preview/PREVIA_LOCAL.md out/LEIA-ME.md
+          cp frontend/docs/97_FV_UX_01_CODEX_IMPLEMENTACAO_E_PREVIA_2026_10_27.md out/ENTREGA.md
+          python - <<'PYPROVENANCE'
+          import hashlib, json, os, subprocess
+          from pathlib import Path
+          folder = Path('out')
+          provenance = {
+              'head': os.environ['GITHUB_SHA'],
+              'branch': os.environ['GITHUB_REF_NAME'],
+              'base': '8c9498d72cf9551edc50d7f0da8d15c48049e835',
+              'files_changed': subprocess.check_output(['git','diff','--name-only','8c9498d72cf9551edc50d7f0da8d15c48049e835','HEAD'],text=True).splitlines(),
+              'synthetic_only': True, 'published': False,
+              'sha256': {p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in folder.iterdir() if p.is_file()}
+          }
+          (folder / 'PROVENIENCIA.json').write_text(json.dumps(provenance,ensure_ascii=False,indent=2)+'\n')
+          PYPROVENANCE
+      - name: Artefatos da previa integral (30 dias; SEM deploy)
         uses: actions/upload-artifact@v4
         with:
           name: prumo-demo-visual-zip
           path: |
             out/prumo-demo-visual.zip
             out/prumo-preview-integral.html
+            out/LEIA-ME.md
+            out/ENTREGA.md
+            out/PROVENIENCIA.json
           if-no-files-found: error
           retention-days: 30
       - name: Capturar matriz visual FVB-01 (somente apos aceite nativo)

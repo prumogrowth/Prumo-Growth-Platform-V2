@@ -1,8 +1,8 @@
-"""Prepare a static, source-verified, synthetic Prumo frontend preview for external review.
+"""Prepare a static, source-verified, synthetic Prumo frontend preview for local review.
 
 No deploy. No external requests. No real customer data. Python stdlib only.
-The ZIP root can be dragged into Cloudflare Pages Direct Upload, then the HTTPS
-URL may be embedded as a full-page URL in Google Sites.
+Serve the extracted ZIP over localhost for review. Publication is a separate action
+and is not performed or authorized by this builder.
 """
 from __future__ import annotations
 
@@ -104,7 +104,7 @@ def make_archive(output):
         "backend_calls": False,
         "production_authorization": False,
         "runtime_files_sha256": runtime_hashes,
-        "notice": "Public URL exposes all JS and fictional fixtures. Google Sites is a sharing portal, not access control."
+        "notice": "Synthetic local review only. No authentication, upload or business services. Publication requires a separate instruction."
     }
     # noindex is a crawl request, NOT access control.
     extras = {
