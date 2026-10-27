@@ -1,0 +1,266 @@
+{
+  "scope": "I80/G2 legacy regularization, internal experimental adapter and private SQL, disposable PG17/GoTrue/PostgREST",
+  "date": "2026-10-27",
+  "timezone": "America/Sao_Paulo",
+  "branch": "exp/s0-s1-i80-regularizacao-legado-20261027",
+  "base_pr26": "8068db1c42216fb1da6855401146eab257f3eff1",
+  "base_i79_code": "ab96b5d2d2aae293e239b38bccec82c29dd72a15",
+  "base_i79_ci": 40484344324,
+  "source_s1": "8780b576aa18bd3983c063339e2e42d2452af22c",
+  "code_commit": "1daa307f6f831323e4da4b72d288c76d44c73230",
+  "code_tree": "9aa595973580a946682ef6c5a6ededd569d5029e",
+  "run": {
+    "id": 40497534544,
+    "url": "https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40497534544",
+    "conclusion": "success",
+    "started_at": "2026-10-27T11:37:27Z",
+    "completed_at": "2026-10-27T11:42:16Z",
+    "elapsed_seconds": 289,
+    "jobs": [
+      {
+        "id": 122166665473,
+        "name": "real-history-and-cfi",
+        "conclusion": "success"
+      },
+      {
+        "id": 122166665913,
+        "name": "s1-pinned-i54-i78-regressions",
+        "conclusion": "success"
+      }
+    ]
+  },
+  "results": {
+    "s0_unit": {
+      "total": 288,
+      "preserved_i79": 280,
+      "new_i80": 8
+    },
+    "s1_unit": {
+      "original_suites": 179,
+      "catalogue_i75b": 6,
+      "catalogue_i75c": 8
+    },
+    "real_i80": 33,
+    "real_i79": 62,
+    "real_g1_before_i79": 36,
+    "real_cfi_f02": 56,
+    "real_history": {
+      "s0": 19,
+      "s1_i63": 19
+    },
+    "legacy_sql_synthetic_identities": {
+      "I54": 8,
+      "I56": 6,
+      "I57": 5,
+      "I58": 6,
+      "I61": 9,
+      "total": 34
+    },
+    "native_s1": "original PG17 regression I54-I74, I78 8/8, I46/I48/I75B/I75C; pinned checkout",
+    "resource_warnings": 0,
+    "cleanup": "both jobs success"
+  },
+  "unittest_runs": [
+    {
+      "passed": 288,
+      "seconds": 0.929
+    },
+    {
+      "passed": 19,
+      "seconds": 20.548
+    },
+    {
+      "passed": 56,
+      "seconds": 32.934
+    },
+    {
+      "passed": 19,
+      "seconds": 20.787
+    },
+    {
+      "passed": 36,
+      "seconds": 10.775
+    },
+    {
+      "passed": 62,
+      "seconds": 20.655
+    },
+    {
+      "passed": 33,
+      "seconds": 36.685
+    }
+  ],
+  "native_unittest_runs": [
+    {
+      "passed": 30,
+      "seconds": 1.031
+    },
+    {
+      "passed": 10,
+      "seconds": 0.879
+    },
+    {
+      "passed": 10,
+      "seconds": 1.549
+    },
+    {
+      "passed": 13,
+      "seconds": 3.576
+    },
+    {
+      "passed": 15,
+      "seconds": 6.189
+    },
+    {
+      "passed": 15,
+      "seconds": 7.651
+    },
+    {
+      "passed": 15,
+      "seconds": 9.53
+    },
+    {
+      "passed": 15,
+      "seconds": 10.071
+    },
+    {
+      "passed": 15,
+      "seconds": 0.003
+    },
+    {
+      "passed": 8,
+      "seconds": 0.001
+    },
+    {
+      "passed": 11,
+      "seconds": 0.002
+    },
+    {
+      "passed": 10,
+      "seconds": 0.002
+    },
+    {
+      "passed": 3,
+      "seconds": 0.001
+    },
+    {
+      "passed": 5,
+      "seconds": 0.001
+    },
+    {
+      "passed": 4,
+      "seconds": 0.001
+    },
+    {
+      "passed": 6,
+      "seconds": 0.01
+    },
+    {
+      "passed": 8,
+      "seconds": 0.001
+    }
+  ],
+  "real_i80_tests": [
+    "test_i80_01_director_inventory_minimized_paginated_and_manager_denied (__main__.I80Tests.test_i80_01_director_inventory_minimized_paginated_and_manager_denied) ... ok",
+    "test_i80_02_preview_is_not_classification_or_activation (__main__.I80Tests.test_i80_02_preview_is_not_classification_or_activation) ... ok",
+    "test_i80_03_apply_preserves_both_stores_case_history_intake_and_grants (__main__.I80Tests.test_i80_03_apply_preserves_both_stores_case_history_intake_and_grants) ... ok",
+    "test_i80_04_preserve_same_relation_and_valid_i61_without_new_grant (__main__.I80Tests.test_i80_04_preserve_same_relation_and_valid_i61_without_new_grant) ... ok",
+    "test_i80_05_explicit_new_manager_revokes_i61_and_never_revives (__main__.I80Tests.test_i80_05_explicit_new_manager_revokes_i61_and_never_revives) ... ok",
+    "test_i80_06_no_manager_choice_blocks_active_orphan (__main__.I80Tests.test_i80_06_no_manager_choice_blocks_active_orphan) ... ok",
+    "test_i80_07_manager_request_does_not_silently_close_parent (__main__.I80Tests.test_i80_07_manager_request_does_not_silently_close_parent) ... ok",
+    "test_i80_08_pending_stays_pending_then_existing_i79_activates (__main__.I80Tests.test_i80_08_pending_stays_pending_then_existing_i79_activates) ... ok",
+    "test_i80_09_pending_manager_link_is_not_invented_before_activation (__main__.I80Tests.test_i80_09_pending_manager_link_is_not_invented_before_activation) ... ok",
+    "test_i80_10_explicit_manager_then_consultant_order_without_inference (__main__.I80Tests.test_i80_10_explicit_manager_then_consultant_order_without_inference) ... ok",
+    "test_i80_11_inventory_to_preview_stale (__main__.I80Tests.test_i80_11_inventory_to_preview_stale) ... ok",
+    "test_i80_12_preview_detects_aba_same_visible_state (__main__.I80Tests.test_i80_12_preview_detects_aba_same_visible_state) ... ok",
+    "test_i80_13_grant_change_even_same_count_invalidates_preview (__main__.I80Tests.test_i80_13_grant_change_even_same_count_invalidates_preview) ... ok",
+    "test_i80_14_paused_intake_is_preserved_not_account_suspension (__main__.I80Tests.test_i80_14_paused_intake_is_preserved_not_account_suspension) ... ok",
+    "test_i80_15_intake_change_after_preview_is_stale (__main__.I80Tests.test_i80_15_intake_change_after_preview_is_stale) ... ok",
+    "test_i80_16_assignment_closure_after_preview_is_stale (__main__.I80Tests.test_i80_16_assignment_closure_after_preview_is_stale) ... ok",
+    "test_i80_17_i62_revocation_after_preview_is_stale (__main__.I80Tests.test_i80_17_i62_revocation_after_preview_is_stale) ... ok",
+    "test_i80_18_preview_bound_to_live_director_session (__main__.I80Tests.test_i80_18_preview_bound_to_live_director_session) ... ok",
+    "test_i80_19_director_competence_revocation_denies_application (__main__.I80Tests.test_i80_19_director_competence_revocation_denies_application) ... ok",
+    "test_i80_20_same_key_concurrent_one_application_and_exact_retry (__main__.I80Tests.test_i80_20_same_key_concurrent_one_application_and_exact_retry) ... ok",
+    "test_i80_21_different_keys_cannot_consume_preview_twice (__main__.I80Tests.test_i80_21_different_keys_cannot_consume_preview_twice) ... ok",
+    "test_i80_22_preview_idempotency_payload_conflict (__main__.I80Tests.test_i80_22_preview_idempotency_payload_conflict) ... ok",
+    "test_i80_23_busy_assignment_fails_fast_then_same_preview_retry (__main__.I80Tests.test_i80_23_busy_assignment_fails_fast_then_same_preview_retry) ... ok",
+    "test_i80_24_partial_failure_rolls_back_role_relation_i61_and_nonce (__main__.I80Tests.test_i80_24_partial_failure_rolls_back_role_relation_i61_and_nonce) ... ok",
+    "test_i80_25_deferred_failure_no_success_or_open_connection (__main__.I80Tests.test_i80_25_deferred_failure_no_success_or_open_connection) ... ok",
+    "test_i80_26_malformed_result_rolls_back_before_commit (__main__.I80Tests.test_i80_26_malformed_result_rolls_back_before_commit) ... ok",
+    "test_i80_27_mac_nonce_and_direct_sql_access (__main__.I80Tests.test_i80_27_mac_nonce_and_direct_sql_access) ... ok",
+    "test_i80_28_expired_persisted_preview_is_not_applied (__main__.I80Tests.test_i80_28_expired_persisted_preview_is_not_applied) ... ok",
+    "test_i80_29_g1_waits_for_regularization_commit_then_rechecks (__main__.I80Tests.test_i80_29_g1_waits_for_regularization_commit_then_rechecks) ... ok",
+    "test_i80_30_candidate_manager_revoked_between_preview_and_apply (__main__.I80Tests.test_i80_30_candidate_manager_revoked_between_preview_and_apply) ... ok",
+    "test_i80_31_missing_team_record_is_inventory_only_not_silent_registration (__main__.I80Tests.test_i80_31_missing_team_record_is_inventory_only_not_silent_registration) ... ok",
+    "test_i80_32_private_functions_and_immutable_preview_are_not_client_authority (__main__.I80Tests.test_i80_32_private_functions_and_immutable_preview_are_not_client_authority) ... ok",
+    "test_i80_33_revoked_and_regranted_director_competence_needs_new_preview (__main__.I80Tests.test_i80_33_revoked_and_regranted_director_competence_needs_new_preview) ... ok"
+  ],
+  "legacy_sql_markers": [
+    "PASS I54-01: leads and cycles without explicit human event are NOT a queue",
+    "PASS I54-02: S0 commercial status explicitly produces five durable minimal queue events",
+    "PASS I54-03: S0 auto-dispatch creates one real case/assignment, skips paused C1, CAS replay conflicts",
+    "PASS I54-04: real manual manager claim requires exact shop, creates canonical case and assignment",
+    "PASS I54-05: no eligible consultant => queue remains pending, no case/owner fabricated",
+    "PASS I54-06: resumed consultant can receive previously queued case once, CAS",
+    "PASS I54-07: no cross-store assignment; only own manager can claim own shop",
+    "PASS I54-08: append-only handoff audit, four unique owners, no authenticated direct SQL privilege",
+    "PASS I56-01: no explicit signal => no queue",
+    "PASS I56-02: external case reconciled and audited with CAS",
+    "PASS I56-03: legitimate I54 claim stays assigned, no false event",
+    "PASS I56-04: same-cycle second case rejected",
+    "PASS I56-05: all pending cycles of same lead reconciled",
+    "PASS I56-06: stale claim conflicts, trigger private",
+    "PASS I57-01: valid shop grant enables canonical assignment",
+    "PASS I57-02: cross-store assignment denied",
+    "PASS I57-03: A2 paused intake continues blocking new assignment",
+    "PASS I57-04: older assignment may be closed after grant expiry",
+    "PASS I57-05: SQL direct execution denied; failed writes did not mutate cases",
+    "PASS I58-01: authorized manager sees shared LIST gate and wins exact S0 CAS",
+    "PASS I58-02: authorized stale CAS remains conflict without duplicate",
+    "PASS I58-03: revoked grant denied BEFORE stale CAS and no tenant metadata leaked",
+    "PASS I58-04: cross-store manager fails signed LIST predicate",
+    "PASS I58-05: manager account suspension denies LIST even with store grant",
+    "PASS I58-06: denied operations preserve pending queue, ACL remains private",
+    "PASS I61-01: without exact exception default S0 no-grant denial remains",
+    "PASS I61-02: other manager cannot exercise case exception",
+    "PASS I61-03: A2 pause blocks even exceptional assignment",
+    "PASS I61-04: S0 canonical assignment now accepts exact case exception only",
+    "PASS I61-05: stale assignment cannot claim a second owner",
+    "PASS I61-06: only owning manager revokes and authorization stops without moving S0 case",
+    "PASS I61-07: private grants denied, event audit append-only",
+    "PASS I61-08: exception of previous case cannot authorize assignment of another case",
+    "PASS I61-09: assignment closure synchronously revokes exception and appends event"
+  ],
+  "files_sha256": {
+    ".github/workflows/exp-s0-s1-i80-regularization.yml": "aedc96f17841f295f766ffc006475b257ca7d776528f5bdba2a31b61227f9e18",
+    "backend/s1_legacy_regularization_local.py": "028a1da63ed830061951a668324e9ba2db15957b751e2eb9d7510fcb52b97662",
+    "backend/tests/test_s1_legacy_regularization_contract.py": "e2d61bd34ad55454ae9e060a02bc42aaca21971f67ec4ad77ef5da92ca0137e3",
+    "integration/i80/install_local.py": "b26689bd21721188976931411350db39a3707bea1eb4a4afa8b75d19ebc14578",
+    "integration/i80/test_regularization.py": "708742f8fd4a943bd636ec00dadfd7184bf3d100e4f0a0d95c5c3a4f8721e8ef",
+    "supabase/tests/s1_i80_regularizacao_local_only.sql": "4ea9a46312f6e89fd569727d928a12924d6e203fc13fecbcc3003ef653a73551"
+  },
+  "prior_attempt": {
+    "id": 40496658442,
+    "sha": "fbd40e9b34680369891dccb2d2c5dabdd248a15b",
+    "conclusion": "failure",
+    "reason": "31/32 I80 passed; immutable guard correctly raised SQLSTATE 42501, test expected check_violation; assertion corrected without weakening the guard"
+  },
+  "coordination": {
+    "f02_audit": "7c282df5f6e5942729f15187c199dffb5e872797",
+    "h01": "559b583d2d3e1f8b9c035d08bdb0ecd01de78861",
+    "f02_observed_head_and_adr": "2171d9a17e6d3e345cc52b432294ad1a244f16e0",
+    "G01_G06": "partial",
+    "G07": "pending",
+    "scope": "read references only; no repeated audit, new F02 implementation or commercial ratification"
+  },
+  "limitations": [
+    "No real staff inventory or hosted migration performed",
+    "Director must choose cargo/manager and explicitly apply persisted preview; inconsistent/incomplete profiles remain blocked",
+    "Experimental Python and private SQL are not the operational Edge Functions runtime",
+    "Postgres-owned business bridge inherited from I46/I57/I61; production least-privilege owner separation still pending",
+    "Preview TTL is validity, not approved data-retention policy",
+    "Inventory pages are separate observations, not one global frozen snapshot",
+    "Inherited writers outside tested races do not acquire a newly certified global lock order",
+    "No merge, deploy, production credentials, OpenAI/Meta calls or commercial state changes"
+  ]
+}
