@@ -20,15 +20,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: HMAC count and trusted config snapshot audit (16)
+      - name: HMAC count and trusted config snapshot audit (20)
         shell: bash
         run: |
           set -euo pipefail
           node --experimental-strip-types --test --test-concurrency=1 \
             integrations/whatsapp-meta/cloud-composed-observation-audit.test.ts \
             2>&1 | tee "$RUNNER_TEMP/composition-audit.tap"
-          grep -qx '# tests 16' "$RUNNER_TEMP/composition-audit.tap"
-          grep -qx '# pass 16' "$RUNNER_TEMP/composition-audit.tap"
+          grep -qx '# tests 20' "$RUNNER_TEMP/composition-audit.tap"
+          grep -qx '# pass 20' "$RUNNER_TEMP/composition-audit.tap"
           grep -qx '# fail 0' "$RUNNER_TEMP/composition-audit.tap"
       - name: Composition and specialized regressions (174)
         shell: bash
