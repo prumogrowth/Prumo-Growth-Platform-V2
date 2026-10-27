@@ -1075,9 +1075,19 @@ with sync_playwright() as p:
             assert compact.locator('#queue-summary .summary-tile').count()>=1
             assert compact.locator('.conversation-card').count()>=1
             assert compact.locator('#list-count').inner_text().strip()
-            for selector in ('#actor-select','#shop-select','#search-input','#status-filter',
-                '.inbox-tab[data-inbox="active"]','.filter-chip[data-filter="all"]'):
+            # FV-UX-02: controles avancados ficam disponiveis, mas recolhidos.
+            for selector in ('#search-input','.inbox-tab[data-inbox="active"]',
+                '.filter-chip[data-filter="all"]'):
                 assert compact.locator(selector).is_visible(),(compact_width,compact_theme,selector)
+            assert not compact.locator('#actor-select').is_visible()
+            assert not compact.locator('#status-filter').is_visible()
+            compact.locator('#ui-settings').evaluate('e => e.open = true')
+            assert compact.locator('#actor-select').is_visible()
+            assert compact.locator('#shop-select').is_visible()
+            compact.locator('#ui-settings').evaluate('e => e.open = false')
+            compact.locator('#list-extra').evaluate('e => e.open = true')
+            assert compact.locator('#status-filter').is_visible()
+            compact.locator('#list-extra').evaluate('e => e.open = false')
             if compact_width<=760:
                 assert compact.locator('.list-heading').evaluate('e=>parseFloat(getComputedStyle(e).paddingTop)')<=15
                 assert compact.locator('.list-topline').evaluate('e=>parseFloat(getComputedStyle(e).marginBottom)')<=12
@@ -1088,9 +1098,12 @@ with sync_playwright() as p:
                     assert compact.locator('#conversation-list').evaluate('e=>e.scrollHeight>e.clientHeight')
             compact.locator('.conversation-card').first.scroll_into_view_if_needed()
             assert compact.locator('.conversation-card').first.is_visible()
-            compact.locator('.list-footer').scroll_into_view_if_needed()
-            expect(compact.locator('.list-footer')).to_be_visible()
-            assert 'fictícios' in compact.locator('.list-footer').inner_text()
+            # A nota continua acessivel via aria-describedby, nao ocupa rodape.
+            assert compact.locator('#list-demo-guidance').count()==1
+            assert 'fictícios' in compact.locator('#list-demo-guidance').inner_text()
+            assert compact.locator('#search-input').get_attribute('aria-describedby')=='list-demo-guidance'
+            if compact_width<=760:
+                assert compact.locator('.conversation-card').first.bounding_box()['y']<420
             assert not compact.evaluate('document.documentElement.scrollWidth>innerWidth')
             assert not errors_048,errors_048
             compact.close()
