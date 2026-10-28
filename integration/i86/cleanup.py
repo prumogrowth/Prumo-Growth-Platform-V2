@@ -1,5 +1,6 @@
 """Negative-only cleanup through existing I84/I85 interfaces."""
 import json
+import hashlib
 import os
 from pathlib import Path
 from integration.i85 import bootstrap as i85
@@ -12,6 +13,9 @@ def cleanup():
         if any(resources().values()):
             raise b.Blocked("I86_UNOWNED_RESOURCES_PRESERVED")
         return {"resources_absent": True, "no_owned_stack_created": True}
+    parent = b.load(b.DEFAULT/"state.json")
+    identity = {k: parent.get(k) for k in ("engine", "token", "db_id", "network_id")}
+    lab_digest = hashlib.sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()
     if i85.ROOT.exists():
         try:
             op = i85.Bootstrap()
@@ -39,6 +43,8 @@ def cleanup():
             os.environ.pop("PRUMO_I85_ABANDON", None)
     return {"resources_absent": True, "private_material_removed": True,
             "uncertain_nonsecret_evidence_retained": retained,
+            "lab_identity_sha256": lab_digest,
+            "physical_identity_complete": all(identity.values()),
             "hosted_enabled": False}
 
 

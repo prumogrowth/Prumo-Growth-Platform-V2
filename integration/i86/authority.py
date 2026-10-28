@@ -77,7 +77,7 @@ with observed as (
  left join prumo_private.s1_responsaveis_plataforma d on d.ator_id=u.id
  where u.id=%s
 )
-select state,encode(extensions.digest(convert_to(state::text,'UTF8'),'sha256'),'hex'),
+select state,encode(pg_catalog.sha256(convert_to(state::text,'UTF8')),'hex'),
  clock_timestamp() from observed
 """
 

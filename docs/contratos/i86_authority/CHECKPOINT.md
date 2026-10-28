@@ -20,3 +20,5 @@ registrados aqui somente após execução efetiva.
 Decisões externas D01–D05 e novas operações de nomeação/substituição/reativação/
 revogação organizacional continuam bloqueadas. A I85 não se torna rebootstrap.
 Sem merge, deploy, usuário real, Supabase hospedado ou incorporação Meta.
+
+Primeira rodada CI40731027793: gate de escopo/modelos PASS, mas ambos os jobs físicos falharam na preparação. Invocação do preflight por caminho de script em uma cópia isolada não incluiu a raiz no import path (ModuleNotFoundError: integration). Zero casos reais executados; não houve PASS físico. A correção usa a mesma ferramenta herdada por python -m, sem editar I83. O hash SQL passa a usar sha256 nativo PG17, eliminando suposição desnecessária sobre o schema de pgcrypto; a semântica do digest é a mesma. Limpeza acrescenta hash de identidade física, sem revelar credenciais.

@@ -45,7 +45,7 @@ class AuthorityTests(unittest.TestCase):
         cls.addClassCleanup(cls.finish)
         cls.ops = Operator()
         cls.ops.execute("init")
-        b.run(["python3", "integration/i83/test_logging_preflight.py"])
+        b.run(["python3", "-m", "integration.i83.test_logging_preflight"])
         cls.ops.execute("prepare", os.environ["PRUMO_G1_SOURCE_REPO"])
         cls.base_catalog = b.load(b.DEFAULT/"catalog.json")
         cls.ops.execute("provision")

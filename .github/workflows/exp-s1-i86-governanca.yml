@@ -82,7 +82,7 @@ jobs:
         run: |
           cd "$PRUMO_I86_SANDBOX"
           python3 -m local_admin init
-          python3 integration/i83/test_logging_preflight.py
+          python3 -m integration.i83.test_logging_preflight
           python3 -m local_admin prepare --s1-source "$PRUMO_G1_SOURCE_REPO"
           python3 -m local_admin provision
           python3 -m local_admin serve
