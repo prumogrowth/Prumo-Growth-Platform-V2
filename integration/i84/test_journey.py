@@ -16,15 +16,16 @@ import psycopg
 from local_admin import boundary as b,environment as e,custody
 from local_admin.operation import Operator,resources
 from integration.i83 import provision_local as p
+from integration.i84.capture import reject_material
 from scripts.test_s0_cfi01_auth_rest_local import register
 
 class Journey(unittest.TestCase):
     def cli(self,command,ok=True):
         result=subprocess.run(['python3','-m','local_admin',command],cwd=b.ROOT,capture_output=True)
+        reject_material(result.stdout+result.stderr,self.sensitive)
+        if result.returncode!=(0 if ok else 2):raise AssertionError('I84_CLI_UNEXPECTED_RESULT_WITHHELD')
+        if result.stderr:raise AssertionError('I84_CLI_DIAGNOSTICS_WITHHELD')
         body=json.loads(result.stdout)
-        self.assertEqual(result.returncode,0 if ok else 2,body)
-        self.assertFalse(result.stderr,'operator leaked diagnostics')
-        for secret in self.sensitive:self.assertNotIn(secret.encode(),result.stdout+result.stderr)
         return body
 
     def http(self,payload,token=None):
@@ -34,7 +35,7 @@ class Journey(unittest.TestCase):
         try:r=request.urlopen(q,timeout=25)
         except error.HTTPError as x:r=x
         with r:code=r.status;raw=r.read(262145)
-        for secret in self.sensitive:self.assertNotIn(secret.encode(),raw)
+        reject_material(raw,self.sensitive)
         return code,json.loads(raw)
 
     def remember(self):
@@ -146,7 +147,7 @@ class Journey(unittest.TestCase):
         self.mark('14_partial_real_dependency_install_discard_without_escalation')
         proof={'version':'prumo.i84.evidence.v1','checks':self.evidence,'cleanup':proof,'catalog_equal':True,'network_loopback':True,'secret_matches':0,'partial_cleanup':partial_proof}
         data=json.dumps(proof,indent=2)
-        for secret in self.sensitive:self.assertNotIn(secret,data)
+        reject_material(data.encode(),self.sensitive)
         (root/'prumo_i84_journey.json').write_text(data+'\n')
 
 if __name__=='__main__':unittest.main(verbosity=2)

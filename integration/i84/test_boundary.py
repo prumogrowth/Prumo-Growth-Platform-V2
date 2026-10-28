@@ -63,4 +63,13 @@ class BoundaryTests(unittest.TestCase):
                 (root/'supabase/migrations').mkdir();(root/'supabase/migrations/unreviewed.sql').write_text('select 1;')
                 with self.assertRaisesRegex(b.Blocked,'UNCERTIFIED_SOURCE_ADDED'):e.checkout()
 
+    def test_material_detection_failure_does_not_echo_value(self):
+        from integration.i84.capture import reject_material
+        marker='private-diagnostic-sentinel'
+        try:reject_material(('unexpected '+marker).encode(),[marker])
+        except AssertionError as error:
+            self.assertEqual(str(error),'I84_MATERIAL_MATCH_WITHHELD')
+            self.assertNotIn(marker,str(error))
+        else:self.fail('material detection did not reject')
+
 if __name__=='__main__':unittest.main(verbosity=2)
