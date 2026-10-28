@@ -10,11 +10,11 @@ import os
 from pathlib import Path, PurePosixPath
 import subprocess
 
-BASE = "3cab3d57619cc1157698a08ac26f34e0c363f6dd"
-BASE_TREE = "09e597b763bd6026fe6fb9686e3471e42f87bd3a"
-BRANCH = "exp/s1-i86-governanca-autoridade-20261028"
+BASE = "dbf49ab19b73766d60678c4ce6f7dea56cd66c9b"
+BASE_TREE = "9d2f54b8753d4afadf5175ee5b332510890f1772"
+BRANCH = "exp/s1-i86-manual-director-20261028"
 PREFIXES = ("integration/i86/", "docs/contratos/i86_authority/")
-WORKFLOW = ".github/workflows/exp-s1-i86-governanca.yml"
+WORKFLOW = ".github/workflows/exp-s1-i86-manual-director.yml"
 
 
 def git(root, *args):

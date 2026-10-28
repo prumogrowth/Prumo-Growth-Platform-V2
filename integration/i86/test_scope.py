@@ -4,7 +4,7 @@ from pathlib import Path
 import subprocess
 import tempfile
 import unittest
-from integration.i86.scope import BRANCH, changes, git, inspect
+from integration.i86.scope import BRANCH, WORKFLOW, changes, git, inspect
 
 
 class ScopeTests(unittest.TestCase):
@@ -94,6 +94,19 @@ class ScopeTests(unittest.TestCase):
 
     def test_wrong_anchor_tree_blocks(self):
         self.assertEqual(inspect(self.root, self.base, "0"*40)["status"], "FAIL")
+
+    def test_old_i86_workflow_is_protected_even_after_a_revert(self):
+        path = ".github/workflows/exp-s1-i86-governanca.yml"
+        self.write(path, "unauthorized edit\n")
+        self.commit()
+        self.run_git("rm", path)
+        self.commit()
+        self.assertEqual(self.result()["status"], "FAIL")
+
+    def test_only_new_manual_workflow_is_allowed(self):
+        self.write(WORKFLOW, "name: synthetic scope fixture\n")
+        self.commit()
+        self.assertEqual(self.result()["status"], "PASS")
 
     def test_merge_of_other_front_blocks_even_with_allowed_final_diff(self):
         self.run_git("switch", "-qc", "other-front")

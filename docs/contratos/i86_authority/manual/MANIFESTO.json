@@ -1,0 +1,26 @@
+{
+  "version": "prumo.i86.manual.manifest.v1",
+  "base": "dbf49ab19b73766d60678c4ce6f7dea56cd66c9b",
+  "base_tree": "9d2f54b8753d4afadf5175ee5b332510890f1772",
+  "branch": "exp/s1-i86-manual-director-20261028",
+  "allowlist": [
+    "integration/i86/",
+    "docs/contratos/i86_authority/",
+    ".github/workflows/exp-s1-i86-manual-director.yml"
+  ],
+  "code_sha": "PENDING_CI",
+  "code_files": {
+    ".github/workflows/exp-s1-i86-manual-director.yml": "551d13a4e2392d184fa522435103ba6412d4f3b13573461642f295e2268ca2d2",
+    "integration/i86/manual/__init__.py": "4eff3735da8176da3e55f1025068fbe9b3869730f4304d31c7876713a2b5f96e",
+    "integration/i86/manual/crash_probe.py": "bae06b131a9bc02e35a931865f483398cc251c47755c8c15887df234dfe360b8",
+    "integration/i86/manual/lab_support.py": "1d4ab39b4e82ef3c29fcc8c06d8bf4e2bf03a2b0a7e4a3005f5fa161651a3456",
+    "integration/i86/manual/policy.py": "a95f6ae205956bccaeb3afe563c13151f980d0cba2fed02b9c148659c61ed173",
+    "integration/i86/manual/procedure.sql": "315ee8227ad72b5c1e40818b25f289708f974645df842db2ae9414892e30084f",
+    "integration/i86/manual/test_policy.py": "0fe211cd389ed0c1cacc9b77ff8867fb766f8ae18f7298f3253835a87138c25d",
+    "integration/i86/manual/test_real.py": "4221ffffbfe496557027b73e2484cb68b215b9758f666a69e0eef28b9d773957",
+    "integration/i86/scope.py": "e498b3625e3d6f2bd360fc012a3dbfec7f3054e3aba09e7be3254fd3c2e387f7",
+    "integration/i86/test_scope.py": "017c9dea1cb62e5f594780231b6930c5be11a5db9b11360fd5a26e9baace7a72"
+  },
+  "inherited_i85_sha": "3cab3d57619cc1157698a08ac26f34e0c363f6dd",
+  "inherited_i86_code": "c1b66cb009a56e2049148f118395ab5cb98dc4ea"
+}

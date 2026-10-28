@@ -1,3 +1,5 @@
+> Continuidade manual: a política D01–D05 deste registro histórico foi atualizada pela instrução expressa do responsável. Consulte [contrato manual revisão 2](manual/CONTRATO_MANUAL_V2.md) e [checkpoint manual](manual/CHECKPOINT.md). Os resultados técnicos históricos abaixo permanecem limitados à sua revisão original.
+
 # I86 — checkpoint de desenvolvimento e evidências
 
 28/10/2026, America/Sao_Paulo. **I86_LAB_CONDITIONAL**: provas técnicas concluídas, decisões organizacionais D01–D05 pendentes. Não é autorização operacional.

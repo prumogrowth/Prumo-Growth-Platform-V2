@@ -1,0 +1,227 @@
+name: I86 manual Director - privileged boundary and preserved regressions
+on:
+  push:
+    branches: [exp/s1-i86-manual-director-20261028]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: i86-manual-${{ github.ref }}
+  cancel-in-progress: true
+env:
+  PYTHONDONTWRITEBYTECODE: '1'
+jobs:
+  scope-and-model:
+    if: github.ref == 'refs/heads/exp/s1-i86-manual-director-20261028'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Frozen base, complete commit history, modes and local pending scope gate
+        run: python3 -m integration.i86.scope --report "${{ runner.temp }}/prumo_i86_scope_before.json"
+      - name: Independent adversarial scope tests and model/DTO tests
+        run: |
+          python3 -m unittest integration.i86.test_scope integration.i86.test_contract integration.i86.manual.test_policy -v
+          python3 -O -m unittest integration.i86.test_scope integration.i86.test_contract integration.i86.manual.test_policy -v
+      - name: Existing S0 backend regressions without source changes
+        run: python3 -m unittest discover -s backend/tests -v
+      - name: Scope must still be clean after tests
+        if: always()
+        run: python3 -m integration.i86.scope --report "${{ runner.temp }}/prumo_i86_scope_after.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: i86-manual-scope-model
+          path: ${{ runner.temp }}/prumo_i86_scope_*.json
+          retention-days: 14
+
+  inherited-i85-e2e:
+    needs: scope-and-model
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    env:
+      PRUMO_I86_RUNNER_ISOLATION: github-hosted
+      PRUMO_I86_DISPOSABLE: 'YES'
+      PRUMO_I84_DISPOSABLE: 'YES'
+      PRUMO_I85_DISPOSABLE: 'YES'
+      PRUMO_I83_DISPOSABLE_TEST: 'YES'
+      SUPABASE_DISABLE_TELEMETRY: '1'
+      SUPABASE_INTERNAL_IMAGE_REGISTRY: docker.io
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: 8780b576aa18bd3983c063339e2e42d2452af22c
+          path: integration/i86/.runtime/s1
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 2.84.2
+      - name: Exact source archive outside reviewed checkout, own exclusive runner
+        run: |
+          python3 -m integration.i86.sandbox
+          python3 -m pip install -r backend/requirements-s0-local.txt
+      - name: Original I84 I85 protection units
+        run: python3 -m unittest integration.i84.test_boundary integration.i85.test_filesystem -v
+      - name: Create new physically owned loopback stack and logging gate
+        run: |
+          cd "$PRUMO_I86_SANDBOX"
+          python3 -m local_admin init
+          python3 -m integration.i83.test_logging_preflight
+          python3 -m local_admin prepare --s1-source "$PRUMO_G1_SOURCE_REPO"
+          python3 -m local_admin provision
+          python3 -m local_admin serve
+      - name: Unchanged real I85 journey, six I79 I80 commands and 13 chained proof points
+        run: |
+          cd "$PRUMO_I86_SANDBOX"
+          python3 -m integration.i85.test_journey
+      - name: Verified negative-only retirement and full stack destruction
+        if: always() && env.PRUMO_I86_SANDBOX != ''
+        run: |
+          cd "$PRUMO_I86_SANDBOX"
+          python3 -m integration.i86.cleanup
+      - name: Inherited source and pending local scope must remain untouched
+        if: always()
+        run: python3 -m integration.i86.scope --report "${{ runner.temp }}/prumo_i86_scope_e2e_final.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: i86-manual-inherited-i85
+          path: |
+            ${{ runner.temp }}/prumo_i85_journey.json
+            ${{ runner.temp }}/prumo_i86_cleanup.json
+            ${{ runner.temp }}/prumo_i86_scope_e2e_final.json
+            ${{ runner.temp }}/prumo_i83_logging_preflight.json
+          retention-days: 14
+
+  inherited-i86-observer:
+    needs: scope-and-model
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PRUMO_I86_RUNNER_ISOLATION: github-hosted
+      PRUMO_I86_DISPOSABLE: 'YES'
+      PRUMO_I84_DISPOSABLE: 'YES'
+      PRUMO_I85_DISPOSABLE: 'YES'
+      PRUMO_I83_DISPOSABLE_TEST: 'YES'
+      SUPABASE_DISABLE_TELEMETRY: '1'
+      SUPABASE_INTERNAL_IMAGE_REGISTRY: docker.io
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: 8780b576aa18bd3983c063339e2e42d2452af22c
+          path: integration/i86/.runtime/s1
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 2.84.2
+      - name: Stage exact I86 source and pinned S1, no Meta branch or hosted configuration
+        run: |
+          python3 -m integration.i86.sandbox
+          python3 -m pip install -r backend/requirements-s0-local.txt
+      - name: Real observations, CAS, SQL secrecy, SIGKILL, rollback, rotation and revocation
+        run: |
+          cd "$PRUMO_I86_SANDBOX"
+          python3 -m integration.i86.test_real
+      - name: Verified teardown even if setup or a test failed
+        if: always() && env.PRUMO_I86_SANDBOX != ''
+        run: |
+          cd "$PRUMO_I86_SANDBOX"
+          python3 -m integration.i86.cleanup
+      - name: Scope verifier blocks any committed or pending inherited edit
+        if: always()
+        run: python3 -m integration.i86.scope --report "${{ runner.temp }}/prumo_i86_scope_real_final.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: i86-manual-inherited-observer
+          path: |
+            ${{ runner.temp }}/prumo_i86_real.json
+            ${{ runner.temp }}/prumo_i86_cleanup.json
+            ${{ runner.temp }}/prumo_i86_scope_real_final.json
+            ${{ runner.temp }}/prumo_i83_logging_preflight.json
+          retention-days: 14
+
+  manual-operator-boundary:
+    needs: scope-and-model
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PRUMO_I86_RUNNER_ISOLATION: github-hosted
+      PRUMO_I86_DISPOSABLE: 'YES'
+      PRUMO_I86_MANUAL_LAB: 'YES'
+      PRUMO_I84_DISPOSABLE: 'YES'
+      PRUMO_I85_DISPOSABLE: 'YES'
+      PRUMO_I83_DISPOSABLE_TEST: 'YES'
+      SUPABASE_DISABLE_TELEMETRY: '1'
+      SUPABASE_INTERNAL_IMAGE_REGISTRY: docker.io
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: 8780b576aa18bd3983c063339e2e42d2452af22c
+          path: integration/i86/.runtime/s1
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 2.84.2
+      - name: Stage exact I86 source and pinned S1, no Meta branch or hosted configuration
+        run: |
+          python3 -m integration.i86.sandbox
+          python3 -m pip install -r backend/requirements-s0-local.txt
+      - name: Synthetic privileged operator, real denials, CAS, SIGKILL, multi-Director and revocation
+        run: |
+          cd "$PRUMO_I86_SANDBOX"
+          python3 -m integration.i86.manual.test_real
+      - name: Verified teardown even if setup or a test failed
+        if: always() && env.PRUMO_I86_SANDBOX != ''
+        run: |
+          cd "$PRUMO_I86_SANDBOX"
+          python3 -m integration.i86.cleanup
+      - name: Scope verifier blocks any committed or pending inherited edit
+        if: always()
+        run: python3 -m integration.i86.scope --report "${{ runner.temp }}/prumo_i86_scope_manual_final.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: i86-manual-operator-boundary
+          path: |
+            ${{ runner.temp }}/prumo_i86_manual_real.json
+            ${{ runner.temp }}/prumo_i86_cleanup.json
+            ${{ runner.temp }}/prumo_i86_scope_manual_final.json
+            ${{ runner.temp }}/prumo_i83_logging_preflight.json
+          retention-days: 14
