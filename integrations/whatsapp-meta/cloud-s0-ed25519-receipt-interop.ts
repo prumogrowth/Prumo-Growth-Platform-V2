@@ -45,6 +45,7 @@ export type TrustedExpectedS0LabBinding=Readonly<{
 export type TrustedExpectedS0LabReceipt=Readonly<{
  app:string;route:string;route_revision:string;
  instance:string;receipt_key_id:string;receipt_key_revision:string;
+ m2m_issuer:string;m2m_key_id:string;m2m_key_revision:string;
  expected_item_count:number;
  bindings:readonly TrustedExpectedS0LabBinding[];
 }>;
@@ -185,6 +186,9 @@ function receiptBodyValid(v:unknown,expected:TrustedExpectedS0LabReceipt):v is R
     v.instance!==expected.instance||
     v.receipt_key_id!==expected.receipt_key_id||
     v.receipt_key_revision!==expected.receipt_key_revision||
+    v.m2m_issuer!==expected.m2m_issuer||
+    v.m2m_key_id!==expected.m2m_key_id||
+    v.m2m_key_revision!==expected.m2m_key_revision||
     v.item_count!==expected.expected_item_count||
     !uuid(v.batch_id)||!uuid(v.audit_id)||
     !sha(v.raw_sha256)||!sha(v.items_sha256)||!sha(v.binding_sha256)||
@@ -220,12 +224,15 @@ export function inspectPinnedS0LabReceipt(
       !exact(trustedExpected,[
        'app','route','route_revision','instance',
        'receipt_key_id','receipt_key_revision',
+       'm2m_issuer','m2m_key_id','m2m_key_revision',
        'expected_item_count','bindings',
       ])||![trustedExpected.app,trustedExpected.route,
-       trustedExpected.instance,trustedExpected.receipt_key_id]
+       trustedExpected.instance,trustedExpected.receipt_key_id,
+       trustedExpected.m2m_issuer,trustedExpected.m2m_key_id]
        .every(identifier)||
       !revision(trustedExpected.route_revision)||
       !revision(trustedExpected.receipt_key_revision)||
+      !revision(trustedExpected.m2m_key_revision)||
       !Number.isSafeInteger(trustedExpected.expected_item_count)||
       trustedExpected.expected_item_count<1||
       trustedExpected.expected_item_count>100)
