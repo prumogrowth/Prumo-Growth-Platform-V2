@@ -17,6 +17,29 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Guard against direct legacy shape-only ACK use in runtime code
+        shell: bash
+        run: |
+          set -euo pipefail
+          # The old helper is retained only as an explicitly isolated fixture.
+          # Tests and forensic-only audit modules may reproduce its risk.
+          # Runtime usage in server/frontend/worker paths must be reviewed,
+          # not quietly upgraded to a production HTTP status.
+          violations=0
+          while IFS= read -r file; do
+            case "$file" in
+              integrations/whatsapp-meta/durable-receipt.ts|\
+              integrations/whatsapp-meta/cloud-physical-replay-receipt-audit.ts|\
+              integrations/whatsapp-meta/cloud-http-ack-authority-audit.ts|\
+              *.test.ts|*.spec.ts|*.test.js|*.test.mjs)
+                ;;
+              *)
+                echo "Forbidden direct ACK helper reference: $file" >&2
+                violations=1
+                ;;
+            esac
+          done < <(git grep -l -w 'decideBatchAck' -- '*.ts' '*.tsx' '*.js' '*.mjs' '*.py' || true)
+          test "$violations" -eq 0
       - name: ACK trust boundary adversarial cases (30)
         shell: bash
         run: |
