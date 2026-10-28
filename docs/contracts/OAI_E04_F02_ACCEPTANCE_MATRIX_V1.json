@@ -562,6 +562,45 @@
         "backend/tests/test_f02_version_chain_candidate.py::test_33_no_operational_authorization_in_result"
       ],
       "gate": "Chain is an untrusted E04 description, not a transaction log, signature, database mutation, Meta eligibility or authenticated S0 version source; 16-hop cap is a lab safety bound; G01–G07 remain non-homologated"
+    },
+    {
+      "id": "F02-A36",
+      "area": "OpenAI F01/F02/F03 version chain replay safety",
+      "behavior": "Derive deterministic versioned candidate digest from validated multi-epoch route, pinned S2 visits, F02 proof packet and ordered revision claims; classify exact repeated request as no-action, changed payload/same request as conflict, update event reused cross-request and scoped idempotency-key collisions as recheck, with malformed contradictory prior history fail closed",
+      "status": "LAB_VERIFIED",
+      "tests": [
+        "backend/tests/test_f02_version_chain_replay_candidate.py::test_01_first_chain_is_new_candidate_not_authorized",
+        "backend/tests/test_f02_version_chain_replay_candidate.py::test_02_exact_replay_is_recognized_without_action",
+        "backend/tests/test_f02_version_chain_replay_candidate.py::test_03_same_request_two_identical_observations_stays_replay",
+        "backend/tests/test_f02_version_chain_replay_candidate.py::test_04_deterministic_hash_identical_on_repeat",
+        "backend/tests/test_f02_version_chain_replay_candidate.py::test_05_utc_equivalent_event_offset_same_chain_digest",
+        "backend/tests/test_f02_version_chain_replay_candidate.py::test_06_changed_S2_output_with_same_request_is_conflict",
+        "backend/tests/test_f02_version_chain_replay_candidate.py::test_07_same_request_with_tampered_prior_digest_conflicts",
+        "backend/tests/test_f02_version_chain_replay_candidate.py::test_08_same_update_event_reissued_for_new_route_rejected",
+        "backend/tests/test_f02_version_chain_replay_candidate.py::test_09_same_scoped_key_on_fresh_route_rejected",
+        "backend/tests/test_f02_version_chain_replay_candidate.py::test_10_separate_shop_with_distinct_chain_is_candidate",
+        "backend/tests/test_f02_version_chain_replay_candidate.py::test_11_prior_source_state_cannot_self_attest",
+        "backend/tests/test_f02_version_chain_replay_candidate.py::test_12_bad_prior_schema_denied",
+        "backend/tests/test_f02_version_chain_replay_candidate.py::test_13_bad_prior_digest_denied",
+        "backend/tests/test_f02_version_chain_replay_candidate.py::test_14_duplicate_prior_request_conflicting_digest_denied",
+        "backend/tests/test_f02_version_chain_replay_candidate.py::test_15_prior_event_id_reused_for_different_route_denied",
+        "backend/tests/test_f02_version_chain_replay_candidate.py::test_16_prior_scoped_key_colliding_across_requests_denied",
+        "backend/tests/test_f02_version_chain_replay_candidate.py::test_17_malformed_prior_tuple_denied",
+        "backend/tests/test_f02_version_chain_replay_candidate.py::test_18_more_than_64_history_records_denied",
+        "backend/tests/test_f02_version_chain_replay_candidate.py::test_19_prior_duplicate_event_id_in_one_record_denied",
+        "backend/tests/test_f02_version_chain_replay_candidate.py::test_20_different_event_content_with_same_id_denied_in_history",
+        "backend/tests/test_f02_version_chain_replay_candidate.py::test_21_empty_version_chain_still_deterministic",
+        "backend/tests/test_f02_version_chain_replay_candidate.py::test_22_only_latest_human_episode_events_enter_event_receipt",
+        "backend/tests/test_f02_version_chain_replay_candidate.py::test_23_broken_original_chain_never_emits_receipt",
+        "backend/tests/test_f02_version_chain_replay_candidate.py::test_24_missing_pinned_JS_source_denies_candidate",
+        "backend/tests/test_f02_version_chain_replay_candidate.py::test_25_version_marker_and_s2_data_are_in_payload",
+        "backend/tests/test_f02_version_chain_replay_candidate.py::test_26_no_message_send_and_no_authority_fields",
+        "backend/tests/test_f02_version_chain_replay_candidate.py::test_27_observation_identities_bind_to_final_human_episode",
+        "backend/tests/test_f02_version_chain_replay_candidate.py::test_28_no_replay_detection_without_supplied_prior",
+        "backend/tests/test_f02_version_chain_replay_candidate.py::test_29_history_claim_without_actual_storage_is_untrusted",
+        "backend/tests/test_f02_version_chain_replay_candidate.py::test_30_revised_request_with_same_idempotency_key_never_authorized"
+      ],
+      "gate": "Prior observations supplied by caller, not S0 durable history. Digest SHA256 has no signature, no authenticity, no replay lock or transactional race protection. NEVER dispatch or approve. G01–G07 unresolved; experiment only"
     }
   ],
   "non_authorizing_positive_states": [
@@ -800,5 +839,15 @@
     "source_attested": false,
     "s0_edited": false,
     "production_authorized": false
+  },
+  "openai_version_chain_replay_A36": {
+    "module": "backend/f02_version_chain_replay_candidate.py",
+    "tests": "backend/tests/test_f02_version_chain_replay_candidate.py",
+    "document": "docs/contracts/OAI_E04_F02_VERSION_CHAIN_REPLAY_IDEMPOTENCY_V1.md",
+    "schema": "prumo.openai.f02.version_chain_replay/0.1-lab",
+    "source_state": "E04_UNVERIFIED_REPLAY_OBSERVATION_ONLY",
+    "prior_history_persisted": false,
+    "s0_modified": false,
+    "commercial_authority": false
   }
 }
