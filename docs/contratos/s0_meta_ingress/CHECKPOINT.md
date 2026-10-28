@@ -1,0 +1,15 @@
+# S0–Meta–Ingress–01 — checkpoint para a orquestração
+
+28/10/2026, America/Sao_Paulo. Branch `exp/s0-meta-ingress-01-20261028`, derivada diretamente de `3cab3d57619cc1157698a08ac26f34e0c363f6dd`. Base do PR: `exp/s0-s1-i85-bootstrap-auth-diretor-20261028`, conferida nesse SHA antes da abertura. Sem I86, merge, deploy, migration produtiva, serviço hospedado ou credencial Meta real.
+
+Estado deste checkpoint inicial: **S0_META_INGRESS_01_LAB_CONDITIONAL**, aguardando CI no SHA publicado. Evidências locais: 48 físicos PG17/HTTP sem skips, 213 originais (52 modelos+161 Meta), 12 adversariais de escopo, 27 blobs originais íntegros e 364 arquivos herdados inalterados. Container/volume/custódia removidos; catálogo herdado SQL igual. As contagens finais, SHAs, jobs e artifacts serão registrados aqui após leitura da CI; este texto não atribui aprovação a um run ainda não concluído.
+
+A primeira rodada local revelou mudança de porta Docker após restart e cleanup dependente da conexão antiga; ambos corrigidos no harness próprio, resíduos próprios removidos. Três regressões originais inicialmente falharam por duas dependências dinâmicas de fixture não materializadas; corrigido por cópia byte a byte e manifesto. A rodada intermediária 42/42 passou; a atual 48/48 acrescenta rotação M2M, chave de recibo incompatível, eventos desconhecidos, fences de binding, ordem inversa de canais e guard de instalação. Falhas exploratórias não são ocultadas nem contam como fechamento.
+
+Entregas: contrato operacional candidato e decisão multicanal em `CONTRATO_CANDIDATO_V1.md`; autorização, resistência, limitações e pedidos de integração em `MATRIZES_E_INTERFACES.md`; implementação, fixture PG17, harness HTTP, controle técnico CAS, recibos/readback, testes, manifesto e verificador em `integration/s0_meta_ingress/`; somente um workflow novo. Arquivos exatos em `file-manifest.json`, comparados com o diff completo inclusive alterações pendentes.
+
+Contratos aceitos apenas para este laboratório: wire M2M, App comprovada, lote atômico multicanal na mesma concessionária, ledger/idempotência/nonce, recibo Ed25519, estados técnicos e recuperação autenticada. C1–C7 dos auxiliares continuam sem ratificação operacional. O ACK externo permanece responsabilidade Meta/Infra.
+
+Dependências externas: homologação de transporte/HTTP e ingressor Meta, fonte autoritativa do registro técnico, custódia/rotação de chaves e trust anchors, retenção/privacidade, observabilidade, capacidade e HA/failover. Pedidos futuros identificam arquivo/caminho a definir, motivo, contrato e alternativa; nenhum componente compartilhado foi alterado. Nenhuma questão bloqueante de governança humana I86 surgiu. Administração real do registro deverá receber contrato próprio da orquestração, sem extrair permissões desta prova.
+
+Recomendação após CI: classificar LAB_CLOSED somente se os quatro jobs essenciais passarem, artifacts confirmarem 48/48 físicos e cleanup, regressões e escopo aprovarem. Isso não autoriza eventos reais.

@@ -1,0 +1,141 @@
+{
+  "source_pr": 14,
+  "source_head": "31bb84fa524f4ecfdf02360988471d7f989506d7",
+  "files": [
+    {
+      "source": "integration/meta_s0_candidate/candidate.mjs",
+      "path": "integration/s0_meta_ingress/vendor/integration/meta_s0_candidate/candidate.mjs",
+      "git_blob": "5f5aa4b446d829a740c4fe3ce3a733be661df212"
+    },
+    {
+      "source": "integration/meta_s0_candidate/candidate.test.mjs",
+      "path": "integration/s0_meta_ingress/vendor/integration/meta_s0_candidate/candidate.test.mjs",
+      "git_blob": "060cfb403f868cb6a234d4d1cc3008f150c5ba4b"
+    },
+    {
+      "source": "integration/meta_s0_candidate/durable.test.mjs",
+      "path": "integration/s0_meta_ingress/vendor/integration/meta_s0_candidate/durable.test.mjs",
+      "git_blob": "d8523507ad6eb18f2b20d15f23e081d189fa5e56"
+    },
+    {
+      "source": "integration/meta_s0_candidate/fixtures.mjs",
+      "path": "integration/s0_meta_ingress/vendor/integration/meta_s0_candidate/fixtures.mjs",
+      "git_blob": "43f0ed078fe11a92e31f3ad8a777b19a7db68bc8"
+    },
+    {
+      "source": "integration/meta_s0_candidate/lab-store.mjs",
+      "path": "integration/s0_meta_ingress/vendor/integration/meta_s0_candidate/lab-store.mjs",
+      "git_blob": "fa262953d965eab66c0caff78026df95b1855a84"
+    },
+    {
+      "source": "integration/meta_s0_candidate/lock-plan.mjs",
+      "path": "integration/s0_meta_ingress/vendor/integration/meta_s0_candidate/lock-plan.mjs",
+      "git_blob": "e29c8542ceec386126f3bf91dbf12ab081e2ff17"
+    },
+    {
+      "source": "integration/meta_s0_candidate/protocol.mjs",
+      "path": "integration/s0_meta_ingress/vendor/integration/meta_s0_candidate/protocol.mjs",
+      "git_blob": "295eeec20ab407eaf5b9324dba5b54db0d8db96f"
+    },
+    {
+      "source": "integrations/whatsapp-meta/cloud-webhook-handoff.test.ts",
+      "path": "integration/s0_meta_ingress/vendor/integrations/whatsapp-meta/cloud-webhook-handoff.test.ts",
+      "git_blob": "814fc5308e8574c2d061ccc0f7be7d99fef094dd"
+    },
+    {
+      "source": "integrations/whatsapp-meta/cloud-webhook-handoff.ts",
+      "path": "integration/s0_meta_ingress/vendor/integrations/whatsapp-meta/cloud-webhook-handoff.ts",
+      "git_blob": "0f715c6e21e5908e9c3b46198da16ff0c3c4a9f4"
+    },
+    {
+      "source": "integrations/whatsapp-meta/cloud-wire-observation.test.ts",
+      "path": "integration/s0_meta_ingress/vendor/integrations/whatsapp-meta/cloud-wire-observation.test.ts",
+      "git_blob": "4ad43912f6f2de68ca33409740fd2c68541bbaea"
+    },
+    {
+      "source": "integrations/whatsapp-meta/cloud-wire-observation.ts",
+      "path": "integration/s0_meta_ingress/vendor/integrations/whatsapp-meta/cloud-wire-observation.ts",
+      "git_blob": "6c9ca62e13d6797c89bba29552aff9224a403fde"
+    },
+    {
+      "source": "integrations/whatsapp-meta/credential-routing.ts",
+      "path": "integration/s0_meta_ingress/vendor/integrations/whatsapp-meta/credential-routing.ts",
+      "git_blob": "b3dc24c897138dd04ad915ddc12179fbee4423e6"
+    },
+    {
+      "source": "integrations/whatsapp-meta/graph-outbound.test.ts",
+      "path": "integration/s0_meta_ingress/vendor/integrations/whatsapp-meta/graph-outbound.test.ts",
+      "git_blob": "970adf27788819ae54aad77249ed689355e34862"
+    },
+    {
+      "source": "integrations/whatsapp-meta/graph-outbound.ts",
+      "path": "integration/s0_meta_ingress/vendor/integrations/whatsapp-meta/graph-outbound.ts",
+      "git_blob": "7870a499007ae2ff8c6a5558086554916b092aa7"
+    },
+    {
+      "source": "integrations/whatsapp-meta/graph-template.test.ts",
+      "path": "integration/s0_meta_ingress/vendor/integrations/whatsapp-meta/graph-template.test.ts",
+      "git_blob": "5245c06fde641ed16588f5f11220bfe1ac8a3004"
+    },
+    {
+      "source": "integrations/whatsapp-meta/graph-template.ts",
+      "path": "integration/s0_meta_ingress/vendor/integrations/whatsapp-meta/graph-template.ts",
+      "git_blob": "bcb0a1422f3526624cfbfac43bfb9ad79c496518"
+    },
+    {
+      "source": "integrations/whatsapp-meta/inbound.test.ts",
+      "path": "integration/s0_meta_ingress/vendor/integrations/whatsapp-meta/inbound.test.ts",
+      "git_blob": "8d32b51bba84f4bc16487ffb9004da3b832ac70f"
+    },
+    {
+      "source": "integrations/whatsapp-meta/inbound.ts",
+      "path": "integration/s0_meta_ingress/vendor/integrations/whatsapp-meta/inbound.ts",
+      "git_blob": "dce2346f196c79c61a9dfd14347ff8d2f71f4bff"
+    },
+    {
+      "source": "integrations/whatsapp-meta/routed-webhook.test.ts",
+      "path": "integration/s0_meta_ingress/vendor/integrations/whatsapp-meta/routed-webhook.test.ts",
+      "git_blob": "bfb6781736596385591fe2e98960b8fed2c37b0f"
+    },
+    {
+      "source": "integrations/whatsapp-meta/routed-webhook.ts",
+      "path": "integration/s0_meta_ingress/vendor/integrations/whatsapp-meta/routed-webhook.ts",
+      "git_blob": "d9b0666e7ac65e46528524769a6837f840a9448c"
+    },
+    {
+      "source": "integrations/whatsapp-meta/verify-get.ts",
+      "path": "integration/s0_meta_ingress/vendor/integrations/whatsapp-meta/verify-get.ts",
+      "git_blob": "2bef62aca74e9a77faaee9109b2530657b328935"
+    },
+    {
+      "source": "integrations/whatsapp-meta/wa36-ratification-gate.test.ts",
+      "path": "integration/s0_meta_ingress/vendor/integrations/whatsapp-meta/wa36-ratification-gate.test.ts",
+      "git_blob": "82ede55c548d0930e56523154713ca305881711a"
+    },
+    {
+      "source": "integrations/whatsapp-meta/wa36-ratification-gate.ts",
+      "path": "integration/s0_meta_ingress/vendor/integrations/whatsapp-meta/wa36-ratification-gate.ts",
+      "git_blob": "9ae0068dd1fd42a17f4aab7010934938d6866600"
+    },
+    {
+      "source": "integrations/whatsapp-meta/wa37-acceptance-handoff.test.ts",
+      "path": "integration/s0_meta_ingress/vendor/integrations/whatsapp-meta/wa37-acceptance-handoff.test.ts",
+      "git_blob": "07e8a30eb827b0f31f5a99a8d7a9334afc546bd8"
+    },
+    {
+      "source": "integrations/whatsapp-meta/wa37-acceptance-handoff.ts",
+      "path": "integration/s0_meta_ingress/vendor/integrations/whatsapp-meta/wa37-acceptance-handoff.ts",
+      "git_blob": "7f3b09d5800c819c204618784a0e4636c06c020a"
+    },
+    {
+      "source": "integration/meta_s0_candidate/crash-worker.mjs",
+      "path": "integration/s0_meta_ingress/vendor/integration/meta_s0_candidate/crash-worker.mjs",
+      "git_blob": "f2b11247819b6380df1426ebd456a1f7fc5ab605"
+    },
+    {
+      "source": "docs/integracoes/whatsapp-meta/wa37-contrato-aceite-interfrentes-m2m-2026-10-23.md",
+      "path": "integration/s0_meta_ingress/vendor/docs/integracoes/whatsapp-meta/wa37-contrato-aceite-interfrentes-m2m-2026-10-23.md",
+      "git_blob": "fbb6d580365921044fdc8f9a6df6416e176e0723"
+    }
+  ]
+}

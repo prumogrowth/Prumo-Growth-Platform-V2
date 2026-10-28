@@ -1,0 +1,42 @@
+{
+  "local_physical": {
+    "classification": "S0_META_INGRESS_01_LAB_CLOSED",
+    "postgres": {
+      "version": "PostgreSQL 17.6 (Debian 17.6-2.pgdg12+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 12.2.0-14+deb12u1) 12.2.0, 64-bit",
+      "fsync": "on",
+      "synchronous_commit": "on",
+      "full_page_writes": "on"
+    },
+    "tests_run": 48,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "cleanup": {
+      "container_absent": true,
+      "volume_absent": true,
+      "custody_absent": true,
+      "inherited_catalog_equal": true
+    }
+  },
+  "local_models": {
+    "total": 213,
+    "candidate": 52,
+    "meta": 161,
+    "failed": 0,
+    "skipped": 0
+  },
+  "local_scope": {
+    "adversarial_tests": 12,
+    "passed": 12,
+    "inherited_files": 364,
+    "source_blobs": 27
+  },
+  "ci": {
+    "status": "PENDING_PUBLICATION"
+  },
+  "historical_i85": {
+    "code_sha": "062c90ffbe2b223c1d6bb08f614e7a1b6a898201",
+    "ci": 40680048140,
+    "not_recertified_here": true
+  }
+}

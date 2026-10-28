@@ -1,0 +1,110 @@
+name: S0 Meta Ingress 01 - exclusive PG17 laboratory
+on:
+  push:
+    branches: [exp/s0-meta-ingress-01-20261028]
+  pull_request:
+    branches: [exp/s0-s1-i85-bootstrap-auth-diretor-20261028]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: s0-meta-ingress-01-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  ownership:
+    if: github.event_name != 'pull_request' || github.head_ref == 'exp/s0-meta-ingress-01-20261028'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Full frozen-base scope including pending changes
+        run: python3 integration/s0_meta_ingress/verify_scope.py
+      - name: Scope adversarial tests
+        run: python3 -m integration.s0_meta_ingress.test_scope
+      - name: Original Meta blob integrity
+        run: python3 integration/s0_meta_ingress/verify_sources.py
+  models:
+    needs: ownership
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.23.3'
+      - name: 52 original models and 161 original Meta regressions
+        env:
+          S0_META_MODEL_REPORT: ${{ runner.temp }}/s0-meta-models.tap
+        run: python3 integration/s0_meta_ingress/run_models.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: s0-meta-ingress-01-models-${{ github.run_id }}
+          path: ${{ runner.temp }}/s0-meta-models.tap
+          if-no-files-found: error
+  postgres-physical:
+    needs: ownership
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned lab dependencies
+        run: pip install -r integration/s0_meta_ingress/requirements.txt
+      - name: Real SQL, concurrent locks, SIGKILL, WAL restart and loopback HTTP
+        env:
+          S0_META_REPORT: ${{ runner.temp }}/s0-meta-physical.json
+          S0_META_WORK: ${{ runner.temp }}
+        run: python3 -m integration.s0_meta_ingress.test_ingress
+      - name: Final frozen-base and inherited integrity
+        if: always()
+        run: python3 integration/s0_meta_ingress/verify_scope.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: s0-meta-ingress-01-physical-${{ github.run_id }}
+          path: ${{ runner.temp }}/s0-meta-physical.json
+          if-no-files-found: error
+  inherited-regression:
+    needs: ownership
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Inherited backend and I85 filesystem, no shared database
+        run: |
+          python3 -m unittest discover -s backend/tests -v
+          python3 -m unittest integration.i85.test_filesystem integration.i84.test_boundary -v
+          python3 -O -m unittest integration.i85.test_filesystem integration.i84.test_boundary -v
+      - name: Verify inherited files after regressions
+        if: always()
+        run: python3 integration/s0_meta_ingress/verify_scope.py
