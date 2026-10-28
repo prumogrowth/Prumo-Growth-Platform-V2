@@ -31,7 +31,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: s0-s1-i84-${{ github.ref }}
+  group: s0-s1-i85-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   credential-logging-preflight:
@@ -393,7 +393,7 @@ jobs:
     needs: credential-logging-preflight
     if: github.ref == 'refs/heads/exp/s0-s1-i85-bootstrap-auth-diretor-20261028'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     env:
       PYTHONDONTWRITEBYTECODE: '1'
       SUPABASE_DISABLE_TELEMETRY: '1'
@@ -414,6 +414,8 @@ jobs:
         run: |
           python3 -m pip install -r backend/requirements-s0-local.txt
           python3 -m compileall -q integration/i85
+          python3 -m unittest integration.i85.test_filesystem -v
+          python3 -O -m unittest integration.i85.test_filesystem -v
           python3 -m unittest integration.i84.test_boundary -v
           python3 -O -m unittest integration.i84.test_boundary -v
       - uses: actions/checkout@v4
@@ -447,3 +449,66 @@ jobs:
       - name: Independently retire I83 and discard all PG17 GoTrue worker network volumes
         if: always()
         run: python3 -m local_admin down
+
+      - name: Preserve uncertain nonsecret evidence and retire local passwords only after verified full lab disposal
+        if: always()
+        env:
+          PRUMO_I85_ABANDON: PRESERVE_EVIDENCE_AFTER_VERIFIED_LAB_DISCARD
+        run: |
+          if [ -e "/tmp/prumo-i85-$(id -u)/state.json" ] || [ -d "/tmp/prumo-i85-$(id -u).disposing" ]; then
+            python3 -m integration.i85 abandon-after-stack-down
+          fi
+
+  i85-real-resistance:
+    needs: credential-logging-preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      SUPABASE_DISABLE_TELEMETRY: '1'
+      SUPABASE_INTERNAL_IMAGE_REGISTRY: docker.io
+      PRUMO_I84_DISPOSABLE: 'YES'
+      PRUMO_I85_DISPOSABLE: 'YES'
+      PRUMO_G1_SOURCE_REPO: work-s1-sources
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 2.84.2
+      - name: Fixed driver and real filesystem crash proofs
+        run: |
+          python3 -m pip install -r backend/requirements-s0-local.txt
+          python3 -m unittest integration.i85.test_filesystem -v
+      - uses: actions/checkout@v4
+        with:
+          ref: 8780b576aa18bd3983c063339e2e42d2452af22c
+          path: work-s1-sources
+          persist-credentials: false
+      - name: Independent destructive resistance cases each with a fresh full lab and no disabled guards
+        run: python3 -m integration.i85.test_resistance
+      - name: Archive allowlisted outcomes and cleanup proofs only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: s0-s1-i85-independent-resistance
+          path: ${{ runner.temp }}/prumo_i85_resistance.json
+          retention-days: 14
+      - name: Final physical lab cleanup even after a failed setup
+        if: always()
+        run: |
+          if [ -e "/tmp/prumo-admin-i84-$(id -u)/state.json" ]; then
+            python3 -m local_admin down
+          fi
+      - name: Retire uncertain local passwords without erasing nonsecret evidence
+        if: always()
+        env:
+          PRUMO_I85_ABANDON: PRESERVE_EVIDENCE_AFTER_VERIFIED_LAB_DISCARD
+        run: |
+          if [ -e "/tmp/prumo-i85-$(id -u)/state.json" ] || [ -d "/tmp/prumo-i85-$(id -u).disposing" ]; then
+            python3 -m integration.i85 abandon-after-stack-down
+          fi

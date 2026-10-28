@@ -1,0 +1,6 @@
+{
+  "source": "https://github.com/supabase/cli/blob/v2.84.2/internal/functions/serve/templates/main.ts",
+  "sha256": "45ca33389260f7aeffefa6cd20b49b5b51ea6877038f42dc7438f9257c008969",
+  "image": "supabase/edge-runtime:v1.73.0",
+  "modified": false
+}

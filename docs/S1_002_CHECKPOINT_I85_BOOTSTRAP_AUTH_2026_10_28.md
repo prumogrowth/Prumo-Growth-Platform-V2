@@ -1,5 +1,10 @@
 # S0/S1 — checkpoint I85 — bootstrap Auth/GoTrue e Diretoria sintética
 
+> Retomada de auditoria independente: o registro abaixo é histórico da revisão
+> 840b2db/CI40664481472. Não certifica as correções desta retomada e não autoriza
+> iniciar I86. O fechamento aguarda a matriz de resistência, CI final e relatório.
+
+
 28/10/2026 (America/Recife). Implementação laboratorial efetiva; **não é homologação de produção**.
 
 ## Estado, commits e certificação

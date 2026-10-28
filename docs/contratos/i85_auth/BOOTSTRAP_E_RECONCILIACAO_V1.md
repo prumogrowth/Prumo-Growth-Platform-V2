@@ -1,7 +1,7 @@
 # I85 — Bootstrap Auth/GoTrue e Diretoria sintética, laboratório v1
 
 Data: 28/10/2026. Base documental I84 `3bf948f`, código I84 `6852a4f`, PR Draft #40.
-Branch própria: `exp/s0-s1-i85-bootstrap-auth-diretor-20261028`. **Candidato experimental ainda não certificado:** asserções executáveis não substituem CI real.
+Branch própria: `exp/s0-s1-i85-bootstrap-auth-diretor-20261028`. **Auditoria independente em andamento:** a CI anterior 40664481472 comprovou uma jornada encadeada, não o fechamento técnico solicitado. As correções atuais só poderão receber recomendação após a nova CI e análise de artefatos. Ver impacto e relatório da auditoria.
 
 ## Modelo de autoridade e fronteiras
 

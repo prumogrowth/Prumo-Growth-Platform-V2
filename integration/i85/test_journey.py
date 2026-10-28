@@ -14,6 +14,7 @@ from urllib import request, error
 from uuid import uuid4
 from local_admin import boundary as b, environment as e
 from integration.i85 import bootstrap as i85
+from integration.i84.capture import reject_material
 
 
 class Journey(unittest.TestCase):
@@ -53,8 +54,7 @@ class Journey(unittest.TestCase):
         payload = json.loads(raw)
         self.assertEqual(payload["version"], "prumo.admin.v1")
         self.assertEqual(payload["scope"], "ADMINISTRATIVE_ONLY")
-        for value in self.operator.secrets().values():
-            self.assertNotIn(value, raw.decode())
+        reject_material(raw,list(self.operator.secrets().values())+self.technical)
         return status, payload
 
     @staticmethod
@@ -76,6 +76,12 @@ class Journey(unittest.TestCase):
 
     def test_gotrue_director_full_real_journey(self):
         self.checks = []
+        from local_admin.custody import read_env
+        from urllib.parse import urlsplit
+        config=read_env(b.DEFAULT)
+        self.technical=[i85._key(),config['PRUMO_I82_HMAC_HEX'],config['PRUMO_I82_DATABASE_URL'],urlsplit(config['PRUMO_I82_DATABASE_URL']).password]
+        from integration.i85.edge_profile import verify
+        if not verify(b.load(b.DEFAULT/'state.json')):raise AssertionError('I85_RESTRICTED_RUNTIME_REQUIRED')
         self.operator = i85.Bootstrap()
         self.assertEqual(self.cli("init")["authority"], "NONE")
         self.operator.load()
@@ -119,6 +125,7 @@ class Journey(unittest.TestCase):
 
         director_token = self.operator.token("director")
         outsider_token = self.operator.token("outsider")
+        self.technical.extend([director_token,outsider_token])
         self.assertEqual(self.http("i80", self.reg("INVENTORY", limit=1), director_token)[0], 403)
         self.assertEqual(self.http("i79", self.prof("REGISTER", real, "diretor"), director_token)[0], 400)
         with self.assertRaises(b.Blocked):
@@ -191,6 +198,7 @@ class Journey(unittest.TestCase):
 
         manager_token = self.operator.token("manager")
         consultant_token = self.operator.token("consultant")
+        self.technical.extend([manager_token,consultant_token])
         commands = [("i79", self.prof("REGISTER", self.operator.state["identities"]["outsider"]["uuid"])),
                     ("i79", self.prof("ACTIVATE", consultant, manager=manager)),
                     ("i79", self.prof("TRANSFER", consultant, manager=manager, old=old)),
@@ -234,12 +242,14 @@ class Journey(unittest.TestCase):
         self.assertEqual(after, expected)
         self.evidence("12_owners_grants_rls_triggers_constraints_unchanged")
 
+        for name in (b.DB,b.KONG,'supabase_auth_'+b.PROJECT,b.EDGE):
+            reject_material(b.run(['docker','--host=unix:///var/run/docker.sock','logs',name],combined=True),list(self.operator.secrets().values())+self.technical)
         state = self.cli("dispose")
         self.assertTrue(state["private_material_removed"])
         self.assertFalse(i85.ROOT.exists())
         self.evidence("13_private_custody_disposed_without_forensic_claim")
         result = {"version": "prumo.i85.evidence.v1", "checks": self.checks,
-                  "secret_values_exported": False, "hosted_enabled": False,
+                  "secret_values_exported": False,"installer_credentials_absent_from_edge":True,"credential_log_matches":0, "hosted_enabled": False,
                   "integration": "real PG17/GoTrue/PostgREST/Edge"}
         out = Path(os.environ.get("RUNNER_TEMP", "/tmp")) / "prumo_i85_journey.json"
         out.write_text(json.dumps(result, indent=2) + "\n")

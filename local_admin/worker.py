@@ -47,6 +47,9 @@ def container_matches(state,directory):
     cid=inspect(EDGE)
     if not cid:return 'ABSENT'
     if cid!=(state.get('worker') or {}).get('container'):return 'FOREIGN'
+    if (state.get('worker') or {}).get('profile')=='I85_RESTRICTED':
+        from integration.i85.edge_profile import verify
+        verify(state)
     try:
         if docker('inspect','--format','{{.State.Running}}',cid).strip()!=b'true':return 'STOPPED'
         expected=read_env(directory)
@@ -57,6 +60,9 @@ def container_matches(state,directory):
 
 
 def stop(state,directory,checkpoint):
+    if (state.get('worker') or {}).get('profile')=='I85_RESTRICTED':
+        from integration.i85.edge_profile import reconcile_record
+        reconcile_record(state,checkpoint)
     record=state.get('worker') or {};cid=inspect(EDGE)
     if cid and cid!=record.get('container'):raise Blocked('UNOWNED_WORKER')
     failure=None
@@ -75,6 +81,9 @@ def stop(state,directory,checkpoint):
 
 
 def start(state,directory,checkpoint):
+    if os.environ.get('PRUMO_I85_DISPOSABLE')=='YES':
+        from integration.i85.edge_profile import start as restricted_start
+        return restricted_start(state,directory,checkpoint)
     if inspect(EDGE):raise Blocked('WORKER_ALREADY_PRESENT')
     env=read_env(directory);cors(state,True,checkpoint)
     file=Path(directory)/'worker.log'
