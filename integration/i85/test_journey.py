@@ -119,7 +119,7 @@ class Journey(unittest.TestCase):
 
         director_token = self.operator.token("director")
         outsider_token = self.operator.token("outsider")
-        self.assertEqual(self.http("i80", self.reg("INVENTORY", limit=1), director_token)[0], 403)
+        self.assertEqual(self.http("i80", self.reg("INVENTORY", limit=1), director_token)[0], 401)
         self.assertEqual(self.http("i79", self.prof("REGISTER", real, "diretor"), director_token)[0], 400)
         with self.assertRaises(b.Blocked):
             self.operator.authorize_director()
