@@ -445,6 +445,40 @@
         "backend/tests/test_f02_multiroute_s2_validation_candidate.py::test_27_valid_F03_withdrawal_advisory_does_not_trigger_F02"
       ],
       "gate": "All source S0 flags and tokens are synthetic; Node calls original pinned S2 source but no actual S0 authorization, F03 receipt, OpenAI API, Meta or commercial execution. G01–G07 remain open"
+    },
+    {
+      "id": "F02-A33",
+      "area": "OpenAI F01/F02/F03 repeated human episodes",
+      "behavior": "Compose pinned S2 F01/F02/F03 and F02 proof/route validator with per-human-closure episode identities and independently claimed case/cycle/form/catalog/assignment snapshot versions; reject prior-episode proof reuse, stale F03/F02 visit versions, missing/replayed epoch claims, revocation/opt-out/Meta uncertainty and chronology, without assuming automatic version increments",
+      "status": "LAB_VERIFIED",
+      "tests": [
+        "backend/tests/test_f02_multihuman_epoch_candidate.py::test_01_two_human_closures_with_updated_versions",
+        "backend/tests/test_f02_multihuman_epoch_candidate.py::test_02_distinct_closures_need_not_increment_versions_automatically",
+        "backend/tests/test_f02_multihuman_epoch_candidate.py::test_03_old_closure_proof_cannot_be_reused_for_second",
+        "backend/tests/test_f02_multihuman_epoch_candidate.py::test_04_missing_first_epoch_ticket",
+        "backend/tests/test_f02_multihuman_epoch_candidate.py::test_05_replayed_epoch_ticket",
+        "backend/tests/test_f02_multihuman_epoch_candidate.py::test_06_wrong_second_F03_event_id",
+        "backend/tests/test_f02_multihuman_epoch_candidate.py::test_07_wrong_first_F02_event_id",
+        "backend/tests/test_f02_multihuman_epoch_candidate.py::test_08_swapped_epoch_ticket_order",
+        "backend/tests/test_f02_multihuman_epoch_candidate.py::test_09_new_F03_cannot_use_old_versions",
+        "backend/tests/test_f02_multihuman_epoch_candidate.py::test_10_new_F02_cannot_use_old_epoch_versions",
+        "backend/tests/test_f02_multihuman_epoch_candidate.py::test_11_stale_current_F03_rejected_by_original_S2",
+        "backend/tests/test_f02_multihuman_epoch_candidate.py::test_12_stale_current_F02_rejected_by_original_S2",
+        "backend/tests/test_f02_multihuman_epoch_candidate.py::test_13_cross_epoch_declared_version_regression_rejected",
+        "backend/tests/test_f02_multihuman_epoch_candidate.py::test_14_F03_essential_field_missing_in_second_cycle",
+        "backend/tests/test_f02_multihuman_epoch_candidate.py::test_15_F03_loss_advisory_in_second_cycle_stops_recontact",
+        "backend/tests/test_f02_multihuman_epoch_candidate.py::test_16_F02_cross_shop_in_second_epoch",
+        "backend/tests/test_f02_multihuman_epoch_candidate.py::test_17_F02_stale_template_in_second_epoch",
+        "backend/tests/test_f02_multihuman_epoch_candidate.py::test_18_absent_S0_reopen_cannot_proceed_to_second_close",
+        "backend/tests/test_f02_multihuman_epoch_candidate.py::test_19_optout_before_second_human_epoch_is_terminal",
+        "backend/tests/test_f02_multihuman_epoch_candidate.py::test_20_meta_uncertainty_does_not_auto_resume",
+        "backend/tests/test_f02_multihuman_epoch_candidate.py::test_21_epoch_ticket_fields_and_types_are_strict",
+        "backend/tests/test_f02_multihuman_epoch_candidate.py::test_22_mismatched_latest_human_closure_id_rejected",
+        "backend/tests/test_f02_multihuman_epoch_candidate.py::test_23_cross_case_second_F03_rejected",
+        "backend/tests/test_f02_multihuman_epoch_candidate.py::test_24_node_source_unavailable_fails_closed",
+        "backend/tests/test_f02_multihuman_epoch_candidate.py::test_25_result_has_no_business_action_authority"
+      ],
+      "gate": "All versions, event IDs and S0 flags are caller-supplied lab claims. G01–G07 remain unratified; human/Meta operational execution, S0 authenticated transitions and physical source integrity are not validated"
     }
   ],
   "non_authorizing_positive_states": [
@@ -646,5 +680,21 @@
     "real_node_invocation": true,
     "s0_authenticated": false,
     "commercial_authorized": false
+  },
+  "openai_multihuman_epoch_candidate": {
+    "module": "backend/f02_multihuman_epoch_candidate.py",
+    "tests": "backend/tests/test_f02_multihuman_epoch_candidate.py",
+    "document": "docs/contracts/OAI_E04_F01_F02_F03_MULTIHUMAN_EPOCH_V1.md",
+    "lab_version_keys": [
+      "case",
+      "cycle",
+      "form",
+      "catalog",
+      "assignment"
+    ],
+    "pinned_s2_source": "ebf6fe4e546f2fe990bdaefe2df25aa0cf18e74c",
+    "s0_source_attested": false,
+    "production_authorized": false,
+    "human_epochs_can_repeat": true
   }
 }
