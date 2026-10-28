@@ -1,0 +1,46 @@
+{
+  "raw_base64": "eyJvYmplY3QiOiJ3aGF0c2FwcF9idXNpbmVzc19hY2NvdW50IiwiZW50cnkiOlt7ImlkIjoiMTAwMDAxIiwiY2hhbmdlcyI6W3siZmllbGQiOiJtZXNzYWdlcyIsInZhbHVlIjp7Im1ldGFkYXRhIjp7InBob25lX251bWJlcl9pZCI6IjIwMDAwMSJ9LCJtZXNzYWdlcyI6W3siaWQiOiJ3YW1pZC5GSVhUVVJFIiwiZnJvbSI6IjU1MDAwMDAwMDAwMDAiLCJ0eXBlIjoidGV4dCIsInRpbWVzdGFtcCI6IjE3MDAwMDAwMDAiLCJ0ZXh0Ijp7ImJvZHkiOiJzw61udGVzZSJ9fV19fV19XX0=",
+  "public_key_base64": "ebVWLo/mVPlAeLES6KmLp5AfhTrmlb7X4OORC60ElmQ=",
+  "receipt": {
+    "body": {
+      "version": "prumo.s0-meta-ingress.receipt.lab/1-candidate",
+      "instance": "LAB_S0_01",
+      "app": "LAB_APP_A",
+      "route": "route_A",
+      "route_revision": "1",
+      "batch_id": "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee",
+      "raw_sha256": "9738e94f102f69ef2d58c6fb3460bb30846c833ac8b161e5e0594d62e38a6042",
+      "item_count": 1,
+      "occurrence_ids": [
+        "12345678-1234-4abc-8def-123456789abc"
+      ],
+      "items_sha256": "183ec905b24a7e425c57ae5d2c1ef7b498756679a1db9e6c66c0883c92c4f5c3",
+      "binding_sha256": "c5f0316ce941fd73f330a3283580de9562426601660992053921d385f2fc96be",
+      "bindings": [
+        {
+          "route": "route_A",
+          "waba": "100001",
+          "phone": "200001",
+          "app": "LAB_APP_A",
+          "tenant": "tenant_A",
+          "channel": "channel_A",
+          "revision": "1",
+          "active": true
+        }
+      ],
+      "m2m_issuer": "LAB_META_INFRA",
+      "m2m_key_id": "key_A",
+      "m2m_key_revision": "1",
+      "receipt_key_id": "LAB_RECEIPT_1",
+      "receipt_key_revision": "1",
+      "receipt_public_key": "ebVWLo/mVPlAeLES6KmLp5AfhTrmlb7X4OORC60ElmQ=",
+      "audit_id": "11111111-2222-4333-8444-555555555555",
+      "recorded_at": "2026-10-28T17:00:00.000000+00:00",
+      "state": "DURABLY_COMMITTED",
+      "durability_profile": "PG17_LOCAL_WAL_FSYNC_ON_SYNC_COMMIT_ON",
+      "production_authorized": false,
+      "commercial_transition_authorized": false
+    },
+    "signature": "1Q8+2rGyF3h2P0oKJANAT6Io7MH3YrlwD5KOQcWpKe2tBFyz2udwuKgDl47rlHuvej2ckQFjUu8SwUG9hNUmCw=="
+  }
+}
