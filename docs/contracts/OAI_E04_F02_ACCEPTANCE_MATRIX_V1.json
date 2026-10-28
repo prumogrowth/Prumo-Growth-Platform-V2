@@ -645,6 +645,54 @@
         "backend/tests/test_f02_s0_lookup_alignment_candidate.py::test_35_terminal_remains_terminal_even_after_expiry"
       ],
       "gate": "S0 result schema remains unratified and lacks physical CFI scope; caller-supplied binding and expected S0 digest cannot prove issuer or durable lookup. G01/G02/G03/G07 stay blocked; no authority or live IO"
+    },
+    {
+      "id": "F02-A38",
+      "area": "OpenAI F02 reconciliation of untrusted S0 review-result recovery sequence",
+      "behavior": "Compose pinned A37 S0 review-result shape/continuity validator over multiple declared responses, quarantine UNAVAILABLE without inventing rollback or repeat dispatch, recheck restored projections against last persisted state, preserve terminal/negative holds, reject changed/lost/unknown CFI session and missing baseline, deny revision/time/request_ref/digest drift; never grant execution",
+      "status": "LAB_VERIFIED",
+      "tests": [
+        "backend/tests/test_f02_s0_recovery_sequence_candidate.py::test_01_single_persisted_is_untrusted_baseline_only",
+        "backend/tests/test_f02_s0_recovery_sequence_candidate.py::test_02_exact_snapshot_replay_no_new_action",
+        "backend/tests/test_f02_s0_recovery_sequence_candidate.py::test_03_monotonic_revision_is_shape_only",
+        "backend/tests/test_f02_s0_recovery_sequence_candidate.py::test_04_two_states_same_revision_no_approval",
+        "backend/tests/test_f02_s0_recovery_sequence_candidate.py::test_05_one_unavailable_is_outage_not_rollback",
+        "backend/tests/test_f02_s0_recovery_sequence_candidate.py::test_06_persisted_then_unavailable_holds_history",
+        "backend/tests/test_f02_s0_recovery_sequence_candidate.py::test_07_same_result_after_outage_requires_S0_lookup",
+        "backend/tests/test_f02_s0_recovery_sequence_candidate.py::test_08_new_revision_after_outage_is_shape_only",
+        "backend/tests/test_f02_s0_recovery_sequence_candidate.py::test_09_unavailable_before_first_persisted_is_not_baseline",
+        "backend/tests/test_f02_s0_recovery_sequence_candidate.py::test_10_repeated_unavailable_cannot_create_a_review",
+        "backend/tests/test_f02_s0_recovery_sequence_candidate.py::test_11_withdrawn_is_terminal",
+        "backend/tests/test_f02_s0_recovery_sequence_candidate.py::test_12_expired_is_terminal",
+        "backend/tests/test_f02_s0_recovery_sequence_candidate.py::test_13_terminal_cannot_be_resurrected",
+        "backend/tests/test_f02_s0_recovery_sequence_candidate.py::test_14_terminal_outage_then_resurrection_rejected",
+        "backend/tests/test_f02_s0_recovery_sequence_candidate.py::test_15_terminal_followed_by_outage_remains_terminal",
+        "backend/tests/test_f02_s0_recovery_sequence_candidate.py::test_16_all_non_unavailable_negatives_are_holds",
+        "backend/tests/test_f02_s0_recovery_sequence_candidate.py::test_17_negative_after_persisted_does_not_erase_old_record",
+        "backend/tests/test_f02_s0_recovery_sequence_candidate.py::test_18_outage_then_negative_is_not_a_replay",
+        "backend/tests/test_f02_s0_recovery_sequence_candidate.py::test_19_invalid_negative_field_shape_rejected",
+        "backend/tests/test_f02_s0_recovery_sequence_candidate.py::test_20_previous_revision_cannot_decrease",
+        "backend/tests/test_f02_s0_recovery_sequence_candidate.py::test_21_previous_observed_at_cannot_move_backward",
+        "backend/tests/test_f02_s0_recovery_sequence_candidate.py::test_22_previous_review_ref_cannot_be_swapped",
+        "backend/tests/test_f02_s0_recovery_sequence_candidate.py::test_23_original_hash_change_between_snapshots_denied",
+        "backend/tests/test_f02_s0_recovery_sequence_candidate.py::test_24_original_expected_S0_hash_is_independent_of_F02",
+        "backend/tests/test_f02_s0_recovery_sequence_candidate.py::test_25_changed_binding_is_rejected",
+        "backend/tests/test_f02_s0_recovery_sequence_candidate.py::test_26_lost_context_always_holds",
+        "backend/tests/test_f02_s0_recovery_sequence_candidate.py::test_27_changed_session_always_holds",
+        "backend/tests/test_f02_s0_recovery_sequence_candidate.py::test_28_unknown_context_always_holds",
+        "backend/tests/test_f02_s0_recovery_sequence_candidate.py::test_29_malicious_string_context_does_not_pass_enum",
+        "backend/tests/test_f02_s0_recovery_sequence_candidate.py::test_30_no_history_does_not_prove_request_was_deleted",
+        "backend/tests/test_f02_s0_recovery_sequence_candidate.py::test_31_more_than_32_snapshots_denied",
+        "backend/tests/test_f02_s0_recovery_sequence_candidate.py::test_32_history_list_cannot_be_accepted_as_tuple",
+        "backend/tests/test_f02_s0_recovery_sequence_candidate.py::test_33_result_with_fake_send_authority_denied",
+        "backend/tests/test_f02_s0_recovery_sequence_candidate.py::test_34_unratified_S0_schema_version_denied",
+        "backend/tests/test_f02_s0_recovery_sequence_candidate.py::test_35_relative_timezone_offsets_for_same_expiry_accepted",
+        "backend/tests/test_f02_s0_recovery_sequence_candidate.py::test_36_outage_does_not_relax_identity_checks",
+        "backend/tests/test_f02_s0_recovery_sequence_candidate.py::test_37_outage_does_not_relax_time_checks",
+        "backend/tests/test_f02_s0_recovery_sequence_candidate.py::test_38_outage_does_not_relax_revision_checks",
+        "backend/tests/test_f02_s0_recovery_sequence_candidate.py::test_39_no_status_or_result_contains_execution_grants"
+      ],
+      "gate": "All history and SAME_CONTEXT_UNVERIFIED are caller assertions, not authenticated S0/GoTrue/CFI lookup. Cannot infer completeness or transaction durability. G01-G07 not ratified; no Meta/OpenAI/WhatsApp operations"
     }
   ],
   "non_authorizing_positive_states": [
@@ -904,5 +952,20 @@
     "s0_result_authenticated": false,
     "s0_edited": false,
     "operational_authorized": false
+  },
+  "openai_s0_recovery_sequence_A38": {
+    "module": "backend/f02_s0_recovery_sequence_candidate.py",
+    "tests": "backend/tests/test_f02_s0_recovery_sequence_candidate.py",
+    "document": "docs/contracts/OAI_E04_F02_S0_RECOVERY_SEQUENCE_V1.md",
+    "source": "prumo.s0.f02.review.result/0.1-candidate",
+    "reuses": [
+      "inspect_s0_lookup_alignment_candidate"
+    ],
+    "source_authenticated": false,
+    "session_transfer_supported": false,
+    "durable_lookup_supported": false,
+    "automatic_retries": false,
+    "s0_edited": false,
+    "commercial_authority": false
   }
 }

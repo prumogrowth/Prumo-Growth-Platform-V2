@@ -101,6 +101,7 @@ python3 -m unittest backend.tests.test_s0_f03_history_manifest_local \
   backend.tests.test_f02_version_chain_candidate \
   backend.tests.test_f02_version_chain_replay_candidate \
   backend.tests.test_f02_s0_lookup_alignment_candidate \
+  backend.tests.test_f02_s0_recovery_sequence_candidate \
   backend.tests.test_openai_s0_ownership_contract \
   backend.tests.test_prumo_architecture_decision_contract \
   backend.tests.test_f02_acceptance_matrix_contract \
