@@ -19,9 +19,21 @@ def sync_dir(path):
     finally:os.close(fd)
 
 
+def decode(raw):
+    def unique(pairs):
+        value={}
+        for key,item in pairs:
+            if key in value:raise ValueError('duplicate key')
+            value[key]=item
+        return value
+    def constant(value):raise ValueError('nonfinite JSON')
+    try:return json.loads(raw,object_pairs_hook=unique,parse_constant=constant)
+    except (ValueError,UnicodeError):raise b.Blocked('I85_JOURNAL_INVALID') from None
+
+
 def read(path):
     checked(path)
-    try:return json.loads(Path(path).read_bytes())
+    try:return decode(Path(path).read_bytes())
     except (ValueError,UnicodeError):raise b.Blocked('I85_JOURNAL_INVALID') from None
 
 
@@ -33,7 +45,9 @@ def atomic_bytes(path,data):
     try:
         with os.fdopen(fd,'wb') as out:out.write(data);out.flush();os.fsync(out.fileno())
         os.replace(temporary,path);sync_dir(path.parent)
-    finally:temporary.unlink(missing_ok=True)
+    except BaseException:
+        # A failed write is evidence too. Admission blocks until explicit repair.
+        raise
 
 
 def atomic_save(path,value):

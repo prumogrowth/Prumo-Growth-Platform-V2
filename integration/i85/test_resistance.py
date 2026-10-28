@@ -25,11 +25,11 @@ RESULTS=[]
 class Resistance(unittest.TestCase):
     def setUp(self):
         if os.environ.get('PRUMO_I85_DISPOSABLE')!='YES':raise RuntimeError('I85 resistance opt-in required')
-        self.children=[];self.sensitive=[];self.cleanup_proof=None
+        self.children=[];self.sensitive=[];self.cleanup_proof=None;self.observations={}
         self.addCleanup(self.emergency_cleanup)
         self.ops=Operator();self.ops.execute('init');self.ops.execute('prepare',os.environ.get('PRUMO_G1_SOURCE_REPO','work-s1-sources'))
         self.parent=b.load(b.DEFAULT/'state.json');self.op=m.Bootstrap()
-        if not self._testMethodName.startswith('test_00'):self.op.init()
+        if not self._testMethodName.startswith(('test_00','test_052')):self.op.init()
         self.source_catalog=b.load(b.DEFAULT/'catalog.json')
 
     def emergency_cleanup(self):
@@ -142,6 +142,16 @@ class Resistance(unittest.TestCase):
         self.op.reconcile_identity('director')
         with e.database() as c:self.assertEqual(c.execute('select count(*) from auth.users').fetchone()[0],1)
 
+    def test_014_two_direct_python_processes_create_one_identity(self):
+        commands=[]
+        for _ in range(2):
+            child=subprocess.Popen(['python3','-m','integration.i85.fault_driver','create','--label','director'],cwd=b.ROOT,stdout=subprocess.PIPE,stderr=subprocess.PIPE);self.children.append(child);commands.append(child)
+        codes=[]
+        for child in commands:
+            stdout,stderr=child.communicate(timeout=30);reject_material(stdout+stderr,self.sensitive);codes.append(child.returncode)
+        self.assertEqual(sorted(codes),[0,2]);self.op.load()
+        with e.database() as c:self.assertEqual(c.execute('select count(*) from auth.users').fetchone()[0],1)
+
     def test_020_grant_before_intent_has_no_mutation(self):
         self.identity();self.approval();self.kill(self.stopped('grant-director','grant-before-intent'))
         self.assert_authority_count(0);self.op.grant_director();self.assert_authority_count(1)
@@ -227,10 +237,12 @@ class Resistance(unittest.TestCase):
         try:
             refreshed=m._api('POST','/auth/v1/token?grant_type=refresh_token',{'refresh_token':refresh},admin=False,token=e.discover()['ANON_KEY'])
         except b.Blocked:refreshed=None
+        self.observations['refresh']='REFRESHED_BUT_NO_AUTHORITY' if refreshed and refreshed.get('access_token') else 'REJECTED'
         if refreshed and refreshed.get('access_token'):
             self.sensitive.append(refreshed['access_token']);self.assertIn(self.inventory(refreshed['access_token'])[0],(401,403))
         fresh=self.op.token('director');self.sensitive.append(fresh)
         self.assertEqual(self.inventory(fresh)[0],403)
+        self.observations['fresh_password_login']='AUTHENTICATED_ADMIN_DENIED'
         with e.database() as c:
             self.assertEqual(c.execute('select cargo,estado from public.equipe_prumo_s1 where ator_id=%s',(identifier,)).fetchone(),('diretor','ativo'))
         self.op.revoke_director() # explicitly retire sessions created by fresh Auth login
@@ -258,11 +270,12 @@ class Resistance(unittest.TestCase):
             finally:first.rollback()
             other=future.result(timeout=10)
         self.assertIn('40P01',(own,other));self.assert_authority_count(1)
+        self.observations['original_lock_order']='40P01_REPRODUCED_WITH_ROLLBACK'
 
     def test_045_fixed_revocation_drains_real_signed_http_before_withdrawing_authority(self):
         self.start_edge();identifier=self.active();token=self.op.token('director');self.sensitive.append(token)
         with e.database() as blocker,ThreadPoolExecutor(max_workers=1) as pool:
-            blocker.execute('select id from public.atores where id=%s for no key update',(identifier,))
+            blocker.execute('select ator_id from public.equipe_prumo_s1 where ator_id=%s for update',(identifier,))
             pid=blocker.execute('select pg_backend_pid()').fetchone()[0]
             request=pool.submit(self.inventory,token)
             until=time.monotonic()+10
@@ -302,6 +315,23 @@ class Resistance(unittest.TestCase):
         except error.HTTPError as x:r=x
         with r:self.assertEqual(r.status,404)
 
+    def test_052_late_optin_rejects_legacy_worker_and_no_fallback_after_bootstrap(self):
+        self.ops.execute('provision');os.environ.pop('PRUMO_I85_DISPOSABLE')
+        try:self.ops.execute('serve')
+        finally:os.environ['PRUMO_I85_DISPOSABLE']='YES'
+        actual=json.loads(b.docker('inspect','--format','{{json .Config.Env}}',b.EDGE));names={v.split('=',1)[0] for v in actual}
+        self.assertTrue({'SUPABASE_SERVICE_ROLE_KEY','SUPABASE_DB_URL','SUPABASE_INTERNAL_JWT_SECRET'}<=names)
+        with self.assertRaises(b.Blocked):self.op.init()
+        with e.database() as c:self.assertEqual(c.execute('select count(*) from auth.users').fetchone()[0],0)
+        self.ops.execute('worker-stop');self.ops.execute('serve');self.op.init()
+        self.ops.execute('worker-stop');os.environ.pop('PRUMO_I85_DISPOSABLE')
+        try:self.ops.execute('serve')
+        finally:os.environ['PRUMO_I85_DISPOSABLE']='YES'
+        from integration.i85.edge_profile import verify
+        self.assertTrue(verify(b.load(b.DEFAULT/'state.json')))
+        self.observations['legacy_runtime_env']='PRIVILEGED_VARIABLE_NAMES_PRESENT'
+        self.observations['i85_runtime_env']='PRIVILEGED_VARIABLES_ABSENT_NO_FALLBACK'
+
     def test_060_disposal_after_intent_is_resumable(self):
         self.identity();self.kill(self.stopped('dispose','disposal-intent'))
         self.assertTrue(self.op.dispose()['private_material_removed']);self.assertFalse(m.ROOT.exists())
@@ -317,6 +347,8 @@ class Resistance(unittest.TestCase):
     def test_070_corrupt_journal_does_not_delete_live_authority(self):
         self.active();self.op.load();self.op.state['authority']={'phase':'NONE','uuid':None};self.op.save('TEST_DIVERGENCE')
         with self.assertRaises(b.Blocked):self.op.dispose()
+        with self.assertRaises(b.Blocked):self.op.status()
+        with self.assertRaises(b.Blocked):self.op.recover_journal()
         self.assert_authority_count(1)
 
     def test_071_torn_next_requires_retention_not_guessing(self):
@@ -343,6 +375,19 @@ class Resistance(unittest.TestCase):
             if process.poll() is None:process.kill();process.communicate(timeout=10)
         if not hasattr(self,'parent'):return
         try:
+            files=[]
+            if m.ROOT.exists():
+                files.extend(m.ROOT.iterdir())
+                if (m.ROOT/'evidence').exists():files.extend((m.ROOT/'evidence').iterdir())
+            for path in files:
+                if 'secrets.json' in path.name and path.is_file():
+                    storage.checked(path)
+                    import re
+                    self.sensitive.extend(v.decode() for v in re.findall(rb'[A-Za-z0-9_-]{40,128}',path.read_bytes()))
+            if (b.DEFAULT/'edge.env').exists():
+                from urllib.parse import urlsplit
+                values=read_env(b.DEFAULT)
+                self.sensitive.extend([values['PRUMO_I82_HMAC_HEX'],values['PRUMO_I82_DATABASE_URL'],urlsplit(values['PRUMO_I82_DATABASE_URL']).password,m._key()])
             # No fixture-history deletion or disabled triggers: each test's
             # database is discarded in full. First try only safe negative cleanup.
             if m.ROOT.exists():
@@ -373,14 +418,15 @@ class Resistance(unittest.TestCase):
 
 class ProofResult(unittest.TextTestResult):
     def __init__(self,*a,**kw):super().__init__(*a,**kw);self.outcomes=[]
-    def addSuccess(self,test):super().addSuccess(test);self.outcomes.append({'test':test._testMethodName,'status':'PASS'})
+    def addSuccess(self,test):super().addSuccess(test);self.outcomes.append({'test':test._testMethodName,'status':'PASS','observations':test.observations})
     def addFailure(self,test,err):super().addFailure(test,err);self.outcomes.append({'test':test._testMethodName,'status':'FAIL'})
     def addError(self,test,err):super().addError(test,err);self.outcomes.append({'test':test._testMethodName,'status':'FAIL'})
 
 if __name__=='__main__':
     suite=unittest.defaultTestLoader.loadTestsFromTestCase(Resistance)
-    result=unittest.TextTestRunner(verbosity=2,resultclass=ProofResult).run(suite)
-    proof={'version':'prumo.i85.resistance.v1','status':'PASS' if result.wasSuccessful() and not result.skipped else 'FAIL',
-           'tests_run':result.testsRun,'skipped':len(result.skipped),'results':result.outcomes,'cleanup':RESULTS,'faults':'real SIGKILL, real Auth/PG/Edge; wrappers schedule only'}
+    planned=[test._testMethodName for test in suite]
+    result=unittest.TextTestRunner(verbosity=2,resultclass=ProofResult,failfast=True).run(suite)
+    proof={'version':'prumo.i85.resistance.v1','status':'PASS' if result.wasSuccessful() and not result.skipped and result.testsRun==len(planned) else 'FAIL',
+           'planned_tests':len(planned),'not_tested':[name for name in planned if name not in {item['test'] for item in result.outcomes}],'tests_run':result.testsRun,'skipped':len(result.skipped),'results':result.outcomes,'cleanup':RESULTS,'faults':'real SIGKILL, real Auth/PG/Edge; wrappers schedule only'}
     (Path(os.environ.get('RUNNER_TEMP','/tmp'))/'prumo_i85_resistance.json').write_text(json.dumps(proof,indent=2)+'\n')
     raise SystemExit(0 if proof['status']=='PASS' else 1)

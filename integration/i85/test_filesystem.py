@@ -67,4 +67,19 @@ with patch.object(os,'replace',halt):b.save(Path(sys.argv[1]),{'phase':'COMMIT_U
             self.assertFalse(result.stderr)
             self.assertEqual(json.loads(result.stdout)['code'],'CLI_ARGUMENTS_INVALID')
 
+    def test_duplicate_and_nonfinite_journals_refused(self):
+        for raw in (b'{"phase":"NONE","phase":"ACTIVE"}',b'{"version":NaN}',b'{"version":Infinity}'):
+            with self.assertRaises(b.Blocked):storage.decode(raw)
+
+    def test_failed_replace_retains_real_private_staged_bytes(self):
+        from unittest.mock import patch
+        with tempfile.TemporaryDirectory(prefix='prumo-i85-fs-') as folder:
+            p=Path(folder)/'state.json'
+            with patch.object(os,'replace',side_effect=OSError('synthetic filesystem fault')):
+                with self.assertRaises(OSError):storage.atomic_save(p,{'phase':'COMMIT_UNKNOWN'})
+            residual=storage.residues(folder)
+            self.assertEqual(len(residual),1)
+            self.assertEqual(storage.read(residual[0]),{'phase':'COMMIT_UNKNOWN'})
+            self.assertFalse(p.exists())
+
 if __name__=='__main__':unittest.main(verbosity=2)

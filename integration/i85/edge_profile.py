@@ -56,6 +56,26 @@ def reconcile_record(state,checkpoint):
     return cid
 
 
+def required(state):
+    """An I85-born lab cannot fall back to the CLI profile after unset opt-in."""
+    from integration.i85.bootstrap import ROOT
+    from integration.i85 import storage
+    active=(ROOT,ROOT.with_name(ROOT.name+'.disposing'))
+    for directory in active:
+        if not directory.exists():continue
+        storage.checked(directory,True)
+        if (directory/'lab.json').exists():binding=storage.read(directory/'lab.json')
+        elif (directory/'disposal.json').exists():binding=storage.read(directory/'disposal.json')['binding']
+        else:raise b.Blocked('I85_INIT_RECOVERY_REQUIRED')
+        if any(binding[k]!=state[v] for k,v in (('stack_token','token'),('db_id','db_id'),('engine','engine'),('network_id','network_id'))):raise b.Blocked('I85_STACK_MISMATCH')
+        return True
+    directory=ROOT.with_name(ROOT.name+'.disposed')
+    if directory.exists():
+        binding=storage.read(directory/'proof.json')['binding']
+        if all(binding[k]==state[v] for k,v in (('stack_token','token'),('db_id','db_id'),('engine','engine'),('network_id','network_id'))):return True
+    return False
+
+
 def start(state,directory,checkpoint):
     from local_admin import worker
     if b.inspect(b.EDGE):raise b.Blocked('WORKER_ALREADY_PRESENT')

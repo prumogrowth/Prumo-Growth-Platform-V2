@@ -125,6 +125,10 @@ class Bootstrap:
         if state["phase"] not in ("PREPARED", "PROVISIONED", "SERVING", "REVOKED"):
             _blocked("I84_STATE_UNSAFE_FOR_BOOTSTRAP")
         e.owned(state)
+        if b.inspect(b.EDGE):
+            if (state.get('worker') or {}).get('profile')!='I85_RESTRICTED':_blocked('I85_RESTRICTED_RUNTIME_REQUIRED')
+            from integration.i85.edge_profile import verify
+            verify(state)
         physical=self.binding(state)
         if self._bound is not None and self._bound!=physical:_blocked('I85_STACK_MISMATCH')
         if self.state:
@@ -149,7 +153,8 @@ class Bootstrap:
     @staticmethod
     def validate_state(value):
         try:
-            if value['version']!=2 or not isinstance(value['identities'],dict):raise ValueError
+            if set(value)!={'version','stack_token','db_id','engine','network_id','identities','approval','approval_pending','authority'}:raise ValueError
+            if type(value['version']) is not int or value['version']!=2 or not isinstance(value['identities'],dict):raise ValueError
             for k in ('stack_token','db_id','engine','network_id'):
                 if not isinstance(value[k],str) or not value[k]:raise ValueError
             if type(value['approval_pending']) is not bool:raise ValueError
@@ -192,8 +197,7 @@ class Bootstrap:
                 if value['label'] is not None and value['label'] not in LABELS:raise ValueError
         except (ValueError,TypeError):_blocked('I85_AUDIT_INVALID')
 
-    @serialized
-    def status(self):
+    def _checked_status(self):
         phase=self.state['authority']['phase']
         if phase=='ACTIVE':self._confirm_grant(self.state['authority']['uuid'])
         elif phase=='REVOKED':
@@ -203,6 +207,9 @@ class Bootstrap:
             with e.database() as conn:
                 if conn.execute('select count(*) from prumo_private.s1_responsaveis_plataforma').fetchone()[0]:_blocked('I85_CANONICAL_AUTHORITY_DIVERGENCE')
         return self._status()
+
+    @serialized
+    def status(self):return self._checked_status()
 
     @serialized
     def init(self):
@@ -480,8 +487,8 @@ class Bootstrap:
             if b.digest(raw)!=item['sha256']:_blocked('I85_RECOVERY_EVIDENCE_CHANGED')
             images[name]=raw
         def decode(raw):
-            try:return json.loads(raw)
-            except (ValueError,UnicodeError):_blocked('I85_TORN_JOURNAL_REQUIRES_LAB_DISCARD')
+            try:return storage.decode(raw)
+            except b.Blocked:_blocked('I85_TORN_JOURNAL_REQUIRES_LAB_DISCARD')
         state=decode(images['state.json']) if 'state.json' in images else None
         if state is None:
             # Interrupted init has no Auth/authority operation before completion.
@@ -538,7 +545,7 @@ class Bootstrap:
         storage.atomic_bytes(self.dir/'audit.log',complete)
         self.state=state
         _record(self.dir,'JOURNAL_RECOVERY_RECORDED',phase=state['authority']['phase'])
-        self.validate_audit();self.owned()
+        self.validate_audit();self.owned();self._checked_status()
         destination=self.dir/'evidence'/(uuid4().hex+'-recovery-complete.json')
         os.replace(marker,destination);storage.sync_dir(self.dir);storage.sync_dir(destination.parent)
         return self._status()

@@ -81,7 +81,8 @@ def stop(state,directory,checkpoint):
 
 
 def start(state,directory,checkpoint):
-    if os.environ.get('PRUMO_I85_DISPOSABLE')=='YES':
+    from integration.i85.edge_profile import required as i85_required
+    if os.environ.get('PRUMO_I85_DISPOSABLE')=='YES' or i85_required(state):
         from integration.i85.edge_profile import start as restricted_start
         return restricted_start(state,directory,checkpoint)
     if inspect(EDGE):raise Blocked('WORKER_ALREADY_PRESENT')

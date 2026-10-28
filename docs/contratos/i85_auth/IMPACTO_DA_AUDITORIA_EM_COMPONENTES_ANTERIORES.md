@@ -32,3 +32,15 @@ O perfil restrito é adaptação de infraestrutura descartável para corrigir um
 exposição anterior; não é runtime hospedado, nova autenticação ou I86. Seu aceite
 exige Edge/GoTrue/PG17/PostgREST reais, ausência física das credenciais e todas
 as regressões pertinentes. Se não passar, fechamento I85 permanece bloqueado.
+
+
+A revisão posterior fecha também opt-in tardio/downgrade: bootstrap recusa um
+worker legado já vivo; nascimento/tombstone do mesmo laboratório obrigam perfil
+restrito mesmo após remoção do opt-in. Laboratório I84 independente, sem esses
+marcadores e sem opt-in, mantém seu comportamento de regressão. A dependência do
+hook deve viajar com os arquivos I85; não copiar isoladamente worker.py.
+
+A primeira CI de auditoria 40675928138 aprovou cinco jobs e 26/27 casos da suíte
+de resistência. A falha restante era a instrumentação: bloqueava atores enquanto
+INVENTORY bloqueia equipe. Corrigiu-se o alvo, sem retirar exigência de espera,
+drenagem, ordem ou revogação. Nenhum resultado parcial é certificação final.

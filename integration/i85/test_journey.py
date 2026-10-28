@@ -31,9 +31,7 @@ class Journey(unittest.TestCase):
             raise AssertionError("I85_CLI_DIAGNOSTICS_WITHHELD")
         result = json.loads(p.stdout)
         sensitive = list(self.operator.secrets().values()) if self.operator.state and self.operator.secret_file.exists() else []
-        for value in sensitive:
-            if value.encode() in p.stdout + p.stderr:
-                raise AssertionError("I85_SECRET_ECHO_WITHHELD")
+        reject_material(p.stdout+p.stderr,sensitive+self.technical)
         return result
 
     def http(self, family, payload, token):
