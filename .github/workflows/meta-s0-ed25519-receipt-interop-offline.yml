@@ -17,13 +17,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Independent Python vector and Ed25519 lab receipt adversarial tests (32)
+      - name: Independent Python vector and Ed25519 lab receipt adversarial tests (36)
         shell: bash
         run: |
           set -euo pipefail
           node --experimental-strip-types --test --test-concurrency=1 integrations/whatsapp-meta/cloud-s0-ed25519-receipt-interop.test.ts 2>&1 | tee "$RUNNER_TEMP/meta-s0-receipt-new.tap"
-          grep -qx '# tests 32' "$RUNNER_TEMP/meta-s0-receipt-new.tap"
-          grep -qx '# pass 32' "$RUNNER_TEMP/meta-s0-receipt-new.tap"
+          grep -qx '# tests 36' "$RUNNER_TEMP/meta-s0-receipt-new.tap"
+          grep -qx '# pass 36' "$RUNNER_TEMP/meta-s0-receipt-new.tap"
           grep -qx '# fail 0' "$RUNNER_TEMP/meta-s0-receipt-new.tap"
       - name: Existing Meta and S0 interface focused regressions (369)
         shell: bash
