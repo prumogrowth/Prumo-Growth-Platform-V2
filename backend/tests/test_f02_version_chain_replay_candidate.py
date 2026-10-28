@@ -156,7 +156,9 @@ class VersionChainReplayTests(unittest.TestCase):
                       Status.PRIOR_OBSERVATIONS_RECHECK_REQUIRED)
 
     def test_21_empty_version_chain_still_deterministic(self):
-        n=two_cycles()
+        # A33 fixture has no version_updates parameter; add it explicitly
+        # before the separate prior_observations argument in A36.
+        n=two_cycles()+((),)
         candidate=evaluate(n)
         self.assertIs(candidate.status,Status.NEW_CHAIN_CANDIDATE_ONLY)
         self.assertEqual(candidate.candidate_observation.event_digests,())
