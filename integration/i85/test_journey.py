@@ -224,6 +224,13 @@ class Journey(unittest.TestCase):
         with e.database() as c:
             after = snapshot(c)
         expected = b.load(b.DEFAULT / "catalog.json")
+        # I84 snapshot was taken PREPARED (I83 NOLOGIN); this journey is
+        # still SERVING (the same restricted I83 LOGIN lease is valid).
+        # Normalize ONLY that bit, as Operator.verify already does.
+        edge = [r for r in after["roles"] if r["rolname"] == "prumo_s1_admin_edge_local"]
+        self.assertEqual(len(edge), 1)
+        self.assertTrue(edge[0]["rolcanlogin"])
+        edge[0]["rolcanlogin"] = False
         self.assertEqual(after, expected)
         self.evidence("12_owners_grants_rls_triggers_constraints_unchanged")
 
