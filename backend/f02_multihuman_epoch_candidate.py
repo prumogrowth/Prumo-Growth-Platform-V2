@@ -25,6 +25,8 @@ from backend.f02_multiroute_s2_validation_candidate import (
 )
 
 VERSION_KEYS = ("case", "cycle", "form", "catalog", "assignment")
+# Laboratory resource cap, not a ratified S0/business contact limit.
+MAX_UPDATES_PER_EPISODE = 16
 
 
 class EpochStatus(str, Enum):
@@ -35,6 +37,7 @@ class EpochStatus(str, Enum):
     VERSION_RECHECK_REQUIRED = "VERSION_RECHECK_REQUIRED"
     VERSION_REGRESSION_RECHECK_REQUIRED = "VERSION_REGRESSION_RECHECK_REQUIRED"
     VERSION_UPDATE_RECHECK_REQUIRED = "VERSION_UPDATE_RECHECK_REQUIRED"
+    VERSION_UPDATE_CHAIN_LIMIT_RECHECK_REQUIRED = "VERSION_UPDATE_CHAIN_LIMIT_RECHECK_REQUIRED"
 
 
 @dataclass(frozen=True, slots=True)
@@ -165,12 +168,13 @@ def check_multi_human_epoch_candidate(
     version_events = [ev for ev in events
                       if ev.kind is RouteKind.S0_VERSION_UPDATE_CLAIM]
     update_by_event = {x.event_id: x for x in version_updates}
-    # One-to-one source marker and claim; duplicate claims cannot be ignored.
+    # Exact ledger order is part of the candidate contract. A set equality
+    # alone would accept replayed/out-of-order claims with correct IDs.
     if (len(update_by_event) != len(version_updates)
         or len(version_events) != len(version_updates)
-        or {ev.event_id for ev in version_events} != set(update_by_event)):
+        or tuple(x.event_id for x in version_updates) !=
+           tuple(ev.event_id for ev in version_events)):
         return out(EpochStatus.VERSION_UPDATE_RECHECK_REQUIRED)
-    versions_by_event = {ev.event_id: ev for ev in version_events}
     source_indices = {ev.event_id: index for index,ev in enumerate(events)}
     claimed_updates: set[UUID] = set()
     previous_versions: tuple[int, ...] | None = None
@@ -187,14 +191,13 @@ def check_multi_human_epoch_candidate(
         applicable = [record for record in version_events
                       if source_indices[f03.event_id] < source_indices[record.event_id]
                       < source_indices[post.event_id]]
-        if len(applicable) > 1:
-            return out(EpochStatus.VERSION_UPDATE_RECHECK_REQUIRED)
+        if len(applicable) > MAX_UPDATES_PER_EPISODE:
+            return out(EpochStatus.VERSION_UPDATE_CHAIN_LIMIT_RECHECK_REQUIRED)
         post_versions = claim.versions
-        if applicable:
-            marker = applicable[0]
+        for marker in applicable:
             update = update_by_event[marker.event_id]
-            # Requiring the same event, closure and tenant binds the claim to
-            # this episode, not merely to the IDs in a caller-supplied hash.
+            # Every hop binds the same tenant/case and the same human closure,
+            # F03 proposal and F02 request; 'S0_' remains a *claim*, not proof.
             if (update.source_state != UNVERIFIED_VERSION_SOURCE
                 or update.shop_id != scope.shop_id
                 or update.lead_id != scope.lead_id
@@ -203,10 +206,11 @@ def check_multi_human_epoch_candidate(
                 or marker.closure_id != claim.closure_id
                 or update.f03_event_id != f03.event_id
                 or update.f02_event_id != post.event_id
-                or update.from_versions != claim.versions):
+                or update.from_versions != post_versions):
                 return out(EpochStatus.VERSION_UPDATE_RECHECK_REQUIRED)
+            # Distinct, monotonic hop; S0 still owns the real version source.
             if (update.from_versions == update.to_versions
-                or any(before > after for before,after in zip(
+                or any(before > after for before, after in zip(
                     update.from_versions,update.to_versions))):
                 return out(EpochStatus.VERSION_REGRESSION_RECHECK_REQUIRED)
             post_versions = update.to_versions

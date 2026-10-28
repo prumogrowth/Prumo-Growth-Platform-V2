@@ -520,6 +520,48 @@
         "backend/tests/test_f02_intraepoch_version_candidate.py::test_32_missing_first_epoch_claim_still_rejected"
       ],
       "gate": "S0_VERSION_UPDATE_CLAIM is E04 synthetic only, not S0 server event or authoritative mutation. Ratified version transition source/read/expiry, transaction and permission gates remain blocked; G01-G07 not cleared"
+    },
+    {
+      "id": "F02-A35",
+      "area": "OpenAI F01/F02/F03 chained version changes",
+      "behavior": "Support bounded, fully ordered chains of 1–16 claimed S0 revisions between F03 and post-human F02; every hop must exactly match previous output; bind each marker/claim to tenant/lead/case/closure/F03/F02, reject missing/replayed/reordered/cross-epoch/regressive/no-op updates; preserve original pinned S2 validation, no S0 authentication or commercial authority",
+      "status": "LAB_VERIFIED",
+      "tests": [
+        "backend/tests/test_f02_version_chain_candidate.py::test_01_two_ordered_changes_work_without_S0_attestation",
+        "backend/tests/test_f02_version_chain_candidate.py::test_02_three_ordered_changes_keep_original_F03_snapshot",
+        "backend/tests/test_f02_version_chain_candidate.py::test_03_A34_single_hop_still_works",
+        "backend/tests/test_f02_version_chain_candidate.py::test_04_original_without_revision_unchanged",
+        "backend/tests/test_f02_version_chain_candidate.py::test_05_claims_swapped_with_same_ids_are_not_accepted",
+        "backend/tests/test_f02_version_chain_candidate.py::test_06_middle_hop_source_does_not_match_previous_target",
+        "backend/tests/test_f02_version_chain_candidate.py::test_07_first_hop_does_not_start_from_F03_snapshot",
+        "backend/tests/test_f02_version_chain_candidate.py::test_08_final_F02_snapshot_must_equal_last_hop_target",
+        "backend/tests/test_f02_version_chain_candidate.py::test_09_missing_first_claim_denied",
+        "backend/tests/test_f02_version_chain_candidate.py::test_10_missing_second_claim_denied",
+        "backend/tests/test_f02_version_chain_candidate.py::test_11_duplicate_claim_id_denied",
+        "backend/tests/test_f02_version_chain_candidate.py::test_12_duplicate_ledger_event_denied",
+        "backend/tests/test_f02_version_chain_candidate.py::test_13_wrong_tenant_in_middle_update_denied",
+        "backend/tests/test_f02_version_chain_candidate.py::test_14_wrong_lead_in_middle_update_denied",
+        "backend/tests/test_f02_version_chain_candidate.py::test_15_wrong_case_in_middle_update_denied",
+        "backend/tests/test_f02_version_chain_candidate.py::test_16_wrong_human_closure_in_middle_update_denied",
+        "backend/tests/test_f02_version_chain_candidate.py::test_17_wrong_F03_visit_in_middle_update_denied",
+        "backend/tests/test_f02_version_chain_candidate.py::test_18_wrong_F02_visit_in_middle_update_denied",
+        "backend/tests/test_f02_version_chain_candidate.py::test_19_unverified_source_cannot_self_attest",
+        "backend/tests/test_f02_version_chain_candidate.py::test_20_no_op_middle_hop_denied",
+        "backend/tests/test_f02_version_chain_candidate.py::test_21_regressive_middle_hop_denied",
+        "backend/tests/test_f02_version_chain_candidate.py::test_22_wrong_ledger_event_order_denied",
+        "backend/tests/test_f02_version_chain_candidate.py::test_23_earlier_ledger_timestamp_denied",
+        "backend/tests/test_f02_version_chain_candidate.py::test_24_last_F02_without_update_chain_denied",
+        "backend/tests/test_f02_version_chain_candidate.py::test_25_revision_marker_cannot_be_after_F02",
+        "backend/tests/test_f02_version_chain_candidate.py::test_26_change_between_two_separate_human_closures",
+        "backend/tests/test_f02_version_chain_candidate.py::test_27_cross_human_epoch_regression_denied",
+        "backend/tests/test_f02_version_chain_candidate.py::test_28_valid_16_hop_lab_cap",
+        "backend/tests/test_f02_version_chain_candidate.py::test_29_excessive_17_hop_lab_cap_denied",
+        "backend/tests/test_f02_version_chain_candidate.py::test_30_wrong_F02_S2_version_recheck",
+        "backend/tests/test_f02_version_chain_candidate.py::test_31_F03_withdrawal_advisory_holds_even_with_updates",
+        "backend/tests/test_f02_version_chain_candidate.py::test_32_missing_source_JS_checkout_holds",
+        "backend/tests/test_f02_version_chain_candidate.py::test_33_no_operational_authorization_in_result"
+      ],
+      "gate": "Chain is an untrusted E04 description, not a transaction log, signature, database mutation, Meta eligibility or authenticated S0 version source; 16-hop cap is a lab safety bound; G01–G07 remain non-homologated"
     }
   ],
   "non_authorizing_positive_states": [
@@ -748,5 +790,15 @@
     "s0_edited": false,
     "s0_source_verified": false,
     "commercial_authorized": false
+  },
+  "openai_version_update_chain_A35": {
+    "module": "backend/f02_multihuman_epoch_candidate.py",
+    "tests": "backend/tests/test_f02_version_chain_candidate.py",
+    "document": "docs/contracts/OAI_E04_F01_F02_F03_VERSION_UPDATE_CHAIN_V1.md",
+    "claim_source": "E04_UNVERIFIED_S0_VERSION_CLAIM_ONLY",
+    "max_updates_per_episode_lab": 16,
+    "source_attested": false,
+    "s0_edited": false,
+    "production_authorized": false
   }
 }
