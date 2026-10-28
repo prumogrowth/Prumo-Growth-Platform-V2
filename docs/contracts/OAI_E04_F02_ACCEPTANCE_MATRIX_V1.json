@@ -601,6 +601,50 @@
         "backend/tests/test_f02_version_chain_replay_candidate.py::test_30_revised_request_with_same_idempotency_key_never_authorized"
       ],
       "gate": "Prior observations supplied by caller, not S0 durable history. Digest SHA256 has no signature, no authenticity, no replay lock or transactional race protection. NEVER dispatch or approve. G01–G07 unresolved; experiment only"
+    },
+    {
+      "id": "F02-A37",
+      "area": "OpenAI F02 read-only S0 candidate lookup contract",
+      "behavior": "Correlate latest F02 replay-observation scope with untrusted S0 0.1-candidate review-result projection while explicitly preserving separate F02 candidate digest vs S0 internal request hash; enforce all 13 states, pinned false authority flags, nullable negative fields, monotonic revision/clock/terminal states and exact F02 scope; no transport or authentication",
+      "status": "LAB_VERIFIED",
+      "tests": [
+        "backend/tests/test_f02_s0_lookup_alignment_candidate.py::test_01_current_S0_shape_is_only_review_candidate",
+        "backend/tests/test_f02_s0_lookup_alignment_candidate.py::test_02_distinct_F02_and_S0_hashes_must_not_be_equated",
+        "backend/tests/test_f02_s0_lookup_alignment_candidate.py::test_03_recorded_state_only_review",
+        "backend/tests/test_f02_s0_lookup_alignment_candidate.py::test_04_replayed_state_only_review",
+        "backend/tests/test_f02_s0_lookup_alignment_candidate.py::test_05_withdrawn_state_stays_terminal",
+        "backend/tests/test_f02_s0_lookup_alignment_candidate.py::test_06_expired_state_stays_terminal",
+        "backend/tests/test_f02_s0_lookup_alignment_candidate.py::test_07_all_eight_negative_states_hold",
+        "backend/tests/test_f02_s0_lookup_alignment_candidate.py::test_08_negative_result_with_fake_review_ref_denied",
+        "backend/tests/test_f02_s0_lookup_alignment_candidate.py::test_09_s0_never_sets_send_flag_true",
+        "backend/tests/test_f02_s0_lookup_alignment_candidate.py::test_10_unexpected_S0_property_denied",
+        "backend/tests/test_f02_s0_lookup_alignment_candidate.py::test_11_unratified_S0_schema_drift_denied",
+        "backend/tests/test_f02_s0_lookup_alignment_candidate.py::test_12_wrong_S0_request_digest_denied",
+        "backend/tests/test_f02_s0_lookup_alignment_candidate.py::test_13_provided_previous_revision_advances",
+        "backend/tests/test_f02_s0_lookup_alignment_candidate.py::test_14_previous_revision_cannot_regress",
+        "backend/tests/test_f02_s0_lookup_alignment_candidate.py::test_15_observation_clock_cannot_regress",
+        "backend/tests/test_f02_s0_lookup_alignment_candidate.py::test_16_withdrawn_cannot_be_reactivated",
+        "backend/tests/test_f02_s0_lookup_alignment_candidate.py::test_17_previous_persisted_cannot_disappear_into_unavailable",
+        "backend/tests/test_f02_s0_lookup_alignment_candidate.py::test_18_previous_result_different_review_ref_denied",
+        "backend/tests/test_f02_s0_lookup_alignment_candidate.py::test_19_previous_result_wrong_request_digest_denied",
+        "backend/tests/test_f02_s0_lookup_alignment_candidate.py::test_20_claimed_cross_shop_denied",
+        "backend/tests/test_f02_s0_lookup_alignment_candidate.py::test_21_claimed_cross_lead_denied",
+        "backend/tests/test_f02_s0_lookup_alignment_candidate.py::test_22_claimed_cross_case_denied",
+        "backend/tests/test_f02_s0_lookup_alignment_candidate.py::test_23_claimed_cross_closure_denied",
+        "backend/tests/test_f02_s0_lookup_alignment_candidate.py::test_24_claimed_cross_channel_denied",
+        "backend/tests/test_f02_s0_lookup_alignment_candidate.py::test_25_claimed_key_reuse_denied",
+        "backend/tests/test_f02_s0_lookup_alignment_candidate.py::test_26_claimed_cross_route_denied",
+        "backend/tests/test_f02_s0_lookup_alignment_candidate.py::test_27_claimed_fake_source_grant_denied",
+        "backend/tests/test_f02_s0_lookup_alignment_candidate.py::test_28_expired_observation_is_not_reviewable",
+        "backend/tests/test_f02_s0_lookup_alignment_candidate.py::test_29_newly_forged_approval_state_denied",
+        "backend/tests/test_f02_s0_lookup_alignment_candidate.py::test_30_bad_request_sha_input_denied",
+        "backend/tests/test_f02_s0_lookup_alignment_candidate.py::test_31_offset_equivalent_previous_expiry_is_same_instant",
+        "backend/tests/test_f02_s0_lookup_alignment_candidate.py::test_32_f02_projector_schema_still_matches_pinned_document",
+        "backend/tests/test_f02_s0_lookup_alignment_candidate.py::test_33_no_authority_fields_in_result",
+        "backend/tests/test_f02_s0_lookup_alignment_candidate.py::test_34_history_absent_is_not_proof_of_authentic_lookup",
+        "backend/tests/test_f02_s0_lookup_alignment_candidate.py::test_35_terminal_remains_terminal_even_after_expiry"
+      ],
+      "gate": "S0 result schema remains unratified and lacks physical CFI scope; caller-supplied binding and expected S0 digest cannot prove issuer or durable lookup. G01/G02/G03/G07 stay blocked; no authority or live IO"
     }
   ],
   "non_authorizing_positive_states": [
@@ -849,5 +893,16 @@
     "prior_history_persisted": false,
     "s0_modified": false,
     "commercial_authority": false
+  },
+  "openai_s0_read_only_lookup_A37": {
+    "module": "backend/f02_s0_lookup_alignment_candidate.py",
+    "tests": "backend/tests/test_f02_s0_lookup_alignment_candidate.py",
+    "document": "docs/contracts/OAI_E04_F02_S0_READ_ONLY_LOOKUP_ALIGNMENT_V1.md",
+    "port_candidate": "docs/contracts/OAI_E04_F02_S0_READ_ONLY_LOOKUP_PORT_CANDIDATE_V1.json",
+    "pinned_s0_result": "docs/contracts/upstream/OAI_S0_F02_REVIEW_RESULT_SCHEMA_0_1_PINNED.json",
+    "physical_lookup_implemented": false,
+    "s0_result_authenticated": false,
+    "s0_edited": false,
+    "operational_authorized": false
   }
 }

@@ -1,0 +1,65 @@
+{
+  "schema": "prumo.f02.s0.read_only_lookup_port/0.1-lab-candidate",
+  "as_of": "2026-10-28",
+  "owner_f02": "OpenAI F01/F02/F03",
+  "source_owner": "S0",
+  "status": "DESIGN_ONLY_NOT_RATIFIED",
+  "scope": "READ_ONLY_PROJECTION_CHECK_NOT_AUTHENTICATION",
+  "pinned_result_schema": "prumo.s0.f02.review.result/0.1-candidate",
+  "pinned_result_path": "docs/contracts/upstream/OAI_S0_F02_REVIEW_RESULT_SCHEMA_0_1_PINNED.json",
+  "f02_replay_schema": "prumo.openai.f02.version_chain_replay/0.1-lab",
+  "f02_candidate_sha_meaning": "DETERMINISTIC_UNTRUSTED_ROUTE_SNAPSHOT",
+  "s0_request_sha_meaning": "S0_INTERNAL_REVIEW_REQUEST_SHA256_DISTINCT_FROM_F02",
+  "warning": "Neither SHA establishes issuer identity; binding/expected S0 SHA are caller-supplied.",
+  "desired_s0_future_response_context": {
+    "binding": "server-owned CFI principal/session/tenant/case/channel capture; not a new F02 session token",
+    "lookup": "durable server-side reconstruction and authorized read with GoTrue/CFI and original request identity",
+    "request_hash": "S0-authored canonical document with window, reviewed via a verifiable source",
+    "provenance": "source reference/contract/version and authenticated transport with audit",
+    "concurrency": "durable CAS/uniqueness/retry/revocation checks; never assumed from A36",
+    "identity": "manager principal and capture principal must be independent; no delegation inferred"
+  },
+  "existing_result_has_scope_fields": false,
+  "existing_result_allowed_states": [
+    "RECORDED_REVIEW_ONLY",
+    "REPLAY_REVIEW_ONLY",
+    "CURRENT_REVIEW_ONLY",
+    "WITHDRAWN_REVIEW_ONLY",
+    "EXPIRED_REVIEW_ONLY",
+    "INPUT_REJECTED",
+    "DENIED",
+    "STALE",
+    "IDEMPOTENCY_CONFLICT",
+    "REQUEST_EXPIRED",
+    "REVIEW_REQUEST_NOT_FOUND",
+    "CLOCK_RECHECK_REQUIRED",
+    "UNAVAILABLE"
+  ],
+  "authorization_flags_always_false": [
+    "send_authorized",
+    "scheduling_authorized",
+    "commercial_transition_authorized"
+  ],
+  "blocked_gates": [
+    "G01_S0_SCHEMA_RATIFICATION",
+    "G02_AUTHENTICATED_TRANSPORT_AND_LOOKUP",
+    "G03_F03_C08_ORIGIN_PROVENANCE",
+    "G04_S1_DISTINCT_MANAGER_RATIFICATION",
+    "G05_META_OPTOUT_TEMPLATE_DISPOSITION",
+    "G06_APPROVED_TIME_RETENTION_POLICY",
+    "G07_F01_F03_F02_INTEGRATED_PATH"
+  ],
+  "forbidden": [
+    "NETWORK_LOOKUP",
+    "S0_DB_READ",
+    "S0_DB_WRITE",
+    "CHANGE_S0_SCHEMA",
+    "MIGRATE",
+    "MERGE",
+    "DEPLOY",
+    "SEND",
+    "SCHEDULE",
+    "APPROVE"
+  ],
+  "simulation_only": true
+}
