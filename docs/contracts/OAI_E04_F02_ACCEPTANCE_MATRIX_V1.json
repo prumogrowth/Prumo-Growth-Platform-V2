@@ -416,6 +416,35 @@
         "backend/tests/test_f02_multiroute_proof_gate_candidate.py::test_24_F03_must_follow_latest_close"
       ],
       "gate": "All source evidence is untrusted. S2 full F01/F03 JS validators and actual S0 authenticated physical route are NOT integrated by this checkpoint; G01–G07 remain unresolved"
+    },
+    {
+      "id": "F02-A32",
+      "area": "OpenAI F01/F02/F03 ↔ S2 pinned JavaScript",
+      "behavior": "Execute original pinned S2 F01/F02/F03 JS validators from Python multi-route + F02 proof bridge through Node subprocess and require every stage PROPOSED, exact ordered visits/closure/shop/case/template linkage, with no operational authority; valid F03 withdrawal/loss advisory also remains human-review-only",
+      "status": "LAB_VERIFIED",
+      "tests": [
+        "backend/tests/test_f02_multiroute_s2_validation_candidate.py::test_01_full_non_linear_uses_actual_S2_validators",
+        "backend/tests/test_f02_multiroute_s2_validation_candidate.py::test_02_simple_F01_human_F03_F02_still_works",
+        "backend/tests/test_f02_multiroute_s2_validation_candidate.py::test_03_stale_case_version_F01_rejected_by_S2",
+        "backend/tests/test_f02_multiroute_s2_validation_candidate.py::test_06_F01_stale_resume_detected_on_second_visit",
+        "backend/tests/test_f02_multiroute_s2_validation_candidate.py::test_07_F03_unauthenticated_close_rejected_by_S2",
+        "backend/tests/test_f02_multiroute_s2_validation_candidate.py::test_08_F03_cross_person_evidence_rejected_by_S2",
+        "backend/tests/test_f02_multiroute_s2_validation_candidate.py::test_09_F03_unavailable_essential_field_requires_review",
+        "backend/tests/test_f02_multiroute_s2_validation_candidate.py::test_10_F03_post_cutoff_source_rejected_by_S2",
+        "backend/tests/test_f02_multiroute_s2_validation_candidate.py::test_11_F03_wrong_closure_blocked_before_Node",
+        "backend/tests/test_f02_multiroute_s2_validation_candidate.py::test_12_F02_prehuman_owner_must_be_seller_ai",
+        "backend/tests/test_f02_multiroute_s2_validation_candidate.py::test_13_F02_posthuman_owner_must_be_human",
+        "backend/tests/test_f02_multiroute_s2_validation_candidate.py::test_14_posthuman_F02_template_not_in_S2_allowlist_rejected",
+        "backend/tests/test_f02_multiroute_s2_validation_candidate.py::test_15_posthuman_S2_template_must_match_F02_review_proposal",
+        "backend/tests/test_f02_multiroute_s2_validation_candidate.py::test_16_missing_visit_refused",
+        "backend/tests/test_f02_multiroute_s2_validation_candidate.py::test_18_swapped_visit_refused",
+        "backend/tests/test_f02_multiroute_s2_validation_candidate.py::test_21_missing_pinned_S2_runtime_fails_closed",
+        "backend/tests/test_f02_multiroute_s2_validation_candidate.py::test_22_fake_F02_source_hash_fails_before_Node",
+        "backend/tests/test_f02_multiroute_s2_validation_candidate.py::test_23_posthuman_customer_reply_cannot_trigger_this_F02_gate",
+        "backend/tests/test_f02_multiroute_s2_validation_candidate.py::test_25_S2_pin_and_workflow_checkout_are_fixed",
+        "backend/tests/test_f02_multiroute_s2_validation_candidate.py::test_27_valid_F03_withdrawal_advisory_does_not_trigger_F02"
+      ],
+      "gate": "All source S0 flags and tokens are synthetic; Node calls original pinned S2 source but no actual S0 authorization, F03 receipt, OpenAI API, Meta or commercial execution. G01–G07 remain open"
     }
   ],
   "non_authorizing_positive_states": [
@@ -606,6 +635,16 @@
     ],
     "f01_f03_node_replayed": false,
     "s0_physical_authenticated": false,
+    "commercial_authorized": false
+  },
+  "openai_s2_multiroute_js_bridge": {
+    "module": "backend/f02_multiroute_s2_validation_candidate.py",
+    "cli": "backend/tests/s2_pinned_route_validator.mjs",
+    "tests": "backend/tests/test_f02_multiroute_s2_validation_candidate.py",
+    "document": "docs/contracts/OAI_E04_F02_MULTIRROTA_S2_BRIDGE_V1.md",
+    "s2_sha": "ebf6fe4e546f2fe990bdaefe2df25aa0cf18e74c",
+    "real_node_invocation": true,
+    "s0_authenticated": false,
     "commercial_authorized": false
   }
 }
