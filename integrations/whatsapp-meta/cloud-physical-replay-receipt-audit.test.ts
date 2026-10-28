@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import {createHmac} from 'node:crypto';
 import {
  compareSignedMetaPhysicalDeliveries as compare,
- reviewAllegedS0ReceiptWithoutAck as review,
+ reviewAllegedS0ReceiptWithoutAck as reviewRaw,
 } from './cloud-physical-replay-receipt-audit.ts';
 import {inspectSignedMetaBatchChannelScope as preflight}
  from './cloud-batch-scope-preflight.ts';
@@ -65,6 +65,12 @@ const request=(payload:unknown=body())=>{
  return {raw_body:b,signature_header:signature(b),
   route:{route_ref:'ROUTE_A',expected_revision:7}};
 };
+const trustedRoute={route_ref:'ROUTE_A',expected_revision:7};
+const review=(
+ signed:Parameters<typeof reviewRaw>[0],
+ candidate:Parameters<typeof reviewRaw>[1],
+ alleged:unknown,
+)=>reviewRaw(signed,candidate,alleged,trustedRoute);
 const receipt=(c:object)=> {
  const v=c as Record<string,unknown>;
  return {
@@ -294,4 +300,27 @@ test('RECEIPT-26 status and message counts must align exactly',async()=>{
   i===1?{...e,event_kind:'inbound_message'}:e)};
  const r=review(signed,wrong,receipt(wrong));
  noRights(r);assert.equal(r.reason,'CANDIDATE_SCOPE_MISMATCH');
+});
+
+test('RECEIPT-27 wrong candidate route is rejected even if receipt echoes it',async()=>{
+ const {signed,c}=await triple();
+ const changed={...c,route_ref:'ROUTE_FORGED'};
+ const r=review(signed,changed,receipt(changed));
+ noRights(r);assert.equal(r.decision,'DENIED');
+ assert.equal(r.reason,'CANDIDATE_SCOPE_MISMATCH');
+});
+test('RECEIPT-28 stale candidate route revision is rejected before receipt',async()=>{
+ const {signed,c}=await triple();
+ const changed={...c,route_revision:6};
+ const r=review(signed,changed,receipt(changed));
+ noRights(r);assert.equal(r.decision,'DENIED');
+ assert.equal(r.reason,'CANDIDATE_SCOPE_MISMATCH');
+});
+test('RECEIPT-29 claimed route missing from trusted host input is rejected',async()=>{
+ const {signed,c}=await triple();
+ const r=reviewRaw(signed,c,receipt(c),{
+  route_ref:'ROUTE_B',expected_revision:7,
+ });
+ noRights(r);assert.equal(r.decision,'DENIED');
+ assert.equal(r.reason,'CANDIDATE_SCOPE_MISMATCH');
 });
