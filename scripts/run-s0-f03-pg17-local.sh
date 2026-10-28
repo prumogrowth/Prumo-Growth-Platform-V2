@@ -16,6 +16,19 @@ assert not any(os.environ.get(name) for name in (
 PY
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
+# The new multi-route bridge imports original, PINNED S2 E04 JS (not a stub).
+# This runner is deliberately fail-closed if its exact checkout is absent.
+S2_PIN="ebf6fe4e546f2fe990bdaefe2df25aa0cf18e74c"
+S2_SRC="$ROOT/.s2-e04-source/docs/integracoes/openai/e04_offline_lab/core.mjs"
+if [[ ! -f "$S2_SRC" ]]; then
+  echo "PINNED_S2_CORE_CHECKOUT_REQUIRED" >&2
+  exit 1
+fi
+S2_HEAD="$(git -C "$ROOT/.s2-e04-source" rev-parse HEAD)"
+if [[ "$S2_HEAD" != "$S2_PIN" ]]; then
+  echo "PINNED_S2_SHA_MISMATCH" >&2
+  exit 1
+fi
 # The preexisting runner bootstraps the disposable DB and exercises the physical
 # S0/S1 closure contract, including GoTrue mock and S0 HMAC/nonce/PG guards.
 bash scripts/run-s0-cfi01-pg17-local.sh
