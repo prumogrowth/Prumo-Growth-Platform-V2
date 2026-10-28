@@ -330,8 +330,8 @@ class Bootstrap:
 
     def dispose(self):
         # Do not delete uncertain proof: retain state for explicit intervention.
-        if self.state["authority"]["phase"] in ("COMMIT_UNKNOWN", "REVOKE_UNKNOWN"):
-            _blocked("I85_UNCERTAIN_STATE_RETAIN_FOR_REVIEW")
+        if self.state["authority"]["phase"] not in ("NONE", "REVOKED"):
+            _blocked("I85_AUTHORITY_MUST_BE_REVOKED_BEFORE_DISCARD")
         if any(i["phase"] == "CREATE_UNKNOWN" for i in self.state["identities"].values()):
             _blocked("I85_UNCERTAIN_AUTH_RETAIN_FOR_REVIEW")
         _record(self.dir, "DISPOSE")
