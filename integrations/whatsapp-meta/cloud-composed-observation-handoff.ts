@@ -12,6 +12,7 @@
 import {inspectCloudWebhookForHandoff,
  type CloudRouteScope,type CloudObservation}
  from './cloud-webhook-handoff.ts';
+import {isMetaWamid} from './status-evidence.ts';
 import {inspectSignedMetaSelections,
  type TechnicalSelection} from './cloud-button-reply-handoff.ts';
 import {inspectSignedMetaReactions,
@@ -50,7 +51,8 @@ const FLAGS=Object.freeze({
 } as const);
 type Flags=typeof FLAGS;
 type Denial='VERIFICATION_DENIED'|'COMPONENT_DENIED'|
- 'INCONSISTENT_SNAPSHOT'|'EVIDENCE_COLLISION_OR_GAP';
+ 'INCONSISTENT_SNAPSHOT'|'EVIDENCE_COLLISION_OR_GAP'|
+ 'INVALID_TECHNICAL_IDENTIFIERS';
 export type ComposedWebhookHandoff=Flags&(
  Readonly<{decision:'DENIED';reason:Denial;
   occurrences:readonly [];raw_sha256:null}>|
@@ -72,6 +74,20 @@ const specialExpected=(v:CloudObservation)=>v.kind==='status_callback'
    v.provider_kind==='reaction'||
    mediaMessage(v.provider_kind)||
    v.provider_kind==='unsupported';
+/**
+ * Compositor-only strict technical grammar. The permissive base verifier
+ * still authenticates and bounds the entire envelope; however its generic
+ * observations must not expose malformed provider IDs, participants, or
+ * uncontracted event kind strings as a trusted technical handoff.
+ *
+ * This is syntax checking, NEVER proof of civil identity or S0 correlation.
+ */
+const participantId=(s:string)=>/^[0-9]{8,15}$/.test(s);
+const inboundKind=(s:string)=>/^[a-z][a-z0-9_]{0,63}$/.test(s);
+const technicalIdsValid=(e:CloudObservation)=>
+ isMetaWamid(e.provider_message_id)&&
+ participantId(e.participant_identifier)&&
+ (e.kind==='status_callback'||inboundKind(e.provider_kind));
 
 /**
  * Read-only composition, not an ingress endpoint. All component readers run
@@ -109,6 +125,11 @@ export async function inspectSignedMetaComposedWebhook(
  }catch{return deny('VERIFICATION_DENIED');}
  if(base.outcome!=='AUTHENTICATED_NOT_DURABLE')
   return deny('VERIFICATION_DENIED');
+ // Every signed occurrence must pass the same technical identity grammar,
+ // INCLUDING generic/unknown kinds that no specialist currently parses.
+ // Reject all before any narrow readers: no partial candidate escapes.
+ if(base.observations.some(e=>!technicalIdsValid(e)))
+  return deny('INVALID_TECHNICAL_IDENTIFIERS');
  let parts:Awaited<ReturnType<typeof inspectSignedMetaSelections>>|
   Awaited<ReturnType<typeof inspectSignedMetaReactions>>|
   Awaited<ReturnType<typeof inspectSignedMetaMediaMetadata>>|
