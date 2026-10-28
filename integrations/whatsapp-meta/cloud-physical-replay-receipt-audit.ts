@@ -134,12 +134,21 @@ const denyClaim=(reason:S0ClaimReview['reason']):S0ClaimReview=>
 export function reviewAllegedS0ReceiptWithoutAck(
  signed:ScopePreflight,candidate:S0HandoffCandidate,
  allegedReceipt:unknown,
+ trustedRoute:Readonly<{route_ref:string;expected_revision:number}>,
 ):S0ClaimReview{
  try{
   if(!signed||signed.decision==='DENIED'||!candidate||
    !Array.isArray(candidate.occurrences)||
    signed.event_count<1||signed.event_count>100)
    return denyClaim('INVALID_INPUT');
+  // Route identity/revision cannot be inferred from signed channel counts.
+  // Require an explicitly supplied trusted route, while retaining NO ACK.
+  if(!trustedRoute||!id(trustedRoute.route_ref)||
+     !revision(trustedRoute.expected_revision))
+   return denyClaim('INVALID_INPUT');
+  if(candidate.route_ref!==trustedRoute.route_ref||
+     candidate.route_revision!==trustedRoute.expected_revision)
+   return denyClaim('CANDIDATE_SCOPE_MISMATCH');
   if(typeof candidate.payload_sha256!=='string'||
     candidate.payload_sha256!==signed.raw_sha256||
     candidate.event_count!==signed.event_count||
