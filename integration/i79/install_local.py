@@ -5,12 +5,11 @@ import psycopg
 import hashlib
 from scripts.test_s0_cfi01_auth_rest_local import local_env
 
-if os.environ.get('PRUMO_I79_DISPOSABLE_TEST')!='YES':raise RuntimeError('I79 opt-in required')
-def install_sql():
+def install_sql(source_repo=None):
     # Minimal, checked adaptation of the ORIGINAL I54 automatic selector.
     # New eligibility must skip unknown roles instead of failing on the first
     # legacy candidate and starving correctly registered consultants.
-    path=Path(os.environ['PRUMO_G1_SOURCE_REPO'])/'supabase/migrations/202610190054_s0_fila_humana_canonica.sql'
+    path=Path(source_repo or os.environ['PRUMO_G1_SOURCE_REPO'])/'supabase/migrations/202610190054_s0_fila_humana_canonica.sql'
     data=path.read_bytes()
     assert hashlib.sha256(data).hexdigest()=='52fb8ff13ae2c5508f2e80783fa27c7534f4ed23be3895a69abff99e4348443f'
     fn=data.decode().split('create function prumo_private.s0_fila_distribuir(',1)[1].split('\nrevoke all on function',1)[0]
@@ -22,7 +21,11 @@ def install_sql():
     assert delta.endswith('commit;\n')
     return delta[:-len('commit;\n')]+fn+'\ncommit;\n'
 
-with psycopg.connect(local_env()['DB_URL'],autocommit=True) as c:
-    c.execute("set prumo.i79_disposable='YES'")
-    c.execute(install_sql())
-print('I79 installed in disposable PG17: authoritative cargo, deferred chefia and signed Director administration',flush=True)
+def main():
+    if os.environ.get('PRUMO_I79_DISPOSABLE_TEST')!='YES':raise RuntimeError('I79 opt-in required')
+    with psycopg.connect(local_env()['DB_URL'],autocommit=True) as c:
+        c.execute("set prumo.i79_disposable='YES'")
+        c.execute(install_sql())
+    print('I79 installed in disposable PG17: authoritative cargo, deferred chefia and signed Director administration',flush=True)
+
+if __name__=='__main__':main()

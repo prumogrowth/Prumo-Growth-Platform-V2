@@ -1,0 +1,382 @@
+name: S0 S1 I84 - disposable Edge operator and preserved regressions
+on:
+  push:
+    branches: [exp/s0-s1-i84-operacao-edge-local-20261027]
+    paths:
+      - 'backend/**'
+      - 'local_admin/**'
+      - 'integration/i84/**'
+      - 'integration/history/**'
+      - 'integration/f02/**'
+      - 'integration/g1/**'
+      - 'integration/i79/**'
+      - 'integration/i80/**'
+      - 'integration/i81/**'
+      - 'integration/i82/**'
+      - 'integration/i83/**'
+      - 'supabase/functions/prumo-admin-i82/**'
+      - 'supabase/tests/s1_i82_metadata_fence_local_only.sql'
+      - 'supabase/tests/s1_i83_edge_credentials_local_only.sql'
+      - 'supabase/tests/s1_i81_admin_ownership_local_only.sql'
+      - 'supabase/tests/s1_i80_regularizacao_local_only.sql'
+      - 'supabase/tests/s1_i79_profissionais_local_only.sql'
+      - 'supabase/tests/s0_g1_manual_queue_local_only.sql'
+      - 'supabase/tests/s0_f02_review_registry_local_only.sql'
+      - 'supabase/tests/s0_history_*'
+      - '.github/workflows/exp-s0-s1-i84-local-operation.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: s0-s1-i84-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  credential-logging-preflight:
+    if: github.ref == 'refs/heads/exp/s0-s1-i84-operacao-edge-local-20261027'
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      SUPABASE_DISABLE_TELEMETRY: '1'
+      PRUMO_I83_DISPOSABLE_TEST: 'YES'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 2.84.2
+      - name: Fixed client and local CLI help
+        run: |
+          supabase --version
+          supabase start --help > /dev/null
+          python3 -m pip install -r backend/requirements-s0-local.txt
+      - name: New unlinked PG17 stack for metadata and private-material logging proof
+        env:
+          SUPABASE_INTERNAL_IMAGE_REGISTRY: docker.io
+        run: supabase start --exclude realtime,storage-api,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor > "${{ runner.temp }}/prumo_i83_logging_start_private.log" 2>&1
+      - name: Fail before transmitting material if existing installer cannot isolate LOCAL logging
+        run: PYTHONPATH=. python3 integration/i83/test_logging_preflight.py
+      - name: Archive credential-free logging preflight metadata only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: s0-s1-i83-material-logging-preflight
+          path: ${{ runner.temp }}/prumo_i83_logging_preflight.json
+          retention-days: 14
+      - name: Remove preflight stack and volumes even on refusal
+        if: always()
+        run: supabase stop --no-backup
+
+  real-history-and-cfi:
+    needs: credential-logging-preflight
+    if: github.ref == 'refs/heads/exp/s0-s1-i84-operacao-edge-local-20261027'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      SUPABASE_DISABLE_TELEMETRY: '1'
+      PRUMO_CFI01_TRANSACTIONAL_TEST: 'YES'
+      PRUMO_HISTORY_DISPOSABLE_TEST: 'YES'
+      PRUMO_F02_DISPOSABLE_TEST: 'YES'
+      PRUMO_G1_DISPOSABLE_TEST: 'YES'
+      PRUMO_I79_DISPOSABLE_TEST: 'YES'
+      PRUMO_I80_DISPOSABLE_TEST: 'YES'
+      PRUMO_I81_DISPOSABLE_TEST: 'YES'
+      PRUMO_I82_DISPOSABLE_TEST: 'YES'
+      PRUMO_I83_DISPOSABLE_TEST: 'YES'
+      PRUMO_G1_SOURCE_REPO: work-s1-sources
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Preserve 264 S0 F02 tests plus G1 strict compatibility
+        run: python3 -m unittest discover -s backend/tests -v
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.2.8
+      - name: Typecheck and strict DTO crypto HTTP boundary unit compatibility
+        run: |
+          deno check --config supabase/functions/prumo-admin-i82/deno.json supabase/functions/prumo-admin-i82/index.ts
+          deno test --config supabase/functions/prumo-admin-i82/deno.json --allow-read=integration/i82 --allow-env integration/i82/contract_test.ts integration/i83/contract_test.ts
+          PYTHONPATH=. python3 integration/i82/test_codec_compat.py
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 2.84.2
+      - name: Fixed driver and CLI
+        run: |
+          supabase --version
+          supabase start --help > /dev/null
+          supabase functions serve --help > /dev/null
+          command -v psql || (sudo apt-get update -qq && sudo apt-get install -y postgresql-client)
+          python3 -m pip install -r backend/requirements-s0-local.txt
+      - name: Start only new unlinked disposable PG17 GoTrue PostgREST
+        env:
+          SUPABASE_INTERNAL_IMAGE_REGISTRY: docker.io
+        run: supabase start --exclude realtime,storage-api,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor > "${{ runner.temp }}/prumo_i83_stack_start_private.log" 2>&1
+      - name: Existing Auth REST RLS and original CFI regressions
+        run: |
+          PYTHONPATH=. python3 scripts/test_s0_auth_rest_local.py
+          PYTHONPATH=. python3 scripts/test_s0_cfi01_auth_rest_local.py
+      - name: Reproduce actual logout gap then test history session barrier
+        run: PYTHONPATH=. python3 integration/history/test_session_history.py --profile s0
+      - name: All 32 certified CFI plus 24 actual GoTrue F02 registry scenarios
+        run: PYTHONPATH=. python3 integration/f02/test_authoritative_review.py
+      - name: Read pinned current S1 in detached checkout without branch writes
+        uses: actions/checkout@v4
+        with:
+          ref: 8780b576aa18bd3983c063339e2e42d2452af22c
+          path: work-s1-sources
+          persist-credentials: false
+      - name: Verify pinned sources and materialize only in disposable database
+        run: PYTHONPATH=. python3 integration/history/prepare_s1_profile.py --source-repo work-s1-sources --manifest integration/g1/s1_sources.json
+      - name: Same real history suite with full S1 extensions and original I63 candidate
+        run: PYTHONPATH=. python3 integration/history/test_session_history.py --profile i63
+      - name: Install guarded G1 delta before populating G1 request data
+        run: PYTHONPATH=. python3 integration/g1/install_local.py
+      - name: Original S1 canonical queue and exception regressions, SQL fixture identities only
+        run: |
+          for test in s1_078_fila_s0_canonica_aceite.sql s1_080_fila_reconciliacao_aceite.sql s1_081_atribuicao_grant_i57_aceite.sql s1_082_fila_gestor_autorizacao_aceite.sql s1_085_excecao_caso_canonica_aceite.sql; do
+            PYTHONPATH=. python3 integration/g1/run_pinned_sql.py "work-s1-sources/supabase/tests/$test"
+          done
+      - name: Real GoTrue manual handoff, both race orders, I61 I62 revocation and rollback
+        run: PYTHONPATH=. python3 integration/g1/test_manual_handoff.py
+      - name: Install I79 authoritative professional foundation atomically
+        run: PYTHONPATH=. python3 integration/i79/install_local.py
+      - name: I79 real Director administration and all 36 G1 regressions under explicit roles
+        run: PYTHONPATH=. python3 integration/i79/test_professionals.py
+      - name: Install additive I80 in same disposable stack
+        run: PYTHONPATH=. python3 integration/i80/install_local.py
+      - name: I80 real inventory preview and explicit CAS regularization
+        run: PYTHONPATH=. python3 integration/i80/test_regularization.py
+      - name: Metadata-only ownership ACL trigger dependency inventory BEFORE I81
+        run: PYTHONPATH=. python3 integration/i81/catalog.py before
+      - name: Real transactional installation refusals and full catalog rollback
+        run: PYTHONPATH=. python3 integration/i81/test_provisioning.py
+      - name: Existing real Director preview survives atomic restricted ownership cutover
+        run: PYTHONPATH=. python3 integration/i81/test_cutover.py
+      - name: Metadata-only effective owners and ACL AFTER I81
+        run: PYTHONPATH=. python3 integration/i81/catalog.py after
+      - name: All 62 unchanged I79 and G1 real regressions under restricted admin owner
+        run: PYTHONPATH=. python3 integration/i79/test_professionals.py
+      - name: All 33 unchanged I80 real regressions under restricted admin owner
+        run: PYTHONPATH=. python3 integration/i80/test_regularization.py
+      - name: Physical private role DML escalation deferred constraint and Auth lock proofs
+        run: PYTHONPATH=. python3 integration/i81/test_ownership.py
+      - name: Final catalog verifies probes left no grants memberships or changed guards
+        run: PYTHONPATH=. python3 integration/i81/catalog.py final
+      - name: Archive metadata-only ownership evidence even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: s0-s1-i81-ownership-catalogs
+          path: ${{ runner.temp }}/prumo_i81_catalog_*.json
+          retention-days: 14
+      - name: I82 catalog BEFORE metadata fence
+        run: PYTHONPATH=. python3 integration/i82/catalog.py before
+      - name: Install minimal INVOKER schema fence preserving I81 ownership
+        run: PYTHONPATH=. python3 integration/i82/install_local.py
+      - name: I82 catalog AFTER metadata fence
+        run: PYTHONPATH=. python3 integration/i82/catalog.py after
+      - name: Preserve 62 I79 G1 and 33 I80 actual regressions after schema fence
+        run: |
+          PYTHONPATH=. python3 integration/i79/test_professionals.py
+          PYTHONPATH=. python3 integration/i80/test_regularization.py
+      - name: Actual Supabase Edge Runtime GoTrue PG17 administrative HTTP scenarios
+        env:
+          SUPABASE_INTERNAL_IMAGE_REGISTRY: docker.io
+        run: PYTHONPATH=. python3 integration/i82/test_edge.py
+      - name: Final I82 catalogue confirms owners grants constraints and no probe residue
+        run: PYTHONPATH=. python3 integration/i82/catalog.py final
+      - name: Bounded sanitized Edge Runtime diagnostics
+        if: always()
+        run: python3 integration/i82/sanitize_runtime_log.py
+      - name: Archive I82 metadata and sanitized runtime diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: s0-s1-i82-edge-evidence
+          path: |
+            ${{ runner.temp }}/prumo_i82_catalog_*.json
+            ${{ runner.temp }}/prumo_i82_runtime_sanitized.txt
+          retention-days: 14
+      - name: I83 original catalog and real installer refusals without credentials
+        run: |
+          PYTHONPATH=. python3 integration/i83/catalog.py before
+          PYTHONPATH=. python3 integration/i83/test_provisioning.py
+      - name: Install dedicated disabled login and separate HMAC custody
+        run: |
+          PYTHONPATH=. python3 integration/i83/install_local.py
+          PYTHONPATH=. python3 integration/i83/catalog.py after
+      - name: Preserve actual I79 I80 I81 behavior after dedicated admission delta
+        run: |
+          PYTHONPATH=. python3 integration/i79/test_professionals.py
+          PYTHONPATH=. python3 integration/i80/test_regularization.py
+          PYTHONPATH=. python3 integration/i81/test_ownership.py
+      - name: All 20 I82 HTTP scenarios with dedicated provisioning plus real credential isolation rotation and cleanup
+        env:
+          SUPABASE_INTERNAL_IMAGE_REGISTRY: docker.io
+        run: PYTHONPATH=. python3 integration/i83/test_edge.py
+      - name: Verify final catalog no credential material and no live dedicated sessions
+        run: PYTHONPATH=. python3 integration/i83/catalog.py final
+      - name: Sanitize bounded runtime diagnostics after I83
+        if: always()
+        run: python3 integration/i82/sanitize_runtime_log.py
+      - name: Archive only I83 metadata and credential-free custody proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: s0-s1-i83-dedicated-edge-evidence
+          path: |
+            ${{ runner.temp }}/prumo_i83_catalog_*.json
+            ${{ runner.temp }}/prumo_i83_custody.json
+            ${{ runner.temp }}/prumo_i82_runtime_sanitized.txt
+          retention-days: 14
+      - name: Remove disposable stack even on failure
+        if: always()
+        run: supabase stop --no-backup
+
+  s1-pinned-i54-i78-regressions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd=pg_isready
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=10
+    env:
+      PGPASSWORD: postgres
+      PRUMO_TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/prumo_s0_test_s1ci
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 8780b576aa18bd3983c063339e2e42d2452af22c
+          persist-credentials: false
+      - name: Preserve original S1 179 unit tests pinned to I78
+        run: |
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i23_http_policy.py' -v
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i25_signer_process.py' -v
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i26_independent_auth.py' -v
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i27_mtls.py' -v
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i28_cert_lifecycle.py' -v
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i29_persistent_revocation.py' -v
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i30_authenticated_authority.py' -v
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i31_monotonic_witness.py' -v
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i37_intake_gateway.py' -v
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i53_canonical_gateway.py' -v
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i55_queue_gateway.py' -v
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i62_excecao_gateway.py' -v
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i67_command_parser.py' -v
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i73_export_boundary.py' -v
+          PYTHONPATH=. python3 -m unittest discover -s tests -p 'test_s1_002_i74_export_signed.py' -v
+      - name: Instalar cliente PostgreSQL se necessario
+        run: command -v psql || (sudo apt-get update -qq && sudo apt-get install -y postgresql-client)
+      - name: Criar base local descartavel
+        run: psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c 'CREATE DATABASE prumo_s0_test_s1ci'
+      - name: Executar regressao S0 e gate equipe S1-002
+        run: bash scripts/run-s1-002-i12-local.sh
+      - name: I52 etapa canonica S0-S1 apos regressao historica
+        run: bash scripts/run-s1-002-i52-local.sh
+      - name: I78 G2 chefia unica, autoridade Diretor e lacuna de on-boarding
+        run: psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_109_i78_g2_chefia_diretor_local_only.sql
+      - name: I46 inventario completo das migrations SQL rastreadas
+        run: python3 scripts/test_s1_002_i46_acl_inventory.py
+      - name: I46 catalogo ACL efetivo no PG17 descartavel
+        run: psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_067_catalog_i46_local_only.sql
+      - name: I75B inventario lexical de objetos G3, historico e referencias a midia
+        run: |
+          python3 -m unittest discover -s tests -p 'test_s1_002_i75_g3_inventory.py' -v
+          python3 scripts/test_s1_002_i75_g3_surface_inventory.py
+      - name: I75B preservar inventario G3 para revisao de objetos e colunas
+        uses: actions/upload-artifact@v4
+        with:
+          name: s1-002-i75b-g3-inventory
+          path: ${{ runner.temp }}/s1_002_i75b_g3_inventory.json
+          retention-days: 14
+      - name: I75C verificar catalogo efetivo PG17 e ACL por coluna
+        run: |
+          python3 -m unittest discover -s tests -p 'test_s1_002_i75c_pg17_effective_catalog.py' -v
+          python3 scripts/test_s1_002_i75c_pg17_effective_catalog.py
+      - name: I75C arquivar provas de catalogo PG17
+        uses: actions/upload-artifact@v4
+        with:
+          name: s1-002-i75c-effective-g3-catalog
+          path: ${{ runner.temp }}/s1_002_i75c_pg17_g3_effective_catalog.json
+          retention-days: 14
+      - name: I48 catalogo efetivo de roles e funcoes gateway S0
+        run: psql -X -v ON_ERROR_STOP=1 "$PRUMO_TEST_DATABASE_URL" -f supabase/tests/s1_071_gateway_acl_catalog_local_only.sql
+      - name: I48 cruzamento de fontes S0 013-037
+        run: python3 scripts/test_s1_002_i48_acl_crosswalk.py
+      - name: Arquivar cruzamento I48
+        uses: actions/upload-artifact@v4
+        with:
+          name: s1-002-i48-crosswalk
+          path: ${{ runner.temp }}/s1_002_i48_crosswalk.json
+          retention-days: 14
+      - name: Arquivar inventario estatico I46
+        uses: actions/upload-artifact@v4
+        with:
+          name: s1-002-i46-acl-inventory
+          path: ${{ runner.temp }}/s1_002_i46_acl_inventory.json
+          retention-days: 14
+
+  local-operation:
+    needs: credential-logging-preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      SUPABASE_DISABLE_TELEMETRY: '1'
+      SUPABASE_INTERNAL_IMAGE_REGISTRY: docker.io
+      PRUMO_I84_DISPOSABLE: 'YES'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 2.84.2
+      - name: Fixed driver and physical local boundaries
+        run: |
+          python3 -m pip install -r backend/requirements-s0-local.txt
+          python3 -m unittest integration.i84.test_boundary -v
+      - uses: actions/checkout@v4
+        with:
+          ref: 8780b576aa18bd3983c063339e2e42d2452af22c
+          path: work-s1-sources
+          persist-credentials: false
+      - name: Operator init creates only a fresh unlinked disposable stack
+        run: python3 -m local_admin init
+      - name: Operator prepares verified dependencies without tests or synthetic humans
+        run: python3 -m local_admin prepare --s1-source work-s1-sources
+      - name: Real CLI GoTrue SQL Edge rotation revocation uncertain COMMIT and verified disposal
+        run: python3 -m integration.i84.test_journey
+      - name: Only allowlisted nonsecret operator evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: s0-s1-i84-local-operation
+          path: |
+            ${{ runner.temp }}/prumo_i84_journey.json
+            ${{ runner.temp }}/prumo_i84_catalog.json
+          retention-days: 14
+      - name: Operator cleanup even after partial failure
+        if: always()
+        run: python3 -m local_admin down
