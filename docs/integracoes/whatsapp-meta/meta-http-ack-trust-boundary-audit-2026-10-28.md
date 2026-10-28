@@ -24,7 +24,7 @@ Um `M2M` com estrutura plausível e até hashes convincentes não comprova a fon
 
 ## Proteção estática adicional do CI
 
-O workflow `.github/workflows/meta-cloud-http-ack-trust-audit-offline.yml` inclui verificação `git grep` nos arquivos de código versionados `.ts/.tsx/.js/.mjs/.py` para impedir **novas referências** ao helper `decideBatchAck` fora do próprio arquivo legado, dos módulos de auditoria exclusivamente forense e de testes. Esta política não prova ausência de invocações indiretas, importação dinâmica, integrações não versionadas ou runtime externo; é uma barreira de regressão para o repositório.
+O workflow `.github/workflows/meta-cloud-http-ack-trust-audit-offline.yml` executa `integrations/whatsapp-meta/cloud-ack-runtime-guard.mjs`, que percorre arquivos de código versionados `.ts/.tsx/.js/.mjs/.py` e impede **referências executáveis diretas** ao helper `decideBatchAck` fora do módulo legado e de testes. O scanner retira comentários antes da verificação, para não tratar a documentação negativa do harness `transactional-ingress.ts` como um uso operacional. A primeira versão (grep literal) registrou um **falso positivo** nessa referência de comentário e foi substituída sem alterar a S0. Esta política heurística não prova ausência de chamadas indiretas, importação dinâmica, usos via string, integrações não versionadas ou runtime externo; permanece necessária revisão da futura borda HTTP.
 
 ## Evidência offline
 
@@ -47,4 +47,4 @@ O workflow `.github/workflows/meta-cloud-http-ack-trust-audit-offline.yml` inclu
 | S0/Meta — S0-A1 | Ratificar unidade do POST físico multicanais e atomicidade do lote | **Pendente anterior**, nenhuma edição S0 |
 | S0/Meta — CATALOG-05 | Fonte autenticada de catálogo para futuros envios | **Pendente anterior**, fora do ACK |
 
-**Sem novo defeito demonstrado na S0.** Esta entrega não deve ser interpretada como autorização produtiva ou certificação de um endpoint público. Nenhuma migração, política, branch, PR, teste ou código S0/S1 foi alterado. Somente arquivos novos e o CI da frente Meta foram modificados.
+**Sem novo defeito demonstrado na S0.** Esta entrega não deve ser interpretada como autorização produtiva ou certificação de um endpoint público. Nenhuma migração, política, branch, PR, teste ou código S0/S1 foi alterado. Somente arquivos novos e o CI da frente Meta foram modificados; o histórico do helper `durable-receipt.ts` foi preservado.
