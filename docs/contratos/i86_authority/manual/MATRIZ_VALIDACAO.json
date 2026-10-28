@@ -4,129 +4,305 @@
   "real_cases": [
     {
       "test": "test_01_canonical_auth_uuid_and_atomic_manual_appointment",
-      "result": "NOT_TESTED"
+      "result": "NOT_TESTED",
+      "executed": false,
+      "availability": "BLOCKED_NO_RUNNER",
+      "evidence": "CI40774122852 attempts1/2: root job runner_name empty, steps0; physical job skipped",
+      "planned_layer": "REAL_GOTRUE_SQL_HTTP_COMPATIBILITY"
     },
     {
       "test": "test_02_director_cannot_appoint_another_through_ordinary_interfaces",
-      "result": "NOT_TESTED"
+      "result": "NOT_TESTED",
+      "executed": false,
+      "availability": "BLOCKED_NO_RUNNER",
+      "evidence": "CI40774122852 attempts1/2: root job runner_name empty, steps0; physical job skipped",
+      "planned_layer": "REAL_GOTRUE_SQL_HTTP_COMPATIBILITY"
     },
     {
       "test": "test_03_revoked_director_cannot_reactivate_itself",
-      "result": "NOT_TESTED"
+      "result": "NOT_TESTED",
+      "executed": false,
+      "availability": "BLOCKED_NO_RUNNER",
+      "evidence": "CI40774122852 attempts1/2: root job runner_name empty, steps0; physical job skipped",
+      "planned_layer": "REAL_GOTRUE_SQL_HTTP_COMPATIBILITY"
     },
     {
       "test": "test_04_manager_cannot_appoint_director",
-      "result": "NOT_TESTED"
+      "result": "NOT_TESTED",
+      "executed": false,
+      "availability": "BLOCKED_NO_RUNNER",
+      "evidence": "CI40774122852 attempts1/2: root job runner_name empty, steps0; physical job skipped",
+      "planned_layer": "REAL_GOTRUE_SQL_HTTP_COMPATIBILITY"
     },
     {
       "test": "test_05_common_mcp_agent_sql_identity_is_denied",
-      "result": "NOT_TESTED"
+      "result": "NOT_TESTED",
+      "executed": false,
+      "availability": "BLOCKED_NO_RUNNER",
+      "evidence": "CI40774122852 attempts1/2: root job runner_name empty, steps0; physical job skipped",
+      "planned_layer": "REAL_SQL"
     },
     {
       "test": "test_06_service_role_and_client_roles_have_no_private_execute",
-      "result": "NOT_TESTED"
+      "result": "NOT_TESTED",
+      "executed": false,
+      "availability": "BLOCKED_NO_RUNNER",
+      "evidence": "CI40774122852 attempts1/2: root job runner_name empty, steps0; physical job skipped",
+      "planned_layer": "REAL_SQL"
     },
     {
       "test": "test_07_service_key_is_not_organizational_approval",
-      "result": "NOT_TESTED"
+      "result": "NOT_TESTED",
+      "executed": false,
+      "availability": "BLOCKED_NO_RUNNER",
+      "evidence": "CI40774122852 attempts1/2: root job runner_name empty, steps0; physical job skipped",
+      "planned_layer": "REAL_GOTRUE_SQL_HTTP_COMPATIBILITY"
     },
     {
       "test": "test_08_jwt_and_metadata_forgery_do_not_grant_authority",
-      "result": "NOT_TESTED"
+      "result": "NOT_TESTED",
+      "executed": false,
+      "availability": "BLOCKED_NO_RUNNER",
+      "evidence": "CI40774122852 attempts1/2: root job runner_name empty, steps0; physical job skipped",
+      "planned_layer": "REAL_GOTRUE_SQL_HTTP_COMPATIBILITY"
     },
     {
       "test": "test_09_repeated_act_does_not_duplicate_authority_or_audit",
-      "result": "NOT_TESTED"
+      "result": "NOT_TESTED",
+      "executed": false,
+      "availability": "BLOCKED_NO_RUNNER",
+      "evidence": "CI40774122852 attempts1/2: root job runner_name empty, steps0; physical job skipped",
+      "planned_layer": "REAL_SQL"
     },
     {
       "test": "test_10_concurrent_same_act_has_one_mutation",
-      "result": "NOT_TESTED"
+      "result": "NOT_TESTED",
+      "executed": false,
+      "availability": "BLOCKED_NO_RUNNER",
+      "evidence": "CI40774122852 attempts1/2: root job runner_name empty, steps0; physical job skipped",
+      "planned_layer": "REAL_SQL"
     },
     {
       "test": "test_11_distinct_acts_same_subject_have_one_cas_winner",
-      "result": "NOT_TESTED"
+      "result": "NOT_TESTED",
+      "executed": false,
+      "availability": "BLOCKED_NO_RUNNER",
+      "evidence": "CI40774122852 attempts1/2: root job runner_name empty, steps0; physical job skipped",
+      "planned_layer": "REAL_SQL"
     },
     {
       "test": "test_12_different_subjects_can_both_be_directors_without_numeric_limit",
-      "result": "NOT_TESTED"
+      "result": "NOT_TESTED",
+      "executed": false,
+      "availability": "BLOCKED_NO_RUNNER",
+      "evidence": "CI40774122852 attempts1/2: root job runner_name empty, steps0; physical job skipped",
+      "planned_layer": "REAL_SQL"
     },
     {
       "test": "test_13_existing_manager_is_not_reclassified_by_manual_appointment",
-      "result": "NOT_TESTED"
+      "result": "NOT_TESTED",
+      "executed": false,
+      "availability": "BLOCKED_NO_RUNNER",
+      "evidence": "CI40774122852 attempts1/2: root job runner_name empty, steps0; physical job skipped",
+      "planned_layer": "REAL_SQL"
     },
     {
       "test": "test_14_all_six_ordinary_commands_work_after_manual_appointment",
-      "result": "NOT_TESTED"
+      "result": "NOT_TESTED",
+      "executed": false,
+      "availability": "BLOCKED_NO_RUNNER",
+      "evidence": "CI40774122852 attempts1/2: root job runner_name empty, steps0; physical job skipped",
+      "planned_layer": "REAL_GOTRUE_SQL_HTTP_COMPATIBILITY"
     },
     {
       "test": "test_15_stale_cas_and_changed_act_evidence_are_rejected",
-      "result": "NOT_TESTED"
+      "result": "NOT_TESTED",
+      "executed": false,
+      "availability": "BLOCKED_NO_RUNNER",
+      "evidence": "CI40774122852 attempts1/2: root job runner_name empty, steps0; physical job skipped",
+      "planned_layer": "REAL_SQL"
     },
     {
       "test": "test_16_missing_auth_and_missing_manual_evidence_do_not_mutate",
-      "result": "NOT_TESTED"
+      "result": "NOT_TESTED",
+      "executed": false,
+      "availability": "BLOCKED_NO_RUNNER",
+      "evidence": "CI40774122852 attempts1/2: root job runner_name empty, steps0; physical job skipped",
+      "planned_layer": "REAL_SQL"
     },
     {
       "test": "test_17_sigkill_before_commit_rolls_back_all_five_records",
-      "result": "NOT_TESTED"
+      "result": "NOT_TESTED",
+      "executed": false,
+      "availability": "BLOCKED_NO_RUNNER",
+      "evidence": "CI40774122852 attempts1/2: root job runner_name empty, steps0; physical job skipped",
+      "planned_layer": "REAL_SQL"
     },
     {
       "test": "test_18_sigkill_after_commit_reconciles_without_reapplying",
-      "result": "NOT_TESTED"
+      "result": "NOT_TESTED",
+      "executed": false,
+      "availability": "BLOCKED_NO_RUNNER",
+      "evidence": "CI40774122852 attempts1/2: root job runner_name empty, steps0; physical job skipped",
+      "planned_layer": "REAL_SQL"
     },
     {
       "test": "test_19_no_commit_claim_before_commit",
-      "result": "NOT_TESTED"
+      "result": "NOT_TESTED",
+      "executed": false,
+      "availability": "BLOCKED_NO_RUNNER",
+      "evidence": "CI40774122852 attempts1/2: root job runner_name empty, steps0; physical job skipped",
+      "planned_layer": "REAL_SQL"
     },
     {
       "test": "test_20_deferred_audit_failure_rolls_back_whole_appointment",
-      "result": "NOT_TESTED"
+      "result": "NOT_TESTED",
+      "executed": false,
+      "availability": "BLOCKED_NO_RUNNER",
+      "evidence": "CI40774122852 attempts1/2: root job runner_name empty, steps0; physical job skipped",
+      "planned_layer": "REAL_SQL"
     },
     {
       "test": "test_21_manual_revocation_stops_old_and_new_sessions",
-      "result": "NOT_TESTED"
+      "result": "NOT_TESTED",
+      "executed": false,
+      "availability": "BLOCKED_NO_RUNNER",
+      "evidence": "CI40774122852 attempts1/2: root job runner_name empty, steps0; physical job skipped",
+      "planned_layer": "REAL_GOTRUE_SQL_HTTP_COMPATIBILITY"
     },
     {
       "test": "test_22_manual_reactivation_never_recreates_revoked_sessions",
-      "result": "NOT_TESTED"
+      "result": "NOT_TESTED",
+      "executed": false,
+      "availability": "BLOCKED_NO_RUNNER",
+      "evidence": "CI40774122852 attempts1/2: root job runner_name empty, steps0; physical job skipped",
+      "planned_layer": "REAL_GOTRUE_SQL_HTTP_COMPATIBILITY"
     },
     {
       "test": "test_23_auth_row_contention_aborts_without_inverse_wait",
-      "result": "NOT_TESTED"
+      "result": "NOT_TESTED",
+      "executed": false,
+      "availability": "BLOCKED_NO_RUNNER",
+      "evidence": "CI40774122852 attempts1/2: root job runner_name empty, steps0; physical job skipped",
+      "planned_layer": "REAL_SQL"
     },
     {
       "test": "test_24_revocation_drains_real_http_before_cutting_authority",
-      "result": "NOT_TESTED"
+      "result": "NOT_TESTED",
+      "executed": false,
+      "availability": "BLOCKED_NO_RUNNER",
+      "evidence": "CI40774122852 attempts1/2: root job runner_name empty, steps0; physical job skipped",
+      "planned_layer": "REAL_GOTRUE_SQL_HTTP_COMPATIBILITY"
     },
     {
       "test": "test_25_manual_audit_is_immutable_and_reflects_sql_operator",
-      "result": "NOT_TESTED"
+      "result": "NOT_TESTED",
+      "executed": false,
+      "availability": "BLOCKED_NO_RUNNER",
+      "evidence": "CI40774122852 attempts1/2: root job runner_name empty, steps0; physical job skipped",
+      "planned_layer": "REAL_SQL"
     },
     {
       "test": "test_26_repeatable_read_cannot_claim_current_state",
-      "result": "NOT_TESTED"
+      "result": "NOT_TESTED",
+      "executed": false,
+      "availability": "BLOCKED_NO_RUNNER",
+      "evidence": "CI40774122852 attempts1/2: root job runner_name empty, steps0; physical job skipped",
+      "planned_layer": "REAL_SQL"
     },
     {
       "test": "test_27_i85_bootstrap_is_not_reopened_for_manual_governance",
-      "result": "NOT_TESTED"
+      "result": "NOT_TESTED",
+      "executed": false,
+      "availability": "BLOCKED_NO_RUNNER",
+      "evidence": "CI40774122852 attempts1/2: root job runner_name empty, steps0; physical job skipped",
+      "planned_layer": "REAL_GOTRUE_SQL_HTTP_COMPATIBILITY"
     },
     {
       "test": "test_28_positive_appointment_rejects_banned_auth_identity",
-      "result": "NOT_TESTED"
+      "result": "NOT_TESTED",
+      "executed": false,
+      "availability": "BLOCKED_NO_RUNNER",
+      "evidence": "CI40774122852 attempts1/2: root job runner_name empty, steps0; physical job skipped",
+      "planned_layer": "REAL_SQL"
     },
     {
       "test": "test_29_negative_revocation_remains_possible_for_banned_auth",
-      "result": "NOT_TESTED"
+      "result": "NOT_TESTED",
+      "executed": false,
+      "availability": "BLOCKED_NO_RUNNER",
+      "evidence": "CI40774122852 attempts1/2: root job runner_name empty, steps0; physical job skipped",
+      "planned_layer": "REAL_SQL"
     },
     {
       "test": "test_30_incomplete_existing_actor_is_not_promoted_by_inference",
-      "result": "NOT_TESTED"
+      "result": "NOT_TESTED",
+      "executed": false,
+      "availability": "BLOCKED_NO_RUNNER",
+      "evidence": "CI40774122852 attempts1/2: root job runner_name empty, steps0; physical job skipped",
+      "planned_layer": "REAL_SQL"
     },
     {
       "test": "test_99_last_director_recovery_requires_an_explicit_new_manual_act",
-      "result": "NOT_TESTED"
+      "result": "NOT_TESTED",
+      "executed": false,
+      "availability": "BLOCKED_NO_RUNNER",
+      "evidence": "CI40774122852 attempts1/2: root job runner_name empty, steps0; physical job skipped",
+      "planned_layer": "REAL_GOTRUE_SQL_HTTP_COMPATIBILITY"
     }
   ],
   "human_presence": "NOT_CERTIFIED_BY_AUTOMATED_LAB",
-  "production": "NOT_AUTHORIZED"
+  "production": "NOT_AUTHORIZED",
+  "code_candidate": "96a7c5ff054ec3be9d15237803914ac247292e61",
+  "code_certified": null,
+  "ci_run": 40774122852,
+  "ci_attempts": 2,
+  "ci_gate": "BLOCKED_BEFORE_RUNNER_ASSIGNMENT",
+  "local_proofs": [
+    {
+      "layer": "GIT_SCOPE_ADVERSARIAL",
+      "count": 13,
+      "result": "PASS",
+      "also_python_optimized": true
+    },
+    {
+      "layer": "HISTORICAL_OBSERVATION_DTO_MODEL",
+      "count": 5,
+      "result": "PASS",
+      "also_python_optimized": true
+    },
+    {
+      "layer": "MANUAL_POLICY_MODEL",
+      "count": 4,
+      "result": "PASS",
+      "also_python_optimized": true
+    },
+    {
+      "layer": "EXISTING_BACKEND_UNITS",
+      "count": 288,
+      "result": "PASS"
+    }
+  ],
+  "inherited_regressions": [
+    {
+      "proof": "I85 original one E2E/13 chained points, six I79/I80 commands",
+      "result": "NOT_TESTED",
+      "reason": "Dependent job skipped; prior CI40680048140 is historical only"
+    },
+    {
+      "proof": "I86 original22 Auth/PG17/Edge cases",
+      "result": "NOT_TESTED",
+      "reason": "Dependent job skipped; prior CI40731718955 remains historical only"
+    }
+  ],
+  "ownership_and_catalog": {
+    "effective_acl_before_after": "NOT_TESTED",
+    "rls_and_trigger_execution": "NOT_TESTED",
+    "source_scope": "PASS_LOCAL",
+    "source_i85_unchanged": true,
+    "source_previous_i86_branch_unchanged": true,
+    "sql_compilation": "NOT_TESTED"
+  },
+  "artifacts": [],
+  "evidence_file": "EVIDENCIA_CI_BLOQUEADA.json"
 }

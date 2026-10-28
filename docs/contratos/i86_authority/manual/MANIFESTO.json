@@ -8,7 +8,6 @@
     "docs/contratos/i86_authority/",
     ".github/workflows/exp-s1-i86-manual-director.yml"
   ],
-  "code_sha": "PENDING_CI",
   "code_files": {
     ".github/workflows/exp-s1-i86-manual-director.yml": "551d13a4e2392d184fa522435103ba6412d4f3b13573461642f295e2268ca2d2",
     "integration/i86/manual/__init__.py": "4eff3735da8176da3e55f1025068fbe9b3869730f4304d31c7876713a2b5f96e",
@@ -22,5 +21,20 @@
     "integration/i86/test_scope.py": "017c9dea1cb62e5f594780231b6930c5be11a5db9b11360fd5a26e9baace7a72"
   },
   "inherited_i85_sha": "3cab3d57619cc1157698a08ac26f34e0c363f6dd",
-  "inherited_i86_code": "c1b66cb009a56e2049148f118395ab5cb98dc4ea"
+  "inherited_i86_code": "c1b66cb009a56e2049148f118395ab5cb98dc4ea",
+  "code_candidate": "96a7c5ff054ec3be9d15237803914ac247292e61",
+  "code_certified": null,
+  "ci_run": 40774122852,
+  "ci_status": "FAIL_BEFORE_ANY_RUNNER_STEP",
+  "protected_source_status": "UNCHANGED",
+  "documentation_followup": "Only documentation after candidate code, no claim of physical certification",
+  "documentation_files": [
+    "docs/contratos/i86_authority/manual/CHECKPOINT.md",
+    "docs/contratos/i86_authority/manual/CONTRATO_MANUAL_V2.md",
+    "docs/contratos/i86_authority/manual/EVIDENCIA_CI_BLOQUEADA.json",
+    "docs/contratos/i86_authority/manual/MANIFESTO.json",
+    "docs/contratos/i86_authority/manual/MATRIZ_VALIDACAO.json",
+    "docs/contratos/i86_authority/manual/RELATORIO.md",
+    "docs/contratos/i86_authority/manual/RUNBOOK_RESTRITO.md"
+  ]
 }

@@ -96,7 +96,7 @@ apply_act retorna RECORDED_IN_TRANSACTION ou ALREADY_RECORDED_IN_TRANSACTION,
 sempre caller_commit_required=true. O SELECT não é confirmação do COMMIT.
 Após confirmar a transação, reconcile_act consulta o mesmo act_id/evidência;
 nunca emite nomeação/revogação/reativação. Registro próprio ainda não confirmado
-retorna COMMIT_NOT_PROVEN; ausência retorna NOT_PROVEN; prova comprometida
+retorna COMMIT_NOT_PROVEN; ausência retorna NOT_PROVEN; registro confirmado
 visível e estado coincidente retorna COMMITTED_CURRENT_STATE_VERIFIED.
 
 A visibilidade MVCC READ COMMITTED comprova que registro de outra transação

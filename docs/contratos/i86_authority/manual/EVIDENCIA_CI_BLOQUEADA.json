@@ -1,0 +1,106 @@
+{
+  "version": "prumo.i86.manual.ci-blocker.v1",
+  "run_id": 40774122852,
+  "code_sha": "96a7c5ff054ec3be9d15237803914ac247292e61",
+  "status": "LAB_BLOCKED",
+  "confirmed_cause": "GitHub Actions job failed before runner assignment and before any step; underlying account/platform reason unavailable through enabled connector",
+  "attempts": [
+    {
+      "number": 1,
+      "jobs": [
+        {
+          "id": 123118796369,
+          "name": "scope-and-model",
+          "status": "completed",
+          "conclusion": "failure",
+          "runner_name": "",
+          "step_count": 0,
+          "started_at": "2026-10-28T21:42:12Z",
+          "completed_at": "2026-10-28T21:42:15Z"
+        },
+        {
+          "id": 123118822434,
+          "name": "inherited-i86-observer",
+          "status": "completed",
+          "conclusion": "skipped",
+          "runner_name": null,
+          "step_count": 0,
+          "started_at": "2026-10-28T21:42:15Z",
+          "completed_at": "2026-10-28T21:42:15Z"
+        },
+        {
+          "id": 123118822707,
+          "name": "inherited-i85-e2e",
+          "status": "completed",
+          "conclusion": "skipped",
+          "runner_name": null,
+          "step_count": 0,
+          "started_at": "2026-10-28T21:42:16Z",
+          "completed_at": "2026-10-28T21:42:15Z"
+        },
+        {
+          "id": 123118823034,
+          "name": "manual-operator-boundary",
+          "status": "completed",
+          "conclusion": "skipped",
+          "runner_name": null,
+          "step_count": 0,
+          "started_at": "2026-10-28T21:42:16Z",
+          "completed_at": "2026-10-28T21:42:15Z"
+        }
+      ]
+    },
+    {
+      "number": 2,
+      "jobs": [
+        {
+          "id": 123119407534,
+          "name": "scope-and-model",
+          "status": "completed",
+          "conclusion": "failure",
+          "runner_name": "",
+          "step_count": 0,
+          "started_at": "2026-10-28T21:43:31Z",
+          "completed_at": "2026-10-28T21:43:34Z"
+        },
+        {
+          "id": 123119430884,
+          "name": "manual-operator-boundary",
+          "status": "completed",
+          "conclusion": "skipped",
+          "runner_name": null,
+          "step_count": 0,
+          "started_at": "2026-10-28T21:43:34Z",
+          "completed_at": "2026-10-28T21:43:34Z"
+        },
+        {
+          "id": 123119431833,
+          "name": "inherited-i85-e2e",
+          "status": "completed",
+          "conclusion": "skipped",
+          "runner_name": null,
+          "step_count": 0,
+          "started_at": "2026-10-28T21:43:34Z",
+          "completed_at": "2026-10-28T21:43:34Z"
+        },
+        {
+          "id": 123119432345,
+          "name": "inherited-i86-observer",
+          "status": "completed",
+          "conclusion": "skipped",
+          "runner_name": null,
+          "step_count": 0,
+          "started_at": "2026-10-28T21:43:35Z",
+          "completed_at": "2026-10-28T21:43:34Z"
+        }
+      ]
+    }
+  ],
+  "artifacts": [],
+  "physical_tests_executed": 0,
+  "scope_ci_pass": false,
+  "local_scope_pass": true,
+  "logs": "No job log blob; GitHub log endpoint returned BlobNotFound/404",
+  "review_limitation": "Check-run annotations endpoint unsupported by GitHub fetch tool; public page unavailable; no billing/quota cause asserted",
+  "automatic_rerun_stopped_after_one_retry": true
+}
