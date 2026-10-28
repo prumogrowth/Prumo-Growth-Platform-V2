@@ -12,7 +12,8 @@ const receipt=()=>structuredClone(fixture.receipt);
 const expected=()=>({
  app:'LAB_APP_A',route:'route_A',route_revision:'1',
  instance:'LAB_S0_01',receipt_key_id:'LAB_RECEIPT_1',
- receipt_key_revision:'1',expected_item_count:1,
+ receipt_key_revision:'1',m2m_issuer:'LAB_META_INFRA',
+ m2m_key_id:'key_A',m2m_key_revision:'1',expected_item_count:1,
  bindings:[{waba:'100001',phone:'200001',tenant:'tenant_A',
   channel:'channel_A',revision:'1'}],
 });
@@ -189,4 +190,21 @@ test('INTEROP-32 recovery with same receipt does not grant replay suppression',(
  const a=run(),b=run();
  ok(a);ok(b);assert.deepEqual(a,b);
  assert.equal(a.replay_suppression_authorized,false);
+});
+
+test('INTEROP-33 mismatched trusted M2M issuer denies signed S0 receipt',()=>{
+ const e=expected();e.m2m_issuer='ANOTHER_INGRESSOR';
+ no(run(receipt(),e),'CONTEXT_OR_BODY_MISMATCH');
+});
+test('INTEROP-34 mismatched trusted M2M key identity denies',()=>{
+ const e=expected();e.m2m_key_id='OTHER_M2M_KEY';
+ no(run(receipt(),e),'CONTEXT_OR_BODY_MISMATCH');
+});
+test('INTEROP-35 mismatched trusted M2M key revision denies',()=>{
+ const e=expected();e.m2m_key_revision='2';
+ no(run(receipt(),e),'CONTEXT_OR_BODY_MISMATCH');
+});
+test('INTEROP-36 malformed trusted M2M key revision denies input',()=>{
+ const e=expected();e.m2m_key_revision='01';
+ no(run(receipt(),e),'INVALID_INPUT');
 });
