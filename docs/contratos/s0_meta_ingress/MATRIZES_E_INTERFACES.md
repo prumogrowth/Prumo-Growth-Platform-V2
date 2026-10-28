@@ -25,7 +25,7 @@ O conteúdo vivo da conversa I86 não foi consultado. Não há dependência de a
 | Principal M2M | Ed25519, issuer/key/revision/audience/scope, registro técnico | Tamper, domínio errado, JWT humano, bool declarativo, issuer/key/ACL: T18–T20 |
 | Tempo/nonce | Clock DB após espera, TTL≤30s, nonce único por chave | Expirado, futuro, duplicado, expiração na fila: T02/T20/T39/T40 |
 | Rota | App e revisão ativa do registro | Rota/App cruzadas/revisão obsoleta: T20/T23 |
-| Binding | Cada WABA/phone/App/tenant/channel e revisão, fonte SQL confiada | Outro tenant/App, desconhecido/desativado: T12–T14/T26 |
+| Binding | Cada WABA/phone/App/tenant/channel e revisão, fonte SQL confiada e canal explicitamente autorizado à chave | Outro tenant/App, desconhecido/desativado: T12–T14/T26/T49 |
 | Multicanal | Dois canais da mesma App/concessionária | Sem transferência de direito entre canais: T09/T12–T14 |
 | Revogação | Fence rota antes de principal/binding, CAS | Ambas as ordens e readback pós-revogação: T21–T26/T46 |
 | Rotação M2M | Nova chave técnica explicitamente registrada, antiga revogada | Recuperação pela nova chave e negação pela revogada: T22/T43 |
@@ -35,7 +35,7 @@ O conteúdo vivo da conversa I86 não foi consultado. Não há dependência de a
 
 ## Matriz de resistência e regressão
 
-Txx refere-se ao método numerado em `integration/s0_meta_ingress/test_ingress.py`; 48 testes de topo, com subcenários explícitos. Contagens não são somadas aos testes históricos como certificação de integração operacional.
+Txx refere-se ao método numerado em `integration/s0_meta_ingress/test_ingress.py`; 49 testes de topo, com subcenários explícitos. Contagens não são somadas aos testes históricos como certificação de integração operacional.
 
 | Requisito | Prova executável |
 |---|---|
@@ -87,7 +87,7 @@ Nenhuma mudança de componente compartilhado foi necessária para o laboratório
 |---|---|---|
 | `integrations/whatsapp-meta/cloud-webhook-handoff.ts` (fonte PR14, somente leitura) | Seu escopo único não representa o multicanal ratificado para esta prova; META-S0-ACK-03/C4 | Normalizador novo exclusivo; preservar fonte e regressões. Meta/S0 devem homologar parser multicanal e proveniência física, sem substituir o módulo agora. |
 | Host de ingresso Meta/Infra, caminho a ser definido pela orquestração | Converter recibo verificado em decisão HTTP externa; ACK-03/C3/C4 | API interna + harness loopback. Definir códigos, assinatura bytes, retry, limite, DLQ de inválidos permanentes, backpressure, timeout e segurança TLS. |
-| Registro técnico autoritativo S0, caminho a definir | Fonte real App/WABA/número/canal/concessionária e mutadores/revisões; C1/C3/C5 | Fixtures SQL locais e controle CAS. Homologar administração, rotação/revogação, ownership imutável e fonte de App Secret sem usar identidade humana como principal M2M. |
+| Registro técnico autoritativo S0, caminho a definir | Fonte real App/WABA/número/canal/concessionária e mutadores/revisões; C1/C3/C5 | Fixtures SQL locais e controle CAS. Homologar administração, grants técnicos por canal, rotação/revogação, ownership imutável e fonte de App Secret sem usar identidade humana como principal M2M. |
 | Adaptador/custódia S0, caminho a definir | Signer e trust anchors de recibo versionados, retenção de chaves, HA/readback; C3/C4/C6 | Signer Ed25519 sintético em memória; nenhuma chave ou serviço hospedado. |
 | Mapeamento comercial posterior, sem arquivo solicitado | Ocorrências arquivadas não resolvem negócio; C1/C6 e catálogo PR19 | Conservar eventos não resolvidos; nenhuma relação automática por telefone ou política de envio. |
 

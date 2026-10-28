@@ -43,7 +43,7 @@ class PhysicalTests(unittest.TestCase):
             c.execute('TRUNCATE audit,nonces,aliases,occurrences,batches,bindings,principals,routes CASCADE')
             for route,app in [('route_A',self.app),('route_B','LAB_APP_B')]:
                 c.execute('INSERT INTO routes VALUES(%s,%s,1,true)',(route,app))
-            c.execute("INSERT INTO principals VALUES('key_A','LAB_META_INFRA',1,%s,'route_A',%s,'tenant_A',ARRAY['append','recover'],true,clock_timestamp()-interval '1 hour',clock_timestamp()+interval '1 hour')",(self.m2m.public_key().public_bytes_raw(),self.app))
+            c.execute("INSERT INTO principals VALUES('key_A','LAB_META_INFRA',1,%s,'route_A',%s,'tenant_A',ARRAY['append','recover'],ARRAY['channel_A','channel_A2'],true,clock_timestamp()-interval '1 hour',clock_timestamp()+interval '1 hour')",(self.m2m.public_key().public_bytes_raw(),self.app))
             for route,waba,phone,app,tenant,channel in [
                 ('route_A','100001','200001',self.app,'tenant_A','channel_A'),
                 ('route_A','100002','200002',self.app,'tenant_A','channel_A2'),
@@ -416,7 +416,7 @@ class PhysicalTests(unittest.TestCase):
         successor=Ed25519PrivateKey.generate()
         with LAB.admin() as c:
             mutate(c,'route_A',1,revoke_key='key_A')
-            c.execute("INSERT INTO principals SELECT 'key_A2',issuer,1,%s,route,app,tenant,scopes,true,not_before,not_after FROM principals WHERE key_id='key_A'",(successor.public_key().public_bytes_raw(),))
+            c.execute("INSERT INTO principals SELECT 'key_A2',issuer,1,%s,route,app,tenant,scopes,channels,true,not_before,not_after FROM principals WHERE key_id='key_A'",(successor.public_key().public_bytes_raw(),))
         self.m2m=successor
         second=self.ack(self.call(scope='recover',changes={'key_id':'key_A2'}))
         self.assertEqual(first,second)
@@ -470,6 +470,12 @@ class PhysicalTests(unittest.TestCase):
                 c.execute(Path('integration/s0_meta_ingress/schema.sql').read_text())
         self.ack(self.call())
         with LAB.admin() as c:self.assertEqual(LAB.catalog_before,LAB.catalog(c))
+
+    def test_49_same_app_tenant_channel_without_explicit_grant(self):
+        with LAB.admin() as c:
+            c.execute("INSERT INTO bindings VALUES('route_A','100006','200006',%s,'tenant_A','channel_A3',1,true)",(self.app,))
+        self.rejected(self.call(raw=self.raw((('100001','200001'),('100006','200006')))))
+        self.assertEqual(self.counts()['nonces'],0)
 
 def main():
     global LAB

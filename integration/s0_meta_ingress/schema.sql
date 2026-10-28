@@ -22,7 +22,7 @@ CREATE TABLE routes (
 CREATE TABLE principals (
  key_id text PRIMARY KEY, issuer text NOT NULL, revision bigint NOT NULL CHECK(revision>0),
  public_key bytea NOT NULL CHECK(octet_length(public_key)=32), route text NOT NULL REFERENCES routes,
- app text NOT NULL, tenant text NOT NULL, scopes text[] NOT NULL,
+ app text NOT NULL, tenant text NOT NULL, scopes text[] NOT NULL, channels text[] NOT NULL,
  active boolean NOT NULL, not_before timestamptz NOT NULL, not_after timestamptz NOT NULL
 );
 CREATE TABLE bindings (

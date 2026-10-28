@@ -39,7 +39,8 @@ class Ingress:
         for waba, phone in sorted({(i['waba'], i['phone']) for i in items}):
             b = c.execute('SELECT * FROM bindings WHERE route=%s AND waba=%s AND phone=%s FOR SHARE',
                           (e['route'], waba, phone)).fetchone()
-            if not b or not b['active'] or b['app'] != e['app'] or b['tenant'] != key['tenant']:
+            if (not b or not b['active'] or b['app'] != e['app'] or b['tenant'] != key['tenant']
+                or b['channel'] not in key['channels']):
                 raise Reject('CHANNEL_BINDING')
             snapshot.append({**b, 'revision': str(b['revision'])})
         # Recheck DB clock after all waits. No client clock decides authorization.

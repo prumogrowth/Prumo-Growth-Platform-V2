@@ -7,7 +7,7 @@
       "synchronous_commit": "on",
       "full_page_writes": "on"
     },
-    "tests_run": 48,
+    "tests_run": 49,
     "failures": 0,
     "errors": 0,
     "skips": 0,
@@ -32,11 +32,21 @@
     "source_blobs": 27
   },
   "ci": {
-    "status": "PENDING_PUBLICATION"
+    "status": "PENDING_FINAL_REVISION",
+    "prior_run": 40730074152,
+    "prior_code_sha": "564d89102dbd22a86e222d60a198510054fa901f",
+    "prior_all_four_jobs": "SUCCESS"
   },
   "historical_i85": {
     "code_sha": "062c90ffbe2b223c1d6bb08f614e7a1b6a898201",
     "ci": 40680048140,
     "not_recertified_here": true
+  },
+  "local_inherited": {
+    "backend": 288,
+    "i85_filesystem": 7,
+    "i84_boundary": 9,
+    "normal_passed": true,
+    "optimized_passed": true
   }
 }
