@@ -17,20 +17,20 @@ ROOT=Path(__file__).resolve().parents[2]
 
 def verify_sources(source_repo,manifest):
     ref=manifest['ref']
-    def git(*parts):return subprocess.check_output(['git','-C',str(source_repo),*parts])
-    assert git('rev-parse','HEAD').decode().strip()==ref
+    def git(*parts):return subprocess.check_output(['git','-C',str(source_repo),*parts],stderr=subprocess.PIPE)
+    if git('rev-parse','HEAD').decode().strip()!=ref:raise RuntimeError('PINNED_S1_HEAD_MISMATCH')
     # The baseline and the previously installed team gate must be byte-equal
     # to S1. Abort rather than layering incompatible historical migrations.
     s1=set(git('ls-tree','-r','--name-only',ref,'supabase/migrations').decode().splitlines())
     for path in s1:
         if (ROOT/path).exists():
-            assert (ROOT/path).read_bytes()==git('show',ref+':'+path),path
+            if (ROOT/path).read_bytes()!=git('show',ref+':'+path):raise RuntimeError('PINNED_S1_OVERLAP_MISMATCH')
     reference='supabase/migrations/202610180038_s1_equipe_prumo_gate.sql'
-    assert (ROOT/'supabase/tests/s0_cfi01_s1_038_reference_local_only.sql').read_bytes()==git('show',ref+':'+reference)
+    if (ROOT/'supabase/tests/s0_cfi01_s1_038_reference_local_only.sql').read_bytes()!=git('show',ref+':'+reference):raise RuntimeError('PINNED_S1_REFERENCE_MISMATCH')
     sources=[]
     for item in manifest['files']:
         data=git('show',ref+':'+item['path'])
-        assert hashlib.sha256(data).hexdigest()==item['sha256'],item['path']
+        if hashlib.sha256(data).hexdigest()!=item['sha256']:raise RuntimeError('PINNED_S1_HASH_MISMATCH')
         sources.append(data)
     return sources
 

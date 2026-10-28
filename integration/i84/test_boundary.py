@@ -43,4 +43,24 @@ class BoundaryTests(unittest.TestCase):
         with patch('sys.argv',['local_admin','--password','sentinel-do-not-echo']),contextlib.redirect_stdout(out):self.assertEqual(main(),2)
         self.assertNotIn('sentinel',out.getvalue());self.assertIn('CLI_ARGUMENTS_INVALID',out.getvalue())
 
+    def test_missing_and_invalid_dedicated_file(self):
+        from local_admin.custody import read_env
+        with tempfile.TemporaryDirectory(prefix='prumo-admin-i84-unit-') as d:
+            with self.assertRaisesRegex(b.Blocked,'MISSING'):read_env(d)
+            p=Path(d)/'edge.env';p.write_text('PRUMO_I83_DEDICATED=NO\n');p.chmod(0o600)
+            with self.assertRaisesRegex(b.Blocked,'CREDENTIAL_FILE_INVALID'):read_env(d)
+
+    def test_hosted_link_and_unsealed_source_rejected(self):
+        from local_admin import environment as e
+        import json
+        with tempfile.TemporaryDirectory(prefix='prumo-admin-i84-unit-') as d:
+            root=Path(d);(root/'local_admin').mkdir();(root/'supabase/.temp').mkdir(parents=True)
+            (root/'local_admin/dependencies.json').write_text(json.dumps({'local_sources':{}}))
+            (root/'supabase/.temp/project-ref').write_text('hosted-project-ref')
+            with patch.object(e,'ROOT',root):
+                with self.assertRaisesRegex(b.Blocked,'HOSTED_PROJECT_LINK'):e.checkout()
+                (root/'supabase/.temp/project-ref').unlink()
+                (root/'supabase/migrations').mkdir();(root/'supabase/migrations/unreviewed.sql').write_text('select 1;')
+                with self.assertRaisesRegex(b.Blocked,'UNCERTIFIED_SOURCE_ADDED'):e.checkout()
+
 if __name__=='__main__':unittest.main(verbosity=2)

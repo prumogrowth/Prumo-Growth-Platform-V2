@@ -4,8 +4,8 @@
   "s1_ref": "8780b576aa18bd3983c063339e2e42d2452af22c",
   "local_sources": {
     "integration/g1/s1_sources.json": "66f9ee4a7aeed7892d314582078b077d8a49486b919a51e17832183982f83cf2",
-    "integration/history/prepare_s1_profile.py": "13aebd9b6e4bbffe7a70ae5e096238cf178645ffa3413fd16ce4560e6729c61f",
-    "integration/i79/install_local.py": "1036326048c70a553b7341713c6d41560f1d29c0abb99f19c99a000ef3ab0945",
+    "integration/history/prepare_s1_profile.py": "c5e67f89ed734f069205937e3dea8ad2c6f6631d1b81b5edd69ade907ddebd4c",
+    "integration/i79/install_local.py": "e1f39f2dc93f7bc0ab3d43fc72797fa439fec56f19f86a212fb020fbaa4cc4cf",
     "integration/i83/provision_local.py": "00a5c32d106dc37ceccf335081602bda0fa73f78c978d5a9516aa402f00457ad",
     "supabase/config.toml": "eef36bc2325086b41aaa1757dfca6459dd451c279dd4d15f825449a8c44befcc",
     "supabase/functions/prumo-admin-i82/contract.ts": "8af7d7bdf86dc8a1c35b4b0cd4bd2e4a46e1a685686ccb7ac82510210a91051b",
@@ -63,6 +63,7 @@
     "supabase/tests/s1_i80_regularizacao_local_only.sql": "4ea9a46312f6e89fd569727d928a12924d6e203fc13fecbcc3003ef653a73551",
     "supabase/tests/s1_i81_admin_ownership_local_only.sql": "62086c0c38a719604ab2fc76ee1cce8ab94539b10098de61005999ece4a03521",
     "supabase/tests/s1_i82_metadata_fence_local_only.sql": "8329119db8c01641c8cf58ae9c1246551ea3629717d0d45a54e3de952d24a79a",
-    "supabase/tests/s1_i83_edge_credentials_local_only.sql": "d7f016e28c9142922e6ee205207ff55db455364bf0ecc82f2e4aa6302c705dcf"
+    "supabase/tests/s1_i83_edge_credentials_local_only.sql": "d7f016e28c9142922e6ee205207ff55db455364bf0ecc82f2e4aa6302c705dcf",
+    "integration/i82/gateway_local.py": "b009fa90903e3402db8d813877b857e8645288aabfc66f8533b2137407247e63"
   }
 }

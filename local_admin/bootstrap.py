@@ -1,9 +1,8 @@
 """Install certified dependency bytes without running scenarios or creating people."""
 import json
-import os
 from pathlib import Path
-from local_admin.boundary import ROOT,Blocked,save,digest
-from local_admin.environment import database,discover,opt_ins,checkout
+from local_admin.boundary import ROOT,Blocked
+from local_admin.environment import database,discover,checkout
 
 STEPS=[
  ('cfi','supabase/tests/s0_cfi01_s1_038_reference_local_only.sql'),
@@ -45,7 +44,7 @@ def install(source_repo,on_step):
     from integration.i79.install_local import install_sql
     from integration.i83.provision_local import install as i83_install
     from integration.i83.catalog import snapshot
-    spec=checkout();source_repo=Path(source_repo).resolve()
+    checkout();source_repo=Path(source_repo).resolve()
     manifest=json.loads((ROOT/'integration/g1/s1_sources.json').read_text())
     # Verify ALL sources before mutating the first dependency.
     sources=verify_sources(source_repo,manifest)

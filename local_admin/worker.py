@@ -1,18 +1,17 @@
 """Detached local Supabase CLI worker with PID-reuse and container ownership checks."""
-import hashlib
 import json
 import os
 from pathlib import Path
 import signal
 import time
 from urllib import request,error
-from local_admin.boundary import ROOT,EDGE,KONG,Blocked,run,docker,inspect,child_env,private,digest
+from local_admin.boundary import EDGE,Blocked,docker,inspect,child_env,private,digest
 from local_admin.custody import read_env,scan
 
 
 def cors(state,enabled,checkpoint):
     from integration.i82 import gateway_local as gateway
-    before=gateway._read()
+    before=gateway._read(env=child_env())
     start=before.index(b'\n  - name: functions-v1\n');end=before.index(b'\n  - name: ',start+10)
     block=before[start:end];corsline=b'      - name: cors\n';transform=b'      - name: request-transformer\n'
     if enabled:
@@ -29,8 +28,8 @@ def cors(state,enabled,checkpoint):
         if digest(before)!=state['cors']['patched'] or corsline in block or block.count(transform)!=1:raise Blocked('GATEWAY_DRIFT')
         after=before[:start]+block.replace(transform,corsline+transform,1)+before[end:]
         if digest(after)!=state['cors']['original']:raise Blocked('GATEWAY_RESTORE_UNPROVEN')
-    gateway._load(after)
-    if gateway._read()!=after:raise Blocked('GATEWAY_READBACK_MISMATCH')
+    gateway._load(after,env=child_env())
+    if gateway._read(env=child_env())!=after:raise Blocked('GATEWAY_READBACK_MISMATCH')
     if not enabled:state['cors']=None
     checkpoint()
 
@@ -49,6 +48,7 @@ def container_matches(state,directory):
     if not cid:return 'ABSENT'
     if cid!=(state.get('worker') or {}).get('container'):return 'FOREIGN'
     try:
+        if docker('inspect','--format','{{.State.Running}}',cid).strip()!=b'true':return 'STOPPED'
         expected=read_env(directory)
         actual=json.loads(docker('inspect','--format','{{json .Config.Env}}',cid))
         actual=dict(line.split('=',1) for line in actual if '=' in line)
@@ -101,3 +101,12 @@ def start(state,directory,checkpoint):
         if not proc_identity(pid):raise Blocked('WORKER_START_FAILED')
         time.sleep(.2)
     raise Blocked('WORKER_READY_TIMEOUT')
+
+
+def available():
+    try:
+        r=request.Request('http://127.0.0.1:54321/functions/v1/prumo-admin-i82/v1/i79',method='GET')
+        try:response=request.urlopen(r,timeout=2)
+        except error.HTTPError as x:response=x
+        with response:return response.status==405 and json.loads(response.read(8192)).get('version')=='prumo.admin.v1'
+    except (error.URLError,TimeoutError,ValueError,ConnectionError):return False

@@ -1,8 +1,10 @@
 """Protected I83 server environment; no separate database vault or identity."""
-import json
+import ipaddress
+import re
+from uuid import UUID
 from pathlib import Path
 from urllib.parse import urlsplit
-from local_admin.boundary import Blocked,private,EDGE,DB,KONG,docker
+from local_admin.boundary import Blocked,private,DB,KONG
 from local_admin.environment import database,discover
 
 
@@ -10,11 +12,18 @@ def read_env(directory):
     p=Path(directory)/'edge.env';private(p)
     try:
         values=dict(line.split('=',1) for line in p.read_text().splitlines())
-        assert values['PRUMO_I83_DEDICATED']=='YES'
-        assert values['PRUMO_I82_DISPOSABLE']=='YES'
+        if not (values['PRUMO_I83_DEDICATED']=='YES'):raise ValueError
+        if not (values['PRUMO_I82_DISPOSABLE']=='YES'):raise ValueError
         u=urlsplit(values['PRUMO_I82_DATABASE_URL'])
-        assert u.username=='prumo_s1_admin_edge_local' and u.hostname=='supabase_db_prumo-s0-auth-ci' and u.path=='/postgres' and not(u.query or u.fragment)
-        assert len(values['PRUMO_I82_HMAC_HEX'])==96
+        if not (u.username=='prumo_s1_admin_edge_local' and u.hostname=='supabase_db_prumo-s0-auth-ci' and u.path=='/postgres' and not(u.query or u.fragment)):raise ValueError
+        if not (u.scheme=='postgresql' and u.port==5432 and u.password):raise ValueError
+        if not (re.fullmatch('[0-9a-f]{96}',values['PRUMO_I82_HMAC_HEX'])):raise ValueError
+        if not (str(UUID(values['PRUMO_I82_KEY_ID']))==values['PRUMO_I82_KEY_ID']):raise ValueError
+        if not (values['PRUMO_I82_AUTH_URL']=='http://supabase_kong_prumo-s0-auth-ci:8000'):raise ValueError
+        if not (values['PRUMO_I82_ALLOW_ORIGIN']=='http://localhost:3000'):raise ValueError
+        if not (ipaddress.IPv4Address(values['PRUMO_I82_DATABASE_IPV4']).is_private):raise ValueError
+        if not (values['PRUMO_I82_ANON_KEY']):raise ValueError
+        if not (set(values)=={'PRUMO_I83_DEDICATED','PRUMO_I82_DISPOSABLE','PRUMO_I82_DATABASE_URL','PRUMO_I82_DATABASE_IPV4','PRUMO_I82_HMAC_HEX','PRUMO_I82_KEY_ID','PRUMO_I82_AUTH_URL','PRUMO_I82_ALLOW_ORIGIN','PRUMO_I82_ANON_KEY'}):raise ValueError
     except Exception:raise Blocked('CREDENTIAL_FILE_INVALID') from None
     return values
 
@@ -29,6 +38,8 @@ def credential_state(directory):
     try:
         key=UUID(v['PRUMO_I82_KEY_ID']);secret=bytes.fromhex(v['PRUMO_I82_HMAC_HEX'])
         with database() as c:
+            from integration.i83.provision_local import private_material_transaction
+            private_material_transaction(c)
             row=c.execute("""select enabled,secret=%s,not_before<=clock_timestamp(),expires_at>clock_timestamp()
               from prumo_private.s1_i83_edge_credentials where key_id=%s""",(secret,key)).fetchone()
             login=c.execute("select rolcanlogin from pg_roles where rolname='prumo_s1_admin_edge_local'").fetchone()[0]
@@ -48,7 +59,15 @@ def scan(directory,container_ids=(),extra=()):
     try:
         v=read_env(directory);values=[v['PRUMO_I82_HMAC_HEX'],v['PRUMO_I82_DATABASE_URL'],urlsplit(v['PRUMO_I82_DATABASE_URL']).password]
     except Blocked as e:
-        if e.code!='STATE_MISSING':raise
+        if e.code=='CREDENTIAL_FILE_INVALID':
+            # Recovery may remove an invalid profile, never execute it. Still
+            # scan its material without treating its URLs/identity as authority.
+            p=Path(directory)/'edge.env';private(p)
+            v=dict(line.split('=',1) for line in p.read_text().splitlines() if '=' in line)
+            values=[v.get('PRUMO_I82_HMAC_HEX'),v.get('PRUMO_I82_DATABASE_URL')]
+            try:values.append(urlsplit(v.get('PRUMO_I82_DATABASE_URL','')).password)
+            except ValueError:pass
+        elif e.code!='STATE_MISSING':raise
     values.extend(extra);needles=[s.encode() for s in values if s]
     for name in (DB,'supabase_auth_prumo-s0-auth-ci',KONG,*container_ids):
         from local_admin.boundary import run

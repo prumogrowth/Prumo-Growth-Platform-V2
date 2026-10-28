@@ -357,6 +357,7 @@ jobs:
         run: |
           python3 -m pip install -r backend/requirements-s0-local.txt
           python3 -m unittest integration.i84.test_boundary -v
+          python3 -O -m unittest integration.i84.test_boundary -v
       - uses: actions/checkout@v4
         with:
           ref: 8780b576aa18bd3983c063339e2e42d2452af22c
@@ -368,6 +369,9 @@ jobs:
         run: python3 -m local_admin prepare --s1-source work-s1-sources
       - name: Real CLI GoTrue SQL Edge rotation revocation uncertain COMMIT and verified disposal
         run: python3 -m integration.i84.test_journey
+      - name: Safe operator status even on failure
+        if: always()
+        run: python3 -m local_admin status
       - name: Only allowlisted nonsecret operator evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -376,6 +380,7 @@ jobs:
           path: |
             ${{ runner.temp }}/prumo_i84_journey.json
             ${{ runner.temp }}/prumo_i84_catalog.json
+            ${{ runner.temp }}/prumo_i84_catalog_initial.json
           retention-days: 14
       - name: Operator cleanup even after partial failure
         if: always()

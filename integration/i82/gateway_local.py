@@ -11,14 +11,14 @@ CONTAINER='supabase_kong_prumo-s0-auth-ci'
 CONFIG='/home/kong/kong.yml'
 
 
-def _read():
-    return subprocess.check_output(['docker','exec',CONTAINER,'cat',CONFIG])
+def _read(env=None):
+    return subprocess.check_output(['docker','exec',CONTAINER,'cat',CONFIG],env=env,stderr=subprocess.PIPE,timeout=30)
 
 
-def _load(content):
+def _load(content,env=None):
     result=subprocess.run(['docker','exec','-i',CONTAINER,'sh','-c',
         'cat > /home/kong/kong.yml && kong reload --nginx-conf /home/kong/custom_nginx.template'],
-        input=content,stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=30)
+        input=content,env=env,stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=30)
     if result.returncode:raise RuntimeError('I82 own disposable gateway reload failed (configuration withheld)')
 
 

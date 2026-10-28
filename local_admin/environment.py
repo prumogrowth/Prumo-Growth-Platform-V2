@@ -11,6 +11,11 @@ def checkout():
     manifest=json.loads((ROOT/'local_admin/dependencies.json').read_text())
     for p,h in manifest['local_sources'].items():
         if digest((ROOT/p).read_bytes())!=h:raise Blocked('CERTIFIED_SOURCE_DRIFT')
+    for pattern in ('supabase/migrations/*.sql','supabase/functions/prumo-admin-i82/**/*'):
+        actual={str(p.relative_to(ROOT)) for p in ROOT.glob(pattern) if p.is_file() and 'node_modules' not in p.relative_to(ROOT).parts}
+        expected={p for p in manifest['local_sources'] if p in actual}
+        if actual!=expected:raise Blocked('UNCERTIFIED_SOURCE_ADDED')
+    if (ROOT/'supabase/seed.sql').exists():raise Blocked('UNCERTIFIED_SEED_FORBIDDEN')
     if (ROOT/'supabase/.temp/project-ref').exists():raise Blocked('HOSTED_PROJECT_LINK_FORBIDDEN')
     return manifest
 
@@ -28,9 +33,9 @@ def discover():
             k,value=line.split('=',1);v[k.strip()]=value.strip().strip('\"').strip("'")
     try:
         api=urlsplit(v['API_URL']);db=urlsplit(v['DB_URL'])
-        assert api.scheme=='http' and api.hostname in('localhost','127.0.0.1') and api.port==54321 and api.path in('','/') and not(api.username or api.password or api.query or api.fragment)
-        assert db.scheme in('postgres','postgresql') and db.hostname in('localhost','127.0.0.1') and db.port==54322 and db.username=='postgres' and db.path=='/postgres' and not(db.query or db.fragment)
-        assert v['ANON_KEY']
+        if not (api.scheme=='http' and api.hostname in('localhost','127.0.0.1') and api.port==54321 and api.path in('','/') and not(api.username or api.password or api.query or api.fragment)):raise ValueError
+        if not (db.scheme in('postgres','postgresql') and db.hostname in('localhost','127.0.0.1') and db.port==54322 and db.username=='postgres' and db.path=='/postgres' and not(db.query or db.fragment)):raise ValueError
+        if not (v['ANON_KEY']):raise ValueError
     except Exception:raise Blocked('LOCAL_STACK_ADDRESS_INVALID') from None
     return {k:v[k] for k in ('DB_URL','API_URL','ANON_KEY')}
 

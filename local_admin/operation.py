@@ -39,11 +39,16 @@ class Operator:
 
     def init(self):
         e.checkout()
-        if self.directory.exists():raise b.Blocked('STATE_ALREADY_EXISTS')
+        reuse=self.directory.exists()
+        if reuse:
+            self.read()
+            if self.state['phase']!='DISCARDED':raise b.Blocked('STATE_ALREADY_EXISTS')
+            if any(p.name not in ('state.json','previous.json') for p in self.directory.iterdir()):raise b.Blocked('CUSTODY_FILES_REMAIN')
         if any(resources().values()):raise b.Blocked('EXISTING_STACK_NOT_ADOPTED')
         if b.run(['supabase','--version']).decode().strip()!='2.84.2':raise b.Blocked('CLI_VERSION_UNCERTIFIED')
         for args in (['start'],['stop'],['status'],['functions','serve']):b.run(['supabase',*args,'--help'])
-        self.directory.mkdir(mode=0o700)
+        if reuse:b.save(self.directory/'previous.json',self.state)
+        else:self.directory.mkdir(mode=0o700)
         self.state={'version':1,'project':b.PROJECT,'root':str(b.ROOT),'engine':e.engine(),'token':str(uuid.uuid4()),'phase':'INITIALIZING','generation':0,'worker':None,'cors':None,'pending':'INIT','db_id':None,'resources':{}}
         self.checkpoint()
         try:
@@ -63,7 +68,7 @@ class Operator:
 
     def prepare(self,source):
         if self.state['phase']!='INITIALIZED':raise b.Blocked('PREPARE_REQUIRES_FRESH_INITIALIZED_STACK')
-        self.verify();self.state.update(phase='PREPARING',pending='PREPARE');self.checkpoint()
+        self.verify();b.save(self.directory/'catalog.initial.json',self.catalog());self.state.update(phase='PREPARING',pending='PREPARE');self.checkpoint()
         def step(name):self.state['dependency_step']=name;self.checkpoint()
         try:
             from local_admin.bootstrap import install
@@ -77,6 +82,7 @@ class Operator:
         old=self.state['phase']
         if old not in ('PREPARED','PROVISIONED','SERVING','REVOKED'):raise b.Blocked('CREDENTIAL_OPERATION_REQUIRES_RECOVERY')
         self.verify()
+        if not self.state.get('worker') and b.inspect(b.EDGE):raise b.Blocked('UNOWNED_WORKER')
         if self.state.get('worker'):
             worker.stop(self.state,self.directory,self.checkpoint)
         self.state.update(phase='UNCERTAIN',pending='CREDENTIAL_CHANGE');self.checkpoint()
@@ -103,6 +109,8 @@ class Operator:
         from integration.i83.provision_local import retire
         retire(e.discover()['DB_URL'])
         with e.database() as c:
+            if c.execute("select rolcanlogin,rolpassword from pg_authid where rolname='prumo_s1_admin_edge_local'").fetchone()!=(False,None):raise b.Blocked('SQL_ADMISSION_REMAINS')
+            if c.execute('select count(*) from prumo_private.s1_i83_edge_credentials where enabled or secret is not null').fetchone()[0]:raise b.Blocked('SIGNING_MATERIAL_REMAINS')
             if c.execute("select count(*) from pg_stat_activity where usename='prumo_s1_admin_edge_local'").fetchone()[0]:raise b.Blocked('DEDICATED_SESSIONS_REMAIN')
 
     def revoke(self):
@@ -130,18 +138,21 @@ class Operator:
             if any(current.values()):raise b.Blocked('FOREIGN_STACK_PRESENT')
             return self.safe_status()
         partial=self.state['phase'] in ('INIT_FAILED','INITIALIZING')
-        if partial:
+        stopped=self.state['phase']=='STOPPING' and not any(current.values())
+        if stopped:
+            if not self.state.get('stop_authorized'):raise b.Blocked('STOP_PROOF_MISSING')
+        elif partial:
             if current!=self.state['resources'] or not any(current.values()):raise b.Blocked('PARTIAL_RESOURCE_IDENTITY_UNPROVEN')
         else:e.owned(self.state)
-        if not partial:
+        if not partial and not stopped:
             if (self.directory/'catalog.json').exists():
                 self.retire();worker.stop(self.state,self.directory,self.checkpoint)
                 custody.scan(self.directory)
                 self.state['retirement_verified']=True
-        self.state.update(phase='STOPPING',pending='DOWN');self.checkpoint()
-        b.run(['supabase','stop','--no-backup'])
+        self.state.update(phase='STOPPING',pending='DOWN',stop_authorized=True);self.checkpoint()
+        if not stopped:b.run(['supabase','stop','--no-backup'])
         if any(resources().values()):raise b.Blocked('STACK_RESOURCES_REMAIN')
-        for n in ('edge.env','edge.env.next','worker.log','catalog.json','state.json.next'):
+        for n in ('edge.env','edge.env.next','worker.log','catalog.json','catalog.initial.json','state.json.next'):
             p=self.directory/n
             if p.is_symlink():raise b.Blocked('CUSTODY_SYMLINK')
             p.unlink(missing_ok=True)
@@ -152,14 +163,18 @@ class Operator:
         phase=self.state['phase']
         result={'version':'prumo.admin.local.v1','phase':phase,'generation':self.state['generation'],'pending':self.state.get('pending'),'hosted_enabled':False}
         if phase=='DISCARDED':return {**result,'material_removed':not (self.directory/'edge.env').exists(),'resources_absent':not any(resources().values()),'retirement_verified':self.state.get('retirement_verified',False)}
-        if phase in ('INIT_FAILED','INITIALIZING','PREPARING','PREPARE_FAILED','INITIALIZED'):return result
+        if phase in ('INIT_FAILED','INITIALIZING'):return result
+        if phase in ('PREPARING','PREPARE_FAILED','INITIALIZED'):
+            e.owned(self.state)
+            return {**result,'dependency_step':self.state.get('dependency_step')}
         self.verify();result['credential']=custody.credential_state(self.directory)
         result['worker']=worker.container_matches(self.state,self.directory)
-        result['ready']=phase=='SERVING' and result['credential']=='VALID' and result['worker']=='CURRENT'
+        result['ready']=phase=='SERVING' and result['credential']=='VALID' and result['worker']=='CURRENT' and worker.available()
         return result
 
     def execute(self,command,source=None):
         with b.locked():
+            e.checkout()
             if command=='init':return self.init()
             self.read()
             if command=='prepare':return self.prepare(source)

@@ -79,6 +79,12 @@ class Journey(unittest.TestCase):
         state=b.load(b.DEFAULT/'state.json');worker_id=state['worker']['container']
         self.assertTrue(self.cli('restart')['ready']);self.assertNotEqual(b.load(b.DEFAULT/'state.json')['worker']['container'],worker_id)
         self.mark('07_explicit_restart_new_container')
+        # Actual old worker must never count as ready for a changed private file.
+        file=b.DEFAULT/'edge.env';original=custody.read_env(b.DEFAULT)
+        p.write_env(file,{**original,'PRUMO_I82_HMAC_HEX':'ab'*48})
+        status=self.cli('status');self.assertFalse(status['ready']);self.assertEqual(status['worker'],'STALE');self.assertEqual(status['credential'],'INVALID')
+        p.write_env(file,original);self.assertTrue(self.cli('status')['ready'])
+        self.mark('13_stale_actual_worker_configuration_not_ready')
         self.assertEqual(self.cli('revoke')['credential'],'REVOKED')
         code,body=self.http(payload);self.assertNotEqual(code,200);self.assertEqual(self.count(),before)
         self.mark('08_old_running_worker_after_revocation_cannot_reapply')
@@ -86,7 +92,11 @@ class Journey(unittest.TestCase):
         self.cli('provision');self.remember();self.cli('serve')
         # Explicit failure after a real successful COMMIT, before custody write.
         self.cli('worker-stop');op=Operator()
-        def fail_after_commit(*args,**kwargs):raise OSError('do not expose injected details')
+        def fail_after_commit(*args,**kwargs):
+            from urllib.parse import urlsplit
+            values=args[1]
+            self.sensitive.extend([values['PRUMO_I82_HMAC_HEX'],values['PRUMO_I82_DATABASE_URL'],urlsplit(values['PRUMO_I82_DATABASE_URL']).password])
+            raise OSError('do not expose injected details')
         with patch.object(p,'write_env',fail_after_commit):
             with self.assertRaises(OSError):op.execute('rotate')
         self.assertEqual(self.cli('status')['phase'],'UNCERTAIN')
@@ -103,10 +113,37 @@ class Journey(unittest.TestCase):
         custody.scan(b.DEFAULT,extra=self.sensitive);self.mark('11_exact_catalog_and_log_secrecy')
         # Archive metadata only, before down removes protected local catalog.
         root=Path(os.environ.get('RUNNER_TEMP','/tmp'))
+        (root/'prumo_i84_catalog_initial.json').write_text(json.dumps(b.load(b.DEFAULT/'catalog.initial.json'),indent=2)+'\n')
         (root/'prumo_i84_catalog.json').write_text(json.dumps(final,indent=2)+'\n')
         proof=self.cli('down');self.assertTrue(proof['material_removed']);self.assertTrue(proof['resources_absent']);self.assertTrue(proof['retirement_verified'])
         self.assertFalse(any(resources().values()));self.assertEqual(self.cli('down')['phase'],'DISCARDED');self.mark('12_stack_volumes_network_env_log_cleanup_verified')
-        proof={'version':'prumo.i84.evidence.v1','checks':self.evidence,'cleanup':proof,'catalog_equal':True,'secret_matches':0}
+        # A second fresh stack proves recovery from genuinely partial SQL setup.
+        op=Operator();op.execute('init')
+        self.assertEqual(b.load(b.DEFAULT/'previous.json')['phase'],'DISCARDED')
+        from local_admin import bootstrap
+        original_apply=bootstrap.apply;calls=[]
+        def partial(data,flag=None):
+            original_apply(data,flag);calls.append(flag)
+            if len(calls)==2:raise OSError('local fault after committed dependency')
+        with patch.object(bootstrap,'apply',partial):
+            with self.assertRaises(OSError):op.execute('prepare','work-s1-sources')
+        self.assertEqual(op.execute('status')['phase'],'PREPARE_FAILED')
+        with e.database() as c:
+            self.assertTrue(c.execute("select to_regclass('prumo_private.cfi01_human_closure_events_local') is not null").fetchone()[0])
+            self.assertEqual(c.execute('select count(*) from auth.users').fetchone()[0],0)
+        original_run=b.run
+        def lose_stop_response(argv,**kwargs):
+            result=original_run(argv,**kwargs)
+            if argv==['supabase','stop','--no-backup']:raise OSError('local acknowledgement lost after physical stop')
+            return result
+        with patch.object(b,'run',lose_stop_response):
+            with self.assertRaises(OSError):op.execute('down')
+        self.assertEqual(b.load(b.DEFAULT/'state.json')['phase'],'STOPPING')
+        self.assertFalse(any(resources().values()))
+        partial_proof=op.execute('down');self.assertTrue(partial_proof['resources_absent']);self.assertTrue(partial_proof['material_removed'])
+        self.mark('15_stop_acknowledgement_loss_cleanup_reconciles_without_database')
+        self.mark('14_partial_real_dependency_install_discard_without_escalation')
+        proof={'version':'prumo.i84.evidence.v1','checks':self.evidence,'cleanup':proof,'catalog_equal':True,'secret_matches':0,'partial_cleanup':partial_proof}
         data=json.dumps(proof,indent=2)
         for secret in self.sensitive:self.assertNotIn(secret,data)
         (root/'prumo_i84_journey.json').write_text(data+'\n')
