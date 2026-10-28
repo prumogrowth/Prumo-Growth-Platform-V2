@@ -16,6 +16,13 @@ preexistente, inclusive stack criada pela suíte. Requer criação inteiramente 
 O operador não aceita URL, projeto remoto, identidade humana, senha ou HMAC em
 argumentos. Recusa link `supabase/.temp/project-ref`, configuração diferente do
 manifesto, CLI diferente e endereços fora do loopback fixo. Docker sempre local.
+Antes de iniciar, cria a própria bridge Docker com default de publicação
+`com.docker.network.bridge.host_binding_ipv4=127.0.0.1`. O CLI fixado preserva a
+rede preexistente. Confere ID/opção da rede e bindings efetivos de DB/Kong em
+cada operação; recusa 0.0.0.0/:: ou portas diferentes. Não basta API_URL loopback:
+o default do Supabase CLI 2.84.2 publica os serviços em todas as interfaces.
+Essa restrição é exclusivamente Docker local, sem alterar firewall/TLS hospedado.
+
 Confirma engine Docker, ID físico do DB e marcador aleatório no comentário do
 banco; não cria tabela de identidade ou segundo cofre. Não abrir as portas locais
 à rede nem executar em máquina compartilhada com usuários não confiáveis.

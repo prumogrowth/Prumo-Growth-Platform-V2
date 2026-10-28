@@ -10,7 +10,7 @@ def resources():
     return {
       'containers':b.docker('ps','-a','--no-trunc','--filter','name=_'+b.PROJECT+'$','--format','{{.ID}}').decode().split(),
       'volumes':b.docker('volume','ls','--format','{{.Name}}','--filter','name='+b.PROJECT).decode().split(),
-      'networks':b.docker('network','ls','--format','{{.Name}}','--filter','name=^'+b.NETWORK+'$').decode().split()}
+      'networks':b.docker('network','ls','--no-trunc','--format','{{.ID}}','--filter','name=^'+b.NETWORK+'$').decode().split()}
 
 
 class Operator:
@@ -49,9 +49,16 @@ class Operator:
         for args in (['start'],['stop'],['status'],['functions','serve']):b.run(['supabase',*args,'--help'])
         if reuse:b.save(self.directory/'previous.json',self.state)
         else:self.directory.mkdir(mode=0o700)
-        self.state={'version':1,'project':b.PROJECT,'root':str(b.ROOT),'engine':e.engine(),'token':str(uuid.uuid4()),'phase':'INITIALIZING','generation':0,'worker':None,'cors':None,'pending':'INIT','db_id':None,'resources':{}}
+        self.state={'version':1,'project':b.PROJECT,'root':str(b.ROOT),'engine':e.engine(),'token':str(uuid.uuid4()),'phase':'INITIALIZING','generation':0,'worker':None,'cors':None,'pending':'INIT','db_id':None,'network_id':None,'resources':{}}
         self.checkpoint()
         try:
+            # The pinned CLI otherwise publishes DB/Kong on every interface.
+            # Its existing network-create helper preserves a precreated bridge.
+            self.state['network_id']=b.docker('network','create','--driver','bridge',
+              '--label','com.supabase.cli.project='+b.PROJECT,
+              '--label','com.docker.compose.project='+b.PROJECT,
+              '--opt','com.docker.network.bridge.host_binding_ipv4=127.0.0.1',b.NETWORK).decode().strip()
+            self.state['resources']=resources();self.checkpoint()
             b.run(['supabase','start','--exclude',b.EXCLUDE])
             self.state['resources']=resources();self.state['db_id']=b.inspect(b.DB);self.checkpoint()
             if not self.state['db_id']:raise b.Blocked('DATABASE_NOT_INITIALIZED')
@@ -138,7 +145,7 @@ class Operator:
             if any(current.values()):raise b.Blocked('FOREIGN_STACK_PRESENT')
             return self.safe_status()
         partial=self.state['phase'] in ('INIT_FAILED','INITIALIZING')
-        stopped=self.state['phase']=='STOPPING' and not any(current.values())
+        stopped=self.state['phase']=='STOPPING' and not current['containers'] and not current['volumes'] and all(n==self.state.get('network_id') for n in current['networks'])
         if stopped:
             if not self.state.get('stop_authorized'):raise b.Blocked('STOP_PROOF_MISSING')
         elif partial:
@@ -151,6 +158,9 @@ class Operator:
                 self.state['retirement_verified']=True
         self.state.update(phase='STOPPING',pending='DOWN',stop_authorized=True);self.checkpoint()
         if not stopped:b.run(['supabase','stop','--no-backup'])
+        remaining=resources()
+        if not remaining['containers'] and not remaining['volumes'] and remaining['networks']==[self.state.get('network_id')]:
+            b.docker('network','rm',self.state['network_id'])
         if any(resources().values()):raise b.Blocked('STACK_RESOURCES_REMAIN')
         for n in ('edge.env','edge.env.next','worker.log','catalog.json','catalog.initial.json','state.json.next'):
             p=self.directory/n

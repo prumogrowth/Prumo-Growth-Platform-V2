@@ -54,6 +54,7 @@ class Journey(unittest.TestCase):
             self.assertEqual(c.execute('select count(*) from auth.users').fetchone()[0],0)
             self.assertEqual(c.execute("select count(*) from pg_roles where rolname like 'prumo_%' and rolcanlogin").fetchone()[0],0)
         self.assertEqual(self.cli('status')['phase'],'PREPARED')
+        e.network_boundary(b.load(b.DEFAULT/'state.json'));self.mark('16_physical_db_gateway_bindings_loopback_only')
         self.assertEqual(self.cli('serve',False)['code'],'SERVE_REQUIRES_PROVISIONED')
         self.mark('02_absent_credentials_denied')
         self.assertEqual(self.cli('provision')['credential'],'VALID');old=self.remember()
@@ -143,7 +144,7 @@ class Journey(unittest.TestCase):
         partial_proof=op.execute('down');self.assertTrue(partial_proof['resources_absent']);self.assertTrue(partial_proof['material_removed'])
         self.mark('15_stop_acknowledgement_loss_cleanup_reconciles_without_database')
         self.mark('14_partial_real_dependency_install_discard_without_escalation')
-        proof={'version':'prumo.i84.evidence.v1','checks':self.evidence,'cleanup':proof,'catalog_equal':True,'secret_matches':0,'partial_cleanup':partial_proof}
+        proof={'version':'prumo.i84.evidence.v1','checks':self.evidence,'cleanup':proof,'catalog_equal':True,'network_loopback':True,'secret_matches':0,'partial_cleanup':partial_proof}
         data=json.dumps(proof,indent=2)
         for secret in self.sensitive:self.assertNotIn(secret,data)
         (root/'prumo_i84_journey.json').write_text(data+'\n')

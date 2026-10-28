@@ -52,6 +52,7 @@ def engine():return docker('info','--format','{{.ID}}').decode().strip()
 def owned(state):
     if state.get('version')!=1 or state.get('project')!=PROJECT or state.get('root')!=str(ROOT) or state.get('engine')!=engine():raise Blocked('STATE_IDENTITY_INVALID')
     if inspect(DB)!=state.get('db_id'):raise Blocked('STACK_IDENTITY_CHANGED')
+    network_boundary(state)
     with database() as c:
         row=c.execute("select shobj_description(oid,'pg_database') from pg_database where datname=current_database()").fetchone()
         if row[0]!='PRUMO_I84_DISPOSABLE:'+state['token']:raise Blocked('STACK_MARKER_MISMATCH')
@@ -66,3 +67,19 @@ def runtime_env(value):
     return {'PRUMO_I82_DISPOSABLE':'YES','PRUMO_I83_DEDICATED':'YES','PRUMO_I82_AUTH_URL':'http://supabase_kong_'+PROJECT+':8000',
       'PRUMO_I82_DATABASE_URL':value.dsn(e['DB_URL'],True),'PRUMO_I82_DATABASE_IPV4':addresses[0],'PRUMO_I82_ANON_KEY':e['ANON_KEY'],
       'PRUMO_I82_KEY_ID':str(value.key_id),'PRUMO_I82_HMAC_HEX':value.secret.hex(),'PRUMO_I82_ALLOW_ORIGIN':'http://localhost:3000'}
+
+
+def network_boundary(state):
+    actual=docker('network','inspect','--format','{{.Id}}',NETWORK).decode().strip()
+    if actual!=state.get('network_id'):raise Blocked('NETWORK_IDENTITY_CHANGED')
+    options=json.loads(docker('network','inspect','--format','{{json .Options}}',NETWORK))
+    if options.get('com.docker.network.bridge.host_binding_ipv4')!='127.0.0.1':raise Blocked('NETWORK_BINDING_POLICY_INVALID')
+    from local_admin.boundary import KONG
+    for name,port,hostport in ((DB,'5432/tcp','54322'),(KONG,'8000/tcp','54321')):
+        ports=json.loads(docker('inspect','--format','{{json .NetworkSettings.Ports}}',name))
+        bindings=ports.get(port)
+        if not bindings:raise Blocked('LOCAL_PORT_BINDING_MISSING')
+        for values in ports.values():
+            for value in values or []:
+                if value.get('HostIp') not in ('127.0.0.1','::1'):raise Blocked('NETWORK_ACCESSIBLE_BINDING_FORBIDDEN')
+        if any(v.get('HostPort')!=hostport for v in bindings):raise Blocked('LOCAL_PORT_BINDING_CHANGED')
