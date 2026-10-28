@@ -77,7 +77,8 @@ def _record(directory, action, label=None, phase=None):
     fd = os.open(path, flags, 0o600)
     try:
         b.private(path)
-        os.write(fd, data)
+        if os.write(fd, data) != len(data):
+            _blocked("I85_AUDIT_SHORT_WRITE")
         os.fsync(fd)
     finally:
         os.close(fd)
@@ -128,7 +129,7 @@ class Bootstrap:
 
     def save(self, event, label=None):
         b.save(self.state_file, self.state)
-        _record(self.dir, event, label)
+        _record(self.dir, event, label, self.state["authority"]["phase"])
 
     def secrets(self):
         return b.load(self.secret_file)
