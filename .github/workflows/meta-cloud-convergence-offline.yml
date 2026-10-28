@@ -1,16 +1,48 @@
-name: Meta offline convergence
+name: Meta Cloud audit convergence - offline
 on:
   push:
     branches: [audit/meta-cloud-convergence-20261028-v1]
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [audit/meta-cloud-generic-identifier-guard-20261027]
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
   convergence:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: node --experimental-strip-types --test integrations/whatsapp-meta/cloud-convergence-scope.test.ts
+      - name: Shared HMAC scope and composed convergence (12)
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --experimental-strip-types --test --test-concurrency=1 integrations/whatsapp-meta/cloud-convergence-scope.test.ts 2>&1 | tee "$RUNNER_TEMP/meta-convergence-new.tap"
+          grep -qx '# tests 12' "$RUNNER_TEMP/meta-convergence-new.tap"
+          grep -qx '# pass 12' "$RUNNER_TEMP/meta-convergence-new.tap"
+          grep -qx '# fail 0' "$RUNNER_TEMP/meta-convergence-new.tap"
+      - name: Existing HMAC, composition, identity, status and narrow regressions (214)
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --experimental-strip-types --test --test-concurrency=1 \
+            integrations/whatsapp-meta/cloud-composed-identity-guard.test.ts \
+            integrations/whatsapp-meta/cloud-composed-observation-audit.test.ts \
+            integrations/whatsapp-meta/cloud-composed-observation-handoff.test.ts \
+            integrations/whatsapp-meta/cloud-failed-status-errors-handoff.test.ts \
+            integrations/whatsapp-meta/cloud-unsupported-inbound-handoff.test.ts \
+            integrations/whatsapp-meta/cloud-media-metadata-handoff.test.ts \
+            integrations/whatsapp-meta/cloud-reaction-handoff.test.ts \
+            integrations/whatsapp-meta/cloud-list-reply-handoff.test.ts \
+            integrations/whatsapp-meta/cloud-button-reply-handoff.test.ts \
+            integrations/whatsapp-meta/cloud-webhook-handoff.test.ts \
+            integrations/whatsapp-meta/inbound.test.ts \
+            integrations/whatsapp-meta/routed-webhook.test.ts \
+            2>&1 | tee "$RUNNER_TEMP/meta-convergence-prior.tap"
+          grep -qx '# tests 214' "$RUNNER_TEMP/meta-convergence-prior.tap"
+          grep -qx '# pass 214' "$RUNNER_TEMP/meta-convergence-prior.tap"
+          grep -qx '# fail 0' "$RUNNER_TEMP/meta-convergence-prior.tap"
