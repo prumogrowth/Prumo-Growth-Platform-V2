@@ -7,7 +7,7 @@
     "docs/contratos/i86_authority/",
     ".github/workflows/exp-s1-i86-governanca.yml"
   ],
-  "code_sha": "PENDING_CI",
+  "code_sha": "c1b66cb009a56e2049148f118395ab5cb98dc4ea",
   "code_files": {
     ".github/workflows/exp-s1-i86-governanca.yml": "4160133fbf0b3184177c4906edd8d1cb959c15e11413e03204bc5713e94a6baf",
     "integration/i86/__init__.py": "5920e5215f85ccdb4c4ae35911444cff575903508ac437e99b9baa4a0d42d714",
@@ -26,8 +26,11 @@
     "docs/contratos/i86_authority/CONTRATO_CANDIDATO_V1.md",
     "docs/contratos/i86_authority/DECISOES.json",
     "docs/contratos/i86_authority/DIAGNOSTICO_E_INTERFACES.md",
+    "docs/contratos/i86_authority/MANIFESTO.json",
     "docs/contratos/i86_authority/MATRIZ_VALIDACAO.json",
-    "docs/contratos/i86_authority/MANIFESTO.json"
+    "docs/contratos/i86_authority/RELATORIO.md"
   ],
-  "inventory_authority": "Relatórios de escopo da CI incluem cada commit e índice/worktree/ignorados, inclusive o manifesto; hashes de código aqui não incluem o próprio manifesto para evitar autorreferência."
+  "inventory_authority": "Relatórios de escopo da CI incluem cada commit e índice/worktree/ignorados, inclusive o manifesto; hashes de código aqui não incluem o próprio manifesto para evitar autorreferência.",
+  "ci_run": 40731718955,
+  "ci_status": "SUCCESS"
 }

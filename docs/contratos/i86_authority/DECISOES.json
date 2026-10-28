@@ -40,35 +40,60 @@
       "question": "Quem possui autoridade organizacional para nomear/substituir Diretor",
       "owner": "Orquestração com responsável organizacional a designar",
       "status": "PENDING_DECISION",
-      "operationally_enabled": false
+      "operationally_enabled": false,
+      "unratified_options": [
+        "Órgão organizacional externo explicitamente designado",
+        "Delegação formal a uma autoridade humana existente"
+      ],
+      "technical_recommendation": "Exigir fonte verificável e escopo explícito; não presumir poder do Diretor atual ou do instalador"
     },
     {
       "id": "D02",
       "question": "Número, forma, validade e revogação das aprovações e sua evidência verificável",
       "owner": "Orquestração com responsável organizacional a designar",
       "status": "PENDING_DECISION",
-      "operationally_enabled": false
+      "operationally_enabled": false,
+      "unratified_options": [
+        "Ato único com fonte autorizada",
+        "Aprovações múltiplas com quórum a definir"
+      ],
+      "technical_recommendation": "Definir proveniência, integridade, versão e revogação da prova; nenhum número ou prazo é escolhido nesta I86"
     },
     {
       "id": "D03",
       "question": "Continuidade e sequência da substituição, inclusive eventual intervalo sem responsável",
       "owner": "Orquestração com responsável organizacional a designar",
       "status": "PENDING_DECISION",
-      "operationally_enabled": false
+      "operationally_enabled": false,
+      "unratified_options": [
+        "Substituição atômica coberta por ato aprovado",
+        "Retirada e posterior entrada em atos distintos aprovados"
+      ],
+      "technical_recommendation": "Ratificar continuidade e sequência antes de implementar; não inferir sobreposição ou transferência comercial"
     },
     {
       "id": "D04",
       "question": "Autoridade e evidência de recuperação após perda do último responsável",
       "owner": "Orquestração com responsável organizacional a designar",
       "status": "PENDING_DECISION",
-      "operationally_enabled": false
+      "operationally_enabled": false,
+      "unratified_options": [
+        "Suplência organizacional previamente aprovada",
+        "Procedimento externo formal de recuperação"
+      ],
+      "technical_recommendation": "Separar capacidade técnica de recuperação da autoridade organizacional; nunca reutilizar bootstrap único"
     },
     {
       "id": "D05",
       "question": "Autoridade para revogação humana ordinária e efeitos organizacionais adicionais",
       "owner": "Orquestração com responsável organizacional a designar",
       "status": "PENDING_DECISION",
-      "operationally_enabled": false
+      "operationally_enabled": false,
+      "unratified_options": [
+        "Mesma fonte organizacional da nomeação",
+        "Delegação formal de revogação com escopo explícito"
+      ],
+      "technical_recommendation": "Definir competência humana antes da porta; preservar retirada técnica sintética I85 como teste separado"
     }
   ]
 }

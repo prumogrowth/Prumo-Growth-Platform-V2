@@ -1,7 +1,7 @@
 {
   "version": "prumo.i86.validation.v1",
   "base": "3cab3d57619cc1157698a08ac26f34e0c363f6dd",
-  "closure": "I86_LAB_BLOCKED",
+  "closure": "I86_LAB_CONDITIONAL",
   "local": [
     {
       "layer": "MODEL_DTO",
@@ -26,163 +26,185 @@
       "id": "01",
       "scenario": "test_01_canonical_identity_and_competence_separated",
       "layer": "REAL_AUTH_PG17_EDGE",
-      "result": "NOT_TESTED",
-      "evidence": "CI pendente"
+      "result": "PASS",
+      "evidence": "CI40731718955/job122969729921/artifact12834664649/prumo_i86_real.json#test_01_canonical_identity_and_competence_separated",
+      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional"
     },
     {
       "id": "02",
       "scenario": "test_02_manager_with_no_children_has_no_director_competence",
       "layer": "REAL_AUTH_PG17_EDGE",
-      "result": "NOT_TESTED",
-      "evidence": "CI pendente"
+      "result": "PASS",
+      "evidence": "CI40731718955/job122969729921/artifact12834664649/prumo_i86_real.json#test_02_manager_with_no_children_has_no_director_competence",
+      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional"
     },
     {
       "id": "03",
       "scenario": "test_03_auth_only_metadata_cannot_promote",
       "layer": "REAL_AUTH_PG17_EDGE",
-      "result": "NOT_TESTED",
-      "evidence": "CI pendente"
+      "result": "PASS",
+      "evidence": "CI40731718955/job122969729921/artifact12834664649/prumo_i86_real.json#test_03_auth_only_metadata_cannot_promote",
+      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional"
     },
     {
       "id": "04",
       "scenario": "test_04_service_role_is_not_a_human",
       "layer": "REAL_AUTH_PG17_EDGE",
-      "result": "NOT_TESTED",
-      "evidence": "CI pendente"
+      "result": "PASS",
+      "evidence": "CI40731718955/job122969729921/artifact12834664649/prumo_i86_real.json#test_04_service_role_is_not_a_human",
+      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional"
     },
     {
       "id": "05",
       "scenario": "test_05_payload_identity_is_rejected_without_mutation",
       "layer": "REAL_AUTH_PG17_EDGE",
-      "result": "NOT_TESTED",
-      "evidence": "CI pendente"
+      "result": "PASS",
+      "evidence": "CI40731718955/job122969729921/artifact12834664649/prumo_i86_real.json#test_05_payload_identity_is_rejected_without_mutation",
+      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional"
     },
     {
       "id": "06",
       "scenario": "test_06_same_key_replays_one_observation_and_audits",
       "layer": "REAL_AUTH_PG17_EDGE",
-      "result": "NOT_TESTED",
-      "evidence": "CI pendente"
+      "result": "PASS",
+      "evidence": "CI40731718955/job122969729921/artifact12834664649/prumo_i86_real.json#test_06_same_key_replays_one_observation_and_audits",
+      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional"
     },
     {
       "id": "07",
       "scenario": "test_07_divergent_key_payload_conflicts",
       "layer": "REAL_AUTH_PG17_EDGE",
-      "result": "NOT_TESTED",
-      "evidence": "CI pendente"
+      "result": "PASS",
+      "evidence": "CI40731718955/job122969729921/artifact12834664649/prumo_i86_real.json#test_07_divergent_key_payload_conflicts",
+      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional"
     },
     {
       "id": "08",
       "scenario": "test_08_cas_obsolete_does_not_record",
       "layer": "REAL_AUTH_PG17_EDGE",
-      "result": "NOT_TESTED",
-      "evidence": "CI pendente"
+      "result": "PASS",
+      "evidence": "CI40731718955/job122969729921/artifact12834664649/prumo_i86_real.json#test_08_cas_obsolete_does_not_record",
+      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional"
     },
     {
       "id": "09",
       "scenario": "test_09_same_visible_authority_new_revision_invalidates_replay",
       "layer": "REAL_AUTH_PG17_EDGE",
-      "result": "NOT_TESTED",
-      "evidence": "CI pendente"
+      "result": "PASS",
+      "evidence": "CI40731718955/job122969729921/artifact12834664649/prumo_i86_real.json#test_09_same_visible_authority_new_revision_invalidates_replay",
+      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional"
     },
     {
       "id": "10",
       "scenario": "test_10_concurrent_same_key_is_one_durable_observation",
       "layer": "REAL_AUTH_PG17_EDGE",
-      "result": "NOT_TESTED",
-      "evidence": "CI pendente"
+      "result": "PASS",
+      "evidence": "CI40731718955/job122969729921/artifact12834664649/prumo_i86_real.json#test_10_concurrent_same_key_is_one_durable_observation",
+      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional"
     },
     {
       "id": "11",
       "scenario": "test_11_distinct_intents_do_not_appoint_two_directors",
       "layer": "REAL_AUTH_PG17_EDGE",
-      "result": "NOT_TESTED",
-      "evidence": "CI pendente"
+      "result": "PASS",
+      "evidence": "CI40731718955/job122969729921/artifact12834664649/prumo_i86_real.json#test_11_distinct_intents_do_not_appoint_two_directors",
+      "limitation": "Duas observações técnicas concorrentes; não comprova duas decisões organizacionais ratificadas. Nomeação continua PENDING_DECISION."
     },
     {
       "id": "12",
       "scenario": "test_12_real_logout_denies_replay",
       "layer": "REAL_AUTH_PG17_EDGE",
-      "result": "NOT_TESTED",
-      "evidence": "CI pendente"
+      "result": "PASS",
+      "evidence": "CI40731718955/job122969729921/artifact12834664649/prumo_i86_real.json#test_12_real_logout_denies_replay",
+      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional"
     },
     {
       "id": "13",
       "scenario": "test_13_expired_session_denied_in_sql",
       "layer": "REAL_AUTH_PG17_EDGE",
-      "result": "NOT_TESTED",
-      "evidence": "CI pendente"
+      "result": "PASS",
+      "evidence": "CI40731718955/job122969729921/artifact12834664649/prumo_i86_real.json#test_13_expired_session_denied_in_sql",
+      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional"
     },
     {
       "id": "14",
       "scenario": "test_14_session_expiring_while_waiting_is_rechecked",
       "layer": "REAL_AUTH_PG17_EDGE",
-      "result": "NOT_TESTED",
-      "evidence": "CI pendente"
+      "result": "PASS",
+      "evidence": "CI40731718955/job122969729921/artifact12834664649/prumo_i86_real.json#test_14_session_expiring_while_waiting_is_rechecked",
+      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional"
     },
     {
       "id": "15",
       "scenario": "test_15_sigkill_before_commit_rolls_back_both_evidence_tables",
       "layer": "REAL_AUTH_PG17_EDGE",
-      "result": "NOT_TESTED",
-      "evidence": "CI pendente"
+      "result": "PASS",
+      "evidence": "CI40731718955/job122969729921/artifact12834664649/prumo_i86_real.json#test_15_sigkill_before_commit_rolls_back_both_evidence_tables",
+      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional"
     },
     {
       "id": "16",
       "scenario": "test_16_sigkill_after_commit_reconciles_same_key",
       "layer": "REAL_AUTH_PG17_EDGE",
-      "result": "NOT_TESTED",
-      "evidence": "CI pendente"
+      "result": "PASS",
+      "evidence": "CI40731718955/job122969729921/artifact12834664649/prumo_i86_real.json#test_16_sigkill_after_commit_reconciles_same_key",
+      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional"
     },
     {
       "id": "17",
       "scenario": "test_17_deferred_audit_failure_never_reports_commit",
       "layer": "REAL_AUTH_PG17_EDGE",
-      "result": "NOT_TESTED",
-      "evidence": "CI pendente"
+      "result": "PASS",
+      "evidence": "CI40731718955/job122969729921/artifact12834664649/prumo_i86_real.json#test_17_deferred_audit_failure_never_reports_commit",
+      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional"
     },
     {
       "id": "18",
       "scenario": "test_18_private_evidence_cannot_be_read_or_executed_by_client_roles",
       "layer": "REAL_AUTH_PG17_EDGE",
-      "result": "NOT_TESTED",
-      "evidence": "CI pendente"
+      "result": "PASS",
+      "evidence": "CI40731718955/job122969729921/artifact12834664649/prumo_i86_real.json#test_18_private_evidence_cannot_be_read_or_executed_by_client_roles",
+      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional"
     },
     {
       "id": "19",
       "scenario": "test_19_dedicated_login_cannot_assume_owners_or_touch_auth",
       "layer": "REAL_AUTH_PG17_EDGE",
-      "result": "NOT_TESTED",
-      "evidence": "CI pendente"
+      "result": "PASS",
+      "evidence": "CI40731718955/job122969729921/artifact12834664649/prumo_i86_real.json#test_19_dedicated_login_cannot_assume_owners_or_touch_auth",
+      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional"
     },
     {
       "id": "20",
       "scenario": "test_20_evidence_is_immutable_and_cannot_claim_ratification",
       "layer": "REAL_AUTH_PG17_EDGE",
-      "result": "NOT_TESTED",
-      "evidence": "CI pendente"
+      "result": "PASS",
+      "evidence": "CI40731718955/job122969729921/artifact12834664649/prumo_i86_real.json#test_20_evidence_is_immutable_and_cannot_claim_ratification",
+      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional"
     },
     {
       "id": "21",
       "scenario": "test_21_restricted_edge_profile_survives_existing_rotation",
       "layer": "REAL_AUTH_PG17_EDGE",
-      "result": "NOT_TESTED",
-      "evidence": "CI pendente"
+      "result": "PASS",
+      "evidence": "CI40731718955/job122969729921/artifact12834664649/prumo_i86_real.json#test_21_restricted_edge_profile_survives_existing_rotation",
+      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional"
     },
     {
       "id": "99",
       "scenario": "test_99_revocation_orders_with_live_observation_and_never_reactivates",
       "layer": "REAL_AUTH_PG17_EDGE",
-      "result": "NOT_TESTED",
-      "evidence": "CI pendente"
+      "result": "PASS",
+      "evidence": "CI40731718955/job122969729921/artifact12834664649/prumo_i86_real.json#test_99_revocation_orders_with_live_observation_and_never_reactivates",
+      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional"
     }
   ],
   "inherited_regressions": [
     {
       "component": "I79/I80/I81/I82/I83/I84/I85",
       "proof": "Jornada I85 original, seis comandos/13 pontos, perfis e catálogo",
-      "result": "NOT_TESTED",
-      "evidence": "Job físico I86 pendente"
+      "result": "PASS",
+      "evidence": "CI40731718955/job122969730081/artifact12835745913; um E2E I85, 13 pontos, seis comandos, catálogo e perfil restrito"
     },
     {
       "component": "CFI-01 e suites completas I79/G1 62, I80 33, I81 14, I82 20, I83 35, I85 resistência29",
@@ -211,6 +233,156 @@
       "operation": "REVOKE_ORGANIZATIONAL_AUTHORITY",
       "result": "PENDING_DECISION",
       "operationally_enabled": false
+    }
+  ],
+  "code_sha": "c1b66cb009a56e2049148f118395ab5cb98dc4ea",
+  "ci_run": 40731718955,
+  "ci_status": "SUCCESS",
+  "real_summary": {
+    "status": "PASS",
+    "planned_tests": 22,
+    "tests_run": 22,
+    "skipped": 0,
+    "not_tested": [],
+    "final": {
+      "catalog_equal": true,
+      "credential_log_matches": 0,
+      "cleanup": {
+        "resources_absent": true,
+        "private_material_removed": true,
+        "uncertain_nonsecret_evidence_retained": false,
+        "lab_identity_sha256": "4671dc5847014e0e41247e3982dc641b5de94d15fc1aea95d4216fdea16f1e9c",
+        "physical_identity_complete": true,
+        "hosted_enabled": false
+      },
+      "source_head": "c1b66cb009a56e2049148f118395ab5cb98dc4ea"
+    },
+    "governance": "PENDING_DECISION"
+  },
+  "artifacts": [
+    {
+      "id": 12836100118,
+      "zip_sha256": "ccb30eff4f0a9746f3d8b9683c7e885aa6a1c6714632ac70f5076776f4530d98",
+      "members": [
+        {
+          "name": "prumo_i86_scope_after.json",
+          "sha256": "321aa73774c0573f9f41d47fcc75c587679aede17b2924294361168188855bb0"
+        },
+        {
+          "name": "prumo_i86_scope_before.json",
+          "sha256": "321aa73774c0573f9f41d47fcc75c587679aede17b2924294361168188855bb0"
+        }
+      ]
+    },
+    {
+      "id": 12835745913,
+      "zip_sha256": "370e0e887e658737f8923afcac862735debc7ba51450aadc4b7dc0fe46aec0fc",
+      "members": [
+        {
+          "name": "prumo_i85_journey.json",
+          "sha256": "e118b5f346c1c40003ff63025dfa6019402d0a1e2db0c7bc22ff67aca0607583"
+        },
+        {
+          "name": "prumo_i86_scope_e2e_final.json",
+          "sha256": "321aa73774c0573f9f41d47fcc75c587679aede17b2924294361168188855bb0"
+        },
+        {
+          "name": "prumo_i86_cleanup.json",
+          "sha256": "e4d846b149da56a39d0bcd1d795dcc9a0f3fa165c2f236d213382af02d2a22bf"
+        },
+        {
+          "name": "prumo_i83_logging_preflight.json",
+          "sha256": "ea93220d04b8bc69a4fd3c50e16c44416711ea035d95031709da7737347027e2"
+        }
+      ]
+    },
+    {
+      "id": 12834664649,
+      "zip_sha256": "543eb2cf1ef5ad24df19ff4d4675ae2128317607c4e64edad8dc964be2087969",
+      "members": [
+        {
+          "name": "prumo_i86_real.json",
+          "sha256": "dc49fe86a39a13b7d6a9582eb80a6349f33728d33d7e582ad0ee41682e39ac09"
+        },
+        {
+          "name": "prumo_i86_cleanup.json",
+          "sha256": "56833b11b1d70938925684b191783ffc4cf8a405bbcae99247d01b5d42313879"
+        },
+        {
+          "name": "prumo_i86_scope_real_final.json",
+          "sha256": "321aa73774c0573f9f41d47fcc75c587679aede17b2924294361168188855bb0"
+        },
+        {
+          "name": "prumo_i83_logging_preflight.json",
+          "sha256": "ea93220d04b8bc69a4fd3c50e16c44416711ea035d95031709da7737347027e2"
+        }
+      ]
+    }
+  ],
+  "inherited_e2e": {
+    "version": "prumo.i85.evidence.v1",
+    "checks": [
+      "01_fresh_stack_no_auth_no_director",
+      "02_admin_auth_real_uuid_stable_duplicate_refused",
+      "03_lost_auth_response_reconciles_without_second_creation",
+      "04_real_auth_uuid_divergence_refused",
+      "05_valid_session_not_authority_no_self_promotion",
+      "06_explicit_technical_approval_real_director_commit_lost_reconciled_no_second",
+      "07_edge_real_register_activate_transfer_cas",
+      "08_edge_real_inventory_preview_apply_no_implicit_apply",
+      "09_manager_consultant_unassigned_denied_six_commands",
+      "10_concurrent_idempotency_one_mutation",
+      "11_director_revoked_sessions_invalid_and_rebootstrap_denied",
+      "12_owners_grants_rls_triggers_constraints_unchanged",
+      "13_private_custody_disposed_without_forensic_claim"
+    ],
+    "secret_values_exported": false,
+    "installer_credentials_absent_from_edge": true,
+    "credential_log_matches": 0,
+    "hosted_enabled": false,
+    "integration": "real PG17/GoTrue/PostgREST/Edge"
+  },
+  "independent_e2e_cleanup": {
+    "resources_absent": true,
+    "private_material_removed": true,
+    "uncertain_nonsecret_evidence_retained": false,
+    "lab_identity_sha256": "0d9cb8791fb6f61f116a7bd930069722e021a1386b860d264cb3515ec2a74172",
+    "physical_identity_complete": true,
+    "hosted_enabled": false
+  },
+  "first_failed_run": {
+    "id": 40731027793,
+    "code": "a6ceacb639b08603edd1488a2b7942bb50042301",
+    "physical_tests_run": 0,
+    "physical_not_tested": 22,
+    "reason": "ModuleNotFoundError: integration ao invocar preflight herdado por caminho; corrigido somente nos chamadores I86",
+    "resources_absent_in_both_jobs": true
+  },
+  "scope": {
+    "status": "PASS",
+    "base": "3cab3d57619cc1157698a08ac26f34e0c363f6dd",
+    "base_tree": "09e597b763bd6026fe6fb9686e3471e42f87bd3a",
+    "violations": [],
+    "evidence": "Artifact12836100118 e relatórios finais dos dois jobs físicos"
+  },
+  "jobs": [
+    {
+      "id": 122969498982,
+      "name": "scope-and-model",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 122969729921,
+      "name": "i86-real-authority",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 122969730081,
+      "name": "inherited-i85-e2e",
+      "status": "completed",
+      "conclusion": "success"
     }
   ]
 }
