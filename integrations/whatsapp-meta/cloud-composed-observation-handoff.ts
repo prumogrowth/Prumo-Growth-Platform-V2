@@ -23,6 +23,8 @@ import {inspectSignedMetaUnsupportedMessages,
  type TechnicalUnsupportedMessage} from './cloud-unsupported-inbound-handoff.ts';
 import {inspectSignedMetaFailedStatusErrors,
  type FailedStatusErrorObservation} from './cloud-failed-status-errors-handoff.ts';
+import {inspectSignedMetaQuotedContexts,
+ type SignedReplyContextObservation} from './cloud-quoted-context-handoff.ts';
 
 export type SpecializedEvidence=TechnicalSelection|TechnicalReaction|
  TechnicalMediaMetadata|TechnicalUnsupportedMessage|FailedStatusErrorObservation;
@@ -38,6 +40,8 @@ export type ComposedWebhookOccurrence=Readonly<{
  position:CloudObservation['position'];
  /** Present ONLY for one recognized narrow inspector, never synthesized. */
  evidence:SpecializedEvidence|null;
+ /** Complementary quote metadata; NOT another event or correlated S0 record. */
+ quoted_reference:SignedReplyContextObservation|null;
 }>;
 const FLAGS=Object.freeze({
  ack_allowed:false,send_authorized:false,s0_write_authorized:false,
@@ -48,6 +52,7 @@ const FLAGS=Object.freeze({
  provider_failure_effect_confirmed:false,
  definitive_failure_count_increment:false,
  automatic_retry_authorized:false,
+ quoted_message_correlated:false,quoted_content_recovered:false,
 } as const);
 type Flags=typeof FLAGS;
 type Denial='VERIFICATION_DENIED'|'COMPONENT_DENIED'|
@@ -66,6 +71,31 @@ const deny=(reason:Denial):ComposedWebhookHandoff=>Object.freeze({
 });
 const eventKey=(p:CloudObservation['position'])=>
  JSON.stringify([p.entry_index,p.change_index,p.array_kind,p.item_index]);
+const rec=(v:unknown):v is Record<string,unknown>=>
+ typeof v==='object'&&v!==null&&!Array.isArray(v);
+/** Query ONLY the already authenticated payload for context fields. */
+function detectContextSlots(body:Uint8Array,observations:readonly CloudObservation[]):
+ Set<string>|null{
+ let parsed:unknown;
+ try{parsed=JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(body));}
+ catch{return null;}
+ if(!rec(parsed)||!Array.isArray(parsed.entry))return null;
+ const slots=new Set<string>();
+ for(const evt of observations){
+  if(evt.kind!=='inbound_message')continue;
+  const p=evt.position,entry=parsed.entry[p.entry_index];
+  const change=rec(entry)&&Array.isArray(entry.changes)
+   ?entry.changes[p.change_index]:null;
+  const value=rec(change)?change.value:null;
+  const message=rec(value)&&Array.isArray(value.messages)
+   ?value.messages[p.item_index]:null;
+  if(!rec(message)||message.id!==evt.provider_message_id||
+     message.type!==evt.provider_kind||
+     message.from!==evt.participant_identifier)return null;
+  if(Object.hasOwn(message,'context'))slots.add(eventKey(p));
+ }
+ return slots;
+}
 const selectedMessage=(kind:string)=>kind==='button'||kind==='interactive';
 const mediaMessage=(kind:string)=>['image','audio','video','document','sticker'].includes(kind);
 const specialExpected=(v:CloudObservation)=>v.kind==='status_callback'
@@ -130,6 +160,8 @@ export async function inspectSignedMetaComposedWebhook(
  // Reject all before any narrow readers: no partial candidate escapes.
  if(base.observations.some(e=>!technicalIdsValid(e)))
   return deny('INVALID_TECHNICAL_IDENTIFIERS');
+ const contextualSlots=detectContextSlots(body,base.observations);
+ if(contextualSlots===null)return deny('INCONSISTENT_SNAPSHOT');
  let parts:Awaited<ReturnType<typeof inspectSignedMetaSelections>>|
   Awaited<ReturnType<typeof inspectSignedMetaReactions>>|
   Awaited<ReturnType<typeof inspectSignedMetaMediaMetadata>>|
@@ -138,7 +170,7 @@ export async function inspectSignedMetaComposedWebhook(
  // Dispatch only readers relevant to an AUTHENTICATED event class.
  // This never trusts unsigned JSON and never skips the status guard when
  // sent/delivered/read callbacks need malformed-errors detection.
- // HMAC checks now range from 1 (generic-only) to 6 (fully mixed batch).
+ // HMAC checks: 1 for generic-only; up to 7 if all kinds AND context occur.
  const readers=[
   {needed:(e:CloudObservation)=>e.kind==='inbound_message'&&
     selectedMessage(e.provider_kind),inspect:inspectSignedMetaSelections},
@@ -152,6 +184,7 @@ export async function inspectSignedMetaComposedWebhook(
    inspect:inspectSignedMetaFailedStatusErrors},
  ] as const;
  const grouped:SpecializedEvidence[][]=[];
+ let quotes:readonly SignedReplyContextObservation[]=[];
  try{
   for(const reader of readers){
    if(!base.observations.some(reader.needed))continue;
@@ -160,6 +193,17 @@ export async function inspectSignedMetaComposedWebhook(
    if(parts.raw_sha256!==base.raw_sha256)
     return deny('INCONSISTENT_SNAPSHOT');
    grouped.push([...parts.observations] as SpecializedEvidence[]);
+  }
+  // Context is a complementary dimension. It may coexist with ONE main
+  // selection/media/reaction observation at the same position.
+  // Never run this independent HMAC unless the verified body has context.
+  if(contextualSlots.size>0){
+   const q=await inspectSignedMetaQuotedContexts(
+    body,signature,appSecret,scope,cap);
+   if(q.decision==='DENIED')return deny('COMPONENT_DENIED');
+   if(q.raw_sha256!==base.raw_sha256)
+    return deny('INCONSISTENT_SNAPSHOT');
+   quotes=q.observations;
   }
  }catch{return deny('COMPONENT_DENIED');}
  // A position is an occurrence address, NOT a durable dedupe key.
@@ -188,9 +232,27 @@ export async function inspectSignedMetaComposedWebhook(
    evidenceBySlot.set(key,evidence);
   }
  }
+ const quotesBySlot=new Map<string,SignedReplyContextObservation>();
+ for(const q of quotes){
+  const key=eventKey(q.position),origin=positions.get(key);
+  if(!contextualSlots.has(key)||!origin||
+     origin.kind!=='inbound_message'||quotesBySlot.has(key)||
+     origin.waba_id!==q.waba_id||
+     origin.phone_number_id!==q.phone_number_id||
+     origin.provider_message_id!==q.provider_message_id||
+     origin.participant_identifier!==q.participant_identifier||
+     origin.provider_timestamp!==q.provider_timestamp)
+    return deny('EVIDENCE_COLLISION_OR_GAP');
+  quotesBySlot.set(key,q);
+ }
  const occurrences:ComposedWebhookOccurrence[]=[];
  for(const evt of base.observations){
-  const evidence=evidenceBySlot.get(eventKey(evt.position))??null;
+  const slot=eventKey(evt.position);
+  const evidence=evidenceBySlot.get(slot)??null;
+  const quoted=quotesBySlot.get(slot)??null;
+  if(quoted&&evidence&&'reply_to_provider_message_id' in evidence&&
+     evidence.reply_to_provider_message_id!==quoted.quoted_provider_message_id)
+   return deny('EVIDENCE_COLLISION_OR_GAP');
   if(specialExpected(evt)!==Boolean(evidence))
    return deny('EVIDENCE_COLLISION_OR_GAP');
   if(evidence){
@@ -216,9 +278,11 @@ export async function inspectSignedMetaComposedWebhook(
    provider_timestamp:evt.provider_timestamp,
    participant_identifier:evt.participant_identifier,
    position:Object.freeze({...evt.position}),evidence,
+   quoted_reference:quoted,
   }));
  }
  if(evidenceBySlot.size>occurrences.length||
+    quotesBySlot.size>occurrences.length||
     occurrences.length!==base.observations.length)
   return deny('EVIDENCE_COLLISION_OR_GAP');
  return Object.freeze({...FLAGS,
