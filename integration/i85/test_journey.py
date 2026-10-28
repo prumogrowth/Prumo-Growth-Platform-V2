@@ -87,7 +87,6 @@ class Journey(unittest.TestCase):
         for name in ("director", "manager", "manager2", "consultant", "legacy"):
             self.assertEqual(self.cli("create", "--label", name)["identities"][name], "CONFIRMED")
         self.operator.load()
-        self.assertEqual(self.operator.create("director"), None) if False else None
         with self.assertRaises(b.Blocked):
             self.operator.create("director")
         self.evidence("02_admin_auth_real_uuid_stable_duplicate_refused")
@@ -216,6 +215,7 @@ class Journey(unittest.TestCase):
         # Actual Director competence revocation and live-session invalidation.
         self.assertEqual(self.cli("revoke-director")["authority"], "REVOKED")
         self.assertEqual(self.http("i80", self.reg("INVENTORY", limit=1), director_token)[0], 403)
+        self.operator.load()
         with self.assertRaises(b.Blocked):
             self.operator.grant_director()
         self.evidence("11_director_revoked_sessions_invalid_and_rebootstrap_denied")
