@@ -75,6 +75,8 @@ As suítes completas CFI, I79/G1 62, I80 33, I81 14, I82 20, I83 35 e I85 resist
 
 Refs rechecadas ao final: main dace737ab7afb7ae3f5a3a6f5cb522e6def8b43a; I85 3cab3d57619cc1157698a08ac26f34e0c363f6dd; S1 8780b576aa18bd3983c063339e2e42d2452af22c. PR49 continua Draft, não merged, base exatamente3cab3d5. Verificador local após documentação inventariou18 arquivos autorizados e zero violações; os11 hashes de código/workflow coincidem com o SHA efetivamente testado. Nenhum arquivo herdado foi editado; allowlist fixa não foi ampliada. Código, SQL de fixture, ferramentas, testes, documentos e workflow novos estão somente nas três áreas autorizadas. I85 permanece histórica. Sem merge, deploy, main, usuário real, Supabase hospedado, Frontend, F02 ou chamadas comerciais.
 
+O isolamento comprovado é físico (VM/engine/rede/custódia) e do material dedicado I83 e das senhas sintéticas geradas. Permanecem as chaves JWT de desenvolvimento herdadas do CLI, cujo valor padrão não é promessa de emissor criptograficamente exclusivo entre projetos — limite já registrado na auditoria I85. Não foram trocadas credenciais entre conversas, nem houve acesso a recursos da Meta. Homologar emissor/chaves produtivas ou mudar configuração herdada exigirá escopo próprio; esta I86 não o faz.
+
 ## Conflitos e interfaces futuras
 
 Não houve necessidade de corrigir arquivo herdado nesta entrega. Se aparecer falha que exija isso, sua alteração fica fora desta I86 e deverá ser encaminhada à orquestração. Não há dependência da frente Meta: M2M, webhooks, persistência, ACK e recibos de ingestão não foram desenvolvidos/importados. Administração humana futura de canais é interface a decidir.

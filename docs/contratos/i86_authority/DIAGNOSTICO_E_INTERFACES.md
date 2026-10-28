@@ -74,6 +74,8 @@ Outro instala somente o schema privado de evidência I86 e executa suas provas.
 A instalação usa o privilégio técnico já existente do host, sem novo login,
 membership, grants herdados, migrations ou segredo. Não é interface operacional.
 
+Chaves JWT padrão de desenvolvimento do CLI continuam uma limitação herdada I85: não se alega exclusividade criptográfica desses valores entre projetos. A separação dos dois ensaios e da outra conversa é de VM/engine/rede/custódia e material dedicado I83, com senhas sintéticas próprias. Nenhuma credencial foi transmitida ou adotada de outra frente. Gestão de emissor/chaves produtivas não é homologada nem alterada nesta I86.
+
 ## Conflitos e limites de edição
 
 Não foi identificada necessidade de editar código herdado para esta observação.
