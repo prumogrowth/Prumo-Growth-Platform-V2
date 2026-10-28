@@ -26,6 +26,7 @@ class RouteKind(str, Enum):
     S0_F01_RESUME_REQUEST = "S0_F01_RESUME_REQUEST"
     S0_HUMAN_HANDOFF = "S0_HUMAN_HANDOFF"
     S0_HUMAN_CLOSURE = "S0_HUMAN_CLOSURE"
+    S0_VERSION_UPDATE_CLAIM = "S0_VERSION_UPDATE_CLAIM"
     F03_PROPOSAL = "F03_PROPOSAL"
     S0_F02_POSTHUMAN_REQUEST = "S0_F02_POSTHUMAN_REQUEST"
     S0_HUMAN_REOPEN_REQUEST = "S0_HUMAN_REOPEN_REQUEST"
@@ -155,6 +156,7 @@ def classify_route_candidate(
             continue
         if kind in (RouteKind.F03_PROPOSAL,
                     RouteKind.S0_F02_POSTHUMAN_REQUEST,
+                    RouteKind.S0_VERSION_UPDATE_CLAIM,
                     RouteKind.S0_HUMAN_REOPEN_REQUEST):
             if active_closure is None or event.closure_id != active_closure:
                 return reject(RouteStatus.HUMAN_ROUTE_RECHECK_REQUIRED)
@@ -213,6 +215,11 @@ def classify_route_candidate(
         elif kind is RouteKind.F03_PROPOSAL and stage is RouteStage.HUMAN_CLOSED:
             stage = RouteStage.F03
             visits.append("F03")
+        elif (kind is RouteKind.S0_VERSION_UPDATE_CLAIM
+              and stage is RouteStage.F03):
+            # Pure claimed revision marker. It never ratifies S0, mutates data
+            # or leaves F03; F02 must independently validate old/new versions.
+            pass
         elif (kind is RouteKind.S0_F02_POSTHUMAN_REQUEST
               and stage is RouteStage.F03):
             stage = RouteStage.F02_POSTHUMAN

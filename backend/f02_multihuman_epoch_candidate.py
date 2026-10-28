@@ -11,6 +11,8 @@ from dataclasses import dataclass
 from enum import Enum
 from uuid import UUID
 
+UNVERIFIED_VERSION_SOURCE = "E04_UNVERIFIED_S0_VERSION_CLAIM_ONLY"
+
 from backend.f01_f02_f03_route_ledger_candidate import (
     RouteScope, RouteEvent, RouteKind,
 )
@@ -32,6 +34,7 @@ class EpochStatus(str, Enum):
     EPISODE_RECHECK_REQUIRED = "EPISODE_RECHECK_REQUIRED"
     VERSION_RECHECK_REQUIRED = "VERSION_RECHECK_REQUIRED"
     VERSION_REGRESSION_RECHECK_REQUIRED = "VERSION_REGRESSION_RECHECK_REQUIRED"
+    VERSION_UPDATE_RECHECK_REQUIRED = "VERSION_UPDATE_RECHECK_REQUIRED"
 
 
 @dataclass(frozen=True, slots=True)
@@ -42,6 +45,21 @@ class HumanEpochClaim:
     f03_event_id: UUID
     f02_event_id: UUID
     versions: tuple[int, int, int, int, int]
+
+
+@dataclass(frozen=True, slots=True)
+class VersionTransitionClaim:
+    """Untrusted F03→F02 revision claim; not an S0 verification receipt."""
+    event_id: UUID
+    shop_id: UUID
+    lead_id: UUID
+    case_id: UUID
+    closure_id: UUID
+    f03_event_id: UUID
+    f02_event_id: UUID
+    from_versions: tuple[int, int, int, int, int]
+    to_versions: tuple[int, int, int, int, int]
+    source_state: str = UNVERIFIED_VERSION_SOURCE
 
 
 @dataclass(frozen=True, slots=True)
@@ -82,6 +100,7 @@ def check_multi_human_epoch_candidate(
     s2_visits: tuple[dict, ...],
     synthetic_person_id: str,
     epoch_claims: tuple[HumanEpochClaim, ...],
+    version_updates: tuple[VersionTransitionClaim, ...] = (),
 ) -> HumanEpochResult:
     """Only correlation across claimed episodes; never a source attestation.
 
@@ -94,6 +113,15 @@ def check_multi_human_epoch_candidate(
 
     if (type(events) is not tuple or type(s2_visits) is not tuple
         or type(epoch_claims) is not tuple or not epoch_claims
+        or type(version_updates) is not tuple
+        or any(type(x) is not VersionTransitionClaim
+               or not all(_valid_id(v) for v in (
+                   x.event_id, x.shop_id, x.lead_id, x.case_id,
+                   x.closure_id, x.f03_event_id, x.f02_event_id))
+               or not _valid_versions(x.from_versions)
+               or not _valid_versions(x.to_versions)
+               or type(x.source_state) is not str
+               for x in version_updates)
         or any(type(x) is not HumanEpochClaim
                or not all(_valid_id(i) for i in
                           (x.closure_id, x.closure_event_id,
@@ -134,6 +162,17 @@ def check_multi_human_epoch_candidate(
         return out(EpochStatus.EPISODE_RECHECK_REQUIRED)
     visits = {event.event_id: step
               for event,step in zip(source_visits,s2_visits)}
+    version_events = [ev for ev in events
+                      if ev.kind is RouteKind.S0_VERSION_UPDATE_CLAIM]
+    update_by_event = {x.event_id: x for x in version_updates}
+    # One-to-one source marker and claim; duplicate claims cannot be ignored.
+    if (len(update_by_event) != len(version_updates)
+        or len(version_events) != len(version_updates)
+        or {ev.event_id for ev in version_events} != set(update_by_event)):
+        return out(EpochStatus.VERSION_UPDATE_RECHECK_REQUIRED)
+    versions_by_event = {ev.event_id: ev for ev in version_events}
+    source_indices = {ev.event_id: index for index,ev in enumerate(events)}
+    claimed_updates: set[UUID] = set()
     previous_versions: tuple[int, ...] | None = None
     for close, f03, post, claim in zip(closures,f03s,posthumans,epoch_claims):
         if (claim.closure_id != close.closure_id
@@ -143,14 +182,45 @@ def check_multi_human_epoch_candidate(
             or f03.closure_id != close.closure_id
             or post.closure_id != close.closure_id):
             return out(EpochStatus.EPISODE_RECHECK_REQUIRED)
-        if not (_version_matches(visits[f03.event_id],claim.versions)
-                and _version_matches(visits[post.event_id],claim.versions)):
+        if not _version_matches(visits[f03.event_id],claim.versions):
             return out(EpochStatus.VERSION_RECHECK_REQUIRED)
-        # A decreasing declared version across human cycles is suspicious.
-        # Keeping equal values is allowed; S0 has not defined an epoch bump.
+        applicable = [record for record in version_events
+                      if source_indices[f03.event_id] < source_indices[record.event_id]
+                      < source_indices[post.event_id]]
+        if len(applicable) > 1:
+            return out(EpochStatus.VERSION_UPDATE_RECHECK_REQUIRED)
+        post_versions = claim.versions
+        if applicable:
+            marker = applicable[0]
+            update = update_by_event[marker.event_id]
+            # Requiring the same event, closure and tenant binds the claim to
+            # this episode, not merely to the IDs in a caller-supplied hash.
+            if (update.source_state != UNVERIFIED_VERSION_SOURCE
+                or update.shop_id != scope.shop_id
+                or update.lead_id != scope.lead_id
+                or update.case_id != scope.case_id
+                or update.closure_id != claim.closure_id
+                or marker.closure_id != claim.closure_id
+                or update.f03_event_id != f03.event_id
+                or update.f02_event_id != post.event_id
+                or update.from_versions != claim.versions):
+                return out(EpochStatus.VERSION_UPDATE_RECHECK_REQUIRED)
+            if (update.from_versions == update.to_versions
+                or any(before > after for before,after in zip(
+                    update.from_versions,update.to_versions))):
+                return out(EpochStatus.VERSION_REGRESSION_RECHECK_REQUIRED)
+            post_versions = update.to_versions
+            claimed_updates.add(marker.event_id)
+        if not _version_matches(visits[post.event_id],post_versions):
+            return out(EpochStatus.VERSION_RECHECK_REQUIRED)
+        # Compare end-of-previous-epoch to start-of-current-epoch, not
+        # just the F03 versions; versions cannot silently roll back.
         if (previous_versions is not None
-            and any(a > b for a,b in zip(previous_versions,claim.versions))):
+            and any(before > after for before,after in zip(
+                previous_versions,claim.versions))):
             return out(EpochStatus.VERSION_REGRESSION_RECHECK_REQUIRED)
-        previous_versions = claim.versions
+        previous_versions = post_versions
 
+    if claimed_updates != set(update_by_event):
+        return out(EpochStatus.VERSION_UPDATE_RECHECK_REQUIRED)
     return out(EpochStatus.MULTI_HUMAN_EPOCH_SHAPE_RECHECK_ONLY)

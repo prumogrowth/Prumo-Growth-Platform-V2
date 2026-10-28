@@ -479,6 +479,47 @@
         "backend/tests/test_f02_multihuman_epoch_candidate.py::test_25_result_has_no_business_action_authority"
       ],
       "gate": "All versions, event IDs and S0 flags are caller-supplied lab claims. G01–G07 remain unratified; human/Meta operational execution, S0 authenticated transitions and physical source integrity are not validated"
+    },
+    {
+      "id": "F02-A34",
+      "area": "OpenAI F01/F02/F03 interstage version updates",
+      "behavior": "Support candidate S0_VERSION_UPDATE_CLAIM between F03 and posthuman F02 of the same human closure; compare precise before/after case/cycle/form/catalog/assignment versions, tenant/lead/case/closure/visit IDs and event ordering, deny missing/extra/replayed/rolled-back update, preserve S2 authentic code validation; no S0 source attestation or operational authorization",
+      "status": "LAB_VERIFIED",
+      "tests": [
+        "backend/tests/test_f02_intraepoch_version_candidate.py::test_01_new_versions_between_F03_and_F02_accepted_as_claim_only",
+        "backend/tests/test_f02_intraepoch_version_candidate.py::test_02_unmodified_A33_route_still_accepted",
+        "backend/tests/test_f02_intraepoch_version_candidate.py::test_03_marker_without_claim_is_denied",
+        "backend/tests/test_f02_intraepoch_version_candidate.py::test_04_claim_without_marker_is_denied",
+        "backend/tests/test_f02_intraepoch_version_candidate.py::test_05_changed_F02_versions_without_marker_are_rejected",
+        "backend/tests/test_f02_intraepoch_version_candidate.py::test_06_wrong_store_in_version_claim",
+        "backend/tests/test_f02_intraepoch_version_candidate.py::test_07_wrong_lead_in_version_claim",
+        "backend/tests/test_f02_intraepoch_version_candidate.py::test_08_wrong_case_in_version_claim",
+        "backend/tests/test_f02_intraepoch_version_candidate.py::test_09_wrong_human_closure_in_claim",
+        "backend/tests/test_f02_intraepoch_version_candidate.py::test_10_claim_bound_to_wrong_F03",
+        "backend/tests/test_f02_intraepoch_version_candidate.py::test_11_claim_bound_to_wrong_F02",
+        "backend/tests/test_f02_intraepoch_version_candidate.py::test_12_claim_wrong_ledger_event_id",
+        "backend/tests/test_f02_intraepoch_version_candidate.py::test_13_false_S0_authenticity_label_not_accepted",
+        "backend/tests/test_f02_intraepoch_version_candidate.py::test_14_old_snapshot_does_not_match_claimed_from_versions",
+        "backend/tests/test_f02_intraepoch_version_candidate.py::test_15_F02_snapshot_changed_after_claim",
+        "backend/tests/test_f02_intraepoch_version_candidate.py::test_16_downward_version_update_does_not_pass",
+        "backend/tests/test_f02_intraepoch_version_candidate.py::test_17_no_op_update_marker_does_not_pass",
+        "backend/tests/test_f02_intraepoch_version_candidate.py::test_18_bad_bool_or_float_version_denied",
+        "backend/tests/test_f02_intraepoch_version_candidate.py::test_19_duplicate_update_ticket_does_not_pass",
+        "backend/tests/test_f02_intraepoch_version_candidate.py::test_20_duplicate_revision_event_does_not_pass",
+        "backend/tests/test_f02_intraepoch_version_candidate.py::test_21_revision_before_F03_refused_by_route",
+        "backend/tests/test_f02_intraepoch_version_candidate.py::test_22_revision_after_F02_refused_by_route",
+        "backend/tests/test_f02_intraepoch_version_candidate.py::test_23_revision_marker_wrong_closure_denied",
+        "backend/tests/test_f02_intraepoch_version_candidate.py::test_24_S2_F02_stale_current_version_fails_before_new_guard",
+        "backend/tests/test_f02_intraepoch_version_candidate.py::test_25_new_F03_loss_advisory_still_blocks_F02",
+        "backend/tests/test_f02_intraepoch_version_candidate.py::test_26_optout_instead_of_revision_is_terminal",
+        "backend/tests/test_f02_intraepoch_version_candidate.py::test_27_original_F03_may_keep_old_versions_if_update_is_declared",
+        "backend/tests/test_f02_intraepoch_version_candidate.py::test_28_event_route_without_F02_remains_F03_phase",
+        "backend/tests/test_f02_intraepoch_version_candidate.py::test_29_source_claim_cannot_grant_right_to_send",
+        "backend/tests/test_f02_intraepoch_version_candidate.py::test_30_malformed_version_updates_type_denied",
+        "backend/tests/test_f02_intraepoch_version_candidate.py::test_31_invalid_version_marker_time_order_rejected",
+        "backend/tests/test_f02_intraepoch_version_candidate.py::test_32_missing_first_epoch_claim_still_rejected"
+      ],
+      "gate": "S0_VERSION_UPDATE_CLAIM is E04 synthetic only, not S0 server event or authoritative mutation. Ratified version transition source/read/expiry, transaction and permission gates remain blocked; G01-G07 not cleared"
     }
   ],
   "non_authorizing_positive_states": [
@@ -696,5 +737,16 @@
     "s0_source_attested": false,
     "production_authorized": false,
     "human_epochs_can_repeat": true
+  },
+  "openai_intra_epoch_version_change_candidate": {
+    "module": "backend/f02_multihuman_epoch_candidate.py",
+    "route": "backend/f01_f02_f03_route_ledger_candidate.py",
+    "tests": "backend/tests/test_f02_intraepoch_version_candidate.py",
+    "document": "docs/contracts/OAI_E04_F01_F02_F03_INTRA_EPOCH_VERSION_CHANGE_V1.md",
+    "marker": "S0_VERSION_UPDATE_CLAIM",
+    "synthetic_state": "E04_UNVERIFIED_S0_VERSION_CLAIM_ONLY",
+    "s0_edited": false,
+    "s0_source_verified": false,
+    "commercial_authorized": false
   }
 }
