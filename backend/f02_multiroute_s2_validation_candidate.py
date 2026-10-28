@@ -24,7 +24,7 @@ from backend.f02_multiroute_proof_gate_candidate import (
     RoutedProofStatus, check_routed_posthuman_proof,
 )
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parent  # backend; ROOT.parent is repository
 NODE_CLI = ROOT / "tests/s2_pinned_route_validator.mjs"
 S2_SOURCE = ROOT.parent / ".s2-e04-source/docs/integracoes/openai/e04_offline_lab/core.mjs"
 CI_PIN = "ebf6fe4e546f2fe990bdaefe2df25aa0cf18e74c"
