@@ -17,13 +17,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: New signed physical replay and forged receipt tests (26)
+      - name: New signed physical replay and forged receipt tests (29)
         shell: bash
         run: |
           set -euo pipefail
           node --experimental-strip-types --test --test-concurrency=1 integrations/whatsapp-meta/cloud-physical-replay-receipt-audit.test.ts 2>&1 | tee "$RUNNER_TEMP/meta-physical-new.tap"
-          grep -qx '# tests 26' "$RUNNER_TEMP/meta-physical-new.tap"
-          grep -qx '# pass 26' "$RUNNER_TEMP/meta-physical-new.tap"
+          grep -qx '# tests 29' "$RUNNER_TEMP/meta-physical-new.tap"
+          grep -qx '# pass 29' "$RUNNER_TEMP/meta-physical-new.tap"
           grep -qx '# fail 0' "$RUNNER_TEMP/meta-physical-new.tap"
       - name: Prior signed cloud and S0 interface regressions (310)
         shell: bash
