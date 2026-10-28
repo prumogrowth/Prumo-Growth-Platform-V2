@@ -77,21 +77,34 @@ export async function inspectCloudWebhookForHandoff(
  rawBody:Uint8Array,signature:string|null,appSecret:string,
  trustedRoute:CloudRouteScope,limits?:{maxBodyBytes?:number;maxEvents?:number},
 ):Promise<CloudInspectionResult>{
- if(!validRoute(trustedRoute))
-  return reject('INVALID_TRUSTED_SCOPE');
+ // Freeze trusted route and limits before the first awaited HMAC.
+ // A caller-owned object must not redirect an already submitted request.
+ let scope:CloudRouteScope;
+ let stableLimits:{maxBodyBytes?:number;maxEvents?:number}|undefined;
+ try{
+  scope=Object.freeze({
+   waba_id:trustedRoute.waba_id,
+   phone_number_id:trustedRoute.phone_number_id,
+   revision:trustedRoute.revision,
+  });
+  stableLimits=limits===undefined?undefined:Object.freeze({
+   maxBodyBytes:limits.maxBodyBytes,maxEvents:limits.maxEvents,
+  });
+ }catch{return reject('INVALID_TRUSTED_SCOPE');}
+ if(!validRoute(scope))return reject('INVALID_TRUSTED_SCOPE');
  // The original payload might be a caller-owned byte view. One bounded,
  // immutable snapshot must be used for BOTH authentication and final hash.
  if(!(rawBody instanceof Uint8Array))return reject('INVALID_ENVELOPE');
- const max=limits?.maxBodyBytes??256*1024;
+ const max=stableLimits?.maxBodyBytes??256*1024;
  if(!Number.isSafeInteger(max)||max<=0||rawBody.byteLength>max)
   return reject('BODY_TOO_LARGE');
  const copy=Uint8Array.from(rawBody);
- const parsed=await inspectMetaWebhook(copy,signature,appSecret,limits);
+ const parsed=await inspectMetaWebhook(copy,signature,appSecret,stableLimits);
  if(!parsed.ok)return reject(parsed.failure.code);
  const list:CloudObservation[]=[];
  for(const e of parsed.events){
-  if(e.waba_id!==trustedRoute.waba_id||
-     e.phone_number_id!==trustedRoute.phone_number_id)
+  if(e.waba_id!==scope.waba_id||
+     e.phone_number_id!==scope.phone_number_id)
    return reject('SCOPE_MISMATCH');
   if(e.event_kind==='status_callback'){
    if(!statusKinds.has(e.provider_kind))return reject('UNSUPPORTED_STATUS');
@@ -109,5 +122,5 @@ export async function inspectCloudWebhookForHandoff(
  }
  return Object.freeze({...FLAGS,outcome:'AUTHENTICATED_NOT_DURABLE',
   reason:null,observations:Object.freeze(list),raw_sha256:sha256(copy),
-  route_revision:trustedRoute.revision});
+  route_revision:scope.revision});
 }
