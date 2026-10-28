@@ -1,52 +1,111 @@
 {
-  "local_physical": {
-    "classification": "S0_META_INGRESS_01_LAB_CLOSED",
-    "postgres": {
-      "version": "PostgreSQL 17.6 (Debian 17.6-2.pgdg12+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 12.2.0-14+deb12u1) 12.2.0, 64-bit",
-      "fsync": "on",
-      "synchronous_commit": "on",
-      "full_page_writes": "on"
-    },
-    "tests_run": 49,
-    "failures": 0,
-    "errors": 0,
-    "skips": 0,
-    "cleanup": {
-      "container_absent": true,
-      "volume_absent": true,
-      "custody_absent": true,
-      "inherited_catalog_equal": true
-    }
-  },
-  "local_models": {
-    "total": 213,
-    "candidate": 52,
-    "meta": 161,
-    "failed": 0,
-    "skipped": 0
-  },
-  "local_scope": {
-    "adversarial_tests": 12,
-    "passed": 12,
-    "inherited_files": 364,
-    "source_blobs": 27
-  },
+  "classification": "S0_META_INGRESS_01_LAB_CLOSED",
+  "base_sha": "3cab3d57619cc1157698a08ac26f34e0c363f6dd",
+  "code_sha": "9e3077d222df2b3184ee6ea568fdac7c9da75567",
+  "branch": "exp/s0-meta-ingress-01-20261028",
+  "pr": 48,
   "ci": {
-    "status": "PENDING_FINAL_REVISION",
-    "prior_run": 40730074152,
-    "prior_code_sha": "564d89102dbd22a86e222d60a198510054fa901f",
-    "prior_all_four_jobs": "SUCCESS"
+    "run": 40730388157,
+    "conclusion": "SUCCESS",
+    "jobs": [
+      {
+        "id": 122964793613,
+        "name": "ownership",
+        "conclusion": "SUCCESS",
+        "logs_read": true
+      },
+      {
+        "id": 122964929591,
+        "name": "models",
+        "conclusion": "SUCCESS",
+        "logs_read": true
+      },
+      {
+        "id": 122964929702,
+        "name": "inherited-regression",
+        "conclusion": "SUCCESS",
+        "logs_read": true
+      },
+      {
+        "id": 122964929740,
+        "name": "postgres-physical",
+        "conclusion": "SUCCESS",
+        "logs_read": true
+      }
+    ],
+    "physical_report_from_job_logs": {
+      "classification": "S0_META_INGRESS_01_LAB_CLOSED",
+      "postgres": {
+        "version": "PostgreSQL 17.6 (Debian 17.6-2.pgdg12+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 12.2.0-14+deb12u1) 12.2.0, 64-bit",
+        "fsync": "on",
+        "synchronous_commit": "on",
+        "full_page_writes": "on"
+      },
+      "tests_run": 49,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "cleanup": {
+        "container_absent": true,
+        "volume_absent": true,
+        "custody_absent": true,
+        "inherited_catalog_equal": true
+      }
+    },
+    "models": {
+      "total": 213,
+      "pass": 213,
+      "fail": 0,
+      "skipped": 0,
+      "candidate_models": 52,
+      "meta_regressions": 161
+    },
+    "scope": {
+      "adversarial_tests": 12,
+      "pass": 12,
+      "inherited_files": 364,
+      "source_blobs": 27,
+      "changed_files": 47,
+      "pending_included": true
+    },
+    "inherited": {
+      "backend": 288,
+      "i85_filesystem": 7,
+      "i84_boundary": 9,
+      "normal_passed": true,
+      "optimized_passed": true
+    },
+    "artifacts": [
+      {
+        "id": 12835201002,
+        "name": "s0-meta-ingress-01-physical-40730388157",
+        "github_declared_digest": "sha256:da858a538aa51f0e9623c098e43498253caffba50c5683acbe6edea4814db155",
+        "size_in_bytes": 462
+      },
+      {
+        "id": 12833794261,
+        "name": "s0-meta-ingress-01-models-40730388157",
+        "github_declared_digest": "sha256:aefe150b919cc4e99708e3d32f53ae983f5933fd25c4650d3c45c530e8021ac9",
+        "size_in_bytes": 9373
+      }
+    ],
+    "artifact_evidence": "Artifacts listed and declared digests recorded through GitHub API. Generated report and TAP totals checked in job logs; ZIP content not reopened locally."
   },
   "historical_i85": {
     "code_sha": "062c90ffbe2b223c1d6bb08f614e7a1b6a898201",
     "ci": 40680048140,
-    "not_recertified_here": true
+    "full_i85_stack_not_recertified_here": true
   },
-  "local_inherited": {
-    "backend": 288,
-    "i85_filesystem": 7,
-    "i84_boundary": 9,
-    "normal_passed": true,
-    "optimized_passed": true
-  }
+  "intermediate": {
+    "code_sha": "564d89102dbd22a86e222d60a198510054fa901f",
+    "run": 40730074152,
+    "conclusion": "SUCCESS",
+    "physical_tests": 48
+  },
+  "limitations": [
+    "PG17 local WAL/process/container restart only; no HA/failover/host-loss certification",
+    "Trusted internal runtime and installer; not a public SQL RPC or public Meta listener",
+    "Synthetic keys only; no productive custody, TLS or real registry source",
+    "No human/commercial authority, Graph, dispatch, template policy, deployment or I86 dependency"
+  ]
 }
