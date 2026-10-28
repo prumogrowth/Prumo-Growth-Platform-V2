@@ -69,7 +69,7 @@ Catálogo I86: igualdade completa do catálogo herdado, normalizando apenas LOGI
 
 ## Regressões e integridade
 
-A matriz distingue unidade, modelo, SQL e E2E. O job herdado reexecuta a jornada I85 original, passando pelos seis comandos I79/I80 e recusas, HMAC/nonce, CAS, idempotência, ownership, sessão e perfil Edge restrito. O job I86 compara catálogo herdado completo antes/depois, normalizando somente o bit LOGIN temporário do executor I83. Não se normaliza nova policy, owner, grant, trigger, constraint ou função.
+A matriz distingue unidade, modelo, SQL e E2E por caso. Os22 casos do novo laboratório não são22 E2E: há provas SQL de ACL/imutabilidade/COMMIT, negativas de entrada/GoTrue e composições Auth→SQL ou HTTP→Edge. O campo layer do artefato bruto identifica o ambiente global; a matriz refina a camada efetivamente exercitada, preservando proof_environment e o resultado original. O job herdado reexecuta a jornada I85 original, passando pelos seis comandos I79/I80 e recusas, HMAC/nonce, CAS, idempotência, ownership, sessão e perfil Edge restrito. O job I86 compara catálogo herdado completo antes/depois, normalizando somente o bit LOGIN temporário do executor I83. Não se normaliza nova policy, owner, grant, trigger, constraint ou função.
 
 As suítes completas CFI, I79/G1 62, I80 33, I81 14, I82 20, I83 35 e I85 resistência29 têm baseline na CI40680048140 da fonte imutável. Não foram reexecutadas integralmente como suítes separadas nesta I86 e não são apresentadas como novos PASS. A prova nova necessária combina ausência de alteração de fontes, igualdade de catálogo, jornada real das seis portas e concorrência/revogação do novo observador.
 

@@ -25,178 +25,200 @@
     {
       "id": "01",
       "scenario": "test_01_canonical_identity_and_competence_separated",
-      "layer": "REAL_AUTH_PG17_EDGE",
+      "layer": "AUTH_SQL_INTEGRATION",
       "result": "PASS",
       "evidence": "CI40731718955/job122969729921/artifact12834664649/prumo_i86_real.json#test_01_canonical_identity_and_competence_separated",
-      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional"
+      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional",
+      "proof_environment": "REAL_AUTH_PG17_EDGE"
     },
     {
       "id": "02",
       "scenario": "test_02_manager_with_no_children_has_no_director_competence",
-      "layer": "REAL_AUTH_PG17_EDGE",
+      "layer": "E2E_EDGE_DENIAL_AND_AUTH_SQL",
       "result": "PASS",
       "evidence": "CI40731718955/job122969729921/artifact12834664649/prumo_i86_real.json#test_02_manager_with_no_children_has_no_director_competence",
-      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional"
+      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional",
+      "proof_environment": "REAL_AUTH_PG17_EDGE"
     },
     {
       "id": "03",
       "scenario": "test_03_auth_only_metadata_cannot_promote",
-      "layer": "REAL_AUTH_PG17_EDGE",
+      "layer": "E2E_METADATA_DENIAL_AND_AUTH_SQL",
       "result": "PASS",
       "evidence": "CI40731718955/job122969729921/artifact12834664649/prumo_i86_real.json#test_03_auth_only_metadata_cannot_promote",
-      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional"
+      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional",
+      "proof_environment": "REAL_AUTH_PG17_EDGE"
     },
     {
       "id": "04",
       "scenario": "test_04_service_role_is_not_a_human",
-      "layer": "REAL_AUTH_PG17_EDGE",
+      "layer": "REAL_GOTRUE_SERVICE_TOKEN_DENIAL",
       "result": "PASS",
       "evidence": "CI40731718955/job122969729921/artifact12834664649/prumo_i86_real.json#test_04_service_role_is_not_a_human",
-      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional"
+      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional",
+      "proof_environment": "REAL_AUTH_PG17_EDGE"
     },
     {
       "id": "05",
       "scenario": "test_05_payload_identity_is_rejected_without_mutation",
-      "layer": "REAL_AUTH_PG17_EDGE",
+      "layer": "INPUT_REJECTION_WITH_REAL_SQL_NO_MUTATION",
       "result": "PASS",
       "evidence": "CI40731718955/job122969729921/artifact12834664649/prumo_i86_real.json#test_05_payload_identity_is_rejected_without_mutation",
-      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional"
+      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional",
+      "proof_environment": "REAL_AUTH_PG17_EDGE"
     },
     {
       "id": "06",
       "scenario": "test_06_same_key_replays_one_observation_and_audits",
-      "layer": "REAL_AUTH_PG17_EDGE",
+      "layer": "AUTH_SQL_IDEMPOTENCY",
       "result": "PASS",
       "evidence": "CI40731718955/job122969729921/artifact12834664649/prumo_i86_real.json#test_06_same_key_replays_one_observation_and_audits",
-      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional"
+      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional",
+      "proof_environment": "REAL_AUTH_PG17_EDGE"
     },
     {
       "id": "07",
       "scenario": "test_07_divergent_key_payload_conflicts",
-      "layer": "REAL_AUTH_PG17_EDGE",
+      "layer": "AUTH_SQL_IDEMPOTENCY_CONFLICT",
       "result": "PASS",
       "evidence": "CI40731718955/job122969729921/artifact12834664649/prumo_i86_real.json#test_07_divergent_key_payload_conflicts",
-      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional"
+      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional",
+      "proof_environment": "REAL_AUTH_PG17_EDGE"
     },
     {
       "id": "08",
       "scenario": "test_08_cas_obsolete_does_not_record",
-      "layer": "REAL_AUTH_PG17_EDGE",
+      "layer": "AUTH_SQL_CAS",
       "result": "PASS",
       "evidence": "CI40731718955/job122969729921/artifact12834664649/prumo_i86_real.json#test_08_cas_obsolete_does_not_record",
-      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional"
+      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional",
+      "proof_environment": "REAL_AUTH_PG17_EDGE"
     },
     {
       "id": "09",
       "scenario": "test_09_same_visible_authority_new_revision_invalidates_replay",
-      "layer": "REAL_AUTH_PG17_EDGE",
+      "layer": "AUTH_SQL_REVISION_CAS",
       "result": "PASS",
       "evidence": "CI40731718955/job122969729921/artifact12834664649/prumo_i86_real.json#test_09_same_visible_authority_new_revision_invalidates_replay",
-      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional"
+      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional",
+      "proof_environment": "REAL_AUTH_PG17_EDGE"
     },
     {
       "id": "10",
       "scenario": "test_10_concurrent_same_key_is_one_durable_observation",
-      "layer": "REAL_AUTH_PG17_EDGE",
+      "layer": "AUTH_SQL_CONCURRENCY",
       "result": "PASS",
       "evidence": "CI40731718955/job122969729921/artifact12834664649/prumo_i86_real.json#test_10_concurrent_same_key_is_one_durable_observation",
-      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional"
+      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional",
+      "proof_environment": "REAL_AUTH_PG17_EDGE"
     },
     {
       "id": "11",
       "scenario": "test_11_distinct_intents_do_not_appoint_two_directors",
-      "layer": "REAL_AUTH_PG17_EDGE",
+      "layer": "AUTH_SQL_OBSERVATION_CONCURRENCY_ONLY",
       "result": "PASS",
       "evidence": "CI40731718955/job122969729921/artifact12834664649/prumo_i86_real.json#test_11_distinct_intents_do_not_appoint_two_directors",
-      "limitation": "Duas observações técnicas concorrentes; não comprova duas decisões organizacionais ratificadas. Nomeação continua PENDING_DECISION."
+      "limitation": "Duas observações técnicas concorrentes; não comprova duas decisões organizacionais ratificadas. Nomeação continua PENDING_DECISION.",
+      "proof_environment": "REAL_AUTH_PG17_EDGE"
     },
     {
       "id": "12",
       "scenario": "test_12_real_logout_denies_replay",
-      "layer": "REAL_AUTH_PG17_EDGE",
+      "layer": "REAL_AUTH_LOGOUT_AND_SQL_REPLAY_DENIAL",
       "result": "PASS",
       "evidence": "CI40731718955/job122969729921/artifact12834664649/prumo_i86_real.json#test_12_real_logout_denies_replay",
-      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional"
+      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional",
+      "proof_environment": "REAL_AUTH_PG17_EDGE"
     },
     {
       "id": "13",
       "scenario": "test_13_expired_session_denied_in_sql",
-      "layer": "REAL_AUTH_PG17_EDGE",
+      "layer": "REAL_SQL_SESSION_BARRIER_AND_AUTH_DENIAL",
       "result": "PASS",
       "evidence": "CI40731718955/job122969729921/artifact12834664649/prumo_i86_real.json#test_13_expired_session_denied_in_sql",
-      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional"
+      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional",
+      "proof_environment": "REAL_AUTH_PG17_EDGE"
     },
     {
       "id": "14",
       "scenario": "test_14_session_expiring_while_waiting_is_rechecked",
-      "layer": "REAL_AUTH_PG17_EDGE",
+      "layer": "AUTH_SQL_LOCK_AND_SERVER_EXPIRY",
       "result": "PASS",
       "evidence": "CI40731718955/job122969729921/artifact12834664649/prumo_i86_real.json#test_14_session_expiring_while_waiting_is_rechecked",
-      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional"
+      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional",
+      "proof_environment": "REAL_AUTH_PG17_EDGE"
     },
     {
       "id": "15",
       "scenario": "test_15_sigkill_before_commit_rolls_back_both_evidence_tables",
-      "layer": "REAL_AUTH_PG17_EDGE",
+      "layer": "REAL_SQL_SIGKILL_ROLLBACK_WITH_GOTRUE",
       "result": "PASS",
       "evidence": "CI40731718955/job122969729921/artifact12834664649/prumo_i86_real.json#test_15_sigkill_before_commit_rolls_back_both_evidence_tables",
-      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional"
+      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional",
+      "proof_environment": "REAL_AUTH_PG17_EDGE"
     },
     {
       "id": "16",
       "scenario": "test_16_sigkill_after_commit_reconciles_same_key",
-      "layer": "REAL_AUTH_PG17_EDGE",
+      "layer": "REAL_SQL_SIGKILL_RECONCILIATION_WITH_GOTRUE",
       "result": "PASS",
       "evidence": "CI40731718955/job122969729921/artifact12834664649/prumo_i86_real.json#test_16_sigkill_after_commit_reconciles_same_key",
-      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional"
+      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional",
+      "proof_environment": "REAL_AUTH_PG17_EDGE"
     },
     {
       "id": "17",
       "scenario": "test_17_deferred_audit_failure_never_reports_commit",
-      "layer": "REAL_AUTH_PG17_EDGE",
+      "layer": "REAL_SQL_DEFERRED_COMMIT_FAILURE",
       "result": "PASS",
       "evidence": "CI40731718955/job122969729921/artifact12834664649/prumo_i86_real.json#test_17_deferred_audit_failure_never_reports_commit",
-      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional"
+      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional",
+      "proof_environment": "REAL_AUTH_PG17_EDGE"
     },
     {
       "id": "18",
       "scenario": "test_18_private_evidence_cannot_be_read_or_executed_by_client_roles",
-      "layer": "REAL_AUTH_PG17_EDGE",
+      "layer": "REAL_SQL_PRIVATE_ACL",
       "result": "PASS",
       "evidence": "CI40731718955/job122969729921/artifact12834664649/prumo_i86_real.json#test_18_private_evidence_cannot_be_read_or_executed_by_client_roles",
-      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional"
+      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional",
+      "proof_environment": "REAL_AUTH_PG17_EDGE"
     },
     {
       "id": "19",
       "scenario": "test_19_dedicated_login_cannot_assume_owners_or_touch_auth",
-      "layer": "REAL_AUTH_PG17_EDGE",
+      "layer": "REAL_SQL_DEDICATED_LOGIN_NEGATIVES",
       "result": "PASS",
       "evidence": "CI40731718955/job122969729921/artifact12834664649/prumo_i86_real.json#test_19_dedicated_login_cannot_assume_owners_or_touch_auth",
-      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional"
+      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional",
+      "proof_environment": "REAL_AUTH_PG17_EDGE"
     },
     {
       "id": "20",
       "scenario": "test_20_evidence_is_immutable_and_cannot_claim_ratification",
-      "layer": "REAL_AUTH_PG17_EDGE",
+      "layer": "REAL_SQL_IMMUTABLE_EVIDENCE",
       "result": "PASS",
       "evidence": "CI40731718955/job122969729921/artifact12834664649/prumo_i86_real.json#test_20_evidence_is_immutable_and_cannot_claim_ratification",
-      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional"
+      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional",
+      "proof_environment": "REAL_AUTH_PG17_EDGE"
     },
     {
       "id": "21",
       "scenario": "test_21_restricted_edge_profile_survives_existing_rotation",
-      "layer": "REAL_AUTH_PG17_EDGE",
+      "layer": "E2E_EDGE_ROTATION_COMPATIBILITY",
       "result": "PASS",
       "evidence": "CI40731718955/job122969729921/artifact12834664649/prumo_i86_real.json#test_21_restricted_edge_profile_survives_existing_rotation",
-      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional"
+      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional",
+      "proof_environment": "REAL_AUTH_PG17_EDGE"
     },
     {
       "id": "99",
       "scenario": "test_99_revocation_orders_with_live_observation_and_never_reactivates",
-      "layer": "REAL_AUTH_PG17_EDGE",
+      "layer": "AUTH_SQL_REVOCATION_RACE_AND_EDGE_DENIAL",
       "result": "PASS",
       "evidence": "CI40731718955/job122969729921/artifact12834664649/prumo_i86_real.json#test_99_revocation_orders_with_live_observation_and_never_reactivates",
-      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional"
+      "limitation": "Ferramenta do instalador em laboratório; não é porta de nomeação ou autorização operacional",
+      "proof_environment": "REAL_AUTH_PG17_EDGE"
     }
   ],
   "inherited_regressions": [
@@ -384,5 +406,6 @@
       "status": "completed",
       "conclusion": "success"
     }
-  ]
+  ],
+  "layer_classification": "O campo layer do artefato bruto identifica o ambiente global PG17/GoTrue/Edge; esta matriz identifica a operação efetivamente exercitada por caso. SQL puro/negativas de entrada não são contados como E2E. A jornada herdada continua um único E2E de13 pontos."
 }
