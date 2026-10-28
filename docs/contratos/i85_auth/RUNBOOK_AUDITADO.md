@@ -65,8 +65,7 @@ carecer de prova. O operador pode optar por destruir o laboratório inteiro,
 preservando evidência; isso não é reexecução de bootstrap no mesmo banco.
 
 A I85 v2 recusa arquivos v1 em vez de inventar conversão de aprovação antiga.
-Journals antigos/incertos devem ser preservados e retirados pelo procedimento de
-laboratório descartado, não copiados para uma stack nova. Instâncias Python que
+Journals antigos/incertos não devem ser copiados para uma stack nova. O abandono automático exige nascimento físico comprovável; um journal v1 sem `lab.json`/manifesto não ganha esse vínculo por inferência e permanece BLOCKED para intervenção técnica, mesmo depois de retirar os recursos próprios. Os laboratórios anteriores certificados já foram descartados; não se promete migração ou apagamento automático de custódia legada sem prova. Instâncias Python que
 já observaram um laboratório não podem retargetar outro após troca da stack.
 
 ## Escrita interrompida, resíduos e auditoria parcial

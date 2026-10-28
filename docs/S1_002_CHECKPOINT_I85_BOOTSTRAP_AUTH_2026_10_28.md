@@ -1,73 +1,43 @@
-# S0/S1 — checkpoint I85 — bootstrap Auth/GoTrue e Diretoria sintética
+# S0/S1 — checkpoint I85 — auditoria independente do bootstrap Auth
 
-> Retomada de auditoria independente: o registro abaixo é histórico da revisão
-> 840b2db/CI40664481472. Não certifica as correções desta retomada e não autoriza
-> iniciar I86. O fechamento aguarda a matriz de resistência, CI final e relatório.
+28/10/2026, America/Sao_Paulo. **I85_LAB_CLOSED — recomendação técnica limitada ao laboratório**, submetida à avaliação final da orquestração.
+Não iniciar I86. Nenhuma autorização de produção ou nomeação real.
 
+## Fonte vigente e histórico
 
-28/10/2026 (America/Recife). Implementação laboratorial efetiva; **não é homologação de produção**.
+- Branch: `exp/s0-s1-i85-bootstrap-auth-diretor-20261028`.
+- [PR Draft #42](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/pull/42), base experimental I84, sem merge.
+- HEAD encontrado: `0d3beb4f9e0ee32ce088c591125b9d61ef43173f`; código anterior `840b2db7299d024c03ced2e5120b241a23046a0e`; CI40664481472 SUCCESS, cinco jobs. Esse resultado histórico provava uma jornada encadeada com 13 pontos; não demonstrava resistência independente, exclusividade entre candidatos distintos ou ausência de credenciais no runtime.
+- [Checkpoint anterior preservado no commit original](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/blob/0d3beb4f9e0ee32ce088c591125b9d61ef43173f/docs/S1_002_CHECKPOINT_I85_BOOTSTRAP_AUTH_2026_10_28.md). Sua recomendação de avançar para I86 e a afirmação de ausência de service_role na Edge ficam substituídas pela auditoria atual.
+- Base I84 preservada: código `6852a4f509df8466e35da46ba995a4ac2ed5e1f7`, checkpoint `3bf948fe67d439d93f6c848300ea2e5e053311ed`, PR40/CI40622136488.
+- S1 fixada em `8780b576aa18bd3983c063339e2e42d2452af22c`.
 
-## Estado, commits e certificação
+## Correções atuais
 
-- Base congelada: I84 código `6852a4f509df8466e35da46ba995a4ac2ed5e1f7`, checkpoint `3bf948fe67d439d93f6c848300ea2e5e053311ed`, CI40622136488 SUCCESS.
-- Branch exclusiva: `exp/s0-s1-i85-bootstrap-auth-diretor-20261028`.
-- PR Draft #42: https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/pull/42, base experimental I84, sem merge.
-- **Commit de código certificado I85: `840b2db7299d024c03ced2e5120b241a23046a0e`.**
-- **CI40664481472: SUCCESS 5/5 jobs**, https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40664481472
-  - `credential-logging-preflight` SUCCESS (segredos);
-  - `s1-pinned-i54-i78-regressions` SUCCESS (S1 original);
-  - `real-history-and-cfi` SUCCESS (Auth, PostgREST, PostgreSQL 17, Edge I79–I83 e regressões pertinentes);
-  - `local-operation` SUCCESS (I84 independente);
-  - `i85-real-auth-bootstrap` SUCCESS (I85 nova jornada).
-- Artifact I85 `s0-s1-i85-real-auth-bootstrap`, ID GitHub Actions **12805308256** (retenção de 14 dias); apenas o JSON reduzido `prumo_i85_journey.json`, sem tokens/senhas.
-- Artifact I84 `s0-s1-i84-local-operation` ID **12805971397**; regressão dedicada I83 ID **12806321739**; catálogo ownership I81 ID **12805532388**.
-- Este checkpoint é **documental posterior ao HEAD do código testado**. Nenhuma mudança de lógica é implicada pelo registro deste arquivo.
+Journal interno v2 com escrita durável, recuperação explícita e retenção de resíduos; custódia única/trava nas interfaces CLI e Python; binding físico estável; aprovação recuperada exige ratificação; UUID canônico GoTrue/SQL; grant inicial serializado; revogação com ordem de locks compatível e retomada exclusivamente negativa; status/descarte com prova SQL; init/dispose retomáveis após SIGKILL; parser sem eco.
 
-## Código e separação de responsabilidade
+O perfil restrito I85 usa o mesmo Runtime oficial e o TypeScript I82 sem mudanças, mas retira service_role, URL postgres do instalador e segredo JWT desde a criação do container. Bootstrap recusa worker legado, e marcador da stack impede fallback ao perfil anterior. Hook limitado em `local_admin/worker.py` somente nesta branch; a branch I84 histórica permanece intacta. Nenhuma alteração de SQL comercial, grants, owners, HTTP candidato, F02 ou Frontend.
 
-Novos arquivos:
-`integration/i85/{bootstrap.py,__main__.py,__init__.py,test_journey.py}`,
-`.github/workflows/exp-s0-s1-i85-auth-bootstrap.yml`,
-`docs/contratos/i85_auth/BOOTSTRAP_E_RECONCILIACAO_V1.md`.
+Cargo Diretor/estado ativo permanecem como classificação histórica após revogação, conforme I79; a competência global inativa impede administração. Conta Auth não é banida por inferência: novo login pode funcionar, mas não restaura autoridade. Bootstrap não é substituição ordinária de Diretor e permanece único por laboratório, inclusive após revogação.
 
-Nenhum arquivo I79–I84, SQL de negócio, Edge, frontend, main ou Supabase hospedado foi alterado. O operador I84 continua sem fixtures humanas, sem senha Auth, sem criação de Diretoria. A camada I85 é uma **ferramenta administrativa técnica local** separada dos endpoints HTTP; não é segunda API, outro cadastro, função de UI ou camada paralela de sessão.
+## Evidências vigentes
 
-A identidade sintética é criada pelo GoTrue real com service_role **somente na máquina de instalação local verificada** (não na Edge). O UUID verificado em `auth.users` e na leitura administrativa GoTrue é a identidade S0/S1. Cadastro organizacional ordinário I79 `REGISTER` continua exigindo UUID Auth existente. Diretoria inicial exige opt-in técnico `PRUMO_I85_DIRECTOR_APPROVAL=AUTHORIZE_SYNTHETIC_DIRECTOR_ONLY_IN_OWNED_DISPOSABLE_LAB`, associado ao UUID e à identidade física da stack I84. Instalação `postgres` local usa transação, checa ausência de outra competência/classificação e insere a mesma identidade nas três estruturas canônicas: `public.atores`, `prumo_private.s1_responsaveis_plataforma`, `public.equipe_prumo_s1`. Servidor Edge I83 mantém login `prumo_s1_admin_edge_local` restrito: nenhum Auth service_role, owner assumível, privilégio extra ou endpoint de bootstrap.
+Código certificado neste escopo laboratorial: `062c90ffbe2b223c1d6bb08f614e7a1b6a898201`.
+[CI final 40680048140](https://github.com/0marcos0paulo0-rgb/Plataforma-de-Vendas-por-IA/actions/runs/40680048140), **SUCCESS, seis jobs concluídos e artefatos inspecionados**.
+A primeira rodada independente 40675928138 ficou FAIL: 26/27 provas reais; uma contenção instrumentada na tabela errada foi corrigida sem flexibilizar a invariante. Não foi tratada como fechamento.
 
-## Resultado da jornada I85 real
+Resultados finais: resistência **29/29**, zero skips, 29 descartes comprovados e catálogos iguais; filesystem **7/7** e I84 boundary **9/9**, normal e Python -O; jornada I85 **um teste/13 pontos**; I84 **um teste/16 pontos**; backend288, Deno14, I79/G1 62, I80 33, I81 14, I82 HTTP20 e I83 35 preservados. Refresh revogado REJECTED; novo login Auth sem competência administrativa. Artefato de resistência12813622741, SHA256 ZIP `809c56d574c8a398138cc381b34e24e0b4263e0bd9f4564954b701c297c97858`.
 
-`integration/i85.test_journey`: **um teste E2E encadeado**, com **13 pontos de prova**, não 13 testes independentes. Logs e metadados do job `122736690298`:
+A matriz completa, resultados/jobs/artefatos e classificação final ficam em:
 
-1. Stack nova PG17/GoTrue sem identidades nem Diretoria.
-2. Identidade Auth via administração técnica, UUID físico conferido, reexecução de criação recusada.
-3. Resposta perdida após POST real de criação GoTrue, reconciliação por mesmo email/UUID sem segundo POST.
-4. Divergência de UUID recusada sem adoção.
-5. JWT válido sem competência não autoriza Diretoria; autopromoção/"cargo=diretor" no REGISTER recusadas.
-6. Aprovação técnica vinculada ao UUID/stack; resposta perdida após COMMIT real da competência, reconciliada sem segundo insert.
-7. REGISTER/ACTIVATE/TRANSFER confirmados via HTTP Edge real, chefia principal/CAS.
-8. INVENTORY/PREVIEW/APPLY confirmados; preview não classifica/aplica automaticamente.
-9. Gestor, Consultor e usuário não vinculado recusados nas seis operações.
-10. Duas requisições simultâneas com chave idempotente única produzem apenas uma mutação.
-11. Revogação da competência global e exclusão de sessão GoTrue negam acesso; rebootstrap é recusado. JWT sem competência: 403; sessão apagada: 401.
-12. Catálogo físico I83 sem alterações não autorizadas de owners, grants, RLS, triggers e constraints. Somente bit temporário LOGIN de `prumo_s1_admin_edge_local` durante `serve` é normalizado, tal como operador I84.
-13. Segredos/journal I85 removidos, sem alegação de apagamento forense.
+- [Relatório A–H](contratos/i85_auth/RELATORIO_AUDITORIA_INDEPENDENTE.md).
+- [Matriz estruturada](contratos/i85_auth/MATRIZ_AUDITORIA.json).
+- [Contrato local v1 revisado](contratos/i85_auth/BOOTSTRAP_E_RECONCILIACAO_V1.md).
+- [Runbook de bootstrap, recuperação, revogação e descarte](contratos/i85_auth/RUNBOOK_AUDITADO.md).
+- [Impacto herdado registrado antes da mudança](contratos/i85_auth/IMPACTO_DA_AUDITORIA_EM_COMPONENTES_ANTERIORES.md).
 
-**Descarte físico da I84 também comprovado após a jornada:** `phase=DISCARDED`, `material_removed=true`, `resources_absent=true`, `retirement_verified=true`. O artefato da jornada inclui apenas rótulos de prova e flags de integração, não arquivos privados.
+## Próxima ação segura
 
-A execução I85 não reimplementou o histórico G1, I79–I84. Cinco jobs preservam o baseline, inclusive I84 operação autônoma, separação I83, catálogo I81 e HTTP I82, e passagem física pelas migrações descartáveis. Sem auditoria comercial F02 adicional ou alteração de políticas comerciais.
+Encaminhar o relatório e a matriz à auditoria final da orquestração; as provas de descarte foram verificadas. Nenhuma nova rodada corretiva é necessária para os requisitos laboratoriais testados. Não iniciar I86 nesta execução. Produção, nomeação de Diretor real, governança organizacional, TLS/custódia hospedada, revisão Frontend, homologação e rollout continuam gates próprios. F02 G01–G06 parciais/G07 pendente, sem mudança comercial. Sem merge, deploy ou Supabase hospedado.
 
-## Recuperação e limites de prova
-
-GoTrue e PostgreSQL **não formam transação distribuída**. `CREATE_UNKNOWN` e `COMMIT_UNKNOWN` são fases duráveis privadas; falha parcial não permite novo POST/INSERT automático. `reconcile-identity` exige mesmo UUID/email no GoTrue/PG. `reconcile-authority` lê competência e equipe canônicas da identidade aprovada. Ausência de prova mantém bloqueio; ninguém vira Diretor para "consertar" o processo. Revogação é confirmada mediante competência inativa e zero sessões sintéticas, sem reativação automática. O journal é fsync local e privado, **não** é log WORM, remoto ou proteção contra root host. `dispose` recusa fase de autoridade ativa/incerta e não promete destruição forense.
-
-O ensaio comprovou perda de resposta e resultado incerto injetados **após ações reais**; não exaure todos os pontos de falha de rede, crash/daemon, entrega parcial de disco ou reconciliação de conflito externo. A recusa a segunda competência é checada pelo código sob lock; não existe teste E2E independente de uma corrida entre duas aprovações administrativas distintas. Também não há credenciais reais, identidade corporativa aprovada, custódia produtiva nem segundo fator. Essas limitações não são mascaradas como PASS total de produção.
-
-## Encaminhamento DTO ao Frontend
-
-Contrato candidato `prumo.admin.v1` segue em `docs/contratos/i82_edge/CONTRATO_HTTP_V1.md`. Interface futura pode consumir `REGISTER, ACTIVATE, TRANSFER, INVENTORY, PREVIEW, APPLY` via Edge, obtendo UUID Auth previamente provisionado por processo aprovado; deve reter `expected_relationship_id` decimal string (não Number JS), `expected_sha256`, `preview_id`, `idempotency_key`, recibos e estados `CONFIRMED/UNKNOWN`; não pode enviar actor/session/role como autoridade, segredo service_role nem operação bootstrap. Revisão DTO/UI depende de aceite independente das prévias de Consultor/Gestor. Nenhuma tela ou branch visual foi modificada; HTTP permanece **candidato**, não aceito pela frente visual.
-
-## Gates e próxima execução segura
-
-**Diretor real bloqueado**: exigir fonte/ato administrativo corporativo de nomeação verificável, identidade do titular, competências de autorização/recuperação e custódia produtiva aprovadas antes de qualquer bootstrap hospedado. Outros gates separados: TLS, credenciais hospedadas, abuso distribuído, trilha imutável operacional, proteção de operador técnico, homologação e rollout; F02 G01–G06 ainda parciais/G07 pendente, sem ratificação comercial. Sem merge, deploy, migration hospedada, usuários reais, OpenAI ou Meta.
-
-**I86 tecnicamente segura:** definir governança/cadeia de nomeação e runbooks produtivos **sem provisionar reais**, auditar explicitamente corridas de duas aprovações, cenários de processo interrompido e falhas de descarte, endurecer proteção de journal e preparar revisão do DTO com a equipe frontend quando as prévias forem aceitas. Nenhuma migração ou promoção real implícita.
+Este checkpoint documental é posterior ao código testado. Seus commits exatos são registrados no relatório/PR; commits somente documentais usam `[skip ci]`, sem alterar o tree de código certificado nem atribuir CI a código não executado.

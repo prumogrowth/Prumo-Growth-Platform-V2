@@ -1,0 +1,805 @@
+{
+  "version": 1,
+  "code": "062c90ffbe2b223c1d6bb08f614e7a1b6a898201",
+  "closure": "I85_LAB_CLOSED",
+  "cases": [
+    {
+      "id": "SIG-I85-000",
+      "test": "test_000_init_after_directory_sigkill_recovers_without_identity",
+      "scenario": "SIGKILL após mkdir, antes do primeiro estado: comprovar stack nova e recuperar sem identidade",
+      "result": "PASS",
+      "evidence": "CI40680048140/job122789075598/artifact12813622741/prumo_i85_resistance.json#test_000_init_after_directory_sigkill_recovers_without_identity",
+      "limitation": "Caso real independente, com stack descartável própria; PASS somente após execução completa e descarte comprovado. Recusa BLOCKED esperada não equivale a recuperação automática.",
+      "expected_operational_result": "RECOVERED_WITH_FRESH_LAB_PROOF",
+      "observations": {},
+      "cleanup": {
+        "resources_absent": true,
+        "private_password_material_removed": true,
+        "catalog_equal": true
+      }
+    },
+    {
+      "id": "SIG-I85-001",
+      "test": "test_001_init_after_initial_state_sigkill_recovers",
+      "scenario": "SIGKILL após estado inicial, antes de secrets/auditoria: status nega, recuperação explícita",
+      "result": "PASS",
+      "evidence": "CI40680048140/job122789075598/artifact12813622741/prumo_i85_resistance.json#test_001_init_after_initial_state_sigkill_recovers",
+      "limitation": "Caso real independente, com stack descartável própria; PASS somente após execução completa e descarte comprovado. Recusa BLOCKED esperada não equivale a recuperação automática.",
+      "expected_operational_result": "RECOVERED",
+      "observations": {},
+      "cleanup": {
+        "resources_absent": true,
+        "private_password_material_removed": true,
+        "catalog_equal": true
+      }
+    },
+    {
+      "id": "SIG-I85-010",
+      "test": "test_010_orphan_secret_before_identity_intent_blocks",
+      "scenario": "Segredo persistido sem intenção de identidade: recusa sem POST e preservação de evidência",
+      "result": "PASS",
+      "evidence": "CI40680048140/job122789075598/artifact12813622741/prumo_i85_resistance.json#test_010_orphan_secret_before_identity_intent_blocks",
+      "limitation": "Caso real independente, com stack descartável própria; PASS somente após execução completa e descarte comprovado. Recusa BLOCKED esperada não equivale a recuperação automática.",
+      "expected_operational_result": "BLOCKED",
+      "observations": {},
+      "cleanup": {
+        "resources_absent": true,
+        "private_password_material_removed": true,
+        "catalog_equal": true
+      }
+    },
+    {
+      "id": "SIG-I85-011",
+      "test": "test_011_identity_intent_without_post_remains_conservatively_blocked",
+      "scenario": "Intenção CREATE_UNKNOWN persistida sem POST: não repetir nem gerar outra identidade",
+      "result": "PASS",
+      "evidence": "CI40680048140/job122789075598/artifact12813622741/prumo_i85_resistance.json#test_011_identity_intent_without_post_remains_conservatively_blocked",
+      "limitation": "Caso real independente, com stack descartável própria; PASS somente após execução completa e descarte comprovado. Recusa BLOCKED esperada não equivale a recuperação automática.",
+      "expected_operational_result": "BLOCKED",
+      "observations": {},
+      "cleanup": {
+        "resources_absent": true,
+        "private_password_material_removed": true,
+        "catalog_equal": true
+      }
+    },
+    {
+      "id": "SIG-I85-012",
+      "test": "test_012_post_committed_before_ack_reconciles_same_uuid",
+      "scenario": "POST GoTrue confirmado no servidor sem confirmação local: reconciliar o mesmo UUID",
+      "result": "PASS",
+      "evidence": "CI40680048140/job122789075598/artifact12813622741/prumo_i85_resistance.json#test_012_post_committed_before_ack_reconciles_same_uuid",
+      "limitation": "Caso real independente, com stack descartável própria; PASS somente após execução completa e descarte comprovado. Recusa BLOCKED esperada não equivale a recuperação automática.",
+      "expected_operational_result": "RECOVERED",
+      "observations": {},
+      "cleanup": {
+        "resources_absent": true,
+        "private_password_material_removed": true,
+        "catalog_equal": true
+      }
+    },
+    {
+      "id": "SIG-I85-013",
+      "test": "test_013_reconciliation_sigkill_does_not_repeat_creation",
+      "scenario": "SIGKILL durante reconciliação de identidade: leitura retomável sem segundo POST",
+      "result": "PASS",
+      "evidence": "CI40680048140/job122789075598/artifact12813622741/prumo_i85_resistance.json#test_013_reconciliation_sigkill_does_not_repeat_creation",
+      "limitation": "Caso real independente, com stack descartável própria; PASS somente após execução completa e descarte comprovado. Recusa BLOCKED esperada não equivale a recuperação automática.",
+      "expected_operational_result": "RECOVERED",
+      "observations": {},
+      "cleanup": {
+        "resources_absent": true,
+        "private_password_material_removed": true,
+        "catalog_equal": true
+      }
+    },
+    {
+      "id": "SIG-I85-014",
+      "test": "test_014_two_direct_python_processes_create_one_identity",
+      "scenario": "Duas chamadas create em processos Python distintos: custódia única e um Auth",
+      "result": "PASS",
+      "evidence": "CI40680048140/job122789075598/artifact12813622741/prumo_i85_resistance.json#test_014_two_direct_python_processes_create_one_identity",
+      "limitation": "Caso real independente, com stack descartável própria; PASS somente após execução completa e descarte comprovado. Recusa BLOCKED esperada não equivale a recuperação automática.",
+      "expected_operational_result": "ONE_IDENTITY",
+      "observations": {},
+      "cleanup": {
+        "resources_absent": true,
+        "private_password_material_removed": true,
+        "catalog_equal": true
+      }
+    },
+    {
+      "id": "SIG-I85-020",
+      "test": "test_020_grant_before_intent_has_no_mutation",
+      "scenario": "SIGKILL antes da intenção de grant: nenhuma mutação SQL, aprovação explícita reaproveitável uma vez",
+      "result": "PASS",
+      "evidence": "CI40680048140/job122789075598/artifact12813622741/prumo_i85_resistance.json#test_020_grant_before_intent_has_no_mutation",
+      "limitation": "Caso real independente, com stack descartável própria; PASS somente após execução completa e descarte comprovado. Recusa BLOCKED esperada não equivale a recuperação automática.",
+      "expected_operational_result": "NO_SQL_MUTATION",
+      "observations": {},
+      "cleanup": {
+        "resources_absent": true,
+        "private_password_material_removed": true,
+        "catalog_equal": true
+      }
+    },
+    {
+      "id": "SIG-I85-021",
+      "test": "test_021_grant_precommit_kill_rolls_back_and_blocks_reissue",
+      "scenario": "SIGKILL antes de COMMIT do grant: rollback e bloqueio de retry positivo; outro processo recebe BUSY",
+      "result": "PASS",
+      "evidence": "CI40680048140/job122789075598/artifact12813622741/prumo_i85_resistance.json#test_021_grant_precommit_kill_rolls_back_and_blocks_reissue",
+      "limitation": "Caso real independente, com stack descartável própria; PASS somente após execução completa e descarte comprovado. Recusa BLOCKED esperada não equivale a recuperação automática.",
+      "expected_operational_result": "BLOCKED",
+      "observations": {},
+      "cleanup": {
+        "resources_absent": true,
+        "private_password_material_removed": true,
+        "catalog_equal": true
+      }
+    },
+    {
+      "id": "SIG-I85-022",
+      "test": "test_022_grant_postcommit_kill_reconciles_without_second_authority",
+      "scenario": "SIGKILL após COMMIT: uma autoridade, leitura canônica e recusa de novo grant",
+      "result": "PASS",
+      "evidence": "CI40680048140/job122789075598/artifact12813622741/prumo_i85_resistance.json#test_022_grant_postcommit_kill_reconciles_without_second_authority",
+      "limitation": "Caso real independente, com stack descartável própria; PASS somente após execução completa e descarte comprovado. Recusa BLOCKED esperada não equivale a recuperação automática.",
+      "expected_operational_result": "RECOVERED",
+      "observations": {},
+      "cleanup": {
+        "resources_absent": true,
+        "private_password_material_removed": true,
+        "catalog_equal": true
+      }
+    },
+    {
+      "id": "SIG-I85-023",
+      "test": "test_023_confirmation_kill_reconciles",
+      "scenario": "SIGKILL durante confirmação da autoridade: reconciliação por fontes canônicas",
+      "result": "PASS",
+      "evidence": "CI40680048140/job122789075598/artifact12813622741/prumo_i85_resistance.json#test_023_confirmation_kill_reconciles",
+      "limitation": "Caso real independente, com stack descartável própria; PASS somente após execução completa e descarte comprovado. Recusa BLOCKED esperada não equivale a recuperação automática.",
+      "expected_operational_result": "RECOVERED",
+      "observations": {},
+      "cleanup": {
+        "resources_absent": true,
+        "private_password_material_removed": true,
+        "catalog_equal": true
+      }
+    },
+    {
+      "id": "SIG-I85-024",
+      "test": "test_024_staged_active_journal_is_not_silently_promoted",
+      "scenario": "Estado ACTIVE staged em .next: reter bytes e manter COMMIT_UNKNOWN até prova SQL",
+      "result": "PASS",
+      "evidence": "CI40680048140/job122789075598/artifact12813622741/prumo_i85_resistance.json#test_024_staged_active_journal_is_not_silently_promoted",
+      "limitation": "Caso real independente, com stack descartável própria; PASS somente após execução completa e descarte comprovado. Recusa BLOCKED esperada não equivale a recuperação automática.",
+      "expected_operational_result": "RECOVERED_WITH_EVIDENCE",
+      "observations": {},
+      "cleanup": {
+        "resources_absent": true,
+        "private_password_material_removed": true,
+        "catalog_equal": true
+      }
+    },
+    {
+      "id": "SIG-I85-030",
+      "test": "test_030_two_process_approvals_cannot_overwrite_custody",
+      "scenario": "Dois processos de aprovação pública na mesma custódia: uma aprovação; diretório alternativo negado",
+      "result": "PASS",
+      "evidence": "CI40680048140/job122789075598/artifact12813622741/prumo_i85_resistance.json#test_030_two_process_approvals_cannot_overwrite_custody",
+      "limitation": "Caso real independente, com stack descartável própria; PASS somente após execução completa e descarte comprovado. Recusa BLOCKED esperada não equivale a recuperação automática.",
+      "expected_operational_result": "ONE_APPROVAL",
+      "observations": {},
+      "cleanup": {
+        "resources_absent": true,
+        "private_password_material_removed": true,
+        "catalog_equal": true
+      }
+    },
+    {
+      "id": "SIG-I85-031",
+      "test": "test_031_distinct_canonical_candidate_sql_transactions_have_one_winner",
+      "scenario": "Duas transações instaladoras e UUIDs distintos: um único Diretor inicial sob corrida SQL",
+      "result": "PASS",
+      "evidence": "CI40680048140/job122789075598/artifact12813622741/prumo_i85_resistance.json#test_031_distinct_canonical_candidate_sql_transactions_have_one_winner",
+      "limitation": "Caso real independente, com stack descartável própria; PASS somente após execução completa e descarte comprovado. Recusa BLOCKED esperada não equivale a recuperação automática.",
+      "expected_operational_result": "ONE_DIRECTOR",
+      "observations": {},
+      "cleanup": {
+        "resources_absent": true,
+        "private_password_material_removed": true,
+        "catalog_equal": true
+      }
+    },
+    {
+      "id": "SIG-I85-032",
+      "test": "test_032_staged_approval_requires_explicit_ratification",
+      "scenario": "Aprovação staged interrompida: exigir ratificação explícita e preservar approval_id",
+      "result": "PASS",
+      "evidence": "CI40680048140/job122789075598/artifact12813622741/prumo_i85_resistance.json#test_032_staged_approval_requires_explicit_ratification",
+      "limitation": "Caso real independente, com stack descartável própria; PASS somente após execução completa e descarte comprovado. Recusa BLOCKED esperada não equivale a recuperação automática.",
+      "expected_operational_result": "PENDING_EXPLICIT_RATIFICATION",
+      "observations": {},
+      "cleanup": {
+        "resources_absent": true,
+        "private_password_material_removed": true,
+        "catalog_equal": true
+      }
+    },
+    {
+      "id": "SIG-I85-040",
+      "test": "test_040_revocation_precommit_can_resume_only_negative_mutation",
+      "scenario": "Revogação interrompida antes do COMMIT: rollback, reconciliação bloqueada e retomada negativa explícita",
+      "result": "PASS",
+      "evidence": "CI40680048140/job122789075598/artifact12813622741/prumo_i85_resistance.json#test_040_revocation_precommit_can_resume_only_negative_mutation",
+      "limitation": "Caso real independente, com stack descartável própria; PASS somente após execução completa e descarte comprovado. Recusa BLOCKED esperada não equivale a recuperação automática.",
+      "expected_operational_result": "NEGATIVE_RESUME",
+      "observations": {},
+      "cleanup": {
+        "resources_absent": true,
+        "private_password_material_removed": true,
+        "catalog_equal": true
+      }
+    },
+    {
+      "id": "SIG-I85-041",
+      "test": "test_041_revocation_postcommit_reconciles",
+      "scenario": "Revogação interrompida após COMMIT: leitura confirma ausência de competência sem reativação",
+      "result": "PASS",
+      "evidence": "CI40680048140/job122789075598/artifact12813622741/prumo_i85_resistance.json#test_041_revocation_postcommit_reconciles",
+      "limitation": "Caso real independente, com stack descartável própria; PASS somente após execução completa e descarte comprovado. Recusa BLOCKED esperada não equivale a recuperação automática.",
+      "expected_operational_result": "REVOKED",
+      "observations": {},
+      "cleanup": {
+        "resources_absent": true,
+        "private_password_material_removed": true,
+        "catalog_equal": true
+      }
+    },
+    {
+      "id": "SIG-I85-042",
+      "test": "test_042_session_retirement_rolls_back_together_with_authority",
+      "scenario": "SIGKILL após DELETE de sessões antes do COMMIT: sessões e competência sofrem rollback juntas",
+      "result": "PASS",
+      "evidence": "CI40680048140/job122789075598/artifact12813622741/prumo_i85_resistance.json#test_042_session_retirement_rolls_back_together_with_authority",
+      "limitation": "Caso real independente, com stack descartável própria; PASS somente após execução completa e descarte comprovado. Recusa BLOCKED esperada não equivale a recuperação automática.",
+      "expected_operational_result": "ATOMIC_ROLLBACK",
+      "observations": {},
+      "cleanup": {
+        "resources_absent": true,
+        "private_password_material_removed": true,
+        "catalog_equal": true
+      }
+    },
+    {
+      "id": "SIG-I85-043",
+      "test": "test_043_refresh_and_fresh_login_do_not_recover_revoked_authority",
+      "scenario": "JWT anterior, refresh e novo login Auth após revogação: administração continua negada; cargo histórico mantido",
+      "result": "PASS",
+      "evidence": "CI40680048140/job122789075598/artifact12813622741/prumo_i85_resistance.json#test_043_refresh_and_fresh_login_do_not_recover_revoked_authority",
+      "limitation": "Caso real independente, com stack descartável própria; PASS somente após execução completa e descarte comprovado. Recusa BLOCKED esperada não equivale a recuperação automática.",
+      "expected_operational_result": "ADMIN_DENIED",
+      "observations": {
+        "refresh": "REJECTED",
+        "fresh_password_login": "AUTHENTICATED_ADMIN_DENIED"
+      },
+      "cleanup": {
+        "resources_absent": true,
+        "private_password_material_removed": true,
+        "catalog_equal": true
+      }
+    },
+    {
+      "id": "SIG-I85-044",
+      "test": "test_044_original_inverse_lock_order_has_physical_deadlock",
+      "scenario": "Reproduzir fisicamente a ordem antiga invertida: deadlock 40P01 e rollback sem perda de autoridade",
+      "result": "PASS",
+      "evidence": "CI40680048140/job122789075598/artifact12813622741/prumo_i85_resistance.json#test_044_original_inverse_lock_order_has_physical_deadlock",
+      "limitation": "Caso real independente, com stack descartável própria; PASS somente após execução completa e descarte comprovado. Recusa BLOCKED esperada não equivale a recuperação automática.",
+      "expected_operational_result": "ORIGINAL_DEFECT_REPRODUCED",
+      "observations": {
+        "original_lock_order": "40P01_REPRODUCED_WITH_ROLLBACK"
+      },
+      "cleanup": {
+        "resources_absent": true,
+        "private_password_material_removed": true,
+        "catalog_equal": true
+      }
+    },
+    {
+      "id": "SIG-I85-045",
+      "test": "test_045_fixed_revocation_drains_real_signed_http_before_withdrawing_authority",
+      "scenario": "HTTP assinado real em contenção: comando anterior drena sem deadlock, depois revogação nega token",
+      "result": "PASS",
+      "evidence": "CI40680048140/job122789075598/artifact12813622741/prumo_i85_resistance.json#test_045_fixed_revocation_drains_real_signed_http_before_withdrawing_authority",
+      "limitation": "Caso real independente, com stack descartável própria; PASS somente após execução completa e descarte comprovado. Recusa BLOCKED esperada não equivale a recuperação automática.",
+      "expected_operational_result": "ORDERED_CUTOVER",
+      "observations": {},
+      "cleanup": {
+        "resources_absent": true,
+        "private_password_material_removed": true,
+        "catalog_equal": true
+      }
+    },
+    {
+      "id": "SIG-I85-050",
+      "test": "test_050_private_profile_has_no_installer_credentials_or_bootstrap_endpoint",
+      "scenario": "Perfil físico sem credenciais de instalação; metadata não promove; rota bootstrap inexistente",
+      "result": "PASS",
+      "evidence": "CI40680048140/job122789075598/artifact12813622741/prumo_i85_resistance.json#test_050_private_profile_has_no_installer_credentials_or_bootstrap_endpoint",
+      "limitation": "Caso real independente, com stack descartável própria; PASS somente após execução completa e descarte comprovado. Recusa BLOCKED esperada não equivale a recuperação automática.",
+      "expected_operational_result": "DENIED",
+      "observations": {},
+      "cleanup": {
+        "resources_absent": true,
+        "private_password_material_removed": true,
+        "catalog_equal": true
+      }
+    },
+    {
+      "id": "SIG-I85-052",
+      "test": "test_052_late_optin_rejects_legacy_worker_and_no_fallback_after_bootstrap",
+      "scenario": "Worker legado anterior ao opt-in é recusado; restart restrito e remoção do flag não causam fallback",
+      "result": "PASS",
+      "evidence": "CI40680048140/job122789075598/artifact12813622741/prumo_i85_resistance.json#test_052_late_optin_rejects_legacy_worker_and_no_fallback_after_bootstrap",
+      "limitation": "Caso real independente, com stack descartável própria; PASS somente após execução completa e descarte comprovado. Recusa BLOCKED esperada não equivale a recuperação automática.",
+      "expected_operational_result": "RESTRICTED_PROFILE_REQUIRED",
+      "observations": {
+        "legacy_runtime_env": "PRIVILEGED_VARIABLE_NAMES_PRESENT",
+        "i85_runtime_env": "PRIVILEGED_VARIABLES_ABSENT_NO_FALLBACK"
+      },
+      "cleanup": {
+        "resources_absent": true,
+        "private_password_material_removed": true,
+        "catalog_equal": true
+      }
+    },
+    {
+      "id": "SIG-I85-060",
+      "test": "test_060_disposal_after_intent_is_resumable",
+      "scenario": "SIGKILL após intenção de dispose: retomar descarte sem perder prova de autoridade",
+      "result": "PASS",
+      "evidence": "CI40680048140/job122789075598/artifact12813622741/prumo_i85_resistance.json#test_060_disposal_after_intent_is_resumable",
+      "limitation": "Caso real independente, com stack descartável própria; PASS somente após execução completa e descarte comprovado. Recusa BLOCKED esperada não equivale a recuperação automática.",
+      "expected_operational_result": "DISPOSED",
+      "observations": {},
+      "cleanup": {
+        "resources_absent": true,
+        "private_password_material_removed": true,
+        "catalog_equal": true
+      }
+    },
+    {
+      "id": "SIG-I85-061",
+      "test": "test_061_disposal_after_directory_rename_is_resumable",
+      "scenario": "SIGKILL após rename para .disposing: retomar limpeza privada",
+      "result": "PASS",
+      "evidence": "CI40680048140/job122789075598/artifact12813622741/prumo_i85_resistance.json#test_061_disposal_after_directory_rename_is_resumable",
+      "limitation": "Caso real independente, com stack descartável própria; PASS somente após execução completa e descarte comprovado. Recusa BLOCKED esperada não equivale a recuperação automática.",
+      "expected_operational_result": "DISPOSED",
+      "observations": {},
+      "cleanup": {
+        "resources_absent": true,
+        "private_password_material_removed": true,
+        "catalog_equal": true
+      }
+    },
+    {
+      "id": "SIG-I85-062",
+      "test": "test_062_disposal_after_password_unlink_is_resumable",
+      "scenario": "SIGKILL após unlink de senha: concluir descarte sem recriar material",
+      "result": "PASS",
+      "evidence": "CI40680048140/job122789075598/artifact12813622741/prumo_i85_resistance.json#test_062_disposal_after_password_unlink_is_resumable",
+      "limitation": "Caso real independente, com stack descartável própria; PASS somente após execução completa e descarte comprovado. Recusa BLOCKED esperada não equivale a recuperação automática.",
+      "expected_operational_result": "DISPOSED",
+      "observations": {},
+      "cleanup": {
+        "resources_absent": true,
+        "private_password_material_removed": true,
+        "catalog_equal": true
+      }
+    },
+    {
+      "id": "SIG-I85-070",
+      "test": "test_070_corrupt_journal_does_not_delete_live_authority",
+      "scenario": "Journal corrompido para NONE com SQL ativo: status/reparo/descarte recusados, autoridade não apagada",
+      "result": "PASS",
+      "evidence": "CI40680048140/job122789075598/artifact12813622741/prumo_i85_resistance.json#test_070_corrupt_journal_does_not_delete_live_authority",
+      "limitation": "Caso real independente, com stack descartável própria; PASS somente após execução completa e descarte comprovado. Recusa BLOCKED esperada não equivale a recuperação automática.",
+      "expected_operational_result": "BLOCKED",
+      "observations": {},
+      "cleanup": {
+        "resources_absent": true,
+        "private_password_material_removed": true,
+        "catalog_equal": true
+      }
+    },
+    {
+      "id": "SIG-I85-071",
+      "test": "test_071_torn_next_requires_retention_not_guessing",
+      "scenario": "JSON .next truncado: manter evidência e recusar grant/reparo especulativo",
+      "result": "PASS",
+      "evidence": "CI40680048140/job122789075598/artifact12813622741/prumo_i85_resistance.json#test_071_torn_next_requires_retention_not_guessing",
+      "limitation": "Caso real independente, com stack descartável própria; PASS somente após execução completa e descarte comprovado. Recusa BLOCKED esperada não equivale a recuperação automática.",
+      "expected_operational_result": "BLOCKED",
+      "observations": {},
+      "cleanup": {
+        "resources_absent": true,
+        "private_password_material_removed": true,
+        "catalog_equal": true
+      }
+    },
+    {
+      "id": "SIG-I85-080",
+      "test": "test_080_old_identity_token_and_operator_cannot_cross_stack",
+      "scenario": "Nova stack: UUID/token/objeto Python antigos não são reutilizados; ausência do usuário anterior",
+      "result": "PASS",
+      "evidence": "CI40680048140/job122789075598/artifact12813622741/prumo_i85_resistance.json#test_080_old_identity_token_and_operator_cannot_cross_stack",
+      "limitation": "Caso real independente, com stack descartável própria; PASS somente após execução completa e descarte comprovado. Recusa BLOCKED esperada não equivale a recuperação automática.",
+      "expected_operational_result": "CROSS_STACK_DENIED",
+      "observations": {},
+      "cleanup": {
+        "resources_absent": true,
+        "private_password_material_removed": true,
+        "catalog_equal": true
+      }
+    }
+  ],
+  "scope": "Somente I85 laboratorial, sem I86 ou autorização hospedada",
+  "ci_run": 40680048140,
+  "artifacts": [
+    {
+      "id": 12811789480,
+      "zip_sha256": "393b8ede1f002f62f3e7807571a2de04fb32a3b1903bdca722bbb7bbebbb3af1",
+      "members": [
+        {
+          "name": "prumo_i85_journey.json",
+          "sha256": "e118b5f346c1c40003ff63025dfa6019402d0a1e2db0c7bc22ff67aca0607583"
+        }
+      ]
+    },
+    {
+      "id": 12811714884,
+      "zip_sha256": "e55cc32151135915af6d15574461d7f3586eff43248fcc1103e6018411841ca8",
+      "members": [
+        {
+          "name": "prumo_i84_journey.json",
+          "sha256": "95f6cca05cc6e8dfa699bd5c0ffaee613d573ffcbd0e5e9bd4e16dc80daf76b3"
+        },
+        {
+          "name": "prumo_i84_catalog.json",
+          "sha256": "0886c423043370b29ad0a52945fe3037410c0939f4b41965f3aef013acbd02a6"
+        },
+        {
+          "name": "prumo_i84_catalog_initial.json",
+          "sha256": "37e6fa07cf033c0e57d9f8bf5d71abdb882fc85510e0722503425a449e2eac03"
+        }
+      ]
+    },
+    {
+      "id": 12812353340,
+      "zip_sha256": "fb38e5477eb69e630a6e7dcbfd04f87691532b6d2bbf51bdc5719bda530def38",
+      "members": [
+        {
+          "name": "prumo_i81_catalog_after.json",
+          "sha256": "a6a9df71115a172b28d9ec3f81ce7d82f22a561cbf85cd9ce333b66523cd8a71"
+        },
+        {
+          "name": "prumo_i81_catalog_before.json",
+          "sha256": "e642bf458560aaf6b9de5286316dacb4fac175daa546fd6114837139e8692dfc"
+        },
+        {
+          "name": "prumo_i81_catalog_final.json",
+          "sha256": "a6a9df71115a172b28d9ec3f81ce7d82f22a561cbf85cd9ce333b66523cd8a71"
+        }
+      ]
+    },
+    {
+      "id": 12812248747,
+      "zip_sha256": "91916e9d368eba6ebe4a19ccbc740ac325867ba5b605b7160e483fce5a9b50cc",
+      "members": [
+        {
+          "name": "prumo_i82_catalog_after.json",
+          "sha256": "5e11921c26892b6e68356c2fda3af870212b4814c477c040105274a2a1b58e06"
+        },
+        {
+          "name": "prumo_i82_catalog_before.json",
+          "sha256": "a6a9df71115a172b28d9ec3f81ce7d82f22a561cbf85cd9ce333b66523cd8a71"
+        },
+        {
+          "name": "prumo_i82_catalog_final.json",
+          "sha256": "5e11921c26892b6e68356c2fda3af870212b4814c477c040105274a2a1b58e06"
+        },
+        {
+          "name": "prumo_i82_runtime_sanitized.txt",
+          "sha256": "7cda1fe2b8968eb9bc1d29292e7bf67b0ea8d00e3b7e5c368915754b37d49d31"
+        }
+      ]
+    },
+    {
+      "id": 12812583893,
+      "zip_sha256": "8931bf47f2c960cc17bbf59ae4975963143fbda07472c0933ef846da8632ddbb",
+      "members": [
+        {
+          "name": "prumo_i82_runtime_sanitized.txt",
+          "sha256": "6c30ad0513b5d42cca24539845a0bcc5204e35b65a80b00971ec2cc6a844aa42"
+        },
+        {
+          "name": "prumo_i83_catalog_after.json",
+          "sha256": "5cabffab08c913fbd8cc66ca0b9cb73e2a0e719a45028cf377e15592206e169c"
+        },
+        {
+          "name": "prumo_i83_catalog_before.json",
+          "sha256": "d61854aa8e5922bf7586618040fceca65b5a0be9c57ee6cf9934a6e2d0fa9679"
+        },
+        {
+          "name": "prumo_i83_catalog_final.json",
+          "sha256": "5cabffab08c913fbd8cc66ca0b9cb73e2a0e719a45028cf377e15592206e169c"
+        },
+        {
+          "name": "prumo_i83_custody.json",
+          "sha256": "0223e3067ce74efa0d98a45b88767fce40e5580099f623c6ff3950ef2a8fff2e"
+        }
+      ]
+    },
+    {
+      "id": 12811792932,
+      "zip_sha256": "205ae79cc78386e9be83144ac7f0aea451057152aba1c55f9f2378489148641a",
+      "members": [
+        {
+          "name": "prumo_i83_logging_preflight.json",
+          "sha256": "ea93220d04b8bc69a4fd3c50e16c44416711ea035d95031709da7737347027e2"
+        }
+      ]
+    },
+    {
+      "id": 12812492554,
+      "zip_sha256": "092cfa729f5bfd95285f840a1ea123f76cc023fea060394ece237502181972a2",
+      "members": [
+        {
+          "name": "s1_002_i46_acl_inventory.json",
+          "sha256": "48d908611589dbfbb37bddf962f4c69148fb71abfbe666c5b34eb2a2c9756915"
+        }
+      ]
+    },
+    {
+      "id": 12812686956,
+      "zip_sha256": "a05f3a5b1fd89f46b37684e4b057078460d71ce114894c60a42fdabf8060ef26",
+      "members": [
+        {
+          "name": "s1_002_i75c_pg17_g3_effective_catalog.json",
+          "sha256": "c1e095f7f7b4d04bfda0540da3fab2825ad7228b9526db14eb5aa3bf1d150629"
+        }
+      ]
+    },
+    {
+      "id": 12812971061,
+      "zip_sha256": "92399acfa7aefc432a97c3f7ea9f2dd4e3fbdfc16cb5e7b62dc1553f90854689",
+      "members": [
+        {
+          "name": "s1_002_i75b_g3_inventory.json",
+          "sha256": "7b066c85d77bac74319e9e0d8bbbf992a99394a1db299b064f78245527f0bcab"
+        }
+      ]
+    },
+    {
+      "id": 12812701920,
+      "zip_sha256": "210fdf747e09417506ef0986b749688213efd2aeb4690eab20563a49b0ce7400",
+      "members": [
+        {
+          "name": "s1_002_i48_crosswalk.json",
+          "sha256": "f2be563ddbf93287b6251c7808eba1975cc8b77b98a0696b79f6410202608033"
+        }
+      ]
+    },
+    {
+      "id": 12813622741,
+      "zip_sha256": "809c56d574c8a398138cc381b34e24e0b4263e0bd9f4564954b701c297c97858",
+      "members": [
+        {
+          "name": "prumo_i85_resistance.json",
+          "sha256": "14910b4b603dd50b29be92a63a2b94af3c95c285d73c6be91607e1ccd3b37f40"
+        }
+      ]
+    }
+  ],
+  "additional_proofs": [
+    {
+      "id": "FS-I85",
+      "scenario": "Sete unidades filesystem/CLI, incluindo SIGKILL real na escrita herdada, links, permissões, JSON e erro de replace",
+      "result": "PASS",
+      "evidence": "job122789075586, 7/7 normal e 7/7 Python -O; também executados localmente",
+      "limitation": "Unidades de syscall/filesystem; não substituem integração Auth/SQL"
+    },
+    {
+      "id": "E2E-I85",
+      "scenario": "Jornada integrada existente, seis comandos HTTP e 13 pontos encadeados",
+      "result": "PASS",
+      "evidence": "job122789075586/artifact12811789480/prumo_i85_journey.json",
+      "proof": {
+        "version": "prumo.i85.evidence.v1",
+        "checks": [
+          "01_fresh_stack_no_auth_no_director",
+          "02_admin_auth_real_uuid_stable_duplicate_refused",
+          "03_lost_auth_response_reconciles_without_second_creation",
+          "04_real_auth_uuid_divergence_refused",
+          "05_valid_session_not_authority_no_self_promotion",
+          "06_explicit_technical_approval_real_director_commit_lost_reconciled_no_second",
+          "07_edge_real_register_activate_transfer_cas",
+          "08_edge_real_inventory_preview_apply_no_implicit_apply",
+          "09_manager_consultant_unassigned_denied_six_commands",
+          "10_concurrent_idempotency_one_mutation",
+          "11_director_revoked_sessions_invalid_and_rebootstrap_denied",
+          "12_owners_grants_rls_triggers_constraints_unchanged",
+          "13_private_custody_disposed_without_forensic_claim"
+        ],
+        "secret_values_exported": false,
+        "installer_credentials_absent_from_edge": true,
+        "credential_log_matches": 0,
+        "hosted_enabled": false,
+        "integration": "real PG17/GoTrue/PostgREST/Edge"
+      },
+      "limitation": "Um teste, não 13 testes independentes"
+    },
+    {
+      "id": "REG-I84",
+      "scenario": "Operador independente, bindings loopback, rotação, resultado incerto e descarte",
+      "result": "PASS",
+      "evidence": "job122789075525/artifact12811714884",
+      "limitation": "Perfil legado apenas para preservar regressão histórica; não certifica ausência de credenciais nesse perfil",
+      "proof": {
+        "version": "prumo.i84.evidence.v1",
+        "checks": [
+          "01_cli_init_prepare_without_human_fixture",
+          "16_physical_db_gateway_bindings_loopback_only",
+          "02_absent_credentials_denied",
+          "03_dedicated_runtime_ready",
+          "04_gotrue_director_sql_commit",
+          "05_rotation_restarts_worker_same_key_reconciles_without_reapply",
+          "06_old_sql_password_rejected",
+          "07_explicit_restart_new_container",
+          "13_stale_actual_worker_configuration_not_ready",
+          "08_old_running_worker_after_revocation_cannot_reapply",
+          "09_worker_retired_material_removed",
+          "10_uncertain_commit_recovery_retires_not_retries",
+          "11_exact_catalog_and_log_secrecy",
+          "12_stack_volumes_network_env_log_cleanup_verified",
+          "15_stop_acknowledgement_loss_cleanup_reconciles_without_database",
+          "14_partial_real_dependency_install_discard_without_escalation"
+        ],
+        "cleanup": {
+          "generation": 4,
+          "hosted_enabled": false,
+          "material_removed": true,
+          "pending": null,
+          "phase": "DISCARDED",
+          "resources_absent": true,
+          "retirement_verified": true,
+          "version": "prumo.admin.local.v1"
+        },
+        "catalog_equal": true,
+        "network_loopback": true,
+        "secret_matches": 0,
+        "partial_cleanup": {
+          "version": "prumo.admin.local.v1",
+          "phase": "DISCARDED",
+          "generation": 0,
+          "pending": null,
+          "hosted_enabled": false,
+          "material_removed": true,
+          "resources_absent": true,
+          "retirement_verified": false
+        }
+      }
+    },
+    {
+      "id": "REG-I79-I83",
+      "scenario": "I79/G1 62, I80 33, I81 14, I82 HTTP20, I83 35; catálogos depois/final iguais",
+      "result": "PASS",
+      "evidence": "job122789075496/artifacts12812353340,12812248747,12812583893",
+      "limitation": "Regressões usam interfaces originais; isolamento específico do novo perfil é provado pela I85"
+    },
+    {
+      "id": "REG-S0-S1",
+      "scenario": "Backend288, Deno14, CFI32+F02registro24, história19 em dois perfis, fontes S1 I54–I78 fixadas",
+      "result": "PASS",
+      "evidence": "jobs122789075496 e122788160038",
+      "limitation": "Executar regressão F02 existente não implementa nem ratifica integração comercial"
+    },
+    {
+      "id": "GATE-HOSPEDADO",
+      "scenario": "Produção, pessoas reais, governança corporativa e custódia produtiva",
+      "result": "NOT_TESTED",
+      "evidence": "Fora do escopo; nenhuma operação executada",
+      "limitation": "Não autorizado; não é pendência técnica dentro da certificação laboratorial"
+    },
+    {
+      "id": "GATE-CRASH-EXAUSTIVO",
+      "scenario": "Falha de energia/daemon/disco em todas as janelas, incluindo sem proveniência recuperável",
+      "result": "NOT_TESTED",
+      "evidence": "Fora do conjunto finito de provas; runbook impõe bloqueio quando não há prova",
+      "limitation": "Não se declara recuperação automática universal"
+    },
+    {
+      "id": "PRE-I83",
+      "scenario": "Instalador recusa logging que poderia registrar material privado, sem mudança global de privilégios",
+      "result": "PASS",
+      "evidence": "job122788160545/artifact12811792932",
+      "limitation": "Escopo de logging e stack descartável; não homologação de custódia produtiva"
+    }
+  ],
+  "custody_i83": {
+    "status": "CLEANED",
+    "container_logs_scanned_without_credential_matches": true,
+    "cli_logs_scanned_without_credential_matches": true,
+    "secret_bearing_container_removed": true,
+    "server_env_removed": true,
+    "active_or_secret_key_rows": 0,
+    "sql_login_disabled": true,
+    "sql_password_null": true,
+    "live_sql_sessions": 0
+  },
+  "metadata_scope": "Inventários estáticos I46/I48/I75B não comprovam grants efetivos; I75C consulta PG17 descartável. Nenhum deles conclui G3 ou integração F02.",
+  "ci_status": "SUCCESS",
+  "resistance_summary": {
+    "status": "PASS",
+    "planned_tests": 29,
+    "tests_run": 29,
+    "skipped": 0,
+    "not_tested": [],
+    "faults": "real SIGKILL, real Auth/PG/Edge; wrappers schedule only"
+  },
+  "jobs": [
+    {
+      "id": 122788160038,
+      "name": "s1-pinned-i54-i78-regressions",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-28T11:27:06Z",
+      "completed_at": "2026-10-28T11:29:41Z"
+    },
+    {
+      "id": 122788160545,
+      "name": "credential-logging-preflight",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-28T11:27:06Z",
+      "completed_at": "2026-10-28T11:29:09Z"
+    },
+    {
+      "id": 122789075496,
+      "name": "real-history-and-cfi",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-28T11:29:13Z",
+      "completed_at": "2026-10-28T11:39:12Z"
+    },
+    {
+      "id": 122789075525,
+      "name": "local-operation",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-28T11:29:13Z",
+      "completed_at": "2026-10-28T11:32:50Z"
+    },
+    {
+      "id": 122789075586,
+      "name": "i85-real-auth-bootstrap",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-28T11:29:12Z",
+      "completed_at": "2026-10-28T11:32:52Z"
+    },
+    {
+      "id": 122789075598,
+      "name": "i85-real-resistance",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-28T11:29:13Z",
+      "completed_at": "2026-10-28T11:56:15Z"
+    }
+  ],
+  "closure_limitation": "Somente I85 laboratorial. Recusas BLOCKED previstas foram comprovadas; não se promete recuperação universal. Nenhum avanço I86, pessoa real, hospedagem, merge ou deploy autorizado."
+}
