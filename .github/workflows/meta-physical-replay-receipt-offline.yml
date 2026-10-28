@@ -1,0 +1,53 @@
+name: Meta physical batch replay and claimed receipt audit - offline
+on:
+  push:
+    branches: [audit/meta-physical-replay-receipt-20261028]
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [feat/meta-cloud-batch-scope-preflight-20261028]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  signed-physical-integrity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: New signed physical replay and forged receipt tests (26)
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --experimental-strip-types --test --test-concurrency=1 integrations/whatsapp-meta/cloud-physical-replay-receipt-audit.test.ts 2>&1 | tee "$RUNNER_TEMP/meta-physical-new.tap"
+          grep -qx '# tests 26' "$RUNNER_TEMP/meta-physical-new.tap"
+          grep -qx '# pass 26' "$RUNNER_TEMP/meta-physical-new.tap"
+          grep -qx '# fail 0' "$RUNNER_TEMP/meta-physical-new.tap"
+      - name: Prior signed cloud and S0 interface regressions (310)
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --experimental-strip-types --test --test-concurrency=1 \
+            integrations/whatsapp-meta/cloud-batch-scope-preflight.test.ts \
+            integrations/whatsapp-meta/meta-s0-readonly-cross-audit.test.ts \
+            integrations/whatsapp-meta/s0-handoff-contract.test.ts \
+            integrations/whatsapp-meta/cloud-quoted-context-handoff.test.ts \
+            integrations/whatsapp-meta/cloud-convergence-scope.test.ts \
+            integrations/whatsapp-meta/cloud-composed-identity-guard.test.ts \
+            integrations/whatsapp-meta/cloud-composed-observation-audit.test.ts \
+            integrations/whatsapp-meta/cloud-composed-observation-handoff.test.ts \
+            integrations/whatsapp-meta/cloud-failed-status-errors-handoff.test.ts \
+            integrations/whatsapp-meta/cloud-unsupported-inbound-handoff.test.ts \
+            integrations/whatsapp-meta/cloud-media-metadata-handoff.test.ts \
+            integrations/whatsapp-meta/cloud-reaction-handoff.test.ts \
+            integrations/whatsapp-meta/cloud-list-reply-handoff.test.ts \
+            integrations/whatsapp-meta/cloud-button-reply-handoff.test.ts \
+            integrations/whatsapp-meta/cloud-webhook-handoff.test.ts \
+            integrations/whatsapp-meta/inbound.test.ts \
+            integrations/whatsapp-meta/routed-webhook.test.ts \
+            2>&1 | tee "$RUNNER_TEMP/meta-physical-regressions.tap"
+          grep -qx '# tests 310' "$RUNNER_TEMP/meta-physical-regressions.tap"
+          grep -qx '# pass 310' "$RUNNER_TEMP/meta-physical-regressions.tap"
+          grep -qx '# fail 0' "$RUNNER_TEMP/meta-physical-regressions.tap"
