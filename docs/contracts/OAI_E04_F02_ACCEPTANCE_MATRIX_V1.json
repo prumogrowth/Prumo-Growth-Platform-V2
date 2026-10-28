@@ -650,7 +650,7 @@
       "id": "F02-A38",
       "area": "OpenAI F02 reconciliation of untrusted S0 review-result recovery sequence",
       "behavior": "Compose pinned A37 S0 review-result shape/continuity validator over multiple declared responses, quarantine UNAVAILABLE without inventing rollback or repeat dispatch, recheck restored projections against last persisted state, preserve terminal/negative holds, reject changed/lost/unknown CFI session and missing baseline, deny revision/time/request_ref/digest drift; never grant execution",
-      "status": "LAB_VERIFIED",
+      "status": "LAB_PARTIAL",
       "tests": [
         "backend/tests/test_f02_s0_recovery_sequence_candidate.py::test_01_single_persisted_is_untrusted_baseline_only",
         "backend/tests/test_f02_s0_recovery_sequence_candidate.py::test_02_exact_snapshot_replay_no_new_action",
@@ -692,7 +692,7 @@
         "backend/tests/test_f02_s0_recovery_sequence_candidate.py::test_38_outage_does_not_relax_revision_checks",
         "backend/tests/test_f02_s0_recovery_sequence_candidate.py::test_39_no_status_or_result_contains_execution_grants"
       ],
-      "gate": "All history and SAME_CONTEXT_UNVERIFIED are caller assertions, not authenticated S0/GoTrue/CFI lookup. Cannot infer completeness or transaction durability. G01-G07 not ratified; no Meta/OpenAI/WhatsApp operations"
+      "gate": "All history and SAME_CONTEXT_UNVERIFIED are caller assertions, not authenticated S0/GoTrue/CFI lookup. Cannot infer completeness or transaction durability. G01-G07 not ratified; no Meta/OpenAI/WhatsApp operations Source exists; CI #40770948621 attempts 1–3 ended before any workflow steps (no test result). Do NOT classify as lab verified."
     }
   ],
   "non_authorizing_positive_states": [
@@ -966,6 +966,10 @@
     "durable_lookup_supported": false,
     "automatic_retries": false,
     "s0_edited": false,
-    "commercial_authority": false
+    "commercial_authority": false,
+    "certification": "BLOCKED_GITHUB_ACTIONS_JOB_SETUP",
+    "ci_run_id": 40770948621,
+    "ci_attempts": 3,
+    "ci_test_execution_confirmed": false
   }
 }
