@@ -14,9 +14,10 @@ const context=(id='wamid.QUOTED')=>({id,from:'5581888812345'});
 const msg=(type:string,id:string,rest:Record<string,unknown>={})=>({
  from:'5581888800000',id,timestamp:TIME,type,...rest,
 });
+const NO_CONTEXT=Symbol('synthetic-message-without-context');
 const text=(ctx:unknown=context(),id='wamid.TEXT')=>msg('text',id,{
  text:{body:'Synthetic reply without original content'},
- ...(ctx===undefined?{}:{context:ctx}),
+ ...(ctx===NO_CONTEXT?{}:{context:ctx}),
 });
 const button=(ctx:unknown=context())=>msg('button','wamid.BUTTON',{
  button:{payload:'TEST_1',text:'Escolher'},context:ctx,
@@ -120,12 +121,12 @@ test('QUOTE-03 forwarding-only context is not falsely classified as a quote',asy
  assert.deepEqual(v,[]);
 });
 test('QUOTE-04 generic messages without context preserve no observations',async()=>{
- const v=observed(await run(body([text(undefined)])));
+ const v=observed(await run(body([text(NO_CONTEXT)])));
  assert.deepEqual(v,[]);
 });
 test('QUOTE-05 mixed context and no-context preserve positions',async()=>{
  const v=observed(await run(body([
-  text(undefined,'wamid.T0'),text(context(),'wamid.T1'),
+  text(NO_CONTEXT,'wamid.T0'),text(context(),'wamid.T1'),
   text({id:'wamid.EXTRA'},'wamid.T2'),
  ],[status()])));
  assert.deepEqual(v.map(x=>x.position.item_index),[1,2]);
@@ -223,7 +224,7 @@ test('QUOTE-19 malformed context in generic sibling rejects entire composition',
  denyComposite(r,'COMPONENT_DENIED');
 });
 test('QUOTE-20 no context adds zero extra HMAC, context adds one',async()=>{
- const no=await countVerify(()=>combined(body([text(undefined)])));
+ const no=await countVerify(()=>combined(body([text(NO_CONTEXT)])));
  const yes=await countVerify(()=>combined(body([text()])));
  assert.equal(no.count,1);
  assert.equal(yes.count,2);
