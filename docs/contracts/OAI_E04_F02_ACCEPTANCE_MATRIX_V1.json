@@ -396,6 +396,26 @@
         "backend/tests/test_f01_f02_f03_route_ledger_candidate.py::test_29_result_never_contains_action_or_source_proof"
       ],
       "gate": "All route events are untrusted synthetic claims. G01–G07 remain non-homologated; S0 owns real transitions, Meta disposition, cancellation and human boundaries"
+    },
+    {
+      "id": "F02-A31",
+      "area": "F01/F03 route + F02 posthuman candidate",
+      "behavior": "Compose existing non-linear route ledger with existing F02 four-proof/handoff validators; bind most recent human closure, F03 marker, tenant/case, UTC closure instant and request/window chronology, fail closed on wrong cycle and posthuman customer response",
+      "status": "LAB_VERIFIED",
+      "tests": [
+        "backend/tests/test_f02_multiroute_proof_gate_candidate.py::test_01_non_linear_route_to_review_only",
+        "backend/tests/test_f02_multiroute_proof_gate_candidate.py::test_05_previous_human_closure_cannot_be_reused",
+        "backend/tests/test_f02_multiroute_proof_gate_candidate.py::test_06_new_closure_with_old_evidence_is_denied",
+        "backend/tests/test_f02_multiroute_proof_gate_candidate.py::test_07_wrong_reported_closure_time_is_denied",
+        "backend/tests/test_f02_multiroute_proof_gate_candidate.py::test_09_inbound_after_posthuman_route_pauses_request",
+        "backend/tests/test_f02_multiroute_proof_gate_candidate.py::test_11_broken_route_rejected_before_proof_payload",
+        "backend/tests/test_f02_multiroute_proof_gate_candidate.py::test_13_fake_F03_digest_rejected_by_actual_proof_validator",
+        "backend/tests/test_f02_multiroute_proof_gate_candidate.py::test_14_changed_F02_proposal_rejected_by_actual_handoff",
+        "backend/tests/test_f02_multiroute_proof_gate_candidate.py::test_16_proposal_before_F02_request_is_denied",
+        "backend/tests/test_f02_multiroute_proof_gate_candidate.py::test_21_no_action_fields_in_result",
+        "backend/tests/test_f02_multiroute_proof_gate_candidate.py::test_24_F03_must_follow_latest_close"
+      ],
+      "gate": "All source evidence is untrusted. S2 full F01/F03 JS validators and actual S0 authenticated physical route are NOT integrated by this checkpoint; G01–G07 remain unresolved"
     }
   ],
   "non_authorizing_positive_states": [
@@ -574,5 +594,18 @@
     "supports_multiple_routes": true,
     "physical_s0_transitions_authenticated": false,
     "commercial_authority": false
+  },
+  "openai_routed_f02_proof_candidate": {
+    "module": "backend/f02_multiroute_proof_gate_candidate.py",
+    "tests": "backend/tests/test_f02_multiroute_proof_gate_candidate.py",
+    "document": "docs/contracts/OAI_E04_F02_ROUTED_PROOF_CHECKPOINT_V1.md",
+    "reuses": [
+      "classify_route_candidate",
+      "prepare_handoff",
+      "inspect_claimed_proof_binding"
+    ],
+    "f01_f03_node_replayed": false,
+    "s0_physical_authenticated": false,
+    "commercial_authorized": false
   }
 }
