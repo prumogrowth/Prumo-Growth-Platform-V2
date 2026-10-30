@@ -27,7 +27,7 @@ def main():
     if not source.is_dir() or source.is_symlink():
         raise RuntimeError("I86_PINNED_SOURCE_MISSING")
     revision = subprocess.check_output(["git", "-C", str(source), "rev-parse", "HEAD"]).decode().strip()
-    if revision != "8780b576aa18bd3983c063339e2e42d2452af22c":
+    if revision != "0b0930778c29204904c1c1358a9a7ae9e3fff10b":
         raise RuntimeError("I86_PINNED_SOURCE_DRIFT")
     if subprocess.check_output(["git", "-C", str(source), "status", "--porcelain"]):
         raise RuntimeError("I86_PINNED_SOURCE_DIRTY")

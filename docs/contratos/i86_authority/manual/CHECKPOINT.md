@@ -1,3 +1,15 @@
+# Retomada pública CM-01 — 30/10/2026
+
+A reconciliação CM-01 foi autorizada expressamente nesta sessão. O marco
+público e as duas exceções exatas estão em CM01_DECISAO_CONFIANCA_PUBLICA.md
+e CM01_MANIFESTO_PUBLICO.json, que prevalecem para as âncoras desta retomada.
+O MANIFESTO.json anterior e o registro abaixo são snapshots históricos.
+**LAB_BLOCKED: certificação física pendente; não inferir PASS de autorização.**
+Resultados da execução devem ser conferidos por SHA/tree nos runs/artifacts
+e no relatório final; nenhum resultado físico é presumido neste commit.
+
+---
+
 # I86 manual — checkpoint de desenvolvimento bloqueado
 
 28/10/2026, America/Sao_Paulo. **LAB_BLOCKED**: implementação preparada, sem certificação SQL/E2E desta continuidade.

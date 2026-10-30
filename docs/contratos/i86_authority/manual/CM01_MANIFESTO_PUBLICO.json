@@ -1,0 +1,98 @@
+{
+  "version": "prumo.i86.manual.cm01.public-trust.v1",
+  "decision": "CM-01",
+  "authorization": "AUTHORIZED_BY_EXPLICIT_USER_INSTRUCTION_IN_THIS_SESSION",
+  "authorization_title": "Autorização CM-01 — Reconciliação pública S0/S1",
+  "laboratory_status": "LAB_BLOCKED_PENDING_RUN_EVIDENCE",
+  "historical_equivalence_claim": false,
+  "public_base": {
+    "commit": "ae4bb16ac12086ad64509eff1c200b282fbd2f9f",
+    "tree": "3385f06bb477007c7d682f621227da422cf6fc5c",
+    "inventory_sha256": "ea2eba6648f83f6f6d2656a111422105ef3b7687bda567d44279e3290b66daf0"
+  },
+  "public_s1": {
+    "commit": "0b0930778c29204904c1c1358a9a7ae9e3fff10b",
+    "tree": "e18d4d1c0b75f6a2ed9fa4d7c904737500fe3e0b",
+    "inventory_sha256": "c65823e7e143b6c2ee35a0e8c29c663f12e212c3bee245bfdeaaa2719cd85de9",
+    "installed_files_unchanged": 27,
+    "declared_files_verified": 34,
+    "overlap_migrations_identical": 35,
+    "reference_038_identical": true
+  },
+  "migration_parent": "89513a82c7fe00fd22ffb71384aef3636a143e42",
+  "ordinary_allowlist": [
+    "integration/i86/",
+    "docs/contratos/i86_authority/",
+    ".github/workflows/exp-s1-i86-manual-director.yml"
+  ],
+  "authorized_files": [
+    "integration/i86/scope.py",
+    "integration/i86/test_scope.py",
+    "integration/i86/sandbox.py",
+    ".github/workflows/exp-s1-i86-manual-director.yml",
+    "docs/contratos/i86_authority/manual/CHECKPOINT.md",
+    "docs/contratos/i86_authority/manual/CM01_DECISAO_CONFIANCA_PUBLICA.md",
+    "docs/contratos/i86_authority/manual/CM01_MANIFESTO_PUBLICO.json",
+    "integration/g1/s1_sources.json",
+    "local_admin/dependencies.json"
+  ],
+  "protected_transition": {
+    "integration/g1/s1_sources.json": {
+      "before_sha256": "66f9ee4a7aeed7892d314582078b077d8a49486b919a51e17832183982f83cf2",
+      "after_sha256": "087a654faaf99e5c2f59129850599995e16b6253079e3c700e544ad1b17322be",
+      "before_blob": "bbbc3159621103049f6884261f96f99ffcb2bc26",
+      "after_blob": "03e539790fed10dbe91afe2b9f16176ae6d8337f"
+    },
+    "local_admin/dependencies.json": {
+      "before_sha256": "8dc6eeba070d4b4234123e9723344821ccf7234510acb3330d460b79c6f35685",
+      "after_sha256": "33333c6fd89425afb8e408d43d71da6380f44bcb8515fb878f8c02759362bae7",
+      "before_blob": "ad49091f46bdf4b7291924b7dfe43ecff24824f8",
+      "after_blob": "994db2ebb6f2ece9d12b6b8b6ca4c51afa6720f3"
+    }
+  },
+  "protected_mode": "100644",
+  "protected_transitions_allowed": 1,
+  "pending_protected_changes_allowed": false,
+  "subsequent_protected_edits_allowed": false,
+  "code_files": {
+    ".github/workflows/exp-s1-i86-manual-director.yml": "c6893e2bd30655b37c6c34b8b28de64f70117839ac23ab555555a07bfbf7685a",
+    "integration/g1/s1_sources.json": "087a654faaf99e5c2f59129850599995e16b6253079e3c700e544ad1b17322be",
+    "integration/i86/__init__.py": "5920e5215f85ccdb4c4ae35911444cff575903508ac437e99b9baa4a0d42d714",
+    "integration/i86/authority.py": "9fbffabc83752df5df2eb22168b286658c75fe9af12085e7a13e1196ef1dbe59",
+    "integration/i86/cleanup.py": "8a3fc327c56d662007a5765a288f1cd4886f3b81cd248d98decc3927ade02034",
+    "integration/i86/fault_driver.py": "3dcaa369d71be1102f0fb68f6d6fd8b6b3d7314e5d15008544672d223978591f",
+    "integration/i86/manual/__init__.py": "4eff3735da8176da3e55f1025068fbe9b3869730f4304d31c7876713a2b5f96e",
+    "integration/i86/manual/crash_probe.py": "bae06b131a9bc02e35a931865f483398cc251c47755c8c15887df234dfe360b8",
+    "integration/i86/manual/lab_support.py": "1d4ab39b4e82ef3c29fcc8c06d8bf4e2bf03a2b0a7e4a3005f5fa161651a3456",
+    "integration/i86/manual/policy.py": "a95f6ae205956bccaeb3afe563c13151f980d0cba2fed02b9c148659c61ed173",
+    "integration/i86/manual/procedure.sql": "315ee8227ad72b5c1e40818b25f289708f974645df842db2ae9414892e30084f",
+    "integration/i86/manual/test_policy.py": "0fe211cd389ed0c1cacc9b77ff8867fb766f8ae18f7298f3253835a87138c25d",
+    "integration/i86/manual/test_real.py": "4221ffffbfe496557027b73e2484cb68b215b9758f666a69e0eef28b9d773957",
+    "integration/i86/observation.sql": "068bb478b6c31256027f50aa8e96a8c699adf7a2ca02b062ce21cef001f27571",
+    "integration/i86/sandbox.py": "fbbbe2c2381ab02f159598c0a06895e3303f39b91f5534b23a384ddd816b7a49",
+    "integration/i86/scope.py": "c6810c509a21a8e941637b409a70d125293a75d6d4484d2f5d63a91041499c0e",
+    "integration/i86/test_contract.py": "e70fcd65ca801a757ba94c24a533043db716b6bf4a9afea94004acc4eca19fb1",
+    "integration/i86/test_real.py": "c67e54a700f232914a2875ace47956933a266945c4b99193fc190c08a0fc6f87",
+    "integration/i86/test_scope.py": "cefd4e229a9d514b3ef6ac40d81f5cdb84ba495f38b25e5abb3fa58489123e8a",
+    "local_admin/dependencies.json": "33333c6fd89425afb8e408d43d71da6380f44bcb8515fb878f8c02759362bae7"
+  },
+  "candidate_commit": null,
+  "candidate_resolution": "Use immutable GitHub run head_sha, scope head/head_tree and cm01 commit; this manifest does not hash itself.",
+  "code_certified": null,
+  "current_ci_run": null,
+  "required_artifacts": [
+    "i86-manual-scope-model",
+    "i86-manual-inherited-i85",
+    "i86-manual-inherited-observer",
+    "i86-manual-operator-boundary"
+  ],
+  "physical_tests_expected": {
+    "i85_journey": 1,
+    "i86_observer": 22,
+    "i86_manual": 31
+  },
+  "historical_snapshot": "docs/contratos/i86_authority/manual/MANIFESTO.json",
+  "production_authorized": false,
+  "hosted_authorized": false,
+  "human_presence_certified": false
+}
