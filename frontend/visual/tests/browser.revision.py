@@ -47,6 +47,7 @@ def main():
                     page.locator('#list-extra summary').click()
                     expect(page.locator('#shop-select')).to_be_visible()
                     assert page.locator('.shop-control label').evaluate(CONTRAST)>=4.5
+                    assert page.locator('.rail-label').evaluate(CONTRAST)>=4.5
                     if actor=='rafael':expect(page.locator('#status-filter')).to_be_hidden()
                     else:expect(page.locator('#status-filter')).to_be_visible()
                     page.locator('[data-inbox=history]').click()
