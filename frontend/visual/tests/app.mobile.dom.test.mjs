@@ -64,14 +64,13 @@ test('mobile O5: novo ciclo após venda volta à conversa sem reabrir a IA',()=>
   assert.equal(get('visual-app').dataset.mobileView,'thread');
   get('detail-toggle').click();
   assert.equal(get('visual-app').dataset.mobileView,'detail');
-  env.descendants(get('detail-content')).filter(n=>n.attrs.role==='tab')
-    .find(n=>n.textContent==='Novo contato').click();
-  const link=env.descendants(get('detail-content')).find(n=>n.tagName==='BUTTON' &&
+  env.openArea('Novo contato');
+  const link=env.descendants(env.caseContent()).find(n=>n.tagName==='BUTTON' &&
     n.textContent.includes('Abrir novo atendimento humano'));
   assert.ok(link);link.click();
   assert.equal(get('visual-app').dataset.mobileView,'thread');
   assert.ok(get('thread-meta').textContent.includes('Caso A-116'));
-  assert.ok(get('detail-content').textContent.includes('em atendimento pelo operador'));
+  assert.ok(env.caseContent().textContent.includes('em atendimento pelo operador'));
 });
 
 test('mobile G2: painel mostra operadores supervisionados e pausa global fictícia',()=>{
@@ -216,8 +215,8 @@ test('FV-UI-028: aria-expanded acompanha painel realmente visível e troca de co
 
 test('FV-UI-032: O5 móvel foca Voltar na conversa destino',()=>{
   reset();env.openCase('Exemplo 05');get('detail-toggle').click();
-  env.descendants(get('detail-content')).filter(n=>n.attrs.role==='tab').find(n=>n.textContent==='Novo contato').click();
-  const open=env.descendants(get('detail-content')).find(n=>n.tagName==='BUTTON' &&
+  env.openArea('Novo contato');
+  const open=env.descendants(env.caseContent()).find(n=>n.tagName==='BUTTON' &&
     n.textContent.includes('Abrir novo atendimento humano'));
   assert.ok(open);open.click();
   assert.equal(get('visual-app').dataset.mobileView,'thread');

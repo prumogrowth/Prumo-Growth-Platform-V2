@@ -13,6 +13,7 @@
 <a class="skip-link" href="#conversation-list">Ir para as conversas</a>
 <svg aria-hidden="true" class="svg-sprite" xmlns="http://www.w3.org/2000/svg">
   <symbol id="i-message" viewBox="0 0 24 24"><path d="M20 11.5a8 8 0 0 1-8.5 8A8 8 0 0 1 7 18.1L3 20l1.9-4A8 8 0 1 1 20 11.5Z"/></symbol>
+  <symbol id="i-bank" viewBox="0 0 24 24"><path d="m3 8 9-5 9 5H3Zm2 3v7m7-7v7m7-7v7M3 21h18"/></symbol>
   <symbol id="i-filter" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/><circle cx="8" cy="6" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="10" cy="18" r="2"/></symbol>
   <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 5 5"/></symbol>
   <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></symbol>
@@ -32,20 +33,22 @@
   <aside class="rail" aria-label="Área de navegação demonstrativa">
     <div class="rail-logo" aria-label="Prumo — identificação técnica provisória">P<span class="logo-dot"></span></div>
     <nav class="rail-nav" aria-label="Navegação">
-      <button class="rail-icon active" title="Conversas" aria-label="Conversas" aria-current="page" type="button"><svg class="icon"><use href="#i-message"/></svg></button>
+      <button class="rail-icon active" title="Conversas" aria-label="Conversas" aria-current="page" type="button" id="conversations-nav"><svg class="icon"><use href="#i-message"/></svg></button>
+      <button class="rail-icon" type="button" id="bank-nav" title="Banco · consulta demonstrativa" aria-label="Banco: consulta demonstrativa" aria-haspopup="dialog" aria-controls="bank-dialog"><svg class="icon"><use href="#i-bank"/></svg></button>
       <div class="rail-divider"></div>
       <div class="rail-label">CENTRAL</div>
-      <button class="rail-icon" title="Equipe: visualização de demonstração" aria-label="Equipe: demonstrativo" type="button" id="team-nav"><svg class="icon"><use href="#i-people"/></svg></button>
+      <button class="rail-icon" title="Gestão · equipe e operação demonstrativas" aria-label="Gestão: equipe demonstrativa" type="button" id="team-nav"><svg class="icon"><use href="#i-people"/></svg></button>
     </nav>
     <div class="rail-bottom" aria-hidden="true"></div>
   </aside>
 
   <main class="workspace" aria-label="Central de atendimento visual">
     <section class="list-pane" id="conversation-list" aria-labelledby="inbox-title" tabindex="-1">
+      <nav class="mobile-module-nav" aria-label="Módulos da plataforma"><span aria-current="page">Conversas</span><button type="button" id="bank-nav-mobile" aria-haspopup="dialog" aria-controls="bank-dialog">Banco</button><button type="button" id="team-nav-mobile" class="mobile-team-button" hidden aria-haspopup="dialog" aria-controls="team-dialog">Gestão</button></nav>
       <header class="list-heading">
         <div class="list-topline"><div><h1 id="inbox-title">Conversas</h1></div>
           <div class="list-header-actions">
-            <button type="button" id="team-nav-mobile" class="mobile-team-button" hidden>Equipe</button>
+
         <details id="list-extra" class="list-extra">
           <summary id="filter-toggle" title="Filtrar conversas" aria-label="Filtrar conversas" aria-controls="filter-panel" aria-describedby="filter-summary"><svg class="icon" aria-hidden="true"><use href="#i-filter"/></svg><span id="filter-summary" class="sr-only">Todas</span></summary>
           <div class="list-extra-content" id="filter-panel" role="region" aria-label="Filtros de conversas">
@@ -114,8 +117,15 @@
   <div class="dialog-actions"><button id="reset-app" class="btn btn-light" type="button">Restaurar simulação</button><button id="demo-close" class="btn btn-primary" type="button">Voltar às conversas</button></div>
 </dialog>
 
+<dialog id="bank-dialog" class="bank-dialog" aria-labelledby="bank-title">
+  <header class="bank-heading"><div><p class="eyebrow">CONSULTA E ACOMPANHAMENTO · DEMONSTRAÇÃO</p><h2 id="bank-title">Banco</h2></div><button type="button" id="bank-close" class="icon-button" aria-label="Fechar Banco e voltar"><svg class="icon"><use href="#i-close"/></svg></button></header>
+  <p class="bank-guidance" role="note">Dados fictícios · ficha somente leitura. Consulta não inicia conversa ou processamento. Não há remessa ou integração bancária real.</p>
+  <label for="bank-case-select" class="field-label">Atendimento autorizado na concessionária selecionada</label><select id="bank-case-select" aria-controls="bank-content"></select>
+  <div id="bank-content" class="bank-content" role="region" aria-label="Ficha, processamento e acompanhamento bancário"></div>
+</dialog>
+
 <dialog id="team-dialog" class="team-dialog" aria-labelledby="team-title">
-  <div class="team-dialog-header"><div><p class="eyebrow">EQUIPE DA PRUMO · DEMONSTRAÇÃO</p><h2 id="team-title">Equipe sob gestão</h2></div><button type="button" class="icon-button" id="team-close" aria-label="Fechar visão da equipe"><svg class="icon"><use href="#i-close"/></svg></button></div>
+  <div class="team-dialog-header"><div><p class="eyebrow">EQUIPE DA PRUMO · DEMONSTRAÇÃO</p><h2 id="team-title">Gestão · equipe e operação</h2></div><button type="button" class="icon-button" id="team-close" aria-label="Fechar visão da equipe"><svg class="icon"><use href="#i-close"/></svg></button></div>
   <p class="team-hint team-intro">Gestão por Consultor, independente do filtro de loja. Ações fictícias: não alteram acesso, distribuição ou carteira.</p>
   <details class="team-help"><summary>Entenda o alcance e os limites</summary>
     <p>Equipe organizada por Consultores da Prumo, independentemente do filtro de concessionária. Lojas são concessões somente leitura, definidas pelo Diretor. Solicitar pausa ou retomada de novos leads alcança TODAS as lojas autorizadas do Consultor. Nenhuma solicitação desta demonstração altera disponibilidade, acesso, distribuição ou carteira; esses efeitos dependem de S0/S1-002.</p>

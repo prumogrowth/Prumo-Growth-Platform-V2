@@ -79,7 +79,7 @@ def check_git_revision(expected_head):
                        and not changes.stdout.strip()})
         result["passed"] = (
             actual_head == expected_head.lower()
-            and actual_branch in {"feat/frontend-plataforma-visual", "codex/fv-ux-01-comunicacao-20261027", "codex/fv-rev-01-conversas-20261030"}
+            and actual_branch in {"feat/frontend-plataforma-visual", "codex/fv-ux-01-comunicacao-20261027", "codex/fv-rev-01-conversas-20261030", "codex/fv-rev-01-modulos-20261030"}
             and result["clean_frontend_visual"]
         )
         if not result["passed"]:
@@ -122,7 +122,7 @@ def check_native_blob_manifest(expected_head, revision_ok):
             raise ValueError("manifest is not a literal json.loads call")
         manifest = json.loads(call.args[0].value)
         source = manifest.get("source_head", "")
-        if (manifest.get("source_branch") not in {"feat/frontend-plataforma-visual", "codex/fv-ux-01-comunicacao-20261027", "codex/fv-rev-01-conversas-20261030"}
+        if (manifest.get("source_branch") not in {"feat/frontend-plataforma-visual", "codex/fv-ux-01-comunicacao-20261027", "codex/fv-rev-01-conversas-20261030", "codex/fv-rev-01-modulos-20261030"}
                 or not isinstance(source, str)
                 or not re.fullmatch(r"[0-9a-f]{40}", source)):
             raise ValueError("manifest provenance invalid")
@@ -191,6 +191,7 @@ def main():
     blob_ok = blob_step["passed"] and blob_step["executed"]
     # Uma suíte truncada pode passar no Node e não constitui aceite integral.
     expected_tests = {
+        "modules.dom.test.mjs", "relationship-view.test.mjs",
         "revision-conversations.test.mjs",
         "local-audio.test.mjs", "communication-composer.test.mjs",
         "app.dom.test.mjs", "app.mobile.dom.test.mjs", "app.tablet.dom.test.mjs", "bank-view.test.mjs",
@@ -206,6 +207,7 @@ def main():
         "validation-layers.test.mjs",
     }
     required_sources = {
+        "relationship-view.mjs", "revision-fixtures.mjs", "tests/browser.modules.py",
         "local-audio.mjs", "communication-composer.mjs", "tests/browser.communication.py", "tests/browser.revision.py",
         "index.html", "styles.css", "app.mjs", "fixtures.mjs",
         "view-model.mjs", "cf-op-02.mjs", "registration-view.mjs", "human-cycle-view.mjs",

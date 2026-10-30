@@ -25,7 +25,7 @@ MODULES = (
     'team-operations.mjs', 'team-pause-preview.mjs',
     'team-monitor.mjs', 'team-monitoring.mjs', 'batch-monitor.mjs',
     'distribution-view.mjs', 'transport-state-view.mjs',
-    'conversation-attention.mjs', 'local-audio.mjs', 'communication-composer.mjs', 'app.mjs'
+    'conversation-attention.mjs', 'local-audio.mjs', 'communication-composer.mjs', 'revision-fixtures.mjs', 'relationship-view.mjs', 'app.mjs'
 )
 
 
@@ -124,10 +124,12 @@ def main(output):
                 if scene in ('details','extraction','notes','history','bank','continuation'):
                     if width <= 1040:
                         page.locator('#detail-toggle').click()
-                    tab = {'extraction':'Extração','notes':'Notas','history':'Histórico',
-                           'bank':'Banco','continuation':'Novo contato'}.get(scene)
-                    if tab:
-                        page.locator('.detail-tab', has_text=tab).click()
+                    if scene in ('extraction','bank'):
+                        page.locator('#open-bank-case').click()
+                        expect(page.locator('#bank-dialog')).to_be_visible()
+                    else:
+                        tab = {'notes':'Notas','history':'Histórico','continuation':'Histórico'}.get(scene)
+                        if tab:page.locator('.detail-tab', has_text=tab).click()
                 elif scene == 'emoji':
                     page.locator('#message-input').fill('Podemos conversar? ')
                     page.locator('#emoji-toggle').click()

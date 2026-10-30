@@ -129,12 +129,14 @@ def main():
                     # Pending simulated operation survives closing/reopening its panel.
                     page.locator('#request-completion').click()
                     page.locator('#completion-form button[value=confirm]').click()
-                    page.locator('#thread-title').click()
-                    expect(page.locator('#case-tab-extraction')).to_have_attribute('aria-selected','true')
-                    before=page.locator('#case-tab-panel').inner_text()
+                    expect(page.locator('#bank-dialog')).to_be_visible()
+                    before=page.locator('#bank-content').inner_text()
+                    page.locator('#bank-close').click();page.locator('#thread-title').click()
+                    expect(page.locator('#case-tab-overview')).to_have_attribute('aria-selected','true')
                     page.locator('#detail-close').click();page.locator('#thread-title').click()
-                    assert page.locator('#case-tab-panel').inner_text()==before
-                    page.locator('#detail-close').click()
+                    page.locator('#open-bank-case').click()
+                    assert page.locator('#bank-content').inner_text()==before
+                    page.locator('#bank-close').click();page.locator('#detail-close').click()
                     if width<=760:page.locator('#thread-back').click()
                     for number,label in (('16','Vendido'),('12','Perdido')):
                         page.get_by_role('button',name='Abrir conversa Cliente Exemplo '+number,exact=False).click()

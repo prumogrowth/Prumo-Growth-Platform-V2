@@ -65,6 +65,7 @@ export function installMockDOM({ mobile = false, tablet = false, prefersDark = f
   }
   const descendants = node => node.children.flatMap(n => [n, ...descendants(n)]);
   const ids = [
+    'bank-dialog','bank-content','bank-nav','bank-nav-mobile','bank-close','bank-case-select','conversations-nav',
     'list-extra','filter-toggle','filter-panel','followup-actions','thread-bottom','communication-tools','composer-demo-guidance',
     'thread-actions','terminal-banner','commercial-filter','filter-summary','demo-dialog','demo-open','demo-close','demo-list-state',
     'visual-app', 'actor-select', 'shop-select', 'search-input', 'status-filter',
@@ -136,9 +137,22 @@ export function installMockDOM({ mobile = false, tablet = false, prefersDark = f
     },
     cards:()=>descendants(nodes.get('conversation-items')).filter(n=>n.classList.contains('conversation-card')),
     openCase(fragment) {
+      if(nodes.get('bank-dialog').open) nodes.get('bank-dialog').close();
       const node=this.cards().find(n=>(n.attrs['aria-label']??'').includes(fragment));
       if (!node) throw new Error('case not found in rendered list: '+fragment);
       node.click();
+    },
+    caseContent() {return nodes.get('bank-dialog').open ? nodes.get('bank-content') : nodes.get('detail-content');},
+    openArea(title) {
+      if(['Extração','Banco'].includes(title)) {
+        const button=descendants(nodes.get('detail-content')).find(n=>n.id==='open-bank-case');
+        if(!button)throw new Error('Resumo não contém destino Banco');
+        button.click();return;
+      }
+      const target=['Novo contato','Recontatos'].includes(title)?'Histórico':title;
+      const button=descendants(nodes.get('detail-content')).find(n=>n.attrs.role==='tab' && n.textContent===target);
+      if(!button)throw new Error('Aba não encontrada: '+target);
+      button.click();
     },
     selectActor(id) { nodes.get('actor-select').value=id;nodes.get('actor-select').fire('change'); },
     selectShop(id) { nodes.get('shop-select').value=id;nodes.get('shop-select').fire('change'); }

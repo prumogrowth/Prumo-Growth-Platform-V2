@@ -643,3 +643,67 @@ body[data-theme="dark"] #demo-dialog .btn-primary{background:#ccc;color:#1a1a1a}
 .visual-app[data-theme="dark"] #filter-panel .summary-tile strong{color:#f0f0f0}
 .followup-actions .btn-light{color:#555}
 @media(max-width:760px){.terminal-banner{padding-bottom:calc(10px + env(safe-area-inset-bottom))}}
+
+/* FV-REV-01/2: destinos próprios sem reconstruir Conversas. */
+.mobile-module-nav{display:none}
+.bank-dialog{width:min(920px,calc(100vw - 32px));max-height:calc(100dvh - 32px);border:1px solid #ddd;border-radius:16px;padding:24px;overflow:auto;scrollbar-gutter:stable;background:#fff;color:#303030;box-shadow:0 18px 85px #1d1d1d56}
+.bank-dialog::backdrop{background:#262626a8}
+.bank-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.bank-heading h2{margin:0;font-size:22px}
+.bank-heading .icon-button{width:44px;height:44px}
+.bank-guidance,.bank-context{font-size:12px;line-height:1.6;color:#555}
+#bank-case-select{width:100%;max-width:100%;min-height:44px;font-size:12px;padding:9px;border:1px solid #bbb;border-radius:8px;background:#fff;color:#333;margin-top:6px}
+.bank-content{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:0 24px}
+.bank-context{grid-column:1/-1}
+.bank-content .detail-section{min-width:0}
+.bank-content .detail-label{color:#555;font-size:11px;line-height:1.6;overflow-wrap:anywhere}
+.bank-content .detail-small,.bank-content .detail-row span{color:#595959;font-size:12px}
+.bank-content .property{font-size:12px}
+.bank-content .property span{color:#595959}
+.bank-content .property strong{color:#333;overflow-wrap:anywhere}
+.bank-content .detail-callout{color:#555;background:#f5f5f5;font-size:12px}
+.bank-content .detail-callout strong,.bank-content .detail-row strong{color:#333}
+.bank-content .detail-row{font-size:12px;background:#fafafa}
+.bank-content .scenario-options .btn{min-height:44px}
+.ai-communication{border:1px solid #ddd;border-radius:8px;margin:8px 0;font-size:12px;color:#444;overflow-wrap:anywhere}
+.ai-communication summary{cursor:pointer;padding:12px;min-height:44px;font-weight:700;line-height:1.5}
+.ai-communication p{padding:0 12px 12px;margin:0;line-height:1.65}
+#open-bank-case{white-space:normal;min-height:44px;width:100%;margin-top:12px}
+.timeline-events .activity-item:last-child{border-left-color:transparent}
+.timeline-future{border-top:1px dashed #865a00;margin-top:14px;padding-top:18px}
+.timeline-future .activity-item{border-left:0;background:#fff6df;border-radius:7px;margin:7px 0;padding:10px 10px 10px 24px}
+.timeline-future .activity-item::before{left:6px;top:14px;background:transparent;border:2px solid #805000;width:10px;height:10px}
+.timeline-future .activity-item strong,.timeline-future .activity-item span{color:#694300}
+.activity-item.event-failed strong{color:#a22b2b}
+.activity-item.event-uncertain strong,.activity-item.event-executing strong,.activity-item.event-requested strong{color:#805000}
+.activity-item.event-cancelled::before,.activity-item.event-canceled::before{border-radius:0;background:#777}
+body[data-theme="dark"] .bank-dialog{background:#202020;border-color:#555;color:#eee;color-scheme:dark}
+body[data-theme="dark"] .bank-dialog :is(.bank-guidance,.bank-context,.field-label,.detail-label,.detail-small,.detail-row span,.property span){color:#c8c8c8}
+body[data-theme="dark"] .bank-dialog :is(.detail-row,.detail-callout){background:#292929;border-color:#444;color:#ddd}
+body[data-theme="dark"] .bank-dialog :is(.detail-row strong,.detail-callout strong,.property strong){color:#f1f1f1}
+body[data-theme="dark"] #bank-case-select{background:#292929;color:#eee;border-color:#777}
+.visual-app[data-theme="dark"] .ai-communication{border-color:#555;color:#e5e5e5}
+.visual-app[data-theme="dark"] .timeline-future{border-color:#c99743}
+.visual-app[data-theme="dark"] .timeline-future .activity-item{background:#44351c}
+.visual-app[data-theme="dark"] .timeline-future .activity-item::before{border-color:#ffd083;background:transparent}
+.visual-app[data-theme="dark"] .timeline-future .activity-item :is(strong,span){color:#ffd083}
+.visual-app[data-theme="dark"] .activity-item.event-failed strong{color:#ffabab}
+.visual-app[data-theme="dark"] .activity-item:is(.event-uncertain,.event-executing,.event-requested) strong{color:#ffd083}
+@media(max-width:760px){
+  .mobile-module-nav{display:flex;flex:none;gap:8px;align-items:center;border-bottom:1px solid var(--line);padding:3px 12px}
+  .mobile-module-nav :is(span,button){font-size:12px;font-weight:750;min-height:44px;display:inline-flex;align-items:center;padding:8px 12px;border-radius:8px}
+  .mobile-module-nav button{border:1px solid #ddd;background:#f3f3f3;color:#444}
+  .mobile-module-nav [aria-current]{color:#333}
+  .visual-app[data-theme="dark"] .mobile-module-nav button{background:#303030;color:#eee;border-color:#555}
+  .visual-app[data-theme="dark"] .mobile-module-nav [aria-current]{color:#eee}
+  .bank-dialog{width:calc(100vw - 16px);max-height:calc(100dvh - 16px);padding:16px}
+  .bank-content{grid-template-columns:minmax(0,1fr)}
+  .bank-content .property{flex-wrap:wrap}
+  .bank-content .property strong{max-width:100%;text-align:left}
+  .detail-pane .property{flex-wrap:wrap;gap:4px 12px}
+  .detail-pane .property strong{max-width:100%}
+}
+.case-context{font-size:12px;line-height:1.6;margin:0 0 12px;color:#595959;overflow-wrap:anywhere}
+.visual-app[data-theme="dark"] .case-context{color:#c8c8c8}
+.bank-dialog :is(button,select,summary):focus-visible{outline:3px solid #5c5c5c;outline-offset:2px}
+body[data-theme="dark"] .bank-dialog :is(button,select,summary):focus-visible{outline-color:#c8c8c8}

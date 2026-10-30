@@ -255,3 +255,9 @@ A mensagem existente no rodapé da lista agora tem ID e `role=note` associados �
 ## FV-UI-052 — Contagem acessível da fila (25/10/2026)
 
 O contador `#list-count` anuncia mudanças de resultados (`role=status`, `aria-live=polite`), mas desativa o próprio anúncio quando a fila está vazia: a mensagem de `.no-results` já explica esse estado. Ao restaurar os filtros, o anúncio do contador retorna, mantendo perfil, concessionária e foco. Cobertura Node e Chromium 8 cenários; certificação exclusivamente pelo CI oficial. Sem alterações de workflows nem otimização da Issue #3. [Relatório FV-UI-052](../docs/81_FV_UI_052_CONTAGEM_ACESSIVEL_FILA_2026_10_25.md).
+
+FV-REV-01 Etapa 2: a mesma base mantém Conversas e suas três abas (Resumo,
+Histórico e Notas); Banco oferece ficha/versões/processamento/acompanhamento em
+superfície independente, e Gestão reaproveita equipe, monitoramento, lotes e fila.
+Tudo permanece sintético e somente em memória. Consultar o mapa 100, o relatório
+101 e a fonte integral FV_REV_01_v0_4_FONTE em `frontend/docs/`.

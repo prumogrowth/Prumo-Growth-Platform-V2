@@ -42,7 +42,7 @@ test('template individual usa seleção por caso e não confunde pedido com envi
   get('template-dialog').close('confirm');
   assert.ok(get('workflow-bar').textContent.includes('Pedido simulado'));
   assert.equal(get('message-input').disabled, true);
-  assert.ok(get('detail-content').textContent.includes('SOLICITADO'));
+  assert.ok(env.caseContent().textContent.includes('SOLICITADO'));
 });
 
 test('histórico continua legível e não permite mensagem em caso perdido', () => {
@@ -142,10 +142,10 @@ test('projeção desconhecida não aparece como conclusão humana ou extração 
   env.openCase('Exemplo 05');
   assert.ok(get('workflow-bar').textContent.includes('Etapa humana não confirmada'));
   get('detail-toggle').click();
-  const tabs=env.descendants(get('detail-content')).filter(x=>x.attrs.role==='tab');
-  tabs.find(x=>x.textContent==='Extração').click();
-  assert.ok(get('detail-content').textContent.includes('Situação não confirmada'));
-  assert.equal(get('detail-content').textContent.includes('Etapa concluída · retorno não disponível'),false);
+  const tabs=env.descendants(env.caseContent()).filter(x=>x.attrs.role==='tab');
+  env.openArea('Extração');
+  assert.ok(env.caseContent().textContent.includes('Situação não confirmada'));
+  assert.equal(env.caseContent().textContent.includes('Etapa concluída · retorno não disponível'),false);
 });
 
 test('pedido aceito não mostra falsa conclusão confirmada', () => {
@@ -154,30 +154,29 @@ test('pedido aceito não mostra falsa conclusão confirmada', () => {
   get('completion-dialog').close('confirm');
   assert.ok(get('workflow-bar').textContent.includes('Solicitação simulada'));
   assert.equal(get('workflow-bar').textContent.includes('Etapa humana concluída'),false);
-  assert.ok(get('detail-content').textContent.includes('Solicitação registrada'));
+  assert.ok(env.caseContent().textContent.includes('Solicitação registrada'));
 });
 
 test('formulário de nota obsoleto não escreve em outro caso da fila', () => {
   reset(); env.openCase('Exemplo 02');
-  const tabs = env.descendants(get('detail-content')).filter(n=>n.attrs.role==='tab');
+  const tabs = env.descendants(env.caseContent()).filter(n=>n.attrs.role==='tab');
   tabs.find(x=>x.textContent==='Notas').click();
-  const form=env.descendants(get('detail-content')).find(n=>n.id==='internal-note-form');
+  const form=env.descendants(env.caseContent()).find(n=>n.id==='internal-note-form');
   const editor=env.descendants(form).find(n=>n.id==='note-text');
   editor.value='Nota obsoleta que deve ser rejeitada';
   env.openCase('Exemplo 05');
   form.fire('submit'); // callback tardio sobre formulário que já saiu da tela
   env.openCase('Exemplo 02');
-  env.descendants(get('detail-content')).filter(n=>n.attrs.role==='tab')
+  env.descendants(env.caseContent()).filter(n=>n.attrs.role==='tab')
     .find(x=>x.textContent==='Notas').click();
-  assert.equal(get('detail-content').textContent.includes('Nota obsoleta que deve ser rejeitada'),false);
+  assert.equal(env.caseContent().textContent.includes('Nota obsoleta que deve ser rejeitada'),false);
 });
 
 test('O3: operador vê ficha confirmada com fonte, versão, pendência e conflito fictícios', () => {
   reset();
   env.openCase('Exemplo 09');
-  env.descendants(get('detail-content')).filter(n=>n.attrs.role==='tab')
-    .find(n=>n.textContent==='Extração').click();
-  const text=get('detail-content').textContent;
+  env.openArea('Extração');
+  const text=env.caseContent().textContent;
   assert.ok(text.includes('v1-ficticia'));
   assert.ok(text.includes('Valor fictício confirmado'));
   assert.ok(text.includes('Mensagem ilustrativa do cliente'));
@@ -190,9 +189,8 @@ test('O3: gestora supervisora não recebe campos, valores, fontes e pendências 
   reset();
   env.selectActor('marina');env.inbox[0].click();
   env.openCase('Exemplo 09');
-  env.descendants(get('detail-content')).filter(n=>n.attrs.role==='tab')
-    .find(n=>n.textContent==='Extração').click();
-  const text=get('detail-content').textContent;
+  env.openArea('Extração');
+  const text=env.caseContent().textContent;
   assert.ok(text.includes('Detalhes restritos ao responsável'));
   for(const forbidden of ['Valor fictício confirmado','v1-ficticia','a108-1',
     'Informação demonstrativa B — ausente','Informação demonstrativa D — fontes']){
@@ -202,9 +200,8 @@ test('O3: gestora supervisora não recebe campos, valores, fontes e pendências 
 
 test('O4: operador atribuído vê só remessa sintética comprovada e retorno pendente',()=>{
   reset();env.openCase('Exemplo 05');
-  env.descendants(get('detail-content')).filter(n=>n.attrs.role==='tab')
-    .find(n=>n.textContent==='Banco').click();
-  const text=get('detail-content').textContent;
+  env.openArea('Banco');
+  const text=env.caseContent().textContent;
   assert.ok(text.includes('bank-demo-v1'));
   assert.ok(text.includes('Remessa confirmada apenas na fixture'));
   assert.ok(text.includes('Decisão bancária não confirmada'));
@@ -214,9 +211,8 @@ test('O4: operador atribuído vê só remessa sintética comprovada e retorno pe
 
 test('O4: gestora sem atribuição vê só marco bancário, sem prova D4',()=>{
   reset();env.selectActor('marina');env.inbox[0].click();env.openCase('Exemplo 05');
-  env.descendants(get('detail-content')).filter(n=>n.attrs.role==='tab')
-    .find(n=>n.textContent==='Banco').click();
-  const text=get('detail-content').textContent;
+  env.openArea('Banco');
+  const text=env.caseContent().textContent;
   assert.ok(text.includes('Acompanhamento bancário · resumo'));
   assert.ok(text.includes('sem documento'));
   assert.equal(text.includes('bank-demo-v1'),false);
@@ -225,48 +221,45 @@ test('O4: gestora sem atribuição vê só marco bancário, sem prova D4',()=>{
 
 test('O5: remessa bancária mantém caso original e navega para atendimento humano independente',()=>{
   reset();env.openCase('Exemplo 05');
-  env.descendants(get('detail-content')).filter(n=>n.attrs.role==='tab')
-    .find(n=>n.textContent==='Novo contato').click();
-  const detail=get('detail-content').textContent;
+  env.openArea('Novo contato');
+  const detail=env.caseContent().textContent;
   assert.ok(detail.includes('Novo atendimento humano confirmado'));
   assert.ok(detail.includes('cadastro enviado ao banco'));
-  const open=env.descendants(get('detail-content')).find(n=>n.tagName==='BUTTON' &&
+  const open=env.descendants(env.caseContent()).find(n=>n.tagName==='BUTTON' &&
     n.textContent.includes('Abrir novo atendimento humano'));
   assert.ok(open);
   open.click();
   assert.ok(get('thread-meta').textContent.includes('Caso A-114'));
-  assert.ok(get('detail-content').textContent.includes('em atendimento pelo operador'));
+  assert.ok(env.caseContent().textContent.includes('em atendimento pelo operador'));
   assert.equal(get('message-input').disabled,false);
-  const back=env.descendants(get('detail-content')).find(n=>n.tagName==='BUTTON' &&
+  const back=env.descendants(env.caseContent()).find(n=>n.tagName==='BUTTON' &&
     n.textContent.includes('Consultar atendimento de origem'));
   assert.ok(back);
   back.click();
   assert.ok(get('thread-meta').textContent.includes('Caso A-105'));
-  assert.ok(get('detail-content').textContent.includes('cadastro enviado ao banco'));
+  assert.ok(env.caseContent().textContent.includes('cadastro enviado ao banco'));
   assert.equal(get('message-input').disabled,true);
 });
 
 test('O5: histórico de vendido é preservado em separado do novo contato',()=>{
   reset();env.inbox[1].click();
   env.openCase('Exemplo 16');
-  assert.ok(get('detail-content').textContent.includes('vendido'));
-  env.descendants(get('detail-content')).filter(n=>n.attrs.role==='tab')
-    .find(n=>n.textContent==='Novo contato').click();
-  const navigate=env.descendants(get('detail-content')).find(n=>n.tagName==='BUTTON' &&
+  assert.ok(env.caseContent().textContent.includes('vendido'));
+  env.openArea('Novo contato');
+  const navigate=env.descendants(env.caseContent()).find(n=>n.tagName==='BUTTON' &&
     n.textContent.includes('Abrir novo atendimento humano'));
   assert.ok(navigate);navigate.click();
   assert.equal(env.inbox[0].attrs['aria-pressed'],'true');
   assert.ok(get('thread-meta').textContent.includes('Caso A-116'));
-  assert.ok(get('detail-content').textContent.includes('em atendimento pelo operador'));
+  assert.ok(env.caseContent().textContent.includes('em atendimento pelo operador'));
   assert.equal(get('message-input').disabled,false);
 });
 
 test('O5: supervisora vê vínculo D2 mas não ganha ação humana por supervisão',()=>{
   reset();env.selectActor('marina');env.inbox[0].click();env.openCase('Exemplo 15');
   assert.equal(get('message-input').disabled,true);
-  env.descendants(get('detail-content')).filter(n=>n.attrs.role==='tab')
-    .find(n=>n.textContent==='Novo contato').click();
-  assert.ok(get('detail-content').textContent.includes('Continuidade humana em novo ciclo'));
+  env.openArea('Novo contato');
+  assert.ok(env.caseContent().textContent.includes('Continuidade humana em novo ciclo'));
   assert.equal(get('message-input').disabled,true);
 });
 
@@ -321,7 +314,7 @@ test('G2: solicitação de pausa não concede lojas nem altera atribuição/esta
   assert.equal(env.descendants(team).filter(n=>n.tagName==='SELECT').length,0);
   get('team-dialog').close();
   env.openCase('Exemplo 02');
-  assert.ok(get('detail-content').textContent.includes('em atendimento pelo operador'));
+  assert.ok(env.caseContent().textContent.includes('em atendimento pelo operador'));
   assert.ok(get('thread-meta').textContent.includes('Caso A-102'));
 });
 
@@ -648,30 +641,29 @@ test('FV-UI-018: caso Lia com exceção só abre A-117 em Aurora sem grant geral
 
 test('FV-UI-019: duas conclusões F03 fictícias têm recortes distintos, sem editor',()=>{
   reset();env.openCase('Exemplo 09');
-  env.descendants(get('detail-content')).filter(x=>x.attrs.role==='tab')
-    .find(x=>x.textContent==='Extração').click();
-  const t=get('detail-content').textContent;
+  env.openArea('Extração');
+  const t=env.caseContent().textContent;
   assert.match(t,/concl-a108-1/);assert.match(t,/f03-a108-2/);
   assert.match(t,/a108-1/);assert.match(t,/a108-2/);
   assert.match(t,/v1-ficticia/);
   assert.equal(t.includes('Corrigir cadastro'),false);
-  assert.equal(env.descendants(get('detail-content')).some(x=>x.tagName==='INPUT'),false);
+  assert.equal(env.descendants(env.caseContent()).some(x=>x.tagName==='INPUT'),false);
 });
 
 test('FV-UI-019: esclarecimento alternativo libera segunda conclusão apenas na demo',()=>{
   reset();env.openCase('Exemplo 09');
-  env.descendants(get('detail-content')).filter(x=>x.attrs.role==='tab')
-    .find(x=>x.textContent==='Extração').click();
+  env.openArea('Extração');
   assert.equal(get('message-input').disabled,true);
   const before=get('workflow-bar').textContent;
-  const review=env.descendants(get('detail-content')).find(x=>x.id==='show-clarification-demo');
+  const review=env.descendants(env.caseContent()).find(x=>x.id==='show-clarification-demo');
   assert.ok(review);review.click();
   assert.ok(get('workflow-bar').textContent.includes('CENÁRIO ALTERNATIVO'));
   assert.equal(get('message-input').disabled,false);
   assert.equal(buttons('Concluir atendimento').length,1);
+  if(get('bank-dialog').open)get('bank-close').click();
   buttons('Concluir atendimento')[0].click();
   get('completion-dialog').close('confirm');
-  const t=get('detail-content').textContent;
+  const t=env.caseContent().textContent;
   assert.match(t,/local-review-A-108-review-a108-v3-demo/);
   assert.match(t,/corte apenas candidato/i);
   assert.match(t,/a108-3/);
@@ -686,20 +678,18 @@ test('FV-UI-019: esclarecimento alternativo libera segunda conclusão apenas na 
 
 test('FV-UI-019: Gestor supervisor não recebe histórico de F03 nem versão de cliente',()=>{
   reset();env.selectActor('marina');env.inbox[0].click();env.openCase('Exemplo 09');
-  env.descendants(get('detail-content')).filter(x=>x.attrs.role==='tab')
-    .find(x=>x.textContent==='Extração').click();
-  const t=get('detail-content').textContent;
+  env.openArea('Extração');
+  const t=env.caseContent().textContent;
   assert.equal(t.includes('f03-a108-1'),false);
   assert.equal(t.includes('client09-aurora-only'),false);
   assert.equal(t.includes('show-clarification-demo'),false);
-  assert.equal(env.descendants(get('detail-content')).some(x=>x.id==='show-clarification-demo'),false);
+  assert.equal(env.descendants(env.caseContent()).some(x=>x.id==='show-clarification-demo'),false);
 });
 
 test('FV-UI-019: versões da ficha viva não modificam remessa antiga',()=>{
   reset();env.openCase('Exemplo 15');
-  env.descendants(get('detail-content')).filter(x=>x.attrs.role==='tab')
-    .find(x=>x.textContent==='Extração').click();
-  const t=get('detail-content').textContent;
+  env.openArea('Extração');
+  const t=env.caseContent().textContent;
   assert.match(t,/live-form-v2-demo/);
   assert.match(t,/bank-demo-v1/);
   assert.match(t,/snapshot preservado/);
@@ -707,9 +697,8 @@ test('FV-UI-019: versões da ficha viva não modificam remessa antiga',()=>{
 
 test('FV-UI-019: troca de perfil limpa cenário alternativo e não migra autorização',()=>{
   reset();env.openCase('Exemplo 09');
-  env.descendants(get('detail-content')).filter(x=>x.attrs.role==='tab')
-    .find(x=>x.textContent==='Extração').click();
-  env.descendants(get('detail-content')).find(x=>x.id==='show-clarification-demo').click();
+  env.openArea('Extração');
+  env.descendants(env.caseContent()).find(x=>x.id==='show-clarification-demo').click();
   assert.equal(get('message-input').disabled,false);
   env.selectActor('marina');env.inbox[0].click();
   env.selectActor('rafael');env.inbox[0].click();env.openCase('Exemplo 09');
@@ -731,7 +720,7 @@ test('FV-UI-020: recibo de envio provado difere de estado comercial bancário',(
   reset();env.openCase('Exemplo 05');
   const t=get('thread-body').textContent;
   assert.match(t,/Envio comprovado · fixture/);
-  assert.match(get('detail-content').textContent,/cadastro enviado ao banco/);
+  assert.match(env.caseContent().textContent,/cadastro enviado ao banco/);
   assert.equal(t.includes('Entrega comprovada'),false);
 });
 
@@ -753,9 +742,9 @@ test('FV-UI-020: supervisor não vê detalhes de transporte do Consultor titular
 test('FV-UI-020: falha F03 fictícia não oferece retentativa automática nem editor',()=>{
   reset();env.openCase('Exemplo 02');buttons('Concluir atendimento')[0].click();
   get('completion-dialog').close('confirm');
-  const fail=env.descendants(get('detail-content')).find(x=>x.tagName==='BUTTON' && x.textContent==='Falha técnica');
+  const fail=env.descendants(env.caseContent()).find(x=>x.tagName==='BUTTON' && x.textContent==='Falha técnica');
   assert.ok(fail);fail.click();
-  const t=get('detail-content').textContent;
+  const t=env.caseContent().textContent;
   assert.match(t,/não há correção manual ou retentativa automática/i);
   assert.equal(t.includes('Corrigir dado'),false);
 });
@@ -777,7 +766,7 @@ test('FV-UI-021: contexto anunciado muda com perfil, loja e caso sem resíduo an
 
 test('FV-UI-021: Home e End alcançam extremos das abas sem perder roving tabindex',()=>{
   reset();env.openCase('Exemplo 02');get('detail-toggle').click();
-  const tabs=()=>env.descendants(get('detail-content')).filter(x=>x.attrs.role==='tab');
+  const tabs=()=>env.descendants(env.caseContent()).filter(x=>x.attrs.role==='tab');
   const first=tabs()[0],last=tabs().at(-1);
   first.fire('keydown',{key:'End'});
   let selected=tabs().find(x=>x.attrs['aria-selected']==='true');
@@ -845,69 +834,69 @@ test('FV-UI-029: confirmar fila repõe foco sem simular atribuição efetiva',()
 
 test('FV-UI-031: nota local recria formulário e retorna foco ao campo vazio',()=>{
   reset();env.openCase('Exemplo 02');
-  env.descendants(get('detail-content')).filter(n=>n.attrs.role==='tab')
+  env.descendants(env.caseContent()).filter(n=>n.attrs.role==='tab')
     .find(n=>n.textContent==='Notas').click();
-  const form=env.descendants(get('detail-content')).find(n=>n.id==='internal-note-form');
+  const form=env.descendants(env.caseContent()).find(n=>n.id==='internal-note-form');
   const original=env.descendants(form).find(n=>n.id==='note-text');
   original.value='Nota de acessibilidade somente local';original.focus();
   form.fire('submit');
-  const renewed=env.descendants(get('detail-content')).find(n=>n.id==='note-text');
+  const renewed=env.descendants(env.caseContent()).find(n=>n.id==='note-text');
   assert.ok(renewed);
   assert.notEqual(renewed,original,'o formulário deve ter sido recriado');
   assert.equal(env.document.activeElement,renewed,'foco deve permanecer no contexto da nota');
   assert.equal(renewed.value,'');
-  assert.match(get('detail-content').textContent,/Nota de acessibilidade somente local/);
+  assert.match(env.caseContent().textContent,/Nota de acessibilidade somente local/);
   assert.match(get('toast').textContent,/somente à memória do navegador/);
 });
 
 test('FV-UI-031: callback obsoleto não reorienta foco nem registra nota em outro caso',()=>{
   reset();env.openCase('Exemplo 02');
-  env.descendants(get('detail-content')).filter(n=>n.attrs.role==='tab')
+  env.descendants(env.caseContent()).filter(n=>n.attrs.role==='tab')
     .find(n=>n.textContent==='Notas').click();
-  const form=env.descendants(get('detail-content')).find(n=>n.id==='internal-note-form');
+  const form=env.descendants(env.caseContent()).find(n=>n.id==='internal-note-form');
   env.descendants(form).find(n=>n.id==='note-text').value='Texto obsoleto 031';
   env.openCase('Exemplo 05');
   get('search-input').focus();
   form.fire('submit');
   assert.equal(env.document.activeElement,get('search-input'));
-  assert.equal(get('detail-content').textContent.includes('Texto obsoleto 031'),false);
+  assert.equal(env.caseContent().textContent.includes('Texto obsoleto 031'),false);
 });
 
-test('FV-UI-032: resultado técnico fictício restaura foco da aba Extração',()=>{
+test('FV-UI-032: resultado técnico fictício restaura foco no destino Banco da Extração',()=>{
   reset();env.openCase('Exemplo 02');
   buttons('Concluir atendimento')[0].click();get('completion-dialog').close('confirm');
-  const action=env.descendants(get('detail-content')).find(n=>n.tagName==='BUTTON' && n.textContent==='Retorno parcial');
+  const action=env.descendants(env.caseContent()).find(n=>n.tagName==='BUTTON' && n.textContent==='Retorno parcial');
   assert.ok(action);action.focus();action.click();
-  const tab=env.descendants(get('detail-content')).find(n=>n.id==='case-tab-extraction');
+  const tab=get('bank-case-select');
   assert.equal(env.document.activeElement,tab);
   assert.match(get('context-announcement').textContent,/Resultado técnico fictício Retorno parcial/);
-  assert.match(get('detail-content').textContent,/Campo ilustrativo A/);
-  const failure=env.descendants(get('detail-content')).find(n=>n.tagName==='BUTTON' && n.textContent==='Falha técnica');
+  assert.match(env.caseContent().textContent,/Campo ilustrativo A/);
+  const failure=env.descendants(env.caseContent()).find(n=>n.tagName==='BUTTON' && n.textContent==='Falha técnica');
   assert.ok(failure);failure.click();
-  assert.equal(env.document.activeElement,env.descendants(get('detail-content')).find(n=>n.id==='case-tab-extraction'));
+  assert.equal(env.document.activeElement,get('bank-case-select'));
   assert.match(get('context-announcement').textContent,/Resultado técnico fictício Falha técnica/);
 });
 
 test('FV-UI-032: esclarecimento recriado ancora o foco sem afirmar F03',()=>{
   reset();env.openCase('Exemplo 09');
-  env.descendants(get('detail-content')).filter(n=>n.attrs.role==='tab').find(n=>n.textContent==='Extração').click();
-  const button=env.descendants(get('detail-content')).find(n=>n.id==='show-clarification-demo');
+  env.openArea('Extração');
+  const button=env.descendants(env.caseContent()).find(n=>n.id==='show-clarification-demo');
   assert.ok(button);button.focus();button.click();
-  assert.equal(env.document.activeElement,env.descendants(get('detail-content')).find(n=>n.id==='case-tab-extraction'));
+  assert.equal(env.document.activeElement,get('bank-case-select'));
   assert.match(get('context-announcement').textContent,/Cenário de esclarecimento fictício do caso A-108/);
-  assert.equal(env.descendants(get('detail-content')).some(n=>n.id==='show-clarification-demo'),false);
-  assert.match(get('detail-content').textContent,/nenhuma IA foi acionada/);
+  assert.equal(env.descendants(env.caseContent()).some(n=>n.id==='show-clarification-demo'),false);
+  assert.match(env.caseContent().textContent,/nenhuma IA foi acionada/);
 });
 
 test('FV-UI-032: O5 desktop foca região do novo caso autorizado',()=>{
   reset();env.openCase('Exemplo 05');
-  env.descendants(get('detail-content')).filter(n=>n.attrs.role==='tab').find(n=>n.textContent==='Novo contato').click();
-  const btn=env.descendants(get('detail-content')).find(n=>n.tagName==='BUTTON' && n.textContent.includes('Abrir novo atendimento humano'));
+  env.openArea('Novo contato');
+  const btn=env.descendants(env.caseContent()).find(n=>n.tagName==='BUTTON' && n.textContent.includes('Abrir novo atendimento humano'));
   assert.ok(btn);btn.click();
   assert.equal(env.document.activeElement,get('thread-pane'));
   assert.match(get('thread-meta').textContent,/Caso A-114/);
   assert.match(get('context-announcement').textContent,/Caso A-114 aberto por vínculo fictício autorizado/);
-  assert.match(get('detail-content').textContent,/em atendimento pelo operador/);
+  assert.match(env.caseContent().textContent,/em atendimento pelo operador/);
 });
 
 
@@ -1105,16 +1094,14 @@ test('FVA-01: O2 O3 em sequência não migram rascunho, F03 ou autorização ent
   const originalActor=get('actor-select').value;
   assert.equal(originalActor,'rafael');
   env.openCase('Exemplo 09');
-  env.descendants(get('detail-content')).filter(n=>n.attrs.role==='tab')
-    .find(n=>n.textContent==='Extração').click();
-  assert.match(get('detail-content').textContent,/f03-a108-1/);
+  env.openArea('Extração');
+  assert.match(env.caseContent().textContent,/f03-a108-1/);
   env.selectActor('marina');env.inbox[0].click();
   assert.equal(get('message-input').value,'');
   assert.equal(get('thread-body').textContent.includes('FVA-01 rascunho'),false);
   env.openCase('Exemplo 09');
-  env.descendants(get('detail-content')).filter(n=>n.attrs.role==='tab')
-    .find(n=>n.textContent==='Extração').click();
-  assert.equal(get('detail-content').textContent.includes('f03-a108-1'),false);
+  env.openArea('Extração');
+  assert.equal(env.caseContent().textContent.includes('f03-a108-1'),false);
   assert.equal(get('message-input').disabled,true);
   env.selectActor('daniel');env.inbox[0].click();
   assert.equal(env.cards().some(n=>n.textContent.includes('Exemplo 09')),false);
@@ -1123,7 +1110,7 @@ test('FVA-01: O2 O3 em sequência não migram rascunho, F03 ou autorização ent
   assert.equal(env.cards().length,0);
   assert.equal(get('team-nav').hidden,true);
   assert.equal(get('message-input').disabled,true);
-  assert.equal(get('detail-content').textContent.includes('f03-a108-1'),false);
+  assert.equal(env.caseContent().textContent.includes('f03-a108-1'),false);
   env.selectActor('rafael');env.inbox[0].click();
   env.openCase('Exemplo 02');
   assert.equal(get('message-input').value,'');
@@ -1188,14 +1175,14 @@ test('FVA-02: template local não atravessa identidade fictícia ou confirmaçã
   assert.ok(buttons('Enviar template').length>0);
   buttons('Enviar template')[0].click();
   get('template-dialog').close('confirm');
-  assert.match(get('detail-content').textContent,/SOLICITADO/);
-  assert.equal(get('detail-content').textContent.includes('Envio comprovado · fixture'),false);
-  assert.match(get('detail-content').textContent,/SOLICITADO \(demo\), não agendado, não transmitido e nunca ENVIADO/);
+  assert.match(env.caseContent().textContent,/SOLICITADO/);
+  assert.equal(env.caseContent().textContent.includes('Envio comprovado · fixture'),false);
+  assert.match(env.caseContent().textContent,/SOLICITADO \(demo\), não agendado, não transmitido e nunca ENVIADO/);
   env.selectActor('marina');env.inbox[0].click();env.selectActor('rafael');env.inbox[0].click();
   env.openCase('Exemplo 08');
   assert.equal(get('workflow-bar').textContent,before);
   assert.ok(buttons('Enviar template').length>0);
-  assert.equal(get('detail-content').textContent.includes('SOLICITADO (demo)'),false);
+  assert.equal(env.caseContent().textContent.includes('SOLICITADO (demo)'),false);
 });
 
 test('FVA-02: troca de concessionária limpa intenção local da fila e preserva escopo',()=>{
@@ -1230,24 +1217,24 @@ test('FVA-02: F03 erro, versão obsoleta, incerteza e indisponibilidade nunca ap
     ['Permissão negada','Operação negada'],
     ['Serviço indisponível','Serviço indisponível']
   ]){
-    const control=env.descendants(get('detail-content')).find(n=>
+    const control=env.descendants(env.caseContent()).find(n=>
       n.tagName==='BUTTON' && n.textContent===label);
     assert.ok(control,label+' ausente');control.click();
-    const text=get('detail-content').textContent;
+    const text=env.caseContent().textContent;
     assert.ok(text.includes(needle),label+' não sinalizado');
     assert.match(text,/não há correção manual ou retentativa automática/i);
     assert.equal(text.includes('Ficha gravada'),false);
     assert.equal(text.includes('Corrigir cadastro'),false);
   }
-  assert.match(get('detail-content').textContent,/em atendimento pelo operador/);
-  assert.equal(get('detail-content').textContent.includes('cadastro enviado ao banco'),false);
-  const obsolete=env.descendants(get('detail-content')).find(n=>
+  assert.match(env.caseContent().textContent,/em atendimento pelo operador/);
+  assert.equal(env.caseContent().textContent.includes('cadastro enviado ao banco'),false);
+  const obsolete=env.descendants(env.caseContent()).find(n=>
     n.tagName==='BUTTON' && n.textContent==='Falha técnica');
   env.openCase('Exemplo 05');
   const bankBefore=get('workflow-bar').textContent;
   assert.ok(obsolete);obsolete.click(); // ação do caso anterior fora de contexto
   assert.equal(get('workflow-bar').textContent,bankBefore);
-  assert.match(get('detail-content').textContent,/cadastro enviado ao banco/);
+  assert.match(env.caseContent().textContent,/cadastro enviado ao banco/);
   assert.equal(status.includes('cadastro enviado ao banco'),false);
 });
 

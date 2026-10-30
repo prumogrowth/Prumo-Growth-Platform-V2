@@ -6,11 +6,7 @@ import { getActor, hasMockCaseScope, visibleConversations } from './fixtures.mjs
 export const DETAIL_TABS = Object.freeze([
   { id: 'overview', title: 'Resumo' },
   { id: 'activity', title: 'Histórico' },
-  { id: 'notes', title: 'Notas' },
-  { id: 'extraction', title: 'Extração' },
-  { id: 'bank', title: 'Banco' },
-  { id: 'postmark', title: 'Novo contato' },
-  { id: 'followup', title: 'Recontatos' }
+  { id: 'notes', title: 'Notas' }
 ]);
 export const EXTRACTION_SCENARIOS = Object.freeze(['accepted', 'partial', 'failed', 'stale']);
 

@@ -5,6 +5,7 @@ on:
       - feat/frontend-plataforma-visual
       - codex/fv-ux-01-comunicacao-20261027
       - codex/fv-rev-01-conversas-20261030
+      - codex/fv-rev-01-modulos-20261030
     paths:
       - "frontend/visual/**"
       - "frontend/preview/**"
@@ -16,7 +17,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   native-checkout:
-    if: github.ref == 'refs/heads/feat/frontend-plataforma-visual' || github.ref == 'refs/heads/codex/fv-ux-01-comunicacao-20261027' || github.ref == 'refs/heads/codex/fv-rev-01-conversas-20261030'
+    if: github.ref == 'refs/heads/feat/frontend-plataforma-visual' || github.ref == 'refs/heads/codex/fv-ux-01-comunicacao-20261027' || github.ref == 'refs/heads/codex/fv-rev-01-conversas-20261030' || github.ref == 'refs/heads/codex/fv-rev-01-modulos-20261030'
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
@@ -100,7 +101,9 @@ jobs:
           python -B frontend/preview/build_preview.py --output out/prumo-demo-visual.zip
           python -B frontend/preview/build_standalone_preview.py --output out/prumo-preview-integral.html
           cp frontend/preview/PREVIA_LOCAL.md out/LEIA-ME.md
-          cp frontend/docs/99_FV_REV_01_CORRECOES_POS_AUDITORIA_2026_10_30.md out/ENTREGA.md
+          cp frontend/docs/101_FV_REV_01_ETAPA_2_ENTREGA_2026_10_30.md out/ENTREGA.md
+          cp frontend/docs/100_FV_REV_01_ETAPA_2_MAPA_2026_10_30.md out/REALOCACAO.md
+          cp frontend/docs/FV_REV_01_v0_4_FONTE_2026_10_29.md out/REQUISITOS.md
           python - <<'PYPROVENANCE'
           import hashlib, json, os, subprocess
           from pathlib import Path
@@ -108,8 +111,8 @@ jobs:
           provenance = {
               'head': os.environ['GITHUB_SHA'],
               'branch': os.environ['GITHUB_REF_NAME'],
-              'base': 'efc7e255faa896dbe4f797f4ceef1a2b1ae5774f',
-              'files_changed': subprocess.check_output(['git','diff','--name-only','efc7e255faa896dbe4f797f4ceef1a2b1ae5774f','HEAD'],text=True).splitlines(),
+              'base': '17336799ddf4c8575c790f09eb64570d6460733c',
+              'files_changed': subprocess.check_output(['git','diff','--name-only','17336799ddf4c8575c790f09eb64570d6460733c','HEAD'],text=True).splitlines(),
               'synthetic_only': True, 'published': False,
               'sha256': {p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in folder.iterdir() if p.is_file()}
           }
@@ -124,6 +127,8 @@ jobs:
             out/prumo-preview-integral.html
             out/LEIA-ME.md
             out/ENTREGA.md
+            out/REALOCACAO.md
+            out/REQUISITOS.md
             out/PROVENIENCIA.json
           if-no-files-found: error
           retention-days: 30
@@ -133,6 +138,7 @@ jobs:
         run: |
           python -B frontend/preview/collect_visual_review.py --output fv-visual-review
           python -B frontend/preview/collect_revision_review.py --output fv-visual-review/fv-rev-01
+          python -B frontend/preview/collect_modules_review.py --output fv-visual-review/fv-rev-01-etapa-2
       - name: Artefato de capturas FVB-01 (30 dias; SEM publicacao)
         uses: actions/upload-artifact@v4
         with:

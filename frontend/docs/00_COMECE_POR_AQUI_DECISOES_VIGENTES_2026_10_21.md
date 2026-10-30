@@ -1,6 +1,10 @@
 # COMECE AQUI — fontes vigentes do Frontend da plataforma Prumo
 **Corte inicial:** 21/10/2026. **Última precedência:** 22/10/2026. **Função:** índice de consulta com **precedência**, não autorização para executar operações. Esta frente documenta produto e interface; a implementação real depende de S0/S1/Meta/OpenAI/Banco e aceite próprio.
 
+## FV-REV-01 — Etapa 2 (30/10/2026)
+
+Fonte integral recebida: [v0.4 original](FV_REV_01_v0_4_FONTE_2026_10_29.md). A autorização posterior da missão prevalece sobre o estado histórico de autorização e repositório da fonte. Consultar [mapa de realocação](100_FV_REV_01_ETAPA_2_MAPA_2026_10_30.md) e [entrega, matrizes FV/AT/P e limites](101_FV_REV_01_ETAPA_2_ENTREGA_2026_10_30.md). Preservação das seis correções da Etapa 1; sem backend, merge, deploy ou integrações reais. Resultados efetivos dependem do gate no SHA final.
+
 ## FV-REV-01 — Correções pós-auditoria (30/10/2026)
 
 [COR-01 a COR-06](./99_FV_REV_01_CORRECOES_POS_AUDITORIA_2026_10_30.md), descendentes do HEAD auditado `efc7e255faa896dbe4f797f4ceef1a2b1ae5774f`, corrigem localização do filtro, identificação da loja, cores e substituição visual da composição. Prevalecem nesses pontos sobre o documento 98. Etapa 2 não iniciada.

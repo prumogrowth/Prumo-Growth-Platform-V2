@@ -32,6 +32,8 @@ import {
   canStageReadAcknowledgment, projectDemoAttention, latestConfirmedDemoMessage
 } from './conversation-attention.mjs';
 import { installCommunicationComposer, audioDuration } from './communication-composer.mjs';
+import { withRevisionScenes } from './revision-fixtures.mjs';
+import { aiCommunicationsFor, operationalHistoryFor, bankReadinessFor } from './relationship-view.mjs';
 
 const $ = id => document.getElementById(id);
 const app = $('visual-app');
@@ -42,8 +44,8 @@ const systemColorScheme = window.matchMedia('(prefers-color-scheme: dark)');
 const initialDemoActor = new URLSearchParams(window.location?.search ?? '').get('perfil') === 'gestor' ? 'marina' : 'rafael';
 const state = {
   actorId: initialDemoActor, shopId: 'aurora', filter: 'all', statusFilter: 'all', detailTab: 'overview', query: '',
-  selectedId: initialDemoActor === 'rafael' ? 'A-102' : null, cases: copyCFDemoFixtures(), processing: {}, reviewScenes: {}, followupRequests: {}, inboxView: 'all',
-  mobileView: 'list', listLoading:false, theme: systemColorScheme.matches ? 'dark' : 'light', themeOverride:false,
+  selectedId: initialDemoActor === 'rafael' ? 'A-102' : null, cases: withRevisionScenes(copyCFDemoFixtures()), processing: {}, reviewScenes: {}, followupRequests: {}, inboxView: 'all',
+  bankCaseId:null, noteDrafts:{}, mobileView: 'list', listLoading:false, theme: systemColorScheme.matches ? 'dark' : 'light', themeOverride:false,
   dialogContext: { completion: null, template: null, message: null }, intakeDialogContext:null, queueDialogContext:null, queueRequests:{}, teamRequests:{}, teamPanel:'members'
 };
 const communication = installCommunicationComposer({
@@ -478,7 +480,7 @@ function renderThread() {
     btn.addEventListener('click',()=>{
       if(selectedCase()?.id!==item.id || !postmarkContextValid(item))return;
       try {state.followupRequests[item.id]=applyLocalFollowupRequest(item,state.actorId,state.shopId,'request_chain');
-        state.detailTab='followup';render();showToast('Solicitação fictícia de cadeia. Não há plano persistido nem envio.');}
+        state.detailTab='activity';render();showToast('Solicitação fictícia de cadeia. Não há plano persistido nem envio.');}
       catch(error){showToast('Operação não disponível neste cenário.');}
     });followups.append(btn);
   }
@@ -506,19 +508,86 @@ function callout(title,text,tone='') {
  * A operação é local; só orientar o foco no mesmo caso com painel visível.
  */
 function focusExtractionAfterRerender(caseId,notice){
-  if(selectedCase()?.id!==caseId || state.detailTab!=='extraction' ||
-     document.querySelector('dialog[open]'))return;
-  if(window.matchMedia('(max-width:760px)').matches && state.mobileView!=='detail')return;
-  if(!window.matchMedia('(max-width:760px)').matches &&
-     app.classList.contains('details-hidden'))return;
-  $('detail-content').querySelector('.detail-tab.active')?.focus();
+  if(bankSelectedCase()?.id!==caseId || !$('bank-dialog').open)return;
+  $('bank-case-select').focus();
   announceCurrentContext(notice);
+}
+function noteDraftKey(item){return state.actorId+'|'+state.shopId+'|'+item.id;}
+function caseForBank(id){
+  const base=accessible().find(row=>row.id===id);
+  const review=base && state.reviewScenes[base.id];
+  return review && review.shopId===base.shopId && review.assignedTo===base.assignedTo ? review : base;
+}
+function bankSelectedCase(){return caseForBank(state.bankCaseId);}
+let bankOpener='bank-nav';
+function openBank(caseId=null,opener=null){
+  const rows=accessible();
+  state.bankCaseId=rows.some(row=>row.id===caseId)?caseId:
+    rows.some(row=>row.id===state.bankCaseId)?state.bankCaseId:
+    rows.some(row=>row.id===state.selectedId)?state.selectedId:rows[0]?.id??null;
+  bankOpener=opener ?? (window.matchMedia('(max-width:760px)').matches?'bank-nav-mobile':'bank-nav');
+  communication.reset();
+  renderBank();
+  if(!$('bank-dialog').open)$('bank-dialog').showModal();
+  $('bank-case-select').focus();
+}
+function renderBank(){
+  const select=$('bank-case-select');
+  select.replaceChildren(...accessible().map(row=>{const option=el('option','',row.name+' · '+row.id+' · '+getShop(row.shopId).name);option.value=row.id;return option;}));
+  select.value=state.bankCaseId??'';
+  const target=$('bank-content'),item=bankSelectedCase();
+  if(!item){target.replaceChildren(el('p','detail-placeholder','Nenhuma ficha autorizada neste contexto.'));return;}
+  const identity=el('p','bank-context',item.name+' · caso '+item.id+' · '+getShop(item.shopId).name);
+  const consultation=renderRegistration(item);
+  const banking=renderBankStatus(item);
+  target.replaceChildren(identity,consultation,banking);
+}
+function renderAiCommunications(item){
+  const section=detailSection('COMUNICAÇÕES DAS IAs');section.id='ai-communications';
+  section.append(el('p','detail-small','Histórico acumulativo fictício. Resultados da F03 não são mensagens ao cliente.'));
+  const entries=aiCommunicationsFor(item,state.cases,state.actorId,state.shopId);
+  for(const entry of entries){
+    const details=el('details','ai-communication');details.dataset.source=entry.source;
+    details.append(el('summary','',entry.source+' · '+entry.time),el('p','',entry.content));
+    section.append(details);
+  }
+  if(!entries.length)section.append(el('p','detail-small','Nenhuma comunicação autorizada disponível.'));
+  if(state.processing[item.id]){
+    const feedback=projectDemoOperationFeedback(state.processing[item.id].kind);
+    section.append(callout(feedback.title,feedback.description,'warning'));
+  }
+  const bank=el('button','btn btn-light','Consultar ficha e processamento em Banco');bank.type='button';bank.id='open-bank-case';
+  bank.addEventListener('click',()=>openBank(item.id,'open-bank-case'));section.append(bank);
+  return section;
+}
+function renderOperationalHistory(item){
+  const activity=detailSection('HISTÓRICO OPERACIONAL · DADOS FICTÍCIOS');activity.id='relationship-history';
+  const view=operationalHistoryFor(item,state.cases,state.actorId,state.shopId,state.processing[item.id],state.followupRequests[item.id]);
+  const completed=el('div','timeline-events');completed.setAttribute('aria-label','Acontecimentos e estados técnicos');
+  const addEntry=(entry,container,future=false)=>{
+    const card=el('div','activity-item'+(future?' future-event':'')+' event-'+entry.state);
+    card.dataset.state=entry.state;card.dataset.kind=entry.kind;
+    card.append(el('strong','',entry.label),el('span','event-state',entry.statusLabel),el('span','',entry.time));container.append(card);
+  };
+  for(const entry of view.events)addEntry(entry,completed);
+  if(!view.events.length)completed.append(el('p','detail-small','Nenhum acontecimento autorizado informado.'));
+  activity.append(completed);
+  if(item.postmarkProjection)activity.append(renderContinuity(item));
+  if(view.future.length){
+    const future=el('section','timeline-future');future.id='future-attempts';
+    future.setAttribute('aria-label','Tentativas futuras planejadas, ainda não realizadas');
+    future.append(el('h3','detail-label','PLANEJAMENTO F02 · AINDA NÃO REALIZADO'));
+    for(const entry of view.future)addEntry(entry,future,true);
+    activity.append(future);
+  }
+  if(item.followupProjection || state.followupRequests[item.id])activity.append(renderFollowupSummary(item));
+  activity.append(el('p','detail-small','Somente projeções fictícias. A linha de acontecimentos não se prolonga sobre o planejamento futuro.'));
+  return activity;
 }
 function renderDetails() {
   const target=$('detail-content');const item=selectedCase();
   if(!item){target.replaceChildren(el('p','detail-placeholder','Selecione uma conversa para ver informações do caso.'));return;}
-  const profile=el('div','profile-detail');
-  profile.append(el('strong','',item.name),el('span','',`Caso ${item.id} · exemplo fictício`),el('span','detail-commercial',item.status));
+  const context=el('p','case-context','Caso '+item.id+' · '+item.status+' · fictício');
   const tabs=el('div','detail-tabs');tabs.setAttribute('role','tablist');tabs.setAttribute('aria-label','Detalhes do caso fictício');
   for(const tab of DETAIL_TABS){
     const button=el('button','detail-tab'+(state.detailTab===tab.id?' active':''),tab.title);
@@ -553,30 +622,10 @@ function renderDetails() {
     );
     if(item.reassignmentProjection==='protected_queue') group.append(callout('Acesso operacional protegido','A S1-002 decidirá o remanejamento real; não há escolha de Consultor pelo frontend.','warning'));
     if(isSyntheticBankProtected(item)) group.append(callout('Marco bancário protegido','Silêncio de cliente ou janela Meta expirada não representa negativa da instituição financeira.','warning'));
-    const rule=detailSection('REGRAS DA EXPERIÊNCIA');
-    rule.append(callout('Atendimento humano independente','Concluir a conversa não envia cadastro ao banco, não marca vendido ou perdido e não reativa a IA Vendedora.'));
-    // FV-UI-051: o alcance fictício também é explícito no painel de detalhes.
-    const guidance=el('p','detail-small detail-demo-guidance',
-      'Dados fictícios. Este painel apenas exibe informações ilustrativas e não executa operações externas.');
-    guidance.id='case-demo-guidance';guidance.setAttribute('role','note');
-    rule.append(guidance);
-    content.setAttribute('aria-describedby','case-demo-guidance');
-    rule.append(el('p','detail-small','Gestores veem conversas fictícias por loja. Dados financeiros protegidos D3/D4 não são disponibilizados na simulação.'));
-    content.append(group,rule);
+    group.append(prop('Caso fictício',item.id));
+    content.append(group,renderAiCommunications(item));
   } else if(state.detailTab==='activity'){
-    const activity=detailSection('HISTÓRICO DE EVENTOS FICTÍCIOS');
-    const items=activityFor(item,state.processing[item.id]);
-    const projected=projectMockHumanCycleHistory(item,state.actorId,state.shopId);
-    for(const evt of projected.events)items.push({
-      id:evt.completionId,
-      label:'Conclusão '+evt.completionId+' · F03 '+evt.extractionState+
-        ' · recorte confirmado na fixture '+evt.cutoffMessageRef,
-      time:'Evento S0 fictício · '+evt.resultVersionRef
-    });
-    for(const entry of items){const card=el('div','activity-item');
-      card.append(el('strong','',entry.label),el('span','',entry.time));activity.append(card);}
-    activity.append(el('p','detail-small','Linha do tempo ilustrativa, sem auditoria ou eventos reais do S0.'));
-    content.append(activity);
+    content.append(renderOperationalHistory(item));
   } else if(state.detailTab==='notes'){
     const notes=detailSection('NOTAS INTERNAS · SIMULAÇÃO');
     notes.append(callout('Informação privada de operação','Notas fictícias não são enviadas ao cliente e não persistem fora desta página.'));
@@ -587,10 +636,13 @@ function renderDetails() {
       const label=el('label','field-label','Nova nota fictícia');label.htmlFor='note-text';
       const textarea=el('textarea','note-textarea');textarea.id='note-text';textarea.maxLength=250;
       textarea.placeholder='Anotação interna demonstrativa…';textarea.required=true;
+      textarea.value=state.noteDrafts[noteDraftKey(item)]??'';
+      textarea.addEventListener('input',()=>{state.noteDrafts[noteDraftKey(item)]=textarea.value;});
       const add=el('button','btn btn-primary','Adicionar nota');add.type='submit';
       form.append(label,textarea,add);
       form.addEventListener('submit',e=>{e.preventDefault();const text=textarea.value.trim();
         if(!text || selectedCase()?.id!==item.id || !postmarkContextValid(item) || !canWriteNote(item,state.actorId,state.shopId) || !isInActiveInbox(item))return;
+        delete state.noteDrafts[noteDraftKey(item)];
         item.notes??=[];item.notes.push({id:'n-'+(item.notes.length+1),text,actorId:state.actorId,time:'Agora · fictício'});
         // FV-UI-031: o formulário anterior deixa o DOM; devolver foco ao novo campo
         // somente após gravação demonstrativa elegível no mesmo caso.
@@ -599,7 +651,15 @@ function renderDetails() {
       });notes.append(form);
     }else notes.append(el('p','detail-small','Adição de nota não disponível neste perfil ou caso de demonstração.'));
     content.append(notes);
-  } else if(state.detailTab==='extraction') {
+  }
+  // FV-UI-051: o alcance fictício também é explícito no painel de detalhes.
+  const guidance=el('p','detail-small detail-demo-guidance','Dados fictícios. Este painel não executa operações externas.');
+  guidance.id='case-demo-guidance';guidance.setAttribute('role','note');
+  content.setAttribute('aria-describedby','case-demo-guidance');content.append(guidance);
+  target.replaceChildren(context,tabs,content);
+}
+
+function renderRegistration(item){
     const extract=detailSection('FICHA E EXTRAÇÃO · FV-02');const proc=state.processing[item.id];
     if(item.registrationProjection){
       // A tela demonstra leitura de uma projeção do S0; não aceita saída bruta da IA.
@@ -654,9 +714,9 @@ function renderDetails() {
           ['denied','Permissão negada'],['unavailable','Serviço indisponível']
         ]){
           const button=el('button','btn btn-light',label);button.type='button';
-          button.addEventListener('click',()=>{if(!canSimulateCompletion(selectedCase(),state.actorId,state.shopId))return;
-            if(selectedCase()?.id!==item.id)return;
-            state.processing[item.id]={...state.processing[item.id],kind};render();
+          button.addEventListener('click',()=>{if(!canSimulateCompletion(bankSelectedCase(),state.actorId,state.shopId))return;
+            if(bankSelectedCase()?.id!==item.id)return;
+            state.processing[item.id]={...state.processing[item.id],kind};render();renderBank();
             focusExtractionAfterRerender(item.id,'Resultado técnico fictício '+label+' do caso '+item.id);
             showToast(projectDemoOperationFeedback(kind).title+'. Nenhuma API foi chamada.');});actions.append(button);
         }extract.append(actions);
@@ -708,13 +768,13 @@ function renderDetails() {
         const button=el('button','btn btn-light','Visualizar retorno fictício de esclarecimento');
         button.type='button';button.id='show-clarification-demo';
         button.addEventListener('click',()=>{
-          const current=selectedCase();
+          const current=bankSelectedCase();
           if(!current || current.id!==item.id || state.reviewScenes[item.id])return;
           const candidate=projectMockClarificationScene(current,state.actorId,state.shopId);
           if(!candidate)return;
           closeTransientDialogs();
           state.reviewScenes[item.id]=candidate;
-          state.detailTab='extraction';render();
+          renderBank();render();
           focusExtractionAfterRerender(item.id,'Cenário de esclarecimento fictício do caso '+item.id);
           showToast('Cenário alternativo exibido; NÃO houve reabertura S0 nem extração F03.');
         });
@@ -727,14 +787,21 @@ function renderDetails() {
         '. Não é evento S0 confirmado, nem execução/persistência F03.','warning'));
     }
     extract.append(el('p','detail-small','Ficha somente leitura. Nenhum Consultor corrige campos; somente S0 pode validar e persistir propostas F03.'));
-    content.append(extract);
-  } else if(state.detailTab==='bank'){
+    return extract;
+}
+function renderBankStatus(item){
     const bank=detailSection('REMESSA E RETORNO BANCÁRIO · O4');
     const projection=bankProjectionFor(item,state.actorId,state.shopId);
     const copy=bankPhaseCopy(projection);
     bank.append(callout(copy.title,copy.description,
       projection.submissionConfirmed?'':'warning'));
     bank.append(prop('Estado comercial (somente leitura)',item.status));
+    const readyConfirmed=bankReadinessFor(item,state.cases,state.actorId,state.shopId);
+    bank.append(prop('Aptidão para remessa',readyConfirmed?'Confirmada apenas na fixture · sem remessa iniciada':'Não confirmada nesta projeção'));
+    bank.append(prop('Preparação / solicitação',projection.phase==='submission_requested'?
+      'Solicitação projetada · não comprova remessa':'Sem preparação ou solicitação confirmada'));
+    bank.append(el('p','detail-small','Integração pendente: nenhuma ação de remessa é habilitada sem capacidade e contrato ratificados.'));
+
     if(projection.visibility==='summary'){
       bank.append(el('p','detail-small','Supervisão da Prumo: sem acesso a documentos, provas bancárias, referências ou campos D4 nesta visualização.'));
     }else if(projection.visibility==='detail'){
@@ -753,8 +820,9 @@ function renderDetails() {
     }
     bank.append(el('p','detail-small',
       'Somente leitura. Registros C15–C18 exigem profissional autorizado, prova verificada e confirmação S0. Sem formulário de prova real, envio, venda ou negativa neste protótipo.'));
-    content.append(bank);
-  } else if(state.detailTab==='postmark'){
+    return bank;
+}
+function renderContinuity(item){
     const contact=detailSection('NOVO CONTATO APÓS MARCO · O5');
     const projection=postmarkViewFor(item,state.cases,state.actorId,state.shopId);
     const copy=postmarkCopy(projection);
@@ -778,7 +846,7 @@ function renderDetails() {
           closeTransientDialogs();
           state.inboxView=target.inboxProjection==='historical'?'history':'active';
           state.filter='all';state.statusFilter='all';state.query='';
-          $('search-input').value='';state.selectedId=target.id;state.detailTab='postmark';
+          $('search-input').value='';state.selectedId=target.id;state.detailTab='activity';
           goto('thread');updateSelectors();render();
           // FV-UI-032: o botão de vínculo saiu do DOM; focar o caso de destino.
           if(window.matchMedia('(max-width:760px)').matches)$('thread-back').focus();
@@ -793,12 +861,13 @@ function renderDetails() {
     }
     contact.append(el('p','detail-small',
       'Somente navegação sobre casos fictícios já projetados. A S0 decide criação, roteamento, versão, permissão e histórico. Não existe comando C14 nem reativação da IA Vendedora neste browser.'));
-    content.append(contact);
-  } else {
+    return contact;
+}
+function renderFollowupSummary(item){
     const followup=detailSection('RECONTATOS CONTEXTUAIS · CF-OP-02');
     const local=state.followupRequests[item.id]??null;
     const projection=projectedFollowupState(item,local);
-    followup.append(callout('Regras de três acontecimentos separados',
+    followup.append(callout('Janela, conclusão e resultado são independentes',
       '24h desde último inbound habilitam mensagem livre. Conclusão humana apenas solicita extração. Outras 24h, após prova de envio do template final, podem levar a perdido SOMENTE por decisão S0 e ciclo elegível.'));
     if(!projection){
       followup.append(callout('Sem plano confirmado',
@@ -810,20 +879,13 @@ function renderDetails() {
       if(projection.template) followup.append(prop('Template simulado',projection.template.id+' · '+projection.template.version));
     } else {
       followup.append(callout('Plano projetado (dados artificiais)','Situação técnica fornecida pela fixture: '+projection.state+'. O navegador não calcula agendamento nem prova de envio.'));
-      for(const attempt of projection.attempts??[]){
-        const line=el('div','detail-row');
-        line.append(el('strong','',attempt.label+' · '+attempt.state),el('span','',attempt.template+' · '+attempt.time));
-        followup.append(line);
-      }
       followup.append(prop('Template final efetivamente enviado',projection.finalSentConfirmed?'Confirmado apenas no cenário fictício':'Não confirmado'));
       followup.append(prop('Silêncio pós-final',projection.silenceResolution==='confirmed_eligible'?
         'Perda já representada pelo S0 fictício': 'Prazo não iniciado/sem decisão'));
     }
     if(isSyntheticBankProtected(item)) followup.append(callout('Sem perda por silêncio bancário','Remessa ao banco e vendido não são estados elegíveis para perda automática C09.','warning'));
     followup.append(el('p','detail-small','Não há templates reais, relógio local de 24h, chamada OpenAI nem envio WhatsApp. Fonte futura: projeções autorizadas pelo S0.'));
-    content.append(followup);
-  }
-  target.replaceChildren(profile,tabs,content);
+    return followup;
 }
 
 function render(){renderList();renderThread();renderDetails();app.dataset.mobileView=state.mobileView;}
@@ -836,6 +898,8 @@ function changeActor(actorId){
   $('team-list').replaceChildren();$('team-monitor').replaceChildren();$('team-batches').replaceChildren();$('team-queue').replaceChildren();
   // FVA-02: pedido local de template/cadeia nunca atravessa perfil fictício.
   state.teamRequests={};state.queueRequests={};state.followupRequests={};state.reviewScenes={};state.processing={};state.teamPanel='members';
+  state.noteDrafts={};state.bankCaseId=null;
+  if($('bank-dialog').open)$('bank-dialog').close();$('bank-content').replaceChildren();$('bank-case-select').replaceChildren();
   state.actorId=actor.id;state.shopId=actor.shops[0];state.selectedId=null;state.detailTab='overview';state.statusFilter='all';state.inboxView='all';
   state.filter='all';state.query='';$('search-input').value='';goto('list');updateSelectors();render();announceCurrentContext('Perfil alterado');
 }
@@ -846,6 +910,7 @@ $('shop-select').addEventListener('change',event=>{
   state.listLoading=false;$('demo-list-state').value='ready';
   closeTransientDialogs();
   // FVA-02: solicitação ainda não confirmada por serviço pertence à loja anterior.
+  state.noteDrafts={};state.bankCaseId=null;if($('bank-dialog').open)$('bank-dialog').close();$('bank-content').replaceChildren();$('bank-case-select').replaceChildren();
   state.queueRequests={};state.followupRequests={};state.reviewScenes={};state.shopId=event.target.value;state.selectedId=null;state.detailTab='overview';state.statusFilter='all';state.inboxView='all';$('status-filter').value='all';state.query='';$('search-input').value='';goto('list');render();announceCurrentContext('Concessionária alterada');
 });
 $('search-input').addEventListener('input',event=>{state.query=event.target.value;renderList();});
@@ -1228,6 +1293,18 @@ function openTeamSummary(){
   $('team-action-announcement').textContent='';
   const dialog=$('team-dialog');dialog.returnValue='';dialog.showModal();
 }
+$('bank-nav').addEventListener('click',()=>openBank());
+$('bank-nav-mobile').addEventListener('click',()=>openBank());
+$('conversations-nav').addEventListener('click',()=>{$('search-input').focus();});
+$('bank-case-select').addEventListener('change',event=>{
+  if(!accessible().some(row=>row.id===event.target.value))return;
+  state.bankCaseId=event.target.value;renderBank();$('bank-case-select').focus();
+});
+$('bank-close').addEventListener('click',()=>$('bank-dialog').close());
+$('bank-dialog').addEventListener('close',()=>{
+  const target=document.getElementById(bankOpener);
+  if(!document.querySelector('dialog[open]'))(target??$('bank-nav-mobile')).focus();
+});
 $('team-nav').addEventListener('click',openTeamSummary);
 $('team-nav-mobile').addEventListener('click',openTeamSummary);
 $('team-close').addEventListener('click',()=>$('team-dialog').close());
@@ -1282,7 +1359,7 @@ document.addEventListener('keydown',event=>{
   }
 });
 $('reset-app').addEventListener('click',()=>{
-  state.cases=copyCFDemoFixtures();state.processing={};state.reviewScenes={};state.followupRequests={};changeActor(initialDemoActor);showToast('Dados de demonstração restaurados.');
+  state.cases=withRevisionScenes(copyCFDemoFixtures());state.processing={};state.reviewScenes={};state.followupRequests={};changeActor(initialDemoActor);showToast('Dados de demonstração restaurados.');
 });
 $('composer').addEventListener('submit',event=>{
   event.preventDefault();
@@ -1329,8 +1406,8 @@ $('completion-dialog').addEventListener('close',()=>{
   state.processing[item.id]=item.reviewSceneVersion
     ? stageMockRepeatCompletion(item,state.actorId,state.shopId) : {kind:'accepted'};
   if(!state.processing[item.id])return;
-  state.detailTab='extraction';
-  render();showToast('Solicitação de conclusão simulada. Nenhuma API foi chamada.');
+  state.detailTab='overview';
+  render();openBank(item.id,'thread-title');showToast('Solicitação de conclusão simulada. Nenhuma API foi chamada.');
 });
 $('template-dialog').addEventListener('close',()=>{
   const isConfirm=$('template-dialog').returnValue==='confirm';
@@ -1340,7 +1417,7 @@ $('template-dialog').addEventListener('close',()=>{
   const item=selectedCase();if(!item || !postmarkContextValid(item))return;
   const template=DEMO_TEMPLATES.find(x=>x.id===$('template-select').value);
   try {state.followupRequests[item.id]=applyLocalFollowupRequest(item,state.actorId,state.shopId,'single_template',template);
-    state.detailTab='followup';render();showToast('Pedido fictício de template recebido. Envio não confirmado.');}
+    state.detailTab='activity';render();showToast('Pedido fictício de template recebido. Envio não confirmado.');}
   catch(error){showToast('Template indisponível neste contexto.');}
 });
 // FV-UI-033: zoom/reflow pode atravessar o breakpoint com foco no painel de detalhes.
