@@ -1,0 +1,25 @@
+{
+  "mission": "S0S1-OPS-02",
+  "date": "2026-10-30",
+  "timezone": "America/Sao_Paulo",
+  "authorizes_action": false,
+  "checkpoint": {"commit": "a0c4eaf2720bd6cf2bd756544498f8f185f005fc", "tree": "977c4ed302b9dd14e459575abbbc718eaa8ca920", "run": "https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41087043183", "orchestration_verdict": "LAB_CLOSED_TECHNICAL_I86_CM01_ONLY"},
+  "decisions": {
+    "D01": {"ratified": "Only an authorized human in a restricted administrative environment can administer Directors", "pending": ["nominal operator identity", "authorization grant/revocation", "credential custody", "external access mechanism"], "ops02": "Declared synthetic references; never authentication"},
+    "D02": {"ratified": "Human act must have linked evidence; no automatic approval", "pending": ["trusted origin", "identity verification", "external preservation", "access and retention policy"], "ops02": "Document digest and binding only; referenced evidence bytes and authenticity not verified"},
+    "D03": {"ratified": "Manual substitution, multiple legitimate Directors allowed; no automatic transfer", "pending": ["manual sequence", "temporary coexistence or gap", "failure handling procedure"], "ops02": "Individual intentions only; no succession flow"},
+    "D04": {"ratified": "New authorized human act; no reuse of I85 bootstrap", "pending": ["nominal recovery access", "identity recovery procedure", "emergency custody"], "ops02": "No recovery execution or bootstrap invocation"},
+    "D05": {"ratified": "Existing effective competence and session revocation preserved", "pending": ["privileged credential incident containment", "external evidence custody", "reconciliation and return-to-service procedure"], "ops02": "No interference with existing SQL/Auth or revocation"}
+  },
+  "not_requirements": ["second approver", "quorum", "Director count cap", "term or expiration", "automatic replacement"],
+  "test_groups": {
+    "ContractTests": ["APPOINT", "REVOKE", "REACTIVATE", "all receipt states", "canonical digest independent vector", "determinism", "UUID/hash/mandatory/unknown/version/action", "environment/target/action/CAS binding", "tamper", "wrong intention", "contradictory receipt", "act/attempt duplicate conflicts", "human/commit/credential/permission claims", "malformed/duplicate JSON", "size/count/depth", "machine contract consistency"],
+    "PathTests": ["explicit regular files", "nested path", "traversal/absolute/glob/control/length", "symlink leaf/parent/root", "FIFO/hardlink/directory", "missing/oversized", "usage", "read-only no-follow flags"],
+    "CapabilityTests": ["AST import and call boundary", "runtime network/process/shell/implicit-file-read tripwires", "no privileged CLI or workflow services"],
+    "ScopeTests": ["candidate untracked/staged", "atomic clean commit", "wrong base tree", "unrelated history", "wrong/detached branch", "protected pending/committed/edit-revert", "untracked/ignored", "symlink leaf/parent", "executable/gitlink", "protected rename into allowlist", "deletion", "merge", "pending after commit", "second commit", "missing file", "assume-unchanged/skip-worktree", "hardlink/FIFO", "replace refs", "no CLI anchor override"]
+  },
+  "execution_evidence": "Actual counts, failures, skips, commit/tree, inventory and results belong to immutable CI logs/artifacts and final delivery; this file does not predeclare success or self-reference the future commit.",
+  "limits": ["Synthetic Linux/POSIX validation only", "No proof of human presence or organizational authority", "No external evidence authenticity", "No COMMIT proof", "No database or network", "No persistence/global duplicate ledger", "Capability inspection is a reviewable regression control, not a sandbox against arbitrary replaced code"],
+  "future_interfaces": {"Frontend": "Ordinary approved ports only; no authority inferred from UI or role", "OpenAI": "No privileged credentials or Director-administration tool", "Meta": "Messages/events never grant Director authority", "infrastructure": "Future nominal human channel requires new decision and authorization"},
+  "next_possible_mission": "Owner decision for D01/D02 and specification of nominal administrative access and external evidence custody; no execution authorized by OPS02"
+}
