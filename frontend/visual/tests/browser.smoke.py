@@ -538,6 +538,9 @@ with sync_playwright() as p:
     cycle_page.locator('#request-completion').click()
     cycle_page.locator('#completion-form button[value=confirm]').click()
     expect(cycle_page.locator('#completion-dialog')).to_be_hidden()
+    # O evento close nativo abre Banco; não escolher um locator do painel anterior
+    # enquanto o callback de conclusão ainda está na fila de eventos.
+    expect(cycle_page.locator('#bank-dialog')).to_be_visible()
     expect(case_content(cycle_page)).to_contain_text('a108-3')
     expect(case_content(cycle_page)).to_contain_text(re.compile('corte apenas candidato',re.I))
     details=case_content(cycle_page).inner_text()
