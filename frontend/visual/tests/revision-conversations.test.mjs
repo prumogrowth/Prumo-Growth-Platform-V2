@@ -152,3 +152,70 @@ test('REV-008: explicit demo loading hides rows and recovers within the authoriz
   assert.equal(get('conversation-items').getAttribute('aria-busy'),'false');
   assert.equal(env.cards().length,15);
 });
+
+test('COR-01: closing filters by Escape or outside click preserves selection and search',()=>{
+  reset();get('search-input').value='Cliente';get('search-input').fire('input');
+  env.filters.find(n=>n.dataset.filter==='unread').click();
+  const before=env.cards().map(n=>n.textContent);
+  get('list-extra').open=true;
+  get('list-extra').fire('keydown',{key:'Escape'});
+  assert.equal(get('list-extra').open,false);
+  assert.equal(env.document.activeElement,get('filter-toggle'));
+  assert.equal(get('search-input').value,'Cliente');
+  assert.deepEqual(env.cards().map(n=>n.textContent),before);
+  get('list-extra').open=true;
+  env.document.fire('click',{target:get('search-input')});
+  assert.equal(get('list-extra').open,false);
+  assert.deepEqual(env.cards().map(n=>n.textContent),before);
+  env.inbox.find(n=>n.dataset.inbox==='all').click();
+  assert.match(get('context-announcement').textContent,/Todos os atendimentos/);
+});
+
+test('COR-02: dealership labels follow only the authorized case relationship',()=>{
+  reset();
+  const shops=()=>env.cards().map(card=>env.descendants(card).find(n=>n.classList.contains('item-shop'))?.textContent);
+  assert.ok(shops().every(name=>name==='Aurora Motos'));
+  env.selectActor('lia');
+  assert.deepEqual(shops(),['Horizonte Motos']);
+  env.selectShop('aurora');
+  assert.deepEqual(shops(),['Aurora Motos']);
+  assert.equal(env.cards().length,1);
+  assert.match(env.cards()[0].getAttribute('aria-label'),/Aurora Motos/);
+});
+
+test('COR-05: composition is replaced by eligible actions or conservative unavailable state',()=>{
+  reset();env.openCase('Exemplo 02');
+  assert.equal(get('composer').hidden,false);
+  assert.equal(get('communication-tools').hidden,false);
+  env.openCase('Exemplo 08');
+  assert.equal(get('composer').hidden,true);
+  assert.equal(get('communication-tools').hidden,true);
+  assert.equal(get('followup-actions').hidden,false);
+  assert.equal(get('followup-actions').children.length,2);
+  env.openCase('Exemplo 11');
+  assert.equal(get('composer').hidden,true);
+  assert.equal(get('followup-actions').hidden,true);
+  assert.equal(get('composer-availability').hidden,false);
+  env.selectActor('marina');env.openCase('Exemplo 02');
+  assert.equal(get('composer').hidden,true);
+  assert.equal(get('followup-actions').hidden,true);
+  assert.equal(get('message-input').disabled,true);
+});
+
+test('COR-06: historical terminal strip replaces composition and normal composer can return',()=>{
+  for(const name of ['Exemplo 16','Exemplo 12']){
+    reset();env.openCase(name);
+    assert.equal(get('terminal-banner').hidden,false);
+    assert.equal(get('composer').hidden,true);
+    assert.equal(get('communication-tools').hidden,true);
+    assert.equal(get('composer-demo-guidance').hidden,true);
+    assert.equal(get('composer-availability').hidden,true);
+    assert.equal(get('thread-bottom').hidden,true);
+    assert.equal(get('message-input').disabled,true);
+    assert.equal(get('followup-actions').children.length,0);
+  }
+  env.openCase('Exemplo 02');
+  assert.equal(get('terminal-banner').hidden,true);
+  assert.equal(get('thread-bottom').hidden,false);
+  assert.equal(get('composer').hidden,false);
+});

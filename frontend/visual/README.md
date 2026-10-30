@@ -1,3 +1,7 @@
+# FV-REV-01 — Correções pós-auditoria da Etapa 1
+
+[COR-01 a COR-06](../docs/99_FV_REV_01_CORRECOES_POS_AUDITORIA_2026_10_30.md): filtro por ícone junto aos três pontos, concessionária compacta, indicadores e conclusão verdes, substituição efetiva do composer e faixa terminal sem composição residual. Mesma branch, base auditada `efc7e255faa896dbe4f797f4ceef1a2b1ae5774f`; dados sintéticos e módulos preservados. Os registros abaixo permanecem históricos.
+
 # Continuidade FV-REV-01 — Etapa 1 (30/10/2026)
 
 A revisão reaproveita esta base: lista contínua com filtros centralizados, controles de perfil/reset em **Ambiente demonstrativo**, conclusão no cabeçalho e X responsivo. [Escopo, matriz e validação](../docs/98_FV_REV_01_ETAPA_1_2026_10_30.md). Dados exclusivamente sintéticos; nenhuma integração ou Etapa 2. O histórico abaixo descreve as etapas anteriores e suas evidências próprias.

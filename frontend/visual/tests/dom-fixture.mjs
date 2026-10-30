@@ -50,6 +50,7 @@ export function installMockDOM({ mobile = false, tablet = false, prefersDark = f
     showModal() { this._open = true; }
     close(value) { if (value !== undefined) this.returnValue = value; this._open = false; this.fire('close'); }
     get open() { return this._open; }
+    set open(value) { this._open=Boolean(value); }
     get options() { return this.children; }
     contains(node) {
       for (let cursor=node; cursor; cursor=cursor.parent) if(cursor===this) return true;
@@ -64,6 +65,7 @@ export function installMockDOM({ mobile = false, tablet = false, prefersDark = f
   }
   const descendants = node => node.children.flatMap(n => [n, ...descendants(n)]);
   const ids = [
+    'list-extra','filter-toggle','filter-panel','followup-actions','thread-bottom','communication-tools','composer-demo-guidance',
     'thread-actions','terminal-banner','commercial-filter','filter-summary','demo-dialog','demo-open','demo-close','demo-list-state',
     'visual-app', 'actor-select', 'shop-select', 'search-input', 'status-filter',
     'list-count', 'list-context', 'queue-summary', 'filter-reset-controls', 'clear-list-filters', 'conversation-items', 'thread-title',
@@ -102,7 +104,7 @@ export function installMockDOM({ mobile = false, tablet = false, prefersDark = f
     getElementById:id=>nodes.get(id) ?? null,
     querySelector(s) {
       if (s === '.send-button') return send;
-      if (s === 'dialog[open]') return [...nodes.values()].find(n=>n._open) ?? null;
+      if (s === 'dialog[open]') return [...nodes.values()].find(n=>n.tagName==='DIALOG' && n._open) ?? null;
       return null;
     },
     querySelectorAll(s) { return s === '[data-inbox]' ? inbox : s === '[data-filter]' ? filters : []; },

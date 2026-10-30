@@ -8,7 +8,7 @@ const env = installMockDOM();
 await import('../app.mjs');
 
 const get = id => env.get(id);
-const buttons = fragment => [...env.descendants(get('workflow-bar')),...env.descendants(get('thread-actions'))].filter(n =>
+const buttons = fragment => [...env.descendants(get('workflow-bar')),...env.descendants(get('followup-actions')),...env.descendants(get('thread-actions'))].filter(n =>
   n.tagName === 'BUTTON' && n.textContent.includes(fragment));
 // Legacy journeys explicitly select the active subset of the new continuous list.
 const reset = () => {get('reset-app').click();env.inbox[0].click();};

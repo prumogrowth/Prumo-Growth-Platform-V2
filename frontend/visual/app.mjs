@@ -299,7 +299,8 @@ function renderList() {
     const card = el('button', 'conversation-card' + (item.id === state.selectedId ? ' is-selected' : ''));
     card.type = 'button'; card.setAttribute('aria-pressed', String(item.id === state.selectedId));
     const attention=demoAttentionFor(item);
-    card.setAttribute('aria-label', `Abrir conversa ${item.name}, ${item.status}, ${attention.label??'sem pendência indicada'}`);
+    const shopName=getShop(item.shopId)?.name ?? 'Concessionária indisponível';
+    card.setAttribute('aria-label', `Abrir conversa ${item.name}, ${shopName}, ${item.status}, ${attention.label??'sem pendência indicada'}`);
     const center = el('div','item-center');
     const latest=latestConfirmedDemoMessage(item,state.actorId,state.shopId);
     // Time follows the confirmed message, never a local draft.
@@ -307,6 +308,9 @@ function renderList() {
     row.append(el('span','item-title',item.name),el('span','item-time',latest?.time ?? '—'));
     const foot = el('div', 'item-foot');
     foot.append(el('span','item-preview',latest?.body ?? 'Sem mensagem confirmada'));
+    const shopLabel=el('span','item-shop',shopName);
+    shopLabel.setAttribute('title',shopName);shopLabel.setAttribute('aria-label','Concessionária '+shopName);
+    foot.append(shopLabel);
     if(projectedMetaWindow(item)==='expired') foot.append(el('span','window-mini','Janela expirada'));
     if(attention.kind!=='none'){
       const badge=el('span',attention.kind==='unread'?'unread attention-unread':'unread attention-pending',
@@ -373,6 +377,8 @@ function renderThread() {
   $('thread-title').textContent = item?.name ?? 'Selecione uma conversa';
   $('thread-meta').textContent = item ? `${getShop(item.shopId).name} · Caso ${item.id}` : 'Nenhum atendimento selecionado';
   const body = $('thread-body'); const bar = $('workflow-bar');
+  const followups=$('followup-actions');followups.replaceChildren();followups.hidden=true;
+  $('thread-bottom').hidden=false;
   const actions=$('thread-actions');actions.replaceChildren();
   $('thread-title').disabled=!item;
   const terminal=$('terminal-banner');
@@ -380,6 +386,10 @@ function renderThread() {
   terminal.textContent=terminal.hidden?'':(item.status==='vendido'?'✓ Vendido':'× Perdido')+' · Caso histórico · somente leitura';
   terminal.dataset.outcome=terminal.hidden?'':item.status;
   const input = $('message-input'); const button = document.querySelector('.send-button');
+  const composeAllowed=Boolean(item && canMockMessage(item));
+  $('composer').hidden=!composeAllowed;
+  $('communication-tools').hidden=!composeAllowed;
+  $('composer-demo-guidance').hidden=!terminal.hidden;
   if (!item) {
     const empty = el('div','thread-placeholder');
     empty.append(el('h2','', 'Sua central de conversas'),el('p','', 'Selecione um atendimento na lista. Apenas dados fictícios serão exibidos.'));
@@ -461,7 +471,7 @@ function renderThread() {
       captureDialogContext('template');
       const dialog=$('template-dialog');dialog.returnValue='';dialog.showModal();
     });
-    bar.append(btn);
+    followups.append(btn);
   }
   if(fActions.includes('request_chain') && !pendingLocal){
     const btn=el('button','btn btn-light','Cadeia por IA');btn.type='button';
@@ -470,14 +480,15 @@ function renderThread() {
       try {state.followupRequests[item.id]=applyLocalFollowupRequest(item,state.actorId,state.shopId,'request_chain');
         state.detailTab='followup';render();showToast('Solicitação fictícia de cadeia. Não há plano persistido nem envio.');}
       catch(error){showToast('Operação não disponível neste cenário.');}
-    });bar.append(btn);
+    });followups.append(btn);
   }
   if(pendingLocal) bar.append(el('span','status-indicator','Pedido simulado · não enviado'));
-  const composeAllowed = canMockMessage(item);
+  followups.hidden=followups.children.length===0;
+  $('thread-bottom').hidden=!terminal.hidden && bar.children.length===0;
   input.disabled = !composeAllowed;
   button.disabled = !composeAllowed;
   const availability = $('composer-availability');
-  availability.hidden = composeAllowed;
+  availability.hidden = composeAllowed || !terminal.hidden;
   availability.textContent = composeAllowed ? '' : meta==='expired' ?
     'Janela de conversa encerrada'+(fActions.length && !pendingLocal ? ' · ações demonstrativas' : ' · envio indisponível no momento') : 'Envio indisponível no momento';
   input.placeholder = composeAllowed ? 'Escrever mensagem…' : 'Composição indisponível';
@@ -842,7 +853,7 @@ $('clear-list-filters').addEventListener('click',resetListRefinements);
 $('status-filter').addEventListener('change',event=>{state.statusFilter=event.target.value;renderList();});
 document.querySelectorAll('[data-inbox]').forEach(button=>button.addEventListener('click',()=>{
  closeTransientDialogs();state.inboxView=button.dataset.inbox;state.selectedId=null;goto('list');render();
- announceCurrentContext(state.inboxView==='history'?'Histórico':'Atendimentos ativos');
+ announceCurrentContext({all:'Todos os atendimentos',active:'Atendimentos ativos',history:'Histórico'}[state.inboxView]);
 }));
 document.querySelectorAll('[data-filter]').forEach(button=>button.addEventListener('click',()=>{state.filter=button.dataset.filter;renderList();}));
 /** Mesmo retorno por botão e por Escape: não deixar foco em painel oculto.
@@ -870,7 +881,16 @@ $('ui-settings').addEventListener('keydown',event=>{
   }
 });
 document.addEventListener('click',event=>{
-  if($('ui-settings').open && !$('ui-settings').contains(event.target))$('ui-settings').open=false;
+  for(const id of ['ui-settings','list-extra'])
+    if($(id).open && !$(id).contains(event.target))$(id).open=false;
+});
+document.addEventListener('focusin',event=>{
+  if($('list-extra').open && !$('list-extra').contains(event.target))$('list-extra').open=false;
+});
+$('list-extra').addEventListener('keydown',event=>{
+  if(event.key==='Escape' && $('list-extra').open){
+    event.preventDefault();event.stopPropagation?.();$('list-extra').open=false;$('filter-toggle').focus();
+  }
 });
 let detailOpener='detail-toggle';
 function setDetailsExpanded(expanded){

@@ -13,6 +13,7 @@
 <a class="skip-link" href="#conversation-list">Ir para as conversas</a>
 <svg aria-hidden="true" class="svg-sprite" xmlns="http://www.w3.org/2000/svg">
   <symbol id="i-message" viewBox="0 0 24 24"><path d="M20 11.5a8 8 0 0 1-8.5 8A8 8 0 0 1 7 18.1L3 20l1.9-4A8 8 0 1 1 20 11.5Z"/></symbol>
+  <symbol id="i-filter" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/><circle cx="8" cy="6" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="10" cy="18" r="2"/></symbol>
   <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 5 5"/></symbol>
   <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></symbol>
   <symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="m14 5-7 7 7 7M7 12h14"/></symbol>
@@ -45,6 +46,15 @@
         <div class="list-topline"><div><h1 id="inbox-title">Conversas</h1></div>
           <div class="list-header-actions">
             <button type="button" id="team-nav-mobile" class="mobile-team-button" hidden>Equipe</button>
+        <details id="list-extra" class="list-extra">
+          <summary id="filter-toggle" title="Filtrar conversas" aria-label="Filtrar conversas" aria-controls="filter-panel" aria-describedby="filter-summary"><svg class="icon" aria-hidden="true"><use href="#i-filter"/></svg><span id="filter-summary" class="sr-only">Todas</span></summary>
+          <div class="list-extra-content" id="filter-panel" role="region" aria-label="Filtros de conversas">
+            <div class="shop-control"><label for="shop-select">Concessionária</label><div class="select-wrap"><select id="shop-select" aria-label="Selecionar concessionária fictícia"></select><svg class="icon small"><use href="#i-chevron"/></svg></div></div>
+            <div class="inbox-mode" aria-label="Tipo de lista de atendimento"><button type="button" data-inbox="all" class="inbox-tab selected" aria-pressed="true">Todos</button><button type="button" data-inbox="active" class="inbox-tab" aria-pressed="false">Ativos</button><button type="button" data-inbox="history" class="inbox-tab" aria-pressed="false">Históricos</button></div>
+            <div class="filters" aria-label="Atenção das conversas"><button type="button" class="filter-chip selected" data-filter="all" aria-pressed="true">Todas</button><button type="button" class="filter-chip" data-filter="unread" aria-pressed="false">Não lidas</button><button type="button" class="filter-chip" data-filter="pending" aria-pressed="false">Lidas sem resposta humana</button><button type="button" class="filter-chip" data-filter="mine" aria-pressed="false">Atribuídas a mim</button></div>
+            <div class="advanced-filter" id="commercial-filter"><label for="status-filter">Etapa comercial</label><select id="status-filter" aria-label="Filtrar por estado comercial"><option value="all">Todos os estados comerciais</option></select></div>
+            <div class="queue-summary" id="queue-summary" aria-label="Indicadores fictícios do escopo"></div>
+          </div></details>
             <details class="ui-settings" id="ui-settings">
               <summary title="Configurações" aria-label="Configurações">⋮</summary>
               <div class="settings-panel">
@@ -54,15 +64,7 @@
             </details>
           </div></div>
         <label class="search-box" for="search-input"><svg class="icon"><use href="#i-search"/></svg><input id="search-input" type="search" placeholder="Buscar conversas" autocomplete="off" aria-label="Buscar conversas deste perfil" aria-describedby="list-demo-guidance" aria-keyshortcuts="Escape ArrowDown"></label>
-        <details id="list-extra" class="list-extra">
-          <summary>Filtrar conversas <span id="filter-summary">Todas</span></summary>
-          <div class="list-extra-content">
-            <div class="shop-control"><label for="shop-select">Concessionária</label><div class="select-wrap"><select id="shop-select" aria-label="Selecionar concessionária fictícia"></select><svg class="icon small"><use href="#i-chevron"/></svg></div></div>
-            <div class="inbox-mode" aria-label="Tipo de lista de atendimento"><button type="button" data-inbox="all" class="inbox-tab selected" aria-pressed="true">Todos</button><button type="button" data-inbox="active" class="inbox-tab" aria-pressed="false">Ativos</button><button type="button" data-inbox="history" class="inbox-tab" aria-pressed="false">Históricos</button></div>
-            <div class="filters" aria-label="Atenção das conversas"><button type="button" class="filter-chip selected" data-filter="all" aria-pressed="true">Todas</button><button type="button" class="filter-chip" data-filter="unread" aria-pressed="false">Não lidas</button><button type="button" class="filter-chip" data-filter="pending" aria-pressed="false">Lidas sem resposta humana</button><button type="button" class="filter-chip" data-filter="mine" aria-pressed="false">Atribuídas a mim</button></div>
-            <div class="advanced-filter" id="commercial-filter"><label for="status-filter">Etapa comercial</label><select id="status-filter" aria-label="Filtrar por estado comercial"><option value="all">Todos os estados comerciais</option></select></div>
-            <div class="queue-summary" id="queue-summary" aria-label="Indicadores fictícios do escopo"></div>
-          </div></details>
+
         <div class="filter-reset-controls" id="filter-reset-controls" hidden><button type="button" class="clear-list-filters" id="clear-list-filters">Limpar busca e filtros</button></div>
       </header>
       <div class="queue-heading"><span id="list-count" role="status" aria-live="polite" aria-atomic="true">Atendimentos</span><span class="queue-sub" id="list-context"></span></div>
@@ -79,9 +81,10 @@
       </header>
       <div class="thread-body" id="thread-body" role="log" aria-label="Mensagens fictícias do atendimento" aria-live="off"></div>
       <div id="terminal-banner" class="terminal-banner" role="status" hidden></div>
-      <div class="thread-bottom">
+      <div class="thread-bottom" id="thread-bottom">
         <div class="workflow-bar" id="workflow-bar"></div>
-        <div class="communication-tools">
+        <div id="followup-actions" class="followup-actions" role="group" aria-label="Ações permitidas para a janela encerrada" hidden></div>
+        <div class="communication-tools" id="communication-tools">
           <div id="emoji-picker" class="emoji-picker" role="group" aria-label="Escolher emoji. Use as setas para navegar e Escape para voltar ao texto." hidden></div>
           <div id="audio-draft" class="audio-draft" role="region" aria-label="Rascunho local de áudio" hidden>
             <div class="audio-draft-heading"><span id="audio-status" role="status" aria-live="polite"></span><span id="audio-duration" aria-label="Duração da gravação">0:00</span></div>

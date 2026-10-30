@@ -22,6 +22,20 @@ CONTRAST=r"""e=>{
   return (Math.max(a,b)+.05)/(Math.min(a,b)+.05);
 }"""
 
+def green_control(locator):
+    color=locator.evaluate('e=>getComputedStyle(e).backgroundColor')
+    import re
+    r,g,b=map(float,re.findall(r'[\d.]+',color)[:3])
+    assert g>r+10 and g>b+10,color
+    assert locator.evaluate(CONTRAST)>=4.5
+
+
+def no_composition(page):
+    for selector in ('#composer','#message-input','#emoji-toggle','#audio-record','.send-button','#communication-tools'):
+        expect(page.locator(selector)).to_be_hidden()
+        assert page.locator(selector).bounding_box() is None,selector
+
+
 def main():
     html, script=offline_page_source()
     with sync_playwright() as p:
@@ -44,8 +58,28 @@ def main():
                     assert page.locator('.avatar').count()==0
                     assert page.locator('.search-shortcut').count()==0
                     assert page.locator('#ui-settings #actor-select, #ui-settings #shop-select, #ui-settings #reset-app').count()==0
-                    page.locator('#list-extra summary').click()
+                    icon=page.locator('#filter-toggle');settings=page.locator('#ui-settings summary')
+                    ib=icon.bounding_box();sb=settings.bounding_box();search=page.locator('#search-input').bounding_box()
+                    assert ib['width']>=44 and ib['height']>=44
+                    assert abs(ib['y']-sb['y'])<1 and 0<=sb['x']-(ib['x']+ib['width'])<=10
+                    assert ib['y']+ib['height']<=search['y']
+                    card=page.locator('.conversation-card').first
+                    shop=card.locator('.item-shop');expect(shop).to_be_visible()
+                    assert shop.inner_text()=='Aurora Motos' and shop.get_attribute('title')=='Aurora Motos'
+                    assert card.locator('.item-center').evaluate('e=>e.children.length')==2
+                    assert card.locator('.item-preview').bounding_box()['width']>=50
+                    assert shop.evaluate(CONTRAST)>=4.5
+                    sh=shop.bounding_box();pr=card.locator('.item-preview').bounding_box()
+                    assert abs((sh['y']+sh['height']/2)-(pr['y']+pr['height']/2))<1
+                    unread=card.locator('.attention-unread');green_control(unread)
+                    assert unread.inner_text()=='2' and unread.get_attribute('aria-label')
+                    icon.focus();icon.press('Enter')
                     expect(page.locator('#shop-select')).to_be_visible()
+                    pb=page.locator('#filter-panel').bounding_box()
+                    assert pb['x']>=0 and pb['x']+pb['width']<=width and pb['y']+pb['height']<=height
+                    page.locator('#shop-select').focus();page.keyboard.press('Escape')
+                    expect(icon).to_be_focused();expect(page.locator('#shop-select')).to_be_hidden()
+                    icon.press('Enter')
                     assert page.locator('.shop-control label').evaluate(CONTRAST)>=4.5
                     assert page.locator('.rail-label').evaluate(CONTRAST)>=4.5
                     if actor=='rafael':expect(page.locator('#status-filter')).to_be_hidden()
@@ -61,6 +95,18 @@ def main():
                     page.get_by_role('button',name='Abrir conversa Cliente Exemplo '+number,exact=False).click()
                     field=page.locator('#message-input');field.fill('Rascunho preservado 🙂')
                     expect(page.locator('#request-completion')).to_be_visible()
+                    green_control(page.locator('#request-completion'))
+                    expect(page.locator('#composer')).to_be_visible()
+                    if width<=760:page.locator('#thread-back').click()
+                    pending=page.get_by_role('button',name='Abrir conversa Cliente Exemplo '+number,exact=False).locator('.attention-pending')
+                    expect(pending).to_be_visible()
+                    warm=pending.evaluate('e=>getComputedStyle(e).color')
+                    import re
+                    r,g,b=map(float,re.findall(r'[\d.]+',warm)[:3]);assert r>g>b,warm
+                    assert pending.evaluate(CONTRAST)>=4.5 and pending.get_attribute('aria-label')
+                    if width<=760:
+                        page.get_by_role('button',name='Abrir conversa Cliente Exemplo '+number,exact=False).click()
+                        field.fill('Rascunho preservado 🙂')
                     assert page.locator('#thread-actions #request-completion').count()==1
                     page.locator('#thread-title').click()
                     expect(page.locator('#detail-pane')).to_be_visible()
@@ -93,11 +139,42 @@ def main():
                         page.get_by_role('button',name='Abrir conversa Cliente Exemplo '+number,exact=False).click()
                         expect(page.locator('#terminal-banner')).to_contain_text(label)
                         assert page.locator('#terminal-banner').evaluate(CONTRAST)>=4.5
-                        expect(field).to_be_disabled()
+                        expect(field).to_be_disabled();no_composition(page)
+                        expect(page.locator('#composer-availability')).to_be_hidden()
+                        expect(page.locator('#composer-demo-guidance')).to_be_hidden()
+                        expect(page.locator('#thread-bottom')).to_be_hidden()
                         if width<=760:page.locator('#thread-back').click()
+                    # COR-05: actual visibility and horizontal geometry for every capability subset.
+                    for meta,allowed,count in (
+                        ('expired',[],0),('expired',['single_template'],1),('expired',['request_chain'],1),
+                        ('expired',['single_template','request_chain'],2),('unknown',['free_text','single_template','request_chain'],0),
+                        ('blocked',['free_text','single_template','request_chain'],0),('open',[],0),('open',['free_text'],0)):
+                        page.evaluate('''([actor,meta,allowed])=>{
+                          state.processing={};state.followupRequests={};
+                          const record=state.cases.find(r=>r.id===(actor==='rafael'?'A-102':'A-106'));
+                          record.metaWindowProjection=meta;record.allowedActionsProjection=allowed;
+                          record.eligibleTemplatesProjection=['modelo_continuidade_demo@v1-demo'];
+                          state.selectedId=record.id;state.mobileView='thread';render();
+                        }''',[actor,meta,allowed])
+                        buttons=page.locator('#followup-actions button');expect(buttons).to_have_count(count)
+                        if meta=='open' and 'free_text' in allowed:
+                            expect(page.locator('#composer')).to_be_visible();expect(field).to_be_enabled()
+                        else:
+                            no_composition(page);expect(field).to_be_disabled()
+                            expect(page.locator('#composer-availability')).to_be_visible()
+                        for action in buttons.all():
+                            expect(action).to_be_visible();assert action.bounding_box()['height']>=44
+                        if count==2:
+                            first,second=[n.bounding_box() for n in buttons.all()]
+                            assert abs(first['y']-second['y'])<1 and first['x']+first['width']<=second['x']
+                        if count==1:
+                            expect(buttons).to_have_text(['Enviar template' if allowed[0]=='single_template' else 'Cadeia por IA'])
+                        if count==0 and meta!='open':
+                            expect(page.locator('#followup-actions')).to_be_hidden()
+                            expect(page.locator('#composer-availability')).to_contain_text('indisponível')
                     assert not page.evaluate('document.documentElement.scrollWidth>innerWidth')
                     assert not errors,errors
-                    print(f'FV-REV-01 {width}x{height} {theme} {actor}: PASS',flush=True)
+                    print(f'FV-REV-01 COR-01..06 {width}x{height} {theme} {actor}: PASS',flush=True)
                     page.close()
         # Capability matrix with exact synthetic records; same UI projection as runtime.
         page=browser.new_page(viewport={'width':1440,'height':900})
@@ -111,7 +188,7 @@ def main():
               record.metaWindowProjection=meta;record.allowedActionsProjection=actions;
               state.selectedId=record.id;render();
             }""",[meta,capabilities])
-            expect(page.locator('#workflow-bar button')).to_have_count(count)
+            expect(page.locator('#followup-actions button')).to_have_count(count)
             expect(page.locator('#message-input')).to_be_disabled()
             if count==0:expect(page.locator('#composer-availability')).to_contain_text('indisponível')
         page.locator('#demo-open').click()
@@ -120,11 +197,16 @@ def main():
         expect(page.locator('#conversation-items')).to_have_attribute('aria-busy','true')
         expect(page.locator('.conversation-card')).to_have_count(0)
         # Supervisor opening does not acknowledge on behalf of the assignee.
-        page.evaluate("changeActor('marina')")
+        page.evaluate("const supervised=state.cases.find(r=>r.id==='A-102');supervised.metaWindowProjection='open';supervised.allowedActionsProjection=['free_text','complete'];changeActor('marina')")
         card=page.get_by_role('button',name='Abrir conversa Cliente Exemplo 02',exact=False)
         expect(card.locator('.attention-unread')).to_have_text('2');card.click()
         expect(card.locator('.attention-unread')).to_have_text('2')
-        expect(page.locator('#message-input')).to_be_disabled()
+        expect(page.locator('#message-input')).to_be_disabled();no_composition(page)
+        expect(page.locator('#request-completion')).to_have_count(0)
+        page.evaluate("const record=state.cases.find(r=>r.id==='A-102');record.metaWindowProjection='expired';record.allowedActionsProjection=['single_template','request_chain','complete'];render()")
+        no_composition(page);expect(page.locator('#followup-actions')).to_be_hidden()
+        expect(page.locator('#composer-availability')).to_be_visible()
+        expect(page.locator('#request-completion')).to_have_count(0)
         page.close();browser.close()
         print('FV-REV-01 composer 0/1/2, unknown/blocked/open and supervisor: PASS',flush=True)
 

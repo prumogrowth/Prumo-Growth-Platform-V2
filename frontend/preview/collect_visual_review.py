@@ -108,6 +108,7 @@ def main(output):
             page.wait_for_selector('.conversation-card')
             expect(page.locator('#visual-app')).to_have_attribute('data-theme', 'light')
             if theme == 'dark':
+                page.locator('#list-extra').evaluate('e=>e.open=false')
                 page.locator('#ui-settings').evaluate('e => e.open = true')
                 page.locator('#theme-dark').click()
                 page.locator('#ui-settings').evaluate('e => e.open = false')

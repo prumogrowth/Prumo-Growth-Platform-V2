@@ -41,7 +41,14 @@ def main(output):
                         elif scene!='lista':
                             number={'janela-expirada':'08','vendido':'16','perdido':'12'}.get(scene,'02' if role=='consultor' else '06')
                             page.get_by_role('button',name='Abrir conversa Cliente Exemplo '+number,exact=False).click()
-                            if scene=='composicao':
+                            if scene=='janela-expirada':
+                                expect(page.locator('#composer')).to_be_hidden()
+                                if role=='consultor':expect(page.locator('#followup-actions button')).to_have_count(2)
+                            elif scene in ('vendido','perdido'):
+                                expect(page.locator('#composer')).to_be_hidden()
+                                expect(page.locator('#terminal-banner')).to_be_visible()
+                                expect(page.locator('#thread-bottom')).to_be_hidden()
+                            elif scene=='composicao':
                                 page.locator('#message-input').fill('Podemos conversar sobre as próximas etapas? ')
                                 page.locator('#emoji-toggle').click()
                             elif scene in ('painel-aberto','painel-fechado'):
@@ -57,7 +64,7 @@ def main(output):
                                          'sha256':hashlib.sha256((output/name).read_bytes()).hexdigest()})
                         page.close()
         browser.close()
-    index={'head':head,'branch':branch,'base':'2926d349e32c979dda68182b56bfd50ac6cf6212','synthetic_only':True,'published':False,'captures':captures}
+    index={'head':head,'branch':branch,'base':'efc7e255faa896dbe4f797f4ceef1a2b1ae5774f','corrections':['COR-01','COR-02','COR-03','COR-04','COR-05','COR-06'],'synthetic_only':True,'published':False,'captures':captures}
     (output/'INDEX.json').write_text(json.dumps(index,ensure_ascii=False,indent=2)+'\n')
     figures=''.join('<figure><a href="'+escape(c['file'])+'"><img loading="lazy" src="'+escape(c['file'])+'" alt="'+escape(c['scene'])+'"></a><figcaption>'+escape(c['file'])+'</figcaption></figure>' for c in captures)
     (output/'INDEX.html').write_text('<!doctype html><html lang="pt-BR"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Prumo · FV-REV-01 Etapa 1</title><style>body{font:16px system-ui;margin:24px;background:#eee;color:#222}main{display:flex;flex-wrap:wrap;gap:20px}figure{margin:0;max-width:420px}img{max-width:100%;max-height:600px}figcaption{font-size:12px;margin:8px 0;overflow-wrap:anywhere}</style><h1>FV-REV-01 · Etapa 1</h1><p>Dados sintéticos · sem publicação. Commit '+head+'</p><main>'+figures+'</main></html>')

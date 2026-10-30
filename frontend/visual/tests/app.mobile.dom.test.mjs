@@ -53,7 +53,7 @@ test('mobile: operador pendente com janela expirada vê ações sem compositor l
   reset();
   env.openCase('Exemplo 08');
   assert.equal(get('message-input').disabled, true);
-  const actions = env.descendants(get('workflow-bar')).filter(x=>x.tagName==='BUTTON');
+  const actions = env.descendants(get('followup-actions')).filter(x=>x.tagName==='BUTTON');
   assert.ok(actions.some(x=>x.textContent.includes('Enviar template')));
   assert.ok(actions.some(x=>x.textContent.includes('Cadeia por IA')));
   assert.equal(get('visual-app').dataset.mobileView, 'thread');

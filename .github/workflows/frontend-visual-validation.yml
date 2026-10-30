@@ -100,7 +100,7 @@ jobs:
           python -B frontend/preview/build_preview.py --output out/prumo-demo-visual.zip
           python -B frontend/preview/build_standalone_preview.py --output out/prumo-preview-integral.html
           cp frontend/preview/PREVIA_LOCAL.md out/LEIA-ME.md
-          cp frontend/docs/98_FV_REV_01_ETAPA_1_2026_10_30.md out/ENTREGA.md
+          cp frontend/docs/99_FV_REV_01_CORRECOES_POS_AUDITORIA_2026_10_30.md out/ENTREGA.md
           python - <<'PYPROVENANCE'
           import hashlib, json, os, subprocess
           from pathlib import Path
@@ -108,8 +108,8 @@ jobs:
           provenance = {
               'head': os.environ['GITHUB_SHA'],
               'branch': os.environ['GITHUB_REF_NAME'],
-              'base': '2926d349e32c979dda68182b56bfd50ac6cf6212',
-              'files_changed': subprocess.check_output(['git','diff','--name-only','2926d349e32c979dda68182b56bfd50ac6cf6212','HEAD'],text=True).splitlines(),
+              'base': 'efc7e255faa896dbe4f797f4ceef1a2b1ae5774f',
+              'files_changed': subprocess.check_output(['git','diff','--name-only','efc7e255faa896dbe4f797f4ceef1a2b1ae5774f','HEAD'],text=True).splitlines(),
               'synthetic_only': True, 'published': False,
               'sha256': {p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in folder.iterdir() if p.is_file()}
           }
