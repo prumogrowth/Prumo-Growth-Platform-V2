@@ -187,6 +187,7 @@ def main():
                                 if scenario=='actor':page.locator('#actor-select').select_option('marina')
                                 else:page.locator('#reset-app').click()
                                 page.locator('#demo-dialog').evaluate('e=>e.close()')
+                                expect(page.locator('#demo-open')).to_be_focused()
                         expect(page.locator('#audio-draft')).to_be_hidden()
                         assert page.evaluate('__tracks.every(t=>t.readyState==="ended")')
                 assert not errors,errors

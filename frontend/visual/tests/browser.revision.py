@@ -81,6 +81,7 @@ def main():
                     expect(icon).to_be_focused();expect(page.locator('#shop-select')).to_be_hidden()
                     icon.press('Enter')
                     assert page.locator('.shop-control label').evaluate(CONTRAST)>=4.5
+                    assert page.locator('#filter-panel .summary-tile strong').first.evaluate(CONTRAST)>=4.5
                     assert page.locator('.rail-label').evaluate(CONTRAST)>=4.5
                     if actor=='rafael':expect(page.locator('#status-filter')).to_be_hidden()
                     else:expect(page.locator('#status-filter')).to_be_visible()
@@ -164,6 +165,9 @@ def main():
                             expect(page.locator('#composer-availability')).to_be_visible()
                         for action in buttons.all():
                             expect(action).to_be_visible();assert action.bounding_box()['height']>=44
+                            assert action.evaluate(CONTRAST)>=4.5
+                            if count==1:
+                                action.hover();assert action.evaluate(CONTRAST)>=4.5
                         if count==2:
                             first,second=[n.bounding_box() for n in buttons.all()]
                             assert abs(first['y']-second['y'])<1 and first['x']+first['width']<=second['x']
