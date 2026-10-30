@@ -1,0 +1,83 @@
+name: Liberacred - laboratorio offline inicial
+
+on:
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: Laboratorio offline (dados sinteticos; sem APIs reais)
+        required: true
+        type: choice
+        default: meta
+        options:
+          - meta
+          - frontend
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lab-offline-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  laboratorio:
+    name: "Laboratorio offline: ${{ inputs.suite }}"
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      CI: "true"
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - name: Selecionar somente branches auditadas
+        id: select
+        shell: bash
+        env:
+          SUITE: ${{ inputs.suite }}
+        run: |
+          set -euo pipefail
+          case "$SUITE" in
+            meta)
+              branch='feat/meta-s0-ed25519-receipt-interop-20261028'
+              ;;
+            frontend)
+              branch='feat/frontend-plataforma-visual'
+              ;;
+            *)
+              echo 'Suite desconhecida' >&2
+              exit 1
+              ;;
+          esac
+          echo "branch=$branch" >> "$GITHUB_OUTPUT"
+
+      - name: Baixar branch de codigo publico sem usar segredos
+        shell: bash
+        env:
+          BRANCH: ${{ steps.select.outputs.branch }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = 'prumogrowth/Prumo-Growth-Platform-V2'
+          git clone --quiet --depth 1 --single-branch --branch "$BRANCH" \
+            "https://github.com/${GITHUB_REPOSITORY}.git" "$RUNNER_TEMP/ci-src"
+          git -C "$RUNNER_TEMP/ci-src" rev-parse --verify HEAD
+          node --version
+          python3 --version
+          test "$(node -p 'Number(process.versions.node.split(".")[0]) >= 22')" = 'true'
+
+      - name: Laboratorio WhatsApp Meta - somente simulacoes
+        if: ${{ inputs.suite == 'meta' }}
+        shell: bash
+        working-directory: ${{ runner.temp }}/ci-src
+        run: |
+          set -euo pipefail
+          node --experimental-strip-types --test --test-concurrency=1 \
+            integrations/whatsapp-meta/*.test.ts
+
+      - name: Laboratorio interface - somente simulacoes
+        if: ${{ inputs.suite == 'frontend' }}
+        shell: bash
+        working-directory: ${{ runner.temp }}/ci-src
+        run: |
+          set -euo pipefail
+          node --test --test-concurrency=1 frontend/visual/tests/*.test.mjs
+          python3 -B -m unittest discover -s frontend/visual/tests \
+            -p test_offline_export.py -v
