@@ -707,3 +707,11 @@ body[data-theme="dark"] #bank-case-select{background:#292929;color:#eee;border-c
 .visual-app[data-theme="dark"] .case-context{color:#c8c8c8}
 .bank-dialog :is(button,select,summary):focus-visible{outline:3px solid #5c5c5c;outline-offset:2px}
 body[data-theme="dark"] .bank-dialog :is(button,select,summary):focus-visible{outline-color:#c8c8c8}
+.timeline-events .activity-item[data-kind="sold"] strong{color:#1f6b45}
+.timeline-events .activity-item[data-kind="sold"]::before{background:#1f6b45}
+.timeline-events .activity-item[data-kind="lost"] strong{color:#9b2525}
+.timeline-events .activity-item[data-kind="lost"]::before{background:#9b2525}
+.visual-app[data-theme="dark"] .timeline-events .activity-item[data-kind="sold"] strong{color:#9bddb4}
+.visual-app[data-theme="dark"] .timeline-events .activity-item[data-kind="sold"]::before{background:#9bddb4}
+.visual-app[data-theme="dark"] .timeline-events .activity-item[data-kind="lost"] strong{color:#ffabab}
+.visual-app[data-theme="dark"] .timeline-events .activity-item[data-kind="lost"]::before{background:#ffabab}

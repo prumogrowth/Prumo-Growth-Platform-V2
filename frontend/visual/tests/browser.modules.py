@@ -122,6 +122,11 @@ def main():
                     # Navegação autorizada entre ciclos pós-remessa e pós-venda.
                     for origin_number,destination in (('05','A-114'),('16','A-116')):
                         open_conversation(page,origin_number,width);page.locator('#case-tab-activity').click()
+                        if origin_number=='16':
+                            sale=page.locator('.timeline-events [data-kind=sold] strong');sale.scroll_into_view_if_needed();expect(sale).to_be_visible()
+                            color=sale.evaluate('e=>getComputedStyle(e).color');import re
+                            r,g,b=map(float,re.findall(r'[\d.]+',color)[:3]);assert g>r+10 and g>b+10
+                            assert sale.evaluate(CONTRAST)>=4.5
                         page.get_by_role('button',name='Abrir novo atendimento humano').click()
                         expect(page.locator('#thread-meta')).to_contain_text(destination)
                         expect(page.locator('#message-input')).to_be_enabled() if actor=='rafael' else expect(page.locator('#message-input')).to_be_disabled()
@@ -129,6 +134,11 @@ def main():
                         expect(page.locator('#detail-content')).to_contain_text('Silenciada definitivamente')
                         page.get_by_role('button',name='Consultar atendimento de origem').click()
                         expect(page.locator('#message-input')).to_be_disabled()
+                    open_conversation(page,'12',width);page.locator('#case-tab-activity').click()
+                    loss=page.locator('.timeline-events [data-kind=lost] strong');loss.scroll_into_view_if_needed();expect(loss).to_be_visible()
+                    color=loss.evaluate('e=>getComputedStyle(e).color');import re
+                    r,g,b=map(float,re.findall(r'[\d.]+',color)[:3]);assert r>g+10 and r>b+10
+                    assert loss.evaluate(CONTRAST)>=4.5
                     open_conversation(page,'02',width)
                     page.locator('#case-tab-notes').click()
                     if actor=='rafael':

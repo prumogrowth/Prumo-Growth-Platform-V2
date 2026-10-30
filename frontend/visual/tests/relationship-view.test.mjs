@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { postmarkViewFor, postmarkCopy } from '../postmark-view.mjs';
 import { copyCFDemoFixtures } from '../cf-op-02.mjs';
 import { projectMockClarificationScene } from '../human-cycle-view.mjs';
 import { withRevisionScenes } from '../revision-fixtures.mjs';
@@ -129,4 +130,13 @@ test('AT-01: aptidão exige confirmação, fonte, vínculo e a versão atual da 
  assert.equal(bankReadinessFor(record,rows,'rafael','aurora'),false);
  record.bankReadinessProjection.formVersionRef='live-form-v2-demo';record.bankReadinessProjection.confirmed=false;
  assert.equal(bankReadinessFor(record,rows,'rafael','aurora'),false);
+});
+
+test('REV-025/029: descrição do ciclo distingue retorno pós-venda de pós-remessa',()=>{
+ const rows=scene();
+ const sold=postmarkCopy(postmarkViewFor(row(rows,'A-116'),rows,'rafael','aurora'));
+ const bank=postmarkCopy(postmarkViewFor(row(rows,'A-114'),rows,'rafael','aurora'));
+ assert.match(sold.description,/após venda confirmada/);assert.doesNotMatch(sold.description,/bancári/);
+ assert.match(bank.description,/após remessa bancária/);
+ assert.match(sold.description,/permanentemente silenciada/);
 });

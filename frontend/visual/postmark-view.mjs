@@ -92,7 +92,9 @@ export function postmarkCopy(view) {
       description:'O marco comercial original foi preservado. Um OUTRO caso humano foi projetado pelo S0 fictício, sem reativar a IA Vendedora.'};
   if(view.kind==='continuation' && view.linked)
     return {title:'Continuidade humana em novo ciclo · simulação',
-      description:'Atendimento independente após marco bancário, com histórico original preservado e IA Vendedora permanentemente silenciada.'};
+      description:view.source==='sold'
+        ? 'Atendimento independente após venda confirmada, com histórico original preservado e IA Vendedora permanentemente silenciada.'
+        : 'Atendimento independente após remessa bancária, com histórico original preservado e IA Vendedora permanentemente silenciada.'};
   if(view.kind==='restricted')
     return {title:'Relação sem acesso neste contexto',
       description:'Não revelar nem abrir caso vinculado fora do escopo do profissional.'};
