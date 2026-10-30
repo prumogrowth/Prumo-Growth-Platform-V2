@@ -450,13 +450,6 @@ body[data-theme="dark"] .team-dialog .team-mode button[aria-pressed="true"]{
 .detail-pane .detail-demo-guidance{font-size:12px;line-height:1.55;color:#555555;background:#f3f3f3;border:1px solid #e1e1e1;border-radius:9px;padding:10px 12px;margin:12px 0}
 .visual-app[data-theme="dark"] .detail-pane .detail-demo-guidance{background:#313131;border-color:#4f4f4f;color:#e4e4e4}
 
-/* FV-UI-053 — atalho de busca visivel somente com teclado util em telas amplas. */
-.list-pane .search-shortcut{flex:none;white-space:nowrap;font-size:11px;font-weight:700;line-height:1;
-  color:#575757;border:1px solid #b3b3b3;border-radius:5px;padding:5px 6px;
-  background:#ffffff;pointer-events:none}
-.visual-app[data-theme="dark"] .list-pane .search-shortcut{background:#353535;color:#ebebeb;border-color:#979797}
-@media(max-width:760px){.list-pane .search-shortcut{display:none}}
-
 /* FV-UI-054 — limpeza explícita dos refinamentos da fila; sem alterar escopo. */
 .list-pane .filter-reset-controls:not([hidden]){display:flex;justify-content:flex-end;padding-top:5px}
 .list-pane .clear-list-filters{min-height:44px;padding:9px 13px;border:1px solid #a9a9a9;
@@ -560,3 +553,59 @@ body[data-theme="dark"] .team-dialog .team-mode button[aria-pressed="true"]{
 }
 .thread-pane .workflow-copy{flex:1 1 100px}
 .thread-pane .workflow-copy>.status-indicator{background:transparent;padding:0;line-height:1.4}
+
+/* FV-REV-01 Etapa 1: reuse the conversational shell; management stays available. */
+.rail-logo,.rail-icon{width:46px;height:46px;flex:none}
+.rail-nav{flex:1;min-height:0}
+.rail-bottom{min-height:46px}
+.conversation-items,.thread-body,.detail-scroll{scrollbar-gutter:stable}
+.conversation-card{padding:13px 12px;min-height:72px}
+.conversation-card .item-foot{margin-top:6px;min-width:0;justify-content:flex-start}
+.conversation-card .item-preview{flex:1;min-width:0;margin:0;line-height:1.5}
+.conversation-card .window-mini{flex:none;font-size:10px;max-width:100px;white-space:normal;line-height:1.3}
+.conversation-card .unread{flex:none}
+.attention-pending{border:2px solid currentColor;background:transparent!important;color:#795000!important;min-width:14px;width:14px;height:14px;padding:0}
+.attention-unread{background:#215e91!important;color:#fff!important}
+.thread-name{display:block;max-width:100%;padding:4px 0;min-height:44px;border:0;background:transparent;text-align:left;color:inherit;cursor:pointer;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px}
+.thread-meta{margin-top:0}
+.thread-actions{display:flex;flex:none}
+.thread-actions .btn{min-height:44px;white-space:normal;max-width:145px}
+.thread-heading{min-height:76px;height:auto;padding-block:10px}
+.workflow-bar:empty{display:none}
+.workflow-bar{justify-content:flex-start;flex-wrap:wrap}
+#commercial-filter[hidden]{display:none}
+.list-extra-content{max-height:36dvh;overflow-y:auto;scrollbar-gutter:stable;padding:4px}
+.list-extra .inbox-mode{display:flex;gap:4px}
+.list-extra .inbox-tab{flex:1;padding-inline:5px}
+#filter-summary{font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70%;color:#555}
+.demo-launcher{border:0;background:transparent;color:#555;min-height:44px;text-decoration:underline;font-size:11px;text-align:left}
+.list-footer{padding-block:0}
+.terminal-banner{padding:10px 18px;font-size:12px;font-weight:700;border-top:1px solid;line-height:1.5}
+.terminal-banner[data-outcome="vendido"]{background:#e4f4e8;color:#215b35;border-color:#86ad91}
+.terminal-banner[data-outcome="perdido"]{background:#fbe9e9;color:#8d3030;border-color:#bf8888}
+.visual-app[data-theme="dark"] .attention-pending{color:#f3ce83!important}
+.visual-app[data-theme="dark"] .attention-unread{background:#83c1f5!important;color:#10293f!important}
+.visual-app[data-theme="dark"] :is(.demo-launcher,#filter-summary){color:#ddd}
+.visual-app[data-theme="dark"] .terminal-banner[data-outcome="vendido"]{background:#203c29;color:#bce9c9;border-color:#709e7e}
+.visual-app[data-theme="dark"] .terminal-banner[data-outcome="perdido"]{background:#462828;color:#ffd0d0;border-color:#b88080}
+@media(max-width:760px){
+  .detail-close{display:grid}
+  .thread-heading{min-height:76px;gap:5px;padding-inline:8px}
+  .thread-actions .btn{max-width:100px;padding:8px;font-size:11px}
+  .thread-identity .thread-name{font-size:13px}
+}
+/* The demo launcher needs a real footer box; FV-UX-01 hid the empty footer. */
+.visual-app .list-footer{height:auto;min-height:44px;flex:none;overflow:visible;padding:0 18px;border-top:1px solid var(--line)}
+.visual-app .list-extra>summary:focus-visible{outline:3px solid #5c5c5c;outline-offset:2px}
+.visual-app[data-theme="dark"] .list-extra>summary:focus-visible{outline-color:#ddd}
+@media(max-width:760px){.thread-identity .thread-name{font-size:14px}}
+#demo-list-state{min-height:44px;width:100%;border:1px solid #888;border-radius:8px;padding:8px;font:inherit}
+.thread-heading .btn:focus-visible{outline:3px solid #5c5c5c;outline-offset:2px}
+.visual-app[data-theme="dark"] .thread-heading .btn:focus-visible{outline-color:#cacaca}
+.visual-app[data-theme="dark"] .thread-actions .btn-primary{background:#ccc;color:#1a1a1a}
+.visual-app[data-theme="dark"] .thread-actions .btn-primary:hover{background:#ddd}
+body[data-theme="dark"] #demo-dialog :is(label,p){color:#ddd}
+body[data-theme="dark"] #demo-dialog select{background:#282828;color:#eee;border-color:#999}
+#demo-dialog p{color:#555}
+body[data-theme="dark"] #demo-dialog p{color:#ddd}
+body[data-theme="dark"] #demo-dialog .btn-primary{background:#ccc;color:#1a1a1a}

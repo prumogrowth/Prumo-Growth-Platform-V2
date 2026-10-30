@@ -1,6 +1,10 @@
 # COMECE AQUI — fontes vigentes do Frontend da plataforma Prumo
 **Corte inicial:** 21/10/2026. **Última precedência:** 22/10/2026. **Função:** índice de consulta com **precedência**, não autorização para executar operações. Esta frente documenta produto e interface; a implementação real depende de S0/S1/Meta/OpenAI/Banco e aceite próprio.
 
+## FV-REV-01 v0.4 — Etapa 1 (30/10/2026)
+
+[Entrega de navegação e conversas](./98_FV_REV_01_ETAPA_1_2026_10_30.md), a partir de `2926d349e32c979dda68182b56bfd50ac6cf6212`, na branch `codex/fv-rev-01-conversas-20261030`. A missão posterior altera a localização de controles/filtros e a lista contínua; preserva módulos, permissões sintéticas e áudio/emoji. Etapa 2 não iniciada. Resultados reais e proveniência devem ser consultados nos artefatos do SHA testado.
+
 ## Continuidade visual no Codex — 27/10/2026
 
 [FV-UX-01 implementado e prévia integral local](./97_FV_UX_01_CODEX_IMPLEMENTACAO_E_PREVIA_2026_10_27.md): continuidade em branch própria desde `8c9498d7`, hierarquia inicial reaproveitada, paleta neutra, emoji e áudio efêmero no navegador. [Diretriz 96 atualizada](./96_FV_UX_01_COMUNICACAO_LIMPEZA_AUDIO_EMOJI_2026_10_26.md) distingue implementado e planejado. Nenhum aceite visual, merge, deploy ou integração S0/S1/Meta é inferido.

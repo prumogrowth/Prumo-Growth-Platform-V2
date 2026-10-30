@@ -36,6 +36,8 @@ with sync_playwright() as p:
         page.on('pageerror', lambda error: errors.append(str(error)))
         page.set_content(html)
         page.add_script_tag(content=script)
+        page.evaluate("state.inboxView='active';renderList()")
+        page.locator('#list-extra').evaluate('e=>e.open=true')
         assert page.locator('.conversation-card').count() == 8
         expect(page.locator('#visual-app')).to_have_attribute('data-theme', 'light')
         light_workspace = page.locator('.workspace').evaluate("node => getComputedStyle(node).backgroundColor")
@@ -100,10 +102,15 @@ with sync_playwright() as p:
     dark_preference=browser.new_page(viewport={'width':1366,'height':768}, color_scheme='dark')
     dark_preference.set_content(html)
     dark_preference.add_script_tag(content=script)
+    dark_preference.evaluate("state.inboxView='active';renderList()")
+    dark_preference.locator('#list-extra').evaluate('e=>e.open=true')
     expect(dark_preference.locator('#visual-app')).to_have_attribute('data-theme','dark')
     expect(dark_preference.locator('body')).to_have_attribute('data-theme','dark')
     dark_preference.locator('#ui-settings').evaluate('e => e.open = true')
+    dark_preference.locator('#demo-dialog').evaluate('e=>e.showModal()')
     dark_preference.locator('#actor-select').select_option('marina')
+    dark_preference.evaluate("state.inboxView='active';renderList()")
+    dark_preference.locator('#demo-dialog').evaluate('e=>e.close()')
     dark_preference.locator('#ui-settings').evaluate('e => e.open = false')
     dark_preference.locator('#team-nav').click()
     modal_surface=dark_preference.locator('#team-dialog').evaluate("node => getComputedStyle(node).backgroundColor")
@@ -119,9 +126,13 @@ with sync_playwright() as p:
     errors_main = []
     page.on('pageerror', lambda error: errors_main.append(str(error)))
     page.set_content(html); page.add_script_tag(content=script)
+    page.evaluate("state.inboxView='active';renderList()")
     assert not errors_main, 'Erro JavaScript no bootstrap da gestão'
     page.locator('#ui-settings').evaluate('e => e.open = true')
+    page.locator('#demo-dialog').evaluate('e=>e.showModal()')
     page.locator('#actor-select').select_option('marina')
+    page.evaluate("state.inboxView='active';renderList()")
+    page.locator('#demo-dialog').evaluate('e=>e.close()')
     page.locator('#ui-settings').evaluate('e => e.open = false')
     assert page.locator('.conversation-card').count() == 12  # A-117 da equipe Marina, case-only da Lia
     # Supervisor acessa D2 sem zerar as não lidas do operador.
@@ -165,7 +176,10 @@ with sync_playwright() as p:
     expect(page.locator('#team-list')).to_contain_text('SOLICITADO LOCALMENTE')
     page.locator('#team-close').click()
     page.locator('#ui-settings').evaluate('e => e.open = true')
+    page.locator('#demo-dialog').evaluate('e=>e.showModal()')
     page.locator('#actor-select').select_option('daniel')
+    page.evaluate("state.inboxView='active';renderList()")
+    page.locator('#demo-dialog').evaluate('e=>e.close()')
     page.locator('#ui-settings').evaluate('e => e.open = false')
     assert page.locator('.conversation-card').count() == 1
     page.locator('#team-nav').click()
@@ -176,18 +190,27 @@ with sync_playwright() as p:
     expect(page.locator('#team-list')).to_contain_text('SOLICITADO LOCALMENTE')
     page.locator('#team-close').click()
     page.locator('#ui-settings').evaluate('e => e.open = true')
+    page.locator('#demo-dialog').evaluate('e=>e.showModal()')
     page.locator('#actor-select').select_option('marina')
+    page.evaluate("state.inboxView='active';renderList()")
+    page.locator('#demo-dialog').evaluate('e=>e.close()')
     page.locator('#ui-settings').evaluate('e => e.open = false')
     page.locator('#ui-settings').evaluate('e => e.open = true')
+    page.locator('#list-extra').evaluate('e=>e.open=true')
     page.locator('#shop-select').select_option('horizonte')
+    page.evaluate("state.inboxView='active';renderList()")
     page.locator('#ui-settings').evaluate('e => e.open = false')
     assert page.locator('.conversation-card').count() == 2
     page.locator('#list-extra').evaluate('e => e.open = true')
+    page.locator('#list-extra').evaluate('e=>e.open=true')
     page.locator('#status-filter').select_option('em atendimento pelo operador')
     assert page.locator('.conversation-card').count() == 1
     # O3: profissional atribuído enxerga apenas dados aplicados na projeção fictícia.
     page.locator('#ui-settings').evaluate('e => e.open = true')
+    page.locator('#demo-dialog').evaluate('e=>e.showModal()')
     page.locator('#actor-select').select_option('rafael')
+    page.evaluate("state.inboxView='active';renderList()")
+    page.locator('#demo-dialog').evaluate('e=>e.close()')
     page.locator('#ui-settings').evaluate('e => e.open = false')
     page.get_by_role('button',name='Abrir conversa Cliente Exemplo 09',exact=False).click()
     page.locator('.detail-tab',has_text='Extração').click()
@@ -195,7 +218,10 @@ with sync_playwright() as p:
     assert 'Somente proposta' not in page.locator('#detail-content').inner_text()
     # Supervisora não autoatribuída vê resumo, mas não D3 nem fontes.
     page.locator('#ui-settings').evaluate('e => e.open = true')
+    page.locator('#demo-dialog').evaluate('e=>e.showModal()')
     page.locator('#actor-select').select_option('marina')
+    page.evaluate("state.inboxView='active';renderList()")
+    page.locator('#demo-dialog').evaluate('e=>e.close()')
     page.locator('#ui-settings').evaluate('e => e.open = false')
     page.get_by_role('button',name='Abrir conversa Cliente Exemplo 09',exact=False).click()
     page.locator('.detail-tab',has_text='Extração').click()
@@ -203,47 +229,59 @@ with sync_playwright() as p:
     assert 'Valor fictício confirmado' not in page.locator('#detail-content').inner_text()
     # O4: remessa e retorno sem inferir decisão; supervisora sem dados D4.
     page.locator('#ui-settings').evaluate('e => e.open = true')
+    page.locator('#demo-dialog').evaluate('e=>e.showModal()')
     page.locator('#actor-select').select_option('rafael')
+    page.evaluate("state.inboxView='active';renderList()")
+    page.locator('#demo-dialog').evaluate('e=>e.close()')
     page.locator('#ui-settings').evaluate('e => e.open = false')
     page.get_by_role('button',name='Abrir conversa Cliente Exemplo 05',exact=False).click()
     page.locator('.detail-tab',has_text='Banco').click()
     assert 'bank-demo-v1' in page.locator('#detail-content').inner_text()
     assert 'Decisão bancária não confirmada' in page.locator('#detail-content').inner_text()
     page.locator('#ui-settings').evaluate('e => e.open = true')
+    page.locator('#demo-dialog').evaluate('e=>e.showModal()')
     page.locator('#actor-select').select_option('marina')
+    page.evaluate("state.inboxView='active';renderList()")
+    page.locator('#demo-dialog').evaluate('e=>e.close()')
     page.locator('#ui-settings').evaluate('e => e.open = false')
     page.get_by_role('button',name='Abrir conversa Cliente Exemplo 05',exact=False).click()
     page.locator('.detail-tab',has_text='Banco').click()
     assert 'Acompanhamento bancário · resumo' in page.locator('#detail-content').inner_text()
     assert 'bank-demo-v1' not in page.locator('#detail-content').inner_text()
     page.locator('#ui-settings').evaluate('e => e.open = true')
+    page.locator('#demo-dialog').evaluate('e=>e.showModal()')
     page.locator('#actor-select').select_option('rafael')
+    page.evaluate("state.inboxView='active';renderList()")
+    page.locator('#demo-dialog').evaluate('e=>e.close()')
     page.locator('#ui-settings').evaluate('e => e.open = false')
     assert page.locator('#team-nav').is_hidden()
     assert page.locator('#team-nav-mobile').is_hidden()
     assert not page.locator('#team-dialog').is_visible()
     # FV-03: a janela expirada não permite texto livre, mas mantém o caso pendente.
+    page.locator('#list-extra').evaluate('e=>e.open=true')
     page.locator('[data-inbox="active"]').click()
     page.get_by_role('button',name='Abrir conversa Cliente Exemplo 08',exact=False).click()
     assert page.locator('#message-input').is_disabled()
-    assert page.get_by_role('button',name='Selecionar e solicitar template aprovado').count()==1
-    assert page.get_by_role('button',name='Solicitar cadeia de tentativas à IA').count()==1
-    page.get_by_role('button',name='Selecionar e solicitar template aprovado').click()
+    assert page.get_by_role('button',name='Enviar template').count()==1
+    assert page.get_by_role('button',name='Cadeia por IA').count()==1
+    page.get_by_role('button',name='Enviar template').click()
     assert page.locator('#template-dialog').is_visible()
     # Escape cancela sem reutilizar confirmação antiga.
     page.keyboard.press('Escape')
     assert not page.locator('#template-dialog').is_visible()
     assert 'Pedido simulado' not in page.locator('#workflow-bar').inner_text()
-    page.get_by_role('button',name='Selecionar e solicitar template aprovado').click()
+    page.get_by_role('button',name='Enviar template').click()
     page.locator('#template-form button[value="confirm"]').click()
     assert page.locator('#message-input').is_disabled()
     expect(page.locator('#workflow-bar')).to_contain_text('Pedido simulado')
+    page.locator('#list-extra').evaluate('e=>e.open=true')
     page.locator('[data-inbox="history"]').click()
     assert page.locator('.conversation-card').count()==3
     page.get_by_role('button',name='Abrir conversa Cliente Exemplo 12',exact=False).click()
     assert page.locator('#message-input').is_disabled()
-    assert 'perdido' in page.locator('#workflow-bar').inner_text()
+    assert 'Perdido' in page.locator('#terminal-banner').inner_text()
     # O5: vínculo S0 fictício permite navegar, sem mutar o marco anterior.
+    page.locator('#list-extra').evaluate('e=>e.open=true')
     page.locator('[data-inbox="active"]').click()
     page.get_by_role('button', name='Abrir conversa Cliente Exemplo 05', exact=False).click()
     page.locator('.detail-tab',has_text='Novo contato').click()
@@ -256,6 +294,7 @@ with sync_playwright() as p:
     page.get_by_role('button',name='Consultar atendimento de origem').click()
     assert 'Caso A-105' in page.locator('#thread-meta').inner_text()
     assert page.locator('#message-input').is_disabled()
+    page.locator('#list-extra').evaluate('e=>e.open=true')
     page.locator('[data-inbox="history"]').click()
     page.get_by_role('button',name='Abrir conversa Cliente Exemplo 16',exact=False).click()
     page.locator('.detail-tab',has_text='Novo contato').click()
@@ -275,9 +314,14 @@ with sync_playwright() as p:
         mobile.on('pageerror', lambda error: errors_mobile.append(str(error)))
         mobile.set_content(html)
         mobile.add_script_tag(content=script)
+        mobile.evaluate("state.inboxView='active';renderList()")
+        mobile.locator('#list-extra').evaluate('e=>e.open=true')
         assert mobile.locator('#team-nav-mobile').is_hidden()
         mobile.locator('#ui-settings').evaluate('e => e.open = true')
+        mobile.locator('#demo-dialog').evaluate('e=>e.showModal()')
         mobile.locator('#actor-select').select_option('marina')
+        mobile.evaluate("state.inboxView='active';renderList()")
+        mobile.locator('#demo-dialog').evaluate('e=>e.close()')
         mobile.locator('#ui-settings').evaluate('e => e.open = false')
         assert mobile.locator('#team-nav-mobile').is_visible()
         mobile.locator('#team-nav-mobile').click()
@@ -325,7 +369,10 @@ with sync_playwright() as p:
         mobile.keyboard.press('Escape')
         assert not mobile.locator('#team-dialog').is_visible()
         mobile.locator('#ui-settings').evaluate('e => e.open = true')
+        mobile.locator('#demo-dialog').evaluate('e=>e.showModal()')
         mobile.locator('#actor-select').select_option('otavio')
+        mobile.evaluate("state.inboxView='active';renderList()")
+        mobile.locator('#demo-dialog').evaluate('e=>e.close()')
         mobile.locator('#ui-settings').evaluate('e => e.open = false')
         assert mobile.locator('.conversation-card').count() == 0
         assert mobile.locator('#team-nav-mobile').is_hidden()
@@ -338,8 +385,13 @@ with sync_playwright() as p:
     queue_page=browser.new_page(viewport={'width':1366,'height':800})
     queue_page.set_content(html)
     queue_page.add_script_tag(content=script)
+    queue_page.evaluate("state.inboxView='active';renderList()")
+    queue_page.locator('#list-extra').evaluate('e=>e.open=true')
     queue_page.locator('#ui-settings').evaluate('e => e.open = true')
+    queue_page.locator('#demo-dialog').evaluate('e=>e.showModal()')
     queue_page.locator('#actor-select').select_option('marina')
+    queue_page.evaluate("state.inboxView='active';renderList()")
+    queue_page.locator('#demo-dialog').evaluate('e=>e.close()')
     queue_page.locator('#ui-settings').evaluate('e => e.open = false')
     queue_page.locator('#team-nav').click()
     queue_page.locator('#team-show-queue').click()
@@ -351,17 +403,25 @@ with sync_playwright() as p:
     expect(queue_page.locator('#team-queue')).to_contain_text('NÃO ATRIBUÍDO')
     queue_page.locator('#team-close').click()
     queue_page.locator('#ui-settings').evaluate('e => e.open = true')
+    queue_page.locator('#demo-dialog').evaluate('e=>e.showModal()')
     queue_page.locator('#actor-select').select_option('daniel')
+    queue_page.evaluate("state.inboxView='active';renderList()")
+    queue_page.locator('#demo-dialog').evaluate('e=>e.close()')
     queue_page.locator('#ui-settings').evaluate('e => e.open = false')
     queue_page.locator('#team-nav').click()
     queue_page.locator('#team-show-queue').click()
     assert 'FILA-A-01' in queue_page.locator('#team-queue').inner_text()
     queue_page.locator('#team-close').click()
     queue_page.locator('#ui-settings').evaluate('e => e.open = true')
+    queue_page.locator('#demo-dialog').evaluate('e=>e.showModal()')
     queue_page.locator('#actor-select').select_option('lia')
+    queue_page.evaluate("state.inboxView='active';renderList()")
+    queue_page.locator('#demo-dialog').evaluate('e=>e.close()')
     queue_page.locator('#ui-settings').evaluate('e => e.open = false')
     queue_page.locator('#ui-settings').evaluate('e => e.open = true')
+    queue_page.locator('#list-extra').evaluate('e=>e.open=true')
     queue_page.locator('#shop-select').select_option('aurora')
+    queue_page.evaluate("state.inboxView='active';renderList()")
     queue_page.locator('#ui-settings').evaluate('e => e.open = false')
     assert queue_page.locator('.conversation-card').count()==1
     assert 'Cliente Exemplo 19' in queue_page.locator('#conversation-items').inner_text()
@@ -372,6 +432,8 @@ with sync_playwright() as p:
     cycle_page=browser.new_page(viewport={'width':1366,'height':800})
     cycle_page.set_content(html)
     cycle_page.add_script_tag(content=script)
+    cycle_page.evaluate("state.inboxView='active';renderList()")
+    cycle_page.locator('#list-extra').evaluate('e=>e.open=true')
     cycle_page.get_by_role('button',name='Abrir conversa Cliente Exemplo 09',exact=False).click()
     cycle_page.locator('.detail-tab',has_text='Extração').click()
     assert 'f03-a108-1' in cycle_page.locator('#detail-content').inner_text()
@@ -393,7 +455,10 @@ with sync_playwright() as p:
     dossier=cycle_page.locator('#detail-content').inner_text()
     assert 'live-form-v2-demo' in dossier and 'bank-demo-v1' in dossier
     cycle_page.locator('#ui-settings').evaluate('e => e.open = true')
+    cycle_page.locator('#demo-dialog').evaluate('e=>e.showModal()')
     cycle_page.locator('#actor-select').select_option('marina')
+    cycle_page.evaluate("state.inboxView='active';renderList()")
+    cycle_page.locator('#demo-dialog').evaluate('e=>e.close()')
     cycle_page.locator('#ui-settings').evaluate('e => e.open = false')
     cycle_page.get_by_role('button',name='Abrir conversa Cliente Exemplo 09',exact=False).click()
     cycle_page.locator('.detail-tab',has_text='Extração').click()
@@ -403,6 +468,8 @@ with sync_playwright() as p:
     mobile_link=browser.new_page(viewport={'width':390,'height':844})
     mobile_link.set_content(html)
     mobile_link.add_script_tag(content=script)
+    mobile_link.evaluate("state.inboxView='active';renderList()")
+    mobile_link.locator('#list-extra').evaluate('e=>e.open=true')
     mobile_link.get_by_role('button',name='Abrir conversa Cliente Exemplo 05',exact=False).click()
     mobile_link.locator('#detail-toggle').click()
     mobile_link.locator('.detail-tab',has_text='Novo contato').click()
@@ -416,13 +483,18 @@ with sync_playwright() as p:
     technical=browser.new_page(viewport={'width':900,'height':780})
     technical.set_content(html)
     technical.add_script_tag(content=script)
+    technical.evaluate("state.inboxView='active';renderList()")
+    technical.locator('#list-extra').evaluate('e=>e.open=true')
     technical.get_by_role('button',name='Abrir conversa Cliente Exemplo 02',exact=False).click()
     assert 'API aceitou · envio NÃO comprovado' in technical.locator('#thread-body').inner_text()
     assert 'Não tentar reenvio automático' in technical.locator('#thread-body').inner_text()
     technical.get_by_role('button',name='Abrir conversa Cliente Exemplo 05',exact=False).click()
     assert 'Envio comprovado · fixture' in technical.locator('#thread-body').inner_text()
     technical.locator('#ui-settings').evaluate('e => e.open = true')
+    technical.locator('#demo-dialog').evaluate('e=>e.showModal()')
     technical.locator('#actor-select').select_option('marina')
+    technical.evaluate("state.inboxView='active';renderList()")
+    technical.locator('#demo-dialog').evaluate('e=>e.close()')
     technical.locator('#ui-settings').evaluate('e => e.open = false')
     technical.get_by_role('button',name='Abrir conversa Cliente Exemplo 02',exact=False).click()
     assert 'API aceitou · envio NÃO comprovado' not in technical.locator('#thread-body').inner_text()
@@ -433,6 +505,8 @@ with sync_playwright() as p:
     access_page.set_default_timeout(4500)
     access_page.set_content(html)
     access_page.add_script_tag(content=script)
+    access_page.evaluate("state.inboxView='active';renderList()")
+    access_page.locator('#list-extra').evaluate('e=>e.open=true')
     assert 'Consultor fictício' in access_page.locator('#context-announcement').inner_text()
     access_page.get_by_role('button',name='Abrir conversa Cliente Exemplo 02',exact=False).click()
     assert 'Caso A-102 aberto' in access_page.locator('#context-announcement').inner_text()
@@ -449,7 +523,10 @@ with sync_playwright() as p:
     access_page.locator('#thread-back').click()
     assert access_page.evaluate('document.activeElement.id') == 'search-input'
     access_page.locator('#ui-settings').evaluate('e => e.open = true')
+    access_page.locator('#demo-dialog').evaluate('e=>e.showModal()')
     access_page.locator('#actor-select').select_option('marina')
+    access_page.evaluate("state.inboxView='active';renderList()")
+    access_page.locator('#demo-dialog').evaluate('e=>e.close()')
     access_page.locator('#ui-settings').evaluate('e => e.open = false')
     assert 'Gestor fictício' in access_page.locator('#context-announcement').inner_text()
     assert 'A-102' not in access_page.locator('#context-announcement').inner_text()
@@ -457,6 +534,8 @@ with sync_playwright() as p:
     short_page=browser.new_page(viewport={'width':900,'height':480})
     short_page.set_content(html)
     short_page.add_script_tag(content=script)
+    short_page.evaluate("state.inboxView='active';renderList()")
+    short_page.locator('#list-extra').evaluate('e=>e.open=true')
     assert not short_page.evaluate('document.documentElement.scrollWidth > innerWidth')
     assert short_page.evaluate('document.querySelector(".visual-app").getBoundingClientRect().height <= innerHeight')
     short_page.close()
@@ -465,6 +544,8 @@ with sync_playwright() as p:
     focus_page=browser.new_page(viewport={'width':390,'height':844})
     focus_page.set_content(html)
     focus_page.add_script_tag(content=script)
+    focus_page.evaluate("state.inboxView='active';renderList()")
+    focus_page.locator('#list-extra').evaluate('e=>e.open=true')
     focus_page.get_by_role('button',name='Abrir conversa Cliente Exemplo 02',exact=False).click()
     focus_page.locator('#message-input').fill('Rascunho de teste não enviado')
     focus_page.locator('#composer .send-button').click()
@@ -500,6 +581,8 @@ with sync_playwright() as p:
         zoom_page.on('pageerror',lambda error: zoom_errors.append(str(error)))
         zoom_page.set_content(html)
         zoom_page.add_script_tag(content=script)
+        zoom_page.evaluate("state.inboxView='active';renderList()")
+        zoom_page.locator('#list-extra').evaluate('e=>e.open=true')
         assert not zoom_page.evaluate('document.documentElement.scrollWidth > innerWidth'), zoom_label
         assert zoom_page.locator('.conversation-card').count()==8
         assert zoom_page.locator('.conversation-card').first.evaluate(
@@ -532,6 +615,7 @@ with sync_playwright() as p:
     dynamic_errors=[]
     dynamic.on('pageerror',lambda error:dynamic_errors.append(str(error)))
     dynamic.set_content(html);dynamic.add_script_tag(content=script)
+    dynamic.evaluate("state.inboxView='active';renderList()")
     dynamic.get_by_role('button',name='Abrir conversa Cliente Exemplo 02',exact=False).click()
     detail_tab=dynamic.locator('#case-tab-overview')
     detail_tab.focus()
@@ -556,6 +640,7 @@ with sync_playwright() as p:
     # pode desaparecer quando a viewport volta ao modo desktop em zoom 100%.
     narrow=browser.new_page(viewport={'width':320,'height':480})
     narrow.set_content(html);narrow.add_script_tag(content=script)
+    narrow.evaluate("state.inboxView='active';renderList()")
     narrow.get_by_role('button',name='Abrir conversa Cliente Exemplo 02',exact=False).click()
     narrow.locator('#detail-toggle').click()
     narrow.locator('#case-tab-overview').focus()
@@ -570,6 +655,7 @@ with sync_playwright() as p:
     for source,target in [('list','list'),('thread','thread')]:
         responsive=browser.new_page(viewport={'width':1440,'height':900})
         responsive.set_content(html);responsive.add_script_tag(content=script)
+        responsive.evaluate("state.inboxView='active';renderList()")
         if source=='thread':
             responsive.get_by_role('button',name='Abrir conversa Cliente Exemplo 02',exact=False).click()
             responsive.locator('#message-input').focus()
@@ -588,6 +674,7 @@ with sync_playwright() as p:
             backflow_errors=[]
             backflow.on('pageerror',lambda error:backflow_errors.append(str(error)))
             backflow.set_content(html);backflow.add_script_tag(content=script)
+            backflow.evaluate("state.inboxView='active';renderList()")
             backflow.get_by_role('button',name='Abrir conversa Cliente Exemplo 02',exact=False).click()
             if view=='detail':backflow.locator('#detail-toggle').click()
             backflow.locator('#'+view+'-back').focus()
@@ -612,6 +699,7 @@ with sync_playwright() as p:
         overlay_errors=[]
         overlay.on('pageerror',lambda error:overlay_errors.append(str(error)))
         overlay.set_content(html);overlay.add_script_tag(content=script)
+        overlay.evaluate("state.inboxView='active';renderList()")
         overlay.get_by_role('button',name='Abrir conversa Cliente Exemplo 02',exact=False).click()
         overlay.locator('#detail-toggle').click()
         expect(overlay.locator('#detail-pane')).to_be_visible()
@@ -647,6 +735,8 @@ with sync_playwright() as p:
         aria_page.on('pageerror',lambda e:aria_errors.append(str(e)))
         aria_page.set_content(html)
         aria_page.add_script_tag(content=script)
+        aria_page.evaluate("state.inboxView='active';renderList()")
+        aria_page.locator('#list-extra').evaluate('e=>e.open=true')
         toggler=aria_page.locator('#detail-toggle')
         expect(toggler).to_have_attribute('aria-expanded','false')
         aria_page.get_by_role('button',name='Abrir conversa Cliente Exemplo 02',exact=False).click()
@@ -663,7 +753,10 @@ with sync_playwright() as p:
         expect(toggler).to_have_attribute('aria-expanded','false')
         aria_page.locator('#thread-back').click()
         aria_page.locator('#ui-settings').evaluate('e => e.open = true')
+        aria_page.locator('#demo-dialog').evaluate('e=>e.showModal()')
         aria_page.locator('#actor-select').select_option('marina')
+        aria_page.evaluate("state.inboxView='active';renderList()")
+        aria_page.locator('#demo-dialog').evaluate('e=>e.close()')
         aria_page.locator('#ui-settings').evaluate('e => e.open = false')
         expect(toggler).to_have_attribute('aria-expanded','false')
         assert aria_page.locator('#visual-app').get_attribute('data-mobile-view')=='list'
@@ -673,7 +766,7 @@ with sync_playwright() as p:
         focus=aria_page.evaluate("""()=>({tag:document.activeElement?.tagName,
             outline:getComputedStyle(document.activeElement).outlineColor,
             width:getComputedStyle(document.activeElement).outlineWidth})""")
-        assert focus['tag']=='BUTTON',focus
+        assert focus['tag']=='SUMMARY',focus
         assert focus['width']=='3px' and focus['outline']=='rgb(92, 92, 92)',focus
         assert not aria_page.evaluate('document.documentElement.scrollWidth > innerWidth')
         assert not aria_errors,aria_errors
@@ -686,8 +779,13 @@ with sync_playwright() as p:
         focus_team.set_default_timeout(4500)
         focus_team.set_content(html)
         focus_team.add_script_tag(content=script)
+        focus_team.evaluate("state.inboxView='active';renderList()")
+        focus_team.locator('#list-extra').evaluate('e=>e.open=true')
         focus_team.locator('#ui-settings').evaluate('e => e.open = true')
+        focus_team.locator('#demo-dialog').evaluate('e=>e.showModal()')
         focus_team.locator('#actor-select').select_option('marina')
+        focus_team.evaluate("state.inboxView='active';renderList()")
+        focus_team.locator('#demo-dialog').evaluate('e=>e.close()')
         focus_team.locator('#ui-settings').evaluate('e => e.open = false')
         focus_team.locator('#team-nav-mobile' if width<=760 else '#team-nav').click()
         expect(focus_team.locator('#team-dialog')).to_be_visible()
@@ -711,6 +809,7 @@ with sync_playwright() as p:
     # FV-UI-037: preferência do SO ao vivo até escolha manual.
     follow_system=browser.new_page(viewport={'width':390,'height':844},color_scheme='light')
     follow_system.set_content(html);follow_system.add_script_tag(content=script)
+    follow_system.evaluate("state.inboxView='active';renderList()")
     expect(follow_system.locator('#visual-app')).to_have_attribute('data-theme','light')
     follow_system.emulate_media(color_scheme='dark')
     expect(follow_system.locator('#visual-app')).to_have_attribute('data-theme','dark')
@@ -735,9 +834,13 @@ with sync_playwright() as p:
         manager_errors=[]
         manager_dark.on('pageerror',lambda error:manager_errors.append(str(error)))
         manager_dark.set_content(html);manager_dark.add_script_tag(content=script)
+        manager_dark.evaluate("state.inboxView='active';renderList()")
         expect(manager_dark.locator('body')).to_have_attribute('data-theme','dark')
         manager_dark.locator('#ui-settings').evaluate('e => e.open = true')
+        manager_dark.locator('#demo-dialog').evaluate('e=>e.showModal()')
         manager_dark.locator('#actor-select').select_option('marina')
+        manager_dark.evaluate("state.inboxView='active';renderList()")
+        manager_dark.locator('#demo-dialog').evaluate('e=>e.close()')
         manager_dark.locator('#ui-settings').evaluate('e => e.open = false')
         manager_dark.locator('#team-nav-mobile' if manager_width<=760 else '#team-nav').click()
         contrast_js="""selector => {
@@ -778,6 +881,7 @@ with sync_playwright() as p:
         touch_errors=[]
         touch.on('pageerror',lambda error:touch_errors.append(str(error)))
         touch.set_content(html);touch.add_script_tag(content=script)
+        touch.evaluate("state.inboxView='active';renderList()")
         expect(touch.locator('#ui-settings > summary')).to_be_visible()
         assert touch.locator('#ui-settings > summary').bounding_box()['width']>=44
         touch.locator('#ui-settings').evaluate('e => e.open = true')
@@ -815,12 +919,12 @@ with sync_playwright() as p:
             queue_page=browser.new_page(viewport={'width':queue_width,'height':820},color_scheme=queue_theme)
             queue_page.set_default_timeout(4500)
             queue_page.set_content(html);queue_page.add_script_tag(content=script)
+            queue_page.evaluate("state.inboxView='active';renderList()")
             expect(queue_page.locator('#visual-app')).to_have_attribute('data-theme',queue_theme)
             expect(queue_page.locator('.conversation-card.is-selected')).to_have_count(1)
             for selector,min_font in (('.conversation-card.is-selected .item-title',14),
                 ('.conversation-card.is-selected .item-preview',12),
                 ('.conversation-card.is-selected .item-time',11),
-                ('.conversation-card.is-selected .micro-tag',11),
                 ('.summary-tile span',11)):
                 item=queue_page.locator(selector).first
                 assert item.count()>0,(queue_width,queue_theme,selector)
@@ -828,6 +932,7 @@ with sync_playwright() as p:
                 assert size>=min_font,(queue_width,queue_theme,selector,size)
                 ratio=queue_page.evaluate(contrast_function,selector)
                 assert ratio is not None and ratio>=4.5,(queue_width,queue_theme,selector,ratio)
+            assert queue_page.locator('.conversation-card .micro-tag').count()==0
             assert queue_page.locator('.conversation-card.is-selected').evaluate(
                 'node=>getComputedStyle(node).boxShadow')!='none'
             assert not queue_page.evaluate('document.documentElement.scrollWidth > innerWidth')
@@ -840,6 +945,7 @@ with sync_playwright() as p:
             detail_page=browser.new_page(viewport={'width':detail_width,'height':820},color_scheme=detail_theme)
             detail_page.set_default_timeout(4500)
             detail_page.set_content(html);detail_page.add_script_tag(content=script)
+            detail_page.evaluate("state.inboxView='active';renderList()")
             detail_page.locator('#ui-settings').evaluate('e => e.open = true')
             detail_page.locator('#theme-'+detail_theme).click()
             detail_page.locator('#ui-settings').evaluate('e => e.open = false')
@@ -886,6 +992,7 @@ with sync_playwright() as p:
             errors_042=[]
             readable.on('pageerror',lambda error:errors_042.append(str(error)))
             readable.set_content(html);readable.add_script_tag(content=script)
+            readable.evaluate("state.inboxView='active';renderList()")
             if thread_width<=760:
                 readable.locator('.conversation-card').first.click()
             expect(readable.locator('#thread-pane')).to_be_visible()
@@ -939,6 +1046,7 @@ with sync_playwright() as p:
             bottom_errors=[]
             bottom_page.on('pageerror',lambda error:bottom_errors.append(str(error)))
             bottom_page.set_content(html);bottom_page.add_script_tag(content=script)
+            bottom_page.evaluate("state.inboxView='active';renderList()")
             if composer_width<=760:
                 bottom_page.locator('.conversation-card').first.click()
             expect(bottom_page.locator('#thread-pane')).to_be_visible()
@@ -948,7 +1056,7 @@ with sync_playwright() as p:
             assert input_043.bounding_box()['height']>=48
             assert send_043.bounding_box()['width']>=48 and send_043.bounding_box()['height']>=48
             assert float(input_043.evaluate('e=>parseFloat(getComputedStyle(e).fontSize)')) >=(16 if composer_width<=760 else 14)
-            for selector in ('.thread-pane .status-indicator','.thread-pane .tiny-note'):
+            for selector in ('#thread-actions .btn','.thread-pane .composer-note'):
                 node=bottom_page.locator(selector).first
                 assert node.count()>0,(composer_width,composer_theme,selector)
                 assert float(node.evaluate('e=>parseFloat(getComputedStyle(e).fontSize)'))>=11
@@ -956,7 +1064,7 @@ with sync_playwright() as p:
                 assert ratio is not None and ratio>=4.5,(composer_width,composer_theme,selector,ratio)
             # Amostra controlada das cores dos tipos de estado, sem simular mutacao de negocio.
             bottom_page.evaluate("""()=>{
-              const bar=document.querySelector('#workflow-bar');
+              const bar=document.querySelector('.thread-heading');
               const fixture=document.createElement('div');fixture.className='fixture-contrast';
               for(const kind of ['human','ai','bank','success','danger']){
                 const badge=document.createElement('span');
@@ -988,6 +1096,7 @@ with sync_playwright() as p:
             focus_errors=[]
             focus_044.on('pageerror',lambda e:focus_errors.append(str(e)))
             focus_044.set_content(html);focus_044.add_script_tag(content=script)
+            focus_044.evaluate("state.inboxView='active';renderList()")
             if focus_width<=760:focus_044.locator('.conversation-card').first.click()
             expect(focus_044.locator('#thread-pane')).to_be_visible()
             expect(focus_044.locator('#visual-app')).to_have_attribute('data-theme',focus_theme)
@@ -1000,9 +1109,13 @@ with sync_playwright() as p:
             focus_044.keyboard.press('Shift+Tab')
             expect(focus_044.locator('#emoji-toggle')).to_be_focused()
             focus_044.keyboard.press('Shift+Tab')
+            if focus_044.evaluate('document.activeElement.id')=='thread-body':
+                focus_044.keyboard.press('Shift+Tab')
+            expect(focus_044.locator('#detail-toggle')).to_be_focused()
+            focus_044.keyboard.press('Shift+Tab')
             expect(focus_044.locator('#request-completion')).to_be_focused()
             ring=focus_044.evaluate("""() => {
-              const e=document.activeElement,bar=document.querySelector('#workflow-bar');
+              const e=document.activeElement,bar=document.querySelector('.thread-heading');
               const r=e.getBoundingClientRect(),b=bar.getBoundingClientRect(),css=getComputedStyle(e);
               return {width:css.outlineWidth,style:css.outlineStyle,color:css.outlineColor,
                 left:r.left-b.left,top:r.top-b.top,right:b.right-r.right,bottom:b.bottom-r.bottom};
@@ -1011,6 +1124,10 @@ with sync_playwright() as p:
             assert ring['color']==('rgb(202, 202, 202)' if focus_theme=='dark' else 'rgb(92, 92, 92)')
             assert all(ring[side]>=5 for side in ('left','right','top','bottom')),(focus_width,focus_theme,ring)
             focus_044.keyboard.press('Tab')
+            expect(focus_044.locator('#detail-toggle')).to_be_focused()
+            focus_044.keyboard.press('Tab')
+            if focus_044.evaluate('document.activeElement.id')=='thread-body':
+                focus_044.keyboard.press('Tab')
             expect(focus_044.locator('#emoji-toggle')).to_be_focused()
             focus_044.keyboard.press('Tab')
             expect(focus_044.locator('#message-input')).to_be_focused()
@@ -1040,6 +1157,9 @@ with sync_playwright() as p:
             errors_047=[]
             queue_page.on('pageerror',lambda e:errors_047.append(str(e)))
             queue_page.set_content(html);queue_page.add_script_tag(content=script)
+            queue_page.evaluate("state.inboxView='active';renderList()")
+            queue_page.evaluate("changeActor('marina')")
+            queue_page.locator('#list-extra').evaluate('e=>e.open=true')
             expect(queue_page.locator('#conversation-list')).to_be_visible()
             expect(queue_page.locator('#visual-app')).to_have_attribute('data-theme',queue_theme)
             for selector in ('.list-pane .search-box','.list-pane .inbox-tab',
@@ -1058,14 +1178,23 @@ with sync_playwright() as p:
             queue_page.locator('#search-input').focus()
             assert queue_page.locator('.search-box').evaluate('e=>getComputedStyle(e).outlineWidth')=='3px'
             queue_page.keyboard.press('Tab')
+            expect(queue_page.locator('#list-extra summary')).to_be_focused()
+            queue_page.keyboard.press('Tab')
+            expect(queue_page.locator('#shop-select')).to_be_focused()
+            queue_page.keyboard.press('Tab')
+            queue_page.keyboard.press('Tab')
             expect(queue_page.locator('.inbox-tab[data-inbox="active"]')).to_be_focused()
             assert queue_page.locator('.inbox-tab[data-inbox="active"]').evaluate('e=>getComputedStyle(e).outlineWidth')=='3px'
+            queue_page.locator('#list-extra').evaluate('e=>e.open=true')
             queue_page.locator('.inbox-tab[data-inbox="history"]').click()
             expect(queue_page.locator('.inbox-tab[data-inbox="history"]')).to_have_attribute('aria-pressed','true')
+            queue_page.locator('#list-extra').evaluate('e=>e.open=true')
             queue_page.locator('.inbox-tab[data-inbox="active"]').click()
             expect(queue_page.locator('.inbox-tab[data-inbox="active"]')).to_have_attribute('aria-pressed','true')
+            queue_page.locator('#list-extra').evaluate('e=>e.open=true')
             queue_page.locator('.filter-chip[data-filter="unread"]').click()
             expect(queue_page.locator('.filter-chip[data-filter="unread"]')).to_have_attribute('aria-pressed','true')
+            queue_page.locator('#list-extra').evaluate('e=>e.open=true')
             queue_page.locator('.filter-chip[data-filter="all"]').click()
             expect(queue_page.locator('.filter-chip[data-filter="all"]')).to_have_attribute('aria-pressed','true')
             assert not queue_page.evaluate('document.documentElement.scrollWidth>innerWidth')
@@ -1081,24 +1210,24 @@ with sync_playwright() as p:
             errors_048=[]
             compact.on('pageerror',lambda e:errors_048.append(str(e)))
             compact.set_content(html);compact.add_script_tag(content=script)
+            compact.evaluate("state.inboxView='active';renderList()")
             expect(compact.locator('#conversation-list')).to_be_visible()
             expect(compact.locator('#visual-app')).to_have_attribute('data-theme',compact_theme)
             assert compact.locator('#queue-summary .summary-tile').count()>=1
             assert compact.locator('.conversation-card').count()>=1
             assert compact.locator('#list-count').inner_text().strip()
-            # FV-UX-02: controles avancados ficam disponiveis, mas recolhidos.
-            for selector in ('#search-input','.inbox-tab[data-inbox="active"]',
-                '.filter-chip[data-filter="all"]'):
-                assert compact.locator(selector).is_visible(),(compact_width,compact_theme,selector)
+            # FV-REV-01: filters are centralized; the lab is explicitly separate.
+            assert compact.locator('#search-input').is_visible()
+            assert compact.locator('#list-extra summary').is_visible()
+            assert not compact.locator('[data-inbox=active]').is_visible()
             assert not compact.locator('#actor-select').is_visible()
             assert not compact.locator('#status-filter').is_visible()
-            compact.locator('#ui-settings').evaluate('e => e.open = true')
+            compact.locator('#demo-open').click()
             assert compact.locator('#actor-select').is_visible()
+            compact.locator('#demo-close').click()
+            compact.locator('#list-extra').evaluate('e=>e.open=true')
             assert compact.locator('#shop-select').is_visible()
-            compact.locator('#ui-settings').evaluate('e => e.open = false')
-            compact.locator('#list-extra').evaluate('e => e.open = true')
-            assert compact.locator('#status-filter').is_visible()
-            compact.locator('#list-extra').evaluate('e => e.open = false')
+            assert not compact.locator('#status-filter').is_visible()
             if compact_width<=760:
                 assert compact.locator('.list-heading').evaluate('e=>parseFloat(getComputedStyle(e).paddingTop)')<=15
                 assert compact.locator('.list-topline').evaluate('e=>parseFloat(getComputedStyle(e).marginBottom)')<=12
@@ -1107,6 +1236,7 @@ with sync_playwright() as p:
                 if compact_height<=700:
                     assert compact.locator('#conversation-list').evaluate('e=>getComputedStyle(e).overflowY')=='auto'
                     assert compact.locator('#conversation-list').evaluate('e=>e.scrollHeight>e.clientHeight')
+            compact.locator('#list-extra').evaluate('e=>e.open=false')
             compact.locator('.conversation-card').first.scroll_into_view_if_needed()
             assert compact.locator('.conversation-card').first.is_visible()
             # A nota continua acessivel via aria-describedby, nao ocupa rodape.
@@ -1128,11 +1258,13 @@ with sync_playwright() as p:
             empty_errors=[]
             empty_page.on('pageerror',lambda error:empty_errors.append(str(error)))
             empty_page.set_content(html);empty_page.add_script_tag(content=script)
+            empty_page.evaluate("state.inboxView='active';renderList()")
             expect(empty_page.locator('#conversation-list')).to_be_visible()
             expect(empty_page.locator('#visual-app')).to_have_attribute('data-theme',empty_theme)
             assert empty_page.locator('.conversation-card').count()>0
             profile_before=empty_page.locator('#actor-select').input_value()
             shop_before=empty_page.locator('#shop-select').input_value()
+            empty_page.locator('#list-extra').evaluate('e=>e.open=true')
             empty_page.locator('.filter-chip[data-filter="unread"]').click()
             empty_page.locator('#search-input').fill('fv-ui-049-sem-correspondencia-xyzz')
             expect(empty_page.locator('.no-results strong')).to_have_text('Nenhuma conversa corresponde à busca')
@@ -1153,7 +1285,10 @@ with sync_playwright() as p:
             assert empty_page.locator('#shop-select').input_value()==shop_before
             assert empty_page.locator('.empty-reset').count()==0
             empty_page.locator('#ui-settings').evaluate('e => e.open = true')
+            empty_page.locator('#demo-dialog').evaluate('e=>e.showModal()')
             empty_page.locator('#actor-select').select_option('otavio')
+            empty_page.evaluate("state.inboxView='active';renderList()")
+            empty_page.locator('#demo-dialog').evaluate('e=>e.close()')
             empty_page.locator('#ui-settings').evaluate('e => e.open = false')
             expect(empty_page.locator('.no-results strong')).to_have_text('Sem acesso demonstrativo')
             assert empty_page.locator('.empty-reset').count()==0
@@ -1170,6 +1305,7 @@ with sync_playwright() as p:
             notice_errors=[]
             notice_page.on('pageerror',lambda e:notice_errors.append(str(e)))
             notice_page.set_content(html);notice_page.add_script_tag(content=script)
+            notice_page.evaluate("state.inboxView='active';renderList()")
             expect(notice_page.locator('#visual-app')).to_have_attribute('data-theme',notice_theme)
             if notice_width<=760:notice_page.locator('.conversation-card').first.click()
             expect(notice_page.locator('#thread-pane')).to_be_visible()
@@ -1208,6 +1344,7 @@ with sync_playwright() as p:
             guide_errors=[]
             guide.on('pageerror',lambda e:guide_errors.append(str(e)))
             guide.set_content(html);guide.add_script_tag(content=script)
+            guide.evaluate("state.inboxView='active';renderList()")
             expect(guide.locator('#conversation-list')).to_be_visible()
             expect(guide.locator('#visual-app')).to_have_attribute('data-theme',guide_theme)
             assert guide.locator('#search-input').get_attribute('aria-describedby')=='list-demo-guidance'
@@ -1253,6 +1390,7 @@ with sync_playwright() as p:
             errors_052=[]
             results.on('pageerror',lambda e:errors_052.append(str(e)))
             results.set_content(html);results.add_script_tag(content=script)
+            results.evaluate("state.inboxView='active';renderList()")
             expect(results.locator('#conversation-list')).to_be_visible()
             expect(results.locator('#visual-app')).to_have_attribute('data-theme',results_theme)
             count=results.locator('#list-count')
@@ -1292,25 +1430,22 @@ with sync_playwright() as p:
             shortcut_errors=[]
             shortcut_page.on('pageerror',lambda e:shortcut_errors.append(str(e)))
             shortcut_page.set_content(html);shortcut_page.add_script_tag(content=script)
+            shortcut_page.evaluate("state.inboxView='active';renderList()")
             expect(shortcut_page.locator('#visual-app')).to_have_attribute('data-theme',shortcut_theme)
             shortcut_input=shortcut_page.locator('#search-input')
-            assert shortcut_input.get_attribute('aria-keyshortcuts')=='Control+K Meta+K Escape ArrowDown'
-            hint=shortcut_page.locator('.search-shortcut')
-            assert hint.count()==1 and hint.get_attribute('aria-hidden')=='true'
-            if shortcut_width<=760:
-                expect(hint).to_be_hidden()
-            else:
-                expect(hint).to_be_visible()
-                assert hint.bounding_box()['width']>30
+            assert shortcut_input.get_attribute('aria-keyshortcuts')=='Escape ArrowDown'
+            assert shortcut_page.locator('.search-shortcut').count()==0
             initial_count=shortcut_page.locator('.conversation-card').count()
-            shortcut_page.locator('.conversation-card').first.click()
+            shortcut_input.fill('Cliente')
+            shortcut_input.focus()
             shortcut_page.keyboard.press('Control+k')
-            expect(shortcut_input).to_be_focused()
+            # No application handler intercepts the removed shortcut.
+            assert shortcut_page.locator('#search-input').input_value()=='Cliente'
             assert shortcut_page.locator('.conversation-card').count()==initial_count
             assert not shortcut_page.evaluate('document.documentElement.scrollWidth>innerWidth')
             assert not shortcut_errors,shortcut_errors
             shortcut_page.close()
-    print('FV-UI-053 atalho de busca teclado e reflow em 8 cenarios: PASS')
+    print('FV-REV-006 busca preservada sem atalho removido: PASS')
 
 
     # FV-UI-054: limpar filtros ativos, com ou sem resultados, preservando escopo.
@@ -1321,14 +1456,18 @@ with sync_playwright() as p:
             errors_054=[]
             reset_page.on('pageerror',lambda e:errors_054.append(str(e)))
             reset_page.set_content(html);reset_page.add_script_tag(content=script)
+            reset_page.evaluate("state.inboxView='active';renderList()")
             expect(reset_page.locator('#visual-app')).to_have_attribute('data-theme',reset_theme)
             reset_controls=reset_page.locator('#filter-reset-controls')
             expect(reset_controls).to_be_hidden()
+            reset_page.evaluate("changeActor('marina');state.inboxView='active';renderList()")
             original_actor=reset_page.locator('#actor-select').input_value()
             original_shop=reset_page.locator('#shop-select').input_value()
             reset_page.locator('#search-input').fill('FV-UI-054-busca-sem-resultado-xxyy')
             reset_page.locator('#list-extra').evaluate('e => e.open = true')
+            reset_page.locator('#list-extra').evaluate('e=>e.open=true')
             reset_page.locator('#status-filter').select_option(index=1)
+            reset_page.locator('#list-extra').evaluate('e=>e.open=true')
             reset_page.locator('[data-filter="unread"]').click()
             expect(reset_controls).to_be_hidden()
             reset_button=reset_page.locator('.empty-reset')
@@ -1378,6 +1517,7 @@ with sync_playwright() as p:
             errors_056=[]
             search_page.on('pageerror',lambda e:errors_056.append(str(e)))
             search_page.set_content(html);search_page.add_script_tag(content=script)
+            search_page.evaluate("state.inboxView='active';renderList()")
             expect(search_page.locator('#visual-app')).to_have_attribute('data-theme',search_theme)
             search_input=search_page.locator('#search-input')
             search_input.fill('  CLIENTE   EXÉMPLO   02  ')
@@ -1389,16 +1529,23 @@ with sync_playwright() as p:
             search_input.fill(' A-105 ')
             assert search_page.locator('.conversation-card').filter(has_text='Cliente Exemplo 05').count()==1
             search_page.locator('#ui-settings').evaluate('e => e.open = true')
+            search_page.locator('#demo-dialog').evaluate('e=>e.showModal()')
             search_page.locator('#actor-select').select_option('marina')
+            search_page.evaluate("state.inboxView='active';renderList()")
+            search_page.locator('#demo-dialog').evaluate('e=>e.close()')
             search_page.locator('#ui-settings').evaluate('e => e.open = false')
             search_page.locator('#ui-settings').evaluate('e => e.open = true')
+            search_page.locator('#list-extra').evaluate('e=>e.open=true')
             search_page.locator('#shop-select').select_option('horizonte')
+            search_page.evaluate("state.inboxView='active';renderList()")
             search_page.locator('#ui-settings').evaluate('e => e.open = false')
             search_input.fill(' CLIENTE   EXÉMPLO   02 ')
             assert search_page.locator('.conversation-card').count()==0
             assert search_page.locator('.no-results').count()==1
             search_page.locator('#ui-settings').evaluate('e => e.open = true')
+            search_page.locator('#list-extra').evaluate('e=>e.open=true')
             search_page.locator('#shop-select').select_option('aurora')
+            search_page.evaluate("state.inboxView='active';renderList()")
             search_page.locator('#ui-settings').evaluate('e => e.open = false')
             search_input.fill(' CLIENTE   EXÉMPLO   02 ')
             assert search_page.locator('.conversation-card').filter(has_text='Cliente Exemplo 02').count()==1
@@ -1415,12 +1562,14 @@ with sync_playwright() as p:
             errors_057=[]
             esc_page.on('pageerror',lambda e:errors_057.append(str(e)))
             esc_page.set_content(html);esc_page.add_script_tag(content=script)
+            esc_page.evaluate("state.inboxView='active';renderList()")
             expect(esc_page.locator('#visual-app')).to_have_attribute('data-theme',esc_theme)
             input057=esc_page.locator('#search-input')
-            assert input057.get_attribute('aria-keyshortcuts')=='Control+K Meta+K Escape ArrowDown'
+            assert input057.get_attribute('aria-keyshortcuts')=='Escape ArrowDown'
             assert 'Esc apaga somente o texto' in esc_page.locator('#list-demo-guidance').inner_text()
             actor057=esc_page.locator('#actor-select').input_value()
             shop057=esc_page.locator('#shop-select').input_value()
+            esc_page.locator('#list-extra').evaluate('e=>e.open=true')
             esc_page.locator('[data-filter="unread"]').click()
             unread_count_057=esc_page.locator('.conversation-card').count()
             assert unread_count_057>0 and unread_count_057<8
@@ -1466,3 +1615,5 @@ with sync_playwright() as p:
 # O mesmo gate obrigatório inclui agora carga ESM por HTTP e captura sintética real.
 from runpy import run_path
 run_path(str(base / 'tests' / 'browser.communication.py'), run_name='__main__')
+
+run_path(str(base / 'tests' / 'browser.revision.py'), run_name='__main__')

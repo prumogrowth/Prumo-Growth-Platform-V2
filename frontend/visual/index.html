@@ -36,7 +36,7 @@
       <div class="rail-label">CENTRAL</div>
       <button class="rail-icon" title="Equipe: visualização de demonstração" aria-label="Equipe: demonstrativo" type="button" id="team-nav"><svg class="icon"><use href="#i-people"/></svg></button>
     </nav>
-    <div class="rail-bottom"><div class="avatar rail-avatar" aria-hidden="true">P</div></div>
+    <div class="rail-bottom" aria-hidden="true"></div>
   </aside>
 
   <main class="workspace" aria-label="Central de atendimento visual">
@@ -46,41 +46,39 @@
           <div class="list-header-actions">
             <button type="button" id="team-nav-mobile" class="mobile-team-button" hidden>Equipe</button>
             <details class="ui-settings" id="ui-settings">
-              <summary title="Configurações" aria-label="Configurações e controles da demonstração">⋮</summary>
+              <summary title="Configurações" aria-label="Configurações">⋮</summary>
               <div class="settings-panel">
                 <h2>Configurações</h2>
                 <div class="theme-switch" role="group" aria-label="Tema visual da interface"><button type="button" id="theme-light" class="theme-option selected" aria-pressed="true">Claro</button><button type="button" id="theme-dark" class="theme-option" aria-pressed="false">Escuro</button></div>
-                <div class="actor-control"><label for="actor-select">Perfil da demonstração</label><div class="select-wrap"><select id="actor-select" aria-label="Selecionar perfil fictício"></select><svg class="icon small"><use href="#i-chevron"/></svg></div></div>
-                <div class="shop-control"><label for="shop-select">Concessionária (filtro de conversas, não altera concessões)</label><div class="select-wrap"><select id="shop-select" aria-label="Selecionar concessionária fictícia"></select><svg class="icon small"><use href="#i-chevron"/></svg></div></div>
-                <p class="settings-note">Dados fictícios. Estes seletores não são autenticação nem alteram permissões reais.</p>
-                <button id="reset-app" class="btn btn-light settings-reset" type="button">Restaurar simulação</button>
               </div>
             </details>
           </div></div>
-        <label class="search-box" for="search-input"><svg class="icon"><use href="#i-search"/></svg><input id="search-input" type="search" placeholder="Buscar conversas" autocomplete="off" aria-label="Buscar conversas deste perfil" aria-describedby="list-demo-guidance" aria-keyshortcuts="Control+K Meta+K Escape ArrowDown"><span class="search-shortcut" aria-hidden="true">Ctrl/⌘ K</span></label>
-        <div class="inbox-mode" aria-label="Tipo de lista de atendimento"><button type="button" data-inbox="active" class="inbox-tab selected" aria-pressed="true">Ativas / pendentes</button><button type="button" data-inbox="history" class="inbox-tab" aria-pressed="false">Histórico</button></div>
-        <div class="filters" aria-label="Filtros de conversas"><button type="button" class="filter-chip selected" data-filter="all" aria-pressed="true">Todas</button><button type="button" class="filter-chip" data-filter="unread" aria-pressed="false">Não lidas</button><button type="button" class="filter-chip" data-filter="mine" aria-pressed="false">Atribuídas a mim</button></div>
+        <label class="search-box" for="search-input"><svg class="icon"><use href="#i-search"/></svg><input id="search-input" type="search" placeholder="Buscar conversas" autocomplete="off" aria-label="Buscar conversas deste perfil" aria-describedby="list-demo-guidance" aria-keyshortcuts="Escape ArrowDown"></label>
         <details id="list-extra" class="list-extra">
-          <summary>Filtros avançados <span aria-hidden="true">⌄</span></summary>
+          <summary>Filtrar conversas <span id="filter-summary">Todas</span></summary>
           <div class="list-extra-content">
-            <div class="advanced-filter"><label for="status-filter">Etapa comercial</label><select id="status-filter" aria-label="Filtrar por estado comercial"><option value="all">Todos os estados comerciais</option></select></div>
+            <div class="shop-control"><label for="shop-select">Concessionária</label><div class="select-wrap"><select id="shop-select" aria-label="Selecionar concessionária fictícia"></select><svg class="icon small"><use href="#i-chevron"/></svg></div></div>
+            <div class="inbox-mode" aria-label="Tipo de lista de atendimento"><button type="button" data-inbox="all" class="inbox-tab selected" aria-pressed="true">Todos</button><button type="button" data-inbox="active" class="inbox-tab" aria-pressed="false">Ativos</button><button type="button" data-inbox="history" class="inbox-tab" aria-pressed="false">Históricos</button></div>
+            <div class="filters" aria-label="Atenção das conversas"><button type="button" class="filter-chip selected" data-filter="all" aria-pressed="true">Todas</button><button type="button" class="filter-chip" data-filter="unread" aria-pressed="false">Não lidas</button><button type="button" class="filter-chip" data-filter="pending" aria-pressed="false">Lidas sem resposta humana</button><button type="button" class="filter-chip" data-filter="mine" aria-pressed="false">Atribuídas a mim</button></div>
+            <div class="advanced-filter" id="commercial-filter"><label for="status-filter">Etapa comercial</label><select id="status-filter" aria-label="Filtrar por estado comercial"><option value="all">Todos os estados comerciais</option></select></div>
             <div class="queue-summary" id="queue-summary" aria-label="Indicadores fictícios do escopo"></div>
           </div></details>
         <div class="filter-reset-controls" id="filter-reset-controls" hidden><button type="button" class="clear-list-filters" id="clear-list-filters">Limpar busca e filtros</button></div>
       </header>
       <div class="queue-heading"><span id="list-count" role="status" aria-live="polite" aria-atomic="true">Atendimentos</span><span class="queue-sub" id="list-context"></span></div>
       <div class="conversation-items" id="conversation-items" aria-label="Conversas disponíveis no contexto"></div>
-      <footer class="list-footer"><span id="list-demo-guidance" role="note" class="sr-only">Dados fictícios. Perfil de teste não autentica nem autoriza. Na busca, Esc apaga somente o texto e mantém os filtros; seta para baixo foca a primeira conversa visível.</span></footer>
+      <footer class="list-footer"><span id="list-demo-guidance" role="note" class="sr-only">Dados fictícios. Perfil de teste não autentica nem autoriza. Na busca, Esc apaga somente o texto e mantém os filtros; seta para baixo foca a primeira conversa visível.</span><button type="button" id="demo-open" class="demo-launcher">Ambiente demonstrativo</button></footer>
     </section>
 
     <section class="thread-pane" id="thread-pane" aria-labelledby="thread-title" tabindex="-1">
       <header class="thread-heading">
         <button type="button" class="icon-button mobile-back" id="thread-back" aria-label="Voltar para as conversas"><svg class="icon"><use href="#i-arrow-left"/></svg></button>
-        <div class="avatar thread-avatar" aria-hidden="true" id="thread-avatar">CE</div>
-        <div class="thread-identity"><div class="thread-name" id="thread-title">Selecione uma conversa</div><div class="thread-meta" id="thread-meta">Nenhum atendimento selecionado</div></div>
+        <div class="thread-identity"><button type="button" class="thread-name" id="thread-title" aria-controls="detail-pane" aria-expanded="true" title="Abrir informações do cliente">Selecione uma conversa</button><div class="thread-meta" id="thread-meta">Nenhum atendimento selecionado</div></div>
+        <div id="thread-actions" class="thread-actions"></div>
         <button type="button" class="icon-button info-button" id="detail-toggle" aria-label="Mostrar detalhes do atendimento" aria-controls="detail-pane" aria-expanded="true"><svg class="icon"><use href="#i-info"/></svg></button>
       </header>
       <div class="thread-body" id="thread-body" role="log" aria-label="Mensagens fictícias do atendimento" aria-live="off"></div>
+      <div id="terminal-banner" class="terminal-banner" role="status" hidden></div>
       <div class="thread-bottom">
         <div class="workflow-bar" id="workflow-bar"></div>
         <div class="communication-tools">
@@ -104,6 +102,14 @@
     </aside>
   </main>
 </div>
+
+<dialog id="demo-dialog" class="completion-dialog" aria-labelledby="demo-title">
+  <h2 id="demo-title">Ambiente demonstrativo</h2>
+  <p>Dados fictícios. A seleção de perfil não autentica nem altera permissões reais.</p>
+  <div class="actor-control"><label for="actor-select">Perfil da demonstração</label><div class="select-wrap"><select id="actor-select" aria-label="Selecionar perfil fictício"></select><svg class="icon small"><use href="#i-chevron"/></svg></div></div>
+  <div class="actor-control"><label for="demo-list-state">Carregamento da lista (simulação)</label><select id="demo-list-state"><option value="ready">Lista pronta</option><option value="loading">Lista carregando</option></select></div>
+  <div class="dialog-actions"><button id="reset-app" class="btn btn-light" type="button">Restaurar simulação</button><button id="demo-close" class="btn btn-primary" type="button">Voltar às conversas</button></div>
+</dialog>
 
 <dialog id="team-dialog" class="team-dialog" aria-labelledby="team-title">
   <div class="team-dialog-header"><div><p class="eyebrow">EQUIPE DA PRUMO · DEMONSTRAÇÃO</p><h2 id="team-title">Equipe sob gestão</h2></div><button type="button" class="icon-button" id="team-close" aria-label="Fechar visão da equipe"><svg class="icon"><use href="#i-close"/></svg></button></div>

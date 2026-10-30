@@ -6,7 +6,8 @@ const env = installMockDOM({mobile:true});
 await import('../app.mjs');
 
 const get = id => env.get(id);
-const reset = () => get('reset-app').click();
+// Legacy journeys explicitly select the active subset of the new continuous list.
+const reset = () => {get('reset-app').click();env.inbox[0].click();};
 
 test('mobile: lista → conversa → detalhes → conversa → lista', () => {
   reset();
@@ -24,15 +25,15 @@ test('mobile: lista → conversa → detalhes → conversa → lista', () => {
 test('mobile: gestor ativo acessa equipe; operador e suspenso não', () => {
   reset();
   assert.equal(get('team-nav-mobile').hidden, true);
-  env.selectActor('marina');
+  env.selectActor('marina');env.inbox[0].click();
   assert.equal(get('team-nav-mobile').hidden, false);
   get('team-nav-mobile').click();
   assert.equal(get('team-dialog')._open, true);
   assert.equal(get('team-list').children.length, 2);
   get('team-dialog').close();
-  env.selectActor('rafael');
+  env.selectActor('rafael');env.inbox[0].click();
   assert.equal(get('team-nav-mobile').hidden, true);
-  env.selectActor('otavio');
+  env.selectActor('otavio');env.inbox[0].click();
   assert.equal(get('team-nav-mobile').hidden, true);
   assert.equal(env.cards().length, 0);
 });
@@ -53,8 +54,8 @@ test('mobile: operador pendente com janela expirada vê ações sem compositor l
   env.openCase('Exemplo 08');
   assert.equal(get('message-input').disabled, true);
   const actions = env.descendants(get('workflow-bar')).filter(x=>x.tagName==='BUTTON');
-  assert.ok(actions.some(x=>x.textContent.includes('Selecionar e solicitar template')));
-  assert.ok(actions.some(x=>x.textContent.includes('Solicitar cadeia')));
+  assert.ok(actions.some(x=>x.textContent.includes('Enviar template')));
+  assert.ok(actions.some(x=>x.textContent.includes('Cadeia por IA')));
   assert.equal(get('visual-app').dataset.mobileView, 'thread');
 });
 
@@ -70,11 +71,11 @@ test('mobile O5: novo ciclo após venda volta à conversa sem reabrir a IA',()=>
   assert.ok(link);link.click();
   assert.equal(get('visual-app').dataset.mobileView,'thread');
   assert.ok(get('thread-meta').textContent.includes('Caso A-116'));
-  assert.ok(get('workflow-bar').textContent.includes('em atendimento pelo operador'));
+  assert.ok(get('detail-content').textContent.includes('em atendimento pelo operador'));
 });
 
 test('mobile G2: painel mostra operadores supervisionados e pausa global fictícia',()=>{
-  reset();env.selectActor('marina');
+  reset();env.selectActor('marina');env.inbox[0].click();
   get('team-nav-mobile').click();
   assert.equal(get('team-dialog').open,true);
   assert.equal(get('team-list').children.length,2);
@@ -87,7 +88,7 @@ test('mobile G2: painel mostra operadores supervisionados e pausa global fictíc
 });
 
 test('mobile G3: indicadores por operadores aparecem sem dados de clientes',()=>{
-  reset();env.selectActor('marina');
+  reset();env.selectActor('marina');env.inbox[0].click();
   get('team-nav-mobile').click();
   const dashboard=get('team-monitor');
   assert.ok(dashboard.textContent.includes('Monitoramento operacional da equipe'));
@@ -98,7 +99,7 @@ test('mobile G3: indicadores por operadores aparecem sem dados de clientes',()=>
 });
 
 test('mobile G3: alternar Operadores e Monitoramento mantém isolamento e privacidade',()=>{
-  reset();env.selectActor('marina');get('team-nav-mobile').click();
+  reset();env.selectActor('marina');env.inbox[0].click();get('team-nav-mobile').click();
   get('team-show-monitor').click();
   assert.equal(get('team-monitor').hidden,false);
   assert.ok(get('team-monitor').textContent.includes('Caso A-112'));
@@ -107,14 +108,14 @@ test('mobile G3: alternar Operadores e Monitoramento mantém isolamento e privac
   get('team-show-members').click();
   assert.equal(get('team-monitor').hidden,true);
   get('team-dialog').close();
-  env.selectActor('rafael');
+  env.selectActor('rafael');env.inbox[0].click();
   get('team-nav-mobile').click();
   assert.equal(get('team-dialog').open,false);
   assert.equal(get('team-monitor').textContent,'');
 });
 
 test('mobile G4: lotes por equipe só leitura e sem importação',()=>{
-  reset();env.selectActor('marina');get('team-nav-mobile').click();get('team-show-batches').click();
+  reset();env.selectActor('marina');env.inbox[0].click();get('team-nav-mobile').click();get('team-show-batches').click();
   assert.equal(get('team-batches').hidden,false);
   assert.ok(get('team-batches').textContent.includes('L-G4-01'));
   assert.equal(get('team-batches').textContent.includes('L-G4-03'),false);
@@ -125,11 +126,11 @@ test('mobile G4: lotes por equipe só leitura e sem importação',()=>{
 
 
 test('mobile G3/G4: alternância entre gestores apaga painel anterior antes de mostrar a outra equipe',()=>{
-  reset();env.selectActor('marina');get('team-nav-mobile').click();
+  reset();env.selectActor('marina');env.inbox[0].click();get('team-nav-mobile').click();
   get('team-show-batches').click();
   assert.ok(get('team-batches').textContent.includes('L-G4-01'));
   assert.equal(get('team-batches').textContent.includes('L-G4-03'),false);
-  env.selectActor('daniel');
+  env.selectActor('daniel');env.inbox[0].click();
   assert.equal(get('team-dialog').open,false);
   assert.equal(get('team-batches').textContent,'');
   assert.equal(get('team-monitor').textContent,'');
@@ -144,7 +145,7 @@ test('mobile G3/G4: alternância entre gestores apaga painel anterior antes de m
   const batches=get('team-batches').textContent;
   assert.ok(batches.includes('L-G4-03'));
   assert.equal(batches.includes('L-G4-01'),false);
-  env.selectActor('otavio');
+  env.selectActor('otavio');env.inbox[0].click();
   assert.equal(get('team-dialog').open,false);
   assert.equal(get('team-monitor').textContent,'');
   assert.equal(get('team-batches').textContent,'');
@@ -208,7 +209,7 @@ test('FV-UI-028: aria-expanded acompanha painel realmente visível e troca de co
   get('detail-back').click();
   assert.equal(get('detail-toggle').getAttribute('aria-expanded'),'false');
   get('detail-toggle').click();
-  env.selectActor('marina');
+  env.selectActor('marina');env.inbox[0].click();
   assert.equal(get('visual-app').dataset.mobileView,'list');
   assert.equal(get('detail-toggle').getAttribute('aria-expanded'),'false');
 });

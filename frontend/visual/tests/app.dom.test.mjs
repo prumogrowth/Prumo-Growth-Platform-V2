@@ -8,9 +8,10 @@ const env = installMockDOM();
 await import('../app.mjs');
 
 const get = id => env.get(id);
-const buttons = fragment => env.descendants(get('workflow-bar')).filter(n =>
+const buttons = fragment => [...env.descendants(get('workflow-bar')),...env.descendants(get('thread-actions'))].filter(n =>
   n.tagName === 'BUTTON' && n.textContent.includes(fragment));
-const reset = () => get('reset-app').click();
+// Legacy journeys explicitly select the active subset of the new continuous list.
+const reset = () => {get('reset-app').click();env.inbox[0].click();};
 
 test('inbox mostra apenas os seis casos sintéticos ativos do operador autorizado', () => {
   reset();
@@ -23,21 +24,21 @@ test('janela expirada bloqueia texto livre e fornece ações separadas elegívei
   reset();
   env.openCase('Exemplo 08');
   assert.equal(get('message-input').disabled, true);
-  assert.equal(buttons('Selecionar e solicitar template').length, 1);
-  assert.equal(buttons('Solicitar cadeia de tentativas à IA').length, 1);
+  assert.equal(buttons('Enviar template').length, 1);
+  assert.equal(buttons('Cadeia por IA').length, 1);
 });
 
 test('template individual usa seleção por caso e não confunde pedido com envio', () => {
   reset();
   env.openCase('Exemplo 08');
-  buttons('Selecionar e solicitar template')[0].click();
+  buttons('Enviar template')[0].click();
   assert.equal(get('template-dialog')._open, true);
   assert.equal(get('template-select').children.length, 1);
   assert.equal(get('template-select').value, 'modelo_continuidade_demo');
   get('template-dialog').close('cancel');
   assert.equal(get('template-dialog')._open, false);
-  assert.equal(buttons('Selecionar e solicitar template').length, 1);
-  buttons('Selecionar e solicitar template')[0].click();
+  assert.equal(buttons('Enviar template').length, 1);
+  buttons('Enviar template')[0].click();
   get('template-dialog').close('confirm');
   assert.ok(get('workflow-bar').textContent.includes('Pedido simulado'));
   assert.equal(get('message-input').disabled, true);
@@ -50,21 +51,21 @@ test('histórico continua legível e não permite mensagem em caso perdido', () 
   assert.equal(env.cards().length, 3);
   env.openCase('Exemplo 12');
   assert.equal(get('message-input').disabled, true);
-  assert.ok(get('workflow-bar').textContent.includes('perdido'));
+  assert.ok(get('terminal-banner').textContent.includes('Perdido'));
 });
 
 test('gestor vê equipe somente quando ativo e preserva escopo por loja', () => {
   reset();
-  env.selectActor('marina');
+  env.selectActor('marina');env.inbox[0].click();
   assert.equal(env.cards().length, 12); // inclui transferência fictícia A-117 de escopo por caso
   assert.equal(get('team-nav').hidden, false);
   get('team-nav').click();
   assert.equal(get('team-dialog')._open, true);
   assert.equal(get('team-list').children.length, 2);
   get('team-dialog').close();
-  env.selectShop('horizonte');
+  env.selectShop('horizonte');env.inbox[0].click();
   assert.equal(env.cards().length, 2);
-  env.selectActor('otavio');
+  env.selectActor('otavio');env.inbox[0].click();
   assert.equal(env.cards().length, 0);
   assert.equal(get('team-nav').hidden, true);
   assert.equal(get('team-nav-mobile').hidden, true);
@@ -85,7 +86,7 @@ test('conclusão humana pede extração apenas uma vez e sem mudança comercial'
   assert.ok(get('workflow-bar').textContent.includes('Solicitação simulada'));
   assert.equal(get('message-input').disabled, true);
   assert.equal(buttons('Concluir atendimento').length, 0);
-  assert.equal(get('workflow-bar').textContent.includes('perdido'), false);
+  assert.equal(get('terminal-banner').textContent.includes('Perdido'), false);
 });
 
 test('botão equipe é uma opção não operacional para operador, sem privilégio oculto', () => {
@@ -98,7 +99,7 @@ test('botão equipe é uma opção não operacional para operador, sem privilég
 test('atalho de busca não desloca foco para trás de diálogo aberto', () => {
   reset();
   env.openCase('Exemplo 08');
-  buttons('Selecionar e solicitar template')[0].click();
+  buttons('Enviar template')[0].click();
   const select=get('template-select');
   select.focus();
   assert.equal(get('template-dialog')._open,true);
@@ -107,7 +108,7 @@ test('atalho de busca não desloca foco para trás de diálogo aberto', () => {
   assert.equal(get('template-dialog')._open,true);
   get('template-dialog').close('cancel');
   env.document.fire('keydown',{key:'k',ctrlKey:true});
-  assert.equal(env.document.activeElement,get('search-input'));
+  assert.equal(env.document.activeElement,select);
 });
 
 test('troca de perfil invalida confirmação modal de caso antigo', () => {
@@ -115,10 +116,10 @@ test('troca de perfil invalida confirmação modal de caso antigo', () => {
   env.openCase('Exemplo 02');
   buttons('Concluir atendimento')[0].click();
   assert.equal(get('completion-dialog').open, true);
-  env.selectActor('marina');
+  env.selectActor('marina');env.inbox[0].click();
   assert.equal(get('completion-dialog').open, false);
   get('completion-dialog').close('confirm'); // resposta atrasada não deve alterar outra sessão
-  env.selectActor('rafael');
+  env.selectActor('rafael');env.inbox[0].click();
   env.openCase('Exemplo 02');
   assert.equal(buttons('Concluir atendimento').length, 1);
 });
@@ -126,13 +127,13 @@ test('troca de perfil invalida confirmação modal de caso antigo', () => {
 test('troca de conversa invalida confirmação de template de outro caso', () => {
   reset();
   env.openCase('Exemplo 08');
-  buttons('Selecionar e solicitar template')[0].click();
+  buttons('Enviar template')[0].click();
   assert.equal(get('template-dialog').open, true);
   env.openCase('Exemplo 02');
   assert.equal(get('template-dialog').open, false);
   get('template-dialog').close('confirm');
   env.openCase('Exemplo 08');
-  assert.equal(buttons('Selecionar e solicitar template').length, 1);
+  assert.equal(buttons('Enviar template').length, 1);
   assert.equal(get('workflow-bar').textContent.includes('Pedido simulado'), false);
 });
 
@@ -151,7 +152,7 @@ test('pedido aceito não mostra falsa conclusão confirmada', () => {
   reset(); env.openCase('Exemplo 02');
   buttons('Concluir atendimento')[0].click();
   get('completion-dialog').close('confirm');
-  assert.ok(get('workflow-bar').textContent.includes('Conclusão solicitada'));
+  assert.ok(get('workflow-bar').textContent.includes('Solicitação simulada'));
   assert.equal(get('workflow-bar').textContent.includes('Etapa humana concluída'),false);
   assert.ok(get('detail-content').textContent.includes('Solicitação registrada'));
 });
@@ -187,7 +188,7 @@ test('O3: operador vê ficha confirmada com fonte, versão, pendência e conflit
 
 test('O3: gestora supervisora não recebe campos, valores, fontes e pendências D3', () => {
   reset();
-  env.selectActor('marina');
+  env.selectActor('marina');env.inbox[0].click();
   env.openCase('Exemplo 09');
   env.descendants(get('detail-content')).filter(n=>n.attrs.role==='tab')
     .find(n=>n.textContent==='Extração').click();
@@ -212,7 +213,7 @@ test('O4: operador atribuído vê só remessa sintética comprovada e retorno pe
 });
 
 test('O4: gestora sem atribuição vê só marco bancário, sem prova D4',()=>{
-  reset();env.selectActor('marina');env.openCase('Exemplo 05');
+  reset();env.selectActor('marina');env.inbox[0].click();env.openCase('Exemplo 05');
   env.descendants(get('detail-content')).filter(n=>n.attrs.role==='tab')
     .find(n=>n.textContent==='Banco').click();
   const text=get('detail-content').textContent;
@@ -234,21 +235,21 @@ test('O5: remessa bancária mantém caso original e navega para atendimento huma
   assert.ok(open);
   open.click();
   assert.ok(get('thread-meta').textContent.includes('Caso A-114'));
-  assert.ok(get('workflow-bar').textContent.includes('em atendimento pelo operador'));
+  assert.ok(get('detail-content').textContent.includes('em atendimento pelo operador'));
   assert.equal(get('message-input').disabled,false);
   const back=env.descendants(get('detail-content')).find(n=>n.tagName==='BUTTON' &&
     n.textContent.includes('Consultar atendimento de origem'));
   assert.ok(back);
   back.click();
   assert.ok(get('thread-meta').textContent.includes('Caso A-105'));
-  assert.ok(get('workflow-bar').textContent.includes('cadastro enviado ao banco'));
+  assert.ok(get('detail-content').textContent.includes('cadastro enviado ao banco'));
   assert.equal(get('message-input').disabled,true);
 });
 
 test('O5: histórico de vendido é preservado em separado do novo contato',()=>{
   reset();env.inbox[1].click();
   env.openCase('Exemplo 16');
-  assert.ok(get('workflow-bar').textContent.includes('vendido'));
+  assert.ok(get('detail-content').textContent.includes('vendido'));
   env.descendants(get('detail-content')).filter(n=>n.attrs.role==='tab')
     .find(n=>n.textContent==='Novo contato').click();
   const navigate=env.descendants(get('detail-content')).find(n=>n.tagName==='BUTTON' &&
@@ -256,12 +257,12 @@ test('O5: histórico de vendido é preservado em separado do novo contato',()=>{
   assert.ok(navigate);navigate.click();
   assert.equal(env.inbox[0].attrs['aria-pressed'],'true');
   assert.ok(get('thread-meta').textContent.includes('Caso A-116'));
-  assert.ok(get('workflow-bar').textContent.includes('em atendimento pelo operador'));
+  assert.ok(get('detail-content').textContent.includes('em atendimento pelo operador'));
   assert.equal(get('message-input').disabled,false);
 });
 
 test('O5: supervisora vê vínculo D2 mas não ganha ação humana por supervisão',()=>{
-  reset();env.selectActor('marina');env.openCase('Exemplo 15');
+  reset();env.selectActor('marina');env.inbox[0].click();env.openCase('Exemplo 15');
   assert.equal(get('message-input').disabled,true);
   env.descendants(get('detail-content')).filter(n=>n.attrs.role==='tab')
     .find(n=>n.textContent==='Novo contato').click();
@@ -270,7 +271,7 @@ test('O5: supervisora vê vínculo D2 mas não ganha ação humana por supervis�
 });
 
 test('G2: Marina vê Rafael e Lia, não Bianca ou Otávio, independente do filtro de loja',()=>{
-  reset();env.selectActor('marina');
+  reset();env.selectActor('marina');env.inbox[0].click();
   get('team-nav').click();
   const panel=()=>get('team-list').textContent;
   assert.equal(get('team-list').children.length,2);
@@ -279,7 +280,7 @@ test('G2: Marina vê Rafael e Lia, não Bianca ou Otávio, independente do filtr
   assert.equal(panel().includes('Bianca Rocha'),false);
   assert.equal(panel().includes('Otávio'),false);
   get('team-dialog').close();
-  env.selectShop('horizonte');
+  env.selectShop('horizonte');env.inbox[0].click();
   get('team-nav').click();
   assert.equal(get('team-list').children.length,2);
   assert.ok(panel().includes('Rafael Lima'));
@@ -288,7 +289,7 @@ test('G2: Marina vê Rafael e Lia, não Bianca ou Otávio, independente do filtr
 });
 
 test('G2: Daniel só gerencia Bianca e Otávio, mesmo compartilhando as lojas',()=>{
-  reset();env.selectActor('daniel');
+  reset();env.selectActor('daniel');env.inbox[0].click();
   assert.equal(env.cards().length,1);
   get('team-nav').click();
   const text=get('team-list').textContent;
@@ -297,14 +298,14 @@ test('G2: Daniel só gerencia Bianca e Otávio, mesmo compartilhando as lojas',(
   assert.equal(text.includes('Lia Martins'),false);
   assert.ok(text.includes('Aurora Motos, Horizonte Motos'));
   get('team-dialog').close();
-  env.selectShop('horizonte');
+  env.selectShop('horizonte');env.inbox[0].click();
   assert.equal(env.cards().length,1);
   env.openCase('Exemplo 18');
   assert.equal(get('message-input').disabled,true); // Bianca tem o caso, Daniel só supervisiona
 });
 
 test('G2: solicitação de pausa não concede lojas nem altera atribuição/estado comercial',()=>{
-  reset();env.selectActor('marina');
+  reset();env.selectActor('marina');env.inbox[0].click();
   get('team-nav').click();
   const team=get('team-list');
   const button=env.descendants(team).find(n=>n.tagName==='BUTTON' &&
@@ -320,12 +321,12 @@ test('G2: solicitação de pausa não concede lojas nem altera atribuição/esta
   assert.equal(env.descendants(team).filter(n=>n.tagName==='SELECT').length,0);
   get('team-dialog').close();
   env.openCase('Exemplo 02');
-  assert.ok(get('workflow-bar').textContent.includes('em atendimento pelo operador'));
+  assert.ok(get('detail-content').textContent.includes('em atendimento pelo operador'));
   assert.ok(get('thread-meta').textContent.includes('Caso A-102'));
 });
 
 test('G2: pedido local de retomada de Bianca mantém pausa confirmada na fixture',()=>{
-  reset();env.selectActor('daniel');get('team-nav').click();
+  reset();env.selectActor('daniel');env.inbox[0].click();get('team-nav').click();
   const team=get('team-list'),button=env.descendants(team).find(n=>n.tagName==='BUTTON' &&
     n.textContent.includes('Solicitar retomada'));
   assert.ok(button);button.click();get('intake-dialog').close('confirm');
@@ -333,14 +334,14 @@ test('G2: pedido local de retomada de Bianca mantém pausa confirmada na fixture
   assert.ok(team.textContent.includes('SOLICITADO LOCALMENTE'));
   assert.equal(env.descendants(team).filter(n=>n.tagName==='BUTTON').length,0);
   get('team-dialog').close();
-  env.selectActor('rafael');env.selectActor('daniel');
+  env.selectActor('rafael');env.inbox[0].click();env.selectActor('daniel');env.inbox[0].click();
   get('team-nav').click();
   assert.equal(get('team-list').textContent.includes('SOLICITADO LOCALMENTE'),false);
   get('team-dialog').close();
 });
 
 test('G3: Marina visualiza indicadores da própria equipe e etapas comerciais separadas',()=>{
-  reset();env.selectActor('marina');get('team-nav').click();
+  reset();env.selectActor('marina');env.inbox[0].click();get('team-nav').click();
   const dashboard=get('team-monitor');
   assert.ok(dashboard.textContent.includes('Monitoramento operacional da equipe'));
   assert.ok(dashboard.textContent.includes('Janela Meta expirada com etapa humana pendente'));
@@ -356,7 +357,7 @@ test('G3: Marina visualiza indicadores da própria equipe e etapas comerciais se
 });
 
 test('G3: Daniel não enxerga indicadores nem operadores de Marina',()=>{
-  reset();env.selectActor('daniel');get('team-nav').click();
+  reset();env.selectActor('daniel');env.inbox[0].click();get('team-nav').click();
   const dashboard=get('team-monitor');
   assert.ok(dashboard.textContent.includes('Bianca Rocha'));
   assert.ok(dashboard.textContent.includes('Otávio'));
@@ -368,16 +369,16 @@ test('G3: Daniel não enxerga indicadores nem operadores de Marina',()=>{
 });
 
 test('G3: troca de filtro de loja não muda abrangência da equipe monitorada',()=>{
-  reset();env.selectActor('marina');get('team-nav').click();
+  reset();env.selectActor('marina');env.inbox[0].click();get('team-nav').click();
   const initial=get('team-monitor').textContent;
   get('team-dialog').close();
-  env.selectShop('horizonte');get('team-nav').click();
+  env.selectShop('horizonte');env.inbox[0].click();get('team-nav').click();
   assert.equal(get('team-monitor').textContent,initial);
   get('team-dialog').close();
 });
 
 test('G3: pausa solicitada localmente não vira disponibilidade aplicada nos indicadores',()=>{
-  reset();env.selectActor('marina');get('team-nav').click();
+  reset();env.selectActor('marina');env.inbox[0].click();get('team-nav').click();
   const before=get('team-monitor').textContent;
   const pause=env.descendants(get('team-list')).find(x=>x.tagName==='BUTTON' &&
     x.textContent.includes('Solicitar pausa'));
@@ -391,13 +392,13 @@ test('G3: operador e perfil suspenso não abrem painel de indicadores',()=>{
   reset();
   get('team-nav').click();
   assert.equal(get('team-dialog').open,false);
-  env.selectActor('otavio');get('team-nav').click();
+  env.selectActor('otavio');env.inbox[0].click();get('team-nav').click();
   assert.equal(get('team-dialog').open,false);
   assert.equal(get('team-monitor').textContent,'');
 });
 
 test('G3: monitoramento de Marina não revela casos de Bianca ou de Daniel',()=>{
-  reset();env.selectActor('marina');get('team-nav').click();
+  reset();env.selectActor('marina');env.inbox[0].click();get('team-nav').click();
   get('team-show-monitor').click();
   assert.equal(get('team-list').hidden,true);
   assert.equal(get('team-monitor').hidden,false);
@@ -416,7 +417,7 @@ test('G3: monitoramento de Marina não revela casos de Bianca ou de Daniel',()=>
 });
 
 test('G3: Daniel só enxerga equipe própria, mesmo na mesma concessionária',()=>{
-  reset();env.selectActor('daniel');get('team-nav').click();
+  reset();env.selectActor('daniel');env.inbox[0].click();get('team-nav').click();
   get('team-show-monitor').click();
   const text=get('team-monitor').textContent;
   assert.ok(text.includes('Bianca Rocha')&&text.includes('Otávio'));
@@ -428,7 +429,7 @@ test('G3: Daniel só enxerga equipe própria, mesmo na mesma concessionária',()
 });
 
 test('G3: pedido local de pausa não muda pausa confirmada nem estado comercial',()=>{
-  reset();env.selectActor('marina');get('team-nav').click();
+  reset();env.selectActor('marina');env.inbox[0].click();get('team-nav').click();
   const btn=env.descendants(get('team-list')).find(x=>x.tagName==='BUTTON' && x.textContent.includes('Solicitar pausa'));
   assert.ok(btn);btn.click();get('intake-dialog').close('confirm');
   get('team-show-monitor').click();
@@ -442,9 +443,9 @@ test('G3: pedido local de pausa não muda pausa confirmada nem estado comercial'
 });
 
 test('G3: troca de perfil encerra monitoramento e apaga conteúdo do gestor anterior',()=>{
-  reset();env.selectActor('marina');get('team-nav').click();get('team-show-monitor').click();
+  reset();env.selectActor('marina');env.inbox[0].click();get('team-nav').click();get('team-show-monitor').click();
   assert.ok(get('team-monitor').textContent.includes('Rafael Lima'));
-  env.selectActor('daniel');
+  env.selectActor('daniel');env.inbox[0].click();
   assert.equal(get('team-dialog').open,false);
   assert.equal(get('team-monitor').textContent,'');
   assert.equal(get('team-list').textContent,'');
@@ -455,7 +456,7 @@ test('G3: troca de perfil encerra monitoramento e apaga conteúdo do gestor ante
 });
 
 test('G4: Marina vê seus lotes de Aurora/Horizonte sem herdar Daniel',()=>{
-  reset();env.selectActor('marina');get('team-nav').click();
+  reset();env.selectActor('marina');env.inbox[0].click();get('team-nav').click();
   get('team-show-batches').click();
   assert.equal(get('team-batches').hidden,false);
   assert.equal(get('team-monitor').hidden,true);
@@ -472,7 +473,7 @@ test('G4: Marina vê seus lotes de Aurora/Horizonte sem herdar Daniel',()=>{
 });
 
 test('G4: Daniel vê somente seus lotes e a ausência de elegibilidade real',()=>{
-  reset();env.selectActor('daniel');get('team-nav').click();
+  reset();env.selectActor('daniel');env.inbox[0].click();get('team-nav').click();
   get('team-show-batches').click();
   const t=get('team-batches').textContent;
   assert.ok(t.includes('L-G4-03')&&t.includes('L-G4-04'));
@@ -483,9 +484,9 @@ test('G4: Daniel vê somente seus lotes e a ausência de elegibilidade real',()=
 });
 
 test('G4: troca de perfil encerra lote anterior e retira dados da interface',()=>{
-  reset();env.selectActor('marina');get('team-nav').click();get('team-show-batches').click();
+  reset();env.selectActor('marina');env.inbox[0].click();get('team-nav').click();get('team-show-batches').click();
   assert.ok(get('team-batches').textContent.includes('L-G4-01'));
-  env.selectActor('daniel');
+  env.selectActor('daniel');env.inbox[0].click();
   assert.equal(get('team-batches').textContent,'');
   assert.equal(get('team-dialog').open,false);
   get('team-nav').click();get('team-show-batches').click();
@@ -498,7 +499,7 @@ test('G4: troca de perfil encerra lote anterior e retira dados da interface',()=
 test('FV-UI-017: nomes visíveis respeitam Consultor e Gestor sem alterar roles técnicas',()=>{
   reset();
   assert.match(get('actor-select').textContent,/Rafael Lima · Consultor da Prumo/);
-  env.selectActor('marina');
+  env.selectActor('marina');env.inbox[0].click();
   assert.match(get('actor-select').textContent,/Marina Costa · Gestor da Prumo/);
   get('team-nav').click();
   assert.match(get('team-list').textContent,/concedidas pelo Diretor/);
@@ -520,13 +521,14 @@ test('FV-UI-017: texto digitado não é enviado; prévia mostra autoria antes do
   get('message-preview-dialog').close('confirm');
   assert.match(get('thread-body').textContent,/Consultor Rafael Lima:\nMensagem de teste/);
   assert.match(get('thread-body').textContent,/NÃO ENVIADA/);
-  assert.match(get('conversation-items').textContent,/Mensagem fictícia preparada · NÃO ENVIADA/);
+  assert.match(get('conversation-items').textContent,/Podemos conversar sobre as próximas etapas/);
+  assert.doesNotMatch(get('conversation-items').textContent,/Mensagem fictícia preparada/);
   assert.equal(get('message-input').value,'');
   assert.ok(get('conversation-items').textContent.includes('Cliente Exemplo 02'));
 });
 
 test('FV-UI-017: Gestor titular tem autoria Gestor, sem conceder envio à supervisão',()=>{
-  reset();env.selectActor('marina');
+  reset();env.selectActor('marina');env.inbox[0].click();
   env.openCase('Exemplo 06');
   get('message-input').value='Contato do Gestor';
   get('composer').fire('submit');
@@ -560,15 +562,15 @@ test('FV-UI-017: mudança de ator, loja e reset descartam rascunhos; confirmaç�
   reset();env.openCase('Exemplo 02');
   get('message-input').value='Rascunho de Rafael';
   get('composer').fire('submit');
-  env.selectActor('marina');
+  env.selectActor('marina');env.inbox[0].click();
   assert.equal(get('message-input').value,'');
   get('message-preview-dialog').close('confirm');
-  env.selectShop('horizonte');
+  env.selectShop('horizonte');env.inbox[0].click();
   assert.equal(get('message-input').value,'');
-  env.selectShop('aurora');
+  env.selectShop('aurora');env.inbox[0].click();
   env.openCase('Exemplo 06');
   get('message-input').value='Rascunho da loja Aurora';
-  env.selectShop('horizonte');
+  env.selectShop('horizonte');env.inbox[0].click();
   assert.equal(get('message-input').value,'');
   get('reset-app').click();
   assert.equal(get('message-input').value,'');
@@ -587,20 +589,20 @@ test('FV-UI-017: alteração durante prévia invalida confirmação antiga',()=>
 
 
 test('FV-UI-018: Marina e Daniel enxergam fila compartilhada da loja, sem herdar carteira rival',()=>{
-  reset();env.selectActor('marina');get('team-nav').click();
+  reset();env.selectActor('marina');env.inbox[0].click();get('team-nav').click();
   get('team-show-queue').click();
   assert.equal(get('team-queue').hidden,false);
   assert.ok(get('team-queue').textContent.includes('FILA-A-01'));
   assert.equal(get('team-queue').textContent.includes('FILA-H-01'),false);
   get('team-dialog').close();
-  env.selectActor('daniel');get('team-nav').click();get('team-show-queue').click();
+  env.selectActor('daniel');env.inbox[0].click();get('team-nav').click();get('team-show-queue').click();
   assert.ok(get('team-queue').textContent.includes('FILA-A-01'));
   assert.equal(env.cards().some(x=>x.textContent.includes('Exemplo 02')),false);
   get('team-dialog').close();
 });
 
 test('FV-UI-018: claim exige confirmação mas não reatribui nem concede case grant',()=>{
-  reset();env.selectActor('marina');get('team-nav').click();get('team-show-queue').click();
+  reset();env.selectActor('marina');env.inbox[0].click();get('team-nav').click();get('team-show-queue').click();
   const buttons=env.descendants(get('team-queue')).filter(x=>x.tagName==='BUTTON');
   buttons.find(x=>x.textContent==='Solicitar assunção').click();
   assert.equal(get('queue-action-dialog').open,true);
@@ -614,14 +616,14 @@ test('FV-UI-018: claim exige confirmação mas não reatribui nem concede case g
 });
 
 test('FV-UI-018: atribuição só oferece equipe ativa e descarta intenção após troca de perfil',()=>{
-  reset();env.selectActor('marina');get('team-nav').click();get('team-show-queue').click();
+  reset();env.selectActor('marina');env.inbox[0].click();get('team-nav').click();get('team-show-queue').click();
   const btn=env.descendants(get('team-queue')).find(x=>x.tagName==='BUTTON' &&
     x.textContent==='Solicitar atribuição à equipe');
   btn.click();
   assert.equal(get('queue-action-dialog').open,true);
   assert.match(get('queue-assignee').textContent,/Rafael Lima/);
   assert.equal(get('queue-assignee').textContent.includes('Bianca Rocha'),false);
-  env.selectActor('daniel');
+  env.selectActor('daniel');env.inbox[0].click();
   assert.equal(get('queue-action-dialog').open,false);
   get('queue-action-dialog').close('confirm');
   get('team-nav').click();get('team-show-queue').click();
@@ -630,16 +632,16 @@ test('FV-UI-018: atribuição só oferece equipe ativa e descarta intenção ap�
 });
 
 test('FV-UI-018: caso Lia com exceção só abre A-117 em Aurora sem grant geral',()=>{
-  reset();env.selectActor('lia');
+  reset();env.selectActor('lia');env.inbox[0].click();
   assert.ok(get('shop-select').textContent.includes('Aurora Motos · somente caso excepcional'));
-  env.selectShop('aurora');
+  env.selectShop('aurora');env.inbox[0].click();
   assert.equal(env.cards().length,1);
   env.openCase('Exemplo 19');
   assert.equal(get('message-input').disabled,false);
   assert.ok(get('thread-meta').textContent.includes('A-117'));
   assert.match(get('workflow-bar').textContent,/Acesso excepcional: SOMENTE este caso/);
   assert.equal(env.cards().some(x=>x.textContent.includes('Exemplo 02')),false);
-  env.selectShop('horizonte');
+  env.selectShop('horizonte');env.inbox[0].click();
   assert.equal(get('thread-meta').textContent.includes('A-117'),false);
 });
 
@@ -683,7 +685,7 @@ test('FV-UI-019: esclarecimento alternativo libera segunda conclusão apenas na 
 });
 
 test('FV-UI-019: Gestor supervisor não recebe histórico de F03 nem versão de cliente',()=>{
-  reset();env.selectActor('marina');env.openCase('Exemplo 09');
+  reset();env.selectActor('marina');env.inbox[0].click();env.openCase('Exemplo 09');
   env.descendants(get('detail-content')).filter(x=>x.attrs.role==='tab')
     .find(x=>x.textContent==='Extração').click();
   const t=get('detail-content').textContent;
@@ -709,8 +711,8 @@ test('FV-UI-019: troca de perfil limpa cenário alternativo e não migra autoriz
     .find(x=>x.textContent==='Extração').click();
   env.descendants(get('detail-content')).find(x=>x.id==='show-clarification-demo').click();
   assert.equal(get('message-input').disabled,false);
-  env.selectActor('marina');
-  env.selectActor('rafael');env.openCase('Exemplo 09');
+  env.selectActor('marina');env.inbox[0].click();
+  env.selectActor('rafael');env.inbox[0].click();env.openCase('Exemplo 09');
   assert.equal(get('message-input').disabled,true);
   assert.equal(get('workflow-bar').textContent.includes('CENÁRIO ALTERNATIVO'),false);
 });
@@ -729,12 +731,12 @@ test('FV-UI-020: recibo de envio provado difere de estado comercial bancário',(
   reset();env.openCase('Exemplo 05');
   const t=get('thread-body').textContent;
   assert.match(t,/Envio comprovado · fixture/);
-  assert.match(get('workflow-bar').textContent,/cadastro enviado ao banco/);
+  assert.match(get('detail-content').textContent,/cadastro enviado ao banco/);
   assert.equal(t.includes('Entrega comprovada'),false);
 });
 
 test('FV-UI-020: mensagem incerta não zera pendência de resposta do Gestor titular',()=>{
-  reset();env.selectActor('marina');env.openCase('Exemplo 06');
+  reset();env.selectActor('marina');env.inbox[0].click();env.openCase('Exemplo 06');
   assert.match(get('thread-body').textContent,/Resultado incerto/);
   assert.match(get('thread-body').textContent,/Não tentar reenvio automático/);
   assert.ok(env.cards().find(x=>x.textContent.includes('Exemplo 06')).textContent.length>0);
@@ -744,7 +746,7 @@ test('FV-UI-020: mensagem incerta não zera pendência de resposta do Gestor tit
 });
 
 test('FV-UI-020: supervisor não vê detalhes de transporte do Consultor titular',()=>{
-  reset();env.selectActor('marina');env.openCase('Exemplo 02');
+  reset();env.selectActor('marina');env.inbox[0].click();env.openCase('Exemplo 02');
   assert.equal(get('thread-body').textContent.includes('API aceitou · envio NÃO comprovado'),false);
 });
 
@@ -763,10 +765,10 @@ test('FV-UI-021: contexto anunciado muda com perfil, loja e caso sem resíduo an
   assert.match(get('context-announcement').textContent,/Consultor fictício/);
   env.openCase('Exemplo 02');
   assert.match(get('context-announcement').textContent,/Caso A-102 aberto/);
-  env.selectActor('marina');
+  env.selectActor('marina');env.inbox[0].click();
   assert.match(get('context-announcement').textContent,/Gestor fictício/);
   assert.equal(get('context-announcement').textContent.includes('A-102'),false);
-  env.selectShop('horizonte');
+  env.selectShop('horizonte');env.inbox[0].click();
   assert.match(get('context-announcement').textContent,/Concessionária Horizonte/);
   assert.equal(get('context-announcement').textContent.includes('Aurora'),false);
   env.inbox[1].click();
@@ -807,7 +809,7 @@ test('FV-UI-022: prévia antiga fechada após trocar ator não rouba foco de out
   get('message-input').value='Mensagem para Rafael';
   get('composer').fire('submit');
   assert.equal(get('message-preview-dialog').open,true);
-  env.selectActor('marina');
+  env.selectActor('marina');env.inbox[0].click();
   get('search-input').focus();
   get('message-preview-dialog').close('cancel');
   assert.equal(env.document.activeElement,get('search-input'));
@@ -817,7 +819,7 @@ test('FV-UI-022: prévia antiga fechada após trocar ator não rouba foco de out
 
 
 test('FV-UI-029: confirmar pausa repõe foco em aba persistente da equipe',()=>{
-  reset();env.selectActor('marina');get('team-nav').click();
+  reset();env.selectActor('marina');env.inbox[0].click();get('team-nav').click();
   const buttons=env.descendants(get('team-list')).filter(n=>n.tagName==='BUTTON' && n.textContent.includes('Solicitar pausa'));
   assert.ok(buttons.length);buttons[0].click();
   assert.equal(get('intake-dialog').open,true);
@@ -829,7 +831,7 @@ test('FV-UI-029: confirmar pausa repõe foco em aba persistente da equipe',()=>{
 });
 
 test('FV-UI-029: confirmar fila repõe foco sem simular atribuição efetiva',()=>{
-  reset();env.selectActor('marina');get('team-nav').click();get('team-show-queue').click();
+  reset();env.selectActor('marina');env.inbox[0].click();get('team-nav').click();get('team-show-queue').click();
   const actions=env.descendants(get('team-queue')).filter(n=>n.tagName==='BUTTON' && n.textContent.includes('Solicitar assunção'));
   assert.ok(actions.length);actions[0].click();
   assert.equal(get('queue-action-dialog').open,true);
@@ -905,7 +907,7 @@ test('FV-UI-032: O5 desktop foca região do novo caso autorizado',()=>{
   assert.equal(env.document.activeElement,get('thread-pane'));
   assert.match(get('thread-meta').textContent,/Caso A-114/);
   assert.match(get('context-announcement').textContent,/Caso A-114 aberto por vínculo fictício autorizado/);
-  assert.match(get('workflow-bar').textContent,/em atendimento pelo operador/);
+  assert.match(get('detail-content').textContent,/em atendimento pelo operador/);
 });
 
 
@@ -1045,7 +1047,7 @@ test('FV-UI-057: Esc limpa apenas texto de busca e preserva filtros e contexto',
 
 test('FV-UI-057: Escape não rouba contexto de diálogo modal aberto',()=>{
   reset();env.openCase('Exemplo 08');
-  buttons('Selecionar e solicitar template')[0].click();
+  buttons('Enviar template')[0].click();
   assert.equal(get('template-dialog').open,true);
   const input=get('search-input');
   input.value='Cliente Exemplo 02';input.fire('input');input.focus();
@@ -1088,7 +1090,7 @@ test('FV-UI-058: zero resultados, modificadores, IME ou modal conservam foco',()
   }
   input.value='Cliente Exemplo 08';input.fire('input');
   env.openCase('Exemplo 08');
-  buttons('Selecionar e solicitar template')[0].click();
+  buttons('Enviar template')[0].click();
   input.focus();
   env.document.fire('keydown',{key:'ArrowDown'});
   assert.equal(env.document.activeElement,input);
@@ -1106,7 +1108,7 @@ test('FVA-01: O2 O3 em sequência não migram rascunho, F03 ou autorização ent
   env.descendants(get('detail-content')).filter(n=>n.attrs.role==='tab')
     .find(n=>n.textContent==='Extração').click();
   assert.match(get('detail-content').textContent,/f03-a108-1/);
-  env.selectActor('marina');
+  env.selectActor('marina');env.inbox[0].click();
   assert.equal(get('message-input').value,'');
   assert.equal(get('thread-body').textContent.includes('FVA-01 rascunho'),false);
   env.openCase('Exemplo 09');
@@ -1114,22 +1116,22 @@ test('FVA-01: O2 O3 em sequência não migram rascunho, F03 ou autorização ent
     .find(n=>n.textContent==='Extração').click();
   assert.equal(get('detail-content').textContent.includes('f03-a108-1'),false);
   assert.equal(get('message-input').disabled,true);
-  env.selectActor('daniel');
+  env.selectActor('daniel');env.inbox[0].click();
   assert.equal(env.cards().some(n=>n.textContent.includes('Exemplo 09')),false);
   assert.equal(get('thread-body').textContent.includes('FVA-01 rascunho'),false);
-  env.selectActor('otavio');
+  env.selectActor('otavio');env.inbox[0].click();
   assert.equal(env.cards().length,0);
   assert.equal(get('team-nav').hidden,true);
   assert.equal(get('message-input').disabled,true);
   assert.equal(get('detail-content').textContent.includes('f03-a108-1'),false);
-  env.selectActor('rafael');
+  env.selectActor('rafael');env.inbox[0].click();
   env.openCase('Exemplo 02');
   assert.equal(get('message-input').value,'');
   assert.equal(get('thread-body').textContent.includes('FVA-01 rascunho'),false);
 });
 
 test('FVA-01: G2 fila compartilhada nao transforma pedido local em atribuição de outro Gestor',()=>{
-  reset();env.selectActor('marina');get('team-nav').click();get('team-show-queue').click();
+  reset();env.selectActor('marina');env.inbox[0].click();get('team-nav').click();get('team-show-queue').click();
   assert.match(get('team-queue').textContent,/FILA-A-01/);
   const request=env.descendants(get('team-queue')).find(n=>
     n.tagName==='BUTTON' && n.textContent==='Solicitar assunção');
@@ -1138,14 +1140,14 @@ test('FVA-01: G2 fila compartilhada nao transforma pedido local em atribuição 
   get('queue-action-dialog').close('confirm');
   assert.match(get('team-queue').textContent,/SOLICITADO LOCALMENTE · NÃO ATRIBUÍDO/);
   get('team-dialog').close();
-  env.selectActor('daniel');
+  env.selectActor('daniel');env.inbox[0].click();
   get('team-nav').click();get('team-show-queue').click();
   assert.match(get('team-queue').textContent,/FILA-A-01/);
   assert.equal(get('team-queue').textContent.includes('SOLICITADO LOCALMENTE'),false);
   assert.ok(env.descendants(get('team-queue')).some(n=>
     n.tagName==='BUTTON' && n.textContent==='Solicitar assunção'));
   get('team-dialog').close();
-  env.selectActor('marina');
+  env.selectActor('marina');env.inbox[0].click();
   get('team-nav').click();get('team-show-queue').click();
   assert.equal(get('team-queue').textContent.includes('SOLICITADO LOCALMENTE'),false);
   assert.match(get('team-queue').textContent,/FILA-A-01/);
@@ -1153,21 +1155,21 @@ test('FVA-01: G2 fila compartilhada nao transforma pedido local em atribuição 
 });
 
 test('FVA-01: exceção por caso não vira concessão geral nem sobrevive a troca de identidade',()=>{
-  reset();env.selectActor('lia');
+  reset();env.selectActor('lia');env.inbox[0].click();
   assert.ok(get('shop-select').textContent.includes('somente caso excepcional'));
-  env.selectShop('aurora');
+  env.selectShop('aurora');env.inbox[0].click();
   assert.equal(env.cards().length,1);
   env.openCase('Exemplo 19');
   assert.match(get('thread-meta').textContent,/A-117/);
   assert.match(get('workflow-bar').textContent,/Acesso excepcional: SOMENTE este caso/);
   assert.equal(env.cards().some(n=>n.textContent.includes('Exemplo 02')),false);
-  env.selectActor('daniel');
+  env.selectActor('daniel');env.inbox[0].click();
   assert.equal(env.cards().some(n=>n.textContent.includes('Exemplo 19')),false);
   assert.equal(get('thread-meta').textContent.includes('A-117'),false);
-  env.selectActor('rafael');
+  env.selectActor('rafael');env.inbox[0].click();
   assert.equal(env.cards().some(n=>n.textContent.includes('Exemplo 19')),false);
-  env.selectActor('lia');
-  env.selectShop('aurora');
+  env.selectActor('lia');env.inbox[0].click();
+  env.selectShop('aurora');env.inbox[0].click();
   assert.equal(env.cards().length,1);
   assert.match(env.cards()[0].textContent,/Exemplo 19/);
   assert.equal(get('message-input').value,'');
@@ -1176,41 +1178,41 @@ test('FVA-01: exceção por caso não vira concessão geral nem sobrevive a troc
 test('FVA-02: template local não atravessa identidade fictícia ou confirmação obsoleta',()=>{
   reset();env.openCase('Exemplo 08');
   const before=get('workflow-bar').textContent;
-  buttons('Selecionar e solicitar template')[0].click();
+  buttons('Enviar template')[0].click();
   assert.equal(get('template-dialog').open,true);
-  env.selectActor('daniel');
+  env.selectActor('daniel');env.inbox[0].click();
   assert.equal(get('template-dialog').open,false);
   get('template-dialog').close('confirm'); // callback antigo não ressuscita solicitação
-  env.selectActor('rafael');env.openCase('Exemplo 08');
+  env.selectActor('rafael');env.inbox[0].click();env.openCase('Exemplo 08');
   assert.equal(get('workflow-bar').textContent,before);
-  assert.ok(buttons('Selecionar e solicitar template').length>0);
-  buttons('Selecionar e solicitar template')[0].click();
+  assert.ok(buttons('Enviar template').length>0);
+  buttons('Enviar template')[0].click();
   get('template-dialog').close('confirm');
   assert.match(get('detail-content').textContent,/SOLICITADO/);
   assert.equal(get('detail-content').textContent.includes('Envio comprovado · fixture'),false);
   assert.match(get('detail-content').textContent,/SOLICITADO \(demo\), não agendado, não transmitido e nunca ENVIADO/);
-  env.selectActor('marina');env.selectActor('rafael');
+  env.selectActor('marina');env.inbox[0].click();env.selectActor('rafael');env.inbox[0].click();
   env.openCase('Exemplo 08');
   assert.equal(get('workflow-bar').textContent,before);
-  assert.ok(buttons('Selecionar e solicitar template').length>0);
+  assert.ok(buttons('Enviar template').length>0);
   assert.equal(get('detail-content').textContent.includes('SOLICITADO (demo)'),false);
 });
 
 test('FVA-02: troca de concessionária limpa intenção local da fila e preserva escopo',()=>{
-  reset();env.selectActor('marina');get('team-nav').click();get('team-show-queue').click();
+  reset();env.selectActor('marina');env.inbox[0].click();get('team-nav').click();get('team-show-queue').click();
   const first=env.descendants(get('team-queue')).find(n=>
     n.tagName==='BUTTON' && n.textContent==='Solicitar assunção');
   assert.ok(first);first.click();get('queue-action-dialog').close('confirm');
   assert.match(get('team-queue').textContent,/FILA-A-01/);
   assert.match(get('team-queue').textContent,/SOLICITADO LOCALMENTE/);
   get('team-dialog').close();
-  env.selectShop('horizonte');
+  env.selectShop('horizonte');env.inbox[0].click();
   get('team-nav').click();get('team-show-queue').click();
   assert.match(get('team-queue').textContent,/FILA-H-01/);
   assert.equal(get('team-queue').textContent.includes('FILA-A-01'),false);
   assert.equal(get('team-queue').textContent.includes('SOLICITADO LOCALMENTE'),false);
   get('team-dialog').close();
-  env.selectShop('aurora');get('team-nav').click();get('team-show-queue').click();
+  env.selectShop('aurora');env.inbox[0].click();get('team-nav').click();get('team-show-queue').click();
   assert.match(get('team-queue').textContent,/FILA-A-01/);
   assert.equal(get('team-queue').textContent.includes('SOLICITADO LOCALMENTE'),false);
   assert.ok(env.descendants(get('team-queue')).some(n=>
@@ -1237,31 +1239,31 @@ test('FVA-02: F03 erro, versão obsoleta, incerteza e indisponibilidade nunca ap
     assert.equal(text.includes('Ficha gravada'),false);
     assert.equal(text.includes('Corrigir cadastro'),false);
   }
-  assert.match(get('workflow-bar').textContent,/em atendimento pelo operador/);
-  assert.equal(get('workflow-bar').textContent.includes('cadastro enviado ao banco'),false);
+  assert.match(get('detail-content').textContent,/em atendimento pelo operador/);
+  assert.equal(get('detail-content').textContent.includes('cadastro enviado ao banco'),false);
   const obsolete=env.descendants(get('detail-content')).find(n=>
     n.tagName==='BUTTON' && n.textContent==='Falha técnica');
   env.openCase('Exemplo 05');
   const bankBefore=get('workflow-bar').textContent;
   assert.ok(obsolete);obsolete.click(); // ação do caso anterior fora de contexto
   assert.equal(get('workflow-bar').textContent,bankBefore);
-  assert.match(get('workflow-bar').textContent,/cadastro enviado ao banco/);
+  assert.match(get('detail-content').textContent,/cadastro enviado ao banco/);
   assert.equal(status.includes('cadastro enviado ao banco'),false);
 });
 
 test('FVA-02: pausa modal obsoleta não se torna aplicada por outro Gestor',()=>{
-  reset();env.selectActor('marina');get('team-nav').click();
+  reset();env.selectActor('marina');env.inbox[0].click();get('team-nav').click();
   const pause=env.descendants(get('team-list')).find(n=>
     n.tagName==='BUTTON' && n.textContent.includes('Solicitar pausa'));
   assert.ok(pause);pause.click();
   assert.equal(get('intake-dialog').open,true);
-  env.selectActor('daniel');
+  env.selectActor('daniel');env.inbox[0].click();
   assert.equal(get('intake-dialog').open,false);
   get('intake-dialog').close('confirm');
   get('team-nav').click();
   assert.equal(get('team-list').textContent.includes('SOLICITADO LOCALMENTE'),false);
   get('team-dialog').close();
-  env.selectActor('marina');get('team-nav').click();
+  env.selectActor('marina');env.inbox[0].click();get('team-nav').click();
   assert.equal(get('team-list').textContent.includes('SOLICITADO LOCALMENTE'),false);
   const restart=env.descendants(get('team-list')).find(n=>
     n.tagName==='BUTTON' && n.textContent.includes('Solicitar pausa'));

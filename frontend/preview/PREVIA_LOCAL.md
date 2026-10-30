@@ -1,3 +1,9 @@
+# FV-REV-01 — Etapa 1
+
+Na revisão de 30/10/2026, **Filtrar conversas** reúne concessionária autorizada, Todos/Ativos/Históricos e atenção. O botão **Ambiente demonstrativo** reúne perfil/reset e a simulação de carregamento; não representa autenticação. Três pontos preservam Claro/Escuro. Consultor e Gestor usam a mesma base (`?perfil=consultor` / `?perfil=gestor`). Nenhum envio, upload, deploy ou publicação é executado. O X fecha informações em desktop/tablet/celular e preserva os campos não submetidos no mesmo caso.
+
+As instruções de execução e limites da prévia integral seguem abaixo.
+
 # Prumo — prévia integral para avaliação
 
 Esta prévia contém o frontend existente completo, com dados fictícios. Nada é enviado pelo WhatsApp e não há conexão operacional com S0/S1, Meta, IA ou banco.

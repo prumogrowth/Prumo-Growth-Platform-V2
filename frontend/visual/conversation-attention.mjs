@@ -6,7 +6,44 @@
  * A manager opening a conversation must NEVER mark it read on behalf of
  * an operator. An unread count is not itself proof of response pending.
  */
+import { visibleConversations } from './fixtures.mjs';
+import { stageMockMessageTransport } from './transport-state-view.mjs';
+
 export const ATTENTION_PROPOSAL_VERSION = 'ui-attention-proposal/0.1';
+
+/** Only already-authorized synthetic records. Local/uncertain outgoing messages
+ * never replace the last confirmed record. Supervisor visibility is read-only;
+ * validating the fixture's assignee transport does not acknowledge any reading.
+ */
+export function confirmedDemoMessages(record, actorId, shopId) {
+  if (!record || !visibleConversations([record], actorId, shopId).length) return [];
+  return (record.messages ?? []).filter(message => {
+    if (message.deliveryState === 'local_demo_not_sent') return false;
+    if (message.side === 'out')
+      return stageMockMessageTransport(record, message, record.assignedTo, shopId).provedSent;
+    return ['in', 'ai', 'system'].includes(message.side) && message.deliveryState == null;
+  });
+}
+
+export function latestConfirmedDemoMessage(record, actorId, shopId) {
+  return confirmedDemoMessages(record, actorId, shopId).at(-1) ?? null;
+}
+
+export function projectDemoAttention(record, actorId, shopId) {
+  if (!record || !visibleConversations([record], actorId, shopId).length) return ATTENTION_EMPTY;
+  const lastHumanRelevant = confirmedDemoMessages(record, actorId, shopId)
+    .filter(message => ['in', 'out'].includes(message.side)).at(-1);
+  return stageConversationAttention({
+    schema_version: ATTENTION_PROPOSAL_VERSION,
+    unread_inbound_count: record.unread,
+    operator_read_confirmed: record.demoReadByAssigned === true &&
+      record.demoReadProjection?.source === 'local_fixture' &&
+      record.demoReadProjection.actorId === record.assignedTo &&
+      record.demoReadProjection.caseId === record.id &&
+      record.demoReadProjection.shopId === record.shopId,
+    human_reply_pending: lastHumanRelevant?.side === 'in'
+  });
+}
 const isPlain = o => o !== null && typeof o === 'object' && !Array.isArray(o) &&
   (Object.getPrototypeOf(o) === Object.prototype || Object.getPrototypeOf(o) === null);
 const ATTENTION_EMPTY = Object.freeze({kind:'none',count:null,label:null});

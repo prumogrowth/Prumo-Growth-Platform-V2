@@ -79,7 +79,7 @@ def check_git_revision(expected_head):
                        and not changes.stdout.strip()})
         result["passed"] = (
             actual_head == expected_head.lower()
-            and actual_branch in {"feat/frontend-plataforma-visual", "codex/fv-ux-01-comunicacao-20261027"}
+            and actual_branch in {"feat/frontend-plataforma-visual", "codex/fv-ux-01-comunicacao-20261027", "codex/fv-rev-01-conversas-20261030"}
             and result["clean_frontend_visual"]
         )
         if not result["passed"]:
@@ -122,7 +122,7 @@ def check_native_blob_manifest(expected_head, revision_ok):
             raise ValueError("manifest is not a literal json.loads call")
         manifest = json.loads(call.args[0].value)
         source = manifest.get("source_head", "")
-        if (manifest.get("source_branch") not in {"feat/frontend-plataforma-visual", "codex/fv-ux-01-comunicacao-20261027"}
+        if (manifest.get("source_branch") not in {"feat/frontend-plataforma-visual", "codex/fv-ux-01-comunicacao-20261027", "codex/fv-rev-01-conversas-20261030"}
                 or not isinstance(source, str)
                 or not re.fullmatch(r"[0-9a-f]{40}", source)):
             raise ValueError("manifest provenance invalid")
@@ -191,6 +191,7 @@ def main():
     blob_ok = blob_step["passed"] and blob_step["executed"]
     # Uma suíte truncada pode passar no Node e não constitui aceite integral.
     expected_tests = {
+        "revision-conversations.test.mjs",
         "local-audio.test.mjs", "communication-composer.test.mjs",
         "app.dom.test.mjs", "app.mobile.dom.test.mjs", "app.tablet.dom.test.mjs", "bank-view.test.mjs",
         "batch-monitor.test.mjs", "cf-op-02.test.mjs", "fixtures.test.mjs",
@@ -205,7 +206,7 @@ def main():
         "validation-layers.test.mjs",
     }
     required_sources = {
-        "local-audio.mjs", "communication-composer.mjs", "tests/browser.communication.py",
+        "local-audio.mjs", "communication-composer.mjs", "tests/browser.communication.py", "tests/browser.revision.py",
         "index.html", "styles.css", "app.mjs", "fixtures.mjs",
         "view-model.mjs", "cf-op-02.mjs", "registration-view.mjs", "human-cycle-view.mjs",
         "operation-feedback.mjs", "s0-command-result.mjs", "s0-read-contract.mjs", "integration-gate-view.mjs",
@@ -256,7 +257,7 @@ def main():
                    "executed": False, "error": error}
     else:
         node_step=run_step("Node ESM regression",
-                           [node, "--test", *suite], timeout=180)
+                           [node, "--test", "--test-concurrency=1", *suite], timeout=180)
     report["steps"].append(node_step)
     node_ok=node_step["passed"] and node_step["executed"]
     if args.skip_browser:
@@ -275,7 +276,7 @@ def main():
         print("Chromium BLOCKED — " + error, flush=True)
     else:
         browser_step = run_step("Chromium Playwright smoke",
-                                [sys.executable, str(TESTS / "browser.smoke.py")], timeout=300)
+                                [sys.executable, str(TESTS / "browser.smoke.py")], timeout=600)
         report["steps"].append(browser_step)
         report["browser_executed"] = browser_step["executed"]
     report["full_acceptance"] = all(s["passed"] and s["executed"]

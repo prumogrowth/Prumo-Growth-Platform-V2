@@ -1,3 +1,7 @@
+# Continuidade FV-REV-01 — Etapa 1 (30/10/2026)
+
+A revisão reaproveita esta base: lista contínua com filtros centralizados, controles de perfil/reset em **Ambiente demonstrativo**, conclusão no cabeçalho e X responsivo. [Escopo, matriz e validação](../docs/98_FV_REV_01_ETAPA_1_2026_10_30.md). Dados exclusivamente sintéticos; nenhuma integração ou Etapa 2. O histórico abaixo descreve as etapas anteriores e suas evidências próprias.
+
 # FV-UI-001 — Central de Atendimento, estrutura visual responsiva
 
 > **Checkpoint vigente — FV-UX-01 / Codex, 27/10/2026:** continuidade da mesma base em `codex/fv-ux-01-comunicacao-20261027`, originada em `8c9498d7`. Emoji no cursor e gravação/prévia/anexo de áudio apenas em memória; cores neutras e redução dos avisos repetidos. [Estado implementado, contratos consultados e pendências](../docs/97_FV_UX_01_CODEX_IMPLEMENTACAO_E_PREVIA_2026_10_27.md). Os relatos datados abaixo são históricos. Não há autenticação operacional, upload, Meta, persistência, merge ou deploy.

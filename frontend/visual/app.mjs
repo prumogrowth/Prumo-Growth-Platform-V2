@@ -29,8 +29,7 @@ import { projectManagerMonitor } from './team-monitor.mjs';
 import { projectManagerBatches } from './batch-monitor.mjs';
 import { projectTeamMonitoring, describeMonitoring } from './team-monitoring.mjs';
 import {
-  ATTENTION_PROPOSAL_VERSION, stageConversationAttention,
-  canStageReadAcknowledgment
+  canStageReadAcknowledgment, projectDemoAttention, latestConfirmedDemoMessage
 } from './conversation-attention.mjs';
 import { installCommunicationComposer, audioDuration } from './communication-composer.mjs';
 
@@ -43,8 +42,8 @@ const systemColorScheme = window.matchMedia('(prefers-color-scheme: dark)');
 const initialDemoActor = new URLSearchParams(window.location?.search ?? '').get('perfil') === 'gestor' ? 'marina' : 'rafael';
 const state = {
   actorId: initialDemoActor, shopId: 'aurora', filter: 'all', statusFilter: 'all', detailTab: 'overview', query: '',
-  selectedId: initialDemoActor === 'rafael' ? 'A-102' : null, cases: copyCFDemoFixtures(), processing: {}, reviewScenes: {}, followupRequests: {}, inboxView: 'active',
-  mobileView: 'list', theme: systemColorScheme.matches ? 'dark' : 'light', themeOverride:false,
+  selectedId: initialDemoActor === 'rafael' ? 'A-102' : null, cases: copyCFDemoFixtures(), processing: {}, reviewScenes: {}, followupRequests: {}, inboxView: 'all',
+  mobileView: 'list', listLoading:false, theme: systemColorScheme.matches ? 'dark' : 'light', themeOverride:false,
   dialogContext: { completion: null, template: null, message: null }, intakeDialogContext:null, queueDialogContext:null, queueRequests:{}, teamRequests:{}, teamPanel:'members'
 };
 const communication = installCommunicationComposer({
@@ -116,16 +115,7 @@ function clearComposerContext() {
  * Não calcular pendência real a partir do texto/tempo no browser.
  */
 function demoAttentionFor(item) {
-  const lastHumanRelevant=[...(item.messages??[])].reverse()
-    .find(message=>message.side==='in' || (message.side==='out' &&
-    message.deliveryState!=='local_demo_not_sent' &&
-    stageMockMessageTransport(item,message,item.assignedTo,item.shopId).provedSent));
-  return stageConversationAttention({
-    schema_version:ATTENTION_PROPOSAL_VERSION,
-    unread_inbound_count:item.unread,
-    operator_read_confirmed:item.demoReadByAssigned===true,
-    human_reply_pending:lastHumanRelevant?.side==='in'
-  });
+  return projectDemoAttention(item,state.actorId,state.shopId);
 }
 function acknowledgeDemoReadByAssignee(item) {
   const actor=getActor(state.actorId);
@@ -138,13 +128,17 @@ function acknowledgeDemoReadByAssignee(item) {
   if(eligible) {
     // No backend API: this is a purely local synthetic demonstration.
     item.unread=0;item.demoReadByAssigned=true;
+    item.demoReadProjection={source:'local_fixture',actorId:state.actorId,caseId:item.id,shopId:item.shopId};
   }
 }
 function accessible() { return visibleConversations(state.cases, state.actorId, state.shopId); }
 function filtered() {
   return projectQueue(state.cases, state.actorId, state.shopId, {
     query: state.query, filter: state.filter, status: state.statusFilter
-  }).filter(record => state.inboxView === 'history' ? record.inboxProjection === 'historical' : isInActiveInbox(record));
+  }).filter(record => state.inboxView === 'all' ? ['active','historical'].includes(record.inboxProjection) :
+    state.inboxView === 'history' ? record.inboxProjection === 'historical' : isInActiveInbox(record))
+    .filter(record => state.filter !== 'pending' || demoAttentionFor(record).kind === 'read_awaiting_reply')
+    .sort((a,b) => Number(!isInActiveInbox(a))-Number(!isInActiveInbox(b)));
 }
 
 function postmarkContextValid(record) {
@@ -231,7 +225,7 @@ function goto(view) {
   // FV-UI-028: o estado acessível acompanha o painel móvel de fato visível.
   // No desktop, aria-expanded permanece sob controle da abertura do painel lateral.
   if(window.matchMedia('(max-width:760px)').matches)
-    $('detail-toggle').setAttribute('aria-expanded',String(view==='detail'));
+    setDetailsExpanded(view==='detail');
   if (view === 'thread') $('message-input').blur();
 }
 function updateSelectors() {
@@ -252,6 +246,10 @@ function updateSelectors() {
     const o = el('option', '', `${shop.name} · ${context}`); o.value = id; return o;
   }));
   shopSelect.value = state.shopId;
+  $('commercial-filter').hidden = actor.role !== 'gestor';
+  document.querySelectorAll('[data-filter]').forEach(button => {
+    if(button.dataset.filter==='mine') button.hidden=actor.role!=='gestor';
+  });
   const statusSelect = $('status-filter');
   statusSelect.replaceChildren(el('option','', 'Todos os estados comerciais'),
     ...COMMERCIAL_STATUSES.map(status => { const opt=el('option','',status);opt.value=status;return opt;}));
@@ -264,8 +262,13 @@ function resetListRefinements() {
   renderList();$('search-input').focus();
 }
 function renderList() {
+  list.setAttribute('aria-busy',String(state.listLoading));
+  if(state.listLoading){
+    const loading=el('p','no-results','Carregando conversas…');loading.setAttribute('role','status');
+    list.replaceChildren(loading);$('list-count').textContent='Carregando';return;
+  }
   const items = filtered();
-  const listProjection = projectInbox(state.cases,state.actorId,state.shopId,state.inboxView);
+  const listProjection = state.inboxView === 'all' ? accessible().filter(record=>['active','historical'].includes(record.inboxProjection)) : projectInbox(state.cases,state.actorId,state.shopId,state.inboxView);
   const total = listProjection.length;
   // FV-UI-052: anunciar quantidades quando existirem resultados; evitar
   // anúncio duplo de zero, já explicado por .no-results[role=status].
@@ -278,6 +281,9 @@ function renderList() {
   // FV-UI-049: o contador indica resultados visíveis sem perder o total desta aba.
   listCount.textContent = items.length !== total ? `${items.length} de ${total} atendimentos` : `${total} ${total === 1 ? 'atendimento' : 'atendimentos'}`;
   const currentActor = getActor(state.actorId);
+  const placementLabel={all:'Todas',active:'Ativos',history:'Históricos'}[state.inboxView];
+  const attentionLabel={all:'',unread:'Não lidas',pending:'Lidas sem resposta humana',mine:'Atribuídas a mim'}[state.filter];
+  $('filter-summary').textContent=[placementLabel,attentionLabel,state.statusFilter!=='all'?state.statusFilter:''].filter(Boolean).join(' · ');
   $('list-context').textContent = currentActor.teamState !== 'active' ? 'Acesso fictício suspenso' : currentActor.role === 'gestor' ? 'Visão de supervisão' : 'Atribuídos a mim';
   const activeRows=projectInbox(state.cases,state.actorId,state.shopId,'active');
   const summary={total:activeRows.length,unread:activeRows.filter(x=>x.unread>0).length,human:activeRows.filter(x=>x.status==='em atendimento pelo operador').length};
@@ -289,17 +295,18 @@ function renderList() {
     const active=button.dataset.inbox===state.inboxView;
     button.classList.toggle('selected',active);button.setAttribute('aria-pressed',String(active));
   });
-  const nodes = items.map((item, idx) => {
+  const nodes = items.map(item => {
     const card = el('button', 'conversation-card' + (item.id === state.selectedId ? ' is-selected' : ''));
     card.type = 'button'; card.setAttribute('aria-pressed', String(item.id === state.selectedId));
     const attention=demoAttentionFor(item);
     card.setAttribute('aria-label', `Abrir conversa ${item.name}, ${item.status}, ${attention.label??'sem pendência indicada'}`);
-    const avatar = el('div', 'avatar a' + (idx%4+1), item.initials); avatar.setAttribute('aria-hidden','true');
     const center = el('div','item-center');
-    const row = el('div','item-title-row'); row.append(el('span','item-title',item.name),el('span','item-time',item.updatedAt));
-    const latest=item.messages.at(-1);
-    const preview=latest?.deliveryState==='local_demo_not_sent' ? 'Mensagem fictícia preparada · NÃO ENVIADA' : (latest?.body ?? 'Sem mensagens');
-    const foot = el('div', 'item-foot'); foot.append(el('span','micro-tag',item.tag));
+    const latest=latestConfirmedDemoMessage(item,state.actorId,state.shopId);
+    // Time follows the confirmed message, never a local draft.
+    const row = el('div','item-title-row');
+    row.append(el('span','item-title',item.name),el('span','item-time',latest?.time ?? '—'));
+    const foot = el('div', 'item-foot');
+    foot.append(el('span','item-preview',latest?.body ?? 'Sem mensagem confirmada'));
     if(projectedMetaWindow(item)==='expired') foot.append(el('span','window-mini','Janela expirada'));
     if(attention.kind!=='none'){
       const badge=el('span',attention.kind==='unread'?'unread attention-unread':'unread attention-pending',
@@ -309,8 +316,8 @@ function renderList() {
       badge.setAttribute('title',attention.label);
       foot.append(badge);
     }
-    center.append(row, el('div','item-preview',preview),foot);
-    card.append(avatar,center);
+    center.append(row,foot);
+    card.append(center);
     card.addEventListener('click', () => {
       closeTransientDialogs();state.selectedId = item.id; acknowledgeDemoReadByAssignee(item);state.detailTab='overview';
       goto('thread'); render();
@@ -333,7 +340,7 @@ function renderList() {
       hint='Profissional suspenso na fixture. Acesso real pertence ao S0/S1-002.';
     } else if (total === 0) {
       heading='Nenhum atendimento nesta lista';
-      hint='Consulte as abas Ativas / pendentes e Histórico do mesmo perfil fictício.';
+      hint='Altere Todos, Ativos ou Históricos no controle Filtrar conversas.';
     } else if (searching) {
       heading='Nenhuma conversa corresponde à busca';
       hint='Tente outro termo ou limpe a busca e os filtros desta lista.';
@@ -366,6 +373,12 @@ function renderThread() {
   $('thread-title').textContent = item?.name ?? 'Selecione uma conversa';
   $('thread-meta').textContent = item ? `${getShop(item.shopId).name} · Caso ${item.id}` : 'Nenhum atendimento selecionado';
   const body = $('thread-body'); const bar = $('workflow-bar');
+  const actions=$('thread-actions');actions.replaceChildren();
+  $('thread-title').disabled=!item;
+  const terminal=$('terminal-banner');
+  terminal.hidden=!(item?.inboxProjection==='historical' && ['vendido','perdido'].includes(item.status));
+  terminal.textContent=terminal.hidden?'':(item.status==='vendido'?'✓ Vendido':'× Perdido')+' · Caso histórico · somente leitura';
+  terminal.dataset.outcome=terminal.hidden?'':item.status;
   const input = $('message-input'); const button = document.querySelector('.send-button');
   if (!item) {
     const empty = el('div','thread-placeholder');
@@ -409,24 +422,14 @@ function renderThread() {
   body.replaceChildren(...children);
   // Rolar somente depois de renderizar; não dispara solicitações externas.
   body.scrollTop = body.scrollHeight;
-  const note = el('div','workflow-copy');
-  const s = el('span', 'status-indicator ' + statusTone(item.status), item.status);
-  const t = el('span', 'tiny-note sr-only', 'Estado comercial · não alterado pela interface');
-  note.append(s,t);
-  bar.replaceChildren(note);
+  bar.replaceChildren();
   if(isExceptional)bar.append(el('span','status-indicator',
     'Acesso excepcional: SOMENTE este caso · projeção fictícia'));
   const meta=projectedMetaWindow(item);
   const completionState = humanCompletion(item,Boolean(state.processing[item.id]));
   if(item.reviewSceneVersion)bar.append(el('span','status-indicator',
     'Esclarecimento · CENÁRIO ALTERNATIVO fictício, não reaberto no S0'));
-  if(completionState==='completed')
-    bar.append(el('span','status-indicator','Etapa humana concluída · projeção fictícia'));
-  else if(completionState==='requested_demo')
-    bar.append(el('span','status-indicator','Conclusão solicitada · simulação'));
-  else if(completionState==='unknown')
-    bar.append(el('span','status-indicator','Etapa humana não confirmada'));
-  if(!isInActiveInbox(item)) bar.append(el('span','status-indicator','Histórico · somente leitura'));
+  if(completionState==='unknown') bar.append(el('span','status-indicator','Etapa humana não confirmada'));
   if(item.reassignmentProjection==='protected_queue') bar.append(el('span','status-indicator','Fila protegida · sem responsável elegível'));
   if (canMockClose(item)) {
     const close = el('button', 'btn btn-primary', 'Concluir atendimento');
@@ -436,7 +439,7 @@ function renderThread() {
       captureDialogContext('completion');
       const dialog=$('completion-dialog');dialog.returnValue='';dialog.showModal();
     });
-    bar.append(close);
+    actions.append(close);
   } else if (state.processing[item.id]) {
     const label = state.processing[item.id].kind === 'accepted' ? 'Solicitação simulada' : 'Resultado fictício';
     bar.append(el('span','status-indicator human',label));
@@ -444,7 +447,7 @@ function renderThread() {
   const fActions=postmarkContextValid(item) ? projectedFollowupActions(item,state.actorId,state.shopId,Boolean(state.processing[item.id])) : [];
   const pendingLocal=state.followupRequests[item.id];
   if(fActions.includes('single_template') && !pendingLocal){
-    const btn=el('button','btn btn-light','Selecionar e solicitar template aprovado');btn.type='button';
+    const btn=el('button','btn btn-light','Enviar template');btn.type='button';
     btn.addEventListener('click',()=>{
       const current=selectedCase();
       if(!current || current.id!==item.id || !postmarkContextValid(current) ||
@@ -461,7 +464,7 @@ function renderThread() {
     bar.append(btn);
   }
   if(fActions.includes('request_chain') && !pendingLocal){
-    const btn=el('button','btn btn-light','Solicitar cadeia de tentativas à IA');btn.type='button';
+    const btn=el('button','btn btn-light','Cadeia por IA');btn.type='button';
     btn.addEventListener('click',()=>{
       if(selectedCase()?.id!==item.id || !postmarkContextValid(item))return;
       try {state.followupRequests[item.id]=applyLocalFollowupRequest(item,state.actorId,state.shopId,'request_chain');
@@ -475,7 +478,8 @@ function renderThread() {
   button.disabled = !composeAllowed;
   const availability = $('composer-availability');
   availability.hidden = composeAllowed;
-  availability.textContent = composeAllowed ? '' : meta==='expired' ? 'Janela de conversa encerrada' : 'Envio indisponível no momento';
+  availability.textContent = composeAllowed ? '' : meta==='expired' ?
+    'Janela de conversa encerrada'+(fActions.length && !pendingLocal ? ' · ações demonstrativas' : ' · envio indisponível no momento') : 'Envio indisponível no momento';
   input.placeholder = composeAllowed ? 'Escrever mensagem…' : 'Composição indisponível';
 }
 function detailSection(title) {
@@ -502,8 +506,8 @@ function focusExtractionAfterRerender(caseId,notice){
 function renderDetails() {
   const target=$('detail-content');const item=selectedCase();
   if(!item){target.replaceChildren(el('p','detail-placeholder','Selecione uma conversa para ver informações do caso.'));return;}
-  const profile=el('div','profile-detail');const avatar=el('div','avatar',item.initials);
-  profile.append(avatar,el('strong','',item.name),el('span','',`Caso ${item.id} · exemplo fictício`));
+  const profile=el('div','profile-detail');
+  profile.append(el('strong','',item.name),el('span','',`Caso ${item.id} · exemplo fictício`),el('span','detail-commercial',item.status));
   const tabs=el('div','detail-tabs');tabs.setAttribute('role','tablist');tabs.setAttribute('aria-label','Detalhes do caso fictício');
   for(const tab of DETAIL_TABS){
     const button=el('button','detail-tab'+(state.detailTab===tab.id?' active':''),tab.title);
@@ -815,21 +819,23 @@ function render(){renderList();renderThread();renderDetails();app.dataset.mobile
 function changeActor(actorId){
   const actor=getActor(actorId);if(!actor)return;
   closeTransientDialogs();
+  state.listLoading=false;$('demo-list-state').value='ready';
   if($('team-dialog').open)$('team-dialog').close();
   // Não deixar carteira do gestor anterior, nem mesmo oculta no DOM da demo.
   $('team-list').replaceChildren();$('team-monitor').replaceChildren();$('team-batches').replaceChildren();$('team-queue').replaceChildren();
   // FVA-02: pedido local de template/cadeia nunca atravessa perfil fictício.
   state.teamRequests={};state.queueRequests={};state.followupRequests={};state.reviewScenes={};state.processing={};state.teamPanel='members';
-  state.actorId=actor.id;state.shopId=actor.shops[0];state.selectedId=null;state.detailTab='overview';state.statusFilter='all';state.inboxView='active';
+  state.actorId=actor.id;state.shopId=actor.shops[0];state.selectedId=null;state.detailTab='overview';state.statusFilter='all';state.inboxView='all';
   state.filter='all';state.query='';$('search-input').value='';goto('list');updateSelectors();render();announceCurrentContext('Perfil alterado');
 }
 $('actor-select').addEventListener('change',event=>changeActor(event.target.value));
 $('shop-select').addEventListener('change',event=>{
   const actor=getActor(state.actorId);
   if(!visibleMockShops(state.cases,state.actorId).includes(event.target.value))return;
+  state.listLoading=false;$('demo-list-state').value='ready';
   closeTransientDialogs();
   // FVA-02: solicitação ainda não confirmada por serviço pertence à loja anterior.
-  state.queueRequests={};state.followupRequests={};state.reviewScenes={};state.shopId=event.target.value;state.selectedId=null;state.detailTab='overview';state.statusFilter='all';state.inboxView='active';$('status-filter').value='all';state.query='';$('search-input').value='';goto('list');render();announceCurrentContext('Concessionária alterada');
+  state.queueRequests={};state.followupRequests={};state.reviewScenes={};state.shopId=event.target.value;state.selectedId=null;state.detailTab='overview';state.statusFilter='all';state.inboxView='all';$('status-filter').value='all';state.query='';$('search-input').value='';goto('list');render();announceCurrentContext('Concessionária alterada');
 });
 $('search-input').addEventListener('input',event=>{state.query=event.target.value;renderList();});
 $('clear-list-filters').addEventListener('click',resetListRefinements);
@@ -845,7 +851,7 @@ document.querySelectorAll('[data-filter]').forEach(button=>button.addEventListen
 function mobileBackNavigation(){
   if(!window.matchMedia('(max-width:760px)').matches)return false;
   if(state.mobileView==='detail'){
-    goto('thread');$('detail-toggle').focus();return true;
+    return closeFloatingDetails();
   }
   if(state.mobileView==='thread'){
     goto('list');$('search-input').focus();return true;
@@ -866,24 +872,44 @@ $('ui-settings').addEventListener('keydown',event=>{
 document.addEventListener('click',event=>{
   if($('ui-settings').open && !$('ui-settings').contains(event.target))$('ui-settings').open=false;
 });
+let detailOpener='detail-toggle';
+function setDetailsExpanded(expanded){
+  for(const id of ['detail-toggle','thread-title']) $(id).setAttribute('aria-expanded',String(expanded));
+}
+function openDetails(opener){
+  if(!selectedCase())return;
+  detailOpener=opener;
+  app.classList.remove('details-hidden');
+  const mobile=window.matchMedia('(max-width:760px)').matches;
+  if(mobile)goto('detail');
+  setDetailsExpanded(true);
+  if(mobile)$('detail-back').focus();
+  else $('detail-content').querySelector('.detail-tab.active')?.focus();
+}
+$('thread-title').addEventListener('click',()=>openDetails('thread-title'));
 $('detail-toggle').addEventListener('click',()=>{
-  if (window.matchMedia('(max-width:760px)').matches) {goto('detail');$('detail-back').focus();return;}
-  const hidden=app.classList.toggle('details-hidden');$('detail-toggle').setAttribute('aria-expanded',String(!hidden));
+  const mobile=window.matchMedia('(max-width:760px)').matches;
+  if(!mobile && !app.classList.contains('details-hidden')){detailOpener='detail-toggle';closeFloatingDetails();}
+  else openDetails('detail-toggle');
 });
-/** FV-UI-034: fechar o painel flutuante nunca deixa foco no botão oculto.
- * Não mexer no caso, na aba, no estado comercial nem em diálogos ativos.
- */
+/** Close is navigation only in every viewport. No render/reset/operation cancellation. */
 function closeFloatingDetails(){
-  if(!window.matchMedia('(max-width:1040px)').matches ||
-     window.matchMedia('(max-width:760px)').matches ||
-     app.classList.contains('details-hidden') ||
-     document.querySelector('dialog[open]'))return false;
+  if(document.querySelector('dialog[open]'))return false;
+  const mobile=window.matchMedia('(max-width:760px)').matches;
+  if(mobile ? state.mobileView!=='detail' : app.classList.contains('details-hidden'))return false;
   app.classList.add('details-hidden');
-  $('detail-toggle').setAttribute('aria-expanded','false');
-  $('detail-toggle').focus();
+  if(mobile)goto('thread');
+  setDetailsExpanded(false);
+  $(detailOpener).focus();
   return true;
 }
 $('detail-close').addEventListener('click',()=>{closeFloatingDetails();});
+$('demo-open').addEventListener('click',()=>{communication.reset();$('demo-dialog').showModal();});
+$('demo-list-state').addEventListener('change',event=>{
+  state.listLoading=event.target.value==='loading';renderList();
+});
+$('demo-close').addEventListener('click',()=>{$('demo-dialog').close();});
+$('demo-dialog').addEventListener('close',()=>{$('demo-open').focus();});
 function renderTeamMonitoring(){
   const target=$('team-monitor');
   const view=projectTeamMonitoring(state.actorId,state.cases);
@@ -1220,14 +1246,9 @@ document.addEventListener('keydown',event=>{
     state.query='';$('search-input').value='';renderList();
     return;
   }
-  if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='k'){
-    event.preventDefault();goto('list');$('search-input').focus();
-  }
   // FV-UI-034: Escape atua somente quando o foco está no painel
   // flutuante de Detalhes; nunca fecha diálogos nem editor de nota.
   if(event.key==='Escape'&&!inField &&
-     window.matchMedia('(max-width:1040px)').matches &&
-     !window.matchMedia('(max-width:760px)').matches &&
      $('detail-pane').contains(document.activeElement) &&
      closeFloatingDetails()){
     event.preventDefault();
@@ -1327,7 +1348,7 @@ window.addEventListener('resize',()=>{
     const lastMobileBack=lastResponsiveFocus.node?.id;
     if(state.mobileView==='detail' && selectedCase()){
       app.classList.remove('details-hidden');
-      $('detail-toggle').setAttribute('aria-expanded','true');
+      setDetailsExpanded(true);
       if(!dialogOpen &&
          (lastMobileBack==='detail-back' ||
           !$('detail-pane').contains(document.activeElement))){
@@ -1371,6 +1392,6 @@ window.addEventListener('resize',()=>{
     destination.focus();
 });
 
-if(window.matchMedia('(max-width:1040px)').matches){app.classList.add('details-hidden');$('detail-toggle').setAttribute('aria-expanded','false');}
+if(window.matchMedia('(max-width:1040px)').matches){app.classList.add('details-hidden');setDetailsExpanded(false);}
 applyTheme(state.theme);
 updateSelectors();render();announceCurrentContext('Demonstração local iniciada');

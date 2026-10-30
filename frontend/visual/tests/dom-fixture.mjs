@@ -64,6 +64,7 @@ export function installMockDOM({ mobile = false, tablet = false, prefersDark = f
   }
   const descendants = node => node.children.flatMap(n => [n, ...descendants(n)]);
   const ids = [
+    'thread-actions','terminal-banner','commercial-filter','filter-summary','demo-dialog','demo-open','demo-close','demo-list-state',
     'visual-app', 'actor-select', 'shop-select', 'search-input', 'status-filter',
     'list-count', 'list-context', 'queue-summary', 'filter-reset-controls', 'clear-list-filters', 'conversation-items', 'thread-title',
     'thread-meta', 'thread-body', 'workflow-bar', 'message-input', 'detail-toggle',
@@ -91,8 +92,8 @@ export function installMockDOM({ mobile = false, tablet = false, prefersDark = f
   for (const [id, node] of nodes) node.id = id;
   // Fiel à árvore básica do painel para testes de foco/contains em tablet.
   nodes.get('detail-pane').append(nodes.get('detail-content'));
-  const inbox = ['active','history'].map(value => {const n=new MockNode('button'); n.dataset.inbox=value; return n;});
-  const filters = ['all','unread','mine'].map(value => {const n=new MockNode('button'); n.dataset.filter=value; return n;});
+  const inbox = ['active','history','all'].map(value => {const n=new MockNode('button'); n.dataset.inbox=value; return n;});
+  const filters = ['all','unread','mine','pending'].map(value => {const n=new MockNode('button'); n.dataset.filter=value; return n;});
   const send = new MockNode('button'); send.className = 'send-button';
   const document = {
     activeElement:null, events:{},

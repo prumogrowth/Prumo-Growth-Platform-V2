@@ -4,6 +4,7 @@ on:
     branches:
       - feat/frontend-plataforma-visual
       - codex/fv-ux-01-comunicacao-20261027
+      - codex/fv-rev-01-conversas-20261030
     paths:
       - "frontend/visual/**"
       - "frontend/preview/**"
@@ -15,7 +16,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   native-checkout:
-    if: github.ref == 'refs/heads/feat/frontend-plataforma-visual' || github.ref == 'refs/heads/codex/fv-ux-01-comunicacao-20261027'
+    if: github.ref == 'refs/heads/feat/frontend-plataforma-visual' || github.ref == 'refs/heads/codex/fv-ux-01-comunicacao-20261027' || github.ref == 'refs/heads/codex/fv-rev-01-conversas-20261030'
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
@@ -91,7 +92,7 @@ jobs:
           python -B frontend/visual/tests/run_acceptance.py \
             --expected-head "$GITHUB_SHA" \
             --json-report fv-native-validation/report.json
-      - name: Gerar exportacao publica SOMENTE apos gate nativo completo
+      - name: Gerar pacote de previa SOMENTE apos gate nativo completo
         env:
           PYTHONDONTWRITEBYTECODE: '1'
         run: |
@@ -99,7 +100,7 @@ jobs:
           python -B frontend/preview/build_preview.py --output out/prumo-demo-visual.zip
           python -B frontend/preview/build_standalone_preview.py --output out/prumo-preview-integral.html
           cp frontend/preview/PREVIA_LOCAL.md out/LEIA-ME.md
-          cp frontend/docs/97_FV_UX_01_CODEX_IMPLEMENTACAO_E_PREVIA_2026_10_27.md out/ENTREGA.md
+          cp frontend/docs/98_FV_REV_01_ETAPA_1_2026_10_30.md out/ENTREGA.md
           python - <<'PYPROVENANCE'
           import hashlib, json, os, subprocess
           from pathlib import Path
@@ -107,8 +108,8 @@ jobs:
           provenance = {
               'head': os.environ['GITHUB_SHA'],
               'branch': os.environ['GITHUB_REF_NAME'],
-              'base': '8c9498d72cf9551edc50d7f0da8d15c48049e835',
-              'files_changed': subprocess.check_output(['git','diff','--name-only','8c9498d72cf9551edc50d7f0da8d15c48049e835','HEAD'],text=True).splitlines(),
+              'base': '2926d349e32c979dda68182b56bfd50ac6cf6212',
+              'files_changed': subprocess.check_output(['git','diff','--name-only','2926d349e32c979dda68182b56bfd50ac6cf6212','HEAD'],text=True).splitlines(),
               'synthetic_only': True, 'published': False,
               'sha256': {p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in folder.iterdir() if p.is_file()}
           }
@@ -131,6 +132,7 @@ jobs:
           PYTHONDONTWRITEBYTECODE: '1'
         run: |
           python -B frontend/preview/collect_visual_review.py --output fv-visual-review
+          python -B frontend/preview/collect_revision_review.py --output fv-visual-review/fv-rev-01
       - name: Artefato de capturas FVB-01 (30 dias; SEM publicacao)
         uses: actions/upload-artifact@v4
         with:

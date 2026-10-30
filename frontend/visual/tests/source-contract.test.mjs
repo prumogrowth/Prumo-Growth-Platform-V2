@@ -12,6 +12,7 @@ const registration = get('registration-view.mjs');
 const humanCycles = get('human-cycle-view.mjs');
 const integrationGate = get('integration-gate-view.mjs');
 const transport = get('transport-state-view.mjs');
+const attention = get('conversation-attention.mjs');
 const feedback = get('operation-feedback.mjs');
 const command = get('s0-command-result.mjs');
 
@@ -39,8 +40,8 @@ test('três áreas adaptativas e controle de histórico existem', () => {
 
 test('ações de templates e de cadeia permanecem distintas', () => {
   assert.match(markup, /id="template-dialog"/);
-  assert.match(app, /Solicitar cadeia de tentativas à IA/);
-  assert.match(app, /Selecionar e solicitar template aprovado/);
+  assert.match(app, /Cadeia por IA/);
+  assert.match(app, /Enviar template/);
   assert.match(contract, /eligibleTemplatesProjection/);
   assert.match(contract, /record\.allowedActionsProjection/);
 });
@@ -146,7 +147,7 @@ test('G2 tem equipes de operadores e a loja do gestor é somente filtro', () => 
   assert.match(fixtureTeam, /operator\.managerId===managerId/);
   assert.match(fixtureTeam, /record\.teamManagerId===actorId/);
   assert.match(app, /projectManagedTeam\(state\.actorId,state\.cases\)/);
-  assert.match(markup, /Concessionária \(filtro de conversas, não altera concessões\)/);
+  assert.match(markup, /Concessionária/);
   assert.match(markup, /Solicitar pausa ou retomada de novos leads alcança TODAS as lojas/);
 });
 
@@ -281,7 +282,7 @@ test('FV-UI-019: recortes históricos S0 fictícios e nova conclusão não promo
 
 test('FV-UI-020: ACK e estado incerto nunca viram envio provado no navegador',()=>{
   assert.match(app,/stageMockMessageTransport\(item,m,state\.actorId,state\.shopId\)/);
-  assert.match(app,/stageMockMessageTransport\(item,message,item\.assignedTo,item\.shopId\)\.provedSent/);
+  assert.match(attention,/stageMockMessageTransport\(record, message, record\.assignedTo, shopId\)\.provedSent/);
   assert.doesNotMatch(app,/!message\.transportProjection\s*\|\|\s*stageMockMessageTransport/);
   assert.match(transport,/hasMockCaseScope\(record,actorId,shopId\)/);
   assert.match(transport,/api_accepted/);
@@ -387,7 +388,7 @@ test('FV-UI-027: lista rola em viewport baixo e teste real mede reflow',()=>{
 
 
 test('FV-UI-028: aria-expanded móvel e foco contrastante têm contrato de origem',()=>{
-  assert.match(app,/String\(view==='detail'\)/);
+  assert.match(app,/setDetailsExpanded\(view==='detail'\)/);
   assert.match(app,/if\(window\.matchMedia\('\(max-width:760px\)'\)\.matches\)/);
   assert.match(styles,/\.workspace :is\(button,input,select,textarea,summary\):focus-visible/);
   assert.match(styles,/outline:3px solid #5c5c5c/);
@@ -437,7 +438,7 @@ test('FV-UI-033: foco não desaparece ao atravessar breakpoint no zoom',()=>{
 test('FV-UI-034: fechamento do painel tablet não perde foco ou fecha modal',()=>{
   assert.match(app,/function closeFloatingDetails\(\)/);
   assert.match(app,/document\.querySelector\('dialog\[open\]'\)\)return false/);
-  assert.match(app,/\$\('detail-toggle'\)\.focus\(\)/);
+  assert.match(app,/\$\(detailOpener\)\.focus\(\)/);
   assert.match(app,/\$\('detail-pane'\)\.contains\(document\.activeElement\)/);
   assert.match(domMock,/tablet = false/);
   assert.match(browserSmoke,/FV-UI-034 Escape tablet e foco ao fechar detalhes: PASS/);
@@ -584,7 +585,7 @@ test('FV-UI-048: lista compacta preserva controles indicadores e scroll',()=>{
   assert.match(browserSmoke,/FV-UI-048 lista compacta e conteudo acessivel em oito cenarios: PASS/);
   // FV-UX-02: nota acessível sem rodapé visual; o teste verifica a prioridade das conversas.
   assert.match(browserSmoke,/compact\.locator\('#list-demo-guidance'\)\.count\(\)==1/);
-  assert.match(browserSmoke,/compact\.locator\('#ui-settings'\)\.evaluate/);
+  assert.match(browserSmoke,/compact\.locator\('#demo-open'\)\.click/);
   assert.match(browserSmoke,/compact\.locator\('\.conversation-card'\)\.first\.scroll_into_view_if_needed\(\)/);
 });
 
@@ -645,13 +646,11 @@ test('FV-UI-052: contagem anuncia resultados sem duplicar o aviso de lista vazia
   assert.match(browserSmoke,/assert count\.get_attribute\('aria-live'\)=='polite'/);
 });
 
-test('FV-UI-053: atalho da busca descobrivel sem nova operacao ou efeito comercial',()=>{
-  assert.match(markup,/id="search-input"[^>]*aria-keyshortcuts="Control\+K Meta\+K Escape ArrowDown"/);
-  assert.match(markup,/class="search-shortcut" aria-hidden="true">Ctrl\/⌘ K<\/span>/);
-  assert.match(styles,/FV-UI-053 — atalho de busca visivel/);
-  assert.match(styles,/@media\(max-width:760px\)\{\.list-pane \.search-shortcut\{display:none\}\}/);
-  assert.match(app,/\(event\.ctrlKey\|\|event\.metaKey\)\&\&event\.key\.toLowerCase\(\)==='k'/);
-  assert.match(browserSmoke,/FV-UI-053 atalho de busca teclado e reflow em 8 cenarios: PASS/);
+test('FV-REV-006: busca preservada sem indicação ou interceptação Ctrl/Meta K',()=>{
+  assert.match(markup,/id="search-input"[^>]*aria-keyshortcuts="Escape ArrowDown"/);
+  assert.doesNotMatch(markup,/search-shortcut|Control\+K|Meta\+K/);
+  assert.doesNotMatch(app,/event\.key\.toLowerCase\(\)==='k'/);
+  assert.match(browserSmoke,/FV-REV-006 busca preservada sem atalho removido: PASS/);
 });
 
 test('FV-UI-054: limpeza contextual conserva os limites de demonstracao',()=>{
@@ -682,7 +681,7 @@ test('FV-UI-056: normalizacao textual acontece apos projecao de escopo',()=>{
 });
 
 test('FV-UI-057: Escape contextual e instrucoes acessiveis de busca',()=>{
-  assert.match(markup,/aria-keyshortcuts="Control\+K Meta\+K Escape ArrowDown"/);
+  assert.match(markup,/aria-keyshortcuts="Escape ArrowDown"/);
   assert.match(markup,/id="list-demo-guidance" role="note"[^<]*Na busca, Esc apaga somente o texto e mantém os filtros/);
   assert.match(app,/FV-UI-057: Esc na busca apaga somente a consulta/);
   assert.match(app,/document\.activeElement===\$\('search-input'\)/);
@@ -691,7 +690,7 @@ test('FV-UI-057: Escape contextual e instrucoes acessiveis de busca',()=>{
 });
 
 test('FV-UI-058: atalho de foco restrito a resultados visiveis e documentado',()=>{
-  assert.match(markup,/aria-keyshortcuts="Control\+K Meta\+K Escape ArrowDown"/);
+  assert.match(markup,/aria-keyshortcuts="Escape ArrowDown"/);
   assert.match(markup,/seta para baixo foca a primeira conversa visível/);
   assert.match(app,/FV-UI-058: a seta para baixo foca o primeiro caso visível/);
   assert.match(app,/event\.key==='ArrowDown' && document\.activeElement===\$\('search-input'\)/);

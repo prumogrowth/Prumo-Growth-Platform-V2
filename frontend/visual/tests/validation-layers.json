@@ -36,7 +36,8 @@
         "app.mobile.dom.test.mjs",
         "app.tablet.dom.test.mjs",
         "attention-integration.test.mjs",
-        "communication-composer.test.mjs"
+        "communication-composer.test.mjs",
+        "revision-conversations.test.mjs"
       ]
     },
     "source": {

@@ -29,7 +29,7 @@ def main():
             if exe:
                 launch['executable_path'] = exe
             browser = p.chromium.launch(**launch)
-            for width, height in ((320,640),(390,844),(1440,900)):
+            for width, height in ((320,640),(390,844),(900,780),(1440,900)):
                 for theme in ('light','dark'):
                     context = browser.new_context(viewport={'width':width,'height':height}, color_scheme=theme,
                                                   permissions=['microphone'])
@@ -61,7 +61,7 @@ def main():
                     page.on('pageerror',lambda e:errors.append(str(e)))
                     page.on('response',lambda r:assets.append((r.url,r.status)))
                     page.goto(origin)
-                    expect(page.locator('.conversation-card')).to_have_count(8)
+                    expect(page.locator('.conversation-card')).to_have_count(11)
                     first=page.locator('.conversation-card').first.bounding_box()
                     assert first['y'] < height * .55, (width,first)
                     assert not page.locator('#ui-settings').evaluate('e=>e.open')
@@ -90,6 +90,11 @@ def main():
                     page.locator('#audio-record').click()
                     expect(page.locator('#audio-status')).to_have_text('Gravando áudio')
                     expect(page.locator('#audio-stop')).to_be_focused()
+                    if width>760:
+                        page.locator('#thread-title').click()
+                        page.locator('#detail-close').click()
+                        expect(page.locator('#audio-status')).to_have_text('Gravando áudio')
+                        expect(field).to_have_value('Rascunho preservado')
                     expect(page.locator('#audio-duration')).not_to_have_text('0:00')
                     page.locator('#audio-stop').click()
                     expect(page.locator('#audio-status')).to_have_text('Áudio pronto para ouvir')
@@ -114,7 +119,7 @@ def main():
                     assert page.locator('.conversation-card').filter(has_text='Cliente Exemplo 02').locator('.attention-pending').count()==1
                     if width<=760:page.locator('#thread-back').click()
                     page.get_by_role('button',name='Abrir conversa Cliente Exemplo 08',exact=False).click()
-                    expect(page.locator('#composer-availability')).to_have_text('Janela de conversa encerrada')
+                    expect(page.locator('#composer-availability')).to_contain_text('Janela de conversa encerrada')
                     expect(page.locator('#audio-record')).to_be_disabled();expect(page.locator('#emoji-toggle')).to_be_disabled()
                     assert page.evaluate('__urls.every(u=>__dropped.includes(u))')
                     if width<=760:page.locator('#thread-back').click()
@@ -174,10 +179,14 @@ def main():
                         if scenario=='pagehide':page.evaluate("window.dispatchEvent(new Event('pagehide'))")
                         elif scenario=='hidden':page.evaluate("Object.defineProperty(document,'hidden',{value:true,configurable:true});document.dispatchEvent(new Event('visibilitychange'))")
                         else:
-                            page.locator('#ui-settings summary').click()
-                            if scenario=='shop':page.locator('#shop-select').select_option('horizonte')
-                            elif scenario=='actor':page.locator('#actor-select').select_option('marina')
-                            else:page.locator('#reset-app').click()
+                            if scenario=='shop':
+                                page.locator('#list-extra').evaluate('e=>e.open=true')
+                                page.locator('#shop-select').select_option('horizonte')
+                            else:
+                                page.locator('#demo-dialog').evaluate('e=>e.showModal()')
+                                if scenario=='actor':page.locator('#actor-select').select_option('marina')
+                                else:page.locator('#reset-app').click()
+                                page.locator('#demo-dialog').evaluate('e=>e.close()')
                         expect(page.locator('#audio-draft')).to_be_hidden()
                         assert page.evaluate('__tracks.every(t=>t.readyState==="ended")')
                 assert not errors,errors
