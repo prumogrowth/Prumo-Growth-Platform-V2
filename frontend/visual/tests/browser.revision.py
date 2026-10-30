@@ -13,7 +13,12 @@ from collect_visual_review import offline_page_source
 CONTRAST=r"""e=>{
   const rgb=s=>s.match(/\d+(?:\.\d+)?/g).slice(0,3).map(Number);
   const lum=v=>{const c=v.map(n=>n/255).map(n=>n<=.04045?n/12.92:((n+.055)/1.055)**2.4);return .2126*c[0]+.7152*c[1]+.0722*c[2]};
-  const style=getComputedStyle(e),a=lum(rgb(style.color)),b=lum(rgb(style.backgroundColor));
+  const a=lum(rgb(getComputedStyle(e).color));let background=null;
+  for(let node=e;node;node=node.parentElement){
+    const color=getComputedStyle(node).backgroundColor,parts=color.match(/\d+(?:\.\d+)?/g).map(Number);
+    if(parts.length===3 || parts[3]===1){background=rgb(color);break;}
+  }
+  if(!background)return 0;const b=lum(background);
   return (Math.max(a,b)+.05)/(Math.min(a,b)+.05);
 }"""
 
@@ -41,6 +46,7 @@ def main():
                     assert page.locator('#ui-settings #actor-select, #ui-settings #shop-select, #ui-settings #reset-app').count()==0
                     page.locator('#list-extra summary').click()
                     expect(page.locator('#shop-select')).to_be_visible()
+                    assert page.locator('.shop-control label').evaluate(CONTRAST)>=4.5
                     if actor=='rafael':expect(page.locator('#status-filter')).to_be_hidden()
                     else:expect(page.locator('#status-filter')).to_be_visible()
                     page.locator('[data-inbox=history]').click()

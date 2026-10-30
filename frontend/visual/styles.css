@@ -609,3 +609,4 @@ body[data-theme="dark"] #demo-dialog select{background:#282828;color:#eee;border
 #demo-dialog p{color:#555}
 body[data-theme="dark"] #demo-dialog p{color:#ddd}
 body[data-theme="dark"] #demo-dialog .btn-primary{background:#ccc;color:#1a1a1a}
+.visual-app[data-theme="dark"] .shop-control label{color:#c6c6c6}
