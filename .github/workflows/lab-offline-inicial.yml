@@ -1,4 +1,4 @@
-name: Liberacred - laboratorio offline inicial
+name: Liberacred - laboratorios offline
 
 on:
   workflow_dispatch:
@@ -11,6 +11,13 @@ on:
         options:
           - meta
           - frontend
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/lab-offline-inicial.yml"
+      - "frontend/**"
+      - "integrations/whatsapp-meta/**"
 
 permissions:
   contents: read
@@ -20,51 +27,26 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  laboratorio:
-    name: "Laboratorio offline: ${{ inputs.suite }}"
+  meta:
+    name: Laboratorio Meta - simulacoes offline
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.suite == 'meta' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
       CI: "true"
       PYTHONDONTWRITEBYTECODE: "1"
     steps:
-      - name: Selecionar somente branches auditadas
-        id: select
+      - name: Baixar somente a branch auditada (sem credenciais)
         shell: bash
-        env:
-          SUITE: ${{ inputs.suite }}
         run: |
           set -euo pipefail
-          case "$SUITE" in
-            meta)
-              branch='feat/meta-s0-ed25519-receipt-interop-20261028'
-              ;;
-            frontend)
-              branch='feat/frontend-plataforma-visual'
-              ;;
-            *)
-              echo 'Suite desconhecida' >&2
-              exit 1
-              ;;
-          esac
-          echo "branch=$branch" >> "$GITHUB_OUTPUT"
-
-      - name: Baixar branch de codigo publico sem usar segredos
-        shell: bash
-        env:
-          BRANCH: ${{ steps.select.outputs.branch }}
-        run: |
-          set -euo pipefail
-          test "$GITHUB_REPOSITORY" = 'prumogrowth/Prumo-Growth-Platform-V2'
-          git clone --quiet --depth 1 --single-branch --branch "$BRANCH" \
-            "https://github.com/${GITHUB_REPOSITORY}.git" "$RUNNER_TEMP/ci-src"
-          git -C "$RUNNER_TEMP/ci-src" rev-parse --verify HEAD
+          test "$GITHUB_REPOSITORY" = "prumogrowth/Prumo-Growth-Platform-V2"
+          git clone --quiet --depth 1 --single-branch \
+            --branch "feat/meta-s0-ed25519-receipt-interop-20261028" \
+            "https://github.com/$GITHUB_REPOSITORY.git" "$RUNNER_TEMP/ci-src"
           node --version
-          python3 --version
-          test "$(node -p 'Number(process.versions.node.split(".")[0]) >= 22')" = 'true'
-
-      - name: Laboratorio WhatsApp Meta - somente simulacoes
-        if: ${{ inputs.suite == 'meta' }}
+          test "$(node -p 'Number(process.versions.node.split(".")[0]) >= 22')" = "true"
+      - name: Testar integracao Meta com dados sinteticos
         shell: bash
         working-directory: ${{ runner.temp }}/ci-src
         run: |
@@ -72,8 +54,27 @@ jobs:
           node --experimental-strip-types --test --test-concurrency=1 \
             integrations/whatsapp-meta/*.test.ts
 
-      - name: Laboratorio interface - somente simulacoes
-        if: ${{ inputs.suite == 'frontend' }}
+  frontend:
+    name: Laboratorio frontend - simulacoes offline
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.suite == 'frontend' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      CI: "true"
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - name: Baixar somente a branch auditada (sem credenciais)
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = "prumogrowth/Prumo-Growth-Platform-V2"
+          git clone --quiet --depth 1 --single-branch \
+            --branch "feat/frontend-plataforma-visual" \
+            "https://github.com/$GITHUB_REPOSITORY.git" "$RUNNER_TEMP/ci-src"
+          node --version
+          python3 --version
+          test "$(node -p 'Number(process.versions.node.split(".")[0]) >= 22')" = "true"
+      - name: Testar interface e exportacao com dados sinteticos
         shell: bash
         working-directory: ${{ runner.temp }}/ci-src
         run: |
