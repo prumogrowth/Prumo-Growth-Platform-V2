@@ -1,83 +1,57 @@
 /**
- * WA-01B candidate: fail-closed decision at the boundary between the public
- * Meta webhook and a FUTURE trusted, atomic S0 batch persistence service.
+ * WA-01B — Legacy shape-only receipt review, permanently fail-closed.
  *
- * This module does not make an HTTP response and does not prove a database
- * commit itself. Never accept a receipt from Meta or an untrusted client.
- * No storage, queues, network calls, tenant resolution or commercial rules.
+ * Earlier code emitted {status:200,action:'ACK'} after checking counters and
+ * a caller-supplied "COMMITTED". This is NOT cryptographic or S0 persistence
+ * evidence and cannot establish HTTP authority. Keeping the old function
+ * name avoids an unsafe, silent replacement in legacy callers.
+ *
+ * This module must never emit HTTP status/action, perform network/storage,
+ * authorize a reply to Meta, or infer a human/commercial decision.
  */
 
-export type AckDecision =
-  | { readonly status: 200; readonly action: 'ACK'; readonly reason: 'ALL_ITEMS_DURABLE' }
-  | {
-      readonly status: 503;
-      readonly action: 'RETRY';
-      readonly reason:
-        | 'INVALID_RECEIPT'
-        | 'COMMIT_UNCONFIRMED'
-        | 'INCOMPLETE_BATCH'
-        | 'QUARANTINE_POLICY_PENDING';
-    };
+export type AckDecision=Readonly<{
+  decision:'DENIED_NO_HTTP_AUTHORITY';
+  reason:'UNTRUSTED_RECEIPT_PROVENANCE';
+  ack_allowed:false;
+  http_ack_allowed:false;
+  http_response_authorized:false;
+  production_authorized:false;
+  commit_verified:false;
+  durable_receipt_verified:false;
+}>;
 
-/**
- * Proposed result from an authenticated INTERNAL batch service, not from
- * S0/029 as presently implemented. S0 must attest a transaction committed,
- * all items retained for replay, and channel/tenant binding verified.
- */
-export type DurableBatchReceipt = {
-  readonly outcome: 'ACCEPTED_DURABLE' | 'ALREADY_ACCEPTED' | 'QUARANTINED_DURABLE';
-  readonly commit_state: 'COMMITTED';
-  readonly total: number;
-  readonly accepted: number;
-  readonly duplicates: number;
-  readonly quarantined: number;
-};
+/** Historical proposed metadata, NOT a signed receipt and NOT S0 authority. */
+export type DurableBatchReceipt=Readonly<{
+  outcome:'ACCEPTED_DURABLE'|'ALREADY_ACCEPTED'|'QUARANTINED_DURABLE';
+  commit_state:'COMMITTED';
+  total:number;
+  accepted:number;
+  duplicates:number;
+  quarantined:number;
+}>;
 
-function record(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-function count(value: unknown): value is number {
-  return typeof value === 'number' && Number.isSafeInteger(value) && value >= 0;
-}
-const retry = (reason: Extract<AckDecision, { action: 'RETRY' }>['reason']): AckDecision => ({
-  status: 503,
-  action: 'RETRY',
-  reason,
+const DENIED:AckDecision=Object.freeze({
+  decision:'DENIED_NO_HTTP_AUTHORITY',
+  reason:'UNTRUSTED_RECEIPT_PROVENANCE',
+  ack_allowed:false,
+  http_ack_allowed:false,
+  http_response_authorized:false,
+  production_authorized:false,
+  commit_verified:false,
+  durable_receipt_verified:false,
 });
 
 /**
- * All events in ONE Meta POST must be committed or safely decided together.
- * Quarantine acknowledgment is deliberately withheld until the separate
- * security/retention/replay policy (DEC-WA-06) is approved.
- *
- * The future trusted port must NEVER issue COMMITTED for a metadata-only
- * record lacking a protected replayable payload reference.
+ * A counter-shaped or self-asserted COMMITTED object has zero HTTP authority.
+ * Ignore the entire object (including getters and Proxies) so no attacker
+ * input can promote a synthetic receipt into an ACK. Only a separately
+ * ratified, authenticated S0 service/transport contract could do that,
+ * and that integration does not exist in this function.
  */
-export function decideBatchAck(expectedItems: number, untrustedShape: unknown): AckDecision {
-  if (!Number.isSafeInteger(expectedItems) || expectedItems <= 0 || !record(untrustedShape)) {
-    return retry('INVALID_RECEIPT');
-  }
-  const r = untrustedShape;
-  if (!count(r.total) || !count(r.accepted) || !count(r.duplicates) || !count(r.quarantined) ||
-      typeof r.outcome !== 'string' ||
-      !['ACCEPTED_DURABLE', 'ALREADY_ACCEPTED', 'QUARANTINED_DURABLE'].includes(r.outcome)) {
-    return retry('INVALID_RECEIPT');
-  }
-  if (r.commit_state !== 'COMMITTED') return retry('COMMIT_UNCONFIRMED');
-  // Bound each component before adding; do not rely on imprecise integer sums.
-  if (r.total !== expectedItems || r.accepted > r.total ||
-      r.duplicates > r.total || r.quarantined > r.total ||
-      r.accepted + r.duplicates + r.quarantined !== r.total) {
-    return retry('INCOMPLETE_BATCH');
-  }
-  if (r.quarantined > 0 || r.outcome === 'QUARANTINED_DURABLE') {
-    return retry('QUARANTINE_POLICY_PENDING');
-  }
-  if (r.outcome === 'ALREADY_ACCEPTED' && r.accepted !== 0) {
-    return retry('INVALID_RECEIPT');
-  }
-  if (r.outcome === 'ACCEPTED_DURABLE' && r.accepted === 0) {
-    return retry('INVALID_RECEIPT');
-  }
-  return { status: 200, action: 'ACK', reason: 'ALL_ITEMS_DURABLE' };
+export function decideBatchAck(
+  _expectedItems:number,
+  _untrustedShape:unknown,
+):AckDecision{
+  return DENIED;
 }
