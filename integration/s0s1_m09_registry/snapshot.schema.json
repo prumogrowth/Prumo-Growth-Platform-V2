@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "prumo.s0.meta.registry.snapshot/0.1-candidate",
+  "title": "S0/S1 M09 laboratory-only response",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "decision", "reason", "snapshot", "production_authorized", "send_authorized", "external_http_ack", "commercial_transition_authorized"],
+  "properties": {
+    "schema": {"const": "prumo.s0.meta.registry.snapshot/0.1-candidate"},
+    "decision": {"enum": ["SNAPSHOT_CANDIDATE_ONLY", "DENIED", "STALE_OR_REVOKED", "CONFLICT", "UNAVAILABLE"]},
+    "reason": {"enum": ["LAB_READ_ONLY", "INVALID_REQUEST", "NOT_AUTHORIZED", "STALE_REVISION", "STALE_SNAPSHOT", "REGISTRY_UNAVAILABLE", "DEPENDENCY_UNAVAILABLE"]},
+    "production_authorized": {"const": false},
+    "send_authorized": {"const": false},
+    "external_http_ack": {"const": false},
+    "commercial_transition_authorized": {"const": false},
+    "snapshot": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["concessionaria_id", "app_ref", "route_ref", "canal_id", "waba_id", "phone_number_id", "observed_at_ms", "revisions", "ownership_evidence_state", "delegation_evidence_state", "snapshot_ref", "source_revision"],
+          "properties": {
+            "concessionaria_id": {"type": "string"},
+            "app_ref": {"type": "string"},
+            "route_ref": {"type": "string"},
+            "canal_id": {"type": ["string", "null"]},
+            "waba_id": {"type": ["string", "null"]},
+            "phone_number_id": {"type": ["string", "null"]},
+            "observed_at_ms": {"type": "integer", "minimum": 0},
+            "revisions": {
+              "type": "object", "additionalProperties": false,
+              "required": ["route", "app", "binding", "grant", "principal"],
+              "properties": {
+                "route": {"type": "integer", "minimum": 1},
+                "app": {"type": "integer", "minimum": 1},
+                "binding": {"type": "integer", "minimum": 0},
+                "grant": {"type": "integer", "minimum": 0},
+                "principal": {"type": "integer", "minimum": 1}
+              }
+            },
+            "ownership_evidence_state": {"const": "UNVERIFIED"},
+            "delegation_evidence_state": {"const": "UNVERIFIED"},
+            "snapshot_ref": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+            "source_revision": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+            "slot_ref": {"type": "string"}
+          }
+        }
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"decision": {"const": "SNAPSHOT_CANDIDATE_ONLY"}}},
+      "then": {"properties": {"snapshot": {"type": "object"}, "reason": {"const": "LAB_READ_ONLY"}}},
+      "else": {"properties": {"snapshot": {"type": "null"}}}
+    }
+  ]
+}
