@@ -19,7 +19,11 @@
 - [x] **M04 — Verificação de recibo Ed25519 sintético:** consumidor Meta com chave pública confiada separadamente e regressões negativas. Evidência: `cloud-s0-ed25519-receipt-interop.ts` e 36 testes; **não é recibo do PG17**.
 - [x] **M05 — CI offline integral rastreável ao SHA:** 1.183/1.183, zero falhas/skips; checkout/GITHUB_SHA conferidos no job. Evidência: [run 41187216781](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41187216781), SHA `a91b0dac2c332ef5ebbe07fb7884ed5137d60484`.
 - [x] **M06 — Interoperabilidade física S0→Meta (laboratório):** PG17 da S0 em checkout imutável gerou recibo assinado após readback, consumido pelo verificador Meta com chave confiada independentemente, 12 testes positivos/negativos e cleanup. Evidência: [run 41188097646](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41188097646), código Meta `b1828b1db7ad653608606916209a1f25ad57e7fe`, S0 `01ffdb093013664b73b18d23f92aac2202578210`. **Somente lab; sem HTTP ACK.**
-- [ ] **M07 — Proteção completa contra ACK sintético:** scanner, testes negativos e política de runtime/HTTP ratificada; nenhuma alegação estrutural pode emitir 200.
+- [ ] **M07 — Proteção completa contra ACK sintético:** hardening Meta e testes concluídos; **ratificação operacional S0/Meta/Infra pendente**, sem HTTP ACK liberado.
+  - [x] M07-A — Função legada `decideBatchAck` agora retorna exclusivamente `DENIED_NO_HTTP_AUTHORITY`, sem status HTTP, mesmo diante de `COMMITTED` forjado.
+  - [x] M07-B — Scanner CI detecta referências legadas, ações ACK, sinais positivos de autoridade e código POST com HTTP 200 não ratificado. Diferencia GET challenge e resposta da Graph.
+  - [x] M07-C — Testes positivos/negativos, suíte completa **1203/1203** e laboratório S0/PG17 aprovados; evidência: [CI 41188896083](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41188896083) (SHA `c9ba0462ca72ee5dad5ae049fb7ffe5ea87225c6`).
+  - [ ] M07-D — Contrato operacional de ACK/HTTP ratificado por S0/Meta/Infra: autoridade, transação, códigos, replay e falhas. Minuta em [M07 segurança e aceite](M07_SEGURANCA_RECIBOS_E_HTTP_ACK_2026-10-31.md).
 - [ ] **M08 — Escopo de lote multicanais/ACK ratificado:** contrato S0/Meta/Infra para unidade física, rejeição integral, retry e replay; prova cruzada sem ACK parcial.
 
 ## B. Patrimônio Meta e fronteira operacional
@@ -58,7 +62,7 @@
 
 ## Próximo marco
 
-**M07**, fortalecendo a barreira contra uso indevido de recibos e ACK sintético; a política HTTP real depende de S0/Meta/Infra. O marco M06 passou em ensaio físico isolado, não em produção. A S0 ainda não está integrada operacionalmente.
+**M07-D**, obter o aceite interfrentes da política HTTP/ACK. O bloqueio técnico está implementado e testado; **sem ratificação, M07 não é considerado concluído**. O trabalho preparatório de M08 pode avançar sem abrir HTTP/Graph reais.
 
 ## Limites permanentes
 
