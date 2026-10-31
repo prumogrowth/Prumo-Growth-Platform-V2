@@ -42,8 +42,9 @@ const bytes=()=>Buffer.from(vector.raw_base64,'base64');
 const run=(opts:{receipt?:unknown;raw?:Uint8Array;expected?:unknown;
  host?:unknown;registry?:unknown}={})=>inspect(
  opts.raw??bytes(),opts.receipt??signed(),
- (opts.expected??expected()) as ReturnType<typeof expected>,
- opts.host??host(),opts.registry??registry(),
+ (Object.hasOwn(opts,'expected')?opts.expected:expected()) as ReturnType<typeof expected>,
+ Object.hasOwn(opts,'host')?opts.host:host(),
+ Object.hasOwn(opts,'registry')?opts.registry:registry(),
 );
 const no=(v:ReturnType<typeof run>,reason?:string)=>{
  assert.equal(v.decision,'DENIED');
