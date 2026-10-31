@@ -42,7 +42,7 @@ test('AUD-UN-05 verify exactly same snapshot as parsed despite caller mutation',
 
 test('AUD-UN-06 receipt counters cannot exceed batch total',()=>{
  const forged={outcome:'ACCEPTED_DURABLE',commit_state:'COMMITTED',total:1,accepted:Number.MAX_SAFE_INTEGER,duplicates:Number.MAX_SAFE_INTEGER,quarantined:2};
- assert.equal(decideBatchAck(1,forged).status,503);
+ assert.equal(decideBatchAck(1,forged).ack_allowed,false);
 });
 test('AUD-UN-07 no callback content leaks through a malformed aggregate',async()=>{
  const raw=encoder.encode(JSON.stringify({object:'whatsapp_business_account',entry:[{id:'WABA1',changes:[{field:'messages',value:{metadata:{phone_number_id:'123456789'},messages:[{id:'wamid.in',from:'5581900000000',timestamp:'1792320000',type:'text'},{id:'damaged'}]}}]}]}));
