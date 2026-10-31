@@ -1,0 +1,141 @@
+name: S0 S1 OPS03 - disposable compatibility and Auth boundary
+on:
+  push:
+    branches: [exp/s0-s1-ops03-hosted-parity-20261030]
+  workflow_dispatch:
+permissions:
+  contents: read
+defaults:
+  run:
+    shell: bash
+env:
+  PYTHONDONTWRITEBYTECODE: '1'
+concurrency:
+  group: s0s1-ops03-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  scope-and-contract:
+    if: github.ref == 'refs/heads/exp/s0-s1-ops03-hosted-parity-20261030'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Exact source checkout and frozen base
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          python3 -B -m integration.s0s1_ops03.scope | tee "$RUNNER_TEMP/ops03-scope-before.json"
+      - name: Artificial Git attacks and artifact safety
+        run: python3 -B -m unittest integration.s0s1_ops03.test_scope -v 2>&1 | tee "$RUNNER_TEMP/ops03-scope-tests.log"
+      - name: Preserved OPS02 offline regressions
+        run: python3 -B -m unittest integration.s0s1_ops02.test_contract -v 2>&1 | tee "$RUNNER_TEMP/ops03-ops02-regression.log"
+      - name: All offline tests with optimized Python
+        run: python3 -B -O -m unittest integration.s0s1_ops03.test_scope integration.s0s1_ops02.test_contract -v 2>&1 | tee "$RUNNER_TEMP/ops03-optimized.log"
+      - name: Independent Git object inventory without candidate imports
+        run: |
+          python3 -B - <<'PY' | tee "$RUNNER_TEMP/ops03-independent.json"
+          import hashlib,json,subprocess
+          base='7d3232f59aab35265c3aa7fb5ab5ab2f06d5d047'
+          expected={'ops/s0s1_authority/hosted_compat_v1.json',
+            'integration/s0s1_ops03/__init__.py','integration/s0s1_ops03/diagnostic.sql',
+            'integration/s0s1_ops03/hosted_candidate.sql','integration/s0s1_ops03/test_real.py',
+            'integration/s0s1_ops03/test_scope.py','integration/s0s1_ops03/scope.py',
+            'docs/contratos/s0s1_ops03/PLANO_HOSPEDADO_CANDIDATO.md',
+            'docs/contratos/s0s1_ops03/MATRIZ_DIFERENCAS_E_RISCOS.json',
+            '.github/workflows/exp-s0-s1-ops03-hosted-parity.yml'}
+          def git(*args):return subprocess.check_output(['git','--no-replace-objects',*args])
+          def tree(ref):return {r.split(b'\t')[1].decode():r.split(b'\t')[0].decode().split() for r in git('ls-tree','-rz',ref).split(b'\0') if r}
+          before,after=tree(base),tree('HEAD')
+          changed={p for p in set(before)|set(after) if before.get(p)!=after.get(p)}
+          head=git('rev-parse','HEAD').decode().strip()
+          if changed!=expected or expected.intersection(before) or git('rev-list','--parents',base+'..HEAD').decode().splitlines()!=[head+' '+base]:
+              raise SystemExit('independent delta/history rejected')
+          files={}
+          for p in sorted(expected):
+              mode,kind,blob=after[p]
+              if (mode,kind)!=('100644','blob'):raise SystemExit('independent mode rejected')
+              data=git('cat-file','blob',blob)
+              files[p]={'mode':mode,'git_blob':blob,'sha256':hashlib.sha256(data).hexdigest(),'bytes':len(data)}
+          print(json.dumps({'status':'PASS','commit':head,'tree':git('rev-parse','HEAD^{tree}').decode().strip(),'base':base,'base_tree':git('rev-parse',base+'^{tree}').decode().strip(),'inherited_files_unchanged':len(before),'files':files},sort_keys=True))
+          PY
+      - name: Final clean scope
+        if: always()
+        run: python3 -B -m integration.s0s1_ops03.scope | tee "$RUNNER_TEMP/ops03-scope-after.json"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: s0s1-ops03-scope-contract
+          path: ${{ runner.temp }}/ops03-*
+          if-no-files-found: error
+          retention-days: 14
+
+  physical-disposable-compatibility:
+    needs: scope-and-contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      PRUMO_OPS03_DISPOSABLE: 'YES'
+      PRUMO_I86_RUNNER_ISOLATION: github-hosted
+      PRUMO_I86_DISPOSABLE: 'YES'
+      PRUMO_I86_MANUAL_LAB: 'YES'
+      PRUMO_I84_DISPOSABLE: 'YES'
+      PRUMO_I85_DISPOSABLE: 'YES'
+      PRUMO_I83_DISPOSABLE_TEST: 'YES'
+      SUPABASE_DISABLE_TELEMETRY: '1'
+      SUPABASE_INTERNAL_IMAGE_REGISTRY: docker.io
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Verify exact commit and scope before source staging
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          python3 -B -m integration.s0s1_ops03.scope | tee "$RUNNER_TEMP/ops03-physical-scope-before.json"
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 0b0930778c29204904c1c1358a9a7ae9e3fff10b
+          path: integration/i86/.runtime/s1
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - uses: supabase/setup-cli@45a513f8c64c0bc8e0e3dfe572b5c95be85f6359
+        with:
+          version: 2.84.2
+      - name: Stage exact archive outside checkout on exclusive owned VM
+        run: |
+          python3 -B -c 'from integration.s0s1_ops03 import stage; stage()'
+          python3 -m pip install -r backend/requirements-s0-local.txt
+      - name: Real PG17 GoTrue inherited cases and OPS03 compatibility counterexamples
+        run: |
+          cd "$PRUMO_I86_SANDBOX"
+          python3 -B -m integration.s0s1_ops03.test_real 2>&1 | tee "$RUNNER_TEMP/ops03-physical.log"
+      - name: Verified disposal even when setup or a test fails
+        if: always() && env.PRUMO_I86_SANDBOX != ''
+        run: |
+          cd "$PRUMO_I86_SANDBOX"
+          python3 -B -m integration.i86.cleanup
+      - name: Physical source checkout remains clean
+        if: always()
+        run: python3 -B -m integration.s0s1_ops03.scope | tee "$RUNNER_TEMP/ops03-physical-scope-after.json"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: s0s1-ops03-physical-compatibility
+          path: |
+            ${{ runner.temp }}/ops03-*
+            ${{ runner.temp }}/prumo_i86_cleanup.json
+            ${{ runner.temp }}/prumo_i83_logging_preflight.json
+          if-no-files-found: error
+          retention-days: 14

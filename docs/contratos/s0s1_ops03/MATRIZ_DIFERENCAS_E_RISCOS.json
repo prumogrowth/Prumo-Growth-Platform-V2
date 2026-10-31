@@ -1,0 +1,112 @@
+{
+  "mission": "S0S1-OPS-03",
+  "consulted_date": "2026-10-30",
+  "timezone": "America/Sao_Paulo",
+  "hosted_verified": false,
+  "production_homologated": false,
+  "official_sources": [
+    {
+      "url": "https://supabase.com/docs/guides/auth/signout",
+      "finding": "Global signout ends existing sessions/refresh tokens; issued access JWTs retain expiration. No shared PostgreSQL transaction interface documented."
+    },
+    {
+      "url": "https://supabase.com/docs/guides/auth/sessions",
+      "finding": "session_id corresponds to auth.sessions; live checks close sensitive-action logout gaps. New login is different from restored competence."
+    },
+    {
+      "url": "https://supabase.com/docs/guides/platform/access-control",
+      "finding": "Owner/Admin and Developer can run SQL; access to project is not Prumo organizational authorization."
+    },
+    {
+      "url": "https://supabase.com/docs/guides/database/functions",
+      "finding": "Prefer INVOKER, fixed search_path, revoke PUBLIC execute; do not expose privileged functions."
+    },
+    {
+      "url": "https://supabase.com/changelog",
+      "finding": "Reviewed public HTML index after markdown fetch was blocked/unsupported. No claim that every historical release was exhaustively audited."
+    },
+    {
+      "url": "https://supabase.com/changelog/34270-restricting-access-on-auth-storage-and-realtime-schemas-on-april-21-2025",
+      "finding": "Managed-schema restrictions include DDL and migration-table DML; this is not a blanket ban of every auth.sessions DML. It also does not by itself establish support for the I86 locking/deletion algorithm."
+    },
+    {
+      "url": "https://supabase.com/changelog/45329-breaking-change-tables-not-exposed-to-data-and-graphql-api-automatically",
+      "finding": "2026 rollout changes public-table default grants; existing grants remain. Private-schema safety still requires explicit ACL verification."
+    },
+    {
+      "url": "https://supabase.com/changelog/scoped-personal-access-tokens-ga",
+      "finding": "Scoped PATs announced 2026-10-06; evaluate actual grants and custody rather than assuming all tokens are unscoped. No token is created or used here."
+    }
+  ],
+  "differences": [
+    {
+      "id": "C01",
+      "subject": "PG identity",
+      "lab": "PG17 postgres/postgres and I84 database marker",
+      "hosted": "Unknown effective/session identity and privileges",
+      "risk": "Owner Dashboard identity cannot be inferred from current_user",
+      "acceptance": "Authorized metadata diagnostic and nominal access audit"
+    },
+    {
+      "id": "C02",
+      "subject": "Session mutation",
+      "lab": "I86 same transaction deletes auth.sessions under locks",
+      "hosted": "Support/privileges/concurrency not established",
+      "risk": "Auth API cannot be assumed atomic with domain COMMIT",
+      "acceptance": "Supported atomic mechanism evidence or explicit separate contract decision"
+    },
+    {
+      "id": "C03",
+      "subject": "Application boundary",
+      "lab": "Private adapter no grants to ordinary or technical roles; INVOKER",
+      "hosted": "Unknown ACL and exposure configuration",
+      "risk": "PUBLIC execute, inherited owner rights or exposed RPC",
+      "acceptance": "Actual grants/owners/memberships/exposure checked; all ordinary credentials denied"
+    },
+    {
+      "id": "C04",
+      "subject": "SQL Editor",
+      "lab": "Client with known transaction context",
+      "hosted": "Separate editor submissions may use different connections",
+      "risk": "BEGIN and COMMIT submitted separately or provisional SELECT mistaken for success",
+      "acceptance": "Whole transaction one reviewed submission, new read-only reconciliation"
+    },
+    {
+      "id": "C05",
+      "subject": "Human evidence",
+      "lab": "Synthetic references and simulated privileged operator",
+      "hosted": "Nominal account, MFA and custody need actual configuration",
+      "risk": "SQL principal/digest/MFA alone do not prove organizational act",
+      "acceptance": "Owner-approved access and evidence procedure"
+    },
+    {
+      "id": "C06",
+      "subject": "Inherited domain",
+      "lab": "Pinned S1 and protected I79-I85 source digests",
+      "hosted": "Installation not inspected",
+      "risk": "Lab-only contract filenames and actual installation may differ",
+      "acceptance": "Independent schema/constraint/port compatibility review without assumed installation"
+    }
+  ],
+  "physical_test_plan": {
+    "inherited": "All 31 I86 manual cases retained; apply_for_test uses the adapter; explicit original-SQL and SIGKILL probes still test the unchanged core",
+    "new": "10 OPS03 ACL, metadata, guards, reconcile and Auth API counterexamples",
+    "not_equivalence": "Counterexamples are not a two-phase implementation and do not weaken the certified instrument"
+  },
+  "coverage_limits": [
+    "No hosted query or mutation",
+    "No nominal human proof",
+    "No platform plan/config assumed",
+    "No hosted Auth API executor",
+    "No supported hosted REVOKE implemented",
+    "No proof that local superuser represents managed postgres"
+  ],
+  "decisions_remaining": {
+    "D01": "Owner is responsible; actual account, MFA, grants and privileged-token custody unverified",
+    "D02": "Trusted origin/correlation/external preservation",
+    "D03": "Manual continuity order",
+    "D04": "Manual recovery without bootstrap",
+    "D05": "Credential incident response and supported complete session cut"
+  },
+  "evidence": "Actual tests, counts, source commit/tree, catalog equality and disposal belong to run logs/artifacts; no success is predeclared here."
+}

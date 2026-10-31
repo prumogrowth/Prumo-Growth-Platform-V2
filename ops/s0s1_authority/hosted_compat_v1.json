@@ -1,0 +1,97 @@
+{
+  "version": "prumo.s0s1.ops03.hosted-compat.v1",
+  "hosted_verified": false,
+  "production_homologated": false,
+  "human_presence_certified": false,
+  "administrative_application_enabled": false,
+  "hosted_supported_revoke_implemented": false,
+  "checkpoint": {
+    "commit": "7d3232f59aab35265c3aa7fb5ab5ab2f06d5d047",
+    "tree": "574c69e6c232c7ebb1e8719721fb8283c439dbbe"
+  },
+  "channel_decision": "Owner or explicitly authorized human in Supabase administrative environment; no Prumo module or administrative API",
+  "candidate_profile": "DISPOSABLE_BASELINE_ADAPTER_ONLY_NO_HOSTED_INSTALLER",
+  "session_strategy": "UNCHANGED_I86_ATOMIC_AUTH_DML_LAB_CONTROL_ONLY",
+  "certified_core": {
+    "path": "integration/i86/manual/procedure.sql",
+    "sha256": "315ee8227ad72b5c1e40818b25f289708f974645df842db2ae9414892e30084f",
+    "modifications_permitted": false
+  },
+  "atomic_lab_invariants": [
+    "canonical Auth UUID",
+    "APPOINT REVOKE REACTIVATE individual acts",
+    "canonical competence independent of JWT and cargo",
+    "CAS with locking",
+    "payload-bound idempotency",
+    "authority act audit session cut in same I86 transaction",
+    "rollback including sessions",
+    "post-COMMIT reconciliation without reapply",
+    "no I85 reuse",
+    "multiple Directors",
+    "no conversion of established staff"
+  ],
+  "diagnostic": {
+    "read_only": true,
+    "metadata_only": true,
+    "collects_identity_rows": false,
+    "collects_credentials": false,
+    "confirms_human_authorization": false,
+    "hosted_execution_this_mission": false
+  },
+  "evidence_categories": {
+    "lab_proven": "Only claims supported by matching commit/tree physical report, nominal test results and teardown; never infer PASS from this static contract",
+    "documented": "Supabase signout scopes and refresh-token retirement; old JWT expires independently; session_id permits live-session checks; platform roles differ from domain authority",
+    "hosted_unverified": [
+      "actual PG/Auth versions",
+      "SQL Editor effective and session principals",
+      "managed permissions and ownership",
+      "support and concurrency of direct auth.sessions DML",
+      "native manual session-revocation workflow",
+      "exposed schemas and RPC reachability",
+      "constraints and domain contracts installed",
+      "MFA PAT OAuth MCP custody",
+      "nominal log-to-act correlation and retention"
+    ],
+    "human_configuration": [
+      "nominal owner/admin authorization",
+      "MFA and access custody",
+      "manual act and external evidence preservation",
+      "manual continuity and recovery",
+      "incident response"
+    ]
+  },
+  "supported_auth_interface_analysis": {
+    "interface": "Auth signOut with explicitly global scope",
+    "usage_in_candidate_instrument": false,
+    "usage_in_tests": "Synthetic fixtures only, fixed owned loopback endpoint, no operational CLI",
+    "participation_in_existing_postgres_transaction": "NOT_DOCUMENTED_OR_PROVEN",
+    "two_phase_revoke_authorized": false,
+    "counterexamples_required": [
+      "Auth commit survives domain rollback",
+      "domain commit can precede session cut",
+      "new login after logout needs fresh domain authorization"
+    ]
+  },
+  "negative_roles": [
+    "PUBLIC",
+    "anon",
+    "authenticated",
+    "service_role",
+    "prumo_s1_admin_edge_local",
+    "prumo_cfi01_pgtest_login",
+    "ordinary domain/validator owners",
+    "Consultor",
+    "Gestor",
+    "ordinary Diretor",
+    "AI/MCP/application credentials"
+  ],
+  "stop_conditions": [
+    "hosted mutation",
+    "real users or credentials",
+    "certified source change",
+    "new operational executor",
+    "weakened session/competence revocation",
+    "automatic reactivation or rebootstrap"
+  ],
+  "next_decision": "No hosted REVOKE is supplied. Require evidence of supported atomic mechanism, or separate explicit owner decision for a different contract; do not silently accept two-phase parity."
+}
