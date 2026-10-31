@@ -118,6 +118,6 @@ jobs:
           umask 077
           proofdir="$(mktemp -d "$RUNNER_TEMP/prumo-meta-s0-XXXXXXXX")"
           trap 'rm -rf "$proofdir"' EXIT
-          python integrations/whatsapp-meta/lab/emit-s0-physical-receipt.py             "$GITHUB_WORKSPACE/s0-reference" "$proofdir/s0-lab-receipt.json"
-          node --experimental-strip-types             integrations/whatsapp-meta/lab/verify-s0-physical-receipt.mjs             "$proofdir/s0-lab-receipt.json"
+          python integrations/whatsapp-meta/lab/emit-s0-physical-receipt.py             "$GITHUB_WORKSPACE/s0-reference" "$proofdir/s0-lab-receipt.json" "$proofdir/s0-lab-trust.json"
+          node --experimental-strip-types             integrations/whatsapp-meta/lab/verify-s0-physical-receipt.mjs             "$proofdir/s0-lab-receipt.json" "$proofdir/s0-lab-trust.json"
           echo "PG17 physical LAB receipt consumed by Meta; no HTTP ACK, Graph, S0 production or deploy" >> "$GITHUB_STEP_SUMMARY"
