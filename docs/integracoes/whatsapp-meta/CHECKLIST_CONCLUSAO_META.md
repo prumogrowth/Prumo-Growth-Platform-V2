@@ -22,12 +22,12 @@
 - [ ] **M07 — Proteção completa contra ACK sintético:** hardening Meta e testes concluídos; **ratificação operacional S0/Meta/Infra pendente**, sem HTTP ACK liberado.
   - [x] M07-A — Função legada `decideBatchAck` agora retorna exclusivamente `DENIED_NO_HTTP_AUTHORITY`, sem status HTTP, mesmo diante de `COMMITTED` forjado.
   - [x] M07-B — Scanner CI detecta referências legadas, ações ACK, sinais positivos de autoridade e código POST com HTTP 200 não ratificado. Diferencia GET challenge e resposta da Graph.
-  - [x] M07-C — Testes positivos/negativos, suíte completa **1203/1203** e laboratório S0/PG17 aprovados; evidência: [CI 41188896083](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41188896083) (SHA `c9ba0462ca72ee5dad5ae049fb7ffe5ea87225c6`).
+  - [x] M07-C — Testes positivos/negativos e auditoria reforçada: **1.210/1.210** testes offline e PG17 aprovados; evidência: [CI auditado 41194019498](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41194019498), SHA `dd27a01d6a44bd8496d52d9cc2455c8b5752f886`. Scanner com exceção GET delimitada e regressões de comentário/literal.
   - [ ] M07-D — Contrato operacional de ACK/HTTP ratificado por S0/Meta/Infra: autoridade, transação, códigos, replay e falhas. Decisão solicitada na [issue #2](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/2); minuta em [M07 segurança e aceite](M07_SEGURANCA_RECIBOS_E_HTTP_ACK_2026-10-31.md).
 - [ ] **M08 — Escopo de lote multicanais/ACK ratificado:** provas cruzadas Meta↔S0 concluídas em PG17 descartável; **aceite S0/Meta/Infra pendente**, nenhum ACK parcial/HTTP autorizado.
   - [x] M08-A — HMAC Meta + recibo Ed25519 S0/PG17 cobrindo **um POST físico**, 2 WABAs, 1 App, 1 tenant, 4 ocorrências, 1 transação. Evidência: [CI 41189393878](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41189393878).
   - [x] M08-B — Cinco casos negativos provam rejeição **de lote inteiro** sem commit parcial: tenant, App, WABA desconhecida, evento inválido e grant ausente.
-  - [x] M08-C — Replay do mesmo nonce negado, recuperação com novo nonce retornando mesmo recibo e conflito de bytes sem novo lote; Meta rejeita HMAC adulterado/revogação/alteração de escopo.
+  - [x] M08-C — Replay do mesmo nonce negado, recuperação com novo nonce retornando mesmo recibo e conflito de bytes sem novo lote; Meta rejeita HMAC adulterado/revogação/alteração de escopo. Auditoria: **prova e trust fixture separadas**, 18 verificações físicas aprovadas no [CI 41194019498](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41194019498).
   - [ ] M08-D — Homologação dos donos S0/Meta/Infra de unidade transacional, multicanal, estados HTTP, retry e replay. Minuta e evidências: [M08 laboratório e pendências](M08_LOTE_MULTICANAL_ATOMICO_2026-10-31.md).
 
 ## B. Patrimônio Meta e fronteira operacional
@@ -66,7 +66,7 @@
 
 ## Próximo marco
 
-**M08-D** e **M07-D** aguardam ratificação S0/Meta/Infra. O trabalho técnico M08-A/B/C foi concluído em laboratório, sem habilitar ACK. Enquanto a comunicação entre frentes é organizada, prosseguir na próxima entrega Meta que dependa apenas de código/testes offline.
+**AUDITORIA M07/M08:** [parecer técnico e pendências por responsável](AUDITORIA_M07_M08_2026-10-31.md). **M08-D e M07-D continuam pendentes** de ratificação S0/Meta/Infra. As correções de auditoria passaram nos testes offline e físicos; nenhum ACK HTTP foi autorizado. Próximo trabalho Meta: M09 apenas offline.
 
 ## Limites permanentes
 
