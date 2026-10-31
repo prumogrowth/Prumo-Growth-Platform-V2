@@ -42,4 +42,4 @@ Estas são **fronteiras futuras reais**, mas ainda não exigem solicitação par
 - [WA-26 ponte S0/Meta para template](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/blob/dd27a01d6a44bd8496d52d9cc2455c8b5752f886/integrations/whatsapp-meta/s0-template-purpose-bridge.ts), sem serviço S0 real.
 - [WA-09 reconciliação status](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/blob/dd27a01d6a44bd8496d52d9cc2455c8b5752f886/integrations/whatsapp-meta/technical-reconciliation.ts), in-memory, sem persistência, tentativa/sent reais ou autoridade S0.
 
-**Próxima ação própria:** seguir M09 em modo offline e preparar **contrato candidato outbound** para comentar na #9, sempre sem enviar Graph/ACK reais nem mexer nas outras frentes.
+**Próxima ação própria:** seguir M09 em modo offline. O [contrato candidato WA-39 outbound](WA39_CONTRATO_CANDIDATO_EVIDENCIA_OUTBOUND_F02_S0_v0_1.md) foi publicado e comentado na [#9](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/9), sob **EM_ANALISE**, sem status de entrega operacional ou homologação; nunca enviar Graph/ACK reais nem alterar outras frentes.
