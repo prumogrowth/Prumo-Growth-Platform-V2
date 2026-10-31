@@ -64,7 +64,8 @@ const postOk=(multichannel:boolean,eventCount:number,scopeCount:number,digest:st
   scope_count:scopeCount,raw_sha256:digest,
  });
 const ID=/^[A-Za-z0-9_.:-]{1,128}$/;
-const headerName=/^[!#$%&'*+.^_`|~0-9A-Za-z-]{1,128}$/;
+// Narrow laboratory header-name profile; rejects exotic names and ambiguity.
+const headerName=/^[A-Za-z][A-Za-z0-9-]{0,127}$/;
 function record(raw:unknown,fields:readonly string[]):Record<string,unknown>|null{
  try{
   if(!raw||typeof raw!=='object'||Array.isArray(raw))return null;
