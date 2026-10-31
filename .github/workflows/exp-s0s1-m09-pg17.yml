@@ -1,0 +1,77 @@
+name: S0 S1 M09 - pinned physical PG17 binding laboratory
+on:
+  push:
+    branches: [exp/s0s1-m09-pg17-read-20261031]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  isolated-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Verify exact M09 candidate diff and checkout
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          python3 -B - <<'PY'
+          import subprocess
+          base='0eb820de082503d9ec8a4caa26636a9686b32a5a'
+          actual=set(subprocess.check_output(['git','diff','--name-only',base,'HEAD'],text=True).splitlines())
+          wanted={'.github/workflows/exp-s0s1-m09-pg17.yml',
+            'integration/s0s1_m09_registry/pg17_binding.py',
+            'integration/s0s1_m09_registry/test_pg17_binding.py'}
+          assert actual == wanted,(actual, wanted)
+          print('M09-02 SCOPE PASS')
+          PY
+      - name: M09 existing synthetic tests and PG17 test skipping on unit job
+        run: |
+          python3 -B -m unittest integration.s0s1_m09_registry.test_port -v
+          python3 -O -B -m unittest integration.s0s1_m09_registry.test_port -q
+      - name: Parse PG17 adapter and physical tests
+        run: python3 -B -c "import ast,pathlib; [ast.parse(pathlib.Path(p).read_text()) for p in ('integration/s0s1_m09_registry/pg17_binding.py','integration/s0s1_m09_registry/test_pg17_binding.py')]; print('PARSE PASS')"
+
+  disposable-pg17:
+    needs: isolated-contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      M09_PG17_DISPOSABLE: 'YES'
+      M09_PINNED_SOURCE: ${{ github.workspace }}/_m09_pin
+      PYTHONPATH: ${{ github.workspace }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 01ffdb093013664b73b18d23f92aac2202578210
+          path: _m09_pin
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Pin evidence and database driver
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git -C _m09_pin rev-parse HEAD)" = 01ffdb093013664b73b18d23f92aac2202578210
+          python3 -m pip install 'psycopg[binary]==3.2.13'
+      - name: Physical read and revocation on isolated PG17 Docker asset
+        run: |
+          python3 -B -m unittest integration.s0s1_m09_registry.test_pg17_binding -v
+      - name: No modifications to pinned Git trees
+        if: always()
+        run: |
+          git -C _m09_pin status --short
+          test -z "$(git -C _m09_pin status --porcelain)"
+          test -z "$(git status --porcelain --untracked-files=no)"
