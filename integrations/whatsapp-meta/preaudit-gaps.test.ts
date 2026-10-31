@@ -18,7 +18,7 @@ test('AUD-UN-01 distinct message and status positions cannot collide',async()=>{
 });
 test('AUD-UN-02 receipt outcome must be primitive string',()=>{
  const forged={outcome:{toString:()=> 'ACCEPTED_DURABLE'},commit_state:'COMMITTED',total:1,accepted:1,duplicates:0,quarantined:0};
- assert.equal(decideBatchAck(1,forged).status,503);
+ assert.equal(decideBatchAck(1,forged).ack_allowed,false);
 });
 test('AUD-UN-03 projection must match claimed intent even with same shop/channel',()=>{
  const x=new FakeMetaStatusReconciler();assert.equal(x.registerAcceptedSend(ref,outcome).decision,'LINKED');
