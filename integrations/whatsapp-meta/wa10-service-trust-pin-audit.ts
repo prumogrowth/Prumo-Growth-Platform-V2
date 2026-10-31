@@ -96,6 +96,23 @@ function own(raw:unknown,keys:readonly string[]):Record<string,unknown>|null{
   return Object.fromEntries(keys.map(k=>[k,d[k].value]));
  }catch{return null;}
 }
+/** Prevent untrusted array element getters, holes and inherited values. */
+function dense(raw:unknown,min:number,max:number):unknown[]|null{
+ try{
+  if(!Array.isArray(raw))return null;
+  const d=Object.getOwnPropertyDescriptors(raw);
+  const len=d.length?.value;
+  if(!Number.isSafeInteger(len)||len<min||len>max||
+     Reflect.ownKeys(raw).length!==len+1)return null;
+  const out:unknown[]=[];
+  for(let i=0;i<len;i++){
+   const item=d[String(i)];
+   if(!item||!Object.hasOwn(item,'value'))return null;
+   out.push(item.value);
+  }
+  return out;
+ }catch{return null;}
+}
 function rawKey(base64:unknown):Uint8Array|null{
  if(typeof base64!=='string'||base64.length!==44||
     !/^(?:[A-Za-z0-9+/]{4}){10}[A-Za-z0-9+/]{3}=$/.test(base64))
@@ -110,14 +127,14 @@ type RegistrySnapshot={revision:number;pins:Wa10ReceiptPin[];services:Wa10Servic
 function validRegistry(input:unknown):RegistrySnapshot|null{
  const reg=own(input,registryKeys);
  if(!reg||reg.contract_version!=='wa10-meta-service-trust.lab.v0.1-candidate'||
-    !pos(reg.registry_revision)||!Array.isArray(reg.receipt_pins)||
-    !Array.isArray(reg.service_principals)||
-    reg.receipt_pins.length<1||reg.receipt_pins.length>64||
-    reg.service_principals.length<1||reg.service_principals.length>64)return null;
+    !pos(reg.registry_revision))return null;
+ const pinEntries=dense(reg.receipt_pins,1,64);
+ const serviceEntries=dense(reg.service_principals,1,64);
+ if(!pinEntries||!serviceEntries)return null;
  const pinIDs=new Set<string>(),serviceIDs=new Set<string>();
  const keyFingerprints=new Set<string>(),principalOwners=new Map<string,string>();
  const pins:Wa10ReceiptPin[]=[],services:Wa10ServiceMetadata[]=[];
- for(const raw of reg.receipt_pins){
+ for(const raw of pinEntries){
   const p=own(raw,pinKeys);
   if(!p||![p.app_ref,p.instance_ref,p.key_id].every(id)||
      !rev(p.key_revision)||!state(p.status)||
@@ -135,7 +152,7 @@ function validRegistry(input:unknown):RegistrySnapshot|null{
   keyFingerprints.add(fingerprint);
   pins.push(p as Wa10ReceiptPin);
  }
- for(const raw of reg.service_principals){
+ for(const raw of serviceEntries){
   const s=own(raw,serviceKeys);
   if(!s||![s.principal_ref,s.app_ref,s.issuer_ref,s.m2m_key_id].every(id)||
      !rev(s.m2m_key_revision)||
