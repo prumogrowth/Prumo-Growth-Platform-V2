@@ -41,3 +41,8 @@ Esta implementação não faz HTTP, não escuta porta, não consulta Graph/Meta,
 - [ ] **M27/M28/M29/M30:** aceite interfrentes, E2E autorizado, runbooks e implantação explícita. Nenhum fechamento automático da M11.
 
 **Resultado:** preparação offline do envelope e 44 regressões estão concluídas; M11 completa continua `[ ]`. Nenhuma decisão de transporte ou efeito comercial autorizado. Sem merge, deploy ou Graph real.
+
+
+## Adendo pós-vistoria de segurança — 31/10/2026
+
+Os **44 testes M11** e o CI inicial informados acima são o recorte histórico anterior à auditoria retrospectiva. Foram acrescentadas 4 regressões de revogação de App entre leituras GET/POST, getter em lista de cabeçalhos e tentativas de compartilhar slot GET/POST. A M11 tem **48 testes próprios**, sem alteração da política de não ACK. [CI 41222509935](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41222509935): 1.344/1.344 Meta offline + 18 PG17, fonte funcional `60f789df841485e8cce41525f4517f00c6975e91`. [Auditoria unificada M01–M11](AUDITORIA_RETROSPECTIVA_M01_M11_2026-10-31.md). M11-D continua `[ ]`, pois não existe endpoint ou decisão HTTP/ACK ratificada.
