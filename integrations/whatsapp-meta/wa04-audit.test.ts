@@ -79,7 +79,7 @@ test('WA-AUD-08 meta status hint does not claim automatic deduplication',async()
  const result=await technicalKeyHint(event,'AUDIT_A');assert.equal(result.safe_to_auto_dedupe,false);
 });
 test('WA-AUD-09 receipt coercion cannot return ACK',()=>{
- const result=decideBatchAck(1,{outcome:{toString:()=> 'ACCEPTED_DURABLE'},commit_state:'COMMITTED',total:1,accepted:1,duplicates:0,quarantined:0});assert.equal(result.status,503);
+ const result=decideBatchAck(1,{outcome:{toString:()=> 'ACCEPTED_DURABLE'},commit_state:'COMMITTED',total:1,accepted:1,duplicates:0,quarantined:0});assert.equal(result.ack_allowed,false);
 });
 test('WA-AUD-10 all results remain offline and do not authorize operation',async()=>{
  const r=await post(reg);assert.equal(r.ok,true);
