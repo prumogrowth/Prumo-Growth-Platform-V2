@@ -326,3 +326,30 @@ test('AUD-M11-04 GET with forged two-purpose slot registry is denied',async()=>{
  denied(await inspect(get(),ports({registry:()=>forged})),
   'ROUTING_OR_VERIFICATION_DENIED');
 });
+
+
+test('AUD-M11-45 channel distribution hash changes when the SAME number is rebound',async()=>{
+ const source=post(raw());
+ const baseline=await inspect(source,ports());
+ const rebound={...REG,apps:[{...appA,channels:[
+  {...appA.channels[0],canal_id:'CHANNEL_REBOUND'},
+  appA.channels[1],
+ ]},appB]};
+ const changed=await inspect(source,ports({registry:()=>rebound}));
+ assert.equal(baseline.decision,'LAB_SIGNED_SINGLE_CHANNEL_UNCOMMITTED');
+ assert.equal(changed.decision,'LAB_SIGNED_SINGLE_CHANNEL_UNCOMMITTED');
+ assert.equal(baseline.event_count,changed.event_count);
+ assert.equal(baseline.scope_count,changed.scope_count);
+ assert.notEqual(baseline.channel_distribution_sha256,
+  changed.channel_distribution_sha256);
+ for(const result of [baseline,changed]){
+  flags(result);assert.match(result.channel_distribution_sha256!,/^[a-f0-9]{64}$/);
+  assert.equal(JSON.stringify(result).includes('CHANNEL_REBOUND'),false);
+ }
+});
+test('AUD-M11-46 GET and denied POST return no channel fingerprint',async()=>{
+ assert.equal((await inspect(get(),ports())).channel_distribution_sha256,null);
+ const e=post(raw());e.headers[1][1]='sha256='+('0'.repeat(64));
+ const x=await inspect(e,ports());
+ denied(x);assert.equal(x.channel_distribution_sha256,null);
+});
