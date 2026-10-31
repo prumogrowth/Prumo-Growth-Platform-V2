@@ -54,14 +54,23 @@ test('funções não alteram projeção original nem criam tempo de espera',()=>
 });
 
 import { copyCFDemoFixtures } from '../cf-op-02.mjs';
-import { confirmedDemoMessages, latestConfirmedDemoMessage, projectDemoAttention } from '../conversation-attention.mjs';
-for(const body of ['', ' \n\t', null, undefined])test('COR07 I01: inbound sem corpo legível não confirma prévia/pendência '+String(body),()=>{
+import { confirmedDemoMessages, latestConfirmedDemoMessage, projectDemoAttention, hasDemoMessageContent } from '../conversation-attention.mjs';
+for(const body of ['', ' \n\t', null, undefined, '\u200B', '\u200B \u2060\uFE0F', '\u200C\u200D\u200E', '\u034F\uFEFF', '\u0000'])test('COR08 I01: inbound sem corpo legível não confirma prévia/pendência '+JSON.stringify(body),()=>{
  const record=copyCFDemoFixtures().find(r=>r.id==='A-102');
  record.messages=[{id:'blank',side:'in',body,time:'T1'}];record.unread=0;
  record.demoReadByAssigned=true;record.demoReadProjection={source:'local_fixture',actorId:'rafael',caseId:record.id,shopId:'aurora'};
  assert.deepEqual(confirmedDemoMessages(record,'rafael','aurora'),[]);
  assert.equal(latestConfirmedDemoMessage(record,'rafael','aurora'),null);
  assert.equal(projectDemoAttention(record,'rafael','aurora').kind,'none');
+});
+test('COR08 I01: texto, emoji, ZWJ legítimo e rótulo de áudio são legíveis sem mutação',()=>{
+ for(const body of ['Olá','🙂','👨‍👩‍👧‍👦','♥️','👍🏽','Áudio local (0:01)','\u200BOlá\u200D']){
+   const message={body};
+   assert.equal(hasDemoMessageContent(message),true,JSON.stringify(body));
+   assert.equal(message.body,body,'não modificar conteúdo');
+ }
+ for(const body of ['\u200B','\u200B\u200D\uFE0F','\u2060','\u202E','\u3000'])
+   assert.equal(hasDemoMessageContent({body}),false,JSON.stringify(body));
 });
 test('COR07 I01: lista vazia, sistema e IA não criam pendência humana',()=>{
  const record=copyCFDemoFixtures().find(r=>r.id==='A-102');record.unread=0;
