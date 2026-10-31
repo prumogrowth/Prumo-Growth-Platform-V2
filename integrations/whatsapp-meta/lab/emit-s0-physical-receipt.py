@@ -47,14 +47,73 @@ def main():
         tests.LAB = lab
         candidate = tests.PhysicalTests("test_09_multichannel_same_app_tenant")
         candidate.setUp()  # Reuse S0's own registered route, M2M key and grants.
+        # Synthetic, ephemeral ASCII HMAC secret: also consumable by Meta JS
+        # independently, unlike S0's default arbitrary binary fixture secret.
+        candidate.meta = base64.urlsafe_b64encode(os.urandom(32))
+        candidate.s0.app_secrets[candidate.app] = candidate.meta
+
+        def empty_ingress():
+            with lab.admin() as c:
+                return (c.execute("SELECT count(*) AS n FROM batches").fetchone()["n"] == 0
+                    and c.execute("SELECT count(*) AS n FROM occurrences").fetchone()["n"] == 0
+                    and c.execute("SELECT count(*) AS n FROM nonces").fetchone()["n"] == 0)
+
+        # Each is a fully signed, physical POST with one good channel plus
+        # one bad sibling. A rejection must persist neither sibling.
+        invalid = (
+            ("FOREIGN_TENANT", candidate.raw((("100001", "200001"), ("100003", "200003")))),
+            ("FOREIGN_APP", candidate.raw((("100001", "200001"), ("100004", "200004")))),
+            ("UNKNOWN_CHANNEL", candidate.raw((("100001", "200001"), ("999999", "999999")))),
+        )
+        assert empty_ingress(), "S0_LAB_NOT_EMPTY"
+        for name, untrusted_raw in invalid:
+            wire, sig = candidate.packet(raw=untrusted_raw, ref="m08_" + name)
+            rejected = candidate.s0.call(wire, sig)
+            assert rejected["decision"] == "REJECTED", name + "_NOT_DENIED"
+            assert rejected["receipt"] is None and empty_ingress(), name + "_PARTIAL_COMMIT"
+
+        malformed = json.loads(candidate.raw(CHANNELS))
+        del malformed["entry"][1]["changes"][0]["value"]["statuses"][0]["id"]
+        malformed_raw = json.dumps(malformed, separators=(",", ":")).encode()
+        wire, sig = candidate.packet(raw=malformed_raw, ref="m08_BAD_LATE_ITEM")
+        malformed_result = candidate.s0.call(wire, sig)
+        assert malformed_result["decision"] == "REJECTED", "M08_LATE_ITEM_NOT_DENIED"
+        assert malformed_result["receipt"] is None and empty_ingress(), "M08_LATE_ITEM_PARTIAL"
+
+        with lab.admin() as c:
+            c.execute(
+                "INSERT INTO bindings VALUES('route_A','100006','200006',%s,'tenant_A','channel_A3',1,true)",
+                (candidate.app,)
+            )
+        wire, sig = candidate.packet(
+            raw=candidate.raw((("100001", "200001"), ("100006", "200006"))),
+            ref="m08_NO_GRANT"
+        )
+        ungranted = candidate.s0.call(wire, sig)
+        assert ungranted["decision"] == "REJECTED", "M08_UNGRANTED_NOT_DENIED"
+        assert ungranted["receipt"] is None and empty_ingress(), "M08_UNGRANTED_PARTIAL"
+
         raw = candidate.raw(CHANNELS)
         envelope, signature = candidate.packet(raw=raw)
         result = candidate.s0.call(envelope, signature)
         receipt = candidate.ack(result, 4)  # S0's own readback/signature assertion.
+        replay = candidate.s0.call(envelope, signature)
+        assert replay["decision"] == "REJECTED" and replay["receipt"] is None, "M08_NONCE_REPLAY"
+        recovery_envelope, recovery_signature = candidate.packet(raw=raw, scope="recover")
+        recovered = candidate.s0.call(recovery_envelope, recovery_signature)
+        assert recovered["decision"] == "ACK_ELIGIBLE", "M08_RECOVERY_NOT_ELIGIBLE"
+        assert recovered["receipt"] == receipt, "M08_RECOVERY_RECEIPT_CHANGED"
+        conflicting_raw = raw + b" "
+        conflicting_envelope, conflicting_signature = candidate.packet(raw=conflicting_raw)
+        conflict = candidate.s0.call(conflicting_envelope, conflicting_signature)
+        assert conflict["decision"] == "CONFLICT", "M08_MUTATED_POST_NOT_CONFLICT"
+        assert conflict["receipt"] is None, "M08_CONFLICT_RETURNED_RECEIPT"
         with lab.admin() as connection:
             rows = connection.execute("SELECT raw,item_count FROM batches").fetchall()
             assert len(rows) == 1, "S0_BATCH_COUNT"
             assert bytes(rows[0]["raw"]) == raw and rows[0]["item_count"] == 4, "S0_COMMIT_READBACK"
+            assert connection.execute("SELECT count(*) AS n FROM occurrences").fetchone()["n"] == 4, "M08_DUPLICATE_OCCURRENCES"
+            assert connection.execute("SELECT count(*) AS n FROM batches").fetchone()["n"] == 1, "M08_DUPLICATE_BATCH"
 
         # Trust comes from the *preconfigured S0 lab fixture*, NOT the receipt.
         # All names and binding expectations below are fixed by the independent
@@ -79,6 +138,14 @@ def main():
         }
         proof = {
             "kind": "S0_PG17_DISPOSABLE_RECEIPT_TO_META_UNRATIFIED",
+            "trusted_meta_app_secret": candidate.meta.decode("ascii"),
+            "trusted_meta_signature_header": json.loads(envelope)["meta_signature"],
+            "m08_lab_evidence": {
+                "rejected_sibling_batches_without_partial_storage": 5,
+                "fresh_nonce_recovery_same_signed_receipt": True,
+                "nonce_replay_rejected": True,
+                "mutated_same_batch_conflict_without_second_batch": True
+            },
             "source_sha": S0_SHA,
             "raw_base64": base64.b64encode(raw).decode("ascii"),
             "trusted_s0_public_key_base64": base64.b64encode(
@@ -101,6 +168,8 @@ def main():
     with os.fdopen(fd, "w", encoding="utf-8") as handle:
         json.dump(proof, handle, separators=(",", ":"), ensure_ascii=False)
         handle.write("\n")
+    print("PASS M08: five invalid multi-item POSTs rejected without partial commit")
+    print("PASS M08: same signed receipt on fresh-nonce recovery; replay and conflict denied")
     print("PASS S0 PG17 readback, signed physical receipt, isolated cleanup")
 
 
