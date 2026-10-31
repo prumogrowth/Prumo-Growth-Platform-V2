@@ -10,12 +10,12 @@
  * This is NOT a network handler or an authorization token issuer.
  */
 import {createHash} from 'node:crypto';
-import {inspectWa11OfflineWebhookEnvelope}
+import {inspectWa11OfflineWebhookEnvelope,hashWa11ChannelDistribution}
  from './wa11-offline-webhook-envelope.ts';
 import {prepareS0HandoffFixture}
  from './s0-handoff-contract.ts';
-import {inspectSignedMetaBatchChannelScope}
- from './cloud-batch-scope-preflight.ts';
+import {inspectSignedMetaBatchChannelScope,
+ type ChannelDistribution} from './cloud-batch-scope-preflight.ts';
 import type {TrustedRoutingPorts,RoutablePost}
  from './routed-webhook.ts';
 
@@ -172,6 +172,8 @@ export async function inspectWa12PhysicalIngressBarrier(
   if(inspected.raw_sha256!==host.raw_sha256||
      inspected.event_count!==host.expected_event_count)
    return denied('CAPTURE_MISMATCH');
+  if(!inspected.channel_distribution_sha256)
+   return denied('SCOPE_CHANGED');
 
   const physical:RoutablePost={
    route:snap.route,raw_body:snap.raw,signature_header:snap.signature,
@@ -201,7 +203,9 @@ export async function inspectWa12PhysicalIngressBarrier(
      final.scope_count!==inspected.scope_count)
    return denied('SCOPE_CHANGED');
 
-  const counts=new Map<string,{inbound:number;status:number}>();
+  const counts=new Map<string,{scope:Pick<ChannelDistribution,
+   'app_ref'|'concessionaria_id'|'canal_id'|'waba_id'|'phone_number_id'>;
+   inbound:number;status:number}>();
   const positions=new Set<string>();
   for(const occ of cand.occurrences){
    if(occ.app_ref!==cand.app_ref)return denied('SCOPE_CHANGED');
@@ -211,7 +215,11 @@ export async function inspectWa12PhysicalIngressBarrier(
    positions.add(position);
    const k=scopeKey(occ.app_ref,occ.concessionaria_id,occ.canal_id,
     occ.waba_id,occ.phone_number_id);
-   const value=counts.get(k)??{inbound:0,status:0};
+   const value=counts.get(k)??{scope:{
+    app_ref:occ.app_ref,concessionaria_id:occ.concessionaria_id,
+    canal_id:occ.canal_id,waba_id:occ.waba_id,
+    phone_number_id:occ.phone_number_id,
+   },inbound:0,status:0};
    if(occ.event_kind==='inbound_message')value.inbound++;
    else if(occ.event_kind==='status_callback')value.status++;
    else return denied('SCOPE_CHANGED');
@@ -225,6 +233,19 @@ export async function inspectWa12PhysicalIngressBarrier(
       value.status!==s.status_callback_count)
     return denied('SCOPE_CHANGED');
   }
+  // AUD-M12: WA11 could have observed an earlier channel map with
+  // exactly the same event_count/scope_count. Compare actual identities,
+  // tenant, WABA, sender and status/inbound distribution from ALL stages.
+  // A swapped binding MUST NOT be hidden by equal numeric summaries.
+  const candidateChannels:ChannelDistribution[]=Array.from(counts.values(),
+   ({scope,inbound,status})=>({
+    ...scope,inbound_message_count:inbound,status_callback_count:status,
+    occurrence_count:inbound+status,
+   }));
+  const initial=inspected.channel_distribution_sha256;
+  if(await hashWa11ChannelDistribution(candidateChannels)!==initial||
+     await hashWa11ChannelDistribution(final.channels)!==initial)
+   return denied('SCOPE_CHANGED');
   return coherent(cand.event_count,final.scope_count,host.raw_sha256 as string);
  }catch{return denied('INVALID_INPUT');}
 }
