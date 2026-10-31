@@ -24,11 +24,14 @@ def git_head(root):
 
 
 def main():
-    if len(sys.argv) != 3:
-        raise SystemExit("USAGE: emit-s0-physical-receipt.py <pinned-s0-checkout> <new-private-json-file>")
+    if len(sys.argv) != 4:
+        raise SystemExit("USAGE: emit-s0-physical-receipt.py <pinned-s0-checkout> <proof-json> <trusted-lab-config-json>")
+    if not __debug__:
+        raise SystemExit("LAB_ASSERTIONS_MUST_NOT_BE_OPTIMIZED")
     s0 = Path(sys.argv[1]).resolve(strict=True)
     dest = Path(sys.argv[2]).absolute()
-    if git_head(s0) != S0_SHA or dest.exists():
+    trust_dest = Path(sys.argv[3]).absolute()
+    if dest == trust_dest or git_head(s0) != S0_SHA or dest.exists() or trust_dest.exists():
         raise SystemExit("S0_REF_MISMATCH_OR_OUTPUT_EXISTS")
     if s0 == Path(__file__).resolve().parents[3]:
         raise SystemExit("S0_MUST_BE_SEPARATE_CHECKOUT")
@@ -38,6 +41,7 @@ def main():
     lab = None
     cleanup = None
     proof = None
+    trust = None
     try:
         os.chdir(s0)  # S0 Laboratory loads its own versioned SQL relatively.
         from integration.s0_meta_ingress import test_ingress as tests
@@ -138,7 +142,6 @@ def main():
         }
         proof = {
             "kind": "S0_PG17_DISPOSABLE_RECEIPT_TO_META_UNRATIFIED",
-            "trusted_meta_app_secret": candidate.meta.decode("ascii"),
             "trusted_meta_signature_header": json.loads(envelope)["meta_signature"],
             "m08_lab_evidence": {
                 "rejected_sibling_batches_without_partial_storage": 5,
@@ -148,26 +151,42 @@ def main():
             },
             "source_sha": S0_SHA,
             "raw_base64": base64.b64encode(raw).decode("ascii"),
+            "receipt": receipt,
+        }
+        # The verifier receives a *separate*, host-supplied laboratory
+        # trust configuration. This producer is not a production trust issuer.
+        trust = {
+            "kind": "S0_PG17_DISPOSABLE_TRUST_FIXTURE_UNRATIFIED",
+            "source_sha": S0_SHA,
+            "trusted_meta_app_secret": candidate.meta.decode("ascii"),
+            "trusted_expected": trusted_expected,
             "trusted_s0_public_key_base64": base64.b64encode(
                 candidate.receipt_key.public_key().public_bytes_raw()
             ).decode("ascii"),
-            "trusted_expected": trusted_expected,
-            "receipt": receipt,
         }
     finally:
         if lab is not None:
             cleanup = lab.cleanup()
         os.chdir(old_cwd)
 
-    if not cleanup or not all(cleanup.values()) or proof is None:
+    if not cleanup or not all(cleanup.values()) or proof is None or trust is None:
         raise SystemExit("S0_DISPOSABLE_CLEANUP_FAILED")
     if git_head(s0) != S0_SHA:
         raise SystemExit("S0_HEAD_CHANGED")
-    # The artifact has no private key, token or live customer information.
-    fd = os.open(dest, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
-    with os.fdopen(fd, "w", encoding="utf-8") as handle:
-        json.dump(proof, handle, separators=(",", ":"), ensure_ascii=False)
-        handle.write("\n")
+    # Both outputs are private ephemeral test files. Receipt is untrusted
+    # until separately supplied test trust is validated by the consumer.
+    written = []
+    try:
+        for path, data in ((dest, proof), (trust_dest, trust)):
+            fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+            written.append(path)
+            with os.fdopen(fd, "w", encoding="utf-8") as handle:
+                json.dump(data, handle, separators=(",", ":"), ensure_ascii=False)
+                handle.write("\n")
+    except Exception:
+        for path in written:
+            path.unlink(missing_ok=True)
+        raise
     print("PASS M08: five invalid multi-item POSTs rejected without partial commit")
     print("PASS M08: same signed receipt on fresh-nonce recovery; replay and conflict denied")
     print("PASS S0 PG17 readback, signed physical receipt, isolated cleanup")
