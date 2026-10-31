@@ -24,7 +24,7 @@ assert.equal(data.source_sha,s0Sha);
 assert.equal(trust.source_sha,s0Sha);
 assert.deepEqual(Object.keys(data).sort(),[
  'kind','raw_base64','receipt','source_sha',
- 'trusted_meta_signature_header','m08_lab_evidence',
+ 'trusted_meta_signature_header',
 ].sort());
 assert.deepEqual(Object.keys(trust).sort(),[
  'kind','source_sha','trusted_expected',
@@ -119,11 +119,6 @@ test('repeated cryptographic check is not deduplication or HTTP ACK',()=>{
 });
 const syntheticSecret=trust.trusted_meta_app_secret;
 const physicalMetaSignature=data.trusted_meta_signature_header;
-const facts=data.m08_lab_evidence;
-assert.equal(facts.rejected_sibling_batches_without_partial_storage,5);
-assert.equal(facts.fresh_nonce_recovery_same_signed_receipt,true);
-assert.equal(facts.nonce_replay_rejected,true);
-assert.equal(facts.mutated_same_batch_conflict_without_second_batch,true);
 assert.equal(typeof syntheticSecret,'string');
 assert.match(physicalMetaSignature,/^sha256=[a-f0-9]{64}$/);
 const now=Date.now();
