@@ -23,7 +23,7 @@
   - [x] M07-A — Função legada `decideBatchAck` agora retorna exclusivamente `DENIED_NO_HTTP_AUTHORITY`, sem status HTTP, mesmo diante de `COMMITTED` forjado.
   - [x] M07-B — Scanner CI detecta referências legadas, ações ACK, sinais positivos de autoridade e código POST com HTTP 200 não ratificado. Diferencia GET challenge e resposta da Graph.
   - [x] M07-C — Testes positivos/negativos, suíte completa **1203/1203** e laboratório S0/PG17 aprovados; evidência: [CI 41188896083](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41188896083) (SHA `c9ba0462ca72ee5dad5ae049fb7ffe5ea87225c6`).
-  - [ ] M07-D — Contrato operacional de ACK/HTTP ratificado por S0/Meta/Infra: autoridade, transação, códigos, replay e falhas. Minuta em [M07 segurança e aceite](M07_SEGURANCA_RECIBOS_E_HTTP_ACK_2026-10-31.md).
+  - [ ] M07-D — Contrato operacional de ACK/HTTP ratificado por S0/Meta/Infra: autoridade, transação, códigos, replay e falhas. Decisão solicitada na [issue #2](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/2); minuta em [M07 segurança e aceite](M07_SEGURANCA_RECIBOS_E_HTTP_ACK_2026-10-31.md).
 - [ ] **M08 — Escopo de lote multicanais/ACK ratificado:** contrato S0/Meta/Infra para unidade física, rejeição integral, retry e replay; prova cruzada sem ACK parcial.
 
 ## B. Patrimônio Meta e fronteira operacional
