@@ -75,3 +75,49 @@ jobs:
           ' "$RUNNER_TEMP/meta-full-suite.tap"
       - name: Protect legacy shape-only ACK helper
         run: node integrations/whatsapp-meta/cloud-ack-runtime-guard.mjs
+
+  s0-physical-meta-consumer:
+    if: github.event_name == 'push'
+    needs: [s0-receipt-interop]
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - name: Checkout exact Meta commit
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Checkout frozen independent S0 lab (read-only source)
+        uses: actions/checkout@v4
+        with:
+          repository: prumogrowth/Prumo-Growth-Platform-V2
+          ref: 01ffdb093013664b73b18d23f92aac2202578210
+          path: s0-reference
+          persist-credentials: false
+      - name: Verify Git source boundaries
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git -C s0-reference rev-parse HEAD)" = "01ffdb093013664b73b18d23f92aac2202578210"
+          echo "META_SHA=$(git rev-parse HEAD)" >> "$GITHUB_STEP_SUMMARY"
+          echo "S0_LAB_SHA=$(git -C s0-reference rev-parse HEAD)" >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install isolated pinned S0 laboratory libraries
+        run: python -m pip install -r s0-reference/integration/s0_meta_ingress/requirements.txt
+      - name: Exercise PG17 receipt from real S0 LAB runtime in Meta consumer
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          proofdir="$(mktemp -d "$RUNNER_TEMP/prumo-meta-s0-XXXXXXXX")"
+          trap 'rm -rf "$proofdir"' EXIT
+          python integrations/whatsapp-meta/lab/emit-s0-physical-receipt.py             "$GITHUB_WORKSPACE/s0-reference" "$proofdir/s0-lab-receipt.json"
+          node --experimental-strip-types             integrations/whatsapp-meta/lab/verify-s0-physical-receipt.mjs             "$proofdir/s0-lab-receipt.json"
+          echo "PG17 physical LAB receipt consumed by Meta; no HTTP ACK, Graph, S0 production or deploy" >> "$GITHUB_STEP_SUMMARY"
