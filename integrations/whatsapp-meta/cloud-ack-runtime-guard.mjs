@@ -26,7 +26,7 @@ const stripComments=(s)=>
 
 // Do not mistake provider status observations for an HTTP reply. These
 // forbidden forms are deliberately narrow and limited to the Meta tree.
-const statusLiteral=/\b(?:status|statusCode|http_status|httpStatus)\s*[:=]\s*(?:200|2e2|0xc8)\b/i;
+// http_status is the observed provider Graph HTTP result, not webhook ACK.\nconst statusLiteral=/\b(?:status|statusCode|httpStatus)\s*[:=]\s*(?:200|2e2|0xc8)\b/i;
 const statusCall=/\b(?:sendStatus|writeHead|status)\s*\(\s*(?:200|2e2|0xc8)\s*[,)]/i;
 const ackAction=/\baction\s*:\s*['"]ACK['"]/;
 const positiveAuthority=/\b(?:ack_allowed|http_ack_allowed|http_response_authorized)\s*[:=]\s*true\b/;
@@ -39,7 +39,11 @@ export function scanRuntimeAckSource(path,source){
  const findings=[];
  if(path!==definition&&identifier.test(code))
   findings.push('LEGACY_SHAPE_ONLY_HELPER_REFERENCE');
- if(path.startsWith('integrations/whatsapp-meta/')){
+ // Meta GET challenge returns 200 after its own token verification; it is
+ // not POST delivery ACK. Keep its audited verification module out of this
+ // POST-specific static canary while still checking direct legacy references.
+ if(path.startsWith('integrations/whatsapp-meta/')&&
+    path!=='integrations/whatsapp-meta/verify-get.ts'){
   if(statusLiteral.test(code)||statusCall.test(code))
    findings.push('UNRATIFIED_HTTP_200_LITERAL');
   if(ackAction.test(code))findings.push('UNRATIFIED_ACK_ACTION');
