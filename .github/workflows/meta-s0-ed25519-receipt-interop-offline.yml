@@ -19,9 +19,9 @@ jobs:
         run: |
           set -euo pipefail
           actual_sha="$(git rev-parse --verify HEAD)"
-          printf 'META_SOURCE_SHA=%s\\nGITHUB_EVENT_SHA=%s\\n' "$actual_sha" "$GITHUB_SHA"
+          printf 'META_SOURCE_SHA=%s\nGITHUB_EVENT_SHA=%s\n' "$actual_sha" "$GITHUB_SHA"
           test "$actual_sha" = "$GITHUB_SHA"
-          printf 'Meta source SHA: %s\\n' "$actual_sha" >> "$GITHUB_STEP_SUMMARY"
+          printf 'Meta source SHA: %s\n' "$actual_sha" >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
