@@ -4,9 +4,9 @@
 
 ## Evidência executada
 
-**CI:** [run 41189393878](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41189393878), código Meta `665dfa834cb95a8774352246f9a67b9a250c99b5`, fonte S0 física **somente leitura** `01ffdb093013664b73b18d23f92aac2202578210`.
+**CI original:** [run 41189393878](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41189393878). **CI após auditoria e correções:** [run 41194019498](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41194019498), código Meta `dd27a01d6a44bd8496d52d9cc2455c8b5752f886`, fonte S0 física **somente leitura** `01ffdb093013664b73b18d23f92aac2202578210`.
 
-**Execução Meta:** `integrations/whatsapp-meta/lab/emit-s0-physical-receipt.py` e `verify-s0-physical-receipt.mjs`. A suíte completa Meta aprovou **1.203/1.203 testes offline**; o job de interoperabilidade executou **17 verificações do recibo físico S0/PG17**, mais verificações no produtor S0.
+**Execução Meta:** `integrations/whatsapp-meta/lab/emit-s0-physical-receipt.py` e `verify-s0-physical-receipt.mjs`. A suíte completa Meta aprovou **1.210/1.210 testes offline**; o job de interoperabilidade executou **18 verificações do recibo físico S0/PG17**, mais verificações no produtor S0.
 
 Com um **único POST artificial** contendo dois WABAs/números da **mesma App e tenant** e quatro ocorrências (duas mensagens, dois status):
 
@@ -19,10 +19,10 @@ Com um **único POST artificial** contendo dois WABAs/números da **mesma App e 
 
 ## Limites da prova
 
-- A chave HMAC ASCII do ensaio foi gerada aleatoriamente em memória pelo laboratório S0, disponibilizada ao leitor Meta **somente pelo fixture privado descartável (modo 0600)**, e o arquivo foi excluído no término do job. Isso é uma demonstração controlada, **não custódia de segredo ou identidade operacional ratificada**.
+- A chave HMAC ASCII do ensaio foi gerada aleatoriamente em memória pelo laboratório S0, disponibilizada ao leitor Meta por **um arquivo privado de trust de laboratório separado do recibo** (ambos modo 0600), excluído no término do job. **Atenção:** os dois artefatos são gerados pelo mesmo produtor sintético, portanto a confiança de produção ainda exige chave/registro de S0 independentes e ratificados. Isso é demonstração controlada, **não custódia de segredo ou identidade operacional homologada**.
 - O laboratório usa App, tenant, canais, M2M e chave Ed25519 sintéticos e controla recursos PG17 descartáveis. S0 não foi alterada.
 - A prova física **não** valida o caminho HTTP externo, nem determina 200, retry, timeout real, fila produtiva, M2M fora do laboratório, deploy, escrow, monitoramento, consentimento ou LGPD em produção.
-- A prova M08 não eleva ACK nem legitima particionar um POST. M07-D e M27 continuam abertos.
+- A prova M08 não eleva ACK nem legitima particionar um POST. M07-D, M08-D e M27 continuam abertos. Ver [auditoria canônica M07/M08](AUDITORIA_M07_M08_2026-10-31.md) e [pendência formal M08-D](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/3).
 
 ## Decisões pendentes para o futuro canal entre frentes
 
