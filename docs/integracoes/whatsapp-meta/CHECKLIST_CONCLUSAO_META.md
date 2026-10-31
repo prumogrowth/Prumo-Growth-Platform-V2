@@ -28,7 +28,7 @@
   - [x] M08-A — HMAC Meta + recibo Ed25519 S0/PG17 cobrindo **um POST físico**, 2 WABAs, 1 App, 1 tenant, 4 ocorrências, 1 transação. Evidência: [CI 41189393878](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41189393878).
   - [x] M08-B — Cinco casos negativos provam rejeição **de lote inteiro** sem commit parcial: tenant, App, WABA desconhecida, evento inválido e grant ausente.
   - [x] M08-C — Replay do mesmo nonce negado, recuperação com novo nonce retornando mesmo recibo e conflito de bytes sem novo lote; Meta rejeita HMAC adulterado/revogação/alteração de escopo. Auditoria: **prova e trust fixture separadas**, 18 verificações físicas aprovadas no [CI 41194019498](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41194019498).
-  - [ ] M08-D — Homologação dos donos S0/Meta/Infra de unidade transacional, multicanal, estados HTTP, retry e replay. Minuta e evidências: [M08 laboratório e pendências](M08_LOTE_MULTICANAL_ATOMICO_2026-10-31.md).
+  - [ ] M08-D — Homologação dos donos S0/Meta/Infra de unidade transacional, multicanal, estados HTTP, retry e replay. [Issue #3](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/3); evidências: [M08 laboratório e pendências](M08_LOTE_MULTICANAL_ATOMICO_2026-10-31.md).
 
 ## B. Patrimônio Meta e fronteira operacional
 
