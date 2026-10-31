@@ -124,3 +124,20 @@ test('WA-CRED-19 returns no PII, access tokens, App Secret or commercial grant',
     assert.equal(json.includes(secret),false);
   assert.equal(json.includes('production_authorized":true'),false);
 });
+
+
+test('AUD-CRED-01 GET/POST/Graph slots within ONE App may never alias',()=>{
+ for(const field of ['post_app_secret','graph_access_token'] as const){
+  const registry={...reg,apps:[{...appA,secret_slots:{
+   ...appA.secret_slots,[field]:appA.secret_slots.get_verify_token}},appB]};
+  for(const purpose of ['GET_VERIFY_TOKEN','POST_APP_SECRET'] as const){
+   const result=get('ROUTE_A',purpose,registry);
+   assert.deepEqual(result,{ok:false,reason:'INVALID_REGISTRY',production_authorized:false});
+  }
+  assert.equal(graph(scope,registry).ok,false);
+ }
+ const registry={...reg,apps:[{...appA,secret_slots:{
+  ...appA.secret_slots,graph_access_token:appA.secret_slots.post_app_secret}},appB]};
+ assert.equal(get('ROUTE_A','POST_APP_SECRET',registry).ok,false);
+ assert.equal(graph(scope,registry).ok,false);
+});
