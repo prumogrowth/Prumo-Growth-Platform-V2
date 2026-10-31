@@ -115,7 +115,7 @@ function validRegistry(input:unknown):RegistrySnapshot|null{
     reg.receipt_pins.length<1||reg.receipt_pins.length>64||
     reg.service_principals.length<1||reg.service_principals.length>64)return null;
  const pinIDs=new Set<string>(),serviceIDs=new Set<string>();
- const keyOwners=new Map<string,string>();
+ const keyFingerprints=new Set<string>(),principalOwners=new Map<string,string>();
  const pins:Wa10ReceiptPin[]=[],services:Wa10ServiceMetadata[]=[];
  for(const raw of reg.receipt_pins){
   const p=own(raw,pinKeys);
@@ -129,9 +129,10 @@ function validRegistry(input:unknown):RegistrySnapshot|null{
   if(pinIDs.has(identity))return null;
   pinIDs.add(identity);
   const fingerprint=Buffer.from(bytes).toString('hex');
-  const previous=keyOwners.get(fingerprint);
-  if(previous!==undefined&&previous!==p.app_ref)return null;
-  keyOwners.set(fingerprint,p.app_ref as string);
+  // A new key ID pointing to old bytes is not a cryptographic rotation,
+  // even within the same dealership. Pin material may not be reused.
+  if(keyFingerprints.has(fingerprint))return null;
+  keyFingerprints.add(fingerprint);
   pins.push(p as Wa10ReceiptPin);
  }
  for(const raw of reg.service_principals){
@@ -145,6 +146,9 @@ function validRegistry(input:unknown):RegistrySnapshot|null{
    s.m2m_key_id,s.m2m_key_revision,s.audience]);
   if(serviceIDs.has(identity))return null;
   serviceIDs.add(identity);
+  const previousApp=principalOwners.get(s.principal_ref as string);
+  if(previousApp!==undefined&&previousApp!==s.app_ref)return null;
+  principalOwners.set(s.principal_ref as string,s.app_ref as string);
   services.push(s as Wa10ServiceMetadata);
  }
  return {revision:reg.registry_revision as number,pins,services};
