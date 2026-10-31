@@ -13,6 +13,19 @@
 - Só marcar um item depois de satisfazer seu critério de aceite e anexar commit/teste ou ratificação correspondente.
 - Este arquivo é a lista canônica para atualizações, sem porcentagem. Dependências alheias permanecem atribuídas aos seus donos.
 
+## Auditoria retrospectiva antes de M12 (31/10/2026)
+
+**Auditoria de segurança e evidências:** [M01–M11 — achados, correções, CI e pendências](AUDITORIA_RETROSPECTIVA_M01_M11_2026-10-31.md), fonte Meta funcional `60f789df841485e8cce41525f4517f00c6975e91`, [CI 41222509935](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41222509935): **1.344/1.344** offline, **18/18** verificações físicas PG17, 2 jobs `success`; scanner ACK lexical aprovado. O levantamento retroativo de M01–M06 confirma evidências históricas e regressões, **não constitui reauditoria integral linha a linha dessas seis etapas**.
+
+- [x] **AUD-01 corrigido:** impedir alias do mesmo slot entre GET, POST e Graph dentro da mesma App (isolamento de segredos por finalidade).
+- [x] **AUD-02 corrigido:** M09 nega getters, arrays esparsos e elementos herdados nos manifestos de App/WABA/telefone/bindings S0.
+- [x] **AUD-03 corrigido:** M10 nega getters/arrays esparsos nos registros de pins Ed25519 e principais de serviço.
+- [x] **AUD-M11:** quatro testes independentes de revogação concorrente, getter de header e slots; **M11 continua apenas offline**.
+- [ ] **AUD-04 interfrentes:** contrato S0/S1 M09 0.1 [apresentado na #8](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/8) precisa resolver `tenant`↔`concessionaria_id`, revisões distintas, `slot_ref` por finalidade e recheck. **Não consumir diretamente a fixture Meta atual** como contrato S0.
+- [ ] **AUD-05 operacional:** endpoint HTTP, fonte S0 persistente/recibo e ACK, identidade M2M, vault, Graph e E2E exigem ratificação S0/Infra/Proprietário; manter [#2](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/2) e [#8](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/8). Gatilho PR real e artefato compilado ainda não auditados.
+
+**Contagem dos novos testes:** 13 regressões além dos 1.331 anteriores (M09: 38→43, M10: 39→42, M11: 44→48, credenciais: 19→20). São subconjuntos do total **1.344**; não somar entre si ou às 18 provas PG17. Os principais M07–M11 permanecem `[ ]` até aceite externo; M01–M06 mantêm o escopo histórico `[x]` estritamente offline/laboratório.
+
 ## A. Base técnica e testes
 
 - [x] **M01 — Decisões vigentes consolidadas:** WDC-01 a WDC-22, especificação e precedência disponíveis. Evidência: `00-decisoes-vigentes-precedencia-documental-2026-10-21.md` + `01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md`.
