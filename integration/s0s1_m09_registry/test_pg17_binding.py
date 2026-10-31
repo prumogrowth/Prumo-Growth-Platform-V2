@@ -145,9 +145,15 @@ class PhysicalM09(unittest.TestCase):
         self.assertEqual(self.read()['reason'],'AMBIGUOUS_BINDING')
 
     def test_db_role_scope_no_mutation_privilege(self):
+        # RLS WITH CHECK(false) can silently filter UPDATE or raise, never grant a write.
         with psycopg.connect(self.lab.runtime_dsn) as c:
-            with self.assertRaises(psycopg.Error):
+            try:
                 c.execute("UPDATE s0_meta_lab.bindings SET active=false WHERE route='route_A'")
+            except psycopg.Error:
+                c.rollback()
+        with self.lab.admin() as c:
+            row=c.execute("SELECT active FROM s0_meta_lab.bindings WHERE route='route_A'").fetchone()
+        self.assertTrue(row['active'])
         self.assertEqual(self.read()['decision'],'PG17_BINDING_VERIFIED_LAB_ONLY')
 
     def test_inactive_expired_channel_and_principal(self):
