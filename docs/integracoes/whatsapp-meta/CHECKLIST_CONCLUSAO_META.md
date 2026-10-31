@@ -47,7 +47,7 @@
 - [ ] **M16 — Preparação segura de templates:** conteúdo, botões, mídia, variáveis congeladas por versão, snapshot auditável e integração de administração com frente MCP autorizada.
 - [ ] **M17 — Assinatura de mensagem humana:** `Consultor/Gestor/Diretor Nome:\nMensagem` por autor autenticado na S0, somente texto livre permitido; prova de envio separada da assinatura.
 - [ ] **M18 — Despacho Graph API homologado:** operação real somente com autorização específica, política de janela, revalidação, idempotência, rate limit e condição de recuperação.
-- [ ] **M19 — Status e evidências reais reconciliados:** wamid/tentativa/tenant, callbacks duplicados e fora de ordem, estados incertos, leitura e entrega sem inferência comercial. Solicitação recebida [OpenAI→Meta #9](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/9), em análise offline.
+- [ ] **M19 — Status e evidências reais reconciliados:** wamid/tentativa/tenant, callbacks duplicados e fora de ordem, estados incertos, leitura e entrega sem inferência comercial. Solicitação recebida [OpenAI→Meta #9](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/9) e [contrato WA-39 v0.1 candidato](WA39_CONTRATO_CANDIDATO_EVIDENCIA_OUTBOUND_F02_S0_v0_1.md) em análise offline; sem integração real.
 - [ ] **M20 — Regra WDC-13 integrada à S0:** evidência de `sent` e falha definitiva, reset e duas consecutivas processados pela autoridade S0 sem confundir timeout/ACK com envio. A evidência Meta é coordenada na [#9](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/9); a aplicação comercial permanece exclusiva S0.
 - [ ] **M21 — Handoff humano e integração F01/F03:** impedir retomada F01 após handoff definitivo, preservar cutoff F03 e não conceder transições comerciais à Meta.
 
