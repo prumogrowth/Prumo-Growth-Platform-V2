@@ -99,3 +99,27 @@ test('ACK-GUARD-17 altered GET success code must be reviewed',()=>{
   'UNRATIFIED_HTTP_200_LITERAL',
  ]);
 });
+
+
+test('ACK-GUARD-18 slash inside string cannot hide live HTTP 200 or ACK',()=>{
+ const code='const marker="safe // marker"; return {status:200,action:"ACK",ack_allowed:true};';
+ assert.deepEqual(scan(runtime,code),[
+  'UNRATIFIED_HTTP_200_LITERAL',
+  'UNRATIFIED_ACK_ACTION',
+  'UNRATIFIED_ACK_AUTHORITY_FLAG',
+ ]);
+});
+test('ACK-GUARD-19 block-comment markers inside quoted strings do not mask code',()=>{
+ const code='const marker="safe /* comment */ marker"; res.status(200);';
+ assert.deepEqual(scan(runtime,code),['UNRATIFIED_HTTP_200_LITERAL']);
+});
+test('ACK-GUARD-20 real inline comments do not trigger false positives',()=>{
+ const code="const ok={ack_allowed:false}; /* status:200, action:'ACK' */";
+ assert.deepEqual(scan(runtime,code),[]);
+});
+test('ACK-GUARD-21 GET bypass cannot hide code behind quoted slash',()=>{
+ const code='const marker="safe // marker"; return {status:200,action:"ACK"};';
+ assert.deepEqual(scan('integrations/whatsapp-meta/verify-get.ts',code),[
+  'UNRATIFIED_HTTP_200_LITERAL','UNRATIFIED_ACK_ACTION',
+ ]);
+});
