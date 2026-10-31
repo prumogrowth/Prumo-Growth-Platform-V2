@@ -225,14 +225,14 @@ test('RECEIPT-16 forged COMMITTED matching shape remains NOT durable proof',asyn
  assert.equal(r.reason,'NO_AUTHENTICATED_DURABLE_EVIDENCE');
  assert.equal(r.event_count,1);
 });
-test('RECEIPT-17 historical shape-only helper returns 200 for fabricated receipt',()=>{
- // This is not an HTTP endpoint. Prove why its return value cannot be
- // treated as permission to send a transport-level ACK.
+test('RECEIPT-17 legacy shape-only helper permanently refuses fabricated HTTP ACK',()=>{
  const fabricated={outcome:'ACCEPTED_DURABLE',commit_state:'COMMITTED',
   total:1,accepted:1,duplicates:0,quarantined:0};
  const old=decideBatchAck(1,fabricated);
- assert.equal(old.action,'ACK');
- assert.equal(old.status,200);
+ assert.equal(old.decision,'DENIED_NO_HTTP_AUTHORITY');
+ assert.equal(old.ack_allowed,false);
+ assert.equal('action' in old,false);
+ assert.equal('status' in old,false);
 });
 test('RECEIPT-18 fabricated matching receipt still denied for mismatched SHA',async()=>{
  const {signed,c}=await triple();
