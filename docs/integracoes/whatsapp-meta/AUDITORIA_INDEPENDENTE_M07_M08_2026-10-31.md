@@ -6,7 +6,7 @@
 
 Auditoria do código real (`durable-receipt.ts`, `cloud-http-ack-authority-audit.ts`, `cloud-ack-runtime-guard.mjs`, `cloud-batch-scope-preflight.ts`, `cloud-s0-ed25519-receipt-interop.ts`), do produtor/consumidor PG17 descartável, do workflow e dos contratos WDC vigentes. Foram inspecionadas tanto as afirmações de segurança quanto limites dos testes e do pin de fonte.
 
-- [Execução integral aprovada](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41194019498) — SHA Meta `dd27a01d6a44a0c724e66096cc49f6e772db0c86` (confirmar SHA integral pela execução): **1.210/1.210 testes offline, 36/36 Ed25519, 369/369 regressões focadas**, scanner de fontes aprovado e **18 verificações físicas Meta↔S0** no PG17 descartável (sem skip/falha).
+- [Execução integral aprovada](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41194019498) — SHA Meta `dd27a01d6a44bd8496d52d9cc2455c8b5752f886`: **1.210/1.210 testes offline, 36/36 Ed25519, 369/369 regressões focadas**, scanner de fontes aprovado e **18 verificações físicas Meta↔S0** no PG17 descartável (sem skip/falha).
 - O produtor físico também provou **cinco rejeições integrais** de lote misto sem gravação parcial, recuperação autenticada com novo nonce e recibo idêntico, rejeição de replay e conflito para mesmos identificadores com bytes diferentes.
 - [Checklist M01–M30](CHECKLIST_CONCLUSAO_META.md), [especificação M07](M07_SEGURANCA_RECIBOS_E_HTTP_ACK_2026-10-31.md), [especificação M08](M08_LOTE_MULTICANAL_ATOMICO_2026-10-31.md), [WDC vigente](00-decisoes-vigentes-precedencia-documental-2026-10-21.md), [especificação funcional](01-especificacao-funcional-vigente-whatsapp-meta-2026-10-21.md).
 
