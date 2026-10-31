@@ -68,9 +68,34 @@ test('ACK-GUARD-12 scanner is deterministic for combined violations',()=>{
 
 test('ACK-GUARD-13 authenticated Meta GET challenge 200 is not POST ACK',()=>{
  assert.deepEqual(scan('integrations/whatsapp-meta/verify-get.ts',
-  "return {status:200,body:challenge};"),[]);
+  "return matches ? {status:200,body:challenge,headers} : forbidden();"),[]);
 });
 test('ACK-GUARD-14 observed outbound Graph HTTP200 is not webhook ACK',()=>{
  assert.deepEqual(scan(runtime,
   "const provider={http_status:200,send_state:'API_ACCEPTED'};"),[]);
+});
+
+test('ACK-GUARD-15 GET module cannot hide an unrelated ACK200',()=>{
+ const path='integrations/whatsapp-meta/verify-get.ts';
+ assert.deepEqual(scan(path,
+  "return matches ? {status:200,body:challenge,headers} : forbidden(); "+
+  "const webhook={status:200,action:'ACK',ack_allowed:true};"),[
+  'UNRATIFIED_HTTP_200_LITERAL',
+  'UNRATIFIED_ACK_ACTION',
+  'UNRATIFIED_ACK_AUTHORITY_FLAG',
+ ]);
+});
+test('ACK-GUARD-16 the exact GET response type is permitted but others are not',()=>{
+ const path='integrations/whatsapp-meta/verify-get.ts';
+ assert.deepEqual(scan(path,'readonly status: 200;'),[]);
+ assert.deepEqual(scan(path,'readonly status: 200; const x={status:200};'),[
+  'UNRATIFIED_HTTP_200_LITERAL',
+ ]);
+});
+test('ACK-GUARD-17 altered GET success code must be reviewed',()=>{
+ const path='integrations/whatsapp-meta/verify-get.ts';
+ assert.deepEqual(scan(path,
+  "return untrusted ? { status:200, body:challenge, headers }: forbidden();"),[
+  'UNRATIFIED_HTTP_200_LITERAL',
+ ]);
 });
