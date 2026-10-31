@@ -98,11 +98,14 @@ test('ACK-PERIMETER-02 missing receipt means unknown result, never rollback/ACK'
  assert.equal(v.reason,'CLAIMED_RECEIPT_ABSENT');
  assert.equal(v.receipt_shape,'ABSENT');
 });
-test('ACK-PERIMETER-03 legacy ACK200 decision injected is refused',async()=>{
+test('ACK-PERIMETER-03 legacy helper is now closed and forged ACK200 refused',async()=>{
  const old=decideBatchAck(1,{outcome:'ACCEPTED_DURABLE',
   commit_state:'COMMITTED',total:1,accepted:1,duplicates:0,quarantined:0});
- assert.equal(old.status,200);assert.equal(old.action,'ACK');
- const v=closed(audit(await input({alleged_http_decision:old})));
+ assert.equal(old.decision,'DENIED_NO_HTTP_AUTHORITY');
+ assert.equal('status' in old,false);
+ assert.equal('action' in old,false);
+ const v=closed(audit(await input({alleged_http_decision:{
+  status:200,action:'ACK',reason:'ALL_ITEMS_DURABLE'}})));
  assert.equal(v.reason,'UNTRUSTED_HTTP_ACTION');
 });
 test('ACK-PERIMETER-04 arbitrary HTTP503 is not a transport policy either',async()=>{
