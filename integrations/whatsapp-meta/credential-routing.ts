@@ -94,7 +94,10 @@ function validRegistry(reg: TrustedMetaRegistry): boolean {
     appRefs.add(app.app_ref); routes.add(app.route_ref);
     const names = [app.secret_slots.get_verify_token, app.secret_slots.post_app_secret,
       app.secret_slots.graph_access_token];
+    // Cross-App Set alone does NOT detect two purposes aliased within this App.
+    // GET verify token, POST App Secret and Graph bearer must never share a slot.
     if (Object.keys(app.secret_slots).length !== 3 ||
+        new Set(names).size !== names.length ||
         names.some(x => !slot(x) || secretNames.has(x))) return false;
     for (const name of names) secretNames.add(name);
     for (const channel of app.channels) {
