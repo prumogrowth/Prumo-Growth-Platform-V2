@@ -294,3 +294,35 @@ test('M11-44 fail on duplicated unrelated header (no HTTP parser ambiguity)',asy
  const q=post(raw());q.headers.push(['X-Example','a'],['x-example','b']);
  denied(await inspect(q,ports()),'AMBIGUOUS_HEADERS');
 });
+
+
+test('AUD-M11-01 GET revocation during token lookup denies challenge',async()=>{
+ let revoked=false;
+ const scope=ports({
+  registry:()=>({...REG,apps:[{...appA,active:!revoked},appB]}),
+  secret:(slot)=>{revoked=true;return slot==='WA11_GET_A'?GET_KEY:undefined;},
+ });
+ denied(await inspect(get(),scope),'ROUTING_OR_VERIFICATION_DENIED');
+});
+test('AUD-M11-02 POST revocation during HMAC secret lookup denies batch',async()=>{
+ let revoked=false;
+ const scope=ports({
+  registry:()=>({...REG,apps:[{...appA,active:!revoked},appB]}),
+  secret:(slot)=>{revoked=true;return slot==='WA11_POST_A'?POST_KEY:undefined;},
+ });
+ denied(await inspect(post(raw()),scope),'HMAC_OR_SCOPE_DENIED');
+});
+test('AUD-M11-03 header list with getter is denied without executing it',async()=>{
+ let n=0;const q=post(raw());
+ const header=q.headers[1];
+ Object.defineProperty(q.headers,'1',{enumerable:true,configurable:true,
+  get(){n++;return header;}});
+ denied(await inspect(q,ports()),'INVALID_ENVELOPE');
+ assert.equal(n,0);
+});
+test('AUD-M11-04 GET with forged two-purpose slot registry is denied',async()=>{
+ const forged={...REG,apps:[{...appA,secret_slots:{
+  ...appA.secret_slots,post_app_secret:appA.secret_slots.get_verify_token}},appB]};
+ denied(await inspect(get(),ports({registry:()=>forged})),
+  'ROUTING_OR_VERIFICATION_DENIED');
+});
