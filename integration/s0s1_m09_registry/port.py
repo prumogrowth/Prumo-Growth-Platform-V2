@@ -191,7 +191,7 @@ class RegistryPort:
              previous_snapshot_ref: Optional[str] = None) -> dict:
         """Read or point-of-use recheck. All ports are synthetic injections.
 
-        \`previous_snapshot_ref\` is a non-bearer integrity correlation. A mismatch
+        `previous_snapshot_ref` is a non-bearer integrity correlation. A mismatch
         is stale even when expected versions were omitted.
         """
         if (type(purpose) is not str or purpose not in PURPOSES
