@@ -1,42 +1,71 @@
 /**
- * OFFLINE CI policy canary: flag new runtime references to the WA-01B
- * shape-only ACK helper. No code alteration, network or production effect.
+ * Meta CI ACK canary — conservative source guard, NOT a program proof.
+ * Prevents direct runtime use of the historical WA-01B helper, HTTP200
+ * literals and positive authority flags before S0/Infra ratification.
  *
- * This is a conservative source-text heuristic, NOT a whole-program proof.
- * It strips comments before looking for identifiers to avoid false alerts
- * on explanatory notes in historical fake transaction harnesses. Dynamic
- * imports/string-computed uses and deployed artifacts still need review.
+ * The old helper itself is fail-closed. Runtime HTTP transports are NOT
+ * authorized by this scanner, tests, or a signed laboratory receipt.
+ * Computed/dynamic aliases and built artifacts still require separate review.
  */
 import {execFileSync} from 'node:child_process';
 import {readFileSync} from 'node:fs';
+import {resolve} from 'node:path';
+import {fileURLToPath} from 'node:url';
 
-const token='decide'+'BatchAck';
-const identifier=new RegExp('\\b'+token+'\\b');
+const legacyIdentifier='decide'+'BatchAck';
+const identifier=new RegExp('\\b'+legacyIdentifier+'\\b');
 const script='integrations/whatsapp-meta/cloud-ack-runtime-guard.mjs';
-const allowedDefinition='integrations/whatsapp-meta/durable-receipt.ts';
-const isCode=(path)=>/\.(?:ts|tsx|js|jsx|mjs|cjs|py)$/.test(path);
-const isTest=(path)=>/\.(?:test|spec)\.(?:ts|tsx|js|jsx|mjs|cjs|py)$/.test(path);
+const definition='integrations/whatsapp-meta/durable-receipt.ts';
+const isCode=(p)=>/\.(?:ts|tsx|js|jsx|mjs|cjs|py)$/.test(p);
+const isTest=(p)=>/\.(?:test|spec)\.(?:ts|tsx|js|jsx|mjs|cjs|py)$/.test(p);
 const stripComments=(s)=>
  s.replace(/\/\*[\s\S]*?\*\//g,'')
   .replace(/^[ \t]*\/\/[^\r\n]*$/gm,'')
   .replace(/[ \t]+\/\/[^\r\n]*$/gm,'')
   .replace(/^[ \t]*#[^\r\n]*$/gm,'');
 
-const files=execFileSync('git',['ls-files','-z'],{encoding:'utf8'})
- .split('\0').filter(Boolean);
-const failures=[];
-for(const file of files){
- if(!isCode(file)||isTest(file)||file===allowedDefinition||file===script)
-  continue;
- const content=readFileSync(file,'utf8');
- if(identifier.test(stripComments(content)))failures.push(file);
+// Do not mistake provider status observations for an HTTP reply. These
+// forbidden forms are deliberately narrow and limited to the Meta tree.
+const statusLiteral=/\b(?:status|statusCode|http_status|httpStatus)\s*[:=]\s*(?:200|2e2|0xc8)\b/i;
+const statusCall=/\b(?:sendStatus|writeHead|status)\s*\(\s*(?:200|2e2|0xc8)\s*[,)]/i;
+const ackAction=/\baction\s*:\s*['"]ACK['"]/;
+const positiveAuthority=/\b(?:ack_allowed|http_ack_allowed|http_response_authorized)\s*[:=]\s*true\b/;
+
+/** No file IO: testable source-text inspection, conservative and fail-closed. */
+export function scanRuntimeAckSource(path,source){
+ if(typeof path!=='string'||typeof source!=='string')throw Error('INVALID_SCAN_INPUT');
+ if(!isCode(path)||isTest(path)||path===script)return [];
+ const code=stripComments(source);
+ const findings=[];
+ if(path!==definition&&identifier.test(code))
+  findings.push('LEGACY_SHAPE_ONLY_HELPER_REFERENCE');
+ if(path.startsWith('integrations/whatsapp-meta/')){
+  if(statusLiteral.test(code)||statusCall.test(code))
+   findings.push('UNRATIFIED_HTTP_200_LITERAL');
+  if(ackAction.test(code))findings.push('UNRATIFIED_ACK_ACTION');
+  if(positiveAuthority.test(code))findings.push('UNRATIFIED_ACK_AUTHORITY_FLAG');
+ }
+ return findings;
 }
-if(failures.length){
- for(const f of failures)process.stderr.write(
-  'Unreviewed runtime reference to legacy shape-only ACK: '+f+'\n');
- process.exitCode=1;
-}else{
- process.stdout.write(
-  'PASS: no direct legacy ACK helper identifier in tracked runtime sources ('+
-  files.length+' tracked files inspected; comment-only references ignored)\n');
+
+/** Run only if directly invoked, never when imported by negative tests. */
+if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)){
+ const files=execFileSync('git',['ls-files','-z'],{encoding:'utf8'})
+  .split('\0').filter(Boolean);
+ let violations=0;
+ for(const path of files){
+  if(!isCode(path)||isTest(path)||path===script)continue;
+  let findings;
+  try{findings=scanRuntimeAckSource(path,readFileSync(path,'utf8'));}
+  catch(error){
+   process.stderr.write('ACK_SCAN_FAILED '+path+' '+String(error)+'\n');
+   violations++;continue;
+  }
+  for(const reason of findings){
+   process.stderr.write('UNRATIFIED_META_ACK '+reason+' '+path+'\n');
+   violations++;
+  }
+ }
+ if(violations)process.exitCode=1;
+ else process.stdout.write('PASS: no direct unratified ACK/HTTP200 authority in '+files.length+' tracked sources (static canary only)\n');
 }
