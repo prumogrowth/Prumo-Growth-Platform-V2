@@ -236,3 +236,16 @@ test('WA10-37 host time and revision must be safe integers',()=>{
  for(const at_ms of [NaN,-1,Infinity,1.5])
   no(run({host:{...host(),at_ms}}),'INVALID_INPUT');
 });
+
+test('WA10-38 a new pin ID cannot alias old public-key bytes',()=>{
+ const r=registry();
+ r.receipt_pins.push({...r.receipt_pins[0],
+  key_id:'ANOTHER_ID_FOR_SAME_KEY',key_revision:'2'});
+ no(run({registry:r}),'INVALID_TRUST_REGISTRY');
+});
+test('WA10-39 one M2M principal cannot silently span two shops',()=>{
+ const r=registry();
+ r.service_principals.push({...r.service_principals[0],
+  app_ref:'LAB_APP_B',issuer_ref:'LAB_OTHER_INFRA'});
+ no(run({registry:r}),'INVALID_TRUST_REGISTRY');
+});
