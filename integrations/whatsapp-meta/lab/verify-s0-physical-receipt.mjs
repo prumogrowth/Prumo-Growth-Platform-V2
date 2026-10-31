@@ -1,26 +1,43 @@
 /** Cross-runtime S0 PG17 -> Meta receipt consumer. No ACK, Graph or writes. */
 import assert from 'node:assert/strict';
-import {readFileSync,statSync} from 'node:fs';
+import {readFileSync,lstatSync} from 'node:fs';
 import {inspectPinnedS0LabReceipt} from '../cloud-s0-ed25519-receipt-interop.ts';
 import {inspectSignedMetaBatchChannelScope} from '../cloud-batch-scope-preflight.ts';
 
 const s0Sha='01ffdb093013664b73b18d23f92aac2202578210';
-if(process.argv.length!==3)throw Error('EXPECTED_PRIVATE_LAB_PROOF_PATH');
-const path=process.argv[2];
-const stat=statSync(path);
-assert.equal((stat.mode & 0o077),0,'physical proof must be private');
-const data=JSON.parse(readFileSync(path,'utf8'));
+if(process.argv.length!==4)throw Error('EXPECTED_SEPARATE_PROOF_AND_TRUST_PATHS');
+const proofPath=process.argv[2];
+const trustPath=process.argv[3];
+assert.notEqual(proofPath,trustPath,'proof and trust config must be separate');
+for(const path of [proofPath,trustPath]){
+ const stat=lstatSync(path);
+ assert.equal(stat.isSymbolicLink(),false,'lab artifact cannot be a symlink');
+ assert.equal(stat.isFile(),true,'lab artifact must be a regular file');
+ assert.equal((stat.mode & 0o077),0,'lab artifact must be private');
+ assert.ok(stat.size>0&&stat.size<262144,'bounded private lab artifact');
+}
+const data=JSON.parse(readFileSync(proofPath,'utf8'));
+const trust=JSON.parse(readFileSync(trustPath,'utf8'));
 assert.equal(data.kind,'S0_PG17_DISPOSABLE_RECEIPT_TO_META_UNRATIFIED');
+assert.equal(trust.kind,'S0_PG17_DISPOSABLE_TRUST_FIXTURE_UNRATIFIED');
 assert.equal(data.source_sha,s0Sha);
+assert.equal(trust.source_sha,s0Sha);
 assert.deepEqual(Object.keys(data).sort(),[
- 'kind','raw_base64','receipt','source_sha','trusted_expected',
- 'trusted_s0_public_key_base64','trusted_meta_app_secret',
+ 'kind','raw_base64','receipt','source_sha',
  'trusted_meta_signature_header','m08_lab_evidence',
 ].sort());
+assert.deepEqual(Object.keys(trust).sort(),[
+ 'kind','source_sha','trusted_expected',
+ 'trusted_s0_public_key_base64','trusted_meta_app_secret',
+].sort());
+for(const field of ['trusted_s0_public_key_base64',
+ 'trusted_meta_app_secret','trusted_expected']){
+ assert.equal(Object.hasOwn(data,field),false,'receipt must not carry trust: '+field);
+}
 const raw=Buffer.from(data.raw_base64,'base64');
-const pinned=Buffer.from(data.trusted_s0_public_key_base64,'base64');
+const pinned=Buffer.from(trust.trusted_s0_public_key_base64,'base64');
 assert.equal(pinned.length,32);
-const expected=data.trusted_expected;
+const expected=trust.trusted_expected;
 const receipt=data.receipt;
 const clone=x=>structuredClone(x);
 const inspect=(body=raw,proof=receipt,context=expected,key=pinned)=>
@@ -43,6 +60,14 @@ const test=(name,action)=>{
  checks+=1;
  process.stdout.write('PASS '+name+'\n');
 };
+test('receipt proof alone cannot self-pin S0/Meta trust',()=>{
+ assert.equal(Object.hasOwn(data,'trusted_s0_public_key_base64'),false);
+ assert.equal(Object.hasOwn(data,'trusted_expected'),false);
+ assert.equal(Object.hasOwn(data,'trusted_meta_app_secret'),false);
+ const fake=structuredClone(receipt);
+ fake.body.receipt_public_key=Buffer.alloc(32,19).toString('base64');
+ denied(inspect(raw,fake,expected,pinned));
+});
 test('PG17 signed receipt verified by unchanged Meta consumer',()=>{
  const result=inspect();
  assert.equal(result.decision,'S0_LAB_SIGNATURE_AND_CONTEXT_MATCH_UNRATIFIED');
@@ -92,7 +117,7 @@ test('repeated cryptographic check is not deduplication or HTTP ACK',()=>{
  assert.deepEqual(first,second);
  allNoAuthority(first);allNoAuthority(second);
 });
-const syntheticSecret=data.trusted_meta_app_secret;
+const syntheticSecret=trust.trusted_meta_app_secret;
 const physicalMetaSignature=data.trusted_meta_signature_header;
 const facts=data.m08_lab_evidence;
 assert.equal(facts.rejected_sibling_batches_without_partial_storage,5);
