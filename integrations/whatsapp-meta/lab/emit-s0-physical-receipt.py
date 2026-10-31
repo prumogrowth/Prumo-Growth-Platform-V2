@@ -143,12 +143,6 @@ def main():
         proof = {
             "kind": "S0_PG17_DISPOSABLE_RECEIPT_TO_META_UNRATIFIED",
             "trusted_meta_signature_header": json.loads(envelope)["meta_signature"],
-            "m08_lab_evidence": {
-                "rejected_sibling_batches_without_partial_storage": 5,
-                "fresh_nonce_recovery_same_signed_receipt": True,
-                "nonce_replay_rejected": True,
-                "mutated_same_batch_conflict_without_second_batch": True
-            },
             "source_sha": S0_SHA,
             "raw_base64": base64.b64encode(raw).decode("ascii"),
             "receipt": receipt,
