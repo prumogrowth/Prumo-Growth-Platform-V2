@@ -28,7 +28,8 @@ jobs:
           actual=set(subprocess.check_output(['git','diff','--name-only',base,'HEAD'],text=True).splitlines())
           wanted={'.github/workflows/exp-s0s1-m09-pg17.yml',
             'integration/s0s1_m09_registry/pg17_binding.py',
-            'integration/s0s1_m09_registry/test_pg17_binding.py'}
+            'integration/s0s1_m09_registry/test_pg17_binding.py',
+            'docs/contratos/s0s1_meta_registry/M09_02_PG17_LEITURA_FISICA.md'}
           assert actual == wanted,(actual, wanted)
           print('M09-02 SCOPE PASS')
           PY
