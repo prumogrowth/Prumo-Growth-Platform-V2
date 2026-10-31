@@ -1,19 +1,19 @@
 # M09 — Onboarding e isolamento de ativos por concessionária: laboratório
 
-**31/10/2026. Estado:** checagens e fixtures de reconciliação de inventário implementadas na frente Meta, **sem ativação real**. [Issue #8](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/8) é a dependência canônica S0/S1 e recebeu parecer **STATUS: EM_ANALISE** da S0; não é contrato ratificado.
+**31/10/2026. Estado:** 38 testes próprios + 1.248 offline totais e 18 verificações físicas aprovadas em [CI 41209617874](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41209617874), SHA `1cfe4f4bd76d970de8b6b935244447943c4d08d4`; checagens e fixtures de reconciliação de inventário implementadas na frente Meta, **sem ativação real**. [Issue #8](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/8) é a dependência canônica S0/S1 e recebeu parecer **STATUS: EM_ANALISE** da S0; não é contrato ratificado.
 
 ## Premissas de negócio e fontes
 
 - **WDC-02/03:** concessionária possui os seus próprios recursos Meta Business, App, WABA/número e catálogo privado. A Prumo é integradora **por delegação**, não titular desses recursos. A comprovação da propriedade efetiva, permissões, webhooks, identidade e concessões **precisa acontecer nas fontes reais** da Meta e da S0.
-- **WA-04A** [`credential-routing.ts`](../../../../integrations/whatsapp-meta/credential-routing.ts): registry tipada sintética com `app_ref`, `route_ref`, `concessionaria_id`, `revision`, validade, `waba_id`, `phone_number_id`, `canal_id` e **nomes de slots**; GET, HMAC POST e Graph utilizam slots distintos. Nenhuma credencial é retornada.
-- **WA-04C** [`credential-lifecycle.ts`](../../../../integrations/whatsapp-meta/credential-lifecycle.ts): propostas sintéticas de revogação de App/canal ou rotação, sem escrita nem reativação externa.
+- **WA-04A** [`credential-routing.ts`](../../../integrations/whatsapp-meta/credential-routing.ts): registry tipada sintética com `app_ref`, `route_ref`, `concessionaria_id`, `revision`, validade, `waba_id`, `phone_number_id`, `canal_id` e **nomes de slots**; GET, HMAC POST e Graph utilizam slots distintos. Nenhuma credencial é retornada.
+- **WA-04C** [`credential-lifecycle.ts`](../../../integrations/whatsapp-meta/credential-lifecycle.ts): propostas sintéticas de revogação de App/canal ou rotação, sem escrita nem reativação externa.
 - A S0 comentou na [#8](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/8) que a matriz PG17 histórica tem grants por canal, rota, revisão e revogação em laboratório; ainda **não identificou/ratificou fonte canônica operacional, mutadores autorizados nem serviço M2M**.
 - **Dependências já existentes:** não duplicar a [#2](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/2) (recibo/ACK físico) nem a [#10](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/10) (consentimento/recheck no envio).
 
 ## Implementação Meta neste ciclo
 
-**Código candidato:** [`wa09-asset-onboarding-audit.ts`](../../../../integrations/whatsapp-meta/wa09-asset-onboarding-audit.ts).
-**Testes adversariais:** [`wa09-asset-onboarding-audit.test.ts`](../../../../integrations/whatsapp-meta/wa09-asset-onboarding-audit.test.ts).
+**Código candidato:** [`wa09-asset-onboarding-audit.ts`](../../../integrations/whatsapp-meta/wa09-asset-onboarding-audit.ts).
+**Testes adversariais:** [`wa09-asset-onboarding-audit.test.ts`](../../../integrations/whatsapp-meta/wa09-asset-onboarding-audit.test.ts).
 
 O verificador puro confronta **três peças diferentes**, cada qual só usada como *fixture*:
 
