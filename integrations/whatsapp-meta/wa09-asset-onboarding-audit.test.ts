@@ -10,12 +10,18 @@ const appA={
  business_owner_ref:'BUSINESS_A',delegated_partner_ref:'PRUMO_PARTNER',
  revision:4,wabas:[{waba_id:'WABA_A',catalog_ref:'CAT_A',
    phone_number_ids:['12345678901','12345678902']}],
+ s0_bindings:[
+  {canal_id:'CHAN_A1',waba_id:'WABA_A',phone_number_id:'12345678901'},
+  {canal_id:'CHAN_A2',waba_id:'WABA_A',phone_number_id:'12345678902'},
+ ],
 };
 const appB={
  app_ref:'APP_B',concessionaria_id:'STORE_B',route_ref:'ROUTE_B',
  business_owner_ref:'BUSINESS_B',delegated_partner_ref:'PRUMO_PARTNER',
  revision:2,wabas:[{waba_id:'WABA_B',catalog_ref:'CAT_B',
    phone_number_ids:['99999999999']}],
+ s0_bindings:[{canal_id:'CHAN_B1',waba_id:'WABA_B',
+   phone_number_id:'99999999999'}],
 };
 const secret=(name:string)=>({
  get_verify_token:name+'_VERIFY',post_app_secret:name+'_HMAC',
@@ -43,7 +49,7 @@ const expected=()=>({
 });
 const observed=()=>({
  contract_version:'wa09-meta-assets.fixture.v0.1',
- apps:structuredClone([appA,appB]),
+ apps:structuredClone([appA,appB].map(({s0_bindings,...provider})=>provider)),
 });
 const run=(s:unknown=expected(),p:unknown=observed(),reg=registry,now=NOW)=>
  inspect(reg,s,p,now);
@@ -202,4 +208,28 @@ test('WA09-33 no input mutation or leaked business identifiers',()=>{
  const text=JSON.stringify(x);
  for(const value of ['BUSINESS_A','PRUMO_PARTNER','WA_APP_A_GRAPH',
   '12345678901','CAT_A'])assert.equal(text.includes(value),false);
+});
+
+
+test('WA09-34 wrong S0 canal_id on known Meta phone pair denied',()=>{
+ const e=expected();e.apps[0].s0_bindings[0].canal_id='CHAN_OTHER';
+ denied(run(e));
+});
+test('WA09-35 duplicate S0 canal_id under different phone denied',()=>{
+ const e=expected();e.apps[0].s0_bindings[1].canal_id='CHAN_A1';
+ denied(run(e));
+});
+test('WA09-36 same Meta Business owner cannot represent two shops',()=>{
+ const o=observed();o.apps[1].business_owner_ref='BUSINESS_A';
+ denied(run(expected(),o));
+});
+test('WA09-37 missing S0 mapping fails even when provider phone matches',()=>{
+ const e=expected();e.apps[0].s0_bindings.pop();
+ denied(run(e));
+});
+test('WA09-38 provider cannot invent canal_id as proof of S0 grant',()=>{
+ const o=observed();
+ Object.assign(o.apps[0],{s0_bindings:[{
+   canal_id:'CHAN_A1',waba_id:'WABA_A',phone_number_id:'12345678901'}]});
+ denied(run(expected(),o));
 });
