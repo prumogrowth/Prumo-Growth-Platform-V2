@@ -37,3 +37,8 @@ O preflight apenas compara metadados de principal e chaves públicas. Não inter
 - [ ] Apenas após as revisões, comprovar integração hospedada sob aprovação humana explícita. Não fechar M10 com base em fixtures.
 
 **Conclusão:** este ciclo entrega prevenção offline de auto-pinning, falsa rotação e compartilhamento de principal, **sem estabelecer identidade operacional**. M10-A/B/C podem ser registrados como feitos no laboratório; M10-D e o marco M10 seguem abertos. Nenhuma escrita em S0/S1, alteração de Infra, Graph real, merge ou deploy.
+
+
+## Adendo pós-vistoria de segurança — 31/10/2026
+
+Os **39 testes M10** informados acima são o recorte histórico anterior à auditoria. A revisão encontrou e corrigiu arrays de pins/principais que ainda permitiam invocação de getters e listas esparsas. Foram adicionadas 3 regressões; a M10 tem agora **42 testes próprios**. [CI 41222509935](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41222509935): 1.344/1.344 Meta offline + 18 PG17, fonte funcional `60f789df841485e8cce41525f4517f00c6975e91`. [Auditoria unificada M01–M11](AUDITORIA_RETROSPECTIVA_M01_M11_2026-10-31.md). M10-D continua `[ ]`: nenhuma fixture comprova autenticação M2M ou custódia real.
