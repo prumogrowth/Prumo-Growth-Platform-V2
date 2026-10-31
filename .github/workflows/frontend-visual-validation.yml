@@ -7,6 +7,7 @@ on:
       - codex/fv-rev-01-conversas-20261030
       - codex/fv-rev-01-modulos-20261030
       - codex/fv-cor-07-pos-auditoria-20261031
+      - fix/fv-cor-08-unicode-20261031
     paths:
       - "frontend/visual/**"
       - "frontend/preview/**"
@@ -18,7 +19,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   native-checkout:
-    if: github.ref == 'refs/heads/feat/frontend-plataforma-visual' || github.ref == 'refs/heads/codex/fv-ux-01-comunicacao-20261027' || github.ref == 'refs/heads/codex/fv-rev-01-conversas-20261030' || github.ref == 'refs/heads/codex/fv-rev-01-modulos-20261030' || github.ref == 'refs/heads/codex/fv-cor-07-pos-auditoria-20261031'
+    if: github.ref == 'refs/heads/feat/frontend-plataforma-visual' || github.ref == 'refs/heads/codex/fv-ux-01-comunicacao-20261027' || github.ref == 'refs/heads/codex/fv-rev-01-conversas-20261030' || github.ref == 'refs/heads/codex/fv-rev-01-modulos-20261030' || github.ref == 'refs/heads/codex/fv-cor-07-pos-auditoria-20261031' || github.ref == 'refs/heads/fix/fv-cor-08-unicode-20261031'
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
@@ -111,7 +112,7 @@ jobs:
           import hashlib, json, os, subprocess
           from pathlib import Path
           folder = Path('out')
-          comparison_base = '2efa2d5c3df0df05bd0193a715e2e958b71cd816' if os.environ['GITHUB_REF_NAME']=='codex/fv-cor-07-pos-auditoria-20261031' else '17336799ddf4c8575c790f09eb64570d6460733c'
+          comparison_base = 'dbad7a6e13bffb51b01875fcd8de43fe49a1791b' if os.environ['GITHUB_REF_NAME']=='fix/fv-cor-08-unicode-20261031' else '2efa2d5c3df0df05bd0193a715e2e958b71cd816' if os.environ['GITHUB_REF_NAME']=='codex/fv-cor-07-pos-auditoria-20261031' else '17336799ddf4c8575c790f09eb64570d6460733c'
           provenance = {
               'head': os.environ['GITHUB_SHA'],
               'branch': os.environ['GITHUB_REF_NAME'],
