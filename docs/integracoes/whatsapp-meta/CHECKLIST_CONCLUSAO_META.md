@@ -18,7 +18,7 @@
 - [x] **M03 — Saída Cloud offline:** construtores de texto, templates, mídia/interações e observação técnica sintéticos. Evidência: `graph-outbound.ts`, `graph-template.ts`, demais módulos + CI 1183; **sem Graph real**.
 - [x] **M04 — Verificação de recibo Ed25519 sintético:** consumidor Meta com chave pública confiada separadamente e regressões negativas. Evidência: `cloud-s0-ed25519-receipt-interop.ts` e 36 testes; **não é recibo do PG17**.
 - [x] **M05 — CI offline integral rastreável ao SHA:** 1.183/1.183, zero falhas/skips; checkout/GITHUB_SHA conferidos no job. Evidência: [run 41187216781](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41187216781), SHA `a91b0dac2c332ef5ebbe07fb7884ed5137d60484`.
-- [ ] **M06 — Interoperabilidade física S0→Meta:** gerar recibo no runtime S0/PG17 descartável e consumi-lo no verificador Meta com âncora confiada fora do recibo; positivos, negativos, cleanup e logs no SHA final.
+- [x] **M06 — Interoperabilidade física S0→Meta (laboratório):** PG17 da S0 em checkout imutável gerou recibo assinado após readback, consumido pelo verificador Meta com chave confiada independentemente, 12 testes positivos/negativos e cleanup. Evidência: [run 41188097646](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41188097646), código Meta `b1828b1db7ad653608606916209a1f25ad57e7fe`, S0 `01ffdb093013664b73b18d23f92aac2202578210`. **Somente lab; sem HTTP ACK.**
 - [ ] **M07 — Proteção completa contra ACK sintético:** scanner, testes negativos e política de runtime/HTTP ratificada; nenhuma alegação estrutural pode emitir 200.
 - [ ] **M08 — Escopo de lote multicanais/ACK ratificado:** contrato S0/Meta/Infra para unidade física, rejeição integral, retry e replay; prova cruzada sem ACK parcial.
 
@@ -58,7 +58,7 @@
 
 ## Próximo marco
 
-**M06**, com a implementação no laboratório físico da S0 **somente leitura da fonte**. O laboratório S0 por si já tem 49 testes PG17 declarados/certificados em seu checkpoint, mas isso não marca M06, M08, M11 ou M12 como concluídos.
+**M07**, fortalecendo a barreira contra uso indevido de recibos e ACK sintético; a política HTTP real depende de S0/Meta/Infra. O marco M06 passou em ensaio físico isolado, não em produção. A S0 ainda não está integrada operacionalmente.
 
 ## Limites permanentes
 
