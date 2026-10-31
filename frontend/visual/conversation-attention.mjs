@@ -19,9 +19,13 @@ export const ATTENTION_PROPOSAL_VERSION = 'ui-attention-proposal/0.1';
  * Local audio already carries a readable label; unknown/raw media is not a receipt.
  * Never coerce null/objects/whitespace into a confirmed human message.
  */
+// Critério de legibilidade, sem mutar a mensagem persistida. Caracteres
+// Unicode invisíveis isolados não confirmam uma mensagem; emoji com ZWJ
+// e seletores de apresentação continuam legíveis quando há base visível.
+const LEGIBLE_CODE_POINT = /[^\p{White_Space}\p{Default_Ignorable_Code_Point}\p{Cc}]/u;
 export function hasDemoMessageContent(message) {
   return Boolean(message && typeof message === 'object' &&
-    typeof message.body === 'string' && message.body.trim());
+    typeof message.body === 'string' && LEGIBLE_CODE_POINT.test(message.body));
 }
 export function confirmedDemoMessages(record, actorId, shopId) {
   if (!record || !visibleConversations([record], actorId, shopId).length) return [];
