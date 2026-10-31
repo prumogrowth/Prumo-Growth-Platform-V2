@@ -1,0 +1,647 @@
+{
+  "schema": "prumo.openai.source-manifest/1.0",
+  "purpose": "OFFLINE_SOURCE_INTEGRITY_ONLY",
+  "object_format": "sha1",
+  "sources": [
+    {
+      "id": "s2",
+      "repository": "prumogrowth/Prumo-Growth-Platform-V2",
+      "reference_branch": "feat/s2-openai-adapter-sintetico",
+      "commit": "1747cb0fee2a95322dc768044bafe9817d8cc540",
+      "tree": "3522e49b45d4b6dce23d46a56c81c0f6035668cf",
+      "requirement": "required",
+      "files": [
+        {
+          "path": "docs/integracoes/openai/E01_CONTRATO_TIPADO_ADAPTADOR_FALHAS_v0_4.md",
+          "mode": "100644",
+          "byte_length": 15177,
+          "sha256": "b1835bfb8855d74bc8a996e4f8ff9af2891c9fcf2af36eff9f3be8a5e340ddd7",
+          "git_blob": "3ca753746580061f37c1346153c7326947d645cd"
+        },
+        {
+          "path": "docs/integracoes/openai/E02_CADERNO_70_ORACULOS_E_OBSERVAVEIS_v0_4.md",
+          "mode": "100644",
+          "byte_length": 76582,
+          "sha256": "e8491f7cfaed015e2b79f0a41216e47304835bd644f2712437cebba7558a1401",
+          "git_blob": "96ef90cf111cac6176a3446ccd73c4e8e3c71bb3"
+        },
+        {
+          "path": "docs/integracoes/openai/e04_offline_lab/core.mjs",
+          "mode": "100644",
+          "byte_length": 8556,
+          "sha256": "2cbf42d7925a2c0078c67ad8b72ae043a486ac4a1aabf50ab788742c571139bc",
+          "git_blob": "f5be662cc7db925f99802cc251f432b90fb0aa15"
+        },
+        {
+          "path": "docs/integracoes/openai/e04_offline_lab/f03-commit-gate.mjs",
+          "mode": "100644",
+          "byte_length": 6938,
+          "sha256": "8a10c6451521f5d709d4c0db17019ee5b263ed72903928672405a140cefb3066",
+          "git_blob": "13b60983b824bcbe145eb708d8b503e10aa45ba9"
+        },
+        {
+          "path": "docs/integracoes/openai/e04_offline_lab/journey.mjs",
+          "mode": "100644",
+          "byte_length": 6842,
+          "sha256": "5f531a358003b058ac059973c1f3b536817740c5372a39e6ee77512340fc3971",
+          "git_blob": "b5ecf051e7bc30d5653ab214ffff6e731f6bbded"
+        },
+        {
+          "path": "docs/integracoes/openai/e04_offline_lab/package.json",
+          "mode": "100644",
+          "byte_length": 263,
+          "sha256": "b75ff413fe1d35ddf33532120a4eab6cf60b63aaeb3e540c95695bcb4f8e86ca",
+          "git_blob": "9364ed6bf049ce4944292349524a6dd30d1344c2"
+        },
+        {
+          "path": "docs/integracoes/openai/e04_offline_lab/plan-lifecycle.mjs",
+          "mode": "100644",
+          "byte_length": 6223,
+          "sha256": "988daa989f41ce4ac0a21b258b8c6eebe42d1d0ff958b5e661884dc9164bded2",
+          "git_blob": "fb21fe91ad9c6b4e8de9cf6be79ef42127b30655"
+        },
+        {
+          "path": "docs/integracoes/openai/e04_offline_lab/template-frequency.mjs",
+          "mode": "100644",
+          "byte_length": 4296,
+          "sha256": "27f87b4afa7058bda196a12b633471d306820783701a0fc5e3f8a205cd4108eb",
+          "git_blob": "b9e9cfbf9be4fe58778a26e60cedeaf545e14713"
+        },
+        {
+          "path": "docs/integracoes/openai/e04_offline_lab/tests/f03-commit-gate.test.mjs",
+          "mode": "100644",
+          "byte_length": 9483,
+          "sha256": "7fd123589ef243dfc64aa2b2fae4d919a21d94ce22de8719b124fdc95eecaa98",
+          "git_blob": "b66dedc44edc11d38128447a0abfe23a95d4d375"
+        },
+        {
+          "path": "docs/integracoes/openai/e04_offline_lab/tests/journey.test.mjs",
+          "mode": "100644",
+          "byte_length": 10234,
+          "sha256": "61f38664c89fba9b84419c2d44995fb59a8a51bb14e7a20eb76834520facb5f8",
+          "git_blob": "2f779e94bb6903d0d519049395752e3b33b76b7e"
+        },
+        {
+          "path": "docs/integracoes/openai/e04_offline_lab/tests/offline.test.mjs",
+          "mode": "100644",
+          "byte_length": 10233,
+          "sha256": "892ece74c374c2ea644afff0ca8ec40ced89b9ce75b0b3af67295d91dde70907",
+          "git_blob": "ae2f5270b9504be9b6468ff568b70c158f655b56"
+        },
+        {
+          "path": "docs/integracoes/openai/e04_offline_lab/tests/plan-lifecycle.test.mjs",
+          "mode": "100644",
+          "byte_length": 8287,
+          "sha256": "dfe1ef40196bdff5a9a2b2638dd1c30308a5a7e73f84e16d5114c0879eb762e7",
+          "git_blob": "c1b5586dbd490fb7f045d443f882849fd8b4841e"
+        },
+        {
+          "path": "docs/integracoes/openai/e04_offline_lab/tests/template-frequency.test.mjs",
+          "mode": "100644",
+          "byte_length": 6284,
+          "sha256": "6bda59fd813618663287fa4bce078a60210d1ea24f7bfaec67429118ea5312be",
+          "git_blob": "2eea0f9831e440d2b2eec7520fef722b177c34fa"
+        },
+        {
+          "path": "docs/integracoes/openai/e04_offline_lab/tests/transport-evidence.test.mjs",
+          "mode": "100644",
+          "byte_length": 6280,
+          "sha256": "d746f1f1a8620d773ecf6da75682ffab3aa719bdea565c447d182a25d234b25d",
+          "git_blob": "cc1ee534eae1eec8ab2249510deca878086a6bbd"
+        },
+        {
+          "path": "docs/integracoes/openai/e04_offline_lab/transport-evidence.mjs",
+          "mode": "100644",
+          "byte_length": 4020,
+          "sha256": "1eeb1297a4f0703e30731e3fe22bc92f0c50b11f84aff14f250254d7044633cd",
+          "git_blob": "7a7d13490e53ebc32ef3f2fdb4fbd47e61cadb20"
+        }
+      ]
+    },
+    {
+      "id": "f03",
+      "repository": "prumogrowth/Prumo-Growth-Platform-V2",
+      "reference_branch": "feat/oai-s0-f03-history-port-20261023",
+      "commit": "dc8554db2e625accbf95cf922fdff8446be56f00",
+      "tree": "aae2ef09c05eb045a4ff9ee4b55f69301b83119f",
+      "requirement": "required",
+      "files": [
+        {
+          "path": "backend/f02_multiroute_s2_validation_candidate.py",
+          "mode": "100644",
+          "byte_length": 7690,
+          "sha256": "c8181e79e152436608a020e17333d6591dc1cd7db1d18ccada03ab978f88e081",
+          "git_blob": "7be18727e4574ad548c158728621a1a8694a8262"
+        },
+        {
+          "path": "backend/f02_reconciled_human_authorization_handoff.py",
+          "mode": "100644",
+          "byte_length": 6787,
+          "sha256": "e6308184f83a3b7e824aa96bf6e5869d44d09a9af1c2c53e4b9cd13e0666a1e6",
+          "git_blob": "ef6803df9d97b3fe3ad804669fc5be17555fbdbe"
+        },
+        {
+          "path": "backend/f02_reconciled_review_lifecycle.py",
+          "mode": "100644",
+          "byte_length": 8578,
+          "sha256": "4661fbf063a1be3ae6beab112742e98b6c0cc0c40df6bdae4dd5748588b15106",
+          "git_blob": "11a9e71eabefdf63195fd01a431d1bf19c603ee3"
+        },
+        {
+          "path": "backend/f02_reconciled_review_recovery.py",
+          "mode": "100644",
+          "byte_length": 4475,
+          "sha256": "5520a199d7c3bf5442ceb29adc093336adddf5f6b67f0c2db5c513e3b433f724",
+          "git_blob": "b049b9765e9126ad4230ece85009689f2d49473b"
+        },
+        {
+          "path": "backend/f02_s0_recovery_sequence_candidate.py",
+          "mode": "100644",
+          "byte_length": 6901,
+          "sha256": "27d0ad136ad405eeafb0919e66434fdb3f834c98e4908607c2bd26fcd4a88886",
+          "git_blob": "1f3ad3cdcc1e9b45b9ee7e0569c52b13717b914e"
+        },
+        {
+          "path": "backend/s0_cfi01_atomic_commands_local.py",
+          "mode": "100644",
+          "byte_length": 9176,
+          "sha256": "3f08a0c6ad62bf36be37e5c4432f07861082a2255cfe22a46635d5efe6df3611",
+          "git_blob": "0b3fefface7c0219a9742e1db49f08eb39c7f009"
+        },
+        {
+          "path": "backend/s0_cfi01_f03_receipt_bridge_local.py",
+          "mode": "100644",
+          "byte_length": 6201,
+          "sha256": "2d2af4f5541fe449ed476c67d43cf344f733afbfc61bb1cf57fe47f7ba04e06f",
+          "git_blob": "fb659c5c9032d4b577c971a08b8fb86fae628f63"
+        },
+        {
+          "path": "backend/s0_f03_bound_content_seal_local.py",
+          "mode": "100644",
+          "byte_length": 10564,
+          "sha256": "97bcab2dd3f97fa802eec4a0eed5f2ccd69b96254dd2ffcc94c97d347bd04959",
+          "git_blob": "c475de723507c3c439c8e3955c15e4bb550ca730"
+        },
+        {
+          "path": "backend/s0_f03_content_integrity_local.py",
+          "mode": "100644",
+          "byte_length": 5773,
+          "sha256": "6503952bcb10cc909db5f27be8f9cda40e8d6dd21a4afb65b63ec2098fdca460",
+          "git_blob": "9630a6801aba6e1beb38a1acf70cfa11b730272f"
+        },
+        {
+          "path": "backend/s0_f03_crossfront_contract_local.py",
+          "mode": "100644",
+          "byte_length": 5141,
+          "sha256": "66528739c5a9fcce8c47267d56a244977bde3684c86acd41fd60229d63688ff9",
+          "git_blob": "e321aa57d4ce32b1afa4920b4adc01d2239a65ab"
+        },
+        {
+          "path": "backend/s0_f03_crossfront_evidence_local.py",
+          "mode": "100644",
+          "byte_length": 8899,
+          "sha256": "8ab602c33eb2268be157ce89cffa41887a5b596b2265cfe1eef56c59e51ff7a7",
+          "git_blob": "97edd5921530b5a61c71e40e125b03944d55d08a"
+        },
+        {
+          "path": "backend/s0_f03_field_application_local.py",
+          "mode": "100644",
+          "byte_length": 17163,
+          "sha256": "2e17ae25539e3f3747d0838c62ee3504d75caeb6a4c5261457e8b67a896d84cf",
+          "git_blob": "2761f30a89c9bf7423ef02f218f4a16cc34dfb28"
+        },
+        {
+          "path": "backend/s0_f03_history_manifest_local.py",
+          "mode": "100644",
+          "byte_length": 9767,
+          "sha256": "3b16851eca83ea6d45fdc28b361b37ddaa33ae114707f145965883b283023c4a",
+          "git_blob": "527f554dd50ddfdb2c035973e399e2d9667dd7cb"
+        },
+        {
+          "path": "backend/s0_f03_history_seal_local.py",
+          "mode": "100644",
+          "byte_length": 10999,
+          "sha256": "891754b3219e524fe112943003361df71829bc687716e301490f7b3fddbd7b27",
+          "git_blob": "443cafaa6ffa7a8cb4082959c582d68002abc051"
+        },
+        {
+          "path": "backend/s0_f03_media_attestation_local.py",
+          "mode": "100644",
+          "byte_length": 7981,
+          "sha256": "fa2b183a61403be33ed1b9e297d9f051c983a39982a636964c45466d3e363d4a",
+          "git_blob": "40220f737039eda15a56e8981daecf0c2266845a"
+        },
+        {
+          "path": "backend/s0_f03_operational_contracts_local.py",
+          "mode": "100644",
+          "byte_length": 9968,
+          "sha256": "1538127ba27942decaceeb1bb91a12e58deacac8233579a4a93ebdbf00161a5e",
+          "git_blob": "44dca67a89a6fef21944500d704ee1af1cd801e8"
+        },
+        {
+          "path": "backend/s0_f03_version_reservation_local.py",
+          "mode": "100644",
+          "byte_length": 12107,
+          "sha256": "4497c528109b1b09d6e6a40d1788da21076269a3fffdfa916b65de4775a378a0",
+          "git_blob": "f82e84595c082dfdf9ddde903afb82f13c2236b1"
+        },
+        {
+          "path": "backend/tests/s2_pinned_route_validator.mjs",
+          "mode": "100644",
+          "byte_length": 1826,
+          "sha256": "fd45210e1676d5308c5fa9c2486a2cd3dfe439f37103b74db54ae9de81c31b33",
+          "git_blob": "9f7aafffe65af337121e1bb253bc50264f4860b0"
+        },
+        {
+          "path": "docs/OAI_E04_A38_CONTINGENCIA_CODEX_E_DIAGNOSTICO_ACTIONS_20261028.md",
+          "mode": "100644",
+          "byte_length": 5891,
+          "sha256": "2a99a94b41e65d152ca0a63ad454fc2e3994eb72eb7be32f9b67a06af65dcf9c",
+          "git_blob": "caa9f051549ffdd3a993c2e925604464085e4aa0"
+        },
+        {
+          "path": "docs/contracts/upstream/OAI_S0_F02_REVIEW_RESULT_SCHEMA_0_1_PINNED.json",
+          "mode": "100644",
+          "byte_length": 2405,
+          "sha256": "212963dbf630a4c7538a1aa2bf016c2e4d9d1dfabb454ab776fb643b25db010f",
+          "git_blob": "61598ba702dc03f9f715673118c88f9359e64113"
+        },
+        {
+          "path": "docs/decisoes/ADR_20261027_BACKEND_SUPABASE_OPENAI_DIRETO.md",
+          "mode": "100644",
+          "byte_length": 3578,
+          "sha256": "414c4d71c07a5d28d7439c6e48522971a5350cf95b928ceccc81e4fe41c70f1c",
+          "git_blob": "afba2d75392e079573988db395b983cf683f4814"
+        },
+        {
+          "path": "docs/decisoes/ADR_20261027_GOVERNANCA_FRENTES_OPENAI_S0.md",
+          "mode": "100644",
+          "byte_length": 1279,
+          "sha256": "e8bd9c10b4961d6ca4fdc651755855f99aabe726a22393f702f2b928582ef9a7",
+          "git_blob": "6243ef435574bb1668a33a7e1c920b95ef154e79"
+        },
+        {
+          "path": "scripts/run-s0-f03-pg17-local.sh",
+          "mode": "100644",
+          "byte_length": 6746,
+          "sha256": "bf2e7681f1432c3903ae673550b81088fdaad56c9ce559b56bbab120e0110b7e",
+          "git_blob": "df4b0dee71c9065bdbe66888f3b0afd671d96018"
+        }
+      ]
+    },
+    {
+      "id": "s0",
+      "repository": "prumogrowth/Prumo-Growth-Platform-V2",
+      "reference_branch": "exp/s0-s1-ops02-evidence-contract-20261030",
+      "commit": "7d3232f59aab35265c3aa7fb5ab5ab2f06d5d047",
+      "tree": "574c69e6c232c7ebb1e8719721fb8283c439dbbe",
+      "requirement": "optional",
+      "files": [
+        {
+          "path": "backend/f02_reconciled_human_authorization_handoff.py",
+          "mode": "100644",
+          "byte_length": 6787,
+          "sha256": "e6308184f83a3b7e824aa96bf6e5869d44d09a9af1c2c53e4b9cd13e0666a1e6",
+          "git_blob": "ef6803df9d97b3fe3ad804669fc5be17555fbdbe"
+        },
+        {
+          "path": "backend/f02_reconciled_review_lifecycle.py",
+          "mode": "100644",
+          "byte_length": 8578,
+          "sha256": "4661fbf063a1be3ae6beab112742e98b6c0cc0c40df6bdae4dd5748588b15106",
+          "git_blob": "11a9e71eabefdf63195fd01a431d1bf19c603ee3"
+        },
+        {
+          "path": "backend/f02_reconciled_review_recovery.py",
+          "mode": "100644",
+          "byte_length": 4475,
+          "sha256": "5520a199d7c3bf5442ceb29adc093336adddf5f6b67f0c2db5c513e3b433f724",
+          "git_blob": "b049b9765e9126ad4230ece85009689f2d49473b"
+        },
+        {
+          "path": "backend/s0_cfi01_atomic_commands_local.py",
+          "mode": "100644",
+          "byte_length": 11154,
+          "sha256": "ace13694fc2026a1580086e8ce744201a431ab92a00336a14f3d3b12e778cdd3",
+          "git_blob": "fb6acaa081c9ea54357549cbfda18448f9708623"
+        },
+        {
+          "path": "backend/s0_cfi01_f03_receipt_bridge_local.py",
+          "mode": "100644",
+          "byte_length": 6420,
+          "sha256": "fe9923e44a00fd9eb39b73ef8a176c57b5d94a74b632503676634c59dae4f21a",
+          "git_blob": "08bbb9a917653baf7dc9d6a4927560f425e4e11b"
+        },
+        {
+          "path": "docs/contratos/f02_s0_review/CONTRATO_CANDIDATO_0_1.md",
+          "mode": "100644",
+          "byte_length": 15506,
+          "sha256": "cedcebad145f377d8829583e4f2f4596ed6cd9a3d19328caeebd51791be021fb",
+          "git_blob": "1d4279029c09f1b730cffebf340bec6a8ea3a5e3"
+        },
+        {
+          "path": "docs/contratos/f02_s0_review/result.schema.json",
+          "mode": "100644",
+          "byte_length": 2405,
+          "sha256": "212963dbf630a4c7538a1aa2bf016c2e4d9d1dfabb454ab776fb643b25db010f",
+          "git_blob": "61598ba702dc03f9f715673118c88f9359e64113"
+        },
+        {
+          "path": "docs/contratos/i86_authority/manual/CM01_DECISAO_CONFIANCA_PUBLICA.md",
+          "mode": "100644",
+          "byte_length": 6194,
+          "sha256": "42dbe847a6dd0048a2fa58dcfdfcf7e168df034a7b74134e2363d48a0a66159d",
+          "git_blob": "e616cc9cc21d53709140e874d8735dcb387fc6e6"
+        },
+        {
+          "path": "docs/contratos/i86_authority/manual/CM01_MANIFESTO_PUBLICO.json",
+          "mode": "100644",
+          "byte_length": 5375,
+          "sha256": "84e8db1f75298ce8d3e00cc2faa4927b67e3694ab13fb051888255b733ea9f28",
+          "git_blob": "99fc18c9e7d88d959aef1d7cee3d3acbcd828a35"
+        },
+        {
+          "path": "docs/contratos/i86_authority/manual/CONTRATO_MANUAL_V2.md",
+          "mode": "100644",
+          "byte_length": 8239,
+          "sha256": "ab5d20dde7ad2005708ad38d73c25b4283c4ff3c76c6c6e95dcc7fee840dd865",
+          "git_blob": "2ba9d3a1cb5a345b346ed27bb1f316f5fe1c9bed"
+        },
+        {
+          "path": "docs/contratos/s0s1_ops02/CONTRATO_CANDIDATO.md",
+          "mode": "100644",
+          "byte_length": 10980,
+          "sha256": "16091bbb30352fe03c6cdaeab02ad90025e39744ecd4770fb4505e729bdfa73b",
+          "git_blob": "9c5890bcb0ac039fd4f6d0d5380064582445926e"
+        },
+        {
+          "path": "docs/contratos/s0s1_ops02/DECISOES_E_TESTES.json",
+          "mode": "100644",
+          "byte_length": 4299,
+          "sha256": "737d79abe30cb24e93774dcace6ec4f9592be93066f1c31296a0eda2b18761ca",
+          "git_blob": "d2ff151d42a67d45abc508f2122f4095680665a9"
+        },
+        {
+          "path": "integration/g1/s1_sources.json",
+          "mode": "100644",
+          "byte_length": 6158,
+          "sha256": "087a654faaf99e5c2f59129850599995e16b6253079e3c700e544ad1b17322be",
+          "git_blob": "03e539790fed10dbe91afe2b9f16176ae6d8337f"
+        },
+        {
+          "path": "integration/i86/scope.py",
+          "mode": "100644",
+          "byte_length": 10867,
+          "sha256": "c6810c509a21a8e941637b409a70d125293a75d6d4484d2f5d63a91041499c0e",
+          "git_blob": "430eba36d03d0ede3e6de7b227c9aa0223911b64"
+        },
+        {
+          "path": "local_admin/dependencies.json",
+          "mode": "100644",
+          "byte_length": 8347,
+          "sha256": "33333c6fd89425afb8e408d43d71da6380f44bcb8515fb878f8c02759362bae7",
+          "git_blob": "994db2ebb6f2ece9d12b6b8b6ca4c51afa6720f3"
+        },
+        {
+          "path": "ops/s0s1_authority/contract_v1.json",
+          "mode": "100644",
+          "byte_length": 4065,
+          "sha256": "2d53d016169097b7853dbe4208edea69fa1d254ea64c07939adab121b0adbcf1",
+          "git_blob": "b7e3dc7a9f117d82d4f3853d1595900418f8f36e"
+        }
+      ]
+    },
+    {
+      "id": "i86",
+      "repository": "prumogrowth/Prumo-Growth-Platform-V2",
+      "reference_branch": "exp/s1-i86-manual-director-20261028",
+      "commit": "a0c4eaf2720bd6cf2bd756544498f8f185f005fc",
+      "tree": "977c4ed302b9dd14e459575abbbc718eaa8ca920",
+      "requirement": "optional",
+      "files": [
+        {
+          "path": "docs/contratos/i86_authority/manual/CM01_DECISAO_CONFIANCA_PUBLICA.md",
+          "mode": "100644",
+          "byte_length": 6194,
+          "sha256": "42dbe847a6dd0048a2fa58dcfdfcf7e168df034a7b74134e2363d48a0a66159d",
+          "git_blob": "e616cc9cc21d53709140e874d8735dcb387fc6e6"
+        },
+        {
+          "path": "docs/contratos/i86_authority/manual/CM01_MANIFESTO_PUBLICO.json",
+          "mode": "100644",
+          "byte_length": 5375,
+          "sha256": "84e8db1f75298ce8d3e00cc2faa4927b67e3694ab13fb051888255b733ea9f28",
+          "git_blob": "99fc18c9e7d88d959aef1d7cee3d3acbcd828a35"
+        },
+        {
+          "path": "docs/contratos/i86_authority/manual/CONTRATO_MANUAL_V2.md",
+          "mode": "100644",
+          "byte_length": 8239,
+          "sha256": "ab5d20dde7ad2005708ad38d73c25b4283c4ff3c76c6c6e95dcc7fee840dd865",
+          "git_blob": "2ba9d3a1cb5a345b346ed27bb1f316f5fe1c9bed"
+        },
+        {
+          "path": "integration/g1/s1_sources.json",
+          "mode": "100644",
+          "byte_length": 6158,
+          "sha256": "087a654faaf99e5c2f59129850599995e16b6253079e3c700e544ad1b17322be",
+          "git_blob": "03e539790fed10dbe91afe2b9f16176ae6d8337f"
+        },
+        {
+          "path": "integration/i86/scope.py",
+          "mode": "100644",
+          "byte_length": 10867,
+          "sha256": "c6810c509a21a8e941637b409a70d125293a75d6d4484d2f5d63a91041499c0e",
+          "git_blob": "430eba36d03d0ede3e6de7b227c9aa0223911b64"
+        },
+        {
+          "path": "local_admin/dependencies.json",
+          "mode": "100644",
+          "byte_length": 8347,
+          "sha256": "33333c6fd89425afb8e408d43d71da6380f44bcb8515fb878f8c02759362bae7",
+          "git_blob": "994db2ebb6f2ece9d12b6b8b6ca4c51afa6720f3"
+        }
+      ]
+    }
+  ],
+  "comparisons": [
+    {
+      "id": "f02-result-schema",
+      "left": {
+        "source": "f03",
+        "path": "docs/contracts/upstream/OAI_S0_F02_REVIEW_RESULT_SCHEMA_0_1_PINNED.json"
+      },
+      "right": {
+        "source": "s0",
+        "path": "docs/contratos/f02_s0_review/result.schema.json"
+      },
+      "expected": "IDENTICAL_BYTES"
+    },
+    {
+      "id": "f02_reconciled_human_authorization_handoff",
+      "left": {
+        "source": "f03",
+        "path": "backend/f02_reconciled_human_authorization_handoff.py"
+      },
+      "right": {
+        "source": "s0",
+        "path": "backend/f02_reconciled_human_authorization_handoff.py"
+      },
+      "expected": "IDENTICAL_BYTES"
+    },
+    {
+      "id": "f02_reconciled_review_lifecycle",
+      "left": {
+        "source": "f03",
+        "path": "backend/f02_reconciled_review_lifecycle.py"
+      },
+      "right": {
+        "source": "s0",
+        "path": "backend/f02_reconciled_review_lifecycle.py"
+      },
+      "expected": "IDENTICAL_BYTES"
+    },
+    {
+      "id": "f02_reconciled_review_recovery",
+      "left": {
+        "source": "f03",
+        "path": "backend/f02_reconciled_review_recovery.py"
+      },
+      "right": {
+        "source": "s0",
+        "path": "backend/f02_reconciled_review_recovery.py"
+      },
+      "expected": "IDENTICAL_BYTES"
+    },
+    {
+      "id": "s0_cfi01_f03_receipt_bridge_local",
+      "left": {
+        "source": "f03",
+        "path": "backend/s0_cfi01_f03_receipt_bridge_local.py"
+      },
+      "right": {
+        "source": "s0",
+        "path": "backend/s0_cfi01_f03_receipt_bridge_local.py"
+      },
+      "expected": "DIFFERENT_BYTES"
+    },
+    {
+      "id": "s0_cfi01_atomic_commands_local",
+      "left": {
+        "source": "f03",
+        "path": "backend/s0_cfi01_atomic_commands_local.py"
+      },
+      "right": {
+        "source": "s0",
+        "path": "backend/s0_cfi01_atomic_commands_local.py"
+      },
+      "expected": "DIFFERENT_BYTES"
+    },
+    {
+      "id": "i86-preserved-1",
+      "left": {
+        "source": "i86",
+        "path": "docs/contratos/i86_authority/manual/CM01_DECISAO_CONFIANCA_PUBLICA.md"
+      },
+      "right": {
+        "source": "s0",
+        "path": "docs/contratos/i86_authority/manual/CM01_DECISAO_CONFIANCA_PUBLICA.md"
+      },
+      "expected": "IDENTICAL_BYTES"
+    },
+    {
+      "id": "i86-preserved-2",
+      "left": {
+        "source": "i86",
+        "path": "docs/contratos/i86_authority/manual/CM01_MANIFESTO_PUBLICO.json"
+      },
+      "right": {
+        "source": "s0",
+        "path": "docs/contratos/i86_authority/manual/CM01_MANIFESTO_PUBLICO.json"
+      },
+      "expected": "IDENTICAL_BYTES"
+    },
+    {
+      "id": "i86-preserved-3",
+      "left": {
+        "source": "i86",
+        "path": "docs/contratos/i86_authority/manual/CONTRATO_MANUAL_V2.md"
+      },
+      "right": {
+        "source": "s0",
+        "path": "docs/contratos/i86_authority/manual/CONTRATO_MANUAL_V2.md"
+      },
+      "expected": "IDENTICAL_BYTES"
+    },
+    {
+      "id": "i86-preserved-4",
+      "left": {
+        "source": "i86",
+        "path": "integration/i86/scope.py"
+      },
+      "right": {
+        "source": "s0",
+        "path": "integration/i86/scope.py"
+      },
+      "expected": "IDENTICAL_BYTES"
+    },
+    {
+      "id": "i86-preserved-5",
+      "left": {
+        "source": "i86",
+        "path": "integration/g1/s1_sources.json"
+      },
+      "right": {
+        "source": "s0",
+        "path": "integration/g1/s1_sources.json"
+      },
+      "expected": "IDENTICAL_BYTES"
+    },
+    {
+      "id": "i86-preserved-6",
+      "left": {
+        "source": "i86",
+        "path": "local_admin/dependencies.json"
+      },
+      "right": {
+        "source": "s0",
+        "path": "local_admin/dependencies.json"
+      },
+      "expected": "IDENTICAL_BYTES"
+    }
+  ],
+  "ancestry": [
+    {
+      "id": "ops02-preserves-i86",
+      "ancestor": "i86",
+      "descendant": "s0"
+    }
+  ],
+  "historical": [
+    {
+      "id": "s2-a38-history",
+      "repository": "prumogrowth/Prumo-Growth-Platform-V2",
+      "commit": "ebf6fe4e546f2fe990bdaefe2df25aa0cf18e74c",
+      "documentary_origin": [
+        {
+          "source": "f03",
+          "path": "scripts/run-s0-f03-pg17-local.sh"
+        },
+        {
+          "source": "f03",
+          "path": "backend/f02_multiroute_s2_validation_candidate.py"
+        },
+        {
+          "source": "f03",
+          "path": "docs/OAI_E04_A38_CONTINGENCIA_CODEX_E_DIAGNOSTICO_ACTIONS_20261028.md"
+        }
+      ],
+      "recovery": "NOT_RECOVERED_IN_OAI_RET_01",
+      "required_for": [
+        "a38"
+      ],
+      "replacement": null,
+      "reason": "Consulta oficial retornou 422 em OAI-RET-01; indisponibilidade neste acesso nao prova exclusao. S2 publica recuperada nao e substituta historica ratificada."
+    }
+  ]
+}
