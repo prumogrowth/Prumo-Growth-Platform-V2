@@ -30,8 +30,11 @@ export type Wa09AuditDecision = Readonly<{
 }>;
 type Obj=Record<string,unknown>;
 type Waba={waba_id:string;catalog_ref:string;phone_number_ids:string[]};
+type S0Binding={canal_id:string;waba_id:string;phone_number_id:string};
 type App={app_ref:string;concessionaria_id:string;business_owner_ref:string;
-  delegated_partner_ref:string;route_ref:string;revision:number;wabas:Waba[]};
+  delegated_partner_ref:string;route_ref:string;revision:number;wabas:Waba[];
+  /** S0-only channel mapping, NEVER an alleged Meta channel identity. */
+  s0_bindings:S0Binding[]};
 type Manifest={contract_version:string;apps:App[]};
 
 const flags=Object.freeze({
@@ -67,6 +70,7 @@ const manifestKeys=['contract_version','apps'];
 const appKeys=['app_ref','concessionaria_id','business_owner_ref',
  'delegated_partner_ref','route_ref','revision','wabas'];
 const wabaKeys=['waba_id','catalog_ref','phone_number_ids'];
+const bindingKeys=['canal_id','waba_id','phone_number_id'];
 function parseManifest(raw:unknown,version:string):Manifest|null{
  const m=exact(raw,manifestKeys);
  if(!m||m.contract_version!==version||!Array.isArray(m.apps)||
@@ -75,7 +79,8 @@ function parseManifest(raw:unknown,version:string):Manifest|null{
  let n=0;
  try{
   for(const candidate of m.apps){
-   const a=exact(candidate,appKeys);
+   const s0=version==='wa09-s0-asset-expectation.fixture.v0.1';
+   const a=exact(candidate,s0?[...appKeys,'s0_bindings']:appKeys);
    if(!a||!id(a.app_ref)||!id(a.concessionaria_id)||
       !id(a.business_owner_ref)||!id(a.delegated_partner_ref)||
       !id(a.route_ref)||!revision(a.revision)||
@@ -92,21 +97,43 @@ function parseManifest(raw:unknown,version:string):Manifest|null{
       catalog_ref:w.catalog_ref as string,
       phone_number_ids:[...w.phone_number_ids] as string[]});
    }
+   const s0_bindings:S0Binding[]=[];
+   if(s0){
+    if(!Array.isArray(a.s0_bindings)||a.s0_bindings.length!==wabas.reduce(
+     (total,w)=>total+w.phone_number_ids.length,0))return null;
+    for(const record of a.s0_bindings){
+     const binding=exact(record,bindingKeys);
+     if(!binding||!id(binding.canal_id)||!id(binding.waba_id)||
+        !phone(binding.phone_number_id))return null;
+     s0_bindings.push({canal_id:binding.canal_id as string,
+       waba_id:binding.waba_id as string,phone_number_id:binding.phone_number_id as string});
+    }
+   }
    apps.push({app_ref:a.app_ref as string,
      concessionaria_id:a.concessionaria_id as string,
      business_owner_ref:a.business_owner_ref as string,
      delegated_partner_ref:a.delegated_partner_ref as string,
-     route_ref:a.route_ref as string,revision:a.revision as number,wabas});
+     route_ref:a.route_ref as string,revision:a.revision as number,wabas,s0_bindings});
   }
  }catch{return null;}
  return {contract_version:version,apps};
 }
 function duplicate(m:Manifest):boolean{
  const apps=new Set<string>(),routes=new Set<string>(),
-  wabas=new Set<string>(),phones=new Set<string>(),catalogOwners=new Map<string,string>();
+  wabas=new Set<string>(),phones=new Set<string>(),channels=new Set<string>(),
+  catalogOwners=new Map<string,string>(),businessOwners=new Map<string,string>();
  for(const a of m.apps){
   if(apps.has(a.app_ref)||routes.has(a.route_ref))return true;
+  const ownerShop=businessOwners.get(a.business_owner_ref);
+  if(ownerShop!==undefined&&ownerShop!==a.concessionaria_id)return true;
+  businessOwners.set(a.business_owner_ref,a.concessionaria_id);
   apps.add(a.app_ref);routes.add(a.route_ref);
+  for(const binding of a.s0_bindings){
+   if(channels.has(binding.canal_id))return true;
+   channels.add(binding.canal_id);
+   if(!a.wabas.some(w=>w.waba_id===binding.waba_id&&
+      w.phone_number_ids.includes(binding.phone_number_id)))return true;
+  }
   for(const w of a.wabas){
    if(wabas.has(w.waba_id))return true;
    wabas.add(w.waba_id);
@@ -175,8 +202,11 @@ export function inspectWa09OfflineAssetInventory(
        !matchList(w.phone_number_ids,ow.phone_number_ids))
      return output('DENIED','ASSET_MISMATCH');
     for(const p of w.phone_number_ids){
+     const binding=a.s0_bindings.find(x=>x.waba_id===w.waba_id&&
+       x.phone_number_id===p);
+     if(!binding)return output('DENIED','ASSET_MISMATCH');
      const hits=reg.channels.filter(c=>c.waba_id===w.waba_id&&
-       c.phone_number_id===p&&c.active);
+       c.phone_number_id===p&&c.canal_id===binding.canal_id&&c.active);
      if(hits.length!==1)return output('DENIED','ASSET_MISMATCH');
      channels++;
     }
@@ -185,9 +215,11 @@ export function inspectWa09OfflineAssetInventory(
    if(channels>1000)return output('DENIED','INVALID_FIXTURE');
    // A registry channel not explicitly listed in the S0 expectation
    // (including an inactive, revoked channel) must not disappear from audit.
-   const allExpected=a.wabas.flatMap(w=>w.phone_number_ids.map(p=>w.waba_id+':'+p));
+   const allExpected=a.s0_bindings.map(x=>
+     x.canal_id+':'+x.waba_id+':'+x.phone_number_id);
    if(reg.channels.length!==allExpected.length||
-     reg.channels.some(c=>!allExpected.includes(c.waba_id+':'+c.phone_number_id)))
+     reg.channels.some(c=>!allExpected.includes(
+       c.canal_id+':'+c.waba_id+':'+c.phone_number_id)))
     return output('DENIED','INVENTORY_INCOMPLETE');
   }
   return output('LAB_INVENTORY_MATCHED_UNVERIFIED','MATCHED_FIXTURES',
