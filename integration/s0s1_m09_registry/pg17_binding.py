@@ -23,8 +23,9 @@ def _answer(state, reason, physical=None):
 class Pg17BindingReader:
     """Read-only transaction with S0-established locks, no direct S0 writes."""
 
-    def __init__(self, dsn, authenticate, trusted_host, *, connect=None):
+    def __init__(self, dsn, authenticate, trusted_host, tenant_to_store, *, connect=None):
         self._dsn = dsn
+        self._tenant_to_store = dict(tenant_to_store)
         self._authenticate = authenticate
         self._trusted_host = trusted_host
         if connect is None:
@@ -93,6 +94,7 @@ class Pg17BindingReader:
                 binding = bindings[0]
                 if (not binding['active'] or binding['app'] != scope.app_ref
                     or binding['tenant'] != key['tenant']
+                    or self._tenant_to_store.get(key['tenant']) != scope.concessionaria_id
                     or binding['channel'] != scope.canal_id):
                     return _answer('DENIED', 'NOT_AUTHORIZED')
                 # The fixture's schema does not enforce global phone/WABA uniqueness.
