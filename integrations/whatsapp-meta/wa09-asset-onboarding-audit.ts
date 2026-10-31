@@ -66,6 +66,23 @@ const exact=(raw:unknown,keys:readonly string[]):Obj|null=>{
   return Object.fromEntries(keys.map(k=>[k,descriptors[k].value]));
  }catch{return null;}
 };
+/** Snapshot dense arrays by own data descriptors; never invoke element getters. */
+function dense(raw:unknown,min:number,max:number):unknown[]|null{
+ try{
+  if(!Array.isArray(raw))return null;
+  const d=Object.getOwnPropertyDescriptors(raw);
+  const len=d.length?.value;
+  if(!Number.isSafeInteger(len)||len<min||len>max||
+     Reflect.ownKeys(raw).length!==len+1)return null;
+  const out:unknown[]=[];
+  for(let i=0;i<len;i++){
+   const item=d[String(i)];
+   if(!item||!Object.hasOwn(item,'value'))return null;
+   out.push(item.value);
+  }
+  return out;
+ }catch{return null;}
+}
 const manifestKeys=['contract_version','apps'];
 const appKeys=['app_ref','concessionaria_id','business_owner_ref',
  'delegated_partner_ref','route_ref','revision','wabas'];
@@ -73,35 +90,38 @@ const wabaKeys=['waba_id','catalog_ref','phone_number_ids'];
 const bindingKeys=['canal_id','waba_id','phone_number_id'];
 function parseManifest(raw:unknown,version:string):Manifest|null{
  const m=exact(raw,manifestKeys);
- if(!m||m.contract_version!==version||!Array.isArray(m.apps)||
-    m.apps.length<1||m.apps.length>100)return null;
+ if(!m||m.contract_version!==version)return null;
+ const appEntries=dense(m.apps,1,100);
+ if(!appEntries)return null;
  const apps:App[]=[];
  let n=0;
  try{
-  for(const candidate of m.apps){
+  for(const candidate of appEntries){
    const s0=version==='wa09-s0-asset-expectation.fixture.v0.1';
    const a=exact(candidate,s0?[...appKeys,'s0_bindings']:appKeys);
    if(!a||!id(a.app_ref)||!id(a.concessionaria_id)||
       !id(a.business_owner_ref)||!id(a.delegated_partner_ref)||
-      !id(a.route_ref)||!revision(a.revision)||
-      !Array.isArray(a.wabas)||a.wabas.length<1||a.wabas.length>100)return null;
+      !id(a.route_ref)||!revision(a.revision))return null;
+   const wabaEntries=dense(a.wabas,1,100);
+   if(!wabaEntries)return null;
    const wabas:Waba[]=[];
-   for(const record of a.wabas){
+   for(const record of wabaEntries){
     const w=exact(record,wabaKeys);
-    if(!w||!id(w.waba_id)||!id(w.catalog_ref)||
-       !Array.isArray(w.phone_number_ids)||w.phone_number_ids.length<1||
-       w.phone_number_ids.length>100||w.phone_number_ids.some(x=>!phone(x)))return null;
-    n+=w.phone_number_ids.length;
+    if(!w||!id(w.waba_id)||!id(w.catalog_ref))return null;
+    const phoneEntries=dense(w.phone_number_ids,1,100);
+    if(!phoneEntries||phoneEntries.some(x=>!phone(x)))return null;
+    n+=phoneEntries.length;
     if(n>1000)return null;
     wabas.push({waba_id:w.waba_id as string,
       catalog_ref:w.catalog_ref as string,
-      phone_number_ids:[...w.phone_number_ids] as string[]});
+      phone_number_ids:phoneEntries as string[]});
    }
    const s0_bindings:S0Binding[]=[];
    if(s0){
-    if(!Array.isArray(a.s0_bindings)||a.s0_bindings.length!==wabas.reduce(
+    const bindingEntries=dense(a.s0_bindings,1,1000);
+    if(!bindingEntries||bindingEntries.length!==wabas.reduce(
      (total,w)=>total+w.phone_number_ids.length,0))return null;
-    for(const record of a.s0_bindings){
+    for(const record of bindingEntries){
      const binding=exact(record,bindingKeys);
      if(!binding||!id(binding.canal_id)||!id(binding.waba_id)||
         !phone(binding.phone_number_id))return null;
