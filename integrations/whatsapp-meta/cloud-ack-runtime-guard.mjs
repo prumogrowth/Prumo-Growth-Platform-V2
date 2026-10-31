@@ -18,11 +18,41 @@ const script='integrations/whatsapp-meta/cloud-ack-runtime-guard.mjs';
 const definition='integrations/whatsapp-meta/durable-receipt.ts';
 const isCode=(p)=>/\.(?:ts|tsx|js|jsx|mjs|cjs|py)$/.test(p);
 const isTest=(p)=>/\.(?:test|spec)\.(?:ts|tsx|js|jsx|mjs|cjs|py)$/.test(p);
-const stripComments=(s)=>
- s.replace(/\/\*[\s\S]*?\*\//g,'')
-  .replace(/^[ \t]*\/\/[^\r\n]*$/gm,'')
-  .replace(/[ \t]+\/\/[^\r\n]*$/gm,'')
-  .replace(/^[ \t]*#[^\r\n]*$/gm,'');
+const stripComments=(s)=>{
+ // Quoted "//" text must not conceal executable code after the quote.
+ // This canary is not a parser, dynamic import guard or production approval.
+ let out='',i=0,quote=null;
+ while(i<s.length){
+  const c=s[i],next=s[i+1];
+  if(quote!==null){
+   out+=c;
+   if(c==='\\'&&i+1<s.length){out+=s[++i];}
+   else if(c===quote)quote=null;
+   i++;continue;
+  }
+  if(c==='"'||c==="'"||c===String.fromCharCode(96)){
+   quote=c;out+=c;i++;continue;
+  }
+  if(c==='/'&&next==='/'){
+   while(i<s.length&&s[i]!=='\n'&&s[i]!=='\r'){out+=' ';i++;}
+   continue;
+  }
+  if(c==='/'&&next==='*'){
+   i+=2;out+='  ';let closed=false;
+   while(i<s.length){
+    if(s[i]==='*'&&s[i+1]==='/'){
+     out+='  ';i+=2;closed=true;break;
+    }
+    out+=s[i]==='\n'||s[i]==='\r'?s[i]:' ';i++;
+   }
+   if(!closed)throw Error('UNTERMINATED_COMMENT');
+   continue;
+  }
+  out+=c;i++;
+ }
+ if(quote!==null)throw Error('UNTERMINATED_QUOTED_LITERAL');
+ return out;
+};
 
 // Do not mistake provider status observations for an HTTP reply. These
 // forbidden forms are deliberately narrow and limited to the Meta tree.
@@ -46,7 +76,10 @@ function suppressReviewedGet200(path,source){
 export function scanRuntimeAckSource(path,source){
  if(typeof path!=='string'||typeof source!=='string')throw Error('INVALID_SCAN_INPUT');
  if(!isCode(path)||isTest(path)||path===script)return [];
- const code=suppressReviewedGet200(path,stripComments(source));
+ const cleaned=path.endsWith('.py')
+  ?source.replace(/^[ \t]*#[^\r\n]*$/gm,'')
+  :stripComments(source);
+ const code=suppressReviewedGet200(path,cleaned);
  const findings=[];
  if(path!==definition&&identifier.test(code))
   findings.push('LEGACY_SHAPE_ONLY_HELPER_REFERENCE');
