@@ -249,3 +249,25 @@ test('WA10-39 one M2M principal cannot silently span two shops',()=>{
   app_ref:'LAB_APP_B',issuer_ref:'LAB_OTHER_INFRA'});
  no(run({registry:r}),'INVALID_TRUST_REGISTRY');
 });
+
+
+test('AUD-M10-01 getter inside pin list never runs',()=>{
+ const r=registry();let hits=0;const pin=r.receipt_pins[0];
+ Object.defineProperty(r.receipt_pins,'0',{configurable:true,
+  enumerable:true,get(){hits++;return pin;}});
+ no(run({registry:r}),'INVALID_TRUST_REGISTRY');
+ assert.equal(hits,0);
+});
+test('AUD-M10-02 getter in principal list never runs',()=>{
+ const r=registry();let hits=0;const p=r.service_principals[0];
+ Object.defineProperty(r.service_principals,'0',{configurable:true,
+  enumerable:true,get(){hits++;return p;}});
+ no(run({registry:r}),'INVALID_TRUST_REGISTRY');
+ assert.equal(hits,0);
+});
+test('AUD-M10-03 sparse pin and principal lists are denied',()=>{
+ const a=registry();a.receipt_pins.length=2;
+ no(run({registry:a}),'INVALID_TRUST_REGISTRY');
+ const c=registry();c.service_principals.length=2;
+ no(run({registry:c}),'INVALID_TRUST_REGISTRY');
+});
