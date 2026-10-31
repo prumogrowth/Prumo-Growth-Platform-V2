@@ -46,3 +46,10 @@ Esta implementação não faz HTTP, não escuta porta, não consulta Graph/Meta,
 ## Adendo pós-vistoria de segurança — 31/10/2026
 
 Os **44 testes M11** e o CI inicial informados acima são o recorte histórico anterior à auditoria retrospectiva. Foram acrescentadas 4 regressões de revogação de App entre leituras GET/POST, getter em lista de cabeçalhos e tentativas de compartilhar slot GET/POST. A M11 tem **48 testes próprios**, sem alteração da política de não ACK. [CI 41222509935](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41222509935): 1.344/1.344 Meta offline + 18 PG17, fonte funcional `60f789df841485e8cce41525f4517f00c6975e91`. [Auditoria unificada M01–M11](AUDITORIA_RETROSPECTIVA_M01_M11_2026-10-31.md). M11-D continua `[ ]`, pois não existe endpoint ou decisão HTTP/ACK ratificada.
+
+
+## Auditoria M12: digest de distribuição e preservação de autoridade (31/10/2026)
+
+Na [auditoria do anteparo M12](AUDITORIA_M12_ANTEPARO_2026-10-31.md), verificou-se que `scope_count` e `event_count` da M11 não identificavam individualmente o conjunto de canais que as originou. A WA11 passou a devolver `channel_distribution_sha256` no POST tecnicamente validado, derivado de tuplas ordenadas App/concessionária/canal/WABA/número e contagens inbound/status. Em GET ou negação, o campo é `null`. Esse hash **não é assinatura da S0 nem prova de grant, M2M ou durabilidade**; é somente impressão digital comparável entre fases internas de laboratório.
+
+Duas novas regressões `AUD-M11-45/46` verificam troca de vínculo com mesma cardinalidade e ausência de digest em GET/negação. **Total M11: 50 testes específicos; suíte Meta: 1.385/1.385 offline, 18 PG17, ambos jobs success** no [CI 41246615004](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41246615004), SHA funcional `6fe99cfeacdc7894002b0f89cc6cd7da403cbca9`. M11-D permanece `[ ]` e a M11 não emite resposta HTTP.
