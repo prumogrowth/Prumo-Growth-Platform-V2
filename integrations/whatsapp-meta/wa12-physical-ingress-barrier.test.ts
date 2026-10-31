@@ -291,3 +291,42 @@ test('WA12-35 no assumptions about real durability, identity, or production',asy
   assert.equal(serialized.includes(x),false,x);
  }
 });
+
+
+test('AUD-M12-36 detects rebind AFTER WA11, despite same event and channel counts',async()=>{
+ let reads=0;
+ const rebound={...registry,apps:[{...appA,channels:[
+  {...appA.channels[0],canal_id:'CANAL_REBOUND'},
+  appA.channels[1],
+ ]},appB]};
+ const p=ports({registry:()=>++reads<=4?registry:rebound});
+ const x=await run({ports:p});
+ deny(x,'SCOPE_CHANGED');
+ assert.ok(reads>=12);
+});
+test('AUD-M12-37 detects tenant reassignment AFTER WA11, even with same counts',async()=>{
+ let reads=0;
+ const changed={...registry,apps:[{...appA,concessionaria_id:'SHOP_CHANGED'},appB]};
+ deny(await run({ports:ports({registry:()=>++reads<=4?registry:changed})}),
+  'SCOPE_CHANGED');
+});
+test('AUD-M12-38 stable mapping across multiple signed rechecks remains technical only',async()=>{
+ let reads=0;
+ const x=await run({ports:ports({registry:()=>{
+  reads++;return registry;
+ }})});
+ ok(x,1,1);
+ assert.ok(reads>=12);
+});
+test('AUD-M12-39 a fast transient rebind while preparing handoff is rejected',async()=>{
+ let reads=0;
+ const rebound={...registry,apps:[{...appA,channels:[
+  {...appA.channels[0],canal_id:'CANAL_TEMP'},
+  appA.channels[1],
+ ]},appB]};
+ // WA11 reads 1..4, WA05C reads 5..8, final reads 9..12.
+ const x=await run({ports:ports({registry:()=>{
+  const n=++reads;return n>=5&&n<=8?rebound:registry;
+ }})});
+ deny(x,'SCOPE_CHANGED');
+});
