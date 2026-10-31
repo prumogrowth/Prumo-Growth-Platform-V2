@@ -1,7 +1,7 @@
 name: Meta S0 Ed25519 laboratory receipt interoperability - offline
 on:
   push:
-    branches: [feat/meta-s0-ed25519-receipt-interop-20261028]
+    branches: [feat/meta-s0-ed25519-receipt-interop-20261028, feat/meta-s0-physical-interop-ack-guard-20261031]
   pull_request:
     types: [opened, synchronize, reopened]
     branches: [audit/meta-cloud-http-ack-authority-20261028]
@@ -14,6 +14,14 @@ jobs:
     timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
+      - name: Attest exact source SHA under test
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual_sha="$(git rev-parse --verify HEAD)"
+          printf 'META_SOURCE_SHA=%s\\nGITHUB_EVENT_SHA=%s\\n' "$actual_sha" "$GITHUB_SHA"
+          test "$actual_sha" = "$GITHUB_SHA"
+          printf 'Meta source SHA: %s\\n' "$actual_sha" >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -53,5 +61,17 @@ jobs:
           grep -qx '# tests 369' "$RUNNER_TEMP/meta-s0-receipt-regressions.tap"
           grep -qx '# pass 369' "$RUNNER_TEMP/meta-s0-receipt-regressions.tap"
           grep -qx '# fail 0' "$RUNNER_TEMP/meta-s0-receipt-regressions.tap"
+      - name: Complete Meta offline regressions (minimum 1183)
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --experimental-strip-types --test --test-concurrency=1 integrations/whatsapp-meta/*.test.ts 2>&1 | tee "$RUNNER_TEMP/meta-full-suite.tap"
+          awk '
+            /^# tests / { tests=$3 }
+            /^# pass / { passed=$3 }
+            /^# fail / { failed=$3 }
+            /^# skipped / { skipped=$3 }
+            END { if (tests < 1183 || passed != tests || failed != 0 || skipped != 0) exit 1 }
+          ' "$RUNNER_TEMP/meta-full-suite.tap"
       - name: Protect legacy shape-only ACK helper
         run: node integrations/whatsapp-meta/cloud-ack-runtime-guard.mjs
