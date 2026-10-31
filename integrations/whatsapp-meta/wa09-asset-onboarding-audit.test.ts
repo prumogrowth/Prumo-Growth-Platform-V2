@@ -233,3 +233,33 @@ test('WA09-38 provider cannot invent canal_id as proof of S0 grant',()=>{
    canal_id:'CHAN_A1',waba_id:'WABA_A',phone_number_id:'12345678901'}]});
  denied(run(expected(),o));
 });
+
+
+test('AUD-M09-01 getter in App manifest array is NEVER invoked',()=>{
+ const e=expected();let n=0;const original=e.apps[0];
+ Object.defineProperty(e.apps,'0',{configurable:true,enumerable:true,
+  get(){n++;return original;}});
+ denied(run(e));assert.equal(n,0);
+});
+test('AUD-M09-02 getter in nested phone list is NEVER invoked',()=>{
+ const o=observed();let n=0;
+ Object.defineProperty(o.apps[0].wabas[0].phone_number_ids,'0',{
+  configurable:true,enumerable:true,get(){n++;return '12345678901';}});
+ denied(run(expected(),o));assert.equal(n,0);
+});
+test('AUD-M09-03 getter in S0 binding list is NEVER invoked',()=>{
+ const e=expected();let n=0;
+ const original=e.apps[0].s0_bindings[0];
+ Object.defineProperty(e.apps[0].s0_bindings,'0',{configurable:true,
+  enumerable:true,get(){n++;return original;}});
+ denied(run(e));assert.equal(n,0);
+});
+test('AUD-M09-04 sparse WABA array is rejected, not silently skipped',()=>{
+ const o=observed();o.apps[0].wabas.length=2;
+ denied(run(expected(),o));
+});
+test('AUD-M09-05 no accepted inventory if GET and POST share one vault slot',()=>{
+ const reg=structuredClone(registry);
+ reg.apps[0].secret_slots.post_app_secret=reg.apps[0].secret_slots.get_verify_token;
+ denied(run(expected(),observed(),reg));
+});
