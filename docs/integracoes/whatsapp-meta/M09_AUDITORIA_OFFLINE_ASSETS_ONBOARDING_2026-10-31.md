@@ -36,3 +36,10 @@ O retorno positivo se chama explicitamente `LAB_INVENTORY_MATCHED_UNVERIFIED`, *
 - [ ] **Integração:** E2E em ambiente autorizado com dados de teste reais do fornecedor, revalidação de versão e auditoria dos fluxos de falha. Sem autorização para criar contas nem despachar.
 
 **Decisão:** continuar apenas laboratório M09; nenhuma aprovação real do onboarding, nenhum principal S0, merge, deploy, Graph ou envio WhatsApp foi autorizado. M09 principal permanece `[ ]`.
+
+
+## Adendo pós-vistoria de segurança — 31/10/2026
+
+O total **38 M09** e o CI inicial informados acima são o recorte histórico antes da auditoria retrospectiva. Após inspeção independente, a M09 tem **43 testes próprios**, incluindo 5 regressões de arrays com getters, listas esparsas e secret slots indevidamente compartilhados; o módulo de `credential-routing.ts` ganhou uma regressão adicional de isolamento de propósitos. [CI 41222509935](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41222509935): 1.344/1.344 Meta offline + 18 PG17, fonte funcional `60f789df841485e8cce41525f4517f00c6975e91`. Consulte o [relatório unificado M01–M11](AUDITORIA_RETROSPECTIVA_M01_M11_2026-10-31.md).
+
+A S0/S1 publicou candidato M09 0.1 `af3c7a16f777eb0d9b37e96f5ac496f1afc03913` na [#8](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/8), **ainda não ratificado**. Ele requer revisões separadas de rota/App/binding/grant/principal M2M e projeção por finalidade, não a revisão singular e os três slots juntos da fixture Meta. A revisão Meta foi registrada na #8. M09-D segue `[ ]`.
