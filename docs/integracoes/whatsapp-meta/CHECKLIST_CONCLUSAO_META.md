@@ -6,6 +6,8 @@
 
 ## Como acompanhar
 
+**Comunicação interfrentes:** adotar [protocolo operacional #4](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/4) e [mapa de dependências Meta](MAPA_INTERFRENTES_ISSUE4_2026-10-31.md). Consultar comentários/status das Issues no início de cada ciclo; entregas/aceites e autorização produtiva são estados diferentes. Não criar solicitações duplicadas nem inferir ratificação por silêncio.
+
 - `[x]`: marco **específico** concluído com evidência; marcos marcados como *offline/lab* NÃO significam operação real.
 - `[ ]`: pendente (pode haver código preliminar ou testes parciais).
 - Só marcar um item depois de satisfazer seu critério de aceite e anexar commit/teste ou ratificação correspondente.
@@ -28,11 +30,11 @@
   - [x] M08-A — HMAC Meta + recibo Ed25519 S0/PG17 cobrindo **um POST físico**, 2 WABAs, 1 App, 1 tenant, 4 ocorrências, 1 transação. Evidência: [CI 41189393878](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41189393878).
   - [x] M08-B — Cinco casos negativos provam rejeição **de lote inteiro** sem commit parcial: tenant, App, WABA desconhecida, evento inválido e grant ausente.
   - [x] M08-C — Replay do mesmo nonce negado, recuperação com novo nonce retornando mesmo recibo e conflito de bytes sem novo lote; Meta rejeita HMAC adulterado/revogação/alteração de escopo. Auditoria: **prova e trust fixture separadas**, 18 verificações físicas aprovadas no [CI 41194019498](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41194019498).
-  - [ ] M08-D — Homologação dos donos S0/Meta/Infra de unidade transacional, multicanal, estados HTTP, retry e replay. [Issue #3](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/3); evidências: [M08 laboratório e pendências](M08_LOTE_MULTICANAL_ATOMICO_2026-10-31.md).
+  - [ ] M08-D — Homologação dos donos S0/Meta/Infra de unidade transacional, multicanal, estados HTTP, retry e replay. [Issue canônica #2](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/2) (a #3 foi fechada como duplicata, sem aceite); evidências: [M08 laboratório e pendências](M08_LOTE_MULTICANAL_ATOMICO_2026-10-31.md).
 
 ## B. Patrimônio Meta e fronteira operacional
 
-- [ ] **M09 — Cadastro e onboarding por concessionária:** comprovar App/WABA/número/templates próprios e delegação à Prumo, sem compartilhamento entre lojas.
+- [ ] **M09 — Cadastro e onboarding por concessionária:** comprovar App/WABA/número/templates próprios e delegação à Prumo, sem compartilhamento entre lojas. Dependência de fonte S0/S1: [Issue #8](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/8).
 - [ ] **M10 — Credenciais e identidade de serviço:** custódia, âncoras Ed25519, HMAC, rotação/revogação, menores privilégios e M2M homologados por S0/Infra.
 - [ ] **M11 — Webhook GET/POST operacional:** endpoint autorizado, assinatura sobre bytes originais, limites, registro durável e retorno HTTP conforme contrato S0/Infra.
 - [ ] **M12 — Ingresso durável integrado:** idempotência, concorrência, readback/recuperação e segregação por canal/tenant comprovados no serviço autorizado, não apenas PG17 lab.
@@ -40,13 +42,13 @@
 
 ## C. Envio e política comercial
 
-- [ ] **M14 — Elegibilidade e opt-out:** consentimento, finalidades múltiplas, grants, supressão por concessionária e revisão no instante do envio com fonte S0 real.
-- [ ] **M15 — Contrato F02 de planejamento:** fornecer somente templates ativos/autorizados; F02 não dispara nem inventa template e mantém contexto de campanha verificável.
+- [ ] **M14 — Elegibilidade e opt-out:** consentimento, finalidades múltiplas, grants, supressão por concessionária e revisão no instante do envio com fonte S0 real. Contrato PRE_DISPATCH: [Issue #10](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/10).
+- [ ] **M15 — Contrato F02 de planejamento:** fornecer somente templates ativos/autorizados; F02 não dispara nem inventa template e mantém contexto de campanha verificável. Reusar pedido F02 da OpenAI [Issue #7](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/7), sem duplicata.
 - [ ] **M16 — Preparação segura de templates:** conteúdo, botões, mídia, variáveis congeladas por versão, snapshot auditável e integração de administração com frente MCP autorizada.
 - [ ] **M17 — Assinatura de mensagem humana:** `Consultor/Gestor/Diretor Nome:\nMensagem` por autor autenticado na S0, somente texto livre permitido; prova de envio separada da assinatura.
 - [ ] **M18 — Despacho Graph API homologado:** operação real somente com autorização específica, política de janela, revalidação, idempotência, rate limit e condição de recuperação.
-- [ ] **M19 — Status e evidências reais reconciliados:** wamid/tentativa/tenant, callbacks duplicados e fora de ordem, estados incertos, leitura e entrega sem inferência comercial.
-- [ ] **M20 — Regra WDC-13 integrada à S0:** evidência de `sent` e falha definitiva, reset e duas consecutivas processados pela autoridade S0 sem confundir timeout/ACK com envio.
+- [ ] **M19 — Status e evidências reais reconciliados:** wamid/tentativa/tenant, callbacks duplicados e fora de ordem, estados incertos, leitura e entrega sem inferência comercial. Solicitação recebida [OpenAI→Meta #9](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/9), em análise offline.
+- [ ] **M20 — Regra WDC-13 integrada à S0:** evidência de `sent` e falha definitiva, reset e duas consecutivas processados pela autoridade S0 sem confundir timeout/ACK com envio. A evidência Meta é coordenada na [#9](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/9); a aplicação comercial permanece exclusiva S0.
 - [ ] **M21 — Handoff humano e integração F01/F03:** impedir retomada F01 após handoff definitivo, preservar cutoff F03 e não conceder transições comerciais à Meta.
 
 ## D. Robustez, privacidade e controle
