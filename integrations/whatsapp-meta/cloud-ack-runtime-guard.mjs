@@ -32,19 +32,25 @@ const statusCall=/\b(?:sendStatus|writeHead|status)\s*\(\s*(?:200|2e2|0xc8)\s*[,
 const ackAction=/\baction\s*:\s*['"]ACK['"]/;
 const positiveAuthority=/\b(?:ack_allowed|http_ack_allowed|http_response_authorized)\s*[:=]\s*true\b/;
 
+// Only the two reviewed challenge shapes are exempt; other code in the
+// same GET module remains subject to this conservative canary.
+const getType=/readonly status:\s*200\s*;/g;
+const getSuccess=/return matches\s*\?\s*\{\s*status:\s*200,\s*body:\s*challenge,\s*headers\s*\}\s*:\s*forbidden\(\)\s*;/g;
+function suppressReviewedGet200(path,source){
+ if(path!=='integrations/whatsapp-meta/verify-get.ts')return source;
+ return source.replace(getType,'readonly status: VERIFIED_GET_CHALLENGE;')
+  .replace(getSuccess,'return VERIFIED_GET_CHALLENGE_ONLY;');
+}
+
 /** No file IO: testable source-text inspection, conservative and fail-closed. */
 export function scanRuntimeAckSource(path,source){
  if(typeof path!=='string'||typeof source!=='string')throw Error('INVALID_SCAN_INPUT');
  if(!isCode(path)||isTest(path)||path===script)return [];
- const code=stripComments(source);
+ const code=suppressReviewedGet200(path,stripComments(source));
  const findings=[];
  if(path!==definition&&identifier.test(code))
   findings.push('LEGACY_SHAPE_ONLY_HELPER_REFERENCE');
- // Meta GET challenge returns 200 after its own token verification; it is
- // not POST delivery ACK. Keep its audited verification module out of this
- // POST-specific static canary while still checking direct legacy references.
- if(path.startsWith('integrations/whatsapp-meta/')&&
-    path!=='integrations/whatsapp-meta/verify-get.ts'){
+ if(path.startsWith('integrations/whatsapp-meta/')){
   if(statusLiteral.test(code)||statusCall.test(code))
    findings.push('UNRATIFIED_HTTP_200_LITERAL');
   if(ackAction.test(code))findings.push('UNRATIFIED_ACK_ACTION');
