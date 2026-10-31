@@ -4,7 +4,11 @@ on:
     branches: [feat/meta-s0-ed25519-receipt-interop-20261028, feat/meta-s0-physical-interop-ack-guard-20261031]
   pull_request:
     types: [opened, synchronize, reopened]
-    branches: [audit/meta-cloud-http-ack-authority-20261028]
+    branches: [main, audit/meta-cloud-http-ack-authority-20261028]
+    paths:
+      - 'integrations/whatsapp-meta/**'
+      - 'docs/integracoes/whatsapp-meta/**'
+      - '.github/workflows/meta-s0-ed25519-receipt-interop-offline.yml'
   workflow_dispatch:
 permissions:
   contents: read
@@ -77,7 +81,7 @@ jobs:
         run: node integrations/whatsapp-meta/cloud-ack-runtime-guard.mjs
 
   s0-physical-meta-consumer:
-    if: github.event_name == 'push'
+    # Also gate PRs: otherwise a merge could skip the real PG17 cross-check.
     needs: [s0-receipt-interop]
     runs-on: ubuntu-latest
     timeout-minutes: 16
