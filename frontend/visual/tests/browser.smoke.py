@@ -1273,8 +1273,8 @@ with sync_playwright() as p:
             focus_044.keyboard.press('Shift+Tab')
             if focus_044.evaluate('document.activeElement.id')=='thread-body':
                 focus_044.keyboard.press('Shift+Tab')
-            expect(focus_044.locator('#thread-title')).to_be_focused()
-            focus_044.keyboard.press('Shift+Tab')
+            # I03 removed the redundant i after Concluir. Native order is now
+            # client name -> authorized completion -> message region/composer.
             expect(focus_044.locator('#request-completion')).to_be_focused()
             ring=focus_044.evaluate("""() => {
               const e=document.activeElement,bar=document.querySelector('.thread-heading');
@@ -1285,8 +1285,11 @@ with sync_playwright() as p:
             assert ring['width']=='3px' and ring['style']=='solid',(focus_width,focus_theme,ring)
             assert ring['color']==('rgb(202, 202, 202)' if focus_theme=='dark' else 'rgb(92, 92, 92)')
             assert all(ring[side]>=5 for side in ('left','right','top','bottom')),(focus_width,focus_theme,ring)
-            focus_044.keyboard.press('Tab')
+            focus_044.keyboard.press('Shift+Tab')
             expect(focus_044.locator('#thread-title')).to_be_focused()
+            assert focus_044.evaluate('getComputedStyle(document.activeElement).outlineWidth')=='3px'
+            focus_044.keyboard.press('Tab')
+            expect(focus_044.locator('#request-completion')).to_be_focused()
             focus_044.keyboard.press('Tab')
             if focus_044.evaluate('document.activeElement.id')=='thread-body':
                 focus_044.keyboard.press('Tab')
