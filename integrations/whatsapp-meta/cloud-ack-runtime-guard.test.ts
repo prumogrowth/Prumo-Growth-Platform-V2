@@ -65,3 +65,12 @@ test('ACK-GUARD-12 scanner is deterministic for combined violations',()=>{
   'LEGACY_SHAPE_ONLY_HELPER_REFERENCE','UNRATIFIED_HTTP_200_LITERAL',
   'UNRATIFIED_ACK_ACTION','UNRATIFIED_ACK_AUTHORITY_FLAG']);
 });
+
+test('ACK-GUARD-13 authenticated Meta GET challenge 200 is not POST ACK',()=>{
+ assert.deepEqual(scan('integrations/whatsapp-meta/verify-get.ts',
+  "return {status:200,body:challenge};"),[]);
+});
+test('ACK-GUARD-14 observed outbound Graph HTTP200 is not webhook ACK',()=>{
+ assert.deepEqual(scan(runtime,
+  "const provider={http_status:200,send_state:'API_ACCEPTED'};"),[]);
+});
