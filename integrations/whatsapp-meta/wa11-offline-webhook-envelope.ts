@@ -13,7 +13,8 @@
  */
 import {inspectRoutedMetaGet,type TrustedRoutingPorts,
  type TrustedRoute} from './routed-webhook.ts';
-import {inspectSignedMetaBatchChannelScope} from './cloud-batch-scope-preflight.ts';
+import {inspectSignedMetaBatchChannelScope,
+ type ChannelDistribution} from './cloud-batch-scope-preflight.ts';
 
 export type Wa11FixtureRequest=Readonly<{
  method:'GET'|'POST';
@@ -47,22 +48,47 @@ export type Wa11Result=typeof FLAGS&Readonly<{
  event_count:number;scope_count:number;
  /** Digest of unchanged physical POST bytes, not a S0 durable receipt. */
  raw_sha256:string|null;
+ /** Synthetic channel distribution fingerprint, NEVER an S0 authoritative grant. */
+ channel_distribution_sha256:string|null;
 }>;
 const deny=(reason:Failure):Wa11Result=>Object.freeze({
  ...FLAGS,decision:'DENIED' as const,reason,challenge:null,
  event_count:0,scope_count:0,raw_sha256:null,
+ channel_distribution_sha256:null,
 });
 const getOk=(challenge:string):Wa11Result=>Object.freeze({
  ...FLAGS,decision:'LAB_GET_CHALLENGE_VERIFIED_UNRATIFIED' as const,
  reason:null,challenge,event_count:0,scope_count:0,raw_sha256:null,
+ channel_distribution_sha256:null,
 });
-const postOk=(multichannel:boolean,eventCount:number,scopeCount:number,digest:string):Wa11Result=>
+const postOk=(multichannel:boolean,eventCount:number,scopeCount:number,digest:string,
+ distributionDigest:string):Wa11Result=>
  Object.freeze({...FLAGS,
   decision:multichannel?'LAB_SIGNED_MULTICHANNEL_UNRATIFIED' as const:
    'LAB_SIGNED_SINGLE_CHANNEL_UNCOMMITTED' as const,
   reason:null,challenge:null,event_count:eventCount,
   scope_count:scopeCount,raw_sha256:digest,
+  channel_distribution_sha256:distributionDigest,
  });
+/** Sorted digest of the complete App/tenant/channel distribution, including
+ * WABA and sender, not merely the count of channels. Lab comparison ONLY.
+ * This must NOT be interpreted as independently authenticated S0 data.
+ */
+export async function hashWa11ChannelDistribution(
+ channels:readonly ChannelDistribution[],
+):Promise<string>{
+ if(!Array.isArray(channels)||channels.length<1||channels.length>100)
+  throw Error('INVALID_TECHNICAL_DISTRIBUTION');
+ const tuples=channels.map(x=>JSON.stringify([
+  x.app_ref,x.concessionaria_id,x.canal_id,x.waba_id,
+  x.phone_number_id,x.inbound_message_count,x.status_callback_count,
+ ])).sort();
+ if(new Set(tuples).size!==tuples.length)
+  throw Error('DUPLICATE_TECHNICAL_CHANNEL');
+ const bytes=new Uint8Array(await crypto.subtle.digest('SHA-256',
+  new TextEncoder().encode(JSON.stringify(tuples))));
+ return Array.from(bytes,x=>x.toString(16).padStart(2,'0')).join('');
+}
 const ID=/^[A-Za-z0-9_.:-]{1,128}$/;
 // Narrow laboratory header-name profile; rejects exotic names and ambiguity.
 const headerName=/^[A-Za-z][A-Za-z0-9-]{0,127}$/;
@@ -197,7 +223,8 @@ export async function inspectWa11OfflineWebhookEnvelope(
    signature_header:checked.headers.get('x-hub-signature-256')!,
   },source);
   if(scoped.decision==='DENIED')return deny('HMAC_OR_SCOPE_DENIED');
+  const distribution=await hashWa11ChannelDistribution(scoped.channels);
   return postOk(scoped.decision==='SIGNED_MULTI_CHANNEL_UNRATIFIED',
-   scoped.event_count,scoped.scope_count,scoped.raw_sha256);
+   scoped.event_count,scoped.scope_count,scoped.raw_sha256,distribution);
  }catch{return deny('INVALID_ENVELOPE');}
 }
