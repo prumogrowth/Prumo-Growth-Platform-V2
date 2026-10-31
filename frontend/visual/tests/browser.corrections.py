@@ -39,7 +39,7 @@ def main():
             browser=p.chromium.launch(**options)
             cells=[('module',1440,900,'light')] if os.environ.get('FV_COR07_QUICK')=='1' else [(fmt,w,h,t) for fmt in ('module','html') for w,h in ((1440,900),(900,780),(390,844)) for t in ('light','dark')]
             for fmt,width,height,theme in cells:
-                for scenario in ('R01','R01-recording','R01-requesting','N02','N03','N04','N05','I01-empty','I01-blank','I02','I03','OBS01'):
+                for scenario in ('R01','R01-recording','R01-requesting','N02','N03','N04','N05','I01-empty','I01-blank','I01-zwsp','I01-invisible-mix','I02','I03','OBS01'):
                     actor='marina' if scenario=='I02' else 'rafael'
                     context=browser.new_context(viewport={'width':width,'height':height},color_scheme=theme,has_touch=width<=760,is_mobile=width<=760,permissions=['microphone'])
                     external=[];errors=[]
@@ -49,7 +49,10 @@ def main():
                     navigator.mediaDevices.getUserMedia=async c=>{const s=await gum(c);__streams.push(s);return s;};''')
                     patch=None
                     if scenario.startswith('I01-'):
-                        messages=[] if scenario=='I01-empty' else [{'id':'blank','side':'in','body':' \n\t','time':'T1'}]
+                        content = ('\u200b' if scenario=='I01-zwsp' else
+                                   '\u200b\u2060\ufe0f \n' if scenario=='I01-invisible-mix' else
+                                   ' \n\t')
+                        messages=[] if scenario=='I01-empty' else [{'id':'blank','side':'in','body':content,'time':'T1'}]
                         patch='const r=rows.find(r=>r.id==="A-102");r.messages='+json.dumps(messages)+';r.unread=0;return rows;'
                     def route(r):
                         if not r.request.url.startswith(origin+'/'):
@@ -182,7 +185,7 @@ def main():
             provenance={'head':head,'branch':branch,'clean_worktree':clean,'synthetic_only':True,
                 'published':False,'protocol':'HTTP loopback','physical_devices':False,
                 'html_sha256':hashlib.sha256(integral.encode()).hexdigest(),
-                'overlay_scenarios':['I01-empty','I01-blank'],
+                'overlay_scenarios':['I01-empty','I01-blank','I01-zwsp','I01-invisible-mix'],
                 'sha256':{f.name:hashlib.sha256(f.read_bytes()).hexdigest() for f in OUTPUT.iterdir() if f.is_file() and f.name!='PROVENIENCIA.json'}}
             (OUTPUT/'PROVENIENCIA.json').write_text(json.dumps(provenance,ensure_ascii=False,indent=2)+'\n')
         temp.cleanup()
