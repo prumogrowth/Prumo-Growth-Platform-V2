@@ -52,3 +52,34 @@ test('funções não alteram projeção original nem criam tempo de espera',()=>
   assert.equal('waiting_minutes' in result,false);
   assert.equal('sla' in result,false);
 });
+
+import { copyCFDemoFixtures } from '../cf-op-02.mjs';
+import { confirmedDemoMessages, latestConfirmedDemoMessage, projectDemoAttention } from '../conversation-attention.mjs';
+for(const body of ['', ' \n\t', null, undefined])test('COR07 I01: inbound sem corpo legível não confirma prévia/pendência '+String(body),()=>{
+ const record=copyCFDemoFixtures().find(r=>r.id==='A-102');
+ record.messages=[{id:'blank',side:'in',body,time:'T1'}];record.unread=0;
+ record.demoReadByAssigned=true;record.demoReadProjection={source:'local_fixture',actorId:'rafael',caseId:record.id,shopId:'aurora'};
+ assert.deepEqual(confirmedDemoMessages(record,'rafael','aurora'),[]);
+ assert.equal(latestConfirmedDemoMessage(record,'rafael','aurora'),null);
+ assert.equal(projectDemoAttention(record,'rafael','aurora').kind,'none');
+});
+test('COR07 I01: lista vazia, sistema e IA não criam pendência humana',()=>{
+ const record=copyCFDemoFixtures().find(r=>r.id==='A-102');record.unread=0;
+ record.demoReadByAssigned=true;record.demoReadProjection={source:'local_fixture',actorId:'rafael',caseId:record.id,shopId:'aurora'};
+ for(const messages of [[],[{id:'system',side:'system',body:'Evento técnico'}],[{id:'ai',side:'ai',body:'Mensagem IA'}]]){
+   record.messages=messages;assert.equal(projectDemoAttention(record,'rafael','aurora').kind,'none');
+ }
+});
+
+test('COR07 I01: leitura referencia o último inbound legível; contador obsoleto não cria mensagens',()=>{
+ const record=copyCFDemoFixtures().find(r=>r.id==='A-102');
+ record.messages=[{id:'in-1',side:'in',body:'Olá',time:'T1'}];record.unread=0;
+ record.demoReadByAssigned=true;record.demoReadProjection={source:'local_fixture',actorId:'rafael',caseId:record.id,shopId:'aurora',messageRef:'in-1'};
+ assert.equal(projectDemoAttention(record,'marina','aurora').kind,'read_awaiting_reply');
+ record.messages.push({id:'in-2',side:'in',body:'Outra mensagem',time:'T2'});
+ assert.equal(projectDemoAttention(record,'rafael','aurora').kind,'none');
+ record.messages=[];record.unread=8;
+ assert.equal(projectDemoAttention(record,'rafael','aurora').kind,'none');
+ record.messages=[{id:'local-audio',side:'out',body:'Áudio local (0:01)',localAudioId:'clip',deliveryState:'local_demo_not_sent'}];
+ assert.equal(confirmedDemoMessages(record,'rafael','aurora').length,0);
+});

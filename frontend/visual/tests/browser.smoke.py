@@ -85,7 +85,7 @@ with sync_playwright() as p:
         page.locator('#list-extra').evaluate('e=>e.open=false')
         page.get_by_role('button', name='Abrir conversa Cliente Exemplo 02', exact=False).click()
         assert page.locator('.conversation-card').filter(has_text='Cliente Exemplo 02').locator('.attention-pending').count() == 1
-        if width<=1040: page.locator('#detail-toggle').click()
+        if width<=1040: page.locator('#thread-title').click()
         if width<=760: assert page.locator('#visual-app').get_attribute('data-mobile-view') == 'detail'
         page.locator('.detail-tab', has_text='Notas').click()
         page.locator('#note-text').fill('Nota interna fictícia de ensaio')
@@ -575,7 +575,7 @@ with sync_playwright() as p:
     leave_bank(mobile_link)
     mobile_link.locator('#list-extra').evaluate('e=>e.open=false')
     mobile_link.get_by_role('button',name='Abrir conversa Cliente Exemplo 05',exact=False).click()
-    mobile_link.locator('#detail-toggle').click()
+    mobile_link.locator('#thread-title').click()
     open_area(mobile_link, 'Novo contato')
     mobile_link.get_by_role('button',name='Abrir novo atendimento humano').click()
     expect(mobile_link.locator('#thread-back')).to_be_focused()
@@ -626,7 +626,7 @@ with sync_playwright() as p:
     access_page.get_by_role('button',name='Abrir conversa Cliente Exemplo 02',exact=False).click()
     assert 'Caso A-102 aberto' in access_page.locator('#context-announcement').inner_text()
     assert access_page.evaluate('document.activeElement.id') == 'thread-back'
-    access_page.locator('#detail-toggle').click()
+    access_page.locator('#thread-title').click()
     assert access_page.evaluate('document.activeElement.id') == 'detail-back'
     access_page.locator('.detail-tab[role=tab]').first.focus()
     access_page.keyboard.press('End')
@@ -634,7 +634,7 @@ with sync_playwright() as p:
     access_page.keyboard.press('Home')
     assert access_page.locator('.detail-tab[aria-selected=true]').inner_text() == 'Resumo'
     access_page.locator('#detail-back').click()
-    assert access_page.evaluate('document.activeElement.id') == 'detail-toggle'
+    assert access_page.evaluate('document.activeElement.id') == 'thread-title'
     access_page.locator('#thread-back').click()
     assert access_page.evaluate('document.activeElement.id') == 'search-input'
     leave_bank(access_page)
@@ -683,11 +683,11 @@ with sync_playwright() as p:
     focus_page.locator('#list-extra').evaluate('e=>e.open=false')
     focus_page.get_by_role('button',name='Abrir conversa Cliente Exemplo 02',exact=False).click()
     assert focus_page.locator('#message-input').input_value() == ''
-    focus_page.locator('#detail-toggle').click()
+    focus_page.locator('#thread-title').click()
     focus_page.locator('#detail-back').focus()
     focus_page.keyboard.press('Escape')
     assert focus_page.locator('#visual-app').get_attribute('data-mobile-view') == 'thread'
-    assert focus_page.evaluate('document.activeElement.id') == 'detail-toggle'
+    assert focus_page.evaluate('document.activeElement.id') == 'thread-title'
     focus_page.close()
     print('FV-UI-022 Escape mobile, contexto de mensagem e foco: PASS')
     # FV-UI-027: equivalente em viewport CSS de reflow sob zoom 200/400%.
@@ -725,10 +725,10 @@ with sync_playwright() as p:
         assert zoom_page.locator('#visual-app').get_attribute('data-mobile-view')=='thread'
         assert zoom_page.locator('#message-input').is_visible()
         assert zoom_page.evaluate('document.activeElement.id')=='thread-back'
-        zoom_page.locator('#detail-toggle').click()
+        zoom_page.locator('#thread-title').click()
         assert zoom_page.locator('#visual-app').get_attribute('data-mobile-view')=='detail'
         zoom_page.locator('#detail-back').click()
-        assert zoom_page.evaluate('document.activeElement.id')=='detail-toggle'
+        assert zoom_page.evaluate('document.activeElement.id')=='thread-title'
         assert not zoom_page.evaluate('document.documentElement.scrollWidth > innerWidth')
         assert not zoom_errors, zoom_label + ': ' + repr(zoom_errors)
         zoom_page.close()
@@ -758,7 +758,7 @@ with sync_playwright() as p:
     dynamic.set_viewport_size({'width':1440,'height':900})
     expect(detail_tab).to_be_visible()
     expect(detail_tab).to_be_focused()
-    assert dynamic.locator('#detail-toggle').get_attribute('aria-expanded')=='true'
+    assert dynamic.locator('#thread-title').get_attribute('aria-expanded')=='true'
     assert not dynamic_errors,repr(dynamic_errors)
     dynamic.close()
 
@@ -770,12 +770,12 @@ with sync_playwright() as p:
     leave_bank(narrow)
     narrow.locator('#list-extra').evaluate('e=>e.open=false')
     narrow.get_by_role('button',name='Abrir conversa Cliente Exemplo 02',exact=False).click()
-    narrow.locator('#detail-toggle').click()
+    narrow.locator('#thread-title').click()
     narrow.locator('#case-tab-overview').focus()
     narrow.set_viewport_size({'width':1440,'height':900})
     expect(narrow.locator('#case-tab-overview')).to_be_visible()
     expect(narrow.locator('#case-tab-overview')).to_be_focused()
-    assert narrow.locator('#detail-toggle').get_attribute('aria-expanded')=='true'
+    assert narrow.locator('#thread-title').get_attribute('aria-expanded')=='true'
     narrow.close()
 
     # A lista e o compositor não devem saltar arbitrariamente para outra aba
@@ -808,7 +808,7 @@ with sync_playwright() as p:
             leave_bank(backflow)
             backflow.locator('#list-extra').evaluate('e=>e.open=false')
             backflow.get_by_role('button',name='Abrir conversa Cliente Exemplo 02',exact=False).click()
-            if view=='detail':backflow.locator('#detail-toggle').click()
+            if view=='detail':backflow.locator('#thread-title').click()
             backflow.locator('#'+view+'-back').focus()
             expect(backflow.locator('#'+view+'-back')).to_be_focused()
             backflow.set_viewport_size({'width':destination_width,'height':780})
@@ -835,20 +835,20 @@ with sync_playwright() as p:
         leave_bank(overlay)
         overlay.locator('#list-extra').evaluate('e=>e.open=false')
         overlay.get_by_role('button',name='Abrir conversa Cliente Exemplo 02',exact=False).click()
-        overlay.locator('#detail-toggle').click()
+        overlay.locator('#thread-title').click()
         expect(overlay.locator('#detail-pane')).to_be_visible()
         overlay.locator('#detail-close').focus()
         overlay.keyboard.press('Enter')
         expect(overlay.locator('#detail-pane')).to_be_hidden()
-        expect(overlay.locator('#detail-toggle')).to_be_focused()
-        expect(overlay.locator('#detail-toggle')).to_have_attribute('aria-expanded','false')
+        expect(overlay.locator('#thread-title')).to_be_focused()
+        expect(overlay.locator('#thread-title')).to_have_attribute('aria-expanded','false')
         assert 'Caso A-102' in overlay.locator('#thread-meta').inner_text()
-        overlay.locator('#detail-toggle').click()
+        overlay.locator('#thread-title').click()
         overlay.locator('#case-tab-overview').focus()
         overlay.keyboard.press('Escape')
         expect(overlay.locator('#detail-pane')).to_be_hidden()
-        expect(overlay.locator('#detail-toggle')).to_be_focused()
-        overlay.locator('#detail-toggle').click()
+        expect(overlay.locator('#thread-title')).to_be_focused()
+        overlay.locator('#thread-title').click()
         overlay.locator('#case-tab-notes').click()
         overlay.locator('#note-text').fill('Rascunho de nota local')
         overlay.keyboard.press('Escape')
@@ -871,7 +871,7 @@ with sync_playwright() as p:
         aria_page.add_script_tag(content=script)
         aria_page.evaluate("state.inboxView='active';renderList()")
         aria_page.locator('#list-extra').evaluate('e=>e.open=true')
-        toggler=aria_page.locator('#detail-toggle')
+        toggler=aria_page.locator('#thread-title')
         expect(toggler).to_have_attribute('aria-expanded','false')
         leave_bank(aria_page)
         aria_page.locator('#list-extra').evaluate('e=>e.open=false')
@@ -1107,9 +1107,9 @@ with sync_playwright() as p:
                 leave_bank(detail_page)
                 detail_page.locator('#list-extra').evaluate('e=>e.open=false')
                 detail_page.locator('.conversation-card').first.click()
-                detail_page.locator('#detail-toggle').click()
+                detail_page.locator('#thread-title').click()
             else:
-                detail_page.locator('#detail-toggle').click() if not detail_page.locator('#detail-pane').is_visible() else None
+                detail_page.locator('#thread-title').click() if not detail_page.locator('#detail-pane').is_visible() else None
             expect(detail_page.locator('#detail-pane')).to_be_visible()
             expect(detail_page.locator('#case-tab-overview')).to_have_attribute('aria-selected','true')
             for selector,min_font in (('.detail-pane .case-context',12),('.detail-pane .detail-label',11),('.detail-pane .property span',12),('.detail-pane .property strong',12),('.detail-pane .detail-tab.active',12)):
@@ -1273,7 +1273,7 @@ with sync_playwright() as p:
             focus_044.keyboard.press('Shift+Tab')
             if focus_044.evaluate('document.activeElement.id')=='thread-body':
                 focus_044.keyboard.press('Shift+Tab')
-            expect(focus_044.locator('#detail-toggle')).to_be_focused()
+            expect(focus_044.locator('#thread-title')).to_be_focused()
             focus_044.keyboard.press('Shift+Tab')
             expect(focus_044.locator('#request-completion')).to_be_focused()
             ring=focus_044.evaluate("""() => {
@@ -1286,7 +1286,7 @@ with sync_playwright() as p:
             assert ring['color']==('rgb(202, 202, 202)' if focus_theme=='dark' else 'rgb(92, 92, 92)')
             assert all(ring[side]>=5 for side in ('left','right','top','bottom')),(focus_width,focus_theme,ring)
             focus_044.keyboard.press('Tab')
-            expect(focus_044.locator('#detail-toggle')).to_be_focused()
+            expect(focus_044.locator('#thread-title')).to_be_focused()
             focus_044.keyboard.press('Tab')
             if focus_044.evaluate('document.activeElement.id')=='thread-body':
                 focus_044.keyboard.press('Tab')
@@ -1536,7 +1536,7 @@ with sync_playwright() as p:
             assert 'Dados fictícios' in message_note.inner_text()
             assert 'Dados fictícios · sem envios reais' in message_note.inner_text()
             if not guide.locator('#detail-pane').is_visible():
-                guide.locator('#detail-toggle').click()
+                guide.locator('#thread-title').click()
             expect(guide.locator('#detail-pane')).to_be_visible()
             detail_note=guide.locator('#case-demo-guidance')
             expect(detail_note).to_be_visible()

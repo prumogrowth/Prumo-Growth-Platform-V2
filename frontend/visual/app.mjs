@@ -17,7 +17,7 @@ import {
 } from './cf-op-02.mjs';
 import { registrationProjectionFor, registrationStateCopy } from './registration-view.mjs';
 import { projectDemoOperationFeedback } from './operation-feedback.mjs';
-import { stageMockMessageTransport } from './transport-state-view.mjs';
+import { presentMockMessageTransport } from './transport-state-view.mjs';
 import { projectMockHumanCycleHistory, projectMockClarificationScene,
   stageMockRepeatCompletion, projectMockCustomerDossier } from './human-cycle-view.mjs';
 import { bankProjectionFor, bankPhaseCopy } from './bank-view.mjs';
@@ -29,7 +29,8 @@ import { projectManagerMonitor } from './team-monitor.mjs';
 import { projectManagerBatches } from './batch-monitor.mjs';
 import { projectTeamMonitoring, describeMonitoring } from './team-monitoring.mjs';
 import {
-  canStageReadAcknowledgment, projectDemoAttention, latestConfirmedDemoMessage
+  canStageReadAcknowledgment, projectDemoAttention, latestConfirmedDemoMessage,
+  confirmedDemoMessages, hasDemoMessageContent
 } from './conversation-attention.mjs';
 import { installCommunicationComposer, audioDuration } from './communication-composer.mjs';
 import { withRevisionScenes } from './revision-fixtures.mjs';
@@ -127,10 +128,11 @@ function acknowledgeDemoReadByAssignee(item) {
     actor_id:state.actorId,assigned_actor_id:item.assignedTo,
     case_ref:item.id,case_version:'local-fixture-only'
   });
-  if(eligible) {
+  const inbound=confirmedDemoMessages(item,state.actorId,state.shopId).filter(message=>message.side==='in');
+  if(eligible && typeof inbound.at(-1)?.id==='string' && inbound.at(-1).id.trim()) {
     // No backend API: this is a purely local synthetic demonstration.
     item.unread=0;item.demoReadByAssigned=true;
-    item.demoReadProjection={source:'local_fixture',actorId:state.actorId,caseId:item.id,shopId:item.shopId};
+    item.demoReadProjection={source:'local_fixture',actorId:state.actorId,caseId:item.id,shopId:item.shopId,messageRef:inbound.at(-1).id};
   }
 }
 function accessible() { return visibleConversations(state.cases, state.actorId, state.shopId); }
@@ -139,6 +141,7 @@ function filtered() {
     query: state.query, filter: state.filter, status: state.statusFilter
   }).filter(record => state.inboxView === 'all' ? ['active','historical'].includes(record.inboxProjection) :
     state.inboxView === 'history' ? record.inboxProjection === 'historical' : isInActiveInbox(record))
+    .filter(record => state.filter !== 'unread' || demoAttentionFor(record).kind === 'unread')
     .filter(record => state.filter !== 'pending' || demoAttentionFor(record).kind === 'read_awaiting_reply')
     .sort((a,b) => Number(!isInActiveInbox(a))-Number(!isInActiveInbox(b)));
 }
@@ -220,8 +223,10 @@ function announceCurrentContext(detail=''){
   $('context-announcement').textContent=context.join(' · ');
 }
 function goto(view) {
-  if (view !== 'thread' && window.matchMedia('(max-width:760px)').matches)
-    communication.reset();
+  if (view !== 'thread' && window.matchMedia('(max-width:760px)').matches) {
+    if(view==='detail')communication.suspend(); // Same case consultation, no silent draft loss.
+    else communication.reset(); // Leaving conversation context still invalidates audio.
+  }
   state.mobileView = view;
   app.dataset.mobileView = view;
   // FV-UI-028: o estado acessível acompanha o painel móvel de fato visível.
@@ -288,8 +293,9 @@ function renderList() {
   $('filter-summary').textContent=[placementLabel,attentionLabel,state.statusFilter!=='all'?state.statusFilter:''].filter(Boolean).join(' · ');
   $('list-context').textContent = currentActor.teamState !== 'active' ? 'Acesso fictício suspenso' : currentActor.role === 'gestor' ? 'Visão de supervisão' : 'Atribuídos a mim';
   const activeRows=projectInbox(state.cases,state.actorId,state.shopId,'active');
-  const summary={total:activeRows.length,unread:activeRows.filter(x=>x.unread>0).length,human:activeRows.filter(x=>x.status==='em atendimento pelo operador').length};
-  const tiles=[['Total',summary.total],['Não lidas',summary.unread],['Em atendimento',summary.human]];
+  const summary={total:activeRows.length,unread:activeRows.filter(x=>demoAttentionFor(x).kind==='unread').length,human:activeRows.filter(x=>x.status==='em atendimento pelo operador').length};
+  const tiles=[['Total de ativos',summary.total],['Não lidas',summary.unread],['Em atendimento',summary.human]];
+  $('queue-summary').setAttribute('aria-label','Indicadores fictícios dos atendimentos ativos autorizados');
   $('queue-summary').replaceChildren(...tiles.map(([label,value])=>{
     const tile=el('div','summary-tile');tile.append(el('strong','',value),el('span','',label));return tile;
   }));
@@ -397,12 +403,13 @@ function renderThread() {
     empty.append(el('h2','', 'Sua central de conversas'),el('p','', 'Selecione um atendimento na lista. Apenas dados fictícios serão exibidos.'));
     body.replaceChildren(empty); bar.replaceChildren(); input.disabled = true; button.disabled = true;
     $('composer-availability').hidden = true;
-    $('detail-toggle').disabled = true; return;
+    return;
   }
-  $('detail-toggle').disabled = false;
   const isExceptional=hasMockCaseOnlyScope(item,state.actorId,state.shopId);
   const children = [el('span','day-separator','Demonstração · dados fictícios')];
+  let missingContent=false;
   for (const m of item.messages) {
+    if(!hasDemoMessageContent(m)){missingContent=true;continue;}
     const bubble = el('div', 'message ' + m.side);
     bubble.append(el('p','', m.body), el('small','',m.time));
     if (m.localAudioId) {
@@ -419,17 +426,23 @@ function renderThread() {
     if(m.deliveryState==='local_demo_not_sent') {
       bubble.append(el('small','message-send-state','Somente simulação · NÃO ENVIADA'));
     } else if(m.side==='out') {
-      const transport=stageMockMessageTransport(item,m,state.actorId,state.shopId);
-      if(transport.visibility==='synthetic'){
+      const transport=presentMockMessageTransport(item,m,state.actorId,state.shopId);
+      if(transport.visibility!=='unavailable'){
         const label=el('small','message-transport-state',transport.label+' · SIMULAÇÃO');
         label.setAttribute('aria-label','Transporte ilustrativo: '+transport.label);
         bubble.append(label);
-        if(transport.state==='uncertain' || transport.state==='api_accepted')
+        if(transport.needsRefresh)
           bubble.append(el('small','message-transport-hint',
             'Sem prova de envio. Não tentar reenvio automático pelo navegador.'));
       }
     }
     children.push(bubble);
+  }
+  if(children.length===1 || missingContent){
+    const note=el('p','detail-small',missingContent ?
+      'Há registros sem conteúdo legível nesta demonstração; eles não confirmam leitura nem resposta pendente.' :
+      'Nenhuma mensagem disponível nesta conversa.');
+    note.setAttribute('role','note');children.push(note);
   }
   body.replaceChildren(...children);
   // Rolar somente depois de renderizar; não dispara solicitações externas.
@@ -526,7 +539,7 @@ function openBank(caseId=null,opener=null){
     rows.some(row=>row.id===state.bankCaseId)?state.bankCaseId:
     rows.some(row=>row.id===state.selectedId)?state.selectedId:rows[0]?.id??null;
   bankOpener=opener ?? (window.matchMedia('(max-width:760px)').matches?'bank-nav-mobile':'bank-nav');
-  communication.reset();
+  communication.suspend();
   renderBank();
   if(!$('bank-dialog').open)$('bank-dialog').showModal();
   $('bank-case-select').focus();
@@ -569,7 +582,17 @@ function renderOperationalHistory(item){
     card.dataset.state=entry.state;card.dataset.kind=entry.kind;
     card.append(el('strong','',entry.label),el('span','event-state',entry.statusLabel),el('span','',entry.time));container.append(card);
   };
-  for(const entry of view.events)addEntry(entry,completed);
+  const ordered=el('div','timeline-ordered');
+  for(const entry of view.events.filter(entry=>entry.sequenceConfirmed))addEntry(entry,ordered);
+  completed.append(ordered);
+  const unsequenced=view.events.filter(entry=>!entry.sequenceConfirmed);
+  if(unsequenced.length){
+    const group=el('section','timeline-unordered');group.setAttribute('aria-label','Registros sem sequência global confirmada');
+    group.append(el('h3','detail-label','SEM SEQUÊNCIA GLOBAL CONFIRMADA'),
+      el('p','detail-small','O estado de cada registro é preservado. A posição neste grupo não indica ordem temporal em relação à linha acima.'));
+    for(const entry of unsequenced)addEntry(entry,group);
+    completed.append(group);
+  }
   if(!view.events.length)completed.append(el('p','detail-small','Nenhum acontecimento autorizado informado.'));
   activity.append(completed);
   if(item.postmarkProjection)activity.append(renderContinuity(item));
@@ -772,7 +795,8 @@ function renderRegistration(item){
           if(!current || current.id!==item.id || state.reviewScenes[item.id])return;
           const candidate=projectMockClarificationScene(current,state.actorId,state.shopId);
           if(!candidate)return;
-          closeTransientDialogs();
+          // Bank has its own case selection. Never clear another conversation's draft.
+          if(state.selectedId===item.id)closeTransientDialogs();
           state.reviewScenes[item.id]=candidate;
           renderBank();render();
           focusExtractionAfterRerender(item.id,'Cenário de esclarecimento fictício do caso '+item.id);
@@ -957,9 +981,9 @@ $('list-extra').addEventListener('keydown',event=>{
     event.preventDefault();event.stopPropagation?.();$('list-extra').open=false;$('filter-toggle').focus();
   }
 });
-let detailOpener='detail-toggle';
+let detailOpener='thread-title';
 function setDetailsExpanded(expanded){
-  for(const id of ['detail-toggle','thread-title']) $(id).setAttribute('aria-expanded',String(expanded));
+  $('thread-title').setAttribute('aria-expanded',String(expanded));
 }
 function openDetails(opener){
   if(!selectedCase())return;
@@ -972,11 +996,6 @@ function openDetails(opener){
   else $('detail-content').querySelector('.detail-tab.active')?.focus();
 }
 $('thread-title').addEventListener('click',()=>openDetails('thread-title'));
-$('detail-toggle').addEventListener('click',()=>{
-  const mobile=window.matchMedia('(max-width:760px)').matches;
-  if(!mobile && !app.classList.contains('details-hidden')){detailOpener='detail-toggle';closeFloatingDetails();}
-  else openDetails('detail-toggle');
-});
 /** Close is navigation only in every viewport. No render/reset/operation cancellation. */
 function closeFloatingDetails(){
   if(document.querySelector('dialog[open]'))return false;
@@ -1451,9 +1470,9 @@ window.addEventListener('resize',()=>{
           !$('detail-pane').contains(document.activeElement))){
         const remembered=lastResponsiveFocus.region==='detail'?lastResponsiveFocus.node:null;
         const destination=lastMobileBack==='detail-back'?
-          $('detail-content').querySelector('.detail-tab.active') ?? $('detail-toggle'):
+          $('detail-content').querySelector('.detail-tab.active') ?? $('thread-title'):
           remembered?.isConnected && $('detail-pane').contains(remembered)?
-            remembered:$('detail-toggle');
+            remembered:$('thread-title');
         destination.focus();
       }
     }else if(!dialogOpen && state.mobileView==='thread' && selectedCase() &&

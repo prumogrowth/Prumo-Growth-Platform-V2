@@ -15,9 +15,18 @@ export const ATTENTION_PROPOSAL_VERSION = 'ui-attention-proposal/0.1';
  * never replace the last confirmed record. Supervisor visibility is read-only;
  * validating the fixture's assignee transport does not acknowledge any reading.
  */
+/** A readable body is the representation supported by this synthetic runtime.
+ * Local audio already carries a readable label; unknown/raw media is not a receipt.
+ * Never coerce null/objects/whitespace into a confirmed human message.
+ */
+export function hasDemoMessageContent(message) {
+  return Boolean(message && typeof message === 'object' &&
+    typeof message.body === 'string' && message.body.trim());
+}
 export function confirmedDemoMessages(record, actorId, shopId) {
   if (!record || !visibleConversations([record], actorId, shopId).length) return [];
-  return (record.messages ?? []).filter(message => {
+  return (Array.isArray(record.messages) ? record.messages : []).filter(message => {
+    if (!hasDemoMessageContent(message)) return false;
     if (message.deliveryState === 'local_demo_not_sent') return false;
     if (message.side === 'out')
       return stageMockMessageTransport(record, message, record.assignedTo, shopId).provedSent;
@@ -31,16 +40,18 @@ export function latestConfirmedDemoMessage(record, actorId, shopId) {
 
 export function projectDemoAttention(record, actorId, shopId) {
   if (!record || !visibleConversations([record], actorId, shopId).length) return ATTENTION_EMPTY;
-  const lastHumanRelevant = confirmedDemoMessages(record, actorId, shopId)
-    .filter(message => ['in', 'out'].includes(message.side)).at(-1);
+  const confirmed = confirmedDemoMessages(record, actorId, shopId);
+  const inbound = confirmed.filter(message => message.side === 'in');
+  const lastHumanRelevant = confirmed.filter(message => ['in', 'out'].includes(message.side)).at(-1);
   return stageConversationAttention({
     schema_version: ATTENTION_PROPOSAL_VERSION,
-    unread_inbound_count: record.unread,
+    unread_inbound_count: inbound.length ? record.unread : 0,
     operator_read_confirmed: record.demoReadByAssigned === true &&
       record.demoReadProjection?.source === 'local_fixture' &&
       record.demoReadProjection.actorId === record.assignedTo &&
       record.demoReadProjection.caseId === record.id &&
-      record.demoReadProjection.shopId === record.shopId,
+      record.demoReadProjection.shopId === record.shopId &&
+      record.demoReadProjection.messageRef === inbound.at(-1)?.id && inbound.length > 0,
     human_reply_pending: lastHumanRelevant?.side === 'in'
   });
 }

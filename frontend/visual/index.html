@@ -56,7 +56,7 @@
             <div class="inbox-mode" aria-label="Tipo de lista de atendimento"><button type="button" data-inbox="all" class="inbox-tab selected" aria-pressed="true">Todos</button><button type="button" data-inbox="active" class="inbox-tab" aria-pressed="false">Ativos</button><button type="button" data-inbox="history" class="inbox-tab" aria-pressed="false">Históricos</button></div>
             <div class="filters" aria-label="Atenção das conversas"><button type="button" class="filter-chip selected" data-filter="all" aria-pressed="true">Todas</button><button type="button" class="filter-chip" data-filter="unread" aria-pressed="false">Não lidas</button><button type="button" class="filter-chip" data-filter="pending" aria-pressed="false">Lidas sem resposta humana</button><button type="button" class="filter-chip" data-filter="mine" aria-pressed="false">Atribuídas a mim</button></div>
             <div class="advanced-filter" id="commercial-filter"><label for="status-filter">Etapa comercial</label><select id="status-filter" aria-label="Filtrar por estado comercial"><option value="all">Todos os estados comerciais</option></select></div>
-            <div class="queue-summary" id="queue-summary" aria-label="Indicadores fictícios do escopo"></div>
+            <div class="queue-summary" id="queue-summary" aria-label="Indicadores fictícios dos atendimentos ativos autorizados"></div>
           </div></details>
             <details class="ui-settings" id="ui-settings">
               <summary title="Configurações" aria-label="Configurações">⋮</summary>
@@ -80,7 +80,6 @@
         <button type="button" class="icon-button mobile-back" id="thread-back" aria-label="Voltar para as conversas"><svg class="icon"><use href="#i-arrow-left"/></svg></button>
         <div class="thread-identity"><button type="button" class="thread-name" id="thread-title" aria-controls="detail-pane" aria-expanded="true" title="Abrir informações do cliente">Selecione uma conversa</button><div class="thread-meta" id="thread-meta">Nenhum atendimento selecionado</div></div>
         <div id="thread-actions" class="thread-actions"></div>
-        <button type="button" class="icon-button info-button" id="detail-toggle" aria-label="Mostrar detalhes do atendimento" aria-controls="detail-pane" aria-expanded="true"><svg class="icon"><use href="#i-info"/></svg></button>
       </header>
       <div class="thread-body" id="thread-body" role="log" aria-label="Mensagens fictícias do atendimento" aria-live="off"></div>
       <div id="terminal-banner" class="terminal-banner" role="status" hidden></div>

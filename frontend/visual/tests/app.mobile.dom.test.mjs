@@ -14,7 +14,7 @@ test('mobile: lista → conversa → detalhes → conversa → lista', () => {
   assert.equal(get('visual-app').dataset.mobileView, 'list');
   env.openCase('Exemplo 02');
   assert.equal(get('visual-app').dataset.mobileView, 'thread');
-  get('detail-toggle').click();
+  get('thread-title').click();
   assert.equal(get('visual-app').dataset.mobileView, 'detail');
   get('detail-back').click();
   assert.equal(get('visual-app').dataset.mobileView, 'thread');
@@ -62,7 +62,7 @@ test('mobile: operador pendente com janela expirada vê ações sem compositor l
 test('mobile O5: novo ciclo após venda volta à conversa sem reabrir a IA',()=>{
   reset();env.inbox[1].click();env.openCase('Exemplo 16');
   assert.equal(get('visual-app').dataset.mobileView,'thread');
-  get('detail-toggle').click();
+  get('thread-title').click();
   assert.equal(get('visual-app').dataset.mobileView,'detail');
   env.openArea('Novo contato');
   const link=env.descendants(env.caseContent()).find(n=>n.tagName==='BUTTON' &&
@@ -155,10 +155,10 @@ test('FV-UI-021: foco acompanha a navegação entre telas móveis',()=>{
   reset();env.openCase('Exemplo 02');
   assert.equal(env.document.activeElement,get('thread-back'));
   assert.match(get('context-announcement').textContent,/Caso A-102 aberto/);
-  get('detail-toggle').click();
+  get('thread-title').click();
   assert.equal(env.document.activeElement,get('detail-back'));
   get('detail-back').click();
-  assert.equal(env.document.activeElement,get('detail-toggle'));
+  assert.equal(env.document.activeElement,get('thread-title'));
   get('thread-back').click();
   assert.equal(env.document.activeElement,get('search-input'));
 });
@@ -166,12 +166,12 @@ test('FV-UI-021: foco acompanha a navegação entre telas móveis',()=>{
 
 test('FV-UI-022: Escape móvel reutiliza retorno com foco no painel visível',()=>{
   reset();env.openCase('Exemplo 02');
-  get('detail-toggle').click();
+  get('thread-title').click();
   assert.equal(get('visual-app').dataset.mobileView,'detail');
   get('detail-back').focus();
   env.document.fire('keydown',{key:'Escape'});
   assert.equal(get('visual-app').dataset.mobileView,'thread');
-  assert.equal(env.document.activeElement,get('detail-toggle'));
+  assert.equal(env.document.activeElement,get('thread-title'));
   get('thread-back').focus();
   env.document.fire('keydown',{key:'Escape'});
   assert.equal(get('visual-app').dataset.mobileView,'list');
@@ -199,22 +199,22 @@ test('FV-UI-022: Escape não navega sob modal aberto ou digitando no campo',()=>
 
 test('FV-UI-028: aria-expanded acompanha painel realmente visível e troca de contexto',()=>{
   reset();
-  assert.equal(get('detail-toggle').getAttribute('aria-expanded'),'false');
+  assert.equal(get('thread-title').getAttribute('aria-expanded'),'false');
   env.openCase('Exemplo 02');
-  assert.equal(get('detail-toggle').getAttribute('aria-expanded'),'false');
-  get('detail-toggle').click();
+  assert.equal(get('thread-title').getAttribute('aria-expanded'),'false');
+  get('thread-title').click();
   assert.equal(get('visual-app').dataset.mobileView,'detail');
-  assert.equal(get('detail-toggle').getAttribute('aria-expanded'),'true');
+  assert.equal(get('thread-title').getAttribute('aria-expanded'),'true');
   get('detail-back').click();
-  assert.equal(get('detail-toggle').getAttribute('aria-expanded'),'false');
-  get('detail-toggle').click();
+  assert.equal(get('thread-title').getAttribute('aria-expanded'),'false');
+  get('thread-title').click();
   env.selectActor('marina');env.inbox[0].click();
   assert.equal(get('visual-app').dataset.mobileView,'list');
-  assert.equal(get('detail-toggle').getAttribute('aria-expanded'),'false');
+  assert.equal(get('thread-title').getAttribute('aria-expanded'),'false');
 });
 
 test('FV-UI-032: O5 móvel foca Voltar na conversa destino',()=>{
-  reset();env.openCase('Exemplo 05');get('detail-toggle').click();
+  reset();env.openCase('Exemplo 05');get('thread-title').click();
   env.openArea('Novo contato');
   const open=env.descendants(env.caseContent()).find(n=>n.tagName==='BUTTON' &&
     n.textContent.includes('Abrir novo atendimento humano'));

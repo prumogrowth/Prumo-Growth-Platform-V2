@@ -2,7 +2,7 @@
  * D-AL-04 / FV-DOC-03 §5. Não autentica S0/Meta, não faz polling nem envio.
  * O navegador não promove ACK a SENT nem marca resposta humana comprovada.
  */
-import {hasMockCaseScope} from './fixtures.mjs';
+import {hasMockCaseScope, visibleConversations} from './fixtures.mjs';
 
 export const TRANSPORT_PRESENTATION_STATES=Object.freeze([
   'requested','api_accepted','uncertain',
@@ -57,4 +57,18 @@ export function stageMockMessageTransport(record,message,actorId,shopId) {
     needsRefresh:!proven
   };
   return Object.freeze(result);
+}
+
+/** Read-only warning for an already-visible outgoing message. This does not read
+ * owner-only transport proof, ACK IDs or personal data on behalf of a supervisor.
+ * Unknown is never silently displayed as confirmed. Operational guard stays intact.
+ */
+export function presentMockMessageTransport(record,message,actorId,shopId) {
+  const own=stageMockMessageTransport(record,message,actorId,shopId);
+  if(own.visibility!=='unavailable')return own;
+  if(!record || !message || message.side!=='out' || message.deliveryState==='local_demo_not_sent' ||
+    !visibleConversations([record],actorId,shopId).length ||
+    !Array.isArray(record.messages) || !record.messages.includes(message))return noProjection;
+  return Object.freeze({...noProjection,visibility:'limited',needsRefresh:true,
+    label:'Transporte não confirmado nesta visualização · envio não comprovado'});
 }

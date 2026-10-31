@@ -140,3 +140,52 @@ test('REV-025/029: descrição do ciclo distingue retorno pós-venda de pós-rem
  assert.match(bank.description,/após remessa bancária/);
  assert.match(sold.description,/permanentemente silenciada/);
 });
+
+// FV-COR-07: expected behavior comes from FV-AUD-03, not current output.
+test('COR07 N03: envio final confirmado precede a perda que dele depende',()=>{
+ const rows=scene(),record=row(rows,'A-111');
+ const view=operationalHistoryFor(record,rows,'rafael','aurora');
+ assert.ok(view.events.findIndex(e=>e.state==='sent_confirmed')<view.events.findIndex(e=>e.kind==='lost'));
+ assert.ok(view.events.filter(e=>['lost','followup'].includes(e.kind)).every(e=>e.sequenceConfirmed));
+});
+test('COR07 N04: atualização cadastral tem evento explícito e restrito, vinculado à versão',()=>{
+ const rows=scene(),record=row(rows,'A-114');
+ const event=operationalHistoryFor(record,rows,'rafael','aurora').events.find(e=>e.kind==='registration');
+ assert.ok(event,'Atualização confirmada deve estar na projeção sintética de acontecimentos');
+ assert.match(event.label,/F03|cadastral/);
+ assert.equal(operationalHistoryFor(record,rows,'marina','aurora').events.some(e=>e.kind==='registration'),false);
+ record.registrationProjection.formVersionRef='outra-versao';
+ assert.equal(operationalHistoryFor(record,rows,'rafael','aurora').events.some(e=>e.kind==='registration'),false);
+});
+test('COR07 N05: ficha F01 persistida não se torna publicação F03 sem autoria confirmada',()=>{
+ const rows=scene(),record=row(rows,'A-114');
+ record.aiCommunicationsProjection.entries=[];
+ record.humanCycleProjection=undefined;
+ record.registrationProjection.fields=record.registrationProjection.fields.filter(f=>f.sourceLabel.startsWith('F01'));
+ assert.equal(aiCommunicationsFor(record,rows,'rafael','aurora').some(e=>e.source==='F03'),false);
+});
+
+test('COR07 N03: sem sequência entre fontes, não fabricar cronologia a partir de rótulos',()=>{
+ const rows=scene(),record=row(rows,'A-110');
+ let view=operationalHistoryFor(record,rows,'rafael','aurora');
+ assert.ok(view.events.filter(e=>e.kind==='followup').every(e=>e.sequenceConfirmed===false));
+ assert.ok(view.events.filter(e=>e.kind==='lead').every(e=>e.sequenceConfirmed===true));
+ record.relationshipProjection.sequence=['lead','lead','followup-A-110-3'];
+ view=operationalHistoryFor(record,rows,'rafael','aurora');
+ assert.ok(view.events.filter(e=>e.kind==='followup').every(e=>e.sequenceConfirmed===false));
+ assert.equal(view.future.length,3);
+});
+test('COR07 N04/N05: projeções explícitas não ampliam escopo nem aceitam versão contraditória',()=>{
+ const rows=scene(),record=row(rows,'A-114');
+ assert.equal(aiCommunicationsFor(record,rows,'rafael','aurora').filter(e=>e.source==='F03').length,1);
+ for(const [actor,shop] of [['marina','aurora'],['daniel','aurora'],['rafael','horizonte']]){
+   assert.equal(aiCommunicationsFor(record,rows,actor,shop).filter(e=>e.source==='F03').length,0);
+   assert.equal(operationalHistoryFor(record,rows,actor,shop).events.some(e=>e.kind==='registration'),false);
+ }
+ const publication=record.aiCommunicationsProjection.entries.find(e=>e.source==='F03');
+ for(const delta of [{resultConfirmed:false},{formVersionRef:'stale'},{audience:'case'},{published:false}]){
+   const original=structuredClone(publication);Object.assign(publication,delta);
+   assert.equal(aiCommunicationsFor(record,rows,'rafael','aurora').some(e=>e.source==='F03'),false);
+   Object.assign(publication,original);
+ }
+});

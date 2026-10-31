@@ -31,14 +31,18 @@ export function aiCommunicationsFor(record, records, actorId, shopId) {
   if(!relationshipAllowed(record,records,actorId,shopId))return [];
   const projection=record.aiCommunicationsProjection;
   const entries=[];
+  const registration=registrationProjectionFor(record,actorId,shopId);
   const seen=new Set();
   if(projection?.origin==='s0_fixture' && projection.caseId===record.id &&
      projection.shopId===shopId && relationshipText(projection.versionRef)) {
     for(const entry of Array.isArray(projection.entries)?projection.entries:[]) {
-      if(!entry || !['F01','F02'].includes(entry.source) || entry.published!==true ||
+      if(!entry || !['F01','F02','F03'].includes(entry.source) || entry.published!==true ||
          !relationshipText(entry.id) || seen.has(entry.id) || !relationshipText(entry.versionRef) ||
          !relationshipText(entry.content) || !['case','assignee'].includes(entry.audience) ||
          (entry.audience==='assignee' && record.assignedTo!==actorId))continue;
+      if(entry.source==='F03' && (entry.audience!=='assignee' || entry.resultConfirmed!==true ||
+        registration.visibility!=='detail' || !registration.confirmedPersisted ||
+        entry.formVersionRef!==registration.formVersionRef))continue;
       seen.add(entry.id);
       entries.push(Object.freeze({id:entry.id,source:entry.source,content:entry.content,
         time:relationshipText(entry.time)??'Horário não informado',synthetic:true}));
@@ -50,11 +54,7 @@ export function aiCommunicationsFor(record, records, actorId, shopId) {
     id:event.completionId,source:'F03',time:'Conclusão fictícia '+event.completionId,
     content:'Resultado '+event.extractionState+' · versão '+event.resultVersionRef+
       '. Projeção autorizada; nenhum diálogo da F03 com o cliente.',synthetic:true}));
-  const registration=registrationProjectionFor(record,actorId,shopId);
-  if(!cycles.events.length && registration.visibility==='detail' && registration.confirmedPersisted)
-    entries.push(Object.freeze({id:'registration-'+registration.formVersionRef,source:'F03',
-      time:'Horário não informado',content:'Resultado cadastral confirmado na fixture · versão '+
-      registration.formVersionRef+'. Consultar campos e pendências em Banco.',synthetic:true}));
+  // Persisted form alone proves neither authorship nor a published F03 result.
   return entries;
 }
 
@@ -64,21 +64,27 @@ export function operationalHistoryFor(record, records, actorId, shopId, processi
   const events=[], future=[], seen=new Set();
   const kinds=['lead','f01_started','handoff','assignment','transfer','redistribution',
     'human_completion','registration','bank_submission','bank_reply','sold','lost','customer_return','human_cycle'];
-  if(projection?.origin==='s0_fixture' && projection.confirmed===true &&
+  const projectionValid=projection?.origin==='s0_fixture' && projection.confirmed===true &&
      projection.caseId===record.id && projection.shopId===shopId &&
-     relationshipText(projection.versionRef) && relationshipText(projection.customerRef)){
+     relationshipText(projection.versionRef) && relationshipText(projection.customerRef);
+  if(projectionValid){
     for(const event of Array.isArray(projection.events)?projection.events:[]){
       if(!event || event.origin!=='s0_fixture' || event.confirmed!==true || event.state!=='confirmed' ||
          !kinds.includes(event.kind) || !relationshipText(event.id) || seen.has(event.id) ||
          !relationshipText(event.label) || !relationshipText(event.versionRef) || !Number.isFinite(event.order))continue;
       if(['sold','lost'].includes(event.kind) && (event.resultConfirmed!==true ||
          record.status!==(event.kind==='sold'?'vendido':'perdido')))continue;
+      if(event.kind==='registration'){
+        const registration=registrationProjectionFor(record,actorId,shopId);
+        if(event.audience!=='assignee' || event.resultConfirmed!==true || event.source!=='F03' ||
+          registration.visibility!=='detail' || !registration.confirmedPersisted ||
+          event.formVersionRef!==registration.formVersionRef)continue;
+      }
       seen.add(event.id);
       events.push({id:event.id,label:event.label,time:relationshipText(event.time)??'Horário não informado',
-        order:event.order,state:'confirmed',statusLabel:'Confirmado na fixture',kind:event.kind});
+        order:event.order,sequenceConfirmed:true,state:'confirmed',statusLabel:'Confirmado na fixture',kind:event.kind});
     }
   }
-  events.sort((a,b)=>a.order-b.order);
   for(const event of projectMockHumanCycleHistory(record,actorId,shopId).events) {
     events.push({id:event.completionId,label:'Conclusão humana '+event.completionId+
       ' · atualização F03 '+event.extractionState+' · versão '+event.resultVersionRef,
@@ -103,6 +109,20 @@ export function operationalHistoryFor(record, records, actorId, shopId, processi
     ['failed','uncertain'].includes(processing.kind)?processing.kind:'requested',
     label:'Extração pós-atendimento · cenário '+processing.kind+' (simulado)',
     time:'Somente neste navegador',statusLabel:'Solicitação local · sem confirmação S0/F03'});
+  // The synthetic sequence is explicit and bound to the same case/shop/version.
+  // Never parse display labels ('Hoje', 'Arquivo', 'Prova') as timestamps or infer
+  // cross-source causality from concatenation. Unsequenced records get their own group.
+  const sequence=projectionValid && projection.sequence;
+  const ids=new Set(events.map(event=>event.id));
+  const validSequence=Array.isArray(sequence) && sequence.length>0 &&
+    sequence.every(id=>relationshipText(id) && ids.has(id)) && new Set(sequence).size===sequence.length;
+  const positions=new Map(validSequence ? sequence.map((id,index)=>[id,index]) : []);
+  for(const entry of events){
+    entry.sequenceConfirmed=positions.has(entry.id) || (entry.sequenceConfirmed===true && !validSequence);
+    if(positions.has(entry.id))entry.order=positions.get(entry.id);
+  }
+  events.sort((a,b)=>Number(b.sequenceConfirmed)-Number(a.sequenceConfirmed) ||
+    (a.sequenceConfirmed && b.sequenceConfirmed ? a.order-b.order : 0));
   const related=postmarkViewFor(record,records,actorId,shopId);
   return {events,future,related};
 }

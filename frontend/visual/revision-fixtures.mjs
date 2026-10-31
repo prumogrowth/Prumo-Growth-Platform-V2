@@ -39,7 +39,13 @@ export function withRevisionScenes(records) {
       'Perda confirmada na fixture · motivo: silêncio após template final comprovado',80,{resultConfirmed:true}));
     row.relationshipProjection = {origin:'s0_fixture', confirmed:true, caseId:row.id,
       shopId:row.shopId, customerRef:explicit[2], versionRef:'timeline-'+row.id+'-v1-demo', events};
+    // Explicit synthetic causal sequence: loss follows this confirmed final send.
+    if(row.id==='A-111')row.relationshipProjection.sequence=[
+      'lead','f01','handoff','assignment','followup-A-111-0','loss'];
     if(row.id==='A-114'){
+      events.push(event('registration-live-v2','registration',
+        'Atualização cadastral F03 confirmada na fixture · versão live-form-v2-demo',40,
+        {source:'F03',audience:'assignee',resultConfirmed:true,formVersionRef:'live-form-v2-demo'}));
       row.registrationProjection={state:'persisted',confirmedPersisted:true,formVersionRef:'live-form-v2-demo',
         fields:[{key:'demo_f01',label:'Informação inicial demonstrativa',safeDisplayValue:'Valor sintético coletado pela F01',
           sourceRef:'f01-form-v1-demo',sourceLabel:'F01 · coleta inicial fictícia',validationState:'applied'},
@@ -56,6 +62,10 @@ export function withRevisionScenes(records) {
         time:'Primeiro planejamento · fictício', audience:'case', published:true, versionRef:'f02-'+row.id+'-v1-demo'},
       {id:'f02-plan-2-'+row.id, source:'F02', content:'Atualização fictícia: consultar os estados de cada tentativa no Histórico. Planejamento não comprova envio.',
         time:'Revisão do planejamento · fictício', audience:'case', published:true, versionRef:'f02-'+row.id+'-v2-demo'});
+    if(row.id==='A-114')publications.push({id:'f03-registration-a114-v2-demo',source:'F03',
+      published:true,resultConfirmed:true,audience:'assignee',versionRef:'f03-publication-a114-v2-demo',
+      formVersionRef:'live-form-v2-demo',
+      content:'Resultado cadastral confirmado na fixture · versão live-form-v2-demo. Atualização F03 explicitamente projetada; não é conversa com o cliente.'});
     row.aiCommunicationsProjection = {origin:'s0_fixture', caseId:row.id, shopId:row.shopId,
       versionRef:'communications-'+row.id+'-demo', entries:publications};
     if(row.id==='A-110') row.followupProjection.attempts.push(

@@ -1,6 +1,10 @@
 # COMECE AQUI — fontes vigentes do Frontend da plataforma Prumo
 **Corte inicial:** 21/10/2026. **Última precedência:** 22/10/2026. **Função:** índice de consulta com **precedência**, não autorização para executar operações. Esta frente documenta produto e interface; a implementação real depende de S0/S1/Meta/OpenAI/Banco e aceite próprio.
 
+## FV-COR-07 — correções pós FV-AUD-03 (31/10/2026)
+
+[Correções dos nove achados](102_FV_COR_07_CORRECOES_FV_AUD_03_2026_10_31.md), descendentes da base auditada `2efa2d5c3df0df05bd0193a715e2e958b71cd816`, em branch corretiva própria. Preservar Etapa 1 e COR-01..06. Consulta não descarta áudio pronto, ações bancárias não limpam outra conversa, leitura exige conteúdo legível e origem/ordem dependem de projeções explícitas. O aceite funcional permanece sujeito a nova auditoria; nenhuma integração real, merge ou deploy.
+
 ## FV-REV-01 — Etapa 2 (30/10/2026)
 
 Fonte integral recebida: [v0.4 original](FV_REV_01_v0_4_FONTE_2026_10_29.md). A autorização posterior da missão prevalece sobre o estado histórico de autorização e repositório da fonte. Consultar [mapa de realocação](100_FV_REV_01_ETAPA_2_MAPA_2026_10_30.md) e [entrega, matrizes FV/AT/P e limites](101_FV_REV_01_ETAPA_2_ENTREGA_2026_10_30.md). Preservação das seis correções da Etapa 1; sem backend, merge, deploy ou integrações reais. Resultados efetivos dependem do gate no SHA final.

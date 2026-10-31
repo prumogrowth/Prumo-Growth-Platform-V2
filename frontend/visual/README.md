@@ -261,3 +261,11 @@ Histórico e Notas); Banco oferece ficha/versões/processamento/acompanhamento e
 superfície independente, e Gestão reaproveita equipe, monitoramento, lotes e fila.
 Tudo permanece sintético e somente em memória. Consultar o mapa 100, o relatório
 101 e a fonte integral FV_REV_01_v0_4_FONTE em `frontend/docs/`.
+
+## FV-COR-07 — após FV-AUD-03
+
+A branch corretiva `codex/fv-cor-07-pos-auditoria-20261031` parte de `2efa2d5c3df0df05bd0193a715e2e958b71cd816`. A [matriz dos nove achados](../docs/102_FV_COR_07_CORRECOES_FV_AUD_03_2026_10_31.md) distingue regressão, falhas novas e problemas herdados. Consulta bancária conserva áudio pronto; ações de outra ficha não limpam o composer; ordem/autoria cadastral exigem projeção explícita; atenção exige mensagem legível e corte de leitura; supervisão recebe aviso de transporte desconhecido sem recibos privados. O nome substitui o botão i e o contador identifica ativos.
+
+O runner completo preserva segurança Python, todas as suítes Node e Chromium anteriores, acrescentando `tests/browser.corrections.py` como gate obrigatório de 360s, separado do limite anterior de 600s. Esse ensaio gera o HTML com o exportador pinado e o compara funcionalmente com ESM em ambos temas e três viewports. `FV_COR07_OUTPUT` aceita somente diretório externo ao checkout, para JSON/capturas/proveniência. A gravação usa dispositivo sintético; nenhuma mídia sai do navegador. O runner de camadas continua diagnóstico parcial.
+
+Contratos produtivos e aceite funcional continuam pendentes de suas frentes e de nova auditoria independente. Nenhum merge, deploy ou integração real acompanha a correção.

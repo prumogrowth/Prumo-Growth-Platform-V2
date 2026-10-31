@@ -45,7 +45,7 @@ test('REV-010: supervisor sees assignee projection without changing reading or r
   assert.equal(projectDemoAttention(record,'marina','aurora').kind,'none');
   record.demoReadByAssigned=true;
   assert.equal(projectDemoAttention(record,'marina','aurora').kind,'none');
-  record.demoReadProjection={source:'local_fixture',actorId:record.assignedTo,caseId:record.id,shopId:record.shopId};
+  record.demoReadProjection={source:'local_fixture',actorId:record.assignedTo,caseId:record.id,shopId:record.shopId,messageRef:record.messages.filter(m=>m.side==='in').at(-1).id};
   assert.equal(projectDemoAttention(record,'marina','aurora').kind,'read_awaiting_reply');
   assert.equal(projectDemoAttention(record,'daniel','aurora').kind,'none');
   // Confirmed human reply is independent of who is supervising the conversation.

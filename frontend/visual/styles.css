@@ -715,3 +715,8 @@ body[data-theme="dark"] .bank-dialog :is(button,select,summary):focus-visible{ou
 .visual-app[data-theme="dark"] .timeline-events .activity-item[data-kind="sold"]::before{background:#9bddb4}
 .visual-app[data-theme="dark"] .timeline-events .activity-item[data-kind="lost"] strong{color:#ffabab}
 .visual-app[data-theme="dark"] .timeline-events .activity-item[data-kind="lost"]::before{background:#ffabab}
+
+/* FV-COR-07: no continuous line claims an unknown cross-source chronology. */
+.timeline-unordered{margin-top:14px;padding-top:12px;border-top:1px dashed currentColor}
+.timeline-unordered .activity-item{border-left:0}
+.timeline-ordered .activity-item:last-child{border-left-color:transparent}

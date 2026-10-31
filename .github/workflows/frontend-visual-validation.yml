@@ -6,6 +6,7 @@ on:
       - codex/fv-ux-01-comunicacao-20261027
       - codex/fv-rev-01-conversas-20261030
       - codex/fv-rev-01-modulos-20261030
+      - codex/fv-cor-07-pos-auditoria-20261031
     paths:
       - "frontend/visual/**"
       - "frontend/preview/**"
@@ -17,7 +18,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   native-checkout:
-    if: github.ref == 'refs/heads/feat/frontend-plataforma-visual' || github.ref == 'refs/heads/codex/fv-ux-01-comunicacao-20261027' || github.ref == 'refs/heads/codex/fv-rev-01-conversas-20261030' || github.ref == 'refs/heads/codex/fv-rev-01-modulos-20261030'
+    if: github.ref == 'refs/heads/feat/frontend-plataforma-visual' || github.ref == 'refs/heads/codex/fv-ux-01-comunicacao-20261027' || github.ref == 'refs/heads/codex/fv-rev-01-conversas-20261030' || github.ref == 'refs/heads/codex/fv-rev-01-modulos-20261030' || github.ref == 'refs/heads/codex/fv-cor-07-pos-auditoria-20261031'
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
@@ -89,6 +90,7 @@ jobs:
         env:
           PYTHONDONTWRITEBYTECODE: '1'
           CI: 'true'
+          FV_COR07_OUTPUT: ${{ runner.temp }}/fv-cor07-evidence
         run: |
           python -B frontend/visual/tests/run_acceptance.py \
             --expected-head "$GITHUB_SHA" \
@@ -103,16 +105,18 @@ jobs:
           cp frontend/preview/PREVIA_LOCAL.md out/LEIA-ME.md
           cp frontend/docs/101_FV_REV_01_ETAPA_2_ENTREGA_2026_10_30.md out/ENTREGA.md
           cp frontend/docs/100_FV_REV_01_ETAPA_2_MAPA_2026_10_30.md out/REALOCACAO.md
+          cp frontend/docs/102_FV_COR_07_CORRECOES_FV_AUD_03_2026_10_31.md out/CORRECOES.md
           cp frontend/docs/FV_REV_01_v0_4_FONTE_2026_10_29.md out/REQUISITOS.md
           python - <<'PYPROVENANCE'
           import hashlib, json, os, subprocess
           from pathlib import Path
           folder = Path('out')
+          comparison_base = '2efa2d5c3df0df05bd0193a715e2e958b71cd816' if os.environ['GITHUB_REF_NAME']=='codex/fv-cor-07-pos-auditoria-20261031' else '17336799ddf4c8575c790f09eb64570d6460733c'
           provenance = {
               'head': os.environ['GITHUB_SHA'],
               'branch': os.environ['GITHUB_REF_NAME'],
-              'base': '17336799ddf4c8575c790f09eb64570d6460733c',
-              'files_changed': subprocess.check_output(['git','diff','--name-only','17336799ddf4c8575c790f09eb64570d6460733c','HEAD'],text=True).splitlines(),
+              'base': comparison_base,
+              'files_changed': subprocess.check_output(['git','diff','--name-only',comparison_base,'HEAD'],text=True).splitlines(),
               'synthetic_only': True, 'published': False,
               'sha256': {p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in folder.iterdir() if p.is_file()}
           }
@@ -127,6 +131,7 @@ jobs:
             out/prumo-preview-integral.html
             out/LEIA-ME.md
             out/ENTREGA.md
+            out/CORRECOES.md
             out/REALOCACAO.md
             out/REQUISITOS.md
             out/PROVENIENCIA.json
@@ -145,6 +150,14 @@ jobs:
           name: fv-visual-review-screenshots
           path: fv-visual-review/
           if-no-files-found: error
+          retention-days: 30
+      - name: Evidencias das correcoes FV-COR-07 (sem publicacao)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fv-cor07-evidence-${{ github.sha }}
+          path: ${{ runner.temp }}/fv-cor07-evidence/
+          if-no-files-found: warn
           retention-days: 30
       - name: Registrar resumo tecnico
         if: always()

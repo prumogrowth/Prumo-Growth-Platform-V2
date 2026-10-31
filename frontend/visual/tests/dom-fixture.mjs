@@ -70,7 +70,7 @@ export function installMockDOM({ mobile = false, tablet = false, prefersDark = f
     'thread-actions','terminal-banner','commercial-filter','filter-summary','demo-dialog','demo-open','demo-close','demo-list-state',
     'visual-app', 'actor-select', 'shop-select', 'search-input', 'status-filter',
     'list-count', 'list-context', 'queue-summary', 'filter-reset-controls', 'clear-list-filters', 'conversation-items', 'thread-title',
-    'thread-meta', 'thread-body', 'workflow-bar', 'message-input', 'detail-toggle',
+    'thread-meta', 'thread-body', 'workflow-bar', 'message-input',
     'detail-content', 'detail-pane', 'thread-pane', 'message-preview-dialog',
     'message-preview-body', 'completion-dialog',
     'completion-form', 'template-dialog', 'template-select', 'intake-dialog',

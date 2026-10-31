@@ -141,7 +141,7 @@ test('projeção desconhecida não aparece como conclusão humana ou extração 
   reset();
   env.openCase('Exemplo 05');
   assert.ok(get('workflow-bar').textContent.includes('Etapa humana não confirmada'));
-  get('detail-toggle').click();
+  get('thread-title').click();
   const tabs=env.descendants(env.caseContent()).filter(x=>x.attrs.role==='tab');
   env.openArea('Extração');
   assert.ok(env.caseContent().textContent.includes('Situação não confirmada'));
@@ -765,7 +765,7 @@ test('FV-UI-021: contexto anunciado muda com perfil, loja e caso sem resíduo an
 });
 
 test('FV-UI-021: Home e End alcançam extremos das abas sem perder roving tabindex',()=>{
-  reset();env.openCase('Exemplo 02');get('detail-toggle').click();
+  reset();env.openCase('Exemplo 02');get('thread-title').click();
   const tabs=()=>env.descendants(env.caseContent()).filter(x=>x.attrs.role==='tab');
   const first=tabs()[0],last=tabs().at(-1);
   first.fire('keydown',{key:'End'});

@@ -95,3 +95,18 @@ test('taxonomia de estados técnicos não modifica os oito estados comerciais',(
  view(record,message);
  assert.equal(JSON.stringify(record),before);
 });
+
+import { presentMockMessageTransport } from '../transport-state-view.mjs';
+test('COR07 I02: aviso minimizado não concede recibo privado à supervisão',()=>{
+ const {record,message}=byCase('A-102');
+ const before=JSON.stringify(record),limited=presentMockMessageTransport(record,message,'marina','aurora');
+ assert.equal(limited.visibility,'limited');assert.equal(limited.state,'unknown');
+ assert.match(limited.label,/Transporte não confirmado/);
+ assert.equal(limited.provedSent,false);assert.equal(limited.needsRefresh,true);
+ assert.doesNotMatch(JSON.stringify(limited),/apiAckRef|proofRef|versionRef|messageRef/);
+ assert.equal(view(record,message,'marina','aurora').visibility,'unavailable','Guard operacional permanece');
+ assert.equal(JSON.stringify(record),before);
+ for(const [actor,shop] of [['daniel','aurora'],['rafael','horizonte'],['bianca','aurora'],['otavio','aurora']])
+   assert.equal(presentMockMessageTransport(record,message,actor,shop).visibility,'unavailable');
+ assert.equal(presentMockMessageTransport(record,{...message},'marina','aurora').visibility,'unavailable');
+});

@@ -128,6 +128,14 @@ export function installCommunicationComposer({ getContext, onAttach, onNotice })
     if (audio.snapshot().phase === 'ready') onNotice('Este navegador não conseguiu reproduzir o áudio. Exclua o rascunho e tente novamente.');
   });
   function reset() { closeEmoji(); clearPlayer(); audio.reset(); }
+  function suspend() {
+    closeEmoji();audio.sync();
+    // Never leave an unseen capture active; ready blobs and attached local clips stay scoped.
+    const phase=audio.snapshot().phase;
+    if(phase==='requesting')audio.discard();
+    else if(phase==='recording')audio.stop();
+    if(playerURL)player.pause();
+  }
   function sync() {
     const allowed = getContext().allowed;
     toggle.disabled = !allowed;
@@ -136,5 +144,5 @@ export function installCommunicationComposer({ getContext, onAttach, onNotice })
   }
   window.addEventListener('pagehide', reset);
   document.addEventListener('visibilitychange', () => { if (document.hidden) reset(); });
-  return { reset, sync, getClip: audio.getClip };
+  return { reset, sync, suspend, getClip: audio.getClip };
 }

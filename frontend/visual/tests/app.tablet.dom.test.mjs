@@ -6,16 +6,16 @@ const env=installMockDOM({tablet:true});
 await import('../app.mjs');
 const get=id=>env.get(id);
 const reset=()=>get('reset-app').click();
-const openDetails=()=>{if(get('visual-app').classList.contains('details-hidden'))get('detail-toggle').click();};
+const openDetails=()=>{if(get('visual-app').classList.contains('details-hidden'))get('thread-title').click();};
 
 test('FV-UI-034: Fechar detalhes restaura foco no botão de abertura',()=>{
   reset();env.openCase('Exemplo 02');
   openDetails();
-  assert.equal(get('detail-toggle').getAttribute('aria-expanded'),'true');
+  assert.equal(get('thread-title').getAttribute('aria-expanded'),'true');
   get('detail-close').focus();get('detail-close').click();
   assert.ok(get('visual-app').classList.contains('details-hidden'));
-  assert.equal(get('detail-toggle').getAttribute('aria-expanded'),'false');
-  assert.equal(env.document.activeElement,get('detail-toggle'));
+  assert.equal(get('thread-title').getAttribute('aria-expanded'),'false');
+  assert.equal(env.document.activeElement,get('thread-title'));
   assert.match(get('thread-meta').textContent,/Caso A-102/);
 });
 
@@ -24,8 +24,8 @@ test('FV-UI-034: Escape no painel flutuante fecha e foca abertura',()=>{
   get('detail-pane').focus();
   env.document.fire('keydown',{key:'Escape'});
   assert.ok(get('visual-app').classList.contains('details-hidden'));
-  assert.equal(env.document.activeElement,get('detail-toggle'));
-  assert.equal(get('detail-toggle').getAttribute('aria-expanded'),'false');
+  assert.equal(env.document.activeElement,get('thread-title'));
+  assert.equal(get('thread-title').getAttribute('aria-expanded'),'false');
 });
 
 test('FV-UI-034: Escape fora do painel não fecha detalhes',()=>{

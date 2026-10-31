@@ -281,7 +281,7 @@ test('FV-UI-019: recortes históricos S0 fictícios e nova conclusão não promo
 });
 
 test('FV-UI-020: ACK e estado incerto nunca viram envio provado no navegador',()=>{
-  assert.match(app,/stageMockMessageTransport\(item,m,state\.actorId,state\.shopId\)/);
+  assert.match(app,/presentMockMessageTransport\(item,m,state\.actorId,state\.shopId\)/);
   assert.match(attention,/stageMockMessageTransport\(record, message, record\.assignedTo, shopId\)\.provedSent/);
   assert.doesNotMatch(app,/!message\.transportProjection\s*\|\|\s*stageMockMessageTransport/);
   assert.match(transport,/hasMockCaseScope\(record,actorId,shopId\)/);

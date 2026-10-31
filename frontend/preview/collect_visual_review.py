@@ -123,7 +123,7 @@ def main(output):
                 page.get_by_role('button', name='Abrir conversa Cliente Exemplo '+number, exact=False).click()
                 if scene in ('details','extraction','notes','history','bank','continuation'):
                     if width <= 1040:
-                        page.locator('#detail-toggle').click()
+                        page.locator('#thread-title').click()
                     if scene in ('extraction','bank'):
                         page.locator('#open-bank-case').click()
                         expect(page.locator('#bank-dialog')).to_be_visible()

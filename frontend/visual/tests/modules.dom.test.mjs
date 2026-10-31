@@ -74,3 +74,23 @@ test('REV-036: gestão mantém módulos e supervisão não se torna operação',
  get('team-close').click();assert.equal(get('message-input').disabled,true);
  env.selectActor('rafael');get('team-nav').click();assert.equal(get('team-dialog').open,false);
 });
+
+test('COR07 N02: esclarecimento em Banco B conserva texto e seleção da conversa A',()=>{
+ reset();env.openCase('Exemplo 02');get('message-input').value='Rascunho A 🙂';
+ get('bank-nav').click();get('bank-case-select').value='A-108';get('bank-case-select').fire('change');
+ bank().find(n=>n.id==='show-clarification-demo').click();get('bank-close').click();
+ assert.match(get('thread-meta').textContent,/Caso A-102/);
+ assert.equal(get('message-input').value,'Rascunho A 🙂');
+});
+test('COR07 I02: supervisor recebe aviso conservador de saída sem prova',()=>{
+ reset();env.selectActor('marina');env.openCase('Exemplo 02');
+ assert.match(get('thread-body').textContent,/envio NÃO comprovado|Transporte não confirmado/);
+ assert.doesNotMatch(get('thread-body').textContent,/ack-a102|proof-|apiAckRef/);
+});
+test('COR07 OBS01: resumo de contadores explicita ativos independente do filtro',()=>{
+ reset();
+ for(const inbox of env.inbox){inbox.click();
+   assert.match(get('queue-summary').getAttribute('aria-label'),/ativos/i);
+   assert.match(get('queue-summary').textContent,/Total de ativos/);
+ }
+});
