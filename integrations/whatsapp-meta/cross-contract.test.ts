@@ -29,8 +29,10 @@ test('CROSS-01 valid HMAC aggregate: two messages+two statuses; hypothetical 4-i
  assert.equal(inspected.ok,true);
  if(!inspected.ok)return;
  assert.deepEqual(inspected.events.map(e=>e.event_kind),['inbound_message','inbound_message','status_callback','status_callback']);
- assert.equal(decideBatchAck(inspected.events.length,successReceipt(4)).status,200);
- // The receipt is an artificial fixture: this does NOT attest an S0 commit.
+ const deny=decideBatchAck(inspected.events.length,successReceipt(4));
+ assert.equal(deny.decision,'DENIED_NO_HTTP_AUTHORITY');
+ assert.equal('status' in deny,false);
+ // Signed HMAC and synthetic receipts cannot attest a physical S0 commit.
 });
 test('CROSS-02 body tampering fails before event processing',async()=>{
  const raw=enc.encode(JSON.stringify(pack([msg('wamid.IN1')])));
@@ -44,8 +46,8 @@ test('CROSS-03 wrong app key prevents a valid-looking body from entering fake st
  if(!inspected.ok)assert.equal(inspected.failure.code,'INVALID_SIGNATURE');
 });
 test('CROSS-04 missing and partial transaction receipts never permit ACK',async()=>{
- assert.equal(decideBatchAck(4,{...successReceipt(4),commit_state:'ROLLBACK'}).status,503);
- assert.equal(decideBatchAck(4,{...successReceipt(4),accepted:3}).status,503);
+ assert.equal(decideBatchAck(4,{...successReceipt(4),commit_state:'ROLLBACK'}).ack_allowed,false);
+ assert.equal(decideBatchAck(4,{...successReceipt(4),accepted:3}).ack_allowed,false);
 });
 test('CROSS-05 signed status before Graph registration remains pending then correlates',async()=>{
  const parsed=await parse(pack([],[status('read')]));assert.equal(parsed.ok,true);if(!parsed.ok)return;
