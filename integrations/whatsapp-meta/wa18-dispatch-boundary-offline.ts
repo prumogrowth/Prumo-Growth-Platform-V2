@@ -320,13 +320,17 @@ export function classifyWa18GraphMockOffline(
 ):Wa18GraphLabResult{
  const i=own(rawIntent,K_INTENT);
  if(!i||!validIntent(i))return graphAnswer('DENIED');
+ // Strictly disjoint shapes: transport failure never carries a claimed
+ // HTTP response, and a response must contain both status and payload.
  const o=own(rawObservation,['kind','http_status','response_json'])||
   own(rawObservation,['kind']);
  if(!o)return graphAnswer('DENIED');
  if(o.kind!=='transport_error'&&o.kind!=='http_response')
   return graphAnswer('DENIED');
  if(o.kind==='transport_error')
-  return graphAnswer('LAB_EXTERNAL_UNCERTAIN');
+  return Object.keys(o).length===1?
+   graphAnswer('LAB_EXTERNAL_UNCERTAIN'):graphAnswer('DENIED');
+ if(Object.keys(o).length!==3)return graphAnswer('DENIED');
  try{
   const mock=cloneMock(o.response_json);
   const classified=classifyGraphSendResult(
