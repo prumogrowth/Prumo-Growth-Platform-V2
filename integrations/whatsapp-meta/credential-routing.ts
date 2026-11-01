@@ -75,6 +75,70 @@ const validScope = (s: unknown): s is TrustedMetaScope => {
   return id(value.app_ref) && id(value.concessionaria_id) && id(value.canal_id) &&
     id(value.waba_id) && /^\d{5,25}$/.test(value.phone_number_id);
 };
+/** Reject accessors, poisoned prototypes, sparse arrays and undeclared
+ * fields. Snapshot host-injected LAB claims before resolving secret slots. */
+function values(raw:unknown,fields:readonly string[]):Record<string,unknown>|null{
+ try{
+  if(!raw||typeof raw!=='object'||Array.isArray(raw))return null;
+  const proto=Object.getPrototypeOf(raw);
+  if(proto!==Object.prototype&&proto!==null)return null;
+  const d=Object.getOwnPropertyDescriptors(raw),keys=Reflect.ownKeys(raw);
+  if(keys.length!==fields.length||keys.some(k=>typeof k!=='string'||
+   !fields.includes(k)||!Object.hasOwn(d[k],'value'))||
+   fields.some(k=>!Object.hasOwn(d,k)))return null;
+  return Object.fromEntries(fields.map(k=>[k,d[k].value]));
+ }catch{return null;}
+}
+function arrayValues(raw:unknown,limit:number):unknown[]|null{
+ try{
+  if(!Array.isArray(raw)||Object.getPrototypeOf(raw)!==Array.prototype)return null;
+  const d=Object.getOwnPropertyDescriptors(raw),keys=Reflect.ownKeys(raw);
+  const n=d.length?.value;
+  if(!Number.isSafeInteger(n)||n<0||n>limit||keys.length!==n+1)return null;
+  const result:unknown[]=[];
+  for(let i=0;i<n;i++){
+   if(!d[String(i)]||!Object.hasOwn(d[String(i)],'value'))return null;
+   result.push(d[String(i)].value);
+  }
+  return result;
+ }catch{return null;}
+}
+function snapshotRegistry(raw:unknown):TrustedMetaRegistry|null{
+ const root=values(raw,['contract_version','apps']);
+ if(!root)return null;
+ const apps=arrayValues(root.apps,100);
+ if(!apps)return null;
+ let total=0;
+ const result:TrustedAppRecord[]=[];
+ for(const entry of apps){
+  const app=values(entry,['app_ref','route_ref','concessionaria_id',
+   'active','revision','valid_from_ms','valid_until_ms','secret_slots','channels']);
+  if(!app)return null;
+  const slots=values(app.secret_slots,['get_verify_token','post_app_secret','graph_access_token']);
+  const channels=arrayValues(app.channels,1000-total);
+  if(!slots||!channels)return null;
+  const checked:TrustedChannel[]=[];
+  for(const input of channels){
+   const c=values(input,['canal_id','waba_id','phone_number_id','active']);
+   if(!c)return null;
+   checked.push(c as TrustedChannel);
+  }
+  total+=checked.length;
+  result.push({...app,secret_slots:slots,channels:checked} as TrustedAppRecord);
+ }
+ return {contract_version:root.contract_version as TrustedMetaRegistry['contract_version'],apps:result};
+}
+function snapshotCredentialCommand(raw:unknown):MetaCredentialRequest|null{
+ const short=values(raw,['purpose','trusted_route_ref','at_ms','expected_revision']);
+ if(short&&(short.purpose==='GET_VERIFY_TOKEN'||short.purpose==='POST_APP_SECRET'))
+  return short as MetaCredentialRequest;
+ const full=values(raw,['purpose','trusted_scope','at_ms','expected_revision']);
+ if(!full||full.purpose!=='GRAPH_ACCESS_TOKEN')return null;
+ const scope=values(full.trusted_scope,['app_ref','concessionaria_id',
+  'canal_id','waba_id','phone_number_id']);
+ return scope?{...full,trusted_scope:scope} as MetaCredentialRequest:null;
+}
+
 function validRegistry(reg: TrustedMetaRegistry): boolean {
   if (!reg || reg.contract_version !== 'wa-meta-credential-routing.v0.1-proposed' ||
       !Array.isArray(reg.apps) || reg.apps.length > 100) return false;
@@ -125,10 +189,11 @@ function exactChannel(app: TrustedAppRecord, s: TrustedMetaScope): boolean {
 /** Select a name for a privileged secret resolver; never return a token. */
 export function selectMetaCredential(reg: TrustedMetaRegistry,
   command: MetaCredentialRequest): MetaCredentialDecision {
-  if (!command || !millis(command.at_ms) || !revision(command.expected_revision) ||
-      !['GET_VERIFY_TOKEN', 'POST_APP_SECRET', 'GRAPH_ACCESS_TOKEN'].includes(command.purpose))
-    return fail('INVALID_INPUT');
-  if (!validRegistry(reg)) return fail('INVALID_REGISTRY');
+  const c=snapshotCredentialCommand(command);
+  if(!c||!millis(c.at_ms)||!revision(c.expected_revision))return fail('INVALID_INPUT');
+  const safe=snapshotRegistry(reg);
+  if(!safe||!validRegistry(safe))return fail('INVALID_REGISTRY');
+  command=c;reg=safe;
   const app = command.purpose === 'GRAPH_ACCESS_TOKEN'
     ? (validScope(command.trusted_scope) ?
       reg.apps.find(x => x.app_ref === command.trusted_scope.app_ref) : undefined)
@@ -154,10 +219,15 @@ export function resolveSignedMetaChannel(reg: TrustedMetaRegistry, query: {
   waba_id: string; phone_number_id: string;
   at_ms: number; expected_revision: number;
 }): SignedChannelDecision {
-  if (!query || !id(query.trusted_route_ref) || !id(query.authenticated_app_ref) ||
-      !id(query.waba_id) || !/^\d{5,25}$/.test(query.phone_number_id) ||
-      !millis(query.at_ms) || !revision(query.expected_revision)) return fail('INVALID_INPUT');
-  if (!validRegistry(reg)) return fail('INVALID_REGISTRY');
+  const q=values(query,['trusted_route_ref','authenticated_app_ref',
+   'waba_id','phone_number_id','at_ms','expected_revision']);
+  if(!q||!id(q.trusted_route_ref)||!id(q.authenticated_app_ref)||
+   !id(q.waba_id)||typeof q.phone_number_id!=='string'||
+   !/^\\d{5,25}$/.test(q.phone_number_id)||
+   !millis(q.at_ms)||!revision(q.expected_revision))return fail('INVALID_INPUT');
+  const safe=snapshotRegistry(reg);
+  if(!safe||!validRegistry(safe))return fail('INVALID_REGISTRY');
+  reg=safe;query=q as typeof query;
   const app = reg.apps.find(x => x.route_ref === query.trusted_route_ref &&
     x.app_ref === query.authenticated_app_ref);
   if (!app) return fail('NO_MATCH');
