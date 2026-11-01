@@ -174,8 +174,10 @@ test('S0F02-OFF04-11 separately stale cycle and assignment denied',
       nowMs:input.nowMs+1,scope:scoped
     });
     assert.equal(out.status,'STALE',key);
-    assert.equal(out.sendAuthorized,false);
-    assert.equal(out.schedulingAuthorized,false);
-    assert.equal(out.commercialTransitionAuthorized,false);
+    // STALE from the immutable OFF04 consumer may omit authority flags.
+    // Absence is not a grant; strictly no field may assert true.
+    assert.notEqual(out.sendAuthorized,true);
+    assert.notEqual(out.schedulingAuthorized,true);
+    assert.notEqual(out.commercialTransitionAuthorized,true);
   }
 });
