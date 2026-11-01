@@ -318,6 +318,16 @@ class F02Physical(unittest.TestCase):
            **proposal['attempts'][0],'at':'2026-01-01T00:00:00Z'}]}
         self.deny(self.assess(other))
 
+    def test_25_alias_mapping_tamper_denied_at_review(self):
+        proposal=self.candidate()
+        with self.lab.admin() as c:
+            c.execute("UPDATE s0_f02_lab.aliases "
+                      "SET template_ref='UNRELATED' WHERE alias='tpl_001'")
+        out=self.assess(proposal)
+        self.deny(out)
+        self.assertEqual(out['reason'],'ALIAS_CHANGED')
+        self.assertEqual(self.counts(),(1,1,0))
+
     def test_24_absent_consent_cannot_be_opt_in(self):
         with self.lab.admin() as c:
             c.execute('DELETE FROM s0_pre_dispatch_lab.consents')
