@@ -361,3 +361,15 @@ test('AUD-M16-54 forged binding digest on candidate denied at recheck',()=>{
  const forged={...old,binding_sha256:'0'.repeat(64)};
  denied(recheck(forged,fixture()),'VERSION_OR_SNAPSHOT_CHANGED');
 });
+
+
+test('AUD-M16-55 updated LAB snapshot has version v0.2 only',()=>{
+ const current=good(inspect());
+ assert.equal(current.contract_version,'wa16-frozen-snapshot.lab.v0.2');
+});
+test('AUD-M16-56 old v0.1 snapshot cannot reuse new hash semantics',()=>{
+ const current=good(inspect());
+ denied(recheck({...current,
+  contract_version:'wa16-frozen-snapshot.lab.v0.1'},fixture()),
+  'INVALID_CANDIDATE');
+});
