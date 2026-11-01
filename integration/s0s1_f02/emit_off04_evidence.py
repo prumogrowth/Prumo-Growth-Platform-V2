@@ -21,17 +21,28 @@ def main():
     try:
         case=physical.F02Physical('test_01_private_envelope_and_persistent_alias')
         case.setUp()
+        # Independent physical sources, not twin aliases of assignment.
+        with case.lab.admin() as c:
+            c.execute("UPDATE s0_f02_lab.case_cycles "
+                      "SET cycle_revision=3 WHERE case_ref='case_A'")
+            c.execute("UPDATE s0_pre_dispatch_lab.cases "
+                      "SET assignment_revision=7 WHERE case_ref='case_A'")
+        case.versions['cycle']=3
+        case.versions['assignment']=7
         out=case.create()
         if out['decision']!='LAB_REQUEST_RECORDED_NO_MODEL':
             raise RuntimeError('source read denied')
         with case.lab.admin() as c:
             rows=c.execute('SELECT alias,template_ref,version_ref '
                 'FROM s0_f02_lab.aliases ORDER BY alias').fetchall()
-            request=c.execute('SELECT request_ref,provider_tag '
+            request=c.execute('SELECT request_ref,provider_tag,'
+                'cycle_revision,assignment_revision '
                 'FROM s0_f02_lab.requests').fetchone()
         if (len(rows)!=1 or rows[0]['alias']!='tpl_001'
             or rows[0]['template_ref']!='tpl_A'
-            or request['provider_tag']!=out['private']['providerTag']):
+            or request['provider_tag']!=out['private']['providerTag']
+            or request['cycle_revision']!=3
+            or request['assignment_revision']!=7):
             raise RuntimeError('S0 readback mismatch')
         obj={'lab_only':True,'private':out['private'],
              'expected_aliases':[{
