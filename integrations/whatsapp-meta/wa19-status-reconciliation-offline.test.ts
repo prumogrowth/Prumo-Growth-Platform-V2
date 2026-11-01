@@ -144,7 +144,7 @@ test('M19-15 read plus failed quarantined',()=>{
 test('M19-16 invalidated attempt with late callback quarantined',()=>{
  const b=binding();b.claim_state='LAB_INVALIDATED';
  const p=safe(run(scope(),b,[occurrence('sent')]),
-  'LAB_INVALIDATED_LATE_OBSERVATION');
+  'LAB_INVALIDATED_OBSERVATION_HOLD');
  assert.equal(p.quarantine_required,true);assert.equal(p.sent_verified,false);
 });
 test('M19-17 invalidated empty attempt stays empty',()=>{
@@ -275,6 +275,33 @@ test('M19-51 request clock drift denies recheck',()=>{
 test('M19-52 observation append on invalidated claim stays quarantined',()=>{
  const b=binding();b.claim_state='LAB_INVALIDATED';
  const p=safe(run(scope(),b,[occurrence('read')]),
-  'LAB_INVALIDATED_LATE_OBSERVATION');
+  'LAB_INVALIDATED_OBSERVATION_HOLD');
  assert.equal(p.read_verified,false);
+});
+
+
+test('M19-53 future provider timestamp rejected rather than reordered',()=>{
+ const e=occurrence();e.provider_timestamp='2027-02-10T00:00:00.000Z';
+ denied(run(scope(),binding(),[e]),'EVENT_SCOPE_DENIED');
+});
+test('M19-54 successful status with contradictory error code denied',()=>{
+ const e=occurrence('sent');e.meta_error_code=131049;
+ denied(run(scope(),binding(),[e]),'EVENT_SCOPE_DENIED');
+});
+test('M19-55 read status with erroneous failure subcode denied',()=>{
+ const e=occurrence('read');e.meta_error_subcode=1;
+ denied(run(scope(),binding(),[e]),'EVENT_SCOPE_DENIED');
+});
+test('M19-56 invalidated claim cannot assert callback occurred after revocation',()=>{
+ const b=binding();b.claim_state='LAB_INVALIDATED';
+ const p=safe(run(scope(),b,[occurrence('sent')]),
+  'LAB_INVALIDATED_OBSERVATION_HOLD');
+ assert.equal(p.quarantine_required,true);
+ assert.equal(p.sent_verified,false);
+});
+test('M19-57 failed with unknown error code is still unverified',()=>{
+ const e=occurrence('failed');e.meta_error_code=999999999;
+ const p=safe(run(scope(),binding(),[e]),
+ 'LAB_FAILURE_OBSERVED_UNVERIFIED');
+ assert.equal(p.definitive_failure_count_increment,false);
 });
