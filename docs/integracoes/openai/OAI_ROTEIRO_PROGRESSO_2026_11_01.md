@@ -28,6 +28,7 @@
 | OFF-11 | Compatibilidade estrutural F02 com WA-39 Meta | FEITO_OFFLINE | [724/724](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41268914799), branch `feat/oai-off11-wa39-consumer-lab-20261101` |
 | OFF-12 | Bloquear promoção indevida de metadados/recibos S0 preliminares à F03 | FEITO_OFFLINE | [CI 774/774](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41293073729), branch `feat/oai-off12-f03-s0-metadata-gate-20261101` (724 anteriores + 50) |
 | OFF-13 | Comparação offline de posse/handoff F01 em duas leituras sintéticas S0; sem publicar mensagens | FEITO_OFFLINE | [CI 819/819](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41295745349), branch `feat/oai-off13-f01-s0-ownership-review-20261101` (774 anteriores + 45) | 
+| OFF-14 | Fontes comerciais por concessionária F01: validade, correção, escopo e recheck sintético | EM_TESTE | Branch `feat/oai-off14-f01-commercial-source-review-20261101`; alvo 864 = 819 anteriores + 45 novas | 
 | FV-REV-021 / Issue #13 | Resumos **pequenos e objetivos** de F01/F02/F03 no histórico acumulativo do **Resumo** do Frontend | FUTURO | [Issue #13](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/13), **não desenvolver agora** |
 
 ## Regra de atualização
