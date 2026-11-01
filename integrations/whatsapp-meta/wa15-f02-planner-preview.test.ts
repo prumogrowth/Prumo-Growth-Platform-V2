@@ -349,3 +349,120 @@ test('M15-40 blocked preview never exposes candidate PII or tickets',async()=>{
   'production_authorized','graph_dispatch_authorized',
   's0_source_authenticated'].sort());
 });
+
+
+/** Interleave a synthetic mutable caller/source change while WA26 awaits.
+ * The preview must never splice a previously reconciled M13/M14 claim
+ * together with a later, silently changed claim. */
+function mutateAtPolicy(f:Factory,change:()=>void){
+ const original=f.ports.readScopedPolicy;
+ f.ports.readScopedPolicy=async(scope,phase)=>{
+  change();return original(scope,phase);
+ };
+}
+function mutateAtCatalog(f:Factory,change:()=>void){
+ const original=f.ports.readScopedCatalog;
+ f.ports.readScopedCatalog=async(scope,phase)=>{
+  change();return original(scope,phase);
+ };
+}
+test('AUD-M15-41 consent revoked during policy port denies mixed-time preview',async()=>{
+ const f=factory();
+ mutateAtPolicy(f,()=>{f.m14Ledger.consents[0].state='REVOKED';});
+ await deny(f,'INPUT_CHANGED_DURING_PREVIEW');
+});
+test('AUD-M15-42 unrelated MARKETING consent changed during catalog read denies',async()=>{
+ const f=factory();
+ f.m14Ledger.consents.push({
+  consent_purpose_ref:'MARKETING',state:'DENIED',
+  valid_from_ms:NOW-100,valid_until_ms:NOW+20000,revision:7,
+ });
+ mutateAtCatalog(f,()=>{f.m14Ledger.consents[1].state='GRANTED';});
+ await deny(f,'INPUT_CHANGED_DURING_PREVIEW');
+});
+test('AUD-M15-43 shop-wide suppression added during WA26 read denies',async()=>{
+ const f=factory();
+ mutateAtPolicy(f,()=>f.m14Ledger.suppressions.push({
+  consent_purpose_ref:null,active:true,revision:8,
+ }));
+ await deny(f,'INPUT_CHANGED_DURING_PREVIEW');
+});
+test('AUD-M15-44 grant revoked during catalog read denies',async()=>{
+ const f=factory();
+ mutateAtCatalog(f,()=>{f.m14Ledger.grants[0].state='REVOKED';});
+ await deny(f,'INPUT_CHANGED_DURING_PREVIEW');
+});
+test('AUD-M15-45 provider components changed after M13 reading denies',async()=>{
+ const f=factory();
+ mutateAtPolicy(f,()=>{f.m13Provider.details[0].components[0].text='MUTATED';});
+ await deny(f,'INPUT_CHANGED_DURING_PREVIEW');
+});
+test('AUD-M15-46 S0 catalog version changed between sources denies',async()=>{
+ const f=factory();
+ mutateAtCatalog(f,()=>{f.m13S0.templates[0].version_ref='VERSION_99';});
+ await deny(f,'INPUT_CHANGED_DURING_PREVIEW');
+});
+test('AUD-M15-47 original request campaign changed during read denied',async()=>{
+ const f=factory();
+ mutateAtPolicy(f,()=>{f.q.campaign_ref='CAMPAIGN_2';});
+ await deny(f,'INPUT_CHANGED_DURING_PREVIEW');
+});
+test('AUD-M15-48 host scope WABA changed after reconciliation denied',async()=>{
+ const f=factory();
+ mutateAtCatalog(f,()=>{f.m13Host.waba_id='100009';});
+ await deny(f,'INPUT_CHANGED_DURING_PREVIEW');
+});
+test('AUD-M15-49 WA26 scope changed after captured at PLAN denied',async()=>{
+ const f=factory();
+ mutateAtPolicy(f,()=>{f.scope.actor_ref='PLANNER_B';});
+ await deny(f,'INPUT_CHANGED_DURING_PREVIEW');
+});
+test('AUD-M15-50 WA26 policy changed after captured at PLAN denied',async()=>{
+ const f=factory();
+ mutateAtCatalog(f,()=>{f.policy.opted_out=true;});
+ await deny(f,'INPUT_CHANGED_DURING_PREVIEW');
+});
+test('AUD-M15-51 WA26 catalog changed after its port captured denied',async()=>{
+ const f=factory();
+ const original=f.ports.readScopedCatalog;
+ f.ports.readScopedCatalog=async(scope,phase)=>{
+  const raw=await original(scope,phase);
+  // Promise microtask mutation may happen before snapshot (then selector
+  // sees new content); verify that it cannot create a positive F02 preview.
+  f.templates[0].meta_status='PAUSED';
+  return raw;
+ };
+ await deny(f,'WA26_POLICY_OR_CATALOG_DENIED');
+});
+test('AUD-M15-52 consent object injected getter mid-read denied without call',async()=>{
+ const f=factory();let called=0;
+ mutateAtPolicy(f,()=>{
+  Object.defineProperty(f.m14Ledger.consents[0],'state',{
+   enumerable:true,get(){called++;return 'GRANTED';},
+  });
+ });
+ await deny(f,'INPUT_CHANGED_DURING_PREVIEW');
+ assert.equal(called,0);
+});
+test('AUD-M15-53 ledger array made sparse during async WA26 phase denies',async()=>{
+ const f=factory();
+ mutateAtCatalog(f,()=>{f.m14Ledger.consents.length=2;});
+ await deny(f,'INPUT_CHANGED_DURING_PREVIEW');
+});
+test('AUD-M15-54 unchanged two-template preview remains deterministic',async()=>{
+ const f=factory();f.templates=[purpose(2),purpose(1)];
+ f.m13S0.templates=[catalog13(2),catalog13(1)];
+ f.m13Provider.details=[details(1),details(2)];
+ f.m14Ledger.grants=[grant(1),grant(2)];
+ await success(f,2);
+});
+test('AUD-M15-55 unchanged snapshots deny no legitimate candidate',async()=>{
+ const f=factory();
+ mutateAtPolicy(f,()=>{});
+ await success(f);
+});
+test('AUD-M15-56 policy mismatch must remain explicit and never expose PII',async()=>{
+ const f=factory();f.policy.policy_revision=10;
+ const out=await deny(f,'UNTRUSTED_SCOPE');
+ assert.equal(JSON.stringify(out).includes('LEAD_A'),false);
+});
