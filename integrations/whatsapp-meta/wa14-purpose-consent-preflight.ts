@@ -273,11 +273,14 @@ export function recheckWa14ConsentOffline(
      nowReq[k as keyof Wa14Request])||
      nowReq.now_ms<beforeReq.now_ms||
      now.observed_at_ms<before.observed_at_ms||
-     VERSIONS.some(k=>before[k]!==now[k])||
-     stableLedgerState(before)!==stableLedgerState(now))
+     VERSIONS.some(k=>before[k]!==now[k]))
    return deny('REVISION_OR_CONTEXT_CHANGED');
   const current=evaluate(nowReq,now);
   if(current.decision==='DENIED')return current;
+  // Preserve explicit policy-denial reasons above, but never accept a changed
+  // positive ledger while all declared revision numbers remain the same.
+  if(stableLedgerState(before)!==stableLedgerState(now))
+   return deny('REVISION_OR_CONTEXT_CHANGED');
   return pass('LAB_RECHECKED_UNVERIFIED');
  }catch{return deny('INVALID_INPUT');}
 }
