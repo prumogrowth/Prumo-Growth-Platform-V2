@@ -143,10 +143,17 @@ def reserve(c,request,*,scope,principal,m09_versions):
   c.execute('RELEASE SAVEPOINT '+sp)
   return out('UNAVAILABLE','DEPENDENCY_UNAVAILABLE')
 
-def cancel(c,*,attempt_ref,scope,reason='CANCELLED_BY_S0_LAB'):
- """No quota refund: uncertainty must never create free retry capacity."""
- if not ident(attempt_ref) or type(scope) is not HostScope or (
-    reason not in ('CANCELLED_BY_S0_LAB','REVOKED_BY_S0_LAB')):
+def cancel(c,*,attempt_ref,scope,principal=None,m09_versions=None,
+           reason='CANCELLED_BY_S0_LAB'):
+ """Full-scoped fixture cancel, not authenticated host authority.
+
+ The original issuer, key revision and five registry revisions are bound
+ by the immutable receipt digest. Revoked sources can still be cancelled,
+ but a caller missing the ORIGINAL signed scope cannot cancel another.
+ """
+ if (not ident(attempt_ref) or type(scope) is not HostScope
+     or type(principal) is not M2MPrincipal or type(m09_versions) is not Revisions
+     or reason not in ('CANCELLED_BY_S0_LAB','REVOKED_BY_S0_LAB')):
   return out('DENIED','INVALID_REQUEST')
  sp='pd_v02_cancel'
  c.execute('SAVEPOINT '+sp)
@@ -156,7 +163,9 @@ def cancel(c,*,attempt_ref,scope,reason='CANCELLED_BY_S0_LAB'):
   if not x or any(x[col]!=want for col,want in (
      ('store_ref',scope.concessionaria_id),('app_ref',scope.app_ref),
      ('route_ref',scope.route_ref),('channel_ref',scope.canal_id),
-     ('phone_ref',scope.phone_number_id))):
+     ('phone_ref',scope.phone_number_id),('waba_ref',scope.waba_id),
+     ('service_ref',principal.principal_ref))) or (
+     x['scope_digest']!=sha(scope_material(scope,principal,m09_versions))):
    raise ValueError('SCOPE_DENIED')
   if x['state']!='LAB_CANCELLED_NO_DISPATCH':
    c.execute('UPDATE s0_pd_v02_lab.receipts '
@@ -248,9 +257,14 @@ def readback(c,request,*,scope,principal,m09_versions):
      tpl['concessionaria_id']!=scope.concessionaria_id or
      tpl['waba_id']!=scope.waba_id or
      tpl['consent_purpose_ref']!=receipt['consent_purpose_ref'] or
+     tpl['template_purpose_ref']!=request['template_purpose_ref'] or
      not campaign['active'] or not campaign['eligible'] or
+     campaign['case_ref']!=receipt['case_ref'] or
+     campaign['template_ref']!=receipt['template_ref'] or
+     campaign['template_version']!=receipt['template_version'] or
      campaign['revision']!=snap['expected_campaign_revision'] or
-     not grant['active'] or grant['revision']!=snap['expected_grant_revision']):
+     not grant['active'] or grant['revision']!=snap['expected_grant_revision'] or
+     grant['template_purpose_ref']!=request['template_purpose_ref']):
    return out('LAB_STALE_NO_DISPATCH','TEMPLATE_CAMPAIGN_GRANT_STALE',
      commit_verified=True)
   # Exact original technical route/binding/grant check WITHOUT writing
@@ -266,15 +280,48 @@ def readback(c,request,*,scope,principal,m09_versions):
                   (scope.canal_id,)).fetchone()
   mprincipal=c.execute('SELECT * FROM s0_meta_lab.principals WHERE key_id=%s',
                    (principal.principal_ref,)).fetchone()
+  # Complete scope/tenant/issuer/validity revalidation, mirroring M09
+  # point-of-use WITHOUT creating a second point-of-use check record.
+  # Still synthetic and read-only: no operational identity assertion.
+  phone_rows=c.execute(
+    'SELECT route FROM s0_meta_lab.bindings WHERE phone=%s',
+    (scope.phone_number_id,)).fetchall()
+  waba_rows=c.execute(
+    'SELECT route FROM s0_meta_lab.bindings WHERE waba=%s',
+    (scope.waba_id,)).fetchall()
   if any(z is None for z in (route,binding,app,mgrant,mprincipal)) or (
     not route['active'] or route['revision']!=v['route'] or
+    route['app']!=scope.app_ref or
     not binding['active'] or binding['revision']!=v['binding'] or
-    not app['active'] or app['revision']!=v['app'] or
-    not mgrant['active'] or mgrant['revision']!=v['grant'] or
-    not mprincipal['active'] or mprincipal['revision']!=v['principal'] or
+    binding['route']!=scope.route_ref or
+    binding['channel']!=scope.canal_id or
+    binding['app']!=scope.app_ref or
     binding['phone']!=scope.phone_number_id or
     binding['waba']!=scope.waba_id or
-    mgrant['app_ref']!=scope.app_ref):
+    not mprincipal['active'] or mprincipal['revision']!=v['principal'] or
+    mprincipal['issuer']!=principal.issuer_ref or
+    principal.key_revision!=v['principal'] or
+    mprincipal['route']!=scope.route_ref or
+    mprincipal['app']!=scope.app_ref or
+    scope.canal_id not in mprincipal['channels'] or
+    'REGISTRY_READ' not in mprincipal['scopes'] or
+    scope.concessionaria_id not in principal.allowed_stores or
+    'REGISTRY_READ' not in principal.allowed_purposes or
+    principal.audience!='LAB_S0_M09' or
+    binding['tenant']!=mprincipal['tenant'] or
+    not app['active'] or app['revision']!=v['app'] or
+    app['route_ref']!=scope.route_ref or
+    app['concessionaria_id']!=scope.concessionaria_id or
+    app['tenant']!=mprincipal['tenant'] or
+    not mgrant['active'] or mgrant['revision']!=v['grant'] or
+    mgrant['app_ref']!=scope.app_ref or
+    mgrant['route_ref']!=scope.route_ref or
+    mgrant['waba_id']!=scope.waba_id or
+    mgrant['phone_number_id']!=scope.phone_number_id or
+    not mprincipal['not_before']<=now<mprincipal['not_after'] or
+    not app['valid_from']<=now<app['valid_until'] or
+    len(phone_rows)!=1 or not waba_rows or
+    any(row['route']!=scope.route_ref for row in waba_rows)):
    return out('LAB_STALE_NO_DISPATCH','M09_STALE_OR_REVOKED',
        commit_verified=True)
   quota=c.execute('SELECT * FROM s0_pd_v02_lab.quotas '
@@ -285,6 +332,8 @@ def readback(c,request,*,scope,principal,m09_versions):
     quota['revision']!=receipt['quota_revision'] or
     quota['observed_at']!=receipt['quota_observed_at'] or
     quota['valid_until']!=receipt['quota_valid_until'] or
+    quota['consumed']<receipt['quota_slot'] or
+    quota['capacity']<receipt['quota_slot'] or
     now>=quota['valid_until']):
    return out('LAB_STALE_NO_DISPATCH','QUOTA_REVOKED_OR_EXPIRED',
      commit_verified=True)
