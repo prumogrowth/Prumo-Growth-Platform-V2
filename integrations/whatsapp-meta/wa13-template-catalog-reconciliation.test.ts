@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {reconcileWa13CatalogOffline as reconcile}
+import {reconcileWa13CatalogOffline as reconcile,
+ recheckWa13CandidateOffline as recheck,wa13NormalizedComponentsDigest as digest}
  from './wa13-template-catalog-reconciliation.ts';
 
 const NOW=1_800_000_000_000;
@@ -13,6 +14,7 @@ const template=(n=1)=>({
  template_ref:'TPL_'+n,version_ref:'VERSION_'+n,template_revision:3,
  provider_template_id:String(100000+n),
  template_name:'approved_'+n,language_code:'pt_BR',
+ provider_components_sha256:digest([{type:'BODY',text:'Synthetic {{1}}'}]),
  meta_category:'UTILITY',local_status:'APPROVED',
  locally_active:true,current_version:true,
  valid_from_ms:NOW-100000,valid_until_ms:NOW+100000,
@@ -237,4 +239,142 @@ test('M13-43 even matching snapshots are not authenticated or synchronized',()=>
  assert.equal('status' in result,false);
  assert.equal('provider_components' in result,false);
  assert.equal('m2m_token' in result,false);
+});
+
+test('AUD-M13-44 changed BODY content cannot pass identical status and provider ID',()=>{
+ deny(check(host(),s0(),meta([{
+  ...detail(),components:[{type:'BODY',text:'Modified content'}],
+ }])), 'COMPONENT_VERSION_MISMATCH');
+});
+test('AUD-M13-45 changed interactive buttons cannot pass frozen reviewed content',()=>{
+ const withButtons=[{type:'BODY',text:'Synthetic {{1}}'},
+  {type:'BUTTONS',buttons:[{type:'QUICK_REPLY',text:'Confirm'}]}];
+ const entry={...template(),provider_components_sha256:digest(withButtons)};
+ ok(check(host(),s0([entry]),meta([{
+  ...detail(),components:withButtons,
+ }])));
+ deny(check(host(),s0([entry]),meta([{
+  ...detail(),components:[withButtons[0],{
+   type:'BUTTONS',buttons:[{type:'QUICK_REPLY',text:'Cancel'}],
+  }],
+ }])), 'COMPONENT_VERSION_MISMATCH');
+});
+test('AUD-M13-46 recognized optional Graph metadata accepted but not a grant',()=>{
+ const enriched={...detail(),parameter_format:'POSITIONAL',
+  quality_score:{score:'GREEN'},rejected_reason:null};
+ ok(check(host(),s0(),meta([enriched])));
+ const r=check(host(),s0(),meta([enriched]));
+ flags(r);assert.equal('quality_score' in r.candidates[0],false);
+});
+test('AUD-M13-47 unexpected provider metadata still denied',()=>{
+ deny(check(host(),s0(),meta([{...detail(),privileged:true}])),
+  'PROVIDER_SHAPE_DENIED');
+});
+test('AUD-M13-48 malformed local version component hash denied',()=>{
+ deny(check(host(),s0([{
+  ...template(),provider_components_sha256:'unsupported',
+ }])), 'INVALID_INPUT');
+});
+test('AUD-M13-49 fresh stable recheck has NO authority',()=>{
+ const r=check();
+ ok(r);
+ const next=recheck(r.candidates[0],host(),s0(),meta());
+ assert.equal(next.decision,'LAB_RECHECKED_UNVERIFIED');
+ assert.equal(next.reason,null);
+ for(const key of ['send_authorized','production_authorized','m2m_verified',
+  'meta_approval_verified','s0_source_authenticated','actual_sync_performed'] as const)
+  assert.equal(next[key],false,key);
+ assert.equal(Object.isFrozen(next),true);
+});
+test('AUD-M13-50 paused/revoked template after initial snapshot denied',()=>{
+ const c=check().candidates[0];
+ const result=recheck(c,host(),
+  s0([{...template(),local_status:'PAUSED'}]),
+  meta([{...detail(),status:'PAUSED'}]));
+ assert.equal(result.decision,'DENIED');
+ assert.equal(result.reason,'STALE_OR_REVOKED');
+});
+test('AUD-M13-51 version changes despite unchanged approved components denied',()=>{
+ const c=check().candidates[0];
+ const result=recheck(c,host(),s0([{
+  ...template(),version_ref:'VERSION_REPLACED',template_revision:4,
+ }]),meta());
+ assert.equal(result.decision,'DENIED');
+ assert.equal(result.reason,'STALE_OR_REVOKED');
+});
+test('AUD-M13-52 cross-tenant candidate reuse denied even if template IDs match',()=>{
+ const c=check().candidates[0];
+ const h={...host(),concessionaria_id:'SHOP_B'};
+ const result=recheck(c,h,{...s0(),concessionaria_id:'SHOP_B'},meta());
+ assert.equal(result.decision,'DENIED');
+ assert.equal(result.reason,'STALE_OR_REVOKED');
+});
+test('AUD-M13-53 mismatched candidate hash cannot be reused',()=>{
+ const c={...check().candidates[0],provider_components_sha256:'0'.repeat(64)};
+ const result=recheck(c,host(),s0(),meta());
+ assert.equal(result.decision,'DENIED');
+ assert.equal(result.reason,'STALE_OR_REVOKED');
+});
+test('AUD-M13-54 new approved component version requires a NEW candidate',()=>{
+ const c=check().candidates[0];
+ const components=[{type:'BODY',text:'New message content'}];
+ const t={...template(),provider_components_sha256:digest(components)};
+ const m={...detail(),components};
+ ok(check(host(),s0([t]),meta([m])));
+ const result=recheck(c,host(),s0([t]),meta([m]));
+ assert.equal(result.decision,'DENIED');
+ assert.equal(result.reason,'STALE_OR_REVOKED');
+});
+test('AUD-M13-55 current catalog scope invalid denies recheck',()=>{
+ const c=check().candidates[0];
+ const result=recheck(c,host(),{...s0(),app_ref:'APP_B'},meta());
+ assert.equal(result.decision,'DENIED');
+ assert.equal(result.reason,'CURRENT_CATALOG_DENIED');
+});
+test('AUD-M13-56 candidate accessor denied without executing it',()=>{
+ let hits=0;
+ const c={...check().candidates[0]};
+ Object.defineProperty(c,'template_ref',{enumerable:true,get(){
+  hits++;return 'TPL_1';
+ }});
+ const result=recheck(c,host(),s0(),meta());
+ assert.equal(result.decision,'DENIED');
+ assert.equal(result.reason,'INVALID_CANDIDATE');
+ assert.equal(hits,0);
+});
+test('AUD-M13-57 changed local expiry after selection causes recheck denial',()=>{
+ const c=check().candidates[0];
+ const result=recheck(c,host(),s0([{
+  ...template(),valid_until_ms:NOW,
+ }]),meta());
+ assert.equal(result.decision,'DENIED');
+ assert.equal(result.reason,'STALE_OR_REVOKED');
+});
+test('AUD-M13-58 provider optional getter denied even if field is ignored',()=>{
+ const raw=detail();let hits=0;
+ Object.defineProperty(raw,'quality_score',{enumerable:true,get(){
+  hits++;return {score:'GREEN'};
+ }});
+ deny(check(host(),s0(),meta([raw])),'PROVIDER_SHAPE_DENIED');
+ assert.equal(hits,0);
+});
+test('AUD-M13-59 WABA reassignment during fresh recheck denied',()=>{
+ const c=check().candidates[0];
+ const h={...host(),waba_id:'200009'};
+ const result=recheck(c,h,{...s0(),waba_id:'200009'},
+  {...meta(),waba_id:'200009'});
+ assert.equal(result.decision,'DENIED');
+ assert.equal(result.reason,'STALE_OR_REVOKED');
+});
+test('AUD-M13-60 no template available means no positive recheck',()=>{
+ const c=check().candidates[0];
+ const result=recheck(c,host(),s0([]),meta([]));
+ assert.equal(result.decision,'DENIED');
+ assert.equal(result.reason,'STALE_OR_REVOKED');
+});
+test('AUD-M13-61 candidate with forged positive authority is rejected',()=>{
+ const c={...check().candidates[0],send_authorized:true};
+ const result=recheck(c,host(),s0(),meta());
+ assert.equal(result.decision,'DENIED');
+ assert.equal(result.reason,'INVALID_CANDIDATE');
 });
