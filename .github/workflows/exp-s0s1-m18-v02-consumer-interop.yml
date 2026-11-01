@@ -1,0 +1,108 @@
+name: S0 -> Meta M18 v0.2 isolated evidence boundary
+on:
+  push:
+    branches: [exp/s0s1-m18-v02-consumer-interop-20261101]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  offline-contract-and-pinned-meta:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      M18_META_PIN: ${{ github.workspace }}/_meta_pin
+      NODE_OPTIONS: --experimental-strip-types
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 2a535ceb543418a76bb753a368eabc45bdbe4b0f
+          path: _meta_pin
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Verify exact additive S0 scope and Meta pinned SHA
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git -C _meta_pin rev-parse HEAD)" = 2a535ceb543418a76bb753a368eabc45bdbe4b0f
+          python3 -B - <<'PY'
+          import ast,pathlib,subprocess
+          base='0e22b0217059d5f78a58fd1748015dff82b23f9b'
+          changed=set(subprocess.check_output(['git','diff','--name-only',base,'HEAD'],text=True).splitlines())
+          need={'.github/workflows/exp-s0s1-m18-v02-consumer-interop.yml',
+            'integration/s0s1_m18_v02/adapter.mjs',
+            'integration/s0s1_m18_v02/test_interop.mjs',
+            'integration/s0s1_m18_v02/emit_pg17_evidence.py'}
+          optional={'docs/contratos/s0_pre_dispatch/S0_M18_V02_INTEROP_PG17_20261101.md'}
+          assert need<=changed and changed<=need|optional,sorted(changed^need)
+          ast.parse(pathlib.Path('integration/s0s1_m18_v02/emit_pg17_evidence.py').read_text())
+          print('S0 M18 v0.2 exact source scope PASS')
+          PY
+      - name: Pinned Meta M18 original 62-case regression
+        run: node --test _meta_pin/integrations/whatsapp-meta/wa18-dispatch-boundary-offline.test.ts
+      - name: S0 v0.2 nonauthorizing adapter tests (physical ones skipped)
+        run: node --test integration/s0s1_m18_v02/test_interop.mjs
+      - name: Protected sources unchanged
+        if: always()
+        run: test -z "$(git -C _meta_pin status --porcelain)"
+  disposable-pg17-interop:
+    needs: offline-contract-and-pinned-meta
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      M09_PG17_DISPOSABLE: 'YES'
+      M09_PINNED_SOURCE: ${{ github.workspace }}/_m09_pin
+      M18_META_PIN: ${{ github.workspace }}/_meta_pin
+      M18_V02_PG17_FIXTURE: /tmp/s0_m18_v02_pg17_lab.json
+      NODE_OPTIONS: --experimental-strip-types
+      PYTHONPATH: ${{ github.workspace }}
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 01ffdb093013664b73b18d23f92aac2202578210
+          path: _m09_pin
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 2a535ceb543418a76bb753a368eabc45bdbe4b0f
+          path: _meta_pin
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Verify source pins and disposable dependencies
+        run: |
+          test "$(git -C _m09_pin rev-parse HEAD)" = 01ffdb093013664b73b18d23f92aac2202578210
+          test "$(git -C _meta_pin rev-parse HEAD)" = 2a535ceb543418a76bb753a368eabc45bdbe4b0f
+          python3 -m pip install 'psycopg[binary]==3.2.13' 'cryptography==46.0.3'
+      - name: Build actual PG17 v0.2 before/after COMMIT evidence
+        run: python3 -B -m integration.s0s1_m18_v02.emit_pg17_evidence
+      - name: Feed physical PG17 evidence into S0-M18 adapter and pinned Meta M18
+        run: node --test integration/s0s1_m18_v02/test_interop.mjs
+      - name: S0 PRE_DISPATCH v0.2 physical regression
+        run: python3 -B -m unittest integration.s0s1_pre_dispatch_v02.test_pg17_service -q
+      - name: Original PRE_DISPATCH PG17 regression
+        run: python3 -B -m unittest integration.s0s1_pre_dispatch.test_pg17_service -q
+      - name: M09 original point-of-use regression
+        run: python3 -B -m unittest integration.s0s1_m09_registry.test_pg17_use_check -q
+      - name: Cleanup one-time evidence and immutable checkout
+        if: always()
+        run: |
+          rm -f /tmp/s0_m18_v02_pg17_lab.json
+          test -z "$(git -C _meta_pin status --porcelain)"
+          test -z "$(git -C _m09_pin status --porcelain)"
+          test -z "$(git status --porcelain --untracked-files=no)"
