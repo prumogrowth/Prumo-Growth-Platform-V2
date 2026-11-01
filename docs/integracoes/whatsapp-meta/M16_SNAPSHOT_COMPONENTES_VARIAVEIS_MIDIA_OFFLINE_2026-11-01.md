@@ -42,3 +42,18 @@ Todas as saídas mantêm `send_authorized:false`, `production_authorized:false`,
 - A criação de nova versão de conteúdo aprovado e mudanças no `slot→source` devem seguir **nova revisão auditada** e nova verificação Meta quando aplicável; nunca editar versão congelada por atalho. Não confundir hash com assinatura, serialização, origem de aprovação ou o próprio congelamento persistente.
 
 **Estado:** M16-A/B/C concluídos somente offline sob testes; **M16-D e marco M16 permanecem [ ]** para aprovação real e integração S0/MCP/Graph. Sem merge, deploy, Graph API, MCP operacional, banco produtivo, HTTP ACK, envio ou efeito comercial.
+
+
+## Adendo de auditoria — 01/11/2026
+
+A [auditoria M16](AUDITORIA_M16_SNAPSHOT_COMPONENTES_2026-11-01.md) complementou o congelamento técnico, sem autorizar Graph/MCP real:
+
+- O domínio de `snapshot_sha256` passa a incluir `selection_ref`; seleção diferente não pode compartilhar o mesmo hash mesmo com conteúdo/template iguais.
+- `binding_sha256` agora incorpora **toda a lista sintética `source_registry` ordenada**. Adicionar/remover fonte não utilizada invalida a fotografia; reordenar não. Isto **não autentica** autorização das fontes.
+- Strings acima de 8.192 unidades UTF-16 são rejeitadas antes de clonagem e hashing. Não substitui limites de transporte/arquivos da Meta.
+- Saída versionada como **`wa16-frozen-snapshot.lab.v0.2`**, evitando confusão de domínios de digest com o contrato de saída v0.1. A fixture de entrada permanece `wa16-template-freeze.lab.v0.1`; candidatos antigos são rejeitados.
+- A proteção da evidência de mídia por `concessionaria_id` e WABA já existia no HEAD auditado, com os testes M16-43/44; não foi reimplementada.
+
+**Evidência funcional:** 56 testes específicos (44 originais + 12 AUD-M16-45..56), **1.629/1.629 Meta offline**, scanner ACK lexical aprovado no [CI 41297336878](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41297336878), commit funcional `17fe2f5adf0b21a483960f7b72d8d20421974e2f`. A prova PG17 do ingresso S0 é independente e não autentica componente, arquivo de mídia ou aprovação M16.
+
+M16-D e marco principal permanecem abertos; nenhuma autorização operacional foi concedida.
