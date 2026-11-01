@@ -21,7 +21,7 @@ const relationshipAllowed = (record, records, actorId, shopId) => {
 };
 const relationshipText = value => typeof value==='string' && value.trim() ? value.trim() : null;
 export const ATTEMPT_STATES = Object.freeze({
-  scheduled:'Planejada', pending:'Planejada · horário a confirmar', requested:'Solicitada',
+  scheduled:'Agendada (projeção)', pending:'Ainda não agendada · horário pendente', requested:'Solicitada',
   queued:'Solicitada · aguardando execução', executing:'Em execução',
   sent_confirmed:'Envio confirmado na fixture', failed:'Falha', uncertain:'Incerta',
   cancelled:'Cancelada', canceled:'Cancelada'
