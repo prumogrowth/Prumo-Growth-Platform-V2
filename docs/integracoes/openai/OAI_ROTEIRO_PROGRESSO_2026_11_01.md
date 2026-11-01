@@ -30,6 +30,7 @@
 | OFF-13 | Comparação offline de posse/handoff F01 em duas leituras sintéticas S0; sem publicar mensagens | FEITO_OFFLINE | [CI 819/819](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41295745349), branch `feat/oai-off13-f01-s0-ownership-review-20261101` (774 anteriores + 45) | 
 | OFF-14 | Fontes comerciais por concessionária F01: validade, correção, escopo e recheck sintético | FEITO_OFFLINE | [CI 864/864](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41296742136), branch `feat/oai-off14-f01-commercial-source-review-20261101` (819 anteriores + 45) | 
 | OFF-15 / 12A | Testes transversais independentes de fronteiras F01/F02/F03 | FEITO_OFFLINE | [CI 908/908](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41309774616), 864 herdados + 44 novos; **etapa 12 ainda PENDENTE_CONTRATO** | 
+| OFF-16 / 12A | Pré-validação Responses API em simulação, sem key, rede, tokens nem custo | EM_TESTE | Branch `test/oai-off16-responses-api-contract-preflight-20261101`; meta 950 = 908 anteriores + 42 novos; uso real exige missão e orçamento autorizados | 
 | FV-REV-021 / Issue #13 | Resumos **pequenos e objetivos** de F01/F02/F03 no histórico acumulativo do **Resumo** do Frontend | FUTURO | [Issue #13](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/13), **não desenvolver agora** |
 
 ## Visibilidade de bloqueios
@@ -37,7 +38,11 @@
 - **08A:** compatibilidade estrutural offline concluída até OFF-14.
 - **08B:** alinhamento de interfaces S0/Meta em análise nas Issues existentes, sem interface S0/F01-F03 ratificada.
 - **08C:** aceite dos contratos e integração autorizada pendente; **não** progredir com credenciais ou dados reais.
-- **12A:** regressão transversal OFF-15 validada no [CI 41309774616](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41309774616) (908 PASS, 0 FAIL, 0 SKIP); **12B** (física/autenticada) depende de S0/Meta; **12C** (aceite) não iniciado.
+- **12A:** OFF-15 concluída; OFF-16 em teste sem API real. Regressão transversal OFF-15 validada no [CI 41309774616](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41309774616) (908 PASS, 0 FAIL, 0 SKIP); **12B** (física/autenticada) depende de S0/Meta; **12C** (aceite) não iniciado.
+
+## Gate futuro de uso da API OpenAI
+
+A chave da API não é necessária para 12A/contratos. Eventual teste do modelo (E05) exige autorização expressa para chamadas pagas, modelo/orçamento, canários 100% sintéticos e segredo no gerenciador autorizado, nunca em commit/chat/Issue. Testes do modelo não suprem 08B/08C nem dispensam S0.
 
 ## Regra de atualização
 
