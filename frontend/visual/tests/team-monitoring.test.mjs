@@ -120,3 +120,15 @@ test('G3: indicadores descrevem projeções e não prometem prazos ou decisão d
   assert.match(describeMonitoring('bankReplyPendingCases'),/pendentes de prova/);
   assert.equal(describeMonitoring('unknown'),'Indicador indisponível');
 });
+
+test('COE-03: indicador do Gestor exclui conteúdo invisível sem ocultar outras não lidas',()=>{
+ const records=sample(),original=projectTeamMonitoring('marina',records);
+ const record=records.find(r=>r.id==='A-102');
+ assert.ok(record && record.unread>0);
+ record.messages=[{id:'invisible-only',side:'in',body:'\u200B',time:'T1'}];
+ const result=projectTeamMonitoring('marina',records);
+ assert.equal(result.summary.unreadCases,original.summary.unreadCases-1);
+ assert.equal(result.operators.find(x=>x.id==='rafael').unreadCount,
+   original.operators.find(x=>x.id==='rafael').unreadCount-1);
+ assert.equal(record.unread,2,'a fonte bruta não é alterada pelo Frontend');
+});
