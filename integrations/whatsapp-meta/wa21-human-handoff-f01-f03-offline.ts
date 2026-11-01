@@ -32,7 +32,8 @@ type Data=Record<string,unknown>;
 type Decision='LAB_F01_ACTIVE_UNVERIFIED'|
  'LAB_HUMAN_ROUTE_ONLY_UNVERIFIED'|
  'LAB_F03_CUTOFF_CANDIDATE_UNVERIFIED'|
- 'LAB_POST_CLOSURE_HOLD'|'LAB_NON_CLOSURE_EVENT_HOLD';
+ 'LAB_POST_CLOSURE_HOLD'|'LAB_NON_CLOSURE_EVENT_HOLD'|
+ 'LAB_PRE_HANDOFF_EVENT_HOLD';
 type Reason='INVALID_INPUT'|'SCOPE_MISMATCH'|'TIMELINE_INCOHERENT'|
  'DEF_HANDOFF_CANNOT_RESUME_F01'|'CLOSURE_NOT_EXPLICIT'|
  'CLOSURE_IN_WRONG_STATE'|'PREVIOUS_INVALID'|'CONTEXT_CHANGED';
@@ -135,7 +136,10 @@ export function inspectWa21HandoffOffline(rawCase:unknown,rawEvent:unknown):Wa21
     Number(e.closure_cutoff_ms)<Number(c.handoff_at_ms)))
   return denied('TIMELINE_INCOHERENT');
  // No Meta event (inbound, timeout, template or human-sent) can trigger F03.
- const decision:Decision=closure?'LAB_F03_CUTOFF_CANDIDATE_UNVERIFIED':
+ const decision:Decision=!isActive&&!closure&&
+  Number(e.event_at_ms)<Number(c.handoff_at_ms)?
+  'LAB_PRE_HANDOFF_EVENT_HOLD':
+  closure?'LAB_F03_CUTOFF_CANDIDATE_UNVERIFIED':
   c.case_state==='LAB_HUMAN_CLOSED'?'LAB_POST_CLOSURE_HOLD':
   c.case_state==='LAB_HUMAN_HANDOFF_DEFINITIVE'?
    'LAB_HUMAN_ROUTE_ONLY_UNVERIFIED':
@@ -157,7 +161,8 @@ function validSnapshot(x:Data):boolean{
   typeof x.snapshot_sha256==='string'&&SHA.test(x.snapshot_sha256)&&
   ['LAB_F01_ACTIVE_UNVERIFIED','LAB_HUMAN_ROUTE_ONLY_UNVERIFIED',
    'LAB_F03_CUTOFF_CANDIDATE_UNVERIFIED','LAB_POST_CLOSURE_HOLD',
-   'LAB_NON_CLOSURE_EVENT_HOLD'].includes(x.decision as string)&&
+   'LAB_NON_CLOSURE_EVENT_HOLD','LAB_PRE_HANDOFF_EVENT_HOLD']
+   .includes(x.decision as string)&&
   typeof x.f01_resume_denied==='boolean'&&
   x.f03_requires_explicit_human_closure===true&&
   x.meta_window_is_not_f03_cutoff===true&&x.s0_recheck_required===true&&
