@@ -191,7 +191,7 @@ class PhysicalRegistryM09(unittest.TestCase):
     def test_slots_cannot_alias_within_or_cross_app(self):
         with self.lab.admin() as c:
             with self.assertRaises(psycopg.errors.UniqueViolation):
-                c.execute("INSERT INTO s0_m09_lab.slots VALUES('GET_SLOT_A','APP_B','EXTRA')")
+                c.execute("INSERT INTO s0_m09_lab.slots VALUES('GET_SLOT_A','APP_B','POST_APP_SECRET')")
         # Purpose existing in same App cannot get a second alias.
         with self.lab.admin() as c:
             with self.assertRaises(psycopg.errors.UniqueViolation):
