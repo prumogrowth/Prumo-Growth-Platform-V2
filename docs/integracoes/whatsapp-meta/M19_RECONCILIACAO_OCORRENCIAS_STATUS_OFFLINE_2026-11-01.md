@@ -10,10 +10,12 @@ A M19 oficial exige **status e evidências reais reconciliados** por `wamid`, te
 
 ## M19-A — Reconciliação sem inferência de autoridade
 
+Este documento detalha **somente a variante de vínculo alegado S0**. Há outra implementação complementar e não integrada, [`wa19-status-evidence-reconciliation-offline.ts`](../../../integrations/whatsapp-meta/wa19-status-evidence-reconciliation-offline.ts), com **56 testes** que incorpora Graph sintético, revogação com timestamp e identidade de lote/posição física. O [documento M19 conjunto](M19_STATUS_EVIDENCIAS_RECONCILIACAO_OFFLINE_2026-11-01.md) delimita as duas. Elas **não** são dois comprovantes independentes de um mesmo `sent`, nem definem um contrato único ratificado; essa convergência pertence à M19-D.
+
 `integrations/whatsapp-meta/wa19-status-reconciliation-offline.ts` fornece apenas as funções puras:
 
-- `reconcileWa19StatusOffline(scopeLab,bindingLab,occurrencesLab)`
-- `recheckWa19StatusOffline(previousSnapshot,scopeLab,bindingLab,occurrencesLab)`
+- `reconcileWa19S0BindingOffline(scopeLab,bindingLab,occurrencesLab)`
+- `recheckWa19S0BindingOffline(previousSnapshot,scopeLab,bindingLab,occurrencesLab)`
 
 Entradas estritas:
 - `wa19-status-request.lab.v0.1`: seleção, concessionária, App, WABA, emissor, canal, caso, intento, tentativa, `wamid`, digest do destinatário e janela de observação;
@@ -34,9 +36,9 @@ O resultado `wa19-status-snapshot.lab.v0.1` é um **agregado mínimo**: status t
 
 ## M19-B — Testes adversariais e isolamento
 
-`integrations/whatsapp-meta/wa19-status-reconciliation-offline.test.ts` acrescenta **57 cenários M19-01..57**: progressão não inferida, leitura/entrega sem sent, ordenação, ocorrência duplicada exata, colisão divergente, mesmo status em eventos diferentes, conflito sent↔failed, alegação invalidada, tempo inválido/futuro, erro 131049, escopo de loja/WABA/emissor/caso/attempt/intent/destinatário, snapshots stale/future, getters, array esparso, falsificação de HMAC/persistência, recheck e alterações de vínculo.
+`integrations/whatsapp-meta/wa19-status-reconciliation-offline.test.ts` acrescenta **57 cenários M19-S0-01..57**: progressão não inferida, leitura/entrega sem sent, ordenação, ocorrência duplicada exata, colisão divergente, mesmo status em eventos diferentes, conflito sent↔failed, alegação invalidada, tempo inválido/futuro, erro 131049, escopo de loja/WABA/emissor/caso/attempt/intent/destinatário, snapshots stale/future, getters, array esparso, falsificação de HMAC/persistência, recheck e alterações de vínculo.
 
-**Evidência CI:** anexar SHA funcional e execução dos dois jobs após validação; os 57 casos elevam a base de 1.767 para **1.824 testes Meta offline**. As 18 verificações PG17 são históricas **apenas do ingresso S0↔Meta** e não devem ser somadas à suíte M19 nem usadas como prova de callback/status real.
+**Evidência conjunta verificada:** [CI 41328742682](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41328742682) após os dois módulos: **1.880/1.880 testes Meta offline** = 1.767 base + **57 M19-S0** neste módulo + **56 M19-Graph** no laboratório paralelo. **18/18 verificações PG17** históricas de ingresso S0↔Meta em job separado, dois jobs `success`, scanner lexical ACK aprovado. O CI dos commits posteriores de nomeação e documentação será verificado separadamente. Nenhuma dessas contagens autentica callbacks/status real.
 
 ## M19-C — Dependências para WA-39/F02
 
