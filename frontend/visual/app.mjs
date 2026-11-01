@@ -609,8 +609,12 @@ function renderAiCommunications(item){
     const feedback=projectDemoOperationFeedback(state.processing[item.id].kind);
     section.append(callout(feedback.title,feedback.description,'warning'));
   }
-  const bank=el('button','btn btn-light','Consultar ficha e processamento em Banco');bank.type='button';bank.id='open-bank-case';
-  bank.addEventListener('click',()=>openBank(item.id,'open-bank-case'));section.append(bank);
+  const bank=el('button','btn btn-light','Consultar ficha e processamento');bank.type='button';bank.id='open-bank-case';
+  bank.addEventListener('click',()=>{
+    if(selectedCase()?.id!==item.id || state.activeModule!=='conversations')return;
+    const details=$('detail-content').querySelector('#registration-diagnostics');
+    if(details){details.open=true;details.querySelector('summary')?.focus();}
+  });section.append(bank);
   return section;
 }
 function renderOperationalHistory(item){
@@ -695,7 +699,7 @@ function renderDetails() {
     content.append(group,renderAiCommunications(item));
     // Fichas em processamento, parciais e históricos bancários nunca entram
     // na fila de prontos; sua consulta técnica permanece no Resumo do caso.
-    if(item.registrationProjection || state.processing[item.id]){
+    {
       const diagnostics=el('details','registration-diagnostics');
       diagnostics.id='registration-diagnostics';
       diagnostics.append(el('summary','','Situação cadastral · somente leitura'),renderRegistration(item));
@@ -796,9 +800,9 @@ function renderRegistration(item){
           ['denied','Permissão negada'],['unavailable','Serviço indisponível']
         ]){
           const button=el('button','btn btn-light',label);button.type='button';
-          button.addEventListener('click',()=>{if(!canSimulateCompletion(bankSelectedCase(),state.actorId,state.shopId))return;
-            if(bankSelectedCase()?.id!==item.id)return;
-            state.processing[item.id]={...state.processing[item.id],kind};render();renderBank();
+          button.addEventListener('click',()=>{const current=state.activeModule==='bank'?bankSelectedCase():selectedCase();
+            if(!canSimulateCompletion(current,state.actorId,state.shopId) || current?.id!==item.id)return;
+            state.processing[item.id]={...state.processing[item.id],kind};render();
             focusExtractionAfterRerender(item.id,'Resultado técnico fictício '+label+' do caso '+item.id);
             showToast(projectDemoOperationFeedback(kind).title+'. Nenhuma API foi chamada.');});actions.append(button);
         }extract.append(actions);
@@ -850,14 +854,14 @@ function renderRegistration(item){
         const button=el('button','btn btn-light','Visualizar retorno fictício de esclarecimento');
         button.type='button';button.id='show-clarification-demo';
         button.addEventListener('click',()=>{
-          const current=bankSelectedCase();
+          const current=state.activeModule==='bank'?bankSelectedCase():selectedCase();
           if(!current || current.id!==item.id || state.reviewScenes[item.id])return;
           const candidate=projectMockClarificationScene(current,state.actorId,state.shopId);
           if(!candidate)return;
           // Bank has its own case selection. Never clear another conversation's draft.
           if(state.selectedId===item.id)closeTransientDialogs();
           state.reviewScenes[item.id]=candidate;
-          renderBank();render();
+          render();
           focusExtractionAfterRerender(item.id,'Cenário de esclarecimento fictício do caso '+item.id);
           showToast('Cenário alternativo exibido; NÃO houve reabertura S0 nem extração F03.');
         });
@@ -1522,7 +1526,10 @@ $('completion-dialog').addEventListener('close',()=>{
     ? stageMockRepeatCompletion(item,state.actorId,state.shopId) : {kind:'accepted'};
   if(!state.processing[item.id])return;
   state.detailTab='overview';
-  render();openBank(item.id,'thread-title');showToast('Solicitação de conclusão simulada. Nenhuma API foi chamada.');
+  render();
+   const diagnostics=$('detail-content').querySelector('#registration-diagnostics');
+   if(diagnostics){diagnostics.open=true;diagnostics.querySelector('summary')?.focus();}
+   showToast('Solicitação de conclusão simulada. Nenhuma API foi chamada.');
 });
 $('template-dialog').addEventListener('close',()=>{
   const isConfirm=$('template-dialog').returnValue==='confirm';
