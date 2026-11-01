@@ -1,0 +1,104 @@
+name: S0 S1 M09 - signed origin and live recheck lab
+on:
+  push:
+    branches: [exp/s0s1-m09-origin-recheck-20261101]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  pinned-offline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 745f54acd8255bea728c5ab7c87848d5018ad66b
+          path: _meta_pin
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Audit exact new files and pinned Meta
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git -C _meta_pin rev-parse HEAD)" = 745f54acd8255bea728c5ab7c87848d5018ad66b
+          python3 -B - <<'PY'
+          import ast,subprocess
+          from pathlib import Path
+          base='b73ed2923c6422143889205a7727cebd8dffd1f4'
+          found=set(subprocess.check_output(
+            ['git','diff','--name-only',base,'HEAD'],text=True).splitlines())
+          required={
+            '.github/workflows/exp-s0s1-m09-origin-recheck.yml',
+            'integration/s0s1_m09_registry/origin_recheck_consumer.ts',
+            'integration/s0s1_m09_registry/test_origin_recheck_consumer.mjs',
+            'integration/s0s1_m09_registry/emit_origin_recheck_evidence.py'}
+          optional={'docs/contratos/s0s1_meta_registry/M09_07_ORIGIN_RECHECK_LAB.md'}
+          assert required<=found and found<=required|optional,sorted(found^required)
+          ast.parse(Path('integration/s0s1_m09_registry/emit_origin_recheck_evidence.py').read_text())
+          print('M09-07 controlled delta PASS')
+          PY
+      - name: Independent Ed25519 origin/recheck negative tests
+        run: node --experimental-strip-types --test integration/s0s1_m09_registry/test_origin_recheck_consumer.mjs
+      - name: M09-06 previous purpose adapter regression
+        run: node --experimental-strip-types --test integration/s0s1_m09_registry/test_purpose_slot_consumer.mjs
+      - name: Original WA04A and WA09 tests preserved
+        run: |
+          node --experimental-strip-types --test \
+            _meta_pin/integrations/whatsapp-meta/credential-routing.test.ts \
+            _meta_pin/integrations/whatsapp-meta/wa09-asset-onboarding-audit.test.ts
+      - name: No original source modified
+        if: always()
+        run: |
+          test -z "$(git -C _meta_pin status --porcelain)"
+          test -z "$(git status --porcelain --untracked-files=no)"
+
+  disposable-pg17:
+    needs: pinned-offline
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      M09_PINNED_SOURCE: ${{ github.workspace }}/_m09_pin
+      M09_PG17_DISPOSABLE: 'YES'
+      PYTHONPATH: ${{ github.workspace }}
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 01ffdb093013664b73b18d23f92aac2202578210
+          path: _m09_pin
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Validate pinned historical PG17 source and dependencies
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git -C _m09_pin rev-parse HEAD)" = 01ffdb093013664b73b18d23f92aac2202578210
+          python3 -m pip install 'psycopg[binary]==3.2.13' 'cryptography==46.0.3'
+      - name: Place ephemeral signed origin evidence in runner temp
+        run: echo "M09_ORIGIN_EVIDENCE=$RUNNER_TEMP/m09-origin-recheck.json" >> "$GITHUB_ENV"
+      - name: Generate two physical signed reads and prove subsequent revocation
+        run: python3 -B -m integration.s0s1_m09_registry.emit_origin_recheck_evidence
+      - name: Verify distinct Ed25519 attestations with pinned test key and recheck requirements
+        run: node --experimental-strip-types --test integration/s0s1_m09_registry/test_origin_recheck_consumer.mjs
+      - name: M09-04 physical signed-read anti-replay regression
+        run: python3 -B -m unittest integration.s0s1_m09_registry.test_pg17_m2m -q
+      - name: Delete ephemeral evidence and confirm inherited sources unchanged
+        if: always()
+        run: |
+          if test -n "$M09_ORIGIN_EVIDENCE"; then rm -f "$M09_ORIGIN_EVIDENCE"; fi
+          test -z "$(git -C _m09_pin status --porcelain)"
+          test -z "$(git status --porcelain --untracked-files=no)"
