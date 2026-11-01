@@ -102,3 +102,11 @@ test('FV-UX: banco exibe somente lista elegivel',()=>{
  assert.equal(get('bank-case-select').hidden,true);
  get('bank-close').click();
 });
+
+test('FV-UX: inicialização identifica Conversas como módulo ativo',()=>{
+ reset();
+ assert.equal(get('visual-app').dataset.module,'conversations');
+ assert.equal(get('conversations-nav').getAttribute('aria-current'),'page');
+ assert.equal(get('bank-dialog').open,false);
+ assert.equal(get('team-dialog').open,false);
+});
