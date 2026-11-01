@@ -30,7 +30,8 @@ jobs:
           expected={'.github/workflows/exp-s0s1-m09-pg17-registry.yml',
              'integration/s0s1_m09_registry/pg17_registry_candidate.sql',
              'integration/s0s1_m09_registry/pg17_registry.py',
-             'integration/s0s1_m09_registry/test_pg17_registry.py'}
+             'integration/s0s1_m09_registry/test_pg17_registry.py',
+             'docs/contratos/s0s1_meta_registry/M09_03_REGISTRY_PG17_CANDIDATE.md'}
           assert actual==expected, (sorted(actual^expected))
           print('PINNED S0/S1 source preserved, exact candidate diff PASS')
           PY
