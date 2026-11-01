@@ -51,3 +51,11 @@ O retorno **não** é uma resposta homologada S0→F02. O contrato definitivo ex
 - [ ] Aguardar aceite formal interfrentes antes de merge/deploy/produção.
 
 **Estado:** M15-A/B/C avançam apenas offline; M15-D e marco principal abertos. Sem conexão de Graph, credenciais, SQL produtivo, HTTP ACK, envio, merge ou deploy.
+
+## Adendo — auditoria M15, 01/11/2026
+
+A [auditoria M15](AUDITORIA_M15_F02_PREVIA_2026-11-01.md) corrigiu o caso `AUD-M15-01`: a preparação antiga misturava fixtures M13 já conciliadas com dados M14 que podiam ser alterados nas portas assíncronas da WA-26. Agora são capturados objetos de dados imutáveis e limitados no início e nas leituras de portas; a rechecagem de igualdade profunda antes da saída recusa qualquer deriva observada com `INPUT_CHANGED_DURING_PREVIEW`. Alterações introduzindo getter, array esparso ou ciclo falham sem executar código do getter. **Não** protege contra ABA, mudança após a última leitura, fonte não autenticada ou falta de transação.
+
+`AUD-M15-02` registra incompatibilidade explícita com a visão do fornecedor do contrato candidato [OFF-04 da OpenAI](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/blob/1f8157838c11a7b59456a3b178a8ade21a17b42b/docs/integracoes/openai/OAI_OFF_04_PLANEJAMENTO_F02_CANDIDATO_v0_1.md): a prévia M15 contém `template_ref` real para validação pelo host S0, enquanto o fornecedor OpenAI recebe aliases opacos sem esses IDs. A saída agora declara `intended_consumer:'LAB_S0_HOST_STAGING_ONLY'` e `openai_provider_payload_compatible:false`. Não ligar diretamente esta prévia ao modelo nem supor aprovação interfrentes; a conversão de aliases e continuidade F02 são responsabilidade do futuro contrato S0/OpenAI.
+
+**Evidência auditada:** 60 casos M15 (40 anteriores + 20 AUD-M15-41..60), **1.573/1.573 testes Meta offline** e 18/18 PG17 históricos independentes, dois jobs `success`, scanner ACK aprovado no [CI 41292910558](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41292910558), commit funcional `af8e47196c0a6dc1e079f0c8b040cfbd9a5eb067`. Os números de 40/1.553 acima refletem a implementação inicial. M15-D e marco principal continuam abertos.
