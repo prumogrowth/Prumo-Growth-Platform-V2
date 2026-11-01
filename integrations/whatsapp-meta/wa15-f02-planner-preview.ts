@@ -254,13 +254,17 @@ export async function prepareWa15F02PreviewOffline(
   const checkedPorts:Wa26FixturePorts={
    async resolveSelection(selection_ref:string,phase:Wa26Phase){
     const raw=await ports.resolveSelection(selection_ref,phase);
-    const snapshot=capture(raw);
+    let snapshot:Wa26Scope;
+    try{snapshot=capture(raw) as Wa26Scope;}
+    catch{mismatch=true;throw Error('INVALID_SCOPE_SHAPE');}
     if(!scopeMatches(snapshot,q)){mismatch=true;throw Error('SCOPE');}
     return snapshot as Wa26Scope;
    },
    async readScopedPolicy(scope:Wa26Scope,phase:Wa26Phase){
     const raw=await ports.readScopedPolicy(scope,phase);
-    const snapshot=capture(raw);
+    let snapshot:unknown;
+    try{snapshot=capture(raw);}
+    catch{mismatch=true;throw Error('INVALID_POLICY_SHAPE');}
     if(!policyMatches(snapshot,ledgerCopy,q)){
      mismatch=true;throw Error('POLICY');
     }
