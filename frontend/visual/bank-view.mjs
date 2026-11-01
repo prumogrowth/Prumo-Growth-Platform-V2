@@ -77,6 +77,16 @@ export function bankPhaseCopy(projection) {
   return { title:'Evidência bancária não confirmada', description:'Não afirmar remessa, aprovação, recusa, venda ou prova sem retorno confiável da S0.' };
 }
 
+const BANK_PHASE_LABELS = Object.freeze({
+  not_submitted:'Não enviada', submission_requested:'Solicitação não comprovada',
+  submission_verified:'Remessa confirmada', reply_pending:'Aguardando retorno',
+  reply_verified:'Retorno comprovado', unverified:'Não verificada',
+  unavailable:'Informação indisponível'
+});
+export function bankPhaseDisplayLabel(phase) {
+  return BANK_PHASE_LABELS[phase] ?? 'Informação indisponível';
+}
+
 export function bankCanMockWrite() {
   // Sem catálogo de provas, C15-C18 físico, validação e autenticação reais.
   return false;
