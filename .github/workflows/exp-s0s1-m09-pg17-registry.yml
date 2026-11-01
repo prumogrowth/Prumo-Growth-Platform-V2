@@ -1,0 +1,86 @@
+name: S0 S1 M09 - transactional App grant PG17 candidate
+on:
+  push:
+    branches: [exp/s0s1-m09-pg17-registry-20261031]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  scope-and-unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Verify exact candidate branch scope
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          python3 -B - <<'PY'
+          import subprocess
+          base='06ad474e5c14b198c95235b7776f4d27fe3551fb'
+          actual=set(subprocess.check_output(
+            ['git','diff','--name-only',base,'HEAD'],text=True).splitlines())
+          expected={'.github/workflows/exp-s0s1-m09-pg17-registry.yml',
+             'integration/s0s1_m09_registry/pg17_registry_candidate.sql',
+             'integration/s0s1_m09_registry/pg17_registry.py',
+             'integration/s0s1_m09_registry/test_pg17_registry.py'}
+          assert actual==expected, (sorted(actual^expected))
+          print('PINNED S0/S1 source preserved, exact candidate diff PASS')
+          PY
+      - name: Existing M09-01 unit regressions
+        run: |
+          python3 -B -m unittest integration.s0s1_m09_registry.test_port -v
+          python3 -O -B -m unittest integration.s0s1_m09_registry.test_port -q
+      - name: Parse new candidate scripts
+        run: |
+          python3 -B - <<'PY'
+          import ast
+          from pathlib import Path
+          for p in ['pg17_registry.py','test_pg17_registry.py']:
+            ast.parse((Path('integration/s0s1_m09_registry')/p).read_text())
+          print('new adapter/tests Python syntax PASS')
+          PY
+
+  pg17-isolated:
+    needs: scope-and-unit
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      M09_PG17_DISPOSABLE: 'YES'
+      M09_PINNED_SOURCE: ${{ github.workspace }}/_m09_pin
+      PYTHONPATH: ${{ github.workspace }}
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 01ffdb093013664b73b18d23f92aac2202578210
+          path: _m09_pin
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Verify source SHA and install isolated Python dependency
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git -C _m09_pin rev-parse HEAD)" = 01ffdb093013664b73b18d23f92aac2202578210
+          python3 -m pip install 'psycopg[binary]==3.2.13'
+      - name: Physical App grant revisions and concurrent PG17 constraints
+        run: python3 -B -m unittest integration.s0s1_m09_registry.test_pg17_registry -v
+      - name: Inherited S0 M09-02 physical regressions
+        run: python3 -B -m unittest integration.s0s1_m09_registry.test_pg17_binding -v
+      - name: Original source tree and candidate checkout unchanged
+        if: always()
+        run: |
+          test -z "$(git -C _m09_pin status --porcelain)"
+          test -z "$(git status --porcelain --untracked-files=no)"
