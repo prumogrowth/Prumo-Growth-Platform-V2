@@ -20,7 +20,7 @@ A [WA-21](wa21-papeis-diretor-gestor-consultor-assinatura-2026-10-21.md) determi
 
 - **56 testes M17-01..56** anteriores preservados.
 - **20 testes AUD-M17-57..76** adicionais: cabeçalho falso posterior/indentado, corpo comum com várias linhas, separadores `U+2028/U+2029`, surrogate isolado, caráter de formatação, ligação de case/intenção/seleção/autor ao novo digest, adulteração de cargo/texto/digest, rejeição da versão anterior, nome hífen válido.
-- **Evidência funcional:** SHA `c70eac68fecccc481ca0191ece42b96fb3fcc770`, [CI 41309801562](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41309801562) — **1.705/1.705 testes Meta offline**, **76 M17**, scanner ACK lexical aprovado no job de testes. As 18 provas PG17 históricas são **separadas**, exclusivamente de ingresso S0/Meta, e não comprovam autoria M17; confirmar status do job físico independentemente. Runs intermediários do código sem a suíte integral não constituem homologação final da auditoria.
+- **Evidência funcional:** SHA `c70eac68fecccc481ca0191ece42b96fb3fcc770`, [CI 41309801562](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41309801562) — **1.705/1.705 testes Meta offline**, **76 M17**, scanner ACK lexical aprovado, **18/18 provas PG17** históricas de ingresso físico S0/Meta no job independente, **dois jobs `success`**. As PG17 **não comprovam autoria M17**. Runs intermediários do código sem a suíte integral não constituem homologação final da auditoria.
 
 ## Decisões e limites entre frentes
 
