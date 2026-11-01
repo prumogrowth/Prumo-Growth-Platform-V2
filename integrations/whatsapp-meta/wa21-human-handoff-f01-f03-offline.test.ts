@@ -284,3 +284,34 @@ test('M21-54 S0 LAB cutoffs never open commercial C09',()=>{
  assert.equal(s.c09_window_authorized,false);
  assert.equal(s.f03_invocation_authorized,false);
 });
+
+
+test('M21-55 historical inbound before terminal handoff cannot be rerouted',()=>{
+ const e=ev();e.event_at_ms=NOW-5000;
+ const s=good(run(c(),e),'LAB_PRE_HANDOFF_EVENT_HOLD');
+ assert.equal(s.f01_resume_denied,true);
+});
+test('M21-56 historical Meta timeout before handoff stays held',()=>{
+ const e=ev('LAB_META_WINDOW_TIMEOUT');e.event_at_ms=NOW-5000;
+ good(run(c(),e),'LAB_PRE_HANDOFF_EVENT_HOLD');
+});
+test('M21-57 event exactly at handoff is routed human in LAB',()=>{
+ const e=ev();e.event_at_ms=NOW-4000;
+ good(run(c(),e),'LAB_HUMAN_ROUTE_ONLY_UNVERIFIED');
+});
+test('M21-58 pre-handoff inbound on closed case cannot trigger F03',()=>{
+ const e=ev();e.event_at_ms=NOW-5000;
+ good(run(closed(),e),'LAB_PRE_HANDOFF_EVENT_HOLD');
+});
+test('M21-59 changed historical timestamp invalidates recheck',()=>{
+ const e=ev();e.event_at_ms=NOW-5000;
+ const s=good(run(c(),e),'LAB_PRE_HANDOFF_EVENT_HOLD');
+ const newer={...e,event_at_ms:NOW-6000};
+ denied(recheck(s,c(),newer),'CONTEXT_CHANGED');
+});
+test('M21-60 claims of human handoff never prove Meta sent',()=>{
+ const s=good(run(c(),ev('LAB_HUMAN_MESSAGE_SENT_CLAIM')),
+ 'LAB_HUMAN_ROUTE_ONLY_UNVERIFIED');
+ assert.equal(s.graph_dispatch_authorized,false);
+ assert.equal(s.human_dispatch_authorized,false);
+});
