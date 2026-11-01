@@ -41,3 +41,14 @@ Todas as respostas, mesmo positivas, mantêm `identity_verified=false`, `authori
 6. Não promover a entrega recente S0 de PRE_DISPATCH PG17 (`prumo.s0.pre-dispatch.pg17/0.1-lab-only`) a fonte de identidade autenticada; seu aceite e aplicação real pertencem aos proprietários das frentes.
 
 **Status:** M17-A/B/C são apenas evidência offline; **M17-D e marco principal [ ]** até autorização/integração S0/S1/Infra e testes físicos do fluxo correto. Sem Graph, merge, deploy, HTTP ACK, banco produtivo ou envio de mensagem.
+
+
+## Adendo de auditoria corretiva — 01/11/2026
+
+A [auditoria M17](AUDITORIA_M17_ASSINATURA_HUMANA_2026-11-01.md) reforçou a prevenção de falsificação do autor humano em **qualquer** linha do texto (incluindo indentação), rejeitou separadores Unicode `Zl/Zp` e surrogates isolados `Cs` e vinculou seleção/caso/intenção/ator/cargo/revisões/digests a `context_sha256`, sempre **sem autoridade real**.
+
+A saída passa a ser **`wa17-human-prefix-preview.lab.v0.2`**, porque o contrato de consistência mudou. Entradas de solicitação/sessão/caso mantêm seus respectivos contratos LAB v0.1. O recheck recusa snapshots legados v0.1 e verifica no candidato recebido a correspondência exata entre o prefixo WA-21 (cargo e nome alegados), o conteúdo visível, `draft_sha256`, `composed_sha256` e o novo hash contextual. O hash não é HMAC, prova de consentimento, assinatura digital ou chave de idempotência.
+
+**Evidência:** 76 testes M17 (56 originais + 20 de auditoria), [CI 41309801562](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41309801562), commit funcional `c70eac68fecccc481ca0191ece42b96fb3fcc770`: **1.705/1.705 Meta offline**, scanner ACK estático aprovado, 18/18 verificações PG17 históricas independentes, dois jobs `success`. Os números de 56/1.685 acima se referem à implementação original.
+
+**M17-D e marco principal permanecem [ ]**: identidade, cargo, atribuição e janela verdadeiros dependem de S0/S1; o registro efetivamente enviado e callbacks pertencem ao serviço autenticado e à Meta, não à prévia local.
