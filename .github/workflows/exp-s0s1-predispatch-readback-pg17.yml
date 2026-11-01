@@ -1,0 +1,76 @@
+name: S0 PRE_DISPATCH v0.2 post-COMMIT readback and quota PG17 lab
+on:
+  push:
+    branches: [exp/s0s1-predispatch-readback-pg17-20261101]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-source-scope:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Verify exact additive delta and Python syntax
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          python3 -B - <<'PY'
+          import ast,pathlib,subprocess
+          base='054261b23b312421a6956b51ff5b37d36f10babb'
+          actual=set(subprocess.check_output(['git','diff','--name-only',base,'HEAD'],text=True).splitlines())
+          needed={
+           '.github/workflows/exp-s0s1-predispatch-readback-pg17.yml',
+           'integration/s0s1_pre_dispatch_v02/pg17_schema.sql',
+           'integration/s0s1_pre_dispatch_v02/pg17_service.py',
+           'integration/s0s1_pre_dispatch_v02/test_pg17_service.py'}
+          allowed=needed|{'docs/contratos/s0_pre_dispatch/S0_PRE_DISPATCH_READBACK_V02_20261101.md'}
+          assert needed<=actual and actual<=allowed,sorted(actual^needed)
+          for name in ('pg17_service.py','test_pg17_service.py'):
+           ast.parse((pathlib.Path('integration/s0s1_pre_dispatch_v02')/name).read_text())
+          print('S0 PRE_DISPATCH v0.2 exact diff and syntax PASS')
+          PY
+      - name: Preserve M09 original synthetic snapshot regression
+        run: python3 -B -m unittest integration.s0s1_m09_registry.test_port -q
+  disposable-pg17:
+    needs: original-source-scope
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      M09_PG17_DISPOSABLE: 'YES'
+      M09_PINNED_SOURCE: ${{ github.workspace }}/_m09_pin
+      PYTHONPATH: ${{ github.workspace }}
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 01ffdb093013664b73b18d23f92aac2202578210
+          path: _m09_pin
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Verify pinned S0 physical origin and fixed dependencies
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git -C _m09_pin rev-parse HEAD)" = 01ffdb093013664b73b18d23f92aac2202578210
+          python3 -m pip install 'psycopg[binary]==3.2.13' 'cryptography==46.0.3'
+      - name: S0 PRE_DISPATCH v0.2 PG17 readback and quota tests
+        run: python3 -B -m unittest integration.s0s1_pre_dispatch_v02.test_pg17_service -v
+      - name: Original PRE_DISPATCH physical 24-case regression
+        run: python3 -B -m unittest integration.s0s1_pre_dispatch.test_pg17_service -q
+      - name: Physical M09 point-of-use source regression
+        run: python3 -B -m unittest integration.s0s1_m09_registry.test_pg17_use_check -q
+      - name: Verify protected source unmodified
+        if: always()
+        run: |
+          test -z "$(git -C _m09_pin status --porcelain)"
+          test -z "$(git status --porcelain --untracked-files=no)"
