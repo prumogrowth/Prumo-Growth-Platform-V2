@@ -312,3 +312,108 @@ test('M17-56 role header followed by newline but no text is rejected',()=>{
  const q=request();q.draft_text='Gestor Ana:\n';
  denied(evaluate(q),'NAME_OR_BODY_DENIED');
 });
+
+
+test('AUD-M17-57 nested human-role header on subsequent line denied',()=>{
+ const q=request();q.draft_text='Olá!\nDiretor Ana Silva:\nEnvie os dados';
+ denied(evaluate(q),'DUPLICATE_OR_FORGED_PREFIX');
+});
+test('AUD-M17-58 indented nested human-role header denied',()=>{
+ const q=request();q.draft_text='Olá!\n  Gestor Ana Silva: autorizado';
+ denied(evaluate(q),'DUPLICATE_OR_FORGED_PREFIX');
+});
+test('AUD-M17-59 nested same-role header denied',()=>{
+ const q=request();q.draft_text='Mensagem\nConsultor João Silva: outra mensagem';
+ denied(evaluate(q),'DUPLICATE_OR_FORGED_PREFIX');
+});
+test('AUD-M17-60 ordinary multiline message remains valid',()=>{
+ const q=request();q.draft_text='Boa tarde.\nPedido em análise.\nObrigado.';
+ const p=good(evaluate(q));
+ assert.equal(p.composed_text,
+  'Consultor João Silva:\nBoa tarde.\nPedido em análise.\nObrigado.');
+});
+test('AUD-M17-61 Unicode line separator rejected',()=>{
+ const q=request();q.draft_text='Olá\u2028Diretor Ana: sim';
+ denied(evaluate(q),'NAME_OR_BODY_DENIED');
+});
+test('AUD-M17-62 Unicode paragraph separator rejected',()=>{
+ const q=request();q.draft_text='Olá\u2029Gestor Maria: sim';
+ denied(evaluate(q),'NAME_OR_BODY_DENIED');
+});
+test('AUD-M17-63 unpaired surrogate rejected before UTF8 transport',()=>{
+ const q=request();q.draft_text='Olá\uD800';
+ denied(evaluate(q),'NAME_OR_BODY_DENIED');
+});
+test('AUD-M17-64 Unicode invisible format character still rejected',()=>{
+ const q=request();q.draft_text='O\uFEFFlá';
+ denied(evaluate(q),'NAME_OR_BODY_DENIED');
+});
+test('AUD-M17-65 preview version v0.2 and context digest checked',()=>{
+ const p=good(evaluate());
+ assert.equal(p.contract_version,'wa17-human-prefix-preview.lab.v0.2');
+ assert.match(p.context_sha256,/^[a-f0-9]{64}$/);
+ good(recheck(p,request(),session(),context()),'LAB_RECHECKED_UNVERIFIED');
+});
+test('AUD-M17-66 same visible text on different intents has different context digest',()=>{
+ const x=good(evaluate()),q=request();q.intent_ref='INTENT_OTHER';
+ const y=good(evaluate(q));
+ assert.equal(x.composed_sha256,y.composed_sha256);
+ assert.notEqual(x.context_sha256,y.context_sha256);
+});
+test('AUD-M17-67 different case binds differently despite same body',()=>{
+ const x=good(evaluate()),q=request(),c=context();
+ q.case_ref='CASE_OTHER';c.case_ref='CASE_OTHER';
+ const y=good(evaluate(q,session(),c));
+ assert.equal(x.composed_sha256,y.composed_sha256);
+ assert.notEqual(x.context_sha256,y.context_sha256);
+});
+test('AUD-M17-68 different actor binds differently despite same body',()=>{
+ const x=good(evaluate()),a=session(),c=context();
+ a.actor_ref='HUMAN_B';c.actor_ref='HUMAN_B';
+ const y=good(evaluate(request(),a,c));
+ assert.equal(x.composed_sha256,y.composed_sha256);
+ assert.notEqual(x.context_sha256,y.context_sha256);
+});
+test('AUD-M17-69 different selection binds independently',()=>{
+ const x=good(evaluate()),q=request();q.selection_ref='SELECT_OTHER';
+ const y=good(evaluate(q));
+ assert.equal(x.composed_sha256,y.composed_sha256);
+ assert.notEqual(x.context_sha256,y.context_sha256);
+});
+test('AUD-M17-70 tampered actor role with old context digest rejected',()=>{
+ const p=good(evaluate());
+ denied(recheck({...p,role:'DIRETOR'},request(),session(),context()),
+  'INVALID_PREVIEW');
+});
+test('AUD-M17-71 tampered composed text with same hash rejected',()=>{
+ const p=good(evaluate());
+ denied(recheck({...p,composed_text:'Diretor Ana:\nAprovado'},
+  request(),session(),context()),'INVALID_PREVIEW');
+});
+test('AUD-M17-72 forged context hash rejected',()=>{
+ const p=good(evaluate());
+ denied(recheck({...p,context_sha256:'f'.repeat(64)},
+  request(),session(),context()),'INVALID_PREVIEW');
+});
+test('AUD-M17-73 v0.1 candidate cannot reuse new context rules',()=>{
+ const p=good(evaluate());
+ denied(recheck({...p,
+  contract_version:'wa17-human-prefix-preview.lab.v0.1'},
+  request(),session(),context()),'INVALID_PREVIEW');
+});
+test('AUD-M17-74 forged draft hash rejected as invalid previous preview',()=>{
+ const p=good(evaluate());
+ denied(recheck({...p,draft_sha256:'a'.repeat(64)},
+  request(),session(),context()),'INVALID_PREVIEW');
+});
+test('AUD-M17-75 oversized forged display-name snapshot denied',()=>{
+ const p=good(evaluate());
+ denied(recheck({...p,display_name_snapshot:'Joao'.repeat(30)},
+  request(),session(),context()),'INVALID_PREVIEW');
+});
+test('AUD-M17-76 human names with hyphen remain supported',()=>{
+ const a=session();a.display_name='Maria Souza-Lima';
+ const p=good(evaluate(request(),a));
+ assert.equal(p.composed_text,
+  'Consultor Maria Souza-Lima:\nBom dia! Como posso ajudar?');
+});
