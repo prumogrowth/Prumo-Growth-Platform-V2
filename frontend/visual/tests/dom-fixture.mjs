@@ -48,6 +48,7 @@ export function installMockDOM({ mobile = false, tablet = false, prefersDark = f
     focus() { document.activeElement = this; }
     blur() { if (document.activeElement === this) document.activeElement = null; }
     showModal() { this._open = true; }
+    show() { this._open = true; }
     close(value) { if (value !== undefined) this.returnValue = value; this._open = false; this.fire('close'); }
     get open() { return this._open; }
     set open(value) { this._open=Boolean(value); }
@@ -65,7 +66,7 @@ export function installMockDOM({ mobile = false, tablet = false, prefersDark = f
   }
   const descendants = node => node.children.flatMap(n => [n, ...descendants(n)]);
   const ids = [
-    'bank-dialog','bank-content','bank-nav','bank-nav-mobile','bank-close','bank-case-select','conversations-nav',
+    'bank-dialog','bank-content','bank-ready-empty','bank-title','bank-nav','bank-nav-mobile','bank-close','bank-case-select','conversations-nav',
     'list-extra','filter-toggle','filter-panel','followup-actions','thread-bottom','communication-tools','composer-demo-guidance',
     'thread-actions','terminal-banner','commercial-filter','filter-summary','demo-dialog','demo-open','demo-close','demo-list-state',
     'visual-app', 'actor-select', 'shop-select', 'search-input', 'status-filter',
@@ -74,7 +75,7 @@ export function installMockDOM({ mobile = false, tablet = false, prefersDark = f
     'detail-content', 'detail-pane', 'thread-pane', 'message-preview-dialog',
     'message-preview-body', 'completion-dialog',
     'completion-form', 'template-dialog', 'template-select', 'intake-dialog',
-    'intake-dialog-title', 'intake-dialog-copy', 'team-dialog',
+    'intake-dialog-title', 'intake-dialog-copy', 'team-dialog','team-title',
     'team-list', 'team-monitor', 'team-batches', 'team-queue', 'team-action-announcement',
     'queue-action-dialog', 'queue-action-title', 'queue-action-copy', 'queue-assignee-area', 'queue-assignee', 'team-show-queue',
     'team-show-members', 'team-show-monitor', 'team-show-batches',
