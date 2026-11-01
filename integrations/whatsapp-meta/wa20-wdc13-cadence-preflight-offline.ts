@@ -51,7 +51,7 @@ const FLAGS=Object.freeze({
  send_authorized:false,production_authorized:false,
 } as const);
 export type Wa20Snapshot=Readonly<typeof FLAGS & {
- contract_version:'wa20-wdc13-snapshot.lab.v0.1';
+ contract_version:'wa20-wdc13-snapshot.lab.v0.2';
  snapshot_sha256:string;decision:Wa20Decision;attempts_examined:number;
  consecutive_failure_claims_at_tail:number;
  claimed_sent_reset_count:number;unknown_or_conflict_seen:boolean;
@@ -133,6 +133,8 @@ function validAttempt(a:RecordData,c:RecordData):boolean{
       (a.provider_error_code as number)<=999999999):
     a.provider_error_code===null)&&
   a.observed_at_ms!<=c.now_ms!&&
+  // The synthetic S0 context cannot claim evidence observed after itself.
+  a.observed_at_ms!<=c.observed_at_ms!&&
   c.now_ms!-a.observed_at_ms!<=c.max_age_ms!;
 }
 /**
@@ -151,15 +153,19 @@ export function inspectWa20Wdc13Offline(
      c.now_ms!-c.observed_at_ms!>c.max_age_ms!)
    return deny('SNAPSHOT_STALE_OR_FUTURE');
   const a:RecordData[]=[],seenAttempts=new Set<string>(),
-   seenIntents=new Set<string>();
+   seenIntents=new Set<string>(),seenEvents=new Set<string>();
   for(const raw of array){
    const x=strict(raw,K_ATTEMPT);
    if(!x||!validAttempt(x,c))return deny('ATTEMPT_SCOPE_DENIED');
    if(seenAttempts.has(x.attempt_ref as string)||
-      seenIntents.has(x.intent_ref as string))
+      seenIntents.has(x.intent_ref as string)||
+      // A single purported S0 evidence/occurrence cannot support two
+      // separate definitive failures or an artificial sent reset.
+      seenEvents.has(x.event_ref as string))
     return deny('SEQUENCE_GAP_OR_DUPLICATE');
    seenAttempts.add(x.attempt_ref as string);
    seenIntents.add(x.intent_ref as string);
+   seenEvents.add(x.event_ref as string);
    a.push(x);
   }
   a.sort((x,y)=>(x.sequence_no as number)-(y.sequence_no as number));
@@ -169,7 +175,8 @@ export function inspectWa20Wdc13Offline(
   for(const x of a){
    switch(x.status_claim){
     case 'LAB_SENT_CLAIM':
-     consecutive=0;hold=false;resets++;break;
+     if(consecutive>0||hold)resets++;
+     consecutive=0;hold=false;break;
     case 'LAB_DEFINITIVE_FAILURE_CLAIM':
      if(!hold)consecutive++;
      break;
@@ -183,8 +190,8 @@ export function inspectWa20Wdc13Offline(
    consecutive>=2?'LAB_TWO_FAILURES_CANDIDATE_UNVERIFIED':
    'LAB_BELOW_TWO_UNVERIFIED';
   const snap:Wa20Snapshot=Object.freeze({
-   contract_version:'wa20-wdc13-snapshot.lab.v0.1',
-   snapshot_sha256:sha(['WA20_WDC13_LAB_V0_1',
+   contract_version:'wa20-wdc13-snapshot.lab.v0.2',
+   snapshot_sha256:sha(['WA20_WDC13_LAB_V0_2',
     K_CONTEXT.map(k=>c[k]),a.map(x=>K_ATTEMPT.map(k=>x[k])),
     consecutive,resets,hold,seenUnknown,decision]),
    decision,attempts_examined:a.length,
@@ -200,7 +207,7 @@ export function inspectWa20Wdc13Offline(
 }
 function validPrevious(raw:unknown):RecordData|null{
  const p=strict(raw,K_SNAPSHOT);
- if(!p||p.contract_version!=='wa20-wdc13-snapshot.lab.v0.1'||
+ if(!p||p.contract_version!=='wa20-wdc13-snapshot.lab.v0.2'||
     typeof p.snapshot_sha256!=='string'||!HEX.test(p.snapshot_sha256)||
     !['LAB_NO_ATTEMPTS_UNVERIFIED','LAB_BELOW_TWO_UNVERIFIED',
      'LAB_TWO_FAILURES_CANDIDATE_UNVERIFIED',
