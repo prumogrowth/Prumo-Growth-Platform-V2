@@ -1,0 +1,115 @@
+name: S0 F02 independent cycle and assignment PG17 regression
+on:
+  push:
+    branches: [exp/s0s1-f02-independent-cycle-pg17-20261101]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  scope-and-off04:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      S0_F02_OFF04_PIN: ${{ github.workspace }}/_oai_pin
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 1f8157838c11a7b59456a3b178a8ade21a17b42b
+          path: _oai_pin
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Check fixed sources and isolated S0 delta
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git -C _oai_pin rev-parse HEAD)" = 1f8157838c11a7b59456a3b178a8ade21a17b42b
+          test "$(git -C _oai_pin rev-parse HEAD:docs/integracoes/openai/e04_offline_lab/f02-plan-boundary.mjs)" = 4cff139912b9afed7a159d17ad68a894cdd0a5df
+          python3 -B - <<'PY'
+          import ast,subprocess,pathlib
+          base='13a091aaa75afad45a5609bf3cd6bba8b0ebde0e'
+          actual=set(subprocess.check_output(['git','diff','--name-only',base,'HEAD'],text=True).splitlines())
+          expected={
+           '.github/workflows/exp-s0s1-f02-independent-cycle-pg17.yml',
+           'integration/s0s1_f02/pg17_schema.sql',
+           'integration/s0s1_f02/pg17_service.py',
+           'integration/s0s1_f02/test_pg17_service.py',
+           'integration/s0s1_f02/emit_off04_evidence.py',
+           'integration/s0s1_f02/test_off04_interop.mjs',
+           'docs/contratos/s0_f02/S0_F02_OFF17_CYCLE_ASSIGNMENT_PG17_20261101.md'
+          }
+          assert actual <= expected and expected-{
+           'docs/contratos/s0_f02/S0_F02_PG17_OFF04_20261101.md'
+          } <= actual, sorted(actual^expected)
+          for n in ('pg17_service.py','test_pg17_service.py','emit_off04_evidence.py'):
+           ast.parse((pathlib.Path('integration/s0s1_f02')/n).read_text())
+          print('S0 F02 independent revision exact delta PASS')
+          PY
+      - name: Original OpenAI OFF04 boundary regression
+        run: node --test _oai_pin/docs/integracoes/openai/e04_offline_lab/tests/f02-plan-boundary.test.mjs
+      - name: S0 F02 offline interop with original OpenAI module
+        run: node --test integration/s0s1_f02/test_off04_interop.mjs
+      - name: Ensure pinned OpenAI original tree preserved
+        if: always()
+        run: |
+          test -z "$(git -C _oai_pin status --porcelain)"
+          test -z "$(git status --porcelain --untracked-files=no)"
+  pg17-f02:
+    needs: scope-and-off04
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      M09_PG17_DISPOSABLE: 'YES'
+      M09_PINNED_SOURCE: ${{ github.workspace }}/_m09_pin
+      S0_F02_OFF04_PIN: ${{ github.workspace }}/_oai_pin
+      PYTHONPATH: ${{ github.workspace }}
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 01ffdb093013664b73b18d23f92aac2202578210
+          path: _m09_pin
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 1f8157838c11a7b59456a3b178a8ade21a17b42b
+          path: _oai_pin
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Verify frozen source pins and physical dependencies
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git -C _m09_pin rev-parse HEAD)" = 01ffdb093013664b73b18d23f92aac2202578210
+          test "$(git -C _oai_pin rev-parse HEAD)" = 1f8157838c11a7b59456a3b178a8ade21a17b42b
+          python3 -m pip install 'psycopg[binary]==3.2.13' 'cryptography==46.0.3'
+      - name: Physical F02 independent cycle and assignment regressions
+        run: python3 -B -m unittest integration.s0s1_f02.test_pg17_service -v
+      - name: Generate unequal cycle and assignment from PG17 source
+        run: |
+          echo "S0_F02_PRIVATE_EVIDENCE=$RUNNER_TEMP/s0-f02-private.json" >> "$GITHUB_ENV"
+      - name: Private PG17 to pinned OFF04 interop
+        run: |
+          python3 -B -m integration.s0s1_f02.emit_off04_evidence
+          node --test integration/s0s1_f02/test_off04_interop.mjs
+      - name: Inherited physical PRE_DISPATCH tests
+        run: python3 -B -m unittest integration.s0s1_pre_dispatch.test_pg17_service -q
+      - name: Scrub private fixture and confirm original source trees unchanged
+        if: always()
+        run: |
+          if test -n "$S0_F02_PRIVATE_EVIDENCE"; then rm -f "$S0_F02_PRIVATE_EVIDENCE"; fi
+          test -z "$(git -C _m09_pin status --porcelain)"
+          test -z "$(git -C _oai_pin status --porcelain)"
+          test -z "$(git status --porcelain --untracked-files=no)"
