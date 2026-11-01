@@ -32,6 +32,12 @@ Ao clicar **Conversas**, **Banco** ou **Gestão** no menu principal, navegar ent
 - Casos mínimos: (a) Consultor abre Banco, vê apenas nomes aptos; (b) estado desconhecido/continuation/pendência excluído; (c) seleciona e volta sem marcar chat lido; (d) Gestor supervisor sem D3/D4; (e) troca ator/loja limpa DOM e previne acesso obsoleto; (f) manter rascunhos de chat por contexto, áudios e notas; (g) nome duplicado; (h) 320/390/740/900/1440 pixels, claro/escuro, foco, teclado, Escape e zoom; (i) Gestão indisponível no perfil sem autorização; (j) nenhuma remessa local.
 - Suítes Node, testes Chromium nos modos ESM/HTML integral, exportação/offline, manifesto pinado após commit de conteúdo; `FULL LOCAL ACCEPTANCE: PASS` no SHA final. Reexecutar todos os testes herdados afetados; passar gate não é aceite visual.
 
+## Tratamento dos diagnósticos retirados da fila Banco
+
+Os casos não aptos continuam com processamento F03 e resultados pendentes ou incompletos consultáveis **dentro do Resumo da conversa**, como seção expansível somente leitura sob os mesmos guards de responsável. Casos com remessa já registrada exibem acompanhamento anterior no contexto do atendimento; **não aparecem na fila de cadastro a enviar**. Esta alternativa preserva a responsabilidade operacional de investigar uma ficha sem contradizer a decisão do proprietário sobre a fila.
+
+**Limitação atual:** esta migração utiliza temporariamente superfícies `dialog.show()` em fluxo, estilizadas como páginas, não janelas modais; o aceite visual depende de acessibilidade semântica, foco, HTML offline e regressão Chromium. Não homologar o redesign apenas pela ausência de backdrop. CI integral ainda pendente.
+
 ## Dependências/autoridade
 
 S0/S1 tem pendência [#15](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/15): aptidão versionada, ausência de remessa conhecida, nova operação versus remessa prévia, campos essenciais/opcionais e autorização de registro humano. Não abrir outra Issue. Enquanto não entregar, simular somente o caso vazio e casos de teste locais; não implementar contratos de backend ou RLS por conta própria.
