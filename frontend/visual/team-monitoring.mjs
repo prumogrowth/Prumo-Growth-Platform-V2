@@ -4,6 +4,7 @@
  */
 import { COMMERCIAL_STATUSES, getActor, hasMockCaseOnlyScope, managedOperators, visibleConversations } from './fixtures.mjs';
 import { isInActiveInbox } from './cf-op-02.mjs';
+import { projectDemoAttention } from './conversation-attention.mjs';
 
 export function projectTeamMonitoring(managerId, records) {
   const manager=getActor(managerId);
