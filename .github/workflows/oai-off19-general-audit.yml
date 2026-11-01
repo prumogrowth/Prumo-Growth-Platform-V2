@@ -1,0 +1,103 @@
+name: OAI OFF19 comprehensive corrective security audit
+on:
+  push:
+    branches:
+      - audit/oai-off19-general-security-20261101
+permissions:
+  contents: read
+concurrency:
+  group: oai-off19-security-audit
+  cancel-in-progress: false
+jobs:
+  no-authority-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout isolated OpenAI audit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify OFF18 base and precisely scoped audit delta
+        shell: bash
+        run: |
+          set -euo pipefail
+          base=1dcf6ef26c808489b176c988a0222f2d4a66618f
+          git merge-base --is-ancestor "$base" HEAD
+          git diff --name-only "$base" HEAD | sort > /tmp/oai19-delta
+          cat > /tmp/oai19-allowed <<'EOF'
+          .github/workflows/oai-off19-general-audit.yml
+          docs/integracoes/openai/OAI_OFF19_AUDITORIA_GERAL_CORRETIVA_2026_11_01.md
+          docs/integracoes/openai/OAI_ROTEIRO_PROGRESSO_2026_11_01.md
+          docs/integracoes/openai/e04_offline_lab/core.mjs
+          docs/integracoes/openai/e04_offline_lab/tests/off19-core-audit.test.mjs
+          EOF
+          diff -u /tmp/oai19-allowed /tmp/oai19-delta
+          test -z "$(git diff --name-only "$base" HEAD -- backend/ integration/ integrations/ frontend/ supabase/)"
+      - name: Node 22.16.0
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - name: Ensure no host clock fallback in legacy core
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -Fq 'Date.now()' docs/integracoes/openai/e04_offline_lab/core.mjs; then
+            echo 'FAILED: hidden runtime clock in lab validator'
+            exit 2
+          fi
+          node --check docs/integracoes/openai/e04_offline_lab/core.mjs
+          node --check docs/integracoes/openai/e04_offline_lab/tests/off19-core-audit.test.mjs
+      - name: Test inherited OpenAI modules plus OFF19 hardening
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm --prefix docs/integracoes/openai/e04_offline_lab test | tee /tmp/off19.tap
+      - name: Require exactly 968/968 Node pass, zero fail/skip
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=commonjs - <<'NODE'
+          const fs=require('node:fs');
+          const s=fs.readFileSync('/tmp/off19.tap','utf8');
+          const val=k=>{const m=s.match(new RegExp('# '+k+' (\\d+)'));return m?Number(m[1]):null;};
+          const x={tests:val('tests'),pass:val('pass'),fail:val('fail'),skipped:val('skipped')};
+          console.log(JSON.stringify({status:'OAI_OFF19_AUDITED_OFFLINE_NOT_PRODUCTION',
+            inherited:950,correctiveTests:18,...x}));
+          if(x.tests!==968||x.pass!==968||x.fail!==0||x.skipped!==0)process.exit(2);
+          NODE
+      - name: Verify S0 F02 pin is unchanged
+        shell: bash
+        run: |
+          set -euo pipefail
+          s0=31e88ec2632e861d55c2e0ae4766f8a0a4362e22
+          git cat-file -e "$s0^{commit}"
+          git show "$s0:integration/s0s1_f02/pg17_service.py" > /tmp/off19-s0-f02.py
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+          sha=hashlib.sha256(Path('/tmp/off19-s0-f02.py').read_bytes()).hexdigest()
+          assert sha=='766a19a949e72935f4e7e120603032275de23eb9fa5fa6b94041fb8393f3b298',sha
+          print('OFF19_S0_SOURCE_PIN_VERIFIED_SHA256='+sha)
+          PY
+      - name: Recheck 24 source-level S0 F02 independent cycle tests
+        shell: bash
+        env:
+          S0_F02_PINNED_SOURCE: /tmp/off19-s0-f02.py
+        run: |
+          set -euo pipefail
+          python3 docs/integracoes/openai/e04_offline_lab/tests/off18_s0_f02_independent_cycle_review.py -v 2>&1 | tee /tmp/off19-python.log
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('/tmp/off19-python.log').read_text()
+          assert re.findall(r'Ran (\d+) tests? in',s)==['24']
+          assert re.search(r'(?m)^OK\s*$',s)
+          assert not re.search(r'(?m)^FAILED ',s)
+          print('OFF19_PYTHON_PINNED_24_PASS')
+          PY
+      - name: State non-production boundary
+        if: always()
+        run: |
+          echo 'OFF19 corrected only synthetic legacy core; no API, S0 runtime, Meta, bank, hosted PG, merge or deploy.'
+          echo 'Passing offline audits do not prove semantic model safety or regulatory clearance.'
