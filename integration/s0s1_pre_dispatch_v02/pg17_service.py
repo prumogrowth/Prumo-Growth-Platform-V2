@@ -216,7 +216,7 @@ def readback(c,request,*,scope,principal,m09_versions):
          ('case_revision','expected_case_revision'),
          ('assignment_revision','expected_assignment_revision'),
          ('policy_revision','expected_policy_revision'),
-         ('suppression_revision','expected_suppression_revision'))):
+         ('suppression_revision','expected_suppression_revision')))):
    return out('LAB_STALE_NO_DISPATCH','CASE_POLICY_STALE',commit_verified=True)
   consent=c.execute('SELECT * FROM s0_pre_dispatch_lab.consents '
     'WHERE case_ref=%s AND purpose_ref=%s',
