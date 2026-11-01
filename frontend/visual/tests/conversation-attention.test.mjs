@@ -92,3 +92,22 @@ test('COR07 I01: leitura referencia o último inbound legível; contador obsolet
  record.messages=[{id:'local-audio',side:'out',body:'Áudio local (0:01)',localAudioId:'clip',deliveryState:'local_demo_not_sent'}];
  assert.equal(confirmedDemoMessages(record,'rafael','aurora').length,0);
 });
+
+test('COE-02: abrir caso histórico registra leitura sem inventar possibilidade de resposta',()=>{
+ const record=copyCFDemoFixtures().find(r=>r.id==='A-109');
+ record.demoReadByAssigned=true;record.unread=0;
+ record.demoReadProjection={source:'local_fixture',actorId:'rafael',
+   caseId:record.id,shopId:'aurora',messageRef:'a109-1'};
+ const attention=projectDemoAttention(record,'rafael','aurora');
+ assert.equal(attention.kind,'read_awaiting_reply');
+ assert.match(attention.label,/histórico.*somente leitura/i);
+ assert.equal(projectDemoAttention(record,'marina','aurora').kind,'read_awaiting_reply');
+});
+
+test('COE-04: evento de sistema não substitui mensagem de cliente na prévia',()=>{
+ const record=copyCFDemoFixtures().find(r=>r.id==='A-103');
+ const conversation=latestConfirmedDemoMessage(record,'bianca','aurora');
+ assert.equal(conversation.id,'a103-1');
+ assert.equal(conversation.side,'in');
+ assert.equal(confirmedDemoMessages(record,'bianca','aurora').at(-1).side,'system');
+});
