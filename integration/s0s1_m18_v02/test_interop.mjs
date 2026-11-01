@@ -65,8 +65,9 @@ test('S0-M18-V02-07 exact replay stage cannot become a lease',()=>{
   'COMMITTED_PG17_BUT_NO_AUTHENTICATED_ATTEMPT_BINDING',true);
 });
 test('S0-M18-V02-08 cancel staged followed by cancelled',()=>{
- safe(adapt({...stage(),status:'LAB_CANCEL_STAGED_BEFORE_COMMIT',
- reason:'READBACK_REQUIRED',quota_slot_recorded_lab_only:undefined},
+ const {quota_slot_recorded_lab_only:_unused,...baseStage}=stage();
+ safe(adapt({...baseStage,status:'LAB_CANCEL_STAGED_BEFORE_COMMIT',
+ reason:'READBACK_REQUIRED'},
  {...read(),status:'LAB_CANCELLED_NO_DISPATCH',
  reason:'CANCELLED_OR_REVOKED'}),'CANCELLED_NO_DISPATCH',true);
 });
