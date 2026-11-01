@@ -141,3 +141,77 @@ test('AUD-CRED-01 GET/POST/Graph slots within ONE App may never alias',()=>{
  assert.equal(get('ROUTE_A','POST_APP_SECRET',registry).ok,false);
  assert.equal(graph(scope,registry).ok,false);
 });
+
+
+test('AUD-GLOBAL-CRED-01 registry App getter is never invoked',()=>{
+ let calls=0;
+ const poisoned={...appA};
+ Object.defineProperty(poisoned,'active',{enumerable:true,get(){calls++;return true;}});
+ const result=get('ROUTE_A','GET_VERIFY_TOKEN',{...reg,apps:[poisoned,appB]});
+ assert.equal(result.ok,false);if(!result.ok)assert.equal(result.reason,'INVALID_REGISTRY');
+ assert.equal(calls,0);
+});
+test('AUD-GLOBAL-CRED-02 secret slot getter never resolves',()=>{
+ let calls=0;
+ const slots={...appA.secret_slots};
+ Object.defineProperty(slots,'post_app_secret',{enumerable:true,get(){
+  calls++;throw Error('GETTER_SIDE_EFFECT');}});
+ const result=get('ROUTE_A','POST_APP_SECRET',
+  {...reg,apps:[{...appA,secret_slots:slots},appB]});
+ assert.equal(result.ok,false);assert.equal(calls,0);
+});
+test('AUD-GLOBAL-CRED-03 channel getter never maps tenant',()=>{
+ let calls=0;const ch={...appA.channels[0]};
+ Object.defineProperty(ch,'active',{enumerable:true,get(){calls++;return true;}});
+ const result=signed({...reg,apps:[{...appA,channels:[ch]},appB]});
+ assert.equal(result.ok,false);assert.equal(calls,0);
+});
+test('AUD-GLOBAL-CRED-04 accessor at trusted route never executes',()=>{
+ let calls=0;const cmd:any={purpose:'GET_VERIFY_TOKEN',
+  trusted_route_ref:'ROUTE_A',at_ms:now,expected_revision:4};
+ Object.defineProperty(cmd,'trusted_route_ref',{enumerable:true,get(){
+  calls++;return 'ROUTE_A';}});
+ assert.equal(selectMetaCredential(reg,cmd).ok,false);
+ assert.equal(calls,0);
+});
+test('AUD-GLOBAL-CRED-05 accessor inside Graph trusted scope never executes',()=>{
+ let calls=0;const sc:any={...scope};
+ Object.defineProperty(sc,'app_ref',{enumerable:true,get(){
+  calls++;return 'APP_A';}});
+ assert.equal(graph(sc).ok,false);assert.equal(calls,0);
+});
+test('AUD-GLOBAL-CRED-06 accessor inside signed route query never executes',()=>{
+ let calls=0;const q:any={trusted_route_ref:'ROUTE_A',
+  authenticated_app_ref:'APP_A',waba_id:'WABA_A',
+  phone_number_id:'12345678901',at_ms:now,expected_revision:4};
+ Object.defineProperty(q,'phone_number_id',{enumerable:true,get(){
+  calls++;return '12345678901';}});
+ assert.equal(resolveSignedMetaChannel(reg,q).ok,false);assert.equal(calls,0);
+});
+test('AUD-GLOBAL-CRED-07 malformed registry array element getter not read',()=>{
+ let calls=0;const entries:any[]=[appA,appB];
+ Object.defineProperty(entries,'0',{enumerable:true,configurable:true,get(){
+  calls++;return appA;}});
+ assert.equal(get('ROUTE_A','GET_VERIFY_TOKEN',{...reg,apps:entries}).ok,false);
+ assert.equal(calls,0);
+});
+test('AUD-GLOBAL-CRED-08 extra untrusted authority field denies registry',()=>{
+ const registry:any={...reg,grant_verified:true};
+ const x=graph(scope,registry);assert.equal(x.ok,false);
+ if(!x.ok)assert.equal(x.reason,'INVALID_REGISTRY');
+});
+test('AUD-GLOBAL-CRED-09 extra Graph grant field denies request',()=>{
+ const cmd:any={purpose:'GRAPH_ACCESS_TOKEN',trusted_scope:scope,
+  at_ms:now,expected_revision:4,send_authorized:true};
+ const x=selectMetaCredential(reg,cmd);
+ assert.equal(x.ok,false);if(!x.ok)assert.equal(x.reason,'INVALID_INPUT');
+});
+test('AUD-GLOBAL-CRED-10 safe registry still routes distinct GET/POST/Graph slots',()=>{
+ const getSlot=get(),postSlot=get('ROUTE_A','POST_APP_SECRET'),graphSlot=graph();
+ assert.equal(getSlot.ok,true);assert.equal(postSlot.ok,true);assert.equal(graphSlot.ok,true);
+ if(getSlot.ok&&postSlot.ok&&graphSlot.ok){
+  assert.equal(new Set([getSlot.secret_slot,postSlot.secret_slot,
+   graphSlot.secret_slot]).size,3);
+  assert.equal(getSlot.production_authorized,false);
+ }
+});
