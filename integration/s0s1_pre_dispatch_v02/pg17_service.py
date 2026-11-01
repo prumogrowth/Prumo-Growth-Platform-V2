@@ -39,7 +39,7 @@ def validate(req,scope,principal,versions):
  return (type(req) is dict and set(req)==CORE_FIELDS|EXTRAS
   and type(scope) is HostScope and type(principal) is M2MPrincipal
   and type(versions) is Revisions
-  and all(ident(req[k]) for k in CORE_FIELDS-CORE_REV)
+  and all(ident(req[k]) for k in CORE_FIELDS-set(CORE_REV))
   and all(type(req[k]) is int and 0<req[k]<2**63-1 for k in CORE_REV)
   and all(ident(req[k]) for k in ('intent_ref','window_ref'))
   and type(req['nonce']) is str and 8<=len(req['nonce'])<=120
