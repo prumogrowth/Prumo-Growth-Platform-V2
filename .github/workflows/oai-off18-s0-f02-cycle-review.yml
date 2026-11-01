@@ -1,0 +1,94 @@
+name: OAI OFF18 review corrected S0 F02 independent revisions
+on:
+  push:
+    branches:
+      - test/oai-off18-s0-f02-cycle-fix-review-20261101
+permissions:
+  contents: read
+concurrency:
+  group: oai-off18-s0-cycle-assignment
+  cancel-in-progress: false
+jobs:
+  pinned-source-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout OpenAI-only audit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Guard exact OFF17 parent and delta scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          base=4e3ba7f432af0d47bf1b5aba6f156bc2ca9bd181
+          git merge-base --is-ancestor "$base" HEAD
+          git diff --name-only "$base" HEAD | sort > /tmp/off18-delta
+          cat > /tmp/off18-allowed <<'EOF'
+          .github/workflows/oai-off18-s0-f02-cycle-review.yml
+          docs/integracoes/openai/OAI_OFF18_ACEITE_CANDIDATO_MAPEAMENTO_S0_F02_2026_11_01.md
+          docs/integracoes/openai/OAI_ROTEIRO_PROGRESSO_2026_11_01.md
+          docs/integracoes/openai/e04_offline_lab/tests/off18_s0_f02_independent_cycle_review.py
+          EOF
+          diff -u /tmp/off18-allowed /tmp/off18-delta
+          test -z "$(git diff --name-only "$base" HEAD -- backend/ integration/ integrations/ frontend/ supabase/)"
+      - name: Node 22.16.0
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - name: Verify inherited 950 OpenAI offline regressions
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm --prefix docs/integracoes/openai/e04_offline_lab test | tee /tmp/off18-node.tap
+          node --input-type=commonjs - <<'NODE'
+          const fs=require('node:fs');
+          const s=fs.readFileSync('/tmp/off18-node.tap','utf8');
+          const val=k=>{const m=s.match(new RegExp('# '+k+' (\\d+)'));return m?Number(m[1]):null;};
+          const stats={tests:val('tests'),pass:val('pass'),fail:val('fail'),skipped:val('skipped')};
+          console.log(JSON.stringify({suite:'OFF18_NODE_INHERITED',...stats}));
+          if(stats.tests!==950||stats.pass!==950||stats.fail!==0||stats.skipped!==0)process.exit(2);
+          NODE
+      - name: Extract exact revised S0 F02 source without modifying it
+        shell: bash
+        run: |
+          set -euo pipefail
+          s0=31e88ec2632e861d55c2e0ae4766f8a0a4362e22
+          git cat-file -e "$s0^{commit}"
+          git show "$s0:integration/s0s1_f02/pg17_service.py" > /tmp/off18-s0.py
+          git show "$s0:integration/s0s1_f02/pg17_schema.sql" > /tmp/off18-s0.sql
+          python3 - <<'PY'
+          from pathlib import Path
+          import ast,hashlib
+          p=Path('/tmp/off18-s0.py')
+          root=ast.parse(p.read_text())
+          assert sum(isinstance(t,ast.FunctionDef) and t.name=='_sources' for t in root.body)==1
+          ddl=Path('/tmp/off18-s0.sql').read_text()
+          assert 'CREATE TABLE s0_f02_lab.case_cycles' in ddl
+          assert 'cycle_revision bigint NOT NULL' in ddl
+          assert 'assignment_revision bigint NOT NULL' in ddl
+          print('OFF18_S0_SOURCE_SHA256='+hashlib.sha256(p.read_bytes()).hexdigest())
+          PY
+      - name: Verify 24 independent Python source-level cases
+        shell: bash
+        env:
+          S0_F02_PINNED_SOURCE: /tmp/off18-s0.py
+        run: |
+          set -euo pipefail
+          python3 docs/integracoes/openai/e04_offline_lab/tests/off18_s0_f02_independent_cycle_review.py -v 2>&1 | tee /tmp/off18-py.log
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('/tmp/off18-py.log').read_text()
+          a=re.findall(r'Ran (\d+) tests? in',s)
+          assert a==['24'],a
+          assert re.search(r'(?m)^OK\s*$',s),s[-800:]
+          assert not re.search(r'(?m)^FAILED ',s)
+          print('OFF18_REVIEW_PYTHON_24_PASS_NO_PG')
+          PY
+      - name: State scope
+        if: always()
+        run: |
+          echo 'OFF18 maps independent cycle/assignment from published S0 source.'
+          echo 'No S0 integration/PG authentication, model, Meta dispatch, merge, deploy or operational acceptance.'
