@@ -7,7 +7,7 @@ import {reconcileWa19StatusOffline as reconcile,
 const NOW=1800000000000;
 const SHOP='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',OTHER='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
 const q=()=>({
- contract_version:'wa19-status-request.lab.v0.1',
+ contract_version:'wa19-graph-status-request.lab.v0.1',
  concessionaria_id:SHOP,app_ref:'APP_A',waba_id:'WABA_A',
  phone_number_id:'10000001',attempt_ref:'ATTEMPT_A',intent_ref:'INTENT_A',
  case_ref:'CASE_A',template_ref:'TPL_A',template_version_ref:'TPL_V2',
