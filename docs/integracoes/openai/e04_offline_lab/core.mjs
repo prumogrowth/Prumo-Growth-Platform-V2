@@ -33,7 +33,7 @@ function safeTree(x,depth=0,seen=new Set()){
   try{
     for(const k of Reflect.ownKeys(x)){
       if(typeof k!=='string'||['__proto__','prototype','constructor'].includes(k))return false;
-      if(arr&&k!=='length'&&(!/^(0|[1-9]\\d*)$/.test(k)||Number(k)>=x.length))return false;
+      if(arr&&k!=='length'&&(!/^(0|[1-9]\d*)$/.test(k)||Number(k)>=x.length))return false;
       const d=Object.getOwnPropertyDescriptor(x,k);
       if(!d||!Object.prototype.hasOwnProperty.call(d,'value'))return false;
       if(!safeTree(d.value,depth+1,seen))return false;
