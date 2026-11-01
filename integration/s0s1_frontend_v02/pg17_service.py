@@ -151,12 +151,17 @@ def readback(c,*,open_ref,case_ref,store_ref,actor_ref,role,allowed_stores,
                   and x['event_seq']>checkpoint for x in events(c,case_ref))
         mode='ACTIVE_ACTIONABLE' if k['active'] and k['actionable'] else 'HISTORICAL_READ_ONLY'
         return result('LAB_COMMITTED_READBACK','POST_COMMIT_VISIBLE_IN_PG17',
-            open_ref=open_ref,read_confirmation_state='COMMITTED_ORIGINAL_CUTOFF_LAB',
-            display_read_confirmed=True,read_through_seq=checkpoint,
+            open_ref=open_ref,
+            read_confirmation_state=('COMMITTED_OLD_CUTOFF_WITH_NEW_INBOUND_LAB'
+                                     if later else 'COMMITTED_ORIGINAL_CUTOFF_LAB'),
+            original_open_committed=True,
+            display_read_confirmed=not later,read_through_seq=checkpoint,
             newer_inbound_after_open=later,
             conversation_mode=mode,
             composer_enabled=bool(mode=='ACTIVE_ACTIONABLE'),
-            unread_inbound_count=snapshot['unread_inbound_count'],
+            unread_inbound_count=sum(x['event_kind']=='INBOUND' and
+                x['inbound_visible'] and x['event_seq']>checkpoint
+                for x in events(c,case_ref)),
             human_reply_pending=snapshot['human_reply_pending'],
             last_activity_at=snapshot['last_activity_at'],
             activity_time_state=snapshot['activity_time_state'],
