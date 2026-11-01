@@ -59,7 +59,7 @@ function m20(){
   send_authorized:false,production_authorized:false
  };
 }
-const fixture=()=>({schemaVersion:OFF22_INPUT,wa39Preview:wa39(),
+const fixture=()=>({schemaVersion:OFF22_INPUT,wa39Preview:structuredClone(wa39()),
   m19GraphSnapshot:m19graph(),m19S0BindingSnapshot:m19binding(),m20CadenceSnapshot:m20()});
 const forbidden=['shop1','case1','flow1','attempt1','event1','tplv1',HASH,
  'snapshot_sha256','observations','saw_explicit_sent','phone_number_id','wamid'];
