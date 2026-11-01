@@ -1,0 +1,109 @@
+name: S0 Frontend history owner open and post-commit PG17 readback
+on:
+  push:
+    branches: [exp/s0s1-frontend-history-readback-pg17-20261101]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  frontend-original-and-scope:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      S0_FRONTEND_PIN: ${{ github.workspace }}/_frontend_pin
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ca262179e180c635fb7f44aaa37e4c1214f9ba12
+          path: _frontend_pin
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Exact source provenance, Python syntax, and isolated delta
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git -C _frontend_pin rev-parse HEAD)" = ca262179e180c635fb7f44aaa37e4c1214f9ba12
+          python3 -B - <<'PY'
+          import ast,subprocess,pathlib
+          base='b32d42bd4a204a2852e2ab21514436ee7e24e822'
+          actual=set(subprocess.check_output(['git','diff','--name-only',base,'HEAD'],text=True).splitlines())
+          required={
+            '.github/workflows/exp-s0s1-frontend-history-readback-pg17.yml',
+            'integration/s0s1_frontend_v02/pg17_service.py',
+            'integration/s0s1_frontend_v02/test_pg17_service.py',
+            'integration/s0s1_frontend_v02/emit_frontend_v02.py',
+            'integration/s0s1_frontend_v02/test_frontend_interop.mjs'}
+          optional={'docs/contratos/s0_frontend/S0_FRONTEND_HISTORY_READBACK_PG17_20261101.md'}
+          assert required<=actual and actual<=required|optional,sorted(actual^required)
+          for name in ('pg17_service.py','test_pg17_service.py','emit_frontend_v02.py'):
+           ast.parse((pathlib.Path('integration/s0s1_frontend_v02')/name).read_text())
+          print('Frontend v0.2 isolated delta and Python syntax PASS')
+          PY
+      - name: Original Frontend 27 attention and visual regressions
+        run: |
+          node --test \
+            _frontend_pin/frontend/visual/tests/conversation-attention.test.mjs \
+            _frontend_pin/frontend/visual/tests/attention-integration.test.mjs
+      - name: New S0 historical and readback visual compatibility
+        run: node --test integration/s0s1_frontend_v02/test_frontend_interop.mjs
+      - name: Original checkout pristine
+        if: always()
+        run: test -z "$(git -C _frontend_pin status --porcelain)"
+  pg17-history-readback:
+    needs: frontend-original-and-scope
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      M09_PG17_DISPOSABLE: 'YES'
+      M09_PINNED_SOURCE: ${{ github.workspace }}/_m09_pin
+      S0_FRONTEND_PIN: ${{ github.workspace }}/_frontend_pin
+      PYTHONPATH: ${{ github.workspace }}
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 01ffdb093013664b73b18d23f92aac2202578210
+          path: _m09_pin
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ca262179e180c635fb7f44aaa37e4c1214f9ba12
+          path: _frontend_pin
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Confirm immutable source pins and install fixed test dependencies
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git -C _m09_pin rev-parse HEAD)" = 01ffdb093013664b73b18d23f92aac2202578210
+          test "$(git -C _frontend_pin rev-parse HEAD)" = ca262179e180c635fb7f44aaa37e4c1214f9ba12
+          python3 -m pip install 'psycopg[binary]==3.2.13' 'cryptography==46.0.3'
+      - name: Physical owner archive, readback after COMMIT, retry and concurrency
+        run: python3 -B -m unittest integration.s0s1_frontend_v02.test_pg17_service -v
+      - name: Choose runner-only disposable evidence path
+        run: echo "S0_FRONTEND_V02_EVIDENCE=$RUNNER_TEMP/s0-frontend-v02.json" >> "$GITHUB_ENV"
+      - name: Test PG17-generated receipt with immutable Frontend component
+        run: |
+          python3 -B -m integration.s0s1_frontend_v02.emit_frontend_v02
+          node --test integration/s0s1_frontend_v02/test_frontend_interop.mjs
+      - name: Inherited owner attention physical regression
+        run: python3 -B -m unittest integration.s0s1_frontend_read.test_pg17_service -q
+      - name: Scrub synthetic artifact and audit frozen checkouts
+        if: always()
+        run: |
+          if test -n "$S0_FRONTEND_V02_EVIDENCE"; then rm -f "$S0_FRONTEND_V02_EVIDENCE"; fi
+          test -z "$(git -C _m09_pin status --porcelain)"
+          test -z "$(git -C _frontend_pin status --porcelain)"
+          test -z "$(git status --porcelain --untracked-files=no)"
