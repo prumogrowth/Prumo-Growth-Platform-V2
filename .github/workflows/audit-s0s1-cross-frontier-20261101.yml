@@ -1,0 +1,68 @@
+name: AUDIT S0/S1 readback counterexamples PG17 only
+on:
+  push:
+    branches: [audit/s0s1-cross-frontier-20261101]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  scope-and-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Confirm exact audit-only delta and pristine S0
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          python3 -B - <<'PY'
+          import ast,pathlib,subprocess
+          base='45f15c831c3f6a7479a686622d92247f07005000'
+          files=set(subprocess.check_output(['git','diff','--name-only',base,'HEAD'],text=True).splitlines())
+          required={'audit/s0s1_20261101/test_pg17_counterexamples.py',
+             '.github/workflows/audit-s0s1-cross-frontier-20261101.yml'}
+          optional={'docs/auditorias/S0S1_AUDITORIA_GERAL_2026-11-01.md'}
+          assert required<=files and files<=required|optional,files
+          ast.parse(pathlib.Path('audit/s0s1_20261101/test_pg17_counterexamples.py').read_text())
+          print('AUDIT ONLY diff; all previous production and lab implementation unchanged')
+          PY
+  counterexamples-disposable:
+    needs: scope-and-source
+    runs-on: ubuntu-latest
+    timeout-minutes: 28
+    env:
+      M09_PG17_DISPOSABLE: 'YES'
+      M09_PINNED_SOURCE: ${{ github.workspace }}/_m09_pin
+      PYTHONPATH: ${{ github.workspace }}
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 01ffdb093013664b73b18d23f92aac2202578210
+          path: _m09_pin
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Verify pinned source and lab dependencies
+        run: |
+          test "$(git -C _m09_pin rev-parse HEAD)" = 01ffdb093013664b73b18d23f92aac2202578210
+          python3 -m pip install 'psycopg[binary]==3.2.13' 'cryptography==46.0.3'
+      - name: Audit counterexamples - successes indicate OBSERVED GAPS not safety
+        run: python3 -B -m unittest audit.s0s1_20261101.test_pg17_counterexamples -v
+      - name: Re-run intact PRE_DISPATCH v0.2 positive regression
+        run: python3 -B -m unittest integration.s0s1_pre_dispatch_v02.test_pg17_service -q
+      - name: Re-run intact original M09 and PRE_DISPATCH regressions
+        run: |
+          python3 -B -m unittest integration.s0s1_pre_dispatch.test_pg17_service -q
+          python3 -B -m unittest integration.s0s1_m09_registry.test_pg17_use_check -q
+      - name: Ensure no source mutation
+        if: always()
+        run: |
+          test -z "$(git -C _m09_pin status --porcelain)"
+          test -z "$(git status --porcelain --untracked-files=no)"
