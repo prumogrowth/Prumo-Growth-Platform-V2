@@ -189,8 +189,9 @@ def owner_history(c,*,store_ref,actor_ref,role,allowed_stores):
             rows.append(dict(case_ref=k['case_ref'],
                 assignment_revision=k['assignment_revision'],
                 case_revision=k['case_revision'],
-                inbox_revision=k['inbox_revision'],
-                **a,historical_read_only=True,composer_enabled=False))
+                inbox_revision=k['inbox_revision'],**a))
+            rows[-1]['historical_read_only']=True
+            rows[-1]['composer_enabled']=False
         rows.sort(key=lambda x:x['case_ref'])
         rows.sort(key=lambda x:(x['last_activity_at'] is not None,
                  x['last_activity_at'] or ''),reverse=True)
