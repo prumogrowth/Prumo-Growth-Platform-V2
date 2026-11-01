@@ -339,3 +339,15 @@ test('M19-56 no claim is proof of HMAC or durable receipt',()=>{
  assert.equal(s.attempt_correlation_verified,false);
  assert.equal(s.ack_allowed,false);
 });
+
+
+test('M19-57 Graph LAB snapshot has distinct version from S0 binding snapshot',()=>{
+ const s=good(run(q(),graph(),[]),'LAB_NO_CALLBACK_UNVERIFIED','NONE');
+ assert.equal(s.contract_version,'wa19-graph-status-snapshot.lab.v0.1');
+ assert.notEqual(s.contract_version,'wa19-status-snapshot.lab.v0.1');
+});
+test('M19-58 old ambiguous Graph request contract is rejected',()=>{
+ const old:any=q();
+ old.contract_version='wa19-status-request.lab.v0.1';
+ fail(run(old,graph(old),[]),'INVALID_INPUT');
+});
