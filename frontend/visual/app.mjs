@@ -1528,7 +1528,7 @@ $('completion-dialog').addEventListener('close',()=>{
   if(!state.processing[item.id])return;
   state.detailTab='overview';
   render();
-  if(window.matchMedia('(max-width:760px)').matches)goto('detail');
+  openDetails('thread-title');
   const diagnostics=$('detail-content').querySelector('#registration-diagnostics');
   if(diagnostics){diagnostics.open=true;diagnostics.querySelector('summary')?.focus();}
   showToast('Solicitação de conclusão simulada. O retorno técnico está no Resumo, sem envio à S0.');
