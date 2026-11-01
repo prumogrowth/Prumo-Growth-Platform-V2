@@ -193,6 +193,24 @@ function ledger(raw:unknown):Wa14Ledger|null{
  return {...x,consents:consentData,suppressions:suppressionData,
   grants:grantData} as Wa14Ledger;
 }
+/** Deterministic laboratory state comparison. An unchanged revision number
+ * alone does not demonstrate that the described policy/grants/consents are
+ * unchanged. Items are sorted because ledger list order is not authoritative.
+ * Never return this serialization; it contains private lab references.
+ * No signature, independent provenance, transaction or ABA protection. */
+function stableLedgerState(s:Wa14Ledger):string{
+ const ordered=(rows:readonly object[]):string[]=>
+  rows.map(x=>JSON.stringify(x)).sort();
+ return JSON.stringify([
+  s.contract_version,s.selection_ref,s.concessionaria_id,s.waba_ref,
+  s.lead_ref,s.case_ref,s.case_version,s.authorization_revision,
+  s.policy_revision,s.consent_revision,s.suppression_revision,
+  s.grant_revision,s.case_authorized,s.audience_eligible,
+  s.campaign_eligibility,ordered(s.consents),
+  ordered(s.suppressions),ordered(s.grants),
+ ]);
+}
+
 function evaluate(req:Wa14Request,snap:Wa14Ledger):Wa14Result{
  if(MATCH.some(k=>req[k]!==snap[k]))return deny('SCOPE_MISMATCH');
  if(snap.observed_at_ms>req.now_ms||
@@ -255,7 +273,8 @@ export function recheckWa14ConsentOffline(
      nowReq[k as keyof Wa14Request])||
      nowReq.now_ms<beforeReq.now_ms||
      now.observed_at_ms<before.observed_at_ms||
-     VERSIONS.some(k=>before[k]!==now[k]))
+     VERSIONS.some(k=>before[k]!==now[k])||
+     stableLedgerState(before)!==stableLedgerState(now))
    return deny('REVISION_OR_CONTEXT_CHANGED');
   const current=evaluate(nowReq,now);
   if(current.decision==='DENIED')return current;
