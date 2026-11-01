@@ -52,7 +52,7 @@ def main(output):
                         elif scene in ('banco-versoes','banco-remessa'):
                             # Versão F03 e remessa anterior pertencem ao Resumo,
                             # nunca à lista exclusiva de cadastros aptos.
-                            number='14' if scene=='banco-versoes' else '05'
+                            number='15' if scene=='banco-versoes' else '05'
                             page.get_by_role('button',name='Abrir conversa Cliente Exemplo '+number,exact=False).click()
                             page.locator('#thread-title').click()
                             page.locator('#case-tab-overview').click()
