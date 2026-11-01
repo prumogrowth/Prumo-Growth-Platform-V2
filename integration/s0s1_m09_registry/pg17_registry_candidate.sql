@@ -63,6 +63,9 @@ REVOKE ALL ON ALL TABLES IN SCHEMA s0_m09_lab FROM PUBLIC;
 REVOKE ALL ON SCHEMA s0_m09_lab FROM PUBLIC;
 GRANT USAGE ON SCHEMA s0_m09_lab TO s0_meta_runtime;
 GRANT SELECT ON apps,wabas,grants TO s0_meta_runtime;
+-- PG17 row locks need UPDATE privilege; RLS forbids any actual UPDATE.
+GRANT UPDATE(app_ref) ON apps TO s0_meta_runtime;
+GRANT UPDATE(canal_id) ON grants TO s0_meta_runtime;
 ALTER TABLE apps ENABLE ROW LEVEL SECURITY;
 ALTER TABLE wabas ENABLE ROW LEVEL SECURITY;
 ALTER TABLE grants ENABLE ROW LEVEL SECURITY;
@@ -70,6 +73,8 @@ ALTER TABLE slots ENABLE ROW LEVEL SECURITY;
 CREATE POLICY apps_read ON apps FOR SELECT TO s0_meta_runtime USING (true);
 CREATE POLICY wabas_read ON wabas FOR SELECT TO s0_meta_runtime USING (true);
 CREATE POLICY grants_read ON grants FOR SELECT TO s0_meta_runtime USING (true);
+CREATE POLICY apps_lock ON apps FOR UPDATE TO s0_meta_runtime USING (true) WITH CHECK (false);
+CREATE POLICY grants_lock ON grants FOR UPDATE TO s0_meta_runtime USING (true) WITH CHECK (false);
 -- No runtime slot policy, no INSERT/UPDATE/DELETE for runtime, ever.
 RESET ROLE;
 COMMIT;
