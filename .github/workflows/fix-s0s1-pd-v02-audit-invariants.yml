@@ -1,0 +1,113 @@
+name: AUD-PD-01..05 PRE_DISPATCH remediations PG17 and Meta M18
+on:
+  push:
+    branches: [fix/s0s1-pd-v02-audit-invariants-20261101]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  scope-and-offline-meta:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      M18_META_PIN: ${{ github.workspace }}/_meta_pin
+      NODE_OPTIONS: --experimental-strip-types
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 2a535ceb543418a76bb753a368eabc45bdbe4b0f
+          path: _meta_pin
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Inspect exact remedial delta and syntax
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git -C _meta_pin rev-parse HEAD)" = 2a535ceb543418a76bb753a368eabc45bdbe4b0f
+          python3 -B - <<'PY'
+          import ast,subprocess,pathlib
+          base='45f15c831c3f6a7479a686622d92247f07005000'
+          changed=set(subprocess.check_output(['git','diff','--name-only',base,'HEAD'],text=True).splitlines())
+          required={'.github/workflows/fix-s0s1-pd-v02-audit-invariants.yml',
+            'integration/s0s1_pre_dispatch_v02/pg17_schema.sql',
+            'integration/s0s1_pre_dispatch_v02/pg17_service.py',
+            'integration/s0s1_pre_dispatch_v02/test_pg17_service.py',
+            'integration/s0s1_pre_dispatch_v02/test_audit_fixes.py'}
+          optional={'docs/auditorias/S0S1_AUD_PD02_REMEDIACAO_20261101.md'}
+          assert required<=changed and changed<=required|optional,changed
+          for name in ('pg17_service.py','test_pg17_service.py','test_audit_fixes.py'):
+           ast.parse((pathlib.Path('integration/s0s1_pre_dispatch_v02')/name).read_text())
+          print('AUD-PD fixes exact diff & AST PASS')
+          PY
+      - name: Meta M18 original fixed-source regression
+        run: node --test _meta_pin/integrations/whatsapp-meta/wa18-dispatch-boundary-offline.test.ts
+      - name: S0-to-Meta M18 v0.2 offline negative boundary
+        run: node --test integration/s0s1_m18_v02/test_interop.mjs
+      - name: Check original pinned Meta remains immutable
+        if: always()
+        run: test -z "$(git -C _meta_pin status --porcelain)"
+  physical-pg17:
+    needs: scope-and-offline-meta
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      M09_PG17_DISPOSABLE: 'YES'
+      M09_PINNED_SOURCE: ${{ github.workspace }}/_m09_pin
+      M18_META_PIN: ${{ github.workspace }}/_meta_pin
+      M18_V02_PG17_FIXTURE: /tmp/s0_m18_remediation.json
+      PYTHONPATH: ${{ github.workspace }}
+      NODE_OPTIONS: --experimental-strip-types
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 01ffdb093013664b73b18d23f92aac2202578210
+          path: _m09_pin
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 2a535ceb543418a76bb753a368eabc45bdbe4b0f
+          path: _meta_pin
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Pinned inputs, dependencies
+        run: |
+          test "$(git -C _m09_pin rev-parse HEAD)" = 01ffdb093013664b73b18d23f92aac2202578210
+          test "$(git -C _meta_pin rev-parse HEAD)" = 2a535ceb543418a76bb753a368eabc45bdbe4b0f
+          python3 -m pip install 'psycopg[binary]==3.2.13' 'cryptography==46.0.3'
+      - name: Five AUD-PD remediation negative proofs and adversarial extensions
+        run: python3 -B -m unittest integration.s0s1_pre_dispatch_v02.test_audit_fixes -v
+      - name: Previous PRE_DISPATCH v0.2 positive and failure regressions
+        run: python3 -B -m unittest integration.s0s1_pre_dispatch_v02.test_pg17_service -q
+      - name: Earlier PRE_DISPATCH and original M09 point-of-use regressions
+        run: |
+          python3 -B -m unittest integration.s0s1_pre_dispatch.test_pg17_service -q
+          python3 -B -m unittest integration.s0s1_m09_registry.test_pg17_use_check -q
+      - name: Real PG17 staged/committed/cancelled evidence for M18 contract
+        run: python3 -B -m integration.s0s1_m18_v02.emit_pg17_evidence
+      - name: Physical readback v0.2 still nonauthorizing for Meta M18
+        run: node --test integration/s0s1_m18_v02/test_interop.mjs
+      - name: Cleanup temporary evidence and original sources
+        if: always()
+        run: |
+          rm -f /tmp/s0_m18_remediation.json
+          test -z "$(git -C _m09_pin status --porcelain)"
+          test -z "$(git -C _meta_pin status --porcelain)"
+          test -z "$(git status --porcelain --untracked-files=no)"
