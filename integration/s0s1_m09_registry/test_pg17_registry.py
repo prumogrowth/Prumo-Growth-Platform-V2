@@ -44,6 +44,9 @@ class PhysicalRegistryM09(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         if hasattr(cls,'lab'):
+            # Restore the pinned laboratory inherited-catalog fingerprint.
+            with cls.lab.admin() as c:
+                c.execute('DROP SCHEMA IF EXISTS s0_m09_lab CASCADE')
             result=cls.lab.cleanup()
             os.chdir(cls.origin)
             for key in ('container_absent','volume_absent','custody_absent',
