@@ -378,3 +378,13 @@ test('AUD-M13-61 candidate with forged positive authority is rejected',()=>{
  assert.equal(result.decision,'DENIED');
  assert.equal(result.reason,'INVALID_CANDIDATE');
 });
+
+test('AUD-M13-62 invalid digest object never calls custom toString',()=>{
+ let hits=0;
+ const malicious={toString(){
+  hits++;throw Error('SHOULD_NOT_CALL_TO_STRING');
+ }};
+ const invalid={...template(),provider_components_sha256:malicious};
+ deny(check(host(),s0([invalid]),meta()),'INVALID_INPUT');
+ assert.equal(hits,0);
+});
