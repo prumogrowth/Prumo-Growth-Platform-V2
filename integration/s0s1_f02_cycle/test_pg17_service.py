@@ -119,7 +119,8 @@ class F02CyclePhysical(unittest.TestCase):
               "WHERE case_ref='case_A'")
   q,s=self.cmd()
   self.assertEqual(self.apply(q,s)['reason'],'CYCLE_SOURCE_DIVERGED')
-  self.assertEqual(self.prepare()['reason'],'CYCLE_SOURCE_DIVERGED')
+  # The original F02 boundary can deny stale before the additive gate.
+  self.assertEqual(self.prepare()['reason'],'STALE_OR_CHANGED')
  def test_07_revoked_consent_does_not_resume_or_advance(self):
   self.change("UPDATE s0_pre_dispatch_lab.consents "
               "SET state='REVOKED' WHERE case_ref='case_A'")
