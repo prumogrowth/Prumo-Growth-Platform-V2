@@ -33,7 +33,7 @@ class PDReadbackPhysical(unittest.TestCase):
    c.execute("""INSERT INTO s0_pd_v02_lab.quotas
      (store_ref,app_ref,phone_ref,window_ref,observed_at,
       valid_until,revision,capacity) VALUES
-     ('store-A','APP_A','100001','window_A',
+     ('store-A','APP_A','200001','window_A',
       clock_timestamp(),clock_timestamp()+interval '1 hour',1,2)""")
    t=c.execute("SELECT floor(extract(epoch from clock_timestamp())*1000)::bigint AS ms").fetchone()
   self.req2=dict(self.req,intent_ref='intent_A',
