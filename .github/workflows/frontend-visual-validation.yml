@@ -20,7 +20,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   native-checkout:
-    if: github.ref == 'refs/heads/feat/frontend-plataforma-visual' || github.ref == 'refs/heads/codex/fv-ux-01-comunicacao-20261027' || github.ref == 'refs/heads/codex/fv-rev-01-conversas-20261030' || github.ref == 'refs/heads/codex/fv-rev-01-modulos-20261030' || github.ref == 'refs/heads/codex/fv-cor-07-pos-auditoria-20261031' || github.ref == 'refs/heads/fix/fv-cor-08-unicode-20261031'
+    if: github.ref == 'refs/heads/feat/frontend-plataforma-visual' || github.ref == 'refs/heads/codex/fv-ux-01-comunicacao-20261027' || github.ref == 'refs/heads/codex/fv-rev-01-conversas-20261030' || github.ref == 'refs/heads/codex/fv-rev-01-modulos-20261030' || github.ref == 'refs/heads/codex/fv-cor-07-pos-auditoria-20261031' || github.ref == 'refs/heads/fix/fv-cor-08-unicode-20261031' || github.ref == 'refs/heads/fix/fv-coe-01-coerencia-20261031'
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
