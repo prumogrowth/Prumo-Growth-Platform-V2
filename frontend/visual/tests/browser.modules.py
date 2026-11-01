@@ -66,7 +66,9 @@ def main():
                     assert box['y']>=0 and box['y']+box['height']<=height+1,(height,box)
                     assert page.locator('.bank-guidance').evaluate(CONTRAST)>=4.5
                     assert page.locator('#thread-title').inner_text()==title
-                    expect(card.locator('.attention-unread')).to_have_text('2')
+                    # A lista de Conversas fica visualmente oculta ao entrar no Banco.
+                    # Verificar a contagem preservada no DOM, sem expandir a permissão da tela.
+                    expect(page.locator('.conversation-card').filter(has_text='Cliente Exemplo 02').locator('.attention-unread')).to_have_text('2')
                     page.keyboard.press('Escape')
                     expect(page.locator('#bank-dialog')).to_be_hidden()
                     expect(nav).to_be_focused()
