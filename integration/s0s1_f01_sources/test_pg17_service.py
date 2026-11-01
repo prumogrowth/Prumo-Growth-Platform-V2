@@ -7,6 +7,7 @@ except ImportError:
  psycopg=None
 from integration.s0s1_f01_ownership import test_pg17_service as inherited
 from .pg17_service import prepare,review,FLAGS
+from integration.s0s1_f01_ownership.pg17_service import begin_turn,definitive_handoff
 
 @unittest.skipUnless(os.getenv('M09_PG17_DISPOSABLE')=='YES' and psycopg,
                      'requires PG17 disposable fixture')
@@ -61,6 +62,13 @@ class F01CommercialPhysical(unittest.TestCase):
      claim_code='PRODUCT_FEATURE',usage='commercial')]
   self.grant=1
   self.assertEqual(self.start()['status'],'LAB_TURN_RECORDED_NO_MODEL')
+ def start(self):
+  with self.lab.admin() as c:
+   return begin_turn(c,turn_ref='turn_A',scope=self.scope,expected=self.expected)
+ def handoff(self):
+  with self.lab.admin() as c:
+   return definitive_handoff(c,event_ref='handoff_A',scope=self.scope,
+                             expected=self.expected)
  def select(self,claims=None,grant=None):
   with self.lab.admin() as c:
    return prepare(c,request_ref='turn_A',scope=self.scope,
