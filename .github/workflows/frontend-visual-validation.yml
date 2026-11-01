@@ -113,7 +113,7 @@ jobs:
           import hashlib, json, os, subprocess
           from pathlib import Path
           folder = Path('out')
-          comparison_base = 'dbad7a6e13bffb51b01875fcd8de43fe49a1791b' if os.environ['GITHUB_REF_NAME']=='fix/fv-cor-08-unicode-20261031' else '2efa2d5c3df0df05bd0193a715e2e958b71cd816' if os.environ['GITHUB_REF_NAME']=='codex/fv-cor-07-pos-auditoria-20261031' else '17336799ddf4c8575c790f09eb64570d6460733c'
+          comparison_base = '59481887cec5af02f1243b83652865cdd6ad3a25' if os.environ['GITHUB_REF_NAME']=='fix/fv-coe-01-coerencia-20261031' else 'dbad7a6e13bffb51b01875fcd8de43fe49a1791b' if os.environ['GITHUB_REF_NAME']=='fix/fv-cor-08-unicode-20261031' else '2efa2d5c3df0df05bd0193a715e2e958b71cd816' if os.environ['GITHUB_REF_NAME']=='codex/fv-cor-07-pos-auditoria-20261031' else '17336799ddf4c8575c790f09eb64570d6460733c'
           provenance = {
               'head': os.environ['GITHUB_SHA'],
               'branch': os.environ['GITHUB_REF_NAME'],
