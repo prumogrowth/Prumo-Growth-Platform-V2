@@ -37,7 +37,7 @@ jobs:
           grep -qx '# tests 36' "$RUNNER_TEMP/meta-s0-receipt-new.tap"
           grep -qx '# pass 36' "$RUNNER_TEMP/meta-s0-receipt-new.tap"
           grep -qx '# fail 0' "$RUNNER_TEMP/meta-s0-receipt-new.tap"
-      - name: Existing Meta and S0 interface focused regressions (369)
+      - name: Existing Meta and S0 interface focused regressions (377)
         shell: bash
         run: |
           set -euo pipefail
@@ -62,8 +62,8 @@ jobs:
             integrations/whatsapp-meta/inbound.test.ts \
             integrations/whatsapp-meta/routed-webhook.test.ts \
             2>&1 | tee "$RUNNER_TEMP/meta-s0-receipt-regressions.tap"
-          grep -qx '# tests 369' "$RUNNER_TEMP/meta-s0-receipt-regressions.tap"
-          grep -qx '# pass 369' "$RUNNER_TEMP/meta-s0-receipt-regressions.tap"
+          grep -qx '# tests 377' "$RUNNER_TEMP/meta-s0-receipt-regressions.tap"
+          grep -qx '# pass 377' "$RUNNER_TEMP/meta-s0-receipt-regressions.tap"
           grep -qx '# fail 0' "$RUNNER_TEMP/meta-s0-receipt-regressions.tap"
       - name: Complete Meta offline regressions (minimum 1183)
         shell: bash
