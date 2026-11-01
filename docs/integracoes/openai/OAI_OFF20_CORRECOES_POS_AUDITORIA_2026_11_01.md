@@ -45,4 +45,4 @@ Esses riscos foram tratados neste lote **antes** de prosseguir no desenvolviment
 | Testes semânticos de modelo real | **Ainda não iniciados**, exigem missão explícita, orçamento e credencial em segredo protegido |
 | Merge, release, produção | **Não autorizado** |
 
-**Parecer esperado caso CI aprove:** `REMEDIACAO_INTERNA_OFFLINE_APROVADA_COM_BLOQUEIOS_EXPLICITOS`. Isso não equivale a uma frente livre de todo risco nem dispensa homologação externa. Nenhuma chamada OpenAI/Meta real, uso de dados de cliente, alteração de banco, merge ou deploy.
+**Parecer após primeiro CI validado:** `REMEDIACAO_INTERNA_OFFLINE_APROVADA_COM_BLOQUEIOS_EXPLICITOS`. [GitHub Actions 41345415665](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41345415665) confirmou **990/990 Node PASS**, 0 FAIL, 0 SKIP e **24/24 Python AST da S0 pinada PASS** (suítes distintas); o relatório e o roteiro serão revalidados em novo CI após seu commit de fechamento. Isso não equivale a uma frente livre de todo risco nem dispensa homologação externa. Nenhuma chamada OpenAI/Meta real, uso de dados de cliente, alteração de banco, merge ou deploy.
