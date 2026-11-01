@@ -1,0 +1,64 @@
+name: OAI OFF13 F01 S0 ownership offline regression
+on:
+  push:
+    branches:
+      - feat/oai-off13-f01-s0-ownership-review-20261101
+permissions:
+  contents: read
+concurrency:
+  group: oai-off13-f01-s0-review
+  cancel-in-progress: false
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact OpenAI candidate
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Check OFF12 ancestry and strictly isolated diff
+        shell: bash
+        run: |
+          set -euo pipefail
+          base=cc2321735bf7609e6d03719562fbe28d6eea45cb
+          git merge-base --is-ancestor "$base" HEAD
+          git diff --name-only "$base" HEAD | sort > /tmp/oai13-changed
+          cat > /tmp/oai13-expected <<'EOF'
+          .github/workflows/oai-off13-f01-s0-review.yml
+          docs/integracoes/openai/OAI_OFF13_F01_S0_OWNERSHIP_REVIEW_2026_11_01.md
+          docs/integracoes/openai/OAI_ROTEIRO_PROGRESSO_2026_11_01.md
+          docs/integracoes/openai/e04_offline_lab/f01-s0-ownership-review-lab.mjs
+          docs/integracoes/openai/e04_offline_lab/tests/f01-s0-ownership-review-lab.test.mjs
+          EOF
+          diff -u /tmp/oai13-expected /tmp/oai13-changed
+          test -z "$(git diff --name-only "$base" HEAD -- backend/ integrations/ frontend/ supabase/)"
+      - name: Set Node version to 22.16.0
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - name: Syntax and cumulative inherited + OFF13 tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check docs/integracoes/openai/e04_offline_lab/f01-s0-ownership-review-lab.mjs
+          node --check docs/integracoes/openai/e04_offline_lab/tests/f01-s0-ownership-review-lab.test.mjs
+          npm --prefix docs/integracoes/openai/e04_offline_lab test | tee /tmp/oai-off13.tap
+      - name: Require 819 tests PASS, zero errors or skipped
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=commonjs - <<'NODE'
+          const fs=require('node:fs');
+          const s=fs.readFileSync('/tmp/oai-off13.tap','utf8');
+          const val=k=>{const m=s.match(new RegExp('# '+k+' (\\d+)'));return m?Number(m[1]):null;};
+          const facts={tests:val('tests'),pass:val('pass'),fail:val('fail'),skipped:val('skipped')};
+          console.log(JSON.stringify({status:'OAI_OFF13_LAB_NOT_S0_RATIFIED',previous:774,off13:45,...facts}));
+          if(facts.tests!==819||facts.pass!==819||facts.fail!==0||facts.skipped!==0)process.exit(2);
+          NODE
+      - name: State permission limits
+        if: always()
+        run: |
+          echo 'All S0 owner/readback claims are fixtures. No authenticated S0, model invocation, publication, Meta dispatch, consultant assignment or production.'
+          echo 'No merge or deploy. Do not convert LAB_CONSISTENT_UNVERIFIED to permission.'
