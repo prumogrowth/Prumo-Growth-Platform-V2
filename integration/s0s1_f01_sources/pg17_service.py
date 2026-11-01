@@ -2,7 +2,7 @@
 import hashlib,json,re
 from datetime import timezone
 from integration.s0s1_f01_ownership.pg17_service import (
- current,permitted,digest as f01_digest,recheck_proposal,
+ current,permitted,digest as f01_digest,recheck_proposal as f01_review,
  valid_scope,valid_versions)
 V='prumo.s0.f01-commercial-sources/0.1-lab'
 FLAGS=dict(source_authenticated=False,content_grant_verified=False,
@@ -202,8 +202,6 @@ def review(c,*,request_ref,scope,expected,grant_revision,claims,proposal_aliases
  except ValueError as e:
   return deny(c,sp,str(e))
  except Exception:
-  import traceback
-  traceback.print_exc()  # synthetic disposable CI diagnostic only
   c.execute('ROLLBACK TO SAVEPOINT '+sp)
   c.execute('RELEASE SAVEPOINT '+sp)
   return out('UNAVAILABLE','DEPENDENCY_UNAVAILABLE')
