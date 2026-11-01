@@ -204,7 +204,7 @@ test('G3 alertas S0 só aceitam projeção de fonte e espera observada sem cron�
 });
 
 test('Chromium smoke usa ambos módulos G3 e só lê painel depois de ativá-lo',()=>{
-  assert.match(browserSmoke, /'team-monitor\.mjs','batch-monitor\.mjs','distribution-view\.mjs','transport-state-view\.mjs','conversation-attention\.mjs','team-monitoring\.mjs','local-audio\.mjs','communication-composer\.mjs','revision-fixtures\.mjs','relationship-view\.mjs','app\.mjs'/);
+  assert.match(browserSmoke, /'team-monitor\.mjs','batch-monitor\.mjs','distribution-view\.mjs','transport-state-view\.mjs','conversation-attention\.mjs','team-monitoring\.mjs','local-audio\.mjs','communication-composer\.mjs','revision-fixtures\.mjs','relationship-view\.mjs','bank-ready-list\.mjs','app\.mjs'/);
   assert.match(browserSmoke, /page\.locator\('#team-show-monitor'\)\.click\(\)/);
   assert.match(browserSmoke, /page\.locator\('#team-show-members'\)\.click\(\)/);
 });
@@ -223,7 +223,7 @@ test('G4 não executa uploads, edição de concessão ou mudança de status come
   assert.doesNotMatch(batchMonitor, /\bfetch\s*\(|\bXMLHttpRequest\b|\bWebSocket\b|\bFileReader\b/);
   assert.doesNotMatch(batchMonitor, /\.assignedTo\s*=(?!=)|\.shops\s*=(?!=)|\.status\s*=(?!=)/);
   assert.match(app, /Somente leitura\. Upload, aceitação de linhas, roteamento/);
-  assert.match(browserSmoke, /'batch-monitor\.mjs','distribution-view\.mjs','transport-state-view\.mjs','conversation-attention\.mjs','team-monitoring\.mjs','local-audio\.mjs','communication-composer\.mjs','revision-fixtures\.mjs','relationship-view\.mjs','app\.mjs'/);
+  assert.match(browserSmoke, /'batch-monitor\.mjs','distribution-view\.mjs','transport-state-view\.mjs','conversation-attention\.mjs','team-monitoring\.mjs','local-audio\.mjs','communication-composer\.mjs','revision-fixtures\.mjs','relationship-view\.mjs','bank-ready-list\.mjs','app\.mjs'/);
   assert.match(browserSmoke, /page\.locator\('#team-show-batches'\)\.click\(\)/);
 });
 
@@ -402,7 +402,7 @@ test('FV-UI-029: confirmação de modais aninhados anuncia sem perder foco',()=>
   assert.match(app,/function announceTeamActionAndRestoreFocus\(tabId,announcement\)/);
   assert.match(app,/announceTeamActionAndRestoreFocus\('team-show-members'/);
   assert.match(app,/announceTeamActionAndRestoreFocus\('team-show-queue'/);
-  assert.match(app,/if\(!\$\('team-dialog'\)\.open \|\| !canSeeTeamSummary/);
+  assert.match(app,/state\.activeModule!=='team'\|\|!\$\('team-dialog'\)\.open \|\| !canSeeTeamSummary/);
   assert.match(browserSmoke,/FV-UI-029 confirmação, anúncio e retorno do foco/);
 });
 
