@@ -1528,9 +1528,10 @@ $('completion-dialog').addEventListener('close',()=>{
   if(!state.processing[item.id])return;
   state.detailTab='overview';
   render();
-   const diagnostics=$('detail-content').querySelector('#registration-diagnostics');
-   if(diagnostics){diagnostics.open=true;diagnostics.querySelector('summary')?.focus();}
-   showToast('Solicitação de conclusão simulada. Nenhuma API foi chamada.');
+  if(window.matchMedia('(max-width:760px)').matches)goto('detail');
+  const diagnostics=$('detail-content').querySelector('#registration-diagnostics');
+  if(diagnostics){diagnostics.open=true;diagnostics.querySelector('summary')?.focus();}
+  showToast('Solicitação de conclusão simulada. O retorno técnico está no Resumo, sem envio à S0.');
 });
 $('template-dialog').addEventListener('close',()=>{
   const isConfirm=$('template-dialog').returnValue==='confirm';
