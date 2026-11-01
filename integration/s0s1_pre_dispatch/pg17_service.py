@@ -74,6 +74,8 @@ def _check(c, request, scope, principal, versions):
              'STALE_OR_CHANGED' if technical['reason'] != 'DUPLICATE_ATTEMPT'
              else 'DUPLICATE_ATTEMPT')
 
+    _require(request['service_ref'] == principal.principal_ref, 'SCOPE_CHANGED')
+
     case = c.execute(
         'SELECT * FROM s0_pre_dispatch_lab.cases WHERE case_ref=%s FOR UPDATE',
         (request['case_ref'],)
