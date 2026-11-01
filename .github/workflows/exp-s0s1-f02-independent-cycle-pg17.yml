@@ -44,7 +44,7 @@ jobs:
            'docs/contratos/s0_f02/S0_F02_OFF17_CYCLE_ASSIGNMENT_PG17_20261101.md'
           }
           assert actual <= expected and expected-{
-           'docs/contratos/s0_f02/S0_F02_PG17_OFF04_20261101.md'
+           'docs/contratos/s0_f02/S0_F02_OFF17_CYCLE_ASSIGNMENT_PG17_20261101.md'
           } <= actual, sorted(actual^expected)
           for n in ('pg17_service.py','test_pg17_service.py','emit_off04_evidence.py'):
            ast.parse((pathlib.Path('integration/s0s1_f02')/n).read_text())
