@@ -49,7 +49,7 @@ export function projectTeamMonitoring(managerId, records) {
     intakeUnavailableCount:perOperator.filter(row=>row.intake==='unavailable').length,
     activeCases:active.length,
     historicalCases:historical.length,
-    unreadCases:active.filter(record=>record.unread>0).length,
+    unreadCases:active.filter(isUnread).length,
     windowAttentionCases:active.filter(isWindowIssue).length,
     protectedQueueCases:active.filter(isProtected).length,
     unassignedTeamCases:active.filter(inTeamQueue).length,
