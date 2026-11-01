@@ -303,3 +303,61 @@ test('M16-44 media from another WABA cannot be accepted',()=>{
  f.media_revision=4;f.media_evidence={...img(),waba_ref:'100002'};
  denied(inspect(f),'MEDIA_EVIDENCE_DENIED');
 });
+
+
+test('AUD-M16-45 selection_ref change under same template and revision is denied',()=>{
+ const original=fixture(),next=fixture();
+ next.selection_ref='SELECTION_DIFFERENT';
+ const old=good(inspect(original)),changed=good(inspect(next));
+ assert.notEqual(old.snapshot_sha256,changed.snapshot_sha256);
+ denied(recheck(old,next),'VERSION_OR_SNAPSHOT_CHANGED');
+});
+test('AUD-M16-46 unused newly allowed variable source changes binding digest',()=>{
+ const original=fixture(),next=fixture();
+ next.source_registry.push('cliente.telefone');
+ const old=good(inspect(original)),changed=good(inspect(next));
+ assert.notEqual(old.binding_sha256,changed.binding_sha256);
+ assert.notEqual(old.snapshot_sha256,changed.snapshot_sha256);
+ denied(recheck(old,next),'VERSION_OR_SNAPSHOT_CHANGED');
+});
+test('AUD-M16-47 removal of previously available unused source detected',()=>{
+ const previous=fixture();
+ previous.source_registry.push('cliente.telefone');
+ const current=fixture();
+ denied(check(previous,current),'VERSION_OR_SNAPSHOT_CHANGED');
+});
+test('AUD-M16-48 harmless source registry reorder does not change snapshot',()=>{
+ const old=fixture(),newer=fixture();
+ newer.source_registry.reverse();
+ const oldSnapshot=good(inspect(old)),newSnapshot=good(inspect(newer));
+ assert.equal(oldSnapshot.binding_sha256,newSnapshot.binding_sha256);
+ assert.equal(oldSnapshot.snapshot_sha256,newSnapshot.snapshot_sha256);
+ good(recheck(oldSnapshot,newer),'LAB_RECHECKED_UNVERIFIED');
+});
+test('AUD-M16-49 duplicate synthetic source registry entries denied',()=>{
+ const input=fixture();input.source_registry.push('cliente.nome');
+ denied(inspect(input),'COMPONENTS_OR_BINDINGS_DENIED');
+});
+test('AUD-M16-50 excessive source registry string denied before hash',()=>{
+ const input=fixture();input.source_registry.push('cliente.'+'a'.repeat(100000));
+ denied(inspect(input),'INVALID_INPUT');
+});
+test('AUD-M16-51 oversized nested sample string denied before WA17B',()=>{
+ const input=fixture();input.authoring.body.examples[0]='X'.repeat(100000);
+ denied(inspect(input),'INVALID_INPUT');
+});
+test('AUD-M16-52 selected registry source replacement fails closed',()=>{
+ const input=fixture();
+ input.source_registry[0]='cliente.cadastro';
+ denied(inspect(input),'COMPONENTS_OR_BINDINGS_DENIED');
+});
+test('AUD-M16-53 forged selection reference on candidate denied at recheck',()=>{
+ const old=good(inspect());
+ const forged={...old,selection_ref:'SELECTION_OTHER'};
+ denied(recheck(forged,fixture()),'VERSION_OR_SNAPSHOT_CHANGED');
+});
+test('AUD-M16-54 forged binding digest on candidate denied at recheck',()=>{
+ const old=good(inspect());
+ const forged={...old,binding_sha256:'0'.repeat(64)};
+ denied(recheck(forged,fixture()),'VERSION_OR_SNAPSHOT_CHANGED');
+});
