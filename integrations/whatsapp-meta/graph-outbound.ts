@@ -72,7 +72,7 @@ export function prepareGraphTextRequest(intent: GraphTextIntent, apiVersion: str
   // The 4096-byte bound is LAB-only, not a claimed universal Graph limit.
   if (typeof intent.text_body !== 'string' || intent.text_body.trim().length === 0 ||
       intent.text_body !== intent.text_body.normalize('NFC') ||
-      /[\\p{Cc}\\p{Cf}\\p{Cs}\\p{Zl}\\p{Zp}]/u.test(intent.text_body.replace(/\\n/g,'')) ||
+      /[\p{Cc}\p{Cf}\p{Cs}\p{Zl}\p{Zp}]/u.test(intent.text_body.replace(/\n/g,'')) ||
       new TextEncoder().encode(intent.text_body).byteLength > 4096) {
     throw new OutboundPreflightError('INVALID_MESSAGE');
   }
