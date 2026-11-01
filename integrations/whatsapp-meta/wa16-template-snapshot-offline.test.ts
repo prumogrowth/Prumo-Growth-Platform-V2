@@ -165,6 +165,7 @@ test('M16-22 duplicate button labels denied',()=>{
 test('M16-23 media IMAGE with matching fixture builds digest',()=>{
  const f:any=fixture();f.authoring.header={
   kind:'IMAGE',asset_ref:'asset_demo_123456'};
+ Reflect.deleteProperty(f.bindings,'header.1');
  f.media_evidence=img();f.media_revision=4;
  const c=good(inspect(f));assert.equal(c.media_kind,'IMAGE');
  assert.equal(c.media_revision,4);
@@ -172,6 +173,7 @@ test('M16-23 media IMAGE with matching fixture builds digest',()=>{
 test('M16-24 media digest changes when asset checksum changes',()=>{
  const f:any=fixture();f.authoring.header={
   kind:'IMAGE',asset_ref:'asset_demo_123456'};
+ Reflect.deleteProperty(f.bindings,'header.1');
  f.media_evidence=img();f.media_revision=4;
  const c=good(inspect(f)),g:any=structuredClone(f);
  g.media_evidence.sha256='b'.repeat(64);
@@ -180,48 +182,56 @@ test('M16-24 media digest changes when asset checksum changes',()=>{
 test('M16-25 media revision differs from claim denied',()=>{
  const f:any=fixture();f.authoring.header={
   kind:'IMAGE',asset_ref:'asset_demo_123456'};
+ Reflect.deleteProperty(f.bindings,'header.1');
  f.media_evidence=img();f.media_revision=5;
  denied(inspect(f),'MEDIA_EVIDENCE_DENIED');
 });
 test('M16-26 absent media evidence denies media draft',()=>{
  const f:any=fixture();f.authoring.header={
   kind:'IMAGE',asset_ref:'asset_demo_123456'};
+ Reflect.deleteProperty(f.bindings,'header.1');
  f.media_revision=4;
  denied(inspect(f),'MEDIA_EVIDENCE_DENIED');
 });
 test('M16-27 media asset scope/name mismatch denied',()=>{
  const f:any=fixture();f.authoring.header={
   kind:'IMAGE',asset_ref:'asset_other_123456'};
+ Reflect.deleteProperty(f.bindings,'header.1');
  f.media_revision=4;f.media_evidence=img();
  denied(inspect(f),'MEDIA_EVIDENCE_DENIED');
 });
 test('M16-28 media MIME inconsistent with declared kind denied',()=>{
  const f:any=fixture();f.authoring.header={
   kind:'VIDEO',asset_ref:'asset_demo_123456'};
+ Reflect.deleteProperty(f.bindings,'header.1');
  f.media_revision=4;f.media_evidence={...img('VIDEO'),mime_type:'image/jpeg'};
  denied(inspect(f),'MEDIA_EVIDENCE_DENIED');
 });
 test('M16-29 media expiry denied',()=>{
  const f:any=fixture();f.authoring.header={
   kind:'IMAGE',asset_ref:'asset_demo_123456'};
+ Reflect.deleteProperty(f.bindings,'header.1');
  f.media_revision=4;f.media_evidence={...img(),valid_until_ms:NOW};
  denied(inspect(f),'MEDIA_EVIDENCE_DENIED');
 });
 test('M16-30 stale media observation denied',()=>{
  const f:any=fixture();f.authoring.header={
   kind:'IMAGE',asset_ref:'asset_demo_123456'};
+ Reflect.deleteProperty(f.bindings,'header.1');
  f.media_revision=4;f.media_evidence={...img(),observed_at_ms:NOW-60001};
  denied(inspect(f),'MEDIA_EVIDENCE_DENIED');
 });
 test('M16-31 VIDEO with media/sample local fixture accepted only LAB',()=>{
  const f:any=fixture();f.authoring.header={
   kind:'VIDEO',asset_ref:'asset_demo_123456'};
+ Reflect.deleteProperty(f.bindings,'header.1');
  f.media_revision=4;f.media_evidence={...img('VIDEO'),mime_type:'video/mp4'};
  const c=good(inspect(f));assert.equal(c.media_kind,'VIDEO');
 });
 test('M16-32 DOCUMENT with PDF allowed LAB metadata only',()=>{
  const f:any=fixture();f.authoring.header={
   kind:'DOCUMENT',asset_ref:'asset_demo_123456'};
+ Reflect.deleteProperty(f.bindings,'header.1');
  f.media_revision=4;f.media_evidence={...img('DOCUMENT'),
   mime_type:'application/pdf'};
  const c=good(inspect(f));assert.equal(c.media_kind,'DOCUMENT');
@@ -270,6 +280,7 @@ test('M16-41 hostile WABA candidate object never coerced',()=>{
 test('M16-42 media evidence cannot be treated as verified Meta upload',()=>{
  const f:any=fixture();f.authoring.header={
   kind:'IMAGE',asset_ref:'asset_demo_123456'};
+ Reflect.deleteProperty(f.bindings,'header.1');
  f.media_revision=4;f.media_evidence=img();
  const r=inspect(f),c=good(r);
  assert.equal(c.media_verified,false);
@@ -280,6 +291,7 @@ test('M16-42 media evidence cannot be treated as verified Meta upload',()=>{
 test('M16-43 media from another shop cannot be accepted',()=>{
  const f:any=fixture();f.authoring.header={
   kind:'IMAGE',asset_ref:'asset_demo_123456'};
+ Reflect.deleteProperty(f.bindings,'header.1');
  f.media_revision=4;f.media_evidence={...img(),
   concessionaria_id:OTHER_SHOP};
  denied(inspect(f),'MEDIA_EVIDENCE_DENIED');
@@ -287,6 +299,7 @@ test('M16-43 media from another shop cannot be accepted',()=>{
 test('M16-44 media from another WABA cannot be accepted',()=>{
  const f:any=fixture();f.authoring.header={
   kind:'IMAGE',asset_ref:'asset_demo_123456'};
+ Reflect.deleteProperty(f.bindings,'header.1');
  f.media_revision=4;f.media_evidence={...img(),waba_ref:'100002'};
  denied(inspect(f),'MEDIA_EVIDENCE_DENIED');
 });
