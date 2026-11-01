@@ -66,7 +66,6 @@ jobs:
     env:
       M09_META_PIN: ${{ github.workspace }}/_meta_pin
       M09_PINNED_SOURCE: ${{ github.workspace }}/_m09_pin
-      M09_BRIDGE_EVIDENCE: ${{ runner.temp }}/s0s1-m09-bridge-response.json
       M09_PG17_DISPOSABLE: 'YES'
       PYTHONDONTWRITEBYTECODE: '1'
       PYTHONPATH: ${{ github.workspace }}
@@ -96,6 +95,8 @@ jobs:
           test "$(git -C _m09_pin rev-parse HEAD)" = 01ffdb093013664b73b18d23f92aac2202578210
           test "$(git -C _meta_pin rev-parse HEAD)" = 745f54acd8255bea728c5ab7c87848d5018ad66b
           python3 -m pip install 'psycopg[binary]==3.2.13' 'cryptography==46.0.3'
+      - name: Set temporary evidence path for same isolated runner
+        run: echo "M09_BRIDGE_EVIDENCE=$RUNNER_TEMP/s0s1-m09-bridge-response.json" >> "$GITHUB_ENV"
       - name: Generate Ed25519 verified physical PG17 read in disposable DB
         run: python3 -B -m integration.s0s1_m09_registry.emit_wa04a_bridge_evidence
       - name: Consume exact physical read via TypeScript bridge and pinned Meta
