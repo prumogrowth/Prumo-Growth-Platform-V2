@@ -39,3 +39,12 @@ Criado `integrations/whatsapp-meta/wa14-purpose-consent-preflight.ts` com:
 4. Principal responsável: S0/S1/Infra/Proprietário, [Issue canônica #10](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/10). Dependências de registry/grants [#8](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/8) e pedidos F02 [#7](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/7). **Não abrir Issue duplicada**.
 
 **Conclusão:** conjunto M14-A/B/C offline sob evidência de testes; M14-D e marco principal `[ ]` aguardam contrato, fonte e integração S0 real. Nenhum merge, deploy, Graph, envio, SQL, HTTP ACK, credencial, alteração comercial ou autorização de produção.
+
+
+## Adendo — auditoria corretiva M14, 31/10/2026
+
+A [auditoria M14](AUDITORIA_M14_CONSENTIMENTO_PREFLIGHT_2026-10-31.md) identificou e corrigiu uma falha de consistência: a primeira versão podia retornar `LAB_RECHECKED_UNVERIFIED` quando outra finalidade, grant ou supressão havia sido modificada **sem alterar as revisões globais**. O recheck agora compara uma representação canônica de todos os registros do ledger, ordenados para não interpretar permutação de listas como mudança. O horário `observed_at_ms` pode avançar, mas ainda é validado por limites de freshness. Revogações explícitas seguem devolvendo `CONSENT_DENIED`, `SUPPRESSED`, `GRANT_DENIED` ou `CASE_OR_AUDIENCE_DENIED`.
+
+Há **66 testes M14** (50 anteriores + 16 AUD-M14-51..66). [CI 41266701159](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41266701159), SHA funcional `640e73f591946970a8a169685c8771a237c2472d`: **1.513/1.513 Meta offline**, 18/18 PG17 históricos em outra frente de ingresso, dois jobs `success` e scanner ACK estático aprovado. Os números de 50/1.497 acima são históricos da primeira implementação.
+
+Este endurecimento **não prova completude da fonte**, não elimina alterações ABA, não oferece lock, transação, autenticação de consentimento, verificação de opt-out real ou autorização `PRE_DISPATCH`; M14-D continua pendente de S0/Infra na Issue #10.
