@@ -49,3 +49,17 @@ O resultado contém apenas decisão sintética, contagens e `snapshot_sha256` de
 **Conclusão:** M20-A/B/C **somente LAB offline**; **M20-D e marco principal permanecem [ ]**. Nenhum contador real WDC-13, janela C09, mudança comercial, serviço S0, Graph, HTTP ACK, dado real, merge ou deploy foi realizado.
 
 **Validação funcional após execução:** [CI 41344917062](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41344917062) — commit `457e50faa1b6cdb02d7d4574d58bae364ef0435a`, 60 M20, 1.962/1.962 Meta offline, dois jobs `success`, 18/18 PG17 históricos independentes e scanner ACK aprovado. O registro de previsão acima foi substituído por este resultado.
+
+
+## Adendo de auditoria corretiva — 01/11/2026
+
+A [auditoria M20](AUDITORIA_M20_WDC13_CADENCIA_2026-11-01.md) reforçou a origem das alegações antes da contagem simulada:
+
+- `event_ref` agora tem unicidade por sequência, além de `attempt_ref` e `intent_ref`; a mesma referência de observação não pode fornecer duas falhas nem reset por `sent`.
+- `attempt.observed_at_ms` deve ser anterior ou igual a `context.observed_at_ms`, não apenas anterior ao relógio do pedido.
+- `claimed_sent_reset_count` só incrementa quando existe falha provisória ou `UNKNOWN/PENDING/CONFLICT` a resolver, e não para um `sent` isolado.
+- O snapshot de **saída** é agora `wa20-wdc13-snapshot.lab.v0.2` com novo domínio de hash e recheck de `v0.1` recusado. Entradas continuam LAB v0.1.
+
+**Evidência funcional:** SHA `d314d7bd1f1c87b366544c1eb6afc88c3080ecb3`, [CI 41351099767](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41351099767): **80/80 M20** e **1.982/1.982 Meta offline**, **18/18 PG17 históricos** de ingresso S0/Meta em job independente, dois jobs `success`, scanner ACK aprovado. O número 60/1.962 acima corresponde à implementação inicial.
+
+**M20-A/B/C auditadas em LAB; M20-D e marco principal [ ]**. Não há S0 autenticada, contador/efeito WDC-13, janela C09, execução Graph ou licença de produção.
