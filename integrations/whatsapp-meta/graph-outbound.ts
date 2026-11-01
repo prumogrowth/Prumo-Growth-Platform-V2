@@ -67,8 +67,13 @@ export function prepareGraphTextRequest(intent: GraphTextIntent, apiVersion: str
       typeof intent.recipient_verified !== 'string' || !/^\d{8,15}$/.test(intent.recipient_verified)) {
     throw new OutboundPreflightError('INVALID_DESTINATION');
   }
+  // Match the conservative M17 free-text boundary. Non-NFC or invisible
+  // format/control code points can change visual authorship across surfaces.
+  // The 4096-byte bound is LAB-only, not a claimed universal Graph limit.
   if (typeof intent.text_body !== 'string' || intent.text_body.trim().length === 0 ||
-      [...intent.text_body].length > 4096) {
+      intent.text_body !== intent.text_body.normalize('NFC') ||
+      /[\\p{Cc}\\p{Cf}\\p{Cs}\\p{Zl}\\p{Zp}]/u.test(intent.text_body.replace(/\\n/g,'')) ||
+      new TextEncoder().encode(intent.text_body).byteLength > 4096) {
     throw new OutboundPreflightError('INVALID_MESSAGE');
   }
   return {
@@ -102,8 +107,45 @@ export type GraphSendOutcome = {
   retry_automatically: false;
 };
 
+/** Provider JSON is untrusted: do not invoke accessors or retain
+ * prototype-owned fields while constructing a technical result. */
 function object(v: unknown): v is Record<string, unknown> {
-  return typeof v === 'object' && v !== null && !Array.isArray(v);
+  if (!v || typeof v !== 'object' || Array.isArray(v)) return false;
+  try{
+    const p=Object.getPrototypeOf(v);
+    return p===Object.prototype||p===null;
+  }catch{return false;}
+}
+function ownData(v:unknown,k:string):unknown{
+  if(!object(v))return undefined;
+  try{
+    const d=Object.getOwnPropertyDescriptor(v,k);
+    return d && Object.hasOwn(d,'value')?d.value:undefined;
+  }catch{return undefined;}
+}
+function singleMessage(raw:unknown):unknown{
+  try{
+    if(!Array.isArray(raw)||Object.getPrototypeOf(raw)!==Array.prototype)return null;
+    const d=Object.getOwnPropertyDescriptors(raw),keys=Reflect.ownKeys(raw);
+    if(d.length?.value!==1||keys.length!==2||
+       !Object.hasOwn(d['0'],'value'))return null;
+    return d['0'].value;
+  }catch{return null;}
+}
+function cleanObservation(raw:unknown):GraphObservation|null{
+ try{
+  if(!object(raw))return null;
+  const d=Object.getOwnPropertyDescriptors(raw),keys=Reflect.ownKeys(raw);
+  const kind=d.kind;
+  if(!kind||!Object.hasOwn(kind,'value'))return null;
+  if(kind.value==='transport_error')
+    return keys.length===1?{kind:'transport_error'}:null;
+  if(kind.value!=='http_response'||keys.length!==3||
+     !['kind','http_status','response_json'].every(k=>
+       d[k]&&Object.hasOwn(d[k],'value')))return null;
+  return {kind:'http_response',http_status:d.http_status.value,
+    response_json:d.response_json.value};
+ }catch{return null;}
 }
 function metaCode(v: unknown): number | null {
   return typeof v === 'number' && Number.isSafeInteger(v) && v >= 0 && v <= 999999999
@@ -132,6 +174,9 @@ export function classifyGraphSendResult(
     meta_error_subcode: null as number | null,
     retry_automatically: false as const,
   };
+  const safe=cleanObservation(observation);
+  if(!safe)return {...base,send_state:'UNCERTAIN_EXTERNAL'};
+  observation=safe;
   if (observation.kind === 'transport_error') {
     return { ...base, send_state: 'UNCERTAIN_EXTERNAL' };
   }
@@ -142,9 +187,8 @@ export function classifyGraphSendResult(
   const output = { ...base, http_status: status };
   if (status >= 200 && status < 300) {
     const payload = observation.response_json;
-    const messages = object(payload) ? payload.messages : null;
-    const message = Array.isArray(messages) && messages.length === 1 ? messages[0] : null;
-    const wamid = object(message) ? message.id : null;
+    const message = singleMessage(ownData(payload,'messages'));
+    const wamid = ownData(message,'id');
     if (typeof wamid === 'string' && !/[\s\u0000-\u001F\u007F]/.test(wamid) &&
         /^wamid\.[A-Za-z0-9+\/_=:.-]{1,1024}$/.test(wamid)) {
       return { ...output, send_state: 'API_ACCEPTED', api_accepted: true,
@@ -152,12 +196,11 @@ export function classifyGraphSendResult(
     }
     return { ...output, send_state: 'UNCERTAIN_EXTERNAL' };
   }
-  const err = object(observation.response_json) && object(observation.response_json.error)
-    ? observation.response_json.error : null;
+  const err = ownData(observation.response_json,'error');
   const errorDetails = {
     ...output,
-    meta_error_code: err ? metaCode(err.code) : null,
-    meta_error_subcode: err ? metaCode(err.error_subcode) : null,
+    meta_error_code: metaCode(ownData(err,'code')),
+    meta_error_subcode: metaCode(ownData(err,'error_subcode')),
   };
   // Timeouts (408), Too Early (425), 429, 5xx and exceptional statuses may be uncertain.
   if (status === 408 || status === 425 || status === 429 || status >= 500 || status < 400) {
