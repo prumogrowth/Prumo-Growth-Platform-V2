@@ -1,6 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { installMockDOM } from './dom-fixture.mjs';
+import { copyCFDemoFixtures } from '../cf-op-02.mjs';
+import { withRevisionScenes } from '../revision-fixtures.mjs';
+import { registrationProjectionFor } from '../registration-view.mjs';
+import { bankProjectionFor } from '../bank-view.mjs';
+import { projectBankReadyList } from '../bank-ready-list.mjs';
 
 // A aplicação depende de um DOM. O mock é instalado ANTES do import.
 // Este ensaio não substitui Chromium, valida layout nem comprova autenticação.
@@ -137,26 +142,24 @@ test('troca de conversa invalida confirmação de template de outro caso', () =>
   assert.equal(get('workflow-bar').textContent.includes('Pedido simulado'), false);
 });
 
-test('projeção desconhecida não aparece como conclusão humana ou extração processada', () => {
-  reset();
-  env.openCase('Exemplo 05');
-  assert.ok(get('workflow-bar').textContent.includes('Etapa humana não confirmada'));
-  get('thread-title').click();
-  const tabs=env.descendants(env.caseContent()).filter(x=>x.attrs.role==='tab');
-  env.openArea('Extração');
-  assert.ok(env.caseContent().textContent.includes('Situação não confirmada'));
-  assert.equal(env.caseContent().textContent.includes('Etapa concluída · retorno não disponível'),false);
+test('projeção desconhecida não aparece como conclusão humana ou extração processada',()=>{
+ reset();env.openCase('Exemplo 05');
+ assert.match(get('workflow-bar').textContent,/Etapa humana não confirmada/);
+ const before=get('thread-title').textContent;
+ get('bank-nav').click();
+ assert.equal(get('bank-dialog').open,true);
+ assert.equal(get('bank-content').textContent,'');
+ assert.equal(get('thread-title').textContent,before);
+ assert.equal(projectBankReadyList(withRevisionScenes(copyCFDemoFixtures()),'rafael','aurora').some(x=>x.id==='A-105'),false);
 });
-
-test('pedido aceito não mostra falsa conclusão confirmada', () => {
-  reset(); env.openCase('Exemplo 02');
-  buttons('Concluir atendimento')[0].click();
-  get('completion-dialog').close('confirm');
-  assert.ok(get('workflow-bar').textContent.includes('Solicitação simulada'));
-  assert.equal(get('workflow-bar').textContent.includes('Etapa humana concluída'),false);
-  assert.ok(env.caseContent().textContent.includes('Solicitação registrada'));
+test('pedido aceito não mostra falsa conclusão confirmada',()=>{
+ reset();env.openCase('Exemplo 02');
+ buttons('Concluir atendimento')[0].click();get('completion-dialog').close('confirm');
+ assert.match(get('workflow-bar').textContent,/Solicitação simulada/);
+ assert.doesNotMatch(get('workflow-bar').textContent,/Etapa humana concluída/);
+ get('bank-nav').click();
+ assert.equal(get('bank-content').textContent,'','processamento não confirmado não entra na fila');
 });
-
 test('formulário de nota obsoleto não escreve em outro caso da fila', () => {
   reset(); env.openCase('Exemplo 02');
   const tabs = env.descendants(env.caseContent()).filter(n=>n.attrs.role==='tab');
@@ -172,53 +175,46 @@ test('formulário de nota obsoleto não escreve em outro caso da fila', () => {
   assert.equal(env.caseContent().textContent.includes('Nota obsoleta que deve ser rejeitada'),false);
 });
 
-test('O3: operador vê ficha confirmada com fonte, versão, pendência e conflito fictícios', () => {
-  reset();
-  env.openCase('Exemplo 09');
-  env.openArea('Extração');
-  const text=env.caseContent().textContent;
-  assert.ok(text.includes('v1-ficticia'));
-  assert.ok(text.includes('Valor fictício confirmado'));
-  assert.ok(text.includes('Mensagem ilustrativa do cliente'));
-  assert.ok(text.includes('Informação demonstrativa B — ausente'));
-  assert.ok(text.includes('Informação demonstrativa D — fontes'));
-  assert.equal(text.includes('Somente proposta'),false);
+test('O3: campos confirmados e pendências continuam tipados sem entrar na fila apta',()=>{
+ const rows=withRevisionScenes(copyCFDemoFixtures());const row=rows.find(x=>x.id==='A-108');
+ const projection=registrationProjectionFor(row,'rafael','aurora');
+ assert.equal(projection.visibility,'detail');
+ assert.equal(projection.confirmedPersisted,true);
+ assert.match(projection.formVersionRef,/v1-ficticia/);
+ assert.ok(projection.fields.some(f=>f.safeDisplayValue.includes('Valor fictício confirmado')));
+ assert.ok(projection.missing.length>0);
+ assert.ok(projection.conflicts.length>0);
+ assert.equal(projectBankReadyList(rows,'rafael','aurora').some(x=>x.id==='A-108'),false);
 });
-
-test('O3: gestora supervisora não recebe campos, valores, fontes e pendências D3', () => {
-  reset();
-  env.selectActor('marina');env.inbox[0].click();
-  env.openCase('Exemplo 09');
-  env.openArea('Extração');
-  const text=env.caseContent().textContent;
-  assert.ok(text.includes('Detalhes restritos ao responsável'));
-  for(const forbidden of ['Valor fictício confirmado','v1-ficticia','a108-1',
-    'Informação demonstrativa B — ausente','Informação demonstrativa D — fontes']){
-    assert.equal(text.includes(forbidden),false);
-  }
+test('O3: supervisão não recebe campos, valores nem pendências cadastrais D3',()=>{
+ const rows=withRevisionScenes(copyCFDemoFixtures());const row=rows.find(x=>x.id==='A-108');
+ const projection=registrationProjectionFor(row,'marina','aurora');
+ assert.equal(projection.visibility,'summary');
+ assert.deepEqual(projection.fields,[]);
+ assert.deepEqual(projection.missing,[]);
+ assert.deepEqual(projection.conflicts,[]);
+ reset();env.selectActor('marina');get('bank-nav').click();
+ assert.equal(get('bank-content').textContent,'');
 });
-
-test('O4: operador atribuído vê só remessa sintética comprovada e retorno pendente',()=>{
-  reset();env.openCase('Exemplo 05');
-  env.openArea('Banco');
-  const text=env.caseContent().textContent;
-  assert.ok(text.includes('bank-demo-v1'));
-  assert.ok(text.includes('Remessa confirmada apenas na fixture'));
-  assert.ok(text.includes('Decisão bancária não confirmada'));
-  assert.equal(text.includes('Retorno do banco confirmado'),false);
-  assert.ok(text.includes('cadastro enviado ao banco'));
+test('O4: acompanhamento bancário antigo existe no domínio, mas não ocupa fila apta',()=>{
+ const rows=withRevisionScenes(copyCFDemoFixtures());const row=rows.find(x=>x.id==='A-105');
+ const state=bankProjectionFor(row,'rafael','aurora');
+ assert.equal(state.visibility,'detail');
+ assert.equal(state.phase,'reply_pending');
+ assert.equal(state.submissionConfirmed,true);
+ assert.equal(state.replyConfirmed,false);
+ assert.equal(state.submissionSummary.versionRef,'bank-demo-v1');
+ assert.equal(projectBankReadyList(rows,'rafael','aurora').some(x=>x.id==='A-105'),false);
 });
-
-test('O4: gestora sem atribuição vê só marco bancário, sem prova D4',()=>{
-  reset();env.selectActor('marina');env.inbox[0].click();env.openCase('Exemplo 05');
-  env.openArea('Banco');
-  const text=env.caseContent().textContent;
-  assert.ok(text.includes('Acompanhamento bancário · resumo'));
-  assert.ok(text.includes('sem documento'));
-  assert.equal(text.includes('bank-demo-v1'),false);
-  assert.equal(text.includes('Remessa confirmada apenas na fixture'),false);
+test('O4: gestor vê somente fase bancária, nunca detalhe D4 da prova',()=>{
+ const rows=withRevisionScenes(copyCFDemoFixtures());const row=rows.find(x=>x.id==='A-105');
+ const state=bankProjectionFor(row,'marina','aurora');
+ assert.equal(state.visibility,'summary');
+ assert.equal(state.submissionSummary,null);
+ assert.equal(state.replySummary,null);
+ reset();env.selectActor('marina');get('bank-nav').click();
+ assert.equal(get('bank-content').textContent,'');
 });
-
 test('O5: remessa bancária mantém caso original e navega para atendimento humano independente',()=>{
   reset();env.openCase('Exemplo 05');
   env.openArea('Novo contato');
@@ -639,43 +635,25 @@ test('FV-UI-018: caso Lia com exceção só abre A-117 em Aurora sem grant geral
 });
 
 
-test('FV-UI-019: duas conclusões F03 fictícias têm recortes distintos, sem editor',()=>{
-  reset();env.openCase('Exemplo 09');
-  env.openArea('Extração');
-  const t=env.caseContent().textContent;
-  assert.match(t,/concl-a108-1/);assert.match(t,/f03-a108-2/);
-  assert.match(t,/a108-1/);assert.match(t,/a108-2/);
-  assert.match(t,/v1-ficticia/);
-  assert.equal(t.includes('Corrigir cadastro'),false);
-  assert.equal(env.descendants(env.caseContent()).some(x=>x.tagName==='INPUT'),false);
+test('FV-UI-019: histórico F03 não cria editor nem ficha falsa no Banco',()=>{
+ const rows=withRevisionScenes(copyCFDemoFixtures());const row=rows.find(x=>x.id==='A-108');
+ assert.ok(row.registrationProjection);
+ assert.equal(registrationProjectionFor(row,'rafael','aurora').visibility,'detail');
+ reset();env.openCase('Exemplo 09');get('bank-nav').click();
+ assert.equal(get('bank-content').textContent,'');
+ assert.equal(env.descendants(get('bank-content')).some(x=>x.tagName==='INPUT'),false);
 });
-
-test('FV-UI-019: esclarecimento alternativo libera segunda conclusão apenas na demo',()=>{
-  reset();env.openCase('Exemplo 09');
-  env.openArea('Extração');
-  assert.equal(get('message-input').disabled,true);
-  const before=get('workflow-bar').textContent;
-  const review=env.descendants(env.caseContent()).find(x=>x.id==='show-clarification-demo');
-  assert.ok(review);review.click();
-  assert.ok(get('workflow-bar').textContent.includes('CENÁRIO ALTERNATIVO'));
-  assert.equal(get('message-input').disabled,false);
-  assert.equal(buttons('Concluir atendimento').length,1);
-  if(get('bank-dialog').open)get('bank-close').click();
-  buttons('Concluir atendimento')[0].click();
-  get('completion-dialog').close('confirm');
-  const t=env.caseContent().textContent;
-  assert.match(t,/local-review-A-108-review-a108-v3-demo/);
-  assert.match(t,/corte apenas candidato/i);
-  assert.match(t,/a108-3/);
-  assert.match(t,/f03-a108-1/);
-  assert.match(t,/f03-a108-2/);
-  assert.match(t,/v1-ficticia/);
-  assert.equal(get('message-input').disabled,true);
-  assert.equal(buttons('Concluir atendimento').length,0);
-  assert.equal(t.includes('ficha gravada agora'),false);
-  assert.notEqual(before,get('workflow-bar').textContent);
+test('FV-UI-019: esclarecimento de cadastro pendente não aparece como ação na fila bancária',()=>{
+ reset();env.openCase('Exemplo 09');
+ assert.equal(get('message-input').disabled,true);
+ const before=get('workflow-bar').textContent;
+ get('bank-nav').click();
+ assert.equal(get('bank-content').textContent,'');
+ assert.equal(env.descendants(get('bank-content')).some(x=>x.id==='show-clarification-demo'),false);
+ get('bank-close').click();
+ assert.equal(get('workflow-bar').textContent,before);
+ assert.equal(get('message-input').disabled,true);
 });
-
 test('FV-UI-019: Gestor supervisor não recebe histórico de F03 nem versão de cliente',()=>{
   reset();env.selectActor('marina');env.inbox[0].click();env.openCase('Exemplo 09');
   env.openArea('Extração');
@@ -686,27 +664,22 @@ test('FV-UI-019: Gestor supervisor não recebe histórico de F03 nem versão de 
   assert.equal(env.descendants(env.caseContent()).some(x=>x.id==='show-clarification-demo'),false);
 });
 
-test('FV-UI-019: versões da ficha viva não modificam remessa antiga',()=>{
-  reset();env.openCase('Exemplo 15');
-  env.openArea('Extração');
-  const t=env.caseContent().textContent;
-  assert.match(t,/live-form-v2-demo/);
-  assert.match(t,/bank-demo-v1/);
-  assert.match(t,/snapshot preservado/);
+test('FV-UI-019: versão nova da ficha não reescreve snapshot bancário anterior',()=>{
+ const rows=withRevisionScenes(copyCFDemoFixtures());const row=rows.find(x=>x.id==='A-114');
+ assert.equal(registrationProjectionFor(row,'rafael','aurora').formVersionRef,'live-form-v2-demo');
+ assert.equal(row.customerDossierProjection.bankSnapshots[0].bankSubmissionVersionRef,'bank-demo-v1');
+ assert.equal(row.customerDossierProjection.bankSnapshots[0].frozenSnapshot,true);
+ assert.equal(projectBankReadyList(rows,'rafael','aurora').some(x=>x.id==='A-114'),false);
 });
-
-test('FV-UI-019: troca de perfil limpa cenário alternativo e não migra autorização',()=>{
-  reset();env.openCase('Exemplo 09');
-  env.openArea('Extração');
-  env.descendants(env.caseContent()).find(x=>x.id==='show-clarification-demo').click();
-  assert.equal(get('message-input').disabled,false);
-  env.selectActor('marina');env.inbox[0].click();
-  env.selectActor('rafael');env.inbox[0].click();env.openCase('Exemplo 09');
-  assert.equal(get('message-input').disabled,true);
-  assert.equal(get('workflow-bar').textContent.includes('CENÁRIO ALTERNATIVO'),false);
+test('FV-UI-019: troca de ator não migra dado F03 nem reabre Banco de outro escopo',()=>{
+ reset();env.openCase('Exemplo 09');get('bank-nav').click();
+ assert.equal(get('bank-content').textContent,'');
+ env.selectActor('marina');env.inbox[0].click();
+ assert.equal(get('bank-dialog').open,false);
+ env.selectActor('rafael');env.inbox[0].click();env.openCase('Exemplo 09');
+ assert.equal(get('message-input').disabled,true);
+ assert.equal(get('workflow-bar').textContent.includes('CENÁRIO ALTERNATIVO'),false);
 });
-
-
 test('FV-UI-020: ACK da API não aparece como envio comprovado',()=>{
   reset();env.openCase('Exemplo 02');
   const t=get('thread-body').textContent;
@@ -739,16 +712,14 @@ test('FV-UI-020: supervisor não vê detalhes de transporte do Consultor titular
   assert.equal(get('thread-body').textContent.includes('API aceitou · envio NÃO comprovado'),false);
 });
 
-test('FV-UI-020: falha F03 fictícia não oferece retentativa automática nem editor',()=>{
-  reset();env.openCase('Exemplo 02');buttons('Concluir atendimento')[0].click();
-  get('completion-dialog').close('confirm');
-  const fail=env.descendants(env.caseContent()).find(x=>x.tagName==='BUTTON' && x.textContent==='Falha técnica');
-  assert.ok(fail);fail.click();
-  const t=env.caseContent().textContent;
-  assert.match(t,/não há correção manual ou retentativa automática/i);
-  assert.equal(t.includes('Corrigir dado'),false);
+test('FV-UI-020: conclusão local não concede edição ou entrada na fila bancária',()=>{
+ reset();env.openCase('Exemplo 02');buttons('Concluir atendimento')[0].click();
+ get('completion-dialog').close('confirm');
+ get('bank-nav').click();
+ assert.equal(get('bank-content').textContent,'');
+ assert.equal(env.descendants(get('bank-content')).some(x=>x.tagName==='INPUT'),false);
+ assert.equal(projectBankReadyList(withRevisionScenes(copyCFDemoFixtures()),'rafael','aurora').some(x=>x.id==='A-102'),false);
 });
-
 test('FV-UI-021: contexto anunciado muda com perfil, loja e caso sem resíduo anterior',()=>{
   reset();
   assert.match(get('context-announcement').textContent,/Consultor fictício/);
@@ -862,32 +833,22 @@ test('FV-UI-031: callback obsoleto não reorienta foco nem registra nota em outr
   assert.equal(env.caseContent().textContent.includes('Texto obsoleto 031'),false);
 });
 
-test('FV-UI-032: resultado técnico fictício restaura foco no destino Banco da Extração',()=>{
-  reset();env.openCase('Exemplo 02');
-  buttons('Concluir atendimento')[0].click();get('completion-dialog').close('confirm');
-  const action=env.descendants(env.caseContent()).find(n=>n.tagName==='BUTTON' && n.textContent==='Retorno parcial');
-  assert.ok(action);action.focus();action.click();
-  const tab=get('bank-case-select');
-  assert.equal(env.document.activeElement,tab);
-  assert.match(get('context-announcement').textContent,/Resultado técnico fictício Retorno parcial/);
-  assert.match(env.caseContent().textContent,/Campo ilustrativo A/);
-  const failure=env.descendants(env.caseContent()).find(n=>n.tagName==='BUTTON' && n.textContent==='Falha técnica');
-  assert.ok(failure);failure.click();
-  assert.equal(env.document.activeElement,get('bank-case-select'));
-  assert.match(get('context-announcement').textContent,/Resultado técnico fictício Falha técnica/);
+test('FV-UI-032: Banco vazio orienta foco para título sem forçar ficha técnica',()=>{
+ reset();env.openCase('Exemplo 02');
+ const title=get('thread-title').textContent;
+ get('bank-nav').click();
+ assert.equal(get('bank-dialog').open,true);
+ assert.equal(env.document.activeElement,get('bank-title'));
+ assert.equal(get('bank-content').textContent,'');
+ get('bank-close').click();
+ assert.equal(get('thread-title').textContent,title);
 });
-
-test('FV-UI-032: esclarecimento recriado ancora o foco sem afirmar F03',()=>{
-  reset();env.openCase('Exemplo 09');
-  env.openArea('Extração');
-  const button=env.descendants(env.caseContent()).find(n=>n.id==='show-clarification-demo');
-  assert.ok(button);button.focus();button.click();
-  assert.equal(env.document.activeElement,get('bank-case-select'));
-  assert.match(get('context-announcement').textContent,/Cenário de esclarecimento fictício do caso A-108/);
-  assert.equal(env.descendants(env.caseContent()).some(n=>n.id==='show-clarification-demo'),false);
-  assert.match(env.caseContent().textContent,/nenhuma IA foi acionada/);
+test('FV-UI-032: caso não apto não disponibiliza esclarecimento F03 pela fila Banco',()=>{
+ reset();env.openCase('Exemplo 09');get('bank-nav').click();
+ assert.equal(env.document.activeElement,get('bank-title'));
+ assert.equal(get('bank-content').textContent,'');
+ assert.equal(env.descendants(get('bank-content')).some(x=>x.id==='show-clarification-demo'),false);
 });
-
 test('FV-UI-032: O5 desktop foca região do novo caso autorizado',()=>{
   reset();env.openCase('Exemplo 05');
   env.openArea('Novo contato');
@@ -1087,36 +1048,22 @@ test('FV-UI-058: zero resultados, modificadores, IME ou modal conservam foco',()
   get('template-dialog').close('cancel');
 });
 
-test('FVA-01: O2 O3 em sequência não migram rascunho, F03 ou autorização entre perfis',()=>{
-  reset();
-  env.openCase('Exemplo 02');
-  get('message-input').value='FVA-01 rascunho local confidencial';
-  const originalActor=get('actor-select').value;
-  assert.equal(originalActor,'rafael');
-  env.openCase('Exemplo 09');
-  env.openArea('Extração');
-  assert.match(env.caseContent().textContent,/f03-a108-1/);
-  env.selectActor('marina');env.inbox[0].click();
-  assert.equal(get('message-input').value,'');
-  assert.equal(get('thread-body').textContent.includes('FVA-01 rascunho'),false);
-  env.openCase('Exemplo 09');
-  env.openArea('Extração');
-  assert.equal(env.caseContent().textContent.includes('f03-a108-1'),false);
-  assert.equal(get('message-input').disabled,true);
-  env.selectActor('daniel');env.inbox[0].click();
-  assert.equal(env.cards().some(n=>n.textContent.includes('Exemplo 09')),false);
-  assert.equal(get('thread-body').textContent.includes('FVA-01 rascunho'),false);
-  env.selectActor('otavio');env.inbox[0].click();
-  assert.equal(env.cards().length,0);
-  assert.equal(get('team-nav').hidden,true);
-  assert.equal(get('message-input').disabled,true);
-  assert.equal(env.caseContent().textContent.includes('f03-a108-1'),false);
-  env.selectActor('rafael');env.inbox[0].click();
-  env.openCase('Exemplo 02');
-  assert.equal(get('message-input').value,'');
-  assert.equal(get('thread-body').textContent.includes('FVA-01 rascunho'),false);
+test('FVA-01: alternância entre perfis isola rascunho e ficha não autorizada',()=>{
+ reset();env.openCase('Exemplo 02');
+ get('message-input').value='FVA-01 rascunho confidencial';
+ env.openCase('Exemplo 09');get('bank-nav').click();
+ assert.equal(get('bank-content').textContent,'');
+ env.selectActor('marina');env.inbox[0].click();
+ assert.equal(get('message-input').value,'');
+ assert.equal(get('bank-dialog').open,false);
+ env.selectActor('daniel');env.inbox[0].click();
+ assert.equal(env.cards().some(n=>n.textContent.includes('Exemplo 09')),false);
+ env.selectActor('otavio');env.inbox[0].click();
+ assert.equal(env.cards().length,0);assert.equal(get('team-nav').hidden,true);
+ env.selectActor('rafael');env.inbox[0].click();env.openCase('Exemplo 02');
+ assert.equal(get('message-input').value,'');
+ assert.equal(get('thread-body').textContent.includes('FVA-01 rascunho'),false);
 });
-
 test('FVA-01: G2 fila compartilhada nao transforma pedido local em atribuição de outro Gestor',()=>{
   reset();env.selectActor('marina');env.inbox[0].click();get('team-nav').click();get('team-show-queue').click();
   assert.match(get('team-queue').textContent,/FILA-A-01/);
@@ -1207,37 +1154,18 @@ test('FVA-02: troca de concessionária limpa intenção local da fila e preserva
   get('team-dialog').close();
 });
 
-test('FVA-02: F03 erro, versão obsoleta, incerteza e indisponibilidade nunca aplicam efeitos',()=>{
-  reset();env.openCase('Exemplo 02');
-  const status=get('workflow-bar').textContent;
-  buttons('Concluir atendimento')[0].click();get('completion-dialog').close('confirm');
-  for(const [label,needle] of [
-    ['Versão obsoleta','Versão incompatível simulada'],
-    ['Confirmação incerta','Confirmação externa incerta'],
-    ['Permissão negada','Operação negada'],
-    ['Serviço indisponível','Serviço indisponível']
-  ]){
-    const control=env.descendants(env.caseContent()).find(n=>
-      n.tagName==='BUTTON' && n.textContent===label);
-    assert.ok(control,label+' ausente');control.click();
-    const text=env.caseContent().textContent;
-    assert.ok(text.includes(needle),label+' não sinalizado');
-    assert.match(text,/não há correção manual ou retentativa automática/i);
-    assert.equal(text.includes('Ficha gravada'),false);
-    assert.equal(text.includes('Corrigir cadastro'),false);
-  }
-  assert.match(env.caseContent().textContent,/em atendimento pelo operador/);
-  assert.equal(env.caseContent().textContent.includes('cadastro enviado ao banco'),false);
-  const obsolete=env.descendants(env.caseContent()).find(n=>
-    n.tagName==='BUTTON' && n.textContent==='Falha técnica');
-  env.openCase('Exemplo 05');
-  const bankBefore=get('workflow-bar').textContent;
-  assert.ok(obsolete);obsolete.click(); // ação do caso anterior fora de contexto
-  assert.equal(get('workflow-bar').textContent,bankBefore);
-  assert.match(env.caseContent().textContent,/cadastro enviado ao banco/);
-  assert.equal(status.includes('cadastro enviado ao banco'),false);
+test('FVA-02: pedido local de extração não habilita remessa nem muda etapa comercial',()=>{
+ reset();env.openCase('Exemplo 02');
+ const before=get('workflow-bar').textContent;
+ buttons('Concluir atendimento')[0].click();get('completion-dialog').close('confirm');
+ assert.match(get('workflow-bar').textContent,/Solicitação simulada/);
+ assert.equal(get('thread-meta').textContent.includes('cadastro enviado ao banco'),false);
+ get('bank-nav').click();
+ assert.equal(get('bank-content').textContent,'');
+ get('bank-close').click();env.openCase('Exemplo 05');
+ assert.match(get('thread-meta').textContent,/A-105/);
+ assert.equal(before.includes('cadastro enviado ao banco'),false);
 });
-
 test('FVA-02: pausa modal obsoleta não se torna aplicada por outro Gestor',()=>{
   reset();env.selectActor('marina');env.inbox[0].click();get('team-nav').click();
   const pause=env.descendants(get('team-list')).find(n=>
