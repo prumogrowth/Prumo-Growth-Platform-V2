@@ -234,8 +234,10 @@ export async function prepareWa15F02PreviewOffline(
   if(!request(snapRequest)||!own(snapLedger,LEDGER))
    return deny('INVALID_REQUEST');
   const ledgerCopy=own(snapLedger,LEDGER)!;
-  const unchanged=()=>guards.every(g=>
-   isDeepStrictEqual(g.frozen,cloneLabData(g.source)));
+  const unchanged=()=>guards.every(g=>{
+   try{return isDeepStrictEqual(g.frozen,cloneLabData(g.source));}
+   catch{return false;}
+  });
   const reconciled=reconcileWa13CatalogOffline(
    snapHost,snapS0,snapProvider);
   if(reconciled.decision!=='LAB_CATALOG_RECONCILED_UNVERIFIED')
