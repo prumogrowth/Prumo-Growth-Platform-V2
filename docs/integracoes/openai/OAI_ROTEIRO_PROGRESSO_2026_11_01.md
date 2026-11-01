@@ -35,6 +35,7 @@
 | OFF-18 / 08B | Reavaliar correção S0 de revisões independentes F02 | FEITO_OFFLINE | [CI 41328784758](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41328784758): 950/950 Node + 24/24 Python AST, suites distintas; **mapeamento tecnicamente compatível em laboratório**; aceite operacional ainda pendente | 
 | OFF-19 / AUDITORIA GERAL | Revisão transversal OFF01..OFF18 e hardening legado de versões/relógio | FEITO_OFFLINE | [CI 41338979377](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41338979377): 968/968 Node (950+18), 24/24 Python AST pinados; 2 defeitos corrigidos, riscos operacionais documentados | 
 | OFF-20 / REMEDIAÇÃO | Endurecimento de validadores legados + quarentena de resposta OpenAI sem campo bruto | FEITO_OFFLINE | [CI 41345415665](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41345415665): 990/990 Node (968+22), 24/24 Python AST separados, sem falhas; não há sink real nem autorização de produção | 
+| OFF-21 / 12A | Ponte Responses → F01/F02/F03 que exige avaliadores existentes e não revela texto/rascunho | EM_TESTE | Branch `feat/oai-off21-safe-response-evaluation-20261101`, alvo 1028 Node acumulados (990+38) + 24 Python AST separados, sem API real | 
 | FV-REV-021 / Issue #13 | Resumos **pequenos e objetivos** de F01/F02/F03 no histórico acumulativo do **Resumo** do Frontend | FUTURO | [Issue #13](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/13), **não desenvolver agora** |
 
 ## Visibilidade de bloqueios
@@ -55,6 +56,10 @@ A concepção do projeto inclui **IA Vendedora**, **IA Analista/Otimizadora** (m
 ## Remediação OFF-20 antes de novas integrações
 
 A [correção pós-auditoria OFF-20](./OAI_OFF20_CORRECOES_POS_AUDITORIA_2026_11_01.md) trata AUD19-P2/P3: `core.mjs` rejeita entradas hostis antes de acessar campos de negócio; o preflight Responses deixa de devolver `candidateRaw` (resultado `0.2-lab`). CI da OFF-20 passou com 990/990 Node e 24/24 Python AST (separados). Isso **não** cria sink de execução autorizado nem fornece uma API OpenAI real. Manter 08B/08C, 09–11 e 12B/12C como pendentes de homologação externa.
+
+## OFF-21 — passagem Responses → F01/F02/F03 (laboratório)
+
+A [OFF-21](./OAI_OFF21_RESPONSES_DOMAIN_REVIEW_2026_11_01.md) encadeia preflight sem exposição de conteúdo → avaliador F0x já existente → apenas parecer genérico sem dados/autoridade. Não implementa envios, autenticação S0, validação semântica ou commit de ficha. É preparação da **etapa 12A**, sem alterar o estado das etapas 08C/09–11/12B–C.
 
 ## Gate futuro de uso da API OpenAI
 
