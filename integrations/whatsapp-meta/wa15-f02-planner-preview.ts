@@ -9,6 +9,7 @@
  * case, lead, actor, consent details, WABA and component digests are NOT output.
  * F02 cannot infer permission, approval or delivery from this preview.
  */
+import {isDeepStrictEqual} from 'node:util';
 import {prepareS0TemplateCandidatesFixture,
  type Wa26FixturePorts,type Wa26Scope,type Wa26Phase} from
  './s0-template-purpose-bridge.ts';
@@ -46,7 +47,8 @@ export type Wa15PlannerPreview=Readonly<{
 export type Wa15Reason='INVALID_REQUEST'|'UNTRUSTED_SCOPE'|
  'WA26_POLICY_OR_CATALOG_DENIED'|'M13_CATALOG_DENIED'|
  'CATALOG_VERSION_OR_SCOPE_MISMATCH'|'M14_CONSENT_OR_GRANT_DENIED'|
- 'AMBIGUOUS_CANDIDATES'|'DEPENDENCY_UNAVAILABLE';
+ 'AMBIGUOUS_CANDIDATES'|'DEPENDENCY_UNAVAILABLE'|
+ 'INPUT_CHANGED_DURING_PREVIEW';
 export type Wa15Result=Readonly<{
  decision:'DENIED'|'LAB_F02_PREVIEW_UNVERIFIED';reason:Wa15Reason|null;
  preview:Wa15PlannerPreview|null;send_authorized:false;
@@ -91,6 +93,47 @@ function own(raw:unknown,keys:readonly string[]):Record<string,unknown>|null{
      keys.some(x=>!Object.hasOwn(d,x)))return null;
   return Object.fromEntries(keys.map(x=>[x,d[x].value]));
  }catch{return null;}
+}
+/** Clone own DATA descriptors into immutable LAB snapshots. Never execute
+ * getters, proxies' value hooks or toJSON; no external data is authenticated.
+ * Bound depth and node count avoid accidental fixture resource exhaustion.
+ * Compare against re-cloned original inputs at exit to detect drift across
+ * async WA26 ports. This is NOT a transaction or ABA defense. */
+function cloneLabData(
+ raw:unknown,budget:{left:number}={left:30000},
+ depth=0,ancestors=new WeakSet<object>(),
+):any{
+ if(--budget.left<0||depth>32)throw Error('LAB_LIMIT');
+ if(raw===null||typeof raw==='string'||typeof raw==='boolean'||
+    raw===undefined)return raw;
+ if(typeof raw==='number'&&Number.isFinite(raw))return raw;
+ if(typeof raw!=='object')throw Error('INVALID_LAB_VALUE');
+ if(ancestors.has(raw))throw Error('CYCLIC_LAB_VALUE');
+ const array=Array.isArray(raw),proto=Object.getPrototypeOf(raw);
+ if(array?proto!==Array.prototype:
+   proto!==Object.prototype&&proto!==null)throw Error('INVALID_LAB_PROTO');
+ const d=Object.getOwnPropertyDescriptors(raw),keys=Reflect.ownKeys(raw);
+ if(keys.some(k=>typeof k!=='string'))throw Error('INVALID_LAB_SYMBOL');
+ if(array){
+  const len=d.length?.value;
+  if(!Number.isSafeInteger(len)||len<0||len>10000||
+     keys.length!==len+1||
+     Array.from({length:len},(_,i)=>String(i)).some(k=>
+      !Object.hasOwn(d,k)||!Object.hasOwn(d[k],'value')))
+   throw Error('INVALID_LAB_ARRAY');
+ }else if(keys.length>10000)throw Error('INVALID_LAB_OBJECT');
+ const copy:any=array?[]:Object.create(proto);
+ ancestors.add(raw);
+ for(const key of keys){
+  if(array&&key==='length')continue;
+  if(!Object.hasOwn(d[key],'value'))throw Error('INVALID_LAB_ACCESSOR');
+  Object.defineProperty(copy,key,{
+   value:cloneLabData(d[key].value,budget,depth+1,ancestors),
+   enumerable:true,writable:false,configurable:false,
+  });
+ }
+ ancestors.delete(raw);
+ return Object.freeze(copy);
 }
 function request(raw:unknown):Wa15Request|null{
  const x=own(raw,REQ);
@@ -175,12 +218,30 @@ export async function prepareWa15F02PreviewOffline(
     ledger.authorization_revision!==q.authorization_revision)
    return deny('UNTRUSTED_SCOPE');
  try{
+  const guards:{source:unknown;frozen:unknown}[]=[];
+  const capture=(source:unknown):any=>{
+   const frozen=cloneLabData(source);
+   guards.push({source,frozen});
+   return frozen;
+  };
+  // Freeze all inputs before the first asynchronous WA26 port. In
+  // particular, do NOT evaluate M14 against a mutable live caller ledger.
+  const snapRequest=capture(rawRequest);
+  const snapLedger=capture(m14Ledger);
+  const snapHost=capture(m13Host);
+  const snapS0=capture(m13S0);
+  const snapProvider=capture(m13Provider);
+  if(!request(snapRequest)||!own(snapLedger,LEDGER))
+   return deny('INVALID_REQUEST');
+  const ledgerCopy=own(snapLedger,LEDGER)!;
+  const unchanged=()=>guards.every(g=>
+   isDeepStrictEqual(g.frozen,cloneLabData(g.source)));
   const reconciled=reconcileWa13CatalogOffline(
-   m13Host,m13S0,m13Provider);
+   snapHost,snapS0,snapProvider);
   if(reconciled.decision!=='LAB_CATALOG_RECONCILED_UNVERIFIED')
    return deny('M13_CATALOG_DENIED');
   // Fail closed even when both mismatched sources report zero candidates.
-  const scope13=own(m13Host,['contract_version','concessionaria_id',
+  const scope13=own(snapHost,['contract_version','concessionaria_id',
    'app_ref','waba_id','catalog_revision','now_ms','max_age_ms']);
   if(!scope13||scope13.concessionaria_id!==q.concessionaria_id||
      scope13.app_ref!==q.app_ref||scope13.waba_id!==q.waba_id||
@@ -193,21 +254,26 @@ export async function prepareWa15F02PreviewOffline(
   const checkedPorts:Wa26FixturePorts={
    async resolveSelection(selection_ref:string,phase:Wa26Phase){
     const raw=await ports.resolveSelection(selection_ref,phase);
-    if(!scopeMatches(raw,q)){mismatch=true;throw Error('SCOPE');}
-    return raw as Wa26Scope;
+    const snapshot=capture(raw);
+    if(!scopeMatches(snapshot,q)){mismatch=true;throw Error('SCOPE');}
+    return snapshot as Wa26Scope;
    },
    async readScopedPolicy(scope:Wa26Scope,phase:Wa26Phase){
     const raw=await ports.readScopedPolicy(scope,phase);
-    if(!policyMatches(raw,ledger,q)){mismatch=true;throw Error('POLICY');}
-    return raw;
+    const snapshot=capture(raw);
+    if(!policyMatches(snapshot,ledgerCopy,q)){
+     mismatch=true;throw Error('POLICY');
+    }
+    return snapshot;
    },
    async readScopedCatalog(scope:Wa26Scope,phase:Wa26Phase){
-    return ports.readScopedCatalog(scope,phase);
+    return capture(await ports.readScopedCatalog(scope,phase));
    },
   };
   const planned=await prepareS0TemplateCandidatesFixture(
    q.selection_ref,checkedPorts);
   if(mismatch)return deny('UNTRUSTED_SCOPE');
+  if(!unchanged())return deny('INPUT_CHANGED_DURING_PREVIEW');
   if(planned.decision!=='LAB_CANDIDATES'||planned.candidates.length<1||
      planned.candidates.length>100)
     return deny('WA26_POLICY_OR_CATALOG_DENIED');
@@ -236,11 +302,16 @@ export async function prepareWa15F02PreviewOffline(
     consent_purpose_ref:q.consent_purpose_ref,
     actor_kind:q.actor_kind,actor_ref:q.actor_ref,flow_ref:q.flow_ref,
     campaign_ref:q.campaign_ref,now_ms:q.now_ms,max_age_ms:q.max_age_ms,
-   },m14Ledger);
+   },snapLedger);
    if(policy.decision!=='LAB_POLICY_COHERENT_UNVERIFIED')
     return deny('M14_CONSENT_OR_GRANT_DENIED');
    out.push(Object.freeze(candidate));
   }
+  // A port or caller may have mutated previously inspected policy, provider,
+  // catalog or consent structures while the await chain was suspended.
+  // The snapshots above remain consistent; deny instead of returning a
+  // mixed-time positive result, even when the changed field was unselected.
+  if(!unchanged())return deny('INPUT_CHANGED_DURING_PREVIEW');
   out.sort((a,b)=>a.template_ref<b.template_ref?-1:a.template_ref>b.template_ref?1:0);
   const preview:Wa15PlannerPreview=Object.freeze({
    contract_version:'wa15-f02-preview.lab.v0.1',
