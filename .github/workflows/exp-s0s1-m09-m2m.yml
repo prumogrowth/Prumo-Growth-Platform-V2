@@ -1,0 +1,87 @@
+name: S0 S1 M09 - Ed25519 replay protected PG17 read
+on:
+  push:
+    branches: [exp/s0s1-m09-m2m-read-20261031]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-and-unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Exact M09-04 delta and commit scope
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          python3 -B - <<'PY'
+          import subprocess
+          base='67324a229e044a190549e9cd137b0410b4e85ceb'
+          paths=set(subprocess.check_output(
+              ['git','diff','--name-only',base,'HEAD'],text=True).splitlines())
+          expected={
+              'integration/s0s1_m09_registry/pg17_m2m_journal.sql',
+              'integration/s0s1_m09_registry/pg17_m2m.py',
+              'integration/s0s1_m09_registry/test_pg17_m2m.py',
+              '.github/workflows/exp-s0s1-m09-m2m.yml',
+              'docs/contratos/s0s1_meta_registry/M09_04_M2M_PG17_EVIDENCIAS.md'
+          }
+          assert paths <= expected and expected-{ 'docs/contratos/s0s1_meta_registry/M09_04_M2M_PG17_EVIDENCIAS.md'} <= paths, sorted(paths^expected)
+          print('M09-04 isolated delta PASS:',sorted(paths))
+          PY
+      - name: Existing synthetic M09 regression and source parse
+        run: |
+          python3 -B -m unittest integration.s0s1_m09_registry.test_port -q
+          python3 -O -B -m unittest integration.s0s1_m09_registry.test_port -q
+          python3 -B - <<'PY'
+          import ast
+          from pathlib import Path
+          for n in ('pg17_m2m.py','test_pg17_m2m.py'):
+              ast.parse((Path('integration/s0s1_m09_registry')/n).read_text())
+          print('PG17 signed read Python AST PASS')
+          PY
+  disposable-pg17:
+    needs: source-and-unit
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      M09_PG17_DISPOSABLE: 'YES'
+      M09_PINNED_SOURCE: ${{ github.workspace }}/_m09_pin
+      PYTHONPATH: ${{ github.workspace }}
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 01ffdb093013664b73b18d23f92aac2202578210
+          path: _m09_pin
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Immutable pinned source and frozen dependencies
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git -C _m09_pin rev-parse HEAD)" = 01ffdb093013664b73b18d23f92aac2202578210
+          python3 -m pip install 'psycopg[binary]==3.2.13' 'cryptography==46.0.3'
+      - name: Ed25519 signature, nonce replay and atomic M09-03 snapshot
+        run: python3 -B -m unittest integration.s0s1_m09_registry.test_pg17_m2m -v
+      - name: Original M09-03 and M09-02 physical regressions
+        run: |
+          python3 -B -m unittest integration.s0s1_m09_registry.test_pg17_registry -v
+          python3 -B -m unittest integration.s0s1_m09_registry.test_pg17_binding -v
+      - name: Verify source trees preserved
+        if: always()
+        run: |
+          test -z "$(git -C _m09_pin status --porcelain)"
+          test -z "$(git status --porcelain --untracked-files=no)"
