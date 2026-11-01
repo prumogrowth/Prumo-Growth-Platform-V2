@@ -23,9 +23,11 @@ MODULES = (
     'registration-view.mjs', 'human-cycle-view.mjs',
     'operation-feedback.mjs', 'bank-view.mjs', 'postmark-view.mjs',
     'team-operations.mjs', 'team-pause-preview.mjs',
-    'team-monitor.mjs', 'team-monitoring.mjs', 'batch-monitor.mjs',
+    'team-monitor.mjs', 'batch-monitor.mjs',
     'distribution-view.mjs', 'transport-state-view.mjs',
-    'conversation-attention.mjs', 'local-audio.mjs', 'communication-composer.mjs', 'revision-fixtures.mjs', 'relationship-view.mjs', 'app.mjs'
+    'conversation-attention.mjs', 'team-monitoring.mjs',
+    'local-audio.mjs', 'communication-composer.mjs', 'revision-fixtures.mjs',
+    'relationship-view.mjs', 'bank-ready-list.mjs', 'app.mjs'
 )
 
 
