@@ -212,7 +212,7 @@ function previous(raw:unknown):Wa19Snapshot|null{
      .some(k=>v[k]!==false))return null;
  return v as Wa19Snapshot;
 }
-export function reconcileWa19StatusOffline(
+export function reconcileWa19S0BindingOffline(
  rawScope:unknown,rawBinding:unknown,rawEvents:unknown,
 ):Wa19Result{
  const s=own(rawScope,SCOPE),b=own(rawBinding,BIND),arr=dense(rawEvents);
@@ -238,7 +238,7 @@ export function recheckWa19StatusOffline(
 ):Wa19Result{
  const p=previous(rawPrevious);
  if(!p)return denied('PREVIOUS_SNAPSHOT_INVALID');
- const current=reconcileWa19StatusOffline(rawScope,rawBinding,rawEvents);
+ const current=reconcileWa19S0BindingOffline(rawScope,rawBinding,rawEvents);
  if(!current.snapshot)return current;
  if(RESULT.some(k=>p[k as keyof Wa19Snapshot]!==
    current.snapshot![k as keyof Wa19Snapshot]))
