@@ -7,6 +7,7 @@
     "domain": {
       "description": "Regras e projeções sintéticas sem depender do CSS para execução.",
       "node_tests": [
+        "bank-ready-list.test.mjs",
         "bank-view.test.mjs",
         "batch-monitor.test.mjs",
         "cf-op-02.test.mjs",
