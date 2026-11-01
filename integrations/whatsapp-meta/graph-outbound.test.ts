@@ -135,3 +135,83 @@ test('WA-OUT-17: malformed wamid with controls, spaces, or overlength is uncerta
     assert.equal(result.provider_message_id, null);
   }
 });
+
+
+test('AUD-GLOBAL-GRAPH-01 rejects multi-byte text over conservative UTF-8 budget',()=>{
+ const text='á'.repeat(2049);
+ assert.ok([...text].length<=4096);
+ assert.throws(()=>prepareGraphTextRequest({...sample,text_body:text},'v24.0'),
+  (e:unknown)=>e instanceof OutboundPreflightError&&e.code==='INVALID_MESSAGE');
+});
+test('AUD-GLOBAL-GRAPH-02 accepts valid multibyte within UTF-8 budget',()=>{
+ const text='á'.repeat(2048);
+ assert.equal(prepareGraphTextRequest({...sample,text_body:text},'v24.0').body.text.body,text);
+});
+test('AUD-GLOBAL-GRAPH-03 valid multiline text preserved byte-for-byte',()=>{
+ const text='Consultor João:\nBom dia!\nSegundo parágrafo.';
+ assert.equal(prepareGraphTextRequest({...sample,text_body:text},'v24.0').body.text.body,text);
+});
+test('AUD-GLOBAL-GRAPH-04 reject invisible controls and unpaired surrogate',()=>{
+ for(const bad of ['a\u0000b','a\u200Bb','a\u2028b','a\u2029b','a\uD800b','a\r\nb']){
+  assert.throws(()=>prepareGraphTextRequest({...sample,text_body:bad},'v24.0'));
+ }
+});
+test('AUD-GLOBAL-GRAPH-05 reject non-NFC sender display text',()=>{
+ assert.throws(()=>prepareGraphTextRequest({...sample,
+  text_body:'Cafe\u0301'},'v24.0'));
+});
+test('AUD-GLOBAL-GRAPH-06 malicious provider message ID getter never invoked',()=>{
+ let called=0;
+ const msg:any={};Object.defineProperty(msg,'id',{enumerable:true,get(){
+  called++;return 'wamid.POISON';}});
+ const result=observe(200,{messages:[msg]});
+ assert.equal(result.send_state,'UNCERTAIN_EXTERNAL');
+ assert.equal(called,0);
+});
+test('AUD-GLOBAL-GRAPH-07 malicious provider messages getter never invoked',()=>{
+ let called=0;
+ const payload:any={};Object.defineProperty(payload,'messages',{enumerable:true,get(){
+  called++;throw Error('SIDE_EFFECT');}});
+ const result=observe(200,payload);
+ assert.equal(result.send_state,'UNCERTAIN_EXTERNAL');
+ assert.equal(called,0);
+});
+test('AUD-GLOBAL-GRAPH-08 malformed response status getter never invoked',()=>{
+ let called=0;
+ const o:any={kind:'http_response',response_json:{messages:[{id:'wamid.OK'}]}};
+ Object.defineProperty(o,'http_status',{enumerable:true,get(){
+  called++;return 200;}});
+ const result=classifyGraphSendResult(sample.attempt_id,sample.correlation_id,o);
+ assert.equal(result.send_state,'UNCERTAIN_EXTERNAL');
+ assert.equal(called,0);
+});
+test('AUD-GLOBAL-GRAPH-09 malicious provider error getters never invoked',()=>{
+ let called=0;
+ const err:any={error_subcode:21};
+ Object.defineProperty(err,'code',{enumerable:true,get(){
+  called++;return 190;}});
+ const result=observe(400,{error:err});
+ assert.equal(result.send_state,'PROVIDER_REJECTED');
+ assert.equal(result.meta_error_code,null);assert.equal(called,0);
+});
+test('AUD-GLOBAL-GRAPH-10 malicious response error getter never invoked',()=>{
+ let called=0;
+ const data:any={};Object.defineProperty(data,'error',{enumerable:true,get(){
+  called++;throw Error('SIDE_EFFECT');}});
+ const result=observe(400,data);
+ assert.equal(result.send_state,'PROVIDER_REJECTED');
+ assert.equal(result.meta_error_code,null);assert.equal(called,0);
+});
+test('AUD-GLOBAL-GRAPH-11 ambiguous mixed transport and response never accepted',()=>{
+ const x=classifyGraphSendResult(sample.attempt_id,sample.correlation_id,{
+  kind:'transport_error',http_status:200,
+  response_json:{messages:[{id:'wamid.POISON'}]},
+ } as any);
+ assert.equal(x.send_state,'UNCERTAIN_EXTERNAL');
+ assert.equal(x.retry_automatically,false);
+});
+test('AUD-GLOBAL-GRAPH-12 valid Graph response classification unaffected',()=>{
+ const x=observe(200,{messages:[{id:'wamid.SYNTH_OK'}]});
+ assert.equal(x.send_state,'API_ACCEPTED');assert.equal(x.api_accepted,true);
+ assert.equal(x.provider_message_id,'wamid.SYNTH_OK');
+});
