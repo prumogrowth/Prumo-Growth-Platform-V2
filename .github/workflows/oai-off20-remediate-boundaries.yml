@@ -1,0 +1,100 @@
+name: OAI OFF20 post-audit remediation and no-raw output gate
+on:
+  push:
+    branches:
+      - audit/oai-off20-remediate-boundaries-20261101
+permissions:
+  contents: read
+concurrency:
+  group: oai-off20-remediate-boundaries
+  cancel-in-progress: false
+jobs:
+  offline-remediation-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout isolated OpenAI remediation
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify OFF19 ancestor and authorized seven-file delta
+        shell: bash
+        run: |
+          set -euo pipefail
+          base=2a2b022ea06bf670c7c9d186e2938b934ce0bcbb
+          git merge-base --is-ancestor "$base" HEAD
+          git diff --name-only "$base" HEAD | sort > /tmp/off20-diff
+          cat > /tmp/off20-allowed <<'EOF'
+          .github/workflows/oai-off20-remediate-boundaries.yml
+          docs/integracoes/openai/OAI_OFF20_CORRECOES_POS_AUDITORIA_2026_11_01.md
+          docs/integracoes/openai/OAI_ROTEIRO_PROGRESSO_2026_11_01.md
+          docs/integracoes/openai/e04_offline_lab/core.mjs
+          docs/integracoes/openai/e04_offline_lab/responses-shape-preflight-lab.mjs
+          docs/integracoes/openai/e04_offline_lab/tests/off20-remediation.test.mjs
+          docs/integracoes/openai/e04_offline_lab/tests/responses-shape-preflight-lab.test.mjs
+          EOF
+          diff -u /tmp/off20-allowed /tmp/off20-diff
+          test -z "$(git diff --name-only "$base" HEAD -- backend/ integration/ integrations/ frontend/ supabase/)"
+      - name: Node 22.16.0
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - name: Verify no hidden runtime clock or raw output in audited functions
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -Fq 'Date.now()' docs/integracoes/openai/e04_offline_lab/core.mjs; then
+            echo 'Error: legacy core must use injected clock'
+            exit 2
+          fi
+          node --check docs/integracoes/openai/e04_offline_lab/core.mjs
+          node --check docs/integracoes/openai/e04_offline_lab/responses-shape-preflight-lab.mjs
+          node --check docs/integracoes/openai/e04_offline_lab/tests/off20-remediation.test.mjs
+          node --check docs/integracoes/openai/e04_offline_lab/tests/responses-shape-preflight-lab.test.mjs
+      - name: Execute full inherited and 22 corrective Node regressions
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm --prefix docs/integracoes/openai/e04_offline_lab test | tee /tmp/off20.tap
+      - name: Enforce 990 tests and zero failures or skips
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=commonjs - <<'NODE'
+          const fs=require('node:fs');
+          const s=fs.readFileSync('/tmp/off20.tap','utf8');
+          const val=k=>{const m=s.match(new RegExp('# '+k+' (\\d+)'));return m?Number(m[1]):null;};
+          const v={tests:val('tests'),pass:val('pass'),fail:val('fail'),skipped:val('skipped')};
+          console.log(JSON.stringify({status:'OAI_OFF20_OFFLINE_REMEDIATION_NOT_S0_RATIFIED',
+            inherited:968,off20:22,...v}));
+          if(v.tests!==990||v.pass!==990||v.fail!==0||v.skipped!==0)process.exit(2);
+          NODE
+      - name: Verify exact S0 F02 source pin and 24 AST cases
+        shell: bash
+        run: |
+          set -euo pipefail
+          sha=31e88ec2632e861d55c2e0ae4766f8a0a4362e22
+          git cat-file -e "$sha^{commit}"
+          git show "$sha:integration/s0s1_f02/pg17_service.py" > /tmp/oai20-f02-source.py
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+          p=Path('/tmp/oai20-f02-source.py')
+          d=hashlib.sha256(p.read_bytes()).hexdigest()
+          assert d=='766a19a949e72935f4e7e120603032275de23eb9fa5fa6b94041fb8393f3b298',d
+          PY
+          S0_F02_PINNED_SOURCE=/tmp/oai20-f02-source.py python3 docs/integracoes/openai/e04_offline_lab/tests/off18_s0_f02_independent_cycle_review.py -v 2>&1 | tee /tmp/off20-python.log
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('/tmp/off20-python.log').read_text()
+          assert re.findall(r'Ran (\d+) tests? in',s)==['24']
+          assert re.search(r'(?m)^OK\s*$',s)
+          print('OFF20_PINNED_S0_F02_AST_24_PASS')
+          PY
+      - name: Non-operational boundaries
+        if: always()
+        run: |
+          echo 'OFF20 changes only OpenAI lab validators and report projections.'
+          echo 'No authenticated S0, Meta, hosted PostgreSQL, real model API, merge, deploy or customer operation.'
