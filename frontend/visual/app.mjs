@@ -20,7 +20,7 @@ import { projectDemoOperationFeedback } from './operation-feedback.mjs';
 import { presentMockMessageTransport } from './transport-state-view.mjs';
 import { projectMockHumanCycleHistory, projectMockClarificationScene,
   stageMockRepeatCompletion, projectMockCustomerDossier } from './human-cycle-view.mjs';
-import { bankProjectionFor, bankPhaseCopy } from './bank-view.mjs';
+import { bankProjectionFor, bankPhaseCopy, bankPhaseDisplayLabel } from './bank-view.mjs';
 import { postmarkViewFor, postmarkCopy, mayMockOperateContinuation } from './postmark-view.mjs';
 import { projectManagedTeam, requestMockIntake } from './team-operations.mjs';
 import { projectSharedNewLeadQueue, requestMockQueueAction } from './distribution-view.mjs';
