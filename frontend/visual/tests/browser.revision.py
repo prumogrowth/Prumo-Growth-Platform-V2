@@ -142,6 +142,7 @@ def main():
                     page.locator('#case-tab-notes').click()
                     expect(note).to_have_value('Nota não submetida')
                     page.locator('#detail-close').click()
+                    if width<=760:page.locator('#thread-back').click()
                     bank_nav=page.locator('#bank-nav-mobile' if width<=760 else '#bank-nav')
                     bank_nav.click()
                     assert not errors,{'browser_errors':errors,'module':page.evaluate('state.activeModule')}
@@ -152,7 +153,6 @@ def main():
                     expect(page.locator('#bank-content')).to_be_empty()
                     page.locator('#bank-close').click()
                     expect(page.locator('#visual-app')).to_have_attribute('data-module','conversations')
-                    if width<=760:page.locator('#thread-back').click()
                     for number,label in (('16','Vendido'),('12','Perdido')):
                         page.get_by_role('button',name='Abrir conversa Cliente Exemplo '+number,exact=False).click()
                         expect(page.locator('#terminal-banner')).to_contain_text(label)
