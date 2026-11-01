@@ -59,7 +59,7 @@ def valid_request(q,actor,signature):
     return (type(q) is dict and set(q)==set(K)
       and type(actor) is HostActor
       and type(signature) is bytes and len(signature)==64
-      and q['version']==SCHEMA and q['action'] in ACT
+      and q['version']==SCHEMA and type(q['action']) is str and q['action'] in ACT
       and all(ident(q[x]) for x in ('command_ref','nonce','case_ref',
           'flow_ref','store_ref','service_ref','actor_ref','purpose_ref'))
       and len(q['nonce'])>=8
