@@ -19,7 +19,7 @@ O validador não executa Graph nem SQL e nunca concede autorização de aprovaç
 - 43 testes anteriores `M13-01..43`, preservados.
 - 19 testes novos `AUD-M13-44..62`: BODY alterado; botões alterados; metadados opcionais reconhecidos e desconhecidos; hash inválido; recheck estável sem autoridade; PAUSED, mudança de versão, cross-shop, cross-WABA, conteúdo/validade, revogação, catálogo negado; getters em candidaturas/metadata e hash objeto com `toString` hostil.
 - Meta offline esperado: **1.447 testes**, sendo **62 próprios M13** e 1.385 anteriores. As **18 provas físicas PG17** pertencem ao laboratório de ingresso S0 histórico, **não** autenticam a conciliação M13. Testes de recebimento e scanner ACK são subconjuntos ou verificações separadas; não somar para inflar cobertura.
-- **CI final e SHA funcional:** preencher pelo run confirmado após o commit completo; não tomar run intermediário de código isolado como evidência final. O run de código `ec39afd5bc16cb5ecd1a27c12ae42a303c6d9acf` aconteceu antes da atualização das fixtures e por isso não serve de homologação.
+- **CI funcional:** [41262001974](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41262001974), SHA `745f54acd8255bea728c5ab7c87848d5018ad66b`: **1.447/1.447 Meta offline, 18/18 PG17**, dois jobs `success`, scanner ACK lexical aprovado. O run intermediário `ec39afd5bc16cb5ecd1a27c12ae42a303c6d9acf` aconteceu antes da atualização das fixtures e falhou, não servindo de homologação.
 
 ## Dependências não resolvidas
 
