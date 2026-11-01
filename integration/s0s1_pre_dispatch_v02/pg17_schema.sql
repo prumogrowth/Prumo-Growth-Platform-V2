@@ -62,7 +62,27 @@ CREATE TABLE s0_pd_v02_lab.receipts(
  CHECK((state='LAB_HELD_NO_DISPATCH' AND cancel_reason IS NULL)
    OR (state='LAB_CANCELLED_NO_DISPATCH' AND cancel_reason IS NOT NULL))
 );
+-- Slots are never reusable within a quota epoch, even if a test-admin
+-- incorrectly resets consumed. Only a new window identity may issue new slots.
+CREATE UNIQUE INDEX pd_v02_unique_slot ON s0_pd_v02_lab.receipts
+  (store_ref,app_ref,phone_ref,window_ref,quota_slot);
 CREATE INDEX pd_v02_case_receipt ON s0_pd_v02_lab.receipts(case_ref,created_at);
+-- Enforce monotonic consumed at the physical storage boundary. A held or
+-- cancelled receipt does not refund a slot; admin fixture has no bypass.
+CREATE FUNCTION s0_pd_v02_lab.prevent_quota_reset()
+RETURNS trigger LANGUAGE plpgsql SET search_path=pg_catalog AS $
+BEGIN
+ IF NEW.consumed < OLD.consumed THEN
+  RAISE EXCEPTION 'PD_V02_QUOTA_NONMONOTONIC';
+ END IF;
+ IF NEW.revision < OLD.revision THEN
+  RAISE EXCEPTION 'PD_V02_QUOTA_REVISION_ROLLBACK';
+ END IF;
+ RETURN NEW;
+END $;
+CREATE TRIGGER prevent_quota_reset BEFORE UPDATE
+ON s0_pd_v02_lab.quotas FOR EACH ROW
+EXECUTE FUNCTION s0_pd_v02_lab.prevent_quota_reset();
 REVOKE ALL ON SCHEMA s0_pd_v02_lab FROM PUBLIC;
 REVOKE ALL ON ALL TABLES IN SCHEMA s0_pd_v02_lab FROM PUBLIC;
 ALTER TABLE s0_pd_v02_lab.quotas ENABLE ROW LEVEL SECURITY;
