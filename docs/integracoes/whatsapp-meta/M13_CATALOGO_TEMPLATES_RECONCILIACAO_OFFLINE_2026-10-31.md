@@ -34,3 +34,14 @@ Verificar que um catálogo S0 alegado e uma coleção de respostas individuais a
 - Sem Graph real, SQL, endpoint, HTTP/ACK, credenciais, merge, deploy ou efeito comercial.
 
 **Conclusão:** validação de consistência entre fontes fictícias, útil para detectar divergências antes da integração de autoridade. A M13 só poderá ser encerrada com sincronização e evidência operacionais ratificadas por S0/Infra/Proprietário.
+
+
+## Adendo de auditoria — 31/10/2026
+
+A [auditoria de M13](AUDITORIA_M13_CATALOGO_TEMPLATES_2026-10-31.md) encontrou que comparar somente ID, nome, idioma, versão declarada, categoria e status **não** detectava alteração de BODY/BUTTONS de um template preservando `APPROVED`. A entrada sintética S0 agora inclui o campo obrigatório `provider_components_sha256`, calculado sobre os componentes normalizados já suportados pelo inspector Meta. A M13 recusa diferença com `COMPONENT_VERSION_MISMATCH` e mantém um digest técnico no candidato interno. Este hash **não é aprovação comprovada nem assinatura de origem**.
+
+A inspeção do detalhe passou a aceitar somente os campos opcionais já reconhecidos pelo inspector Meta (`parameter_format`, `quality_score`, `rejected_reason`) sem associá-los a concessão de direitos. O digest também exige tipo `string` antes de qualquer regex, evitando coerção `toString` não confiável.
+
+Nova função `recheckWa13CandidateOffline`: recebe candidato anterior e **novas** fixtures de host/catálogo/detalhes; verifica novamente App, loja, WABA, revisão, conteúdo e elegibilidade. Pausa, versão trocada, digest alterado, expiração ou cruzamento de loja devolvem `DENIED`. Mesmo quando `LAB_RECHECKED_UNVERIFIED`, todas as flags produtivas são `false`. Duas leituras em laboratório **não são** garantia transacional, nem previnem mudança ABA ou corrida após o último recheck.
+
+**Evidência atualizada:** 62 testes específicos M13 (43 originais + 19 de auditoria), **1.447/1.447 Meta offline** e **18 PG17** de outro escopo no [CI 41262001974](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41262001974), SHA funcional `745f54acd8255bea728c5ab7c87848d5018ad66b`, 2 jobs `success`. As afirmações históricas de 43/1.428 acima referem-se apenas à versão inicial da M13.
