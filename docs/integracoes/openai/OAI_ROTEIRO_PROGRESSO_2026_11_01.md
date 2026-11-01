@@ -26,11 +26,11 @@
 |---|---|---|---|
 | OFF-09/10 | Recuperar código oficial, corrigir bloqueio DNS local, publicar com garantia de integridade | FEITO_OFFLINE | [GitHub CI 678/678](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41268436358); nenhuma alteração main |
 | OFF-11 | Compatibilidade estrutural F02 com WA-39 Meta | FEITO_OFFLINE | [724/724](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41268914799), branch `feat/oai-off11-wa39-consumer-lab-20261101` |
-| OFF-12 | Bloquear promoção indevida de metadados/recibos S0 preliminares à F03 | EM_TESTE | Branch `feat/oai-off12-f03-s0-metadata-gate-20261101`; meta de **774** testes (724 anteriores + 50) |
+| OFF-12 | Bloquear promoção indevida de metadados/recibos S0 preliminares à F03 | FEITO_OFFLINE | [CI 774/774](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41293073729), branch `feat/oai-off12-f03-s0-metadata-gate-20261101` (724 anteriores + 50) |
 | FV-REV-021 / Issue #13 | Resumos **pequenos e objetivos** de F01/F02/F03 no histórico acumulativo do **Resumo** do Frontend | FUTURO | [Issue #13](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/13), **não desenvolver agora** |
 
 ## Regra de atualização
 
-A cada lote, registrar branch, commit exato, run GitHub Actions, testes executados, falhas e escopo. Nunca somar testes executados em bases diferentes como se fossem regressão conjunta; **CI 678 e CI 724 são cumulativos em bases sucessivas**, não adicionais. Atualizar `OFF-12` para `FEITO_OFFLINE` apenas com CI 774/774 real. Mesmo 774/774 **não ratificam** contratos S0 ou Meta nem permitem produção.
+A cada lote, registrar branch, commit exato, run GitHub Actions, testes executados, falhas e escopo. Nunca somar testes executados em bases diferentes como se fossem regressão conjunta; **CI 678 e CI 724 são cumulativos em bases sucessivas**, não adicionais. OFF-12 foi atualizado para `FEITO_OFFLINE` após confirmar no log do GitHub Actions 774/774 PASS, 0 FAIL, 0 SKIP no run 41293073729. Mesmo 774/774 **não ratificam** contratos S0 ou Meta nem permitem produção.
 
 **Próxima obrigação externa:** contratos S0 de posse/conteúdo F01, planejamento/evidência F02 e manifesto/commit F03. Sem inventar interfaces autoritativas nem criar Issues duplicadas.
