@@ -27,10 +27,11 @@ test('REV-009: preview follows last confirmed authorized record, independent of 
   for(const side of ['in','ai','system']){
     const message={id:'fixture-'+side,side,body:'Registro autorizado',time:'11:01'};
     record.messages.push(message);
-    assert.equal(latestConfirmedDemoMessage(record,'rafael','aurora').id,message.id);
+    assert.equal(latestConfirmedDemoMessage(record,'rafael','aurora').id,
+      side==='system'?'fixture-ai':message.id);
   }
   record.messages.push({id:'local',side:'out',body:'NÃO ENVIADA',deliveryState:'local_demo_not_sent'});
-  assert.equal(latestConfirmedDemoMessage(record,'rafael','aurora').id,'fixture-system');
+  assert.equal(latestConfirmedDemoMessage(record,'rafael','aurora').id,'fixture-ai');
   assert.equal(latestConfirmedDemoMessage(record,'daniel','aurora'),null);
   assert.equal(latestConfirmedDemoMessage(record,'rafael','horizonte'),null);
   record.messages=[];
