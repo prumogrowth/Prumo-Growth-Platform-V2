@@ -216,6 +216,7 @@ const noGraphAuthority=(x:any,d:string)=>{
  assert.equal(x.decision,d);assert.equal(x.sent_verified,false);
  assert.equal(x.delivered_verified,false);assert.equal(x.read_verified,false);
  assert.equal(x.provider_status_verified,false);
+ assert.equal(x.attempt_correlation_valid,false);
  assert.equal(x.retry_external,false);
  assert.equal(x.graph_dispatch_authorized,false);
  assert.equal(x.production_authorized,false);
@@ -256,4 +257,87 @@ test('M18-43 nested hostile Graph getter denied without executing',()=>{
 test('M18-44 mock Graph cannot claim evidence of delivery itself',()=>{
  const o:any={...accepted,send_authorized:true};
  noGraphAuthority(classify(base(),o),'DENIED');
+});
+
+
+test('AUD-M18-45 snapshot v0.2 binds observation instants',()=>{
+ const c=valid(run());
+ assert.equal(c.contract_version,'wa18-dispatch-preview.lab.v0.2');
+});
+test('AUD-M18-46 older v0.1 candidate cannot inherit updated digest rules',()=>{
+ const c=valid(run());
+ denied(recheck({...c,contract_version:'wa18-dispatch-preview.lab.v0.1'},
+  base(),s0(),binding(),rate()),'PREVIOUS_CANDIDATE_INVALID');
+});
+test('AUD-M18-47 changed fake clock under same revisions rejects recheck',()=>{
+ const c=valid(run()),i=base();i.now_ms=NOW+1000;
+ denied(recheck(c,i,s0(),binding(i),rate()),'REVISION_OR_CONTEXT_CHANGED');
+});
+test('AUD-M18-48 changed max-age window under same revisions rejects',()=>{
+ const c=valid(run()),i=base();i.max_age_ms=59999;
+ denied(recheck(c,i,s0(),binding(i),rate()),'REVISION_OR_CONTEXT_CHANGED');
+});
+test('AUD-M18-49 changed binding observation within age denies',()=>{
+ const c=valid(run()),b=binding();b.observed_at_ms=NOW-2000;
+ denied(recheck(c,base(),s0(),b,rate()),'REVISION_OR_CONTEXT_CHANGED');
+});
+test('AUD-M18-50 changed rate observation within age denies',()=>{
+ const c=valid(run()),q=rate();q.observed_at_ms=NOW-2000;
+ denied(recheck(c,base(),s0(),binding(),q),'REVISION_OR_CONTEXT_CHANGED');
+});
+test('AUD-M18-51 unchanged observation age remains safely nonauthorizing',()=>{
+ const c=valid(run());
+ valid(recheck(c,base(),s0(),binding(),rate()),'LAB_RECHECKED_NOT_AUTHORIZED');
+});
+test('AUD-M18-52 S0 lab success with arbitrary reason rejected',()=>{
+ const z=s0();z.reason='S0_OK';
+ denied(run(base(),z,binding(),rate()),'INVALID_INPUT');
+});
+test('AUD-M18-53 Graph mock HTTP 200 cannot verify S0 attempt correlation',()=>{
+ const x=classify(base(),accepted);
+ noGraphAuthority(x,'LAB_API_ACCEPTED_NOT_SENT');
+ assert.equal(x.attempt_correlation_valid,false);
+});
+test('AUD-M18-54 Graph mock 400 cannot verify S0 attempt correlation',()=>{
+ const x=classify(base(),{kind:'http_response',http_status:400,response_json:{
+  error:{code:131049},
+ }});
+ noGraphAuthority(x,'LAB_PROVIDER_REJECTED_UNVERIFIED');
+ assert.equal(x.attempt_correlation_valid,false);
+});
+test('AUD-M18-55 Graph mock timeout cannot verify S0 attempt correlation',()=>{
+ const x=classify(base(),{kind:'transport_error'});
+ noGraphAuthority(x,'LAB_EXTERNAL_UNCERTAIN');
+ assert.equal(x.attempt_correlation_valid,false);
+});
+test('AUD-M18-56 mixed mock transport and HTTP fields denied',()=>{
+ noGraphAuthority(classify(base(),{
+  kind:'transport_error',http_status:200,response_json:accepted.response_json,
+ }),'DENIED');
+});
+test('AUD-M18-57 mock HTTP response without payload denied',()=>{
+ noGraphAuthority(classify(base(),{
+  kind:'http_response',
+ }),'DENIED');
+});
+test('AUD-M18-58 fake graph HTTP success never allows retry',()=>{
+ const x=classify(base(),accepted);
+ noGraphAuthority(x,'LAB_API_ACCEPTED_NOT_SENT');
+ assert.equal(x.retry_external,false);
+});
+test('AUD-M18-59 forged new rate source cannot retain candidate',()=>{
+ const c=valid(run()),q=rate();q.app_ref='APP_B';
+ denied(recheck(c,base(),s0(),binding(),q),'RATE_LIMIT_OR_UNKNOWN');
+});
+test('AUD-M18-60 fake positive S0 with hidden grant denied',()=>{
+ const z:any=s0();z.grant_used=true;
+ denied(run(base(),z,binding(),rate()),'INVALID_INPUT');
+});
+test('AUD-M18-61 future rate observation remains fail closed',()=>{
+ const q=rate();q.observed_at_ms=NOW+100;
+ denied(run(base(),s0(),binding(),q),'SNAPSHOT_STALE_OR_FUTURE');
+});
+test('AUD-M18-62 fake Graph message with extra top-level status denied',()=>{
+ const obs:any={...accepted,status:'sent'};
+ noGraphAuthority(classify(base(),obs),'DENIED');
 });
