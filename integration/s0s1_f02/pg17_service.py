@@ -111,8 +111,15 @@ def _sources(c,q,s,p,expected):
             and case['app_ref']==s.app_ref and case['route_ref']==s.route_ref
             and case['canal_id']==s.canal_id and case['waba_id']==s.waba_id
             and case['principal_ref']==p.principal_ref,'SCOPE_CHANGED')
+    # F02 cycle and assignment are independent, separately persisted
+    # revision sources. Do not alias one to the other's physical column.
+    cycle=c.execute(
+        'SELECT cycle_revision,flow_ref FROM s0_f02_lab.case_cycles '
+        'WHERE case_ref=%s FOR UPDATE',(q['case_ref'],)).fetchone()
+    require(cycle is not None and cycle['flow_ref']=='flow_A',
+            'CYCLE_SOURCE_MISSING_OR_CHANGED')
     require(case['case_revision']==expected['case']
-            and case['assignment_revision']==expected['cycle']
+            and cycle['cycle_revision']==expected['cycle']
             and case['assignment_revision']==expected['assignment']
             and case['policy_revision']==expected['policy'],
             'STALE_OR_CHANGED')
@@ -267,16 +274,17 @@ def prepare_in_admin_transaction(c,q,*,scope,principal,m09_versions,expected):
           INSERT INTO s0_f02_lab.requests
             (request_ref,provider_tag,fingerprint,case_ref,concessionaria_id,
              app_ref,principal_ref,purpose_ref,consent_purpose_ref,
-             owner_route,plan_revision,case_revision,assignment_revision,
-             policy_revision,consent_revision,template_revision,grant_revision,
+             owner_route,plan_revision,case_revision,cycle_revision,
+             assignment_revision,policy_revision,consent_revision,
+             template_revision,grant_revision,
              source_sha256,window_start,window_end,deadline_at,max_attempts)
            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,
-                   %s,%s,%s,%s,%s,%s)
+                   %s,%s,%s,%s,%s,%s,%s)
         """,(q['request_ref'],tag,digest,q['case_ref'],
              scope.concessionaria_id,scope.app_ref,principal.principal_ref,
              q['purpose_ref'],q['consent_purpose_ref'],q['owner_route'],
-             1,expected['case'],expected['assignment'],expected['policy'],
-             expected['consent'],expected['catalog'],expected['chain'],
+             1,expected['case'],expected['cycle'],expected['assignment'],
+             expected['policy'],expected['consent'],expected['catalog'],expected['chain'],
              source_hash,
              _ms(now+timedelta(seconds=q['start_after_seconds'])),
              _ms(now+timedelta(seconds=q['start_after_seconds'],
@@ -343,6 +351,15 @@ def review_in_admin_transaction(c,proposal,*,q,scope,principal,m09_versions,
                 and saved['purpose_ref']==q['purpose_ref']
                 and saved['consent_purpose_ref']==q['consent_purpose_ref']
                 and saved['principal_ref']==principal.principal_ref,
+                'STALE_OR_CHANGED')
+        # Durable readback must preserve the independently resolved revision.
+        require(saved['case_revision']==expected['case']
+                and saved['cycle_revision']==expected['cycle']
+                and saved['assignment_revision']==expected['assignment']
+                and saved['policy_revision']==expected['policy']
+                and saved['consent_revision']==expected['consent']
+                and saved['template_revision']==expected['catalog']
+                and saved['grant_revision']==expected['chain'],
                 'STALE_OR_CHANGED')
         require(saved['fingerprint']==fingerprint({
             'request':q,'versions':expected,
