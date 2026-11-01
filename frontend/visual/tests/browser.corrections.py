@@ -37,7 +37,12 @@ def main():
             exe=os.environ.get('CHROMIUM_EXECUTABLE') or ('/usr/bin/chromium' if Path('/usr/bin/chromium').exists() else None)
             if exe:options['executable_path']=exe
             browser=p.chromium.launch(**options)
-            cells=[('module',1440,900,'light')] if os.environ.get('FV_COR07_QUICK')=='1' else [(fmt,w,h,t) for fmt in ('module','html') for w,h in ((1440,900),(900,780),(390,844)) for t in ('light','dark')]
+            # A suite principal cobre todos os breakpoints/perfis/temas; esta
+            # reproduz os 14 defeitos independentes por modo ESM/HTML, com
+            # amostragem pareada de desktop/tablet/mobile claro/escuro.
+            cells=[('module',1440,900,'light')] if os.environ.get('FV_COR07_QUICK')=='1' else [
+                ('module',1440,900,'light'),('module',390,844,'dark'),
+                ('html',900,780,'light'),('html',320,640,'dark')]
             for fmt,width,height,theme in cells:
                 for scenario in ('R01','R01-recording','R01-requesting','N02','N03','N04','N05','I01-empty','I01-blank','I01-zwsp','I01-invisible-mix','I02','I03','OBS01'):
                     actor='marina' if scenario=='I02' else 'rafael'
@@ -79,7 +84,20 @@ def main():
                     def details():
                         page.locator('#thread-title').focus();page.keyboard.press('Enter');expect(page.locator('#detail-pane')).to_be_visible()
                     def bank_from_case():
-                        details();page.locator('#open-bank-case').click();expect(page.locator('#bank-dialog')).to_be_visible()
+                        # "Consultar ficha" abre seção técnica dentro do Resumo,
+                        # nunca a fila bancária nem uma janela modal.
+                        details();page.locator('#open-bank-case').click()
+                        expect(page.locator('#registration-diagnostics summary')).to_be_focused()
+                        expect(page.locator('#bank-dialog')).to_be_hidden()
+                        if width<=760:
+                            page.locator('#detail-close').click()
+                            page.locator('#thread-back').click()
+                        elif width<=1040:page.locator('#detail-close').click()
+                        nav=page.locator('#bank-nav-mobile' if width<=760 else '#bank-nav')
+                        nav.click()
+                        expect(page.locator('#bank-dialog')).to_be_visible()
+                        expect(page.locator('#bank-ready-empty')).to_be_visible()
+                        expect(page.locator('#bank-content')).to_be_empty()
                     def ready_audio():
                         page.locator('#audio-record').click();expect(page.locator('#audio-status')).to_have_text('Gravando áudio')
                         expect(page.locator('#audio-duration')).not_to_have_text('0:00')
@@ -101,9 +119,12 @@ def main():
                             else:audio=ready_audio()
                             bank_from_case()
                             if scenario=='N02':
-                                page.locator('#bank-case-select').select_option('A-108');page.locator('#show-clarification-demo').click()
+                                # Caso incompleto não entra na fila nem recebe
+                                # botão de esclarecimento F03 nesse módulo.
+                                expect(page.locator('#bank-case-select')).to_be_hidden()
+                                expect(page.locator('#show-clarification-demo')).to_have_count(0)
                             page.locator('#bank-close').click()
-                            if width<=1040:page.locator('#detail-close').click()
+                            if width<=760:open_case('02')
                             expect(field).to_have_value('Rascunho da conversa A 🙂')
                             expect(page.locator('#thread-meta')).to_contain_text('Caso A-102')
                             if scenario=='R01-requesting':
@@ -169,7 +190,8 @@ def main():
                                 # Keep current view so the evidence shows the actual asserted state.
                                 pass
                             name=f'{scenario}-{fmt}-{width}-{theme}'
-                            page.screenshot(path=str(OUTPUT/(name+'.png')),full_page=True)
+                            if scenario in ('R01','N03','N04','N05','I01-zwsp'):
+                                page.screenshot(path=str(OUTPUT/(name+'.png')),full_page=True)
                         result['js_errors']=errors;result['external_requests']=external;results.append(result)
                         if OUTPUT:(OUTPUT/'results.json').write_text(json.dumps(results,ensure_ascii=False,indent=2)+'\n')
                         print('FV-COR-07',scenario,fmt,width,theme,'PASS' if result['pass'] else 'FAIL',flush=True)
