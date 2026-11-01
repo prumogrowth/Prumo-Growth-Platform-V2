@@ -90,8 +90,8 @@ class RemediatedAuditPhysical(unittest.TestCase):
   # FK (waba,app) ensures another scoped WABA must first be registered.
   with self.t.lab.admin() as c:
    c.execute("INSERT INTO s0_m09_lab.wabas(waba_id,app_ref) "
-             "VALUES('100002','APP_A') ON CONFLICT(waba_id) DO NOTHING")
-   c.execute("UPDATE s0_m09_lab.grants SET waba_id='100002' "
+             "VALUES('100009','APP_A')")
+   c.execute("UPDATE s0_m09_lab.grants SET waba_id='100009' "
              "WHERE canal_id='channel_A'")
   self.stale('M09_STALE_OR_REVOKED')
  def test_10_m09_route_app_mismatch_without_revision_stale(self):
