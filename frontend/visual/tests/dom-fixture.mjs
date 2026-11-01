@@ -146,9 +146,11 @@ export function installMockDOM({ mobile = false, tablet = false, prefersDark = f
     caseContent() {return nodes.get('bank-dialog').open ? nodes.get('bank-content') : nodes.get('detail-content');},
     openArea(title) {
       if(['Extração','Banco'].includes(title)) {
-        const button=descendants(nodes.get('detail-content')).find(n=>n.id==='open-bank-case');
-        if(!button)throw new Error('Resumo não contém destino Banco');
-        button.click();return;
+        const target=descendants(nodes.get('detail-content')).find(n=>
+          n.id==='registration-diagnostics' && title==='Extração' ||
+          n.classList.contains('prior-bank-history') && title==='Banco');
+        if(!target)throw new Error('Resumo não contém diagnóstico solicitado: '+title);
+        target.open=true;return;
       }
       const target=['Novo contato','Recontatos'].includes(title)?'Histórico':title;
       const button=descendants(nodes.get('detail-content')).find(n=>n.attrs.role==='tab' && n.textContent===target);
