@@ -33,6 +33,7 @@
 | OFF-16 / 12A | Pré-validação Responses API em simulação, sem key, rede, tokens nem custo | FEITO_OFFLINE | [CI 950/950](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41312180063), 908 herdados + 42 novos; uso real exige missão e orçamento autorizados | 
 | OFF-17 / 08B | Revisão de candidatos PG17 S0 F01/F02 e reprodução do acoplamento `cycle`/`assignment` na F02 | FEITO_OFFLINE | [CI 41322638549](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41322638549): 950/950 Node e 20/20 Python source-level **separados**; divergência F02 ainda não corrigida; aguardando decisão #7 | 
 | OFF-18 / 08B | Reavaliar correção S0 de revisões independentes F02 | FEITO_OFFLINE | [CI 41328784758](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41328784758): 950/950 Node + 24/24 Python AST, suites distintas; **mapeamento tecnicamente compatível em laboratório**; aceite operacional ainda pendente | 
+| OFF-19 / AUDITORIA GERAL | Revisão transversal OFF01..OFF18 e hardening legado de versões/relógio | EM_TESTE | 2 achados corrigidos na branch `audit/oai-off19-general-security-20261101`; meta 968 Node + 24 Python AST separados; **não é homologação de produção** | 
 | FV-REV-021 / Issue #13 | Resumos **pequenos e objetivos** de F01/F02/F03 no histórico acumulativo do **Resumo** do Frontend | FUTURO | [Issue #13](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/13), **não desenvolver agora** |
 
 ## Visibilidade de bloqueios
@@ -41,6 +42,14 @@
 - **08B:** **houve avanço externo verificável**: S0 publicou candidatos PG17 F01 posse [#11](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/11), fontes [#12](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/12) e pedido F02 [#7](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/7), todos com interop e CI próprios. OpenAI OFF-17 identificou o acoplamento `cycle/assignment`; **S0 respondeu na #7 com correção laboratório em `31e88ec`**, criando `case_cycles`/`cycle_revision` independentes. **OFF-18 comprovou em laboratório que o mapeamento pinado diferencia ciclo e atribuição** (950 Node + 24 Python source-level), sem aceite operacional. Ainda não há interface hospedada ratificada.
 - **08C:** aceite dos contratos e integração autorizada pendente; **não** progredir com credenciais ou dados reais.
 - **12A:** OFF-15 e OFF-16 concluídas offline, sem API real. Regressão transversal OFF-15 validada no [CI 41309774616](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41309774616) (908 PASS, 0 FAIL, 0 SKIP); **12B** (física/autenticada) depende de S0/Meta; **12C** (aceite) não iniciado.
+
+## Cobertura da visão conceitual maior (não confundir funções F0x com IAs)
+
+A concepção do projeto inclui **IA Vendedora**, **IA Analista/Otimizadora** (melhora somente configurações externas autorizadas de atendimento; jamais altera pesos próprios ou grants), **IA Gestora** para administradores e orquestração determinística. A linha OFF01–OFF19 prepara **funções F01/F02/F03**, não implementa integralmente os agentes Analista/Gestora. É necessário manter esses dois papéis como trilhas FUTURAS explícitas do produto, com aprovação, trilhas de auditoria, rollback de configurações e matrizes de permissão antes da afirmação de plataforma completa. Fonte conceitual: `projeto_liberacred_consolidacao_ideias_v0_2_auditada.md` §7–10.
+
+## Auditoria corretiva OFF-19
+
+[Relatório geral da frente](./OAI_OFF19_AUDITORIA_GERAL_CORRETIVA_2026_11_01.md) registra AUD19-01 (chaves de versões herdadas), AUD19-02 (relógio implícito em oferta), bloqueios e cobertura parcial. **Não marcar FEITO_OFFLINE até CI verde**. Compatibilidade operacional F01/02/03, dados reais, Meta/Graph, modelos reais e implantação seguem condicionados a contratos e homologação.
 
 ## Gate futuro de uso da API OpenAI
 
