@@ -1,6 +1,6 @@
 # FV-UX-BG-01 — Missão de implementação: Banco e Gestão como páginas da Prumo
 
-**Estado:** PLANEJADA, sem migração implementada ou aceita nesta branch. **Data:** 01/11/2026. **Base isolada:** `fix/fv-banco-aud-02-fail-closed-20261101` @ `040547d29231561cc3881e85be6abe85f01c8bad`; conferir CI/base antes de integrar código. **Decisão de produto:** [doc. 104](./104_FV_BANCO_01_LISTA_APTOS_TELAS_PROPRIAS_2026_11_01.md), protocolo [#4](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/4) e dependência [#15](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/15).
+**Estado:** IMPLEMENTAÇÃO CANDIDATA EM CURSO, sem aceite funcional/visual, merge ou deploy. O protótipo usa temporariamente elementos `<dialog>` abertos com `.show()` **não modal**, posicionados como páginas internas do workspace, sem top layer; conversão semântica para landmarks `section` e auditoria de leitor de tela seguem necessárias antes da conclusão. **Data:** 01/11/2026. **Base isolada:** `fix/fv-banco-aud-02-fail-closed-20261101` @ `040547d29231561cc3881e85be6abe85f01c8bad`; conferir CI/base antes de integrar código. **Decisão de produto:** [doc. 104](./104_FV_BANCO_01_LISTA_APTOS_TELAS_PROPRIAS_2026_11_01.md), protocolo [#4](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/4) e dependência [#15](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/15).
 
 ## Objetivo observável
 
