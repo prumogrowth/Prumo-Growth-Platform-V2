@@ -39,7 +39,7 @@ type Decision='LAB_NO_CALLBACK_UNVERIFIED'|'LAB_OBSERVATION_UNVERIFIED'|
 type Progress='NONE'|'SENT_OBSERVED'|'DELIVERED_OBSERVED'|'READ_OBSERVED'|
  'FAILED_OBSERVED'|'CONFLICT';
 export type Wa19Snapshot=Readonly<{
- contract_version:'wa19-graph-status-snapshot.lab.v0.1';
+ contract_version:'wa19-graph-status-snapshot.lab.v0.2';
  snapshot_sha256:string;decision:Exclude<Decision,'DENIED'>;
  progress:Progress;unique_occurrences:number;exact_replays:number;
  conflict_occurrences:number;
@@ -166,24 +166,32 @@ export function reconcileWa19StatusOffline(
      Array.from({length:arr.length},(_,i)=>String(i)).some(k=>
       !Object.hasOwn(ad,k)||!Object.hasOwn(ad[k],'value')))
    return deny('INVALID_INPUT');
-  const position=new Map<string,string>(),refs=new Map<string,string>();
-  const unique:Record<string,unknown>[]=[];
+  // First collect all distinct variants; a conflict MUST NOT discard
+  // the body/status of the later contender before fingerprinting.
+  // A deterministic order prevents first-wins differences on replay.
+  const variants=new Map<string,Record<string,unknown>>();
   let replay=0,conflict=0;
   for(let k=0;k<arr.length;k++){
    const x=record(ad[String(k)].value,K_EVENT);
    if(!x)return deny('INVALID_INPUT');
    if(!sameScope(x,q))return deny('SCOPE_MISMATCH');
    if(!event(x,q))return deny('OBSERVATION_UNTRUSTED');
-   const pos=occurrenceKey(x),canonical=eventTuple(x),
-    existing=position.get(pos),ref=refs.get(x.occurrence_ref as string);
-   if(existing!==undefined||ref!==undefined){
-    if(existing===canonical&&ref===canonical)replay++;
-    else conflict++;
-    continue;
-   }
-   position.set(pos,canonical);refs.set(x.occurrence_ref as string,canonical);
-   unique.push(x);
+   const canonical=eventTuple(x);
+   if(variants.has(canonical)){replay++;continue;}
+   variants.set(canonical,x);
   }
+  const canonical=[...variants.keys()].sort();
+  const positions=new Map<string,string>(),refs=new Map<string,string>();
+  for(const tuple of canonical){
+   const x=variants.get(tuple)!;
+   const pos=occurrenceKey(x),refId=x.occurrence_ref as string;
+   const oldPosition=positions.get(pos),oldRef=refs.get(refId);
+   if((oldPosition!==undefined&&oldPosition!==tuple)||
+      (oldRef!==undefined&&oldRef!==tuple))conflict++;
+   if(oldPosition===undefined)positions.set(pos,tuple);
+   if(oldRef===undefined)refs.set(refId,tuple);
+  }
+  const unique=canonical.map(tuple=>variants.get(tuple)!);
   let sent=false,delivered=false,read=false,failed=false;
   const flags=unique.map(x=>x.provider_status as Status);
   sent=flags.includes('sent');delivered=flags.includes('delivered');
@@ -206,10 +214,9 @@ export function reconcileWa19StatusOffline(
   }
   // Canonical projection for deterministic event-array permutation; all
   // claimed fields, timestamps, positions and error codes affect the hash.
-  const canonical=unique.map(x=>eventTuple(x)).sort();
   const snapshot:Wa19Snapshot=Object.freeze({
-   contract_version:'wa19-graph-status-snapshot.lab.v0.1',
-   snapshot_sha256:sha(['WA19_STATUS_LAB_V0_1',K_REQUEST.map(k=>q[k]),
+   contract_version:'wa19-graph-status-snapshot.lab.v0.2',
+   snapshot_sha256:sha(['WA19_STATUS_LAB_V0_2',K_REQUEST.map(k=>q[k]),
     K_GRAPH.map(k=>g[k]),canonical,replay,conflict,decision,progress]),
    decision,progress,unique_occurrences:unique.length,exact_replays:replay,
    conflict_occurrences:conflict,sent_observed_lab:sent,
@@ -223,7 +230,7 @@ export function reconcileWa19StatusOffline(
 }
 function previous(raw:unknown):Record<string,unknown>|null{
  const x=record(raw,K_RESULT);
- if(!x||x.contract_version!=='wa19-graph-status-snapshot.lab.v0.1'||
+ if(!x||x.contract_version!=='wa19-graph-status-snapshot.lab.v0.2'||
     typeof x.snapshot_sha256!=='string'||!HEX.test(x.snapshot_sha256)||
     !['LAB_NO_CALLBACK_UNVERIFIED','LAB_OBSERVATION_UNVERIFIED',
       'LAB_LATE_HISTORICAL_UNVERIFIED','LAB_QUARANTINED_CONFLICT']
