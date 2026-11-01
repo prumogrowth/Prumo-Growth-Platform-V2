@@ -30,7 +30,7 @@
 | OFF-13 | Comparação offline de posse/handoff F01 em duas leituras sintéticas S0; sem publicar mensagens | FEITO_OFFLINE | [CI 819/819](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41295745349), branch `feat/oai-off13-f01-s0-ownership-review-20261101` (774 anteriores + 45) | 
 | OFF-14 | Fontes comerciais por concessionária F01: validade, correção, escopo e recheck sintético | FEITO_OFFLINE | [CI 864/864](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41296742136), branch `feat/oai-off14-f01-commercial-source-review-20261101` (819 anteriores + 45) | 
 | OFF-15 / 12A | Testes transversais independentes de fronteiras F01/F02/F03 | FEITO_OFFLINE | [CI 908/908](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41309774616), 864 herdados + 44 novos; **etapa 12 ainda PENDENTE_CONTRATO** | 
-| OFF-16 / 12A | Pré-validação Responses API em simulação, sem key, rede, tokens nem custo | EM_TESTE | Branch `test/oai-off16-responses-api-contract-preflight-20261101`; meta 950 = 908 anteriores + 42 novos; uso real exige missão e orçamento autorizados | 
+| OFF-16 / 12A | Pré-validação Responses API em simulação, sem key, rede, tokens nem custo | FEITO_OFFLINE | [CI 950/950](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41312180063), 908 herdados + 42 novos; uso real exige missão e orçamento autorizados | 
 | FV-REV-021 / Issue #13 | Resumos **pequenos e objetivos** de F01/F02/F03 no histórico acumulativo do **Resumo** do Frontend | FUTURO | [Issue #13](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/13), **não desenvolver agora** |
 
 ## Visibilidade de bloqueios
@@ -38,7 +38,7 @@
 - **08A:** compatibilidade estrutural offline concluída até OFF-14.
 - **08B:** alinhamento de interfaces S0/Meta em análise nas Issues existentes, sem interface S0/F01-F03 ratificada.
 - **08C:** aceite dos contratos e integração autorizada pendente; **não** progredir com credenciais ou dados reais.
-- **12A:** OFF-15 concluída; OFF-16 em teste sem API real. Regressão transversal OFF-15 validada no [CI 41309774616](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41309774616) (908 PASS, 0 FAIL, 0 SKIP); **12B** (física/autenticada) depende de S0/Meta; **12C** (aceite) não iniciado.
+- **12A:** OFF-15 e OFF-16 concluídas offline, sem API real. Regressão transversal OFF-15 validada no [CI 41309774616](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41309774616) (908 PASS, 0 FAIL, 0 SKIP); **12B** (física/autenticada) depende de S0/Meta; **12C** (aceite) não iniciado.
 
 ## Gate futuro de uso da API OpenAI
 
@@ -46,6 +46,6 @@ A chave da API não é necessária para 12A/contratos. Eventual teste do modelo 
 
 ## Regra de atualização
 
-A cada lote, registrar branch, commit exato, run GitHub Actions, testes executados, falhas e escopo. Nunca somar testes executados em bases diferentes como se fossem regressão conjunta; **CI 678, CI 724, CI 774, CI 819, CI 864 e CI 908 são cumulativos em bases sucessivas**, não adicionais. OFF-12 foi atualizado para `FEITO_OFFLINE` após confirmar no log do GitHub Actions 774/774 PASS, 0 FAIL, 0 SKIP no run 41293073729. A OFF-13 foi atualizada para `FEITO_OFFLINE` após [819/819 no CI](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41295745349), zero falhas e ignorados. O CI da OFF-14 comprovou 864/864 PASS, zero falhas e ignorados, mas **não ratifica** S0/Meta nem autoriza produção.
+A cada lote, registrar branch, commit exato, run GitHub Actions, testes executados, falhas e escopo. Nunca somar testes executados em bases diferentes como se fossem regressão conjunta; **CI 678, CI 724, CI 774, CI 819, CI 864, CI 908 e CI 950 são cumulativos em bases sucessivas**, não adicionais. OFF-12 foi atualizado para `FEITO_OFFLINE` após confirmar no log do GitHub Actions 774/774 PASS, 0 FAIL, 0 SKIP no run 41293073729. A OFF-13 foi atualizada para `FEITO_OFFLINE` após [819/819 no CI](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41295745349), zero falhas e ignorados. O CI da OFF-14 comprovou 864/864 PASS, zero falhas e ignorados, mas **não ratifica** S0/Meta nem autoriza produção.
 
 **Próxima obrigação externa:** contratos S0 de posse/conteúdo F01, planejamento/evidência F02 e manifesto/commit F03. Sem inventar interfaces autoritativas nem criar Issues duplicadas.
