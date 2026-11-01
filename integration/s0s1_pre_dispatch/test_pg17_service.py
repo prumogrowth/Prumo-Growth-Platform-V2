@@ -343,6 +343,16 @@ class PreDispatchPhysical(unittest.TestCase):
         self._denied(self._reserve(),'DUPLICATE_ATTEMPT')
         self._denied(self._reserve({'attempt_ref':'different'}),'DUPLICATE_ATTEMPT')
 
+    def test_24_caller_cannot_use_other_service_grant(self):
+        # An admin can seed an otherwise valid alternate-service grant, but
+        # a request cannot impersonate it via caller-supplied service_ref.
+        with self.lab.admin() as c:
+            c.execute("""INSERT INTO s0_pre_dispatch_lab.grants
+             VALUES ('case_A','OTHER_SERVICE','tpl_A','ver_1',
+                     'camp_A','followup_message',1,true)""")
+        self._denied(self._reserve({'service_ref':'OTHER_SERVICE'}),'SCOPE_CHANGED')
+        self.assertEqual(self._counts(),(0,0))
+
     def test_23_all_eligibility_flags_remain_false_for_lab_success(self):
         o=self._reserve()
         for flag in ('production_authorized','send_authorized','graph_authorized',
