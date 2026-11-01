@@ -12,7 +12,7 @@ import {F02_RESPONSE} from './f02-plan-boundary.mjs';
 import {F03_PROPOSAL_SCHEMA} from './f03-history-boundary.mjs';
 
 export const OAI_RESPONSE_LAB_INPUT='prumo.openai.responses-preflight/0.1-lab';
-export const OAI_RESPONSE_LAB_RESULT='prumo.openai.responses-preflight-result/0.1-lab';
+export const OAI_RESPONSE_LAB_RESULT='prumo.openai.responses-preflight-result/0.2-lab';
 const EXPECTED=Object.freeze({F01:F01_RESPONSE,F02:F02_RESPONSE,F03:F03_PROPOSAL_SCHEMA});
 const ID=/^[A-Za-z0-9_.:-]{1,120}$/;
 const has=(o,k)=>Object.prototype.hasOwnProperty.call(o,k);
@@ -48,7 +48,8 @@ const FLAGS=Object.freeze({
   publishAuthorized:false,schedulingAuthorized:false,
   sendAuthorized:false,fieldApplicationAuthorized:false,
   productionAuthorized:false,requiresS0Recheck:true,
-  costApproved:false,liveApiCalled:false
+  costApproved:false,liveApiCalled:false,
+  candidateRawExposed:false,requiresDomainEvaluation:true
 });
 const verdict=(status,stage)=>Object.freeze({
   schemaVersion:OAI_RESPONSE_LAB_RESULT,status,stage,...FLAGS
@@ -92,9 +93,11 @@ function inspectOutput(items){
   return {status:'UNTRUSTED_TEXT',raw:item.text};
 }
 /**
- * Only exposes a STRICT-JSON candidate for later F01/F02/F03 local evaluation.
- * candidateRaw is UNTRUSTED model text, not a verified business proposal.
- * The caller MUST NOT log it or send it to a customer.
+ * Structural inspection intentionally never returns raw model content.
+ * A later trusted transport must separately deliver untrusted text to the
+ * F01/F02/F03 domain evaluator; neither this gate nor a JSON candidate
+ * can grant S0 authority, semantic correctness, sending or field writes.
+ * Breaking change from lab result 0.1: candidateRaw is REMOVED.
  */
 export function inspectResponsesShape(input){
   try{
@@ -124,6 +127,6 @@ export function inspectResponsesShape(input){
     // The evaluator for the selected F0x domain must validate the REST of
     // the proposal. We check only provider correlation and top-level schema.
     return Object.freeze({...verdict('UNTRUSTED_JSON_CANDIDATE','NO_S0_AUTHORITY'),
-      operation:input.operation,candidateRaw:candidate.raw});
+      operation:input.operation});
   }catch{return verdict('INVALID_INPUT','EXCEPTION');}
 }
