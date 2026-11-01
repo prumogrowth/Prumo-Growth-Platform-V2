@@ -28,14 +28,14 @@ export type Wa17Case=Readonly<{
  opt_out:false;observed_at_ms:number;
 }>;
 export type Wa17Preview=Readonly<{
- contract_version:'wa17-human-prefix-preview.lab.v0.1';
+ contract_version:'wa17-human-prefix-preview.lab.v0.2';
  selection_ref:string;concessionaria_id:string;waba_ref:string;
  case_ref:string;intent_ref:string;actor_ref:string;
  role:'CONSULTOR'|'GESTOR'|'DIRETOR';
  display_name_snapshot:string;
  case_version:number;assignment_revision:number;identity_revision:number;
  session_revision:number;
- draft_sha256:string;composed_sha256:string;
+ draft_sha256:string;composed_sha256:string;context_sha256:string;
  composed_text:string;requires_s0_recheck:true;
  identity_verified:false;authorization_verified:false;
  send_authorized:false;production_authorized:false;
@@ -67,7 +67,7 @@ const yes=(preview:Wa17Preview,rechecked=false):Wa17Result=>
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const DIGITS=/^[0-9]{5,25}$/,REF=/^[A-Za-z0-9_.:-]{1,128}$/;
 const NAME=/^\p{L}[\p{L}\p{M}]+(?:[ \x27\-]\p{L}[\p{L}\p{M}]+)*$/u;
-const SIGNATURE=/^(?:Consultor|Gestor|Diretor)[ \t]+[^\n:]{1,120}:/iu;
+const SIGNATURE=/(?:^|\n)(?:Consultor|Gestor|Diretor)[ \t]+[^\n:]{1,120}:/iu;
 const NUMERIC=(x:unknown):x is number=>typeof x==='number'&&
  Number.isSafeInteger(x)&&x>0;
 const NONNEG=(x:unknown):x is number=>typeof x==='number'&&
@@ -75,6 +75,15 @@ const NONNEG=(x:unknown):x is number=>typeof x==='number'&&
 const hex=(v:unknown):v is string=>typeof v==='string'&&
  /^[a-f0-9]{64}$/.test(v);
 const sha=(s:string):string=>createHash('sha256').update(s,'utf8').digest('hex');
+/** Binds intent, author and version assertions to the exact body as a LAB
+ * consistency checksum, NOT a signature, auth proof or idempotency key. */
+function contextDigest(x:Record<string,unknown>):string{
+ return sha(JSON.stringify(['WA17_SCOPE_LAB_V0_2',
+  x.selection_ref,x.concessionaria_id,x.waba_ref,x.case_ref,
+  x.intent_ref,x.actor_ref,x.role,x.display_name_snapshot,
+  x.case_version,x.assignment_revision,x.identity_revision,
+  x.session_revision,x.draft_sha256,x.composed_sha256]));
+}
 function own(raw:unknown,required:readonly string[]):
  Record<string,unknown>|null{
  try{
@@ -102,6 +111,7 @@ const PREVIEW=['contract_version','selection_ref','concessionaria_id',
  'waba_ref','case_ref','intent_ref','actor_ref','role',
  'display_name_snapshot','case_version','assignment_revision',
  'identity_revision','session_revision','draft_sha256','composed_sha256',
+ 'context_sha256',
  'composed_text','requires_s0_recheck','identity_verified',
  'authorization_verified','send_authorized','production_authorized',
  'graph_dispatch_authorized'] as const;
@@ -144,13 +154,26 @@ function bodyOk(text:string,prefix:string):Wa17Reason|null{
  // Avoid ambiguous display/control characters and intentionally disallow
  // a user-typed role header, including a header claiming another human.
  if(!text||text.length>4096||text!==text.trim()||
-    text!==text.normalize('NFC')||/[\p{Cc}\p{Cf}]/u.test(
+    text!==text.normalize('NFC')||/[\p{Cc}\p{Cf}\p{Cs}\p{Zl}\p{Zp}]/u.test(
      text.replace(/\n/g,''))||text.includes('\r'))
   return 'NAME_OR_BODY_DENIED';
  if(SIGNATURE.test(text))return 'DUPLICATE_OR_FORGED_PREFIX';
  if(text.startsWith(prefix))return 'DUPLICATE_OR_FORGED_PREFIX';
  return null;
 }
+/** Reject forged prior previews even if their composed hash was recomputed.
+ * A previous preview must be a literal WA-21 prefix plus the exact original
+ * draft hash, with no nested role headers or ambiguous Unicode separators. */
+function validateComposedPreview(x:Record<string,unknown>):boolean{
+ const role=x.role==='CONSULTOR'?'Consultor':
+  x.role==='GESTOR'?'Gestor':'Diretor';
+ const prefix=role+' '+x.display_name_snapshot+':\n';
+ const rendered=x.composed_text as string;
+ if(!rendered.startsWith(prefix))return false;
+ const draft=rendered.slice(prefix.length);
+ return bodyOk(draft,prefix)===null&&sha(draft)===x.draft_sha256;
+}
+
 /** Pure preview; never sign as a verified human without an authenticated S0
  * assertion obtained independently of AI, browser or caller-supplied claims. */
 export function previewWa17HumanSignatureOffline(
@@ -185,8 +208,8 @@ export function previewWa17HumanSignatureOffline(
   // Conservative LAB byte cap; this is not a Meta API size guarantee.
   if(Buffer.byteLength(composed,'utf8')>4096)
    return deny('NAME_OR_BODY_DENIED');
-  const preview:Wa17Preview=Object.freeze({
-   contract_version:'wa17-human-prefix-preview.lab.v0.1',
+  const previewBase={
+   contract_version:'wa17-human-prefix-preview.lab.v0.2' as const,
    selection_ref:q.selection_ref as string,
    concessionaria_id:q.concessionaria_id as string,
    waba_ref:q.waba_ref as string,case_ref:q.case_ref as string,
@@ -200,26 +223,34 @@ export function previewWa17HumanSignatureOffline(
    composed_sha256:sha(composed),composed_text:composed,
    requires_s0_recheck:true,identity_verified:false,
    authorization_verified:false,send_authorized:false,
-   production_authorized:false,graph_dispatch_authorized:false,
+   production_authorized:false as const,graph_dispatch_authorized:false as const,
+  };
+  const preview:Wa17Preview=Object.freeze({
+   ...previewBase,context_sha256:contextDigest(previewBase),
   });
   return yes(preview);
  }catch{return deny('INVALID_INPUT');}
 }
 function validPreview(raw:unknown):Record<string,unknown>|null{
  const x=own(raw,PREVIEW);
- if(!x||x.contract_version!=='wa17-human-prefix-preview.lab.v0.1'||
+ if(!x||x.contract_version!=='wa17-human-prefix-preview.lab.v0.2'||
     !['selection_ref','case_ref','intent_ref','actor_ref'].every(k=>
       typeof x[k]==='string'&&REF.test(x[k]))||
     typeof x.concessionaria_id!=='string'||!UUID.test(x.concessionaria_id)||
     typeof x.waba_ref!=='string'||!DIGITS.test(x.waba_ref)||
     !['CONSULTOR','GESTOR','DIRETOR'].includes(x.role as string)||
     typeof x.display_name_snapshot!=='string'||
+    x.display_name_snapshot.length>80||
+    x.display_name_snapshot!==x.display_name_snapshot.normalize('NFC')||
     !NAME.test(x.display_name_snapshot)||!NUMERIC(x.case_version)||
     !NUMERIC(x.assignment_revision)||!NUMERIC(x.identity_revision)||
     !NUMERIC(x.session_revision)||!hex(x.draft_sha256)||
-    !hex(x.composed_sha256)||typeof x.composed_text!=='string'||
+    !hex(x.composed_sha256)||!hex(x.context_sha256)||
+    typeof x.composed_text!=='string'||
     x.composed_text.length>4096||
     sha(x.composed_text)!==x.composed_sha256||
+    contextDigest(x)!==x.context_sha256||
+    !validateComposedPreview(x)||
     x.requires_s0_recheck!==true||x.identity_verified!==false||
     x.authorization_verified!==false||x.send_authorized!==false||
     x.production_authorized!==false||x.graph_dispatch_authorized!==false)
