@@ -60,6 +60,10 @@ export function projectDemoAttention(record, actorId, shopId) {
       record.demoReadProjection.messageRef === inbound.at(-1)?.id && inbound.length > 0,
     human_reply_pending: lastHumanRelevant?.side === 'in'
   });
+  if(attention.kind==='read_awaiting_reply' && record.inboxProjection==='historical')
+    return Object.freeze({...attention,
+      label:'Mensagem aberta e sem resposta humana neste caso histórico · somente leitura'});
+  return attention;
 }
 const isPlain = o => o !== null && typeof o === 'object' && !Array.isArray(o) &&
   (Object.getPrototypeOf(o) === Object.prototype || Object.getPrototypeOf(o) === null);
