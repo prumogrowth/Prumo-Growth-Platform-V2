@@ -55,6 +55,7 @@ class F02Physical(unittest.TestCase):
           'start_after_seconds':90,'duration_minutes':45,
           'max_attempts':2
         }
+        self.m09_versions=self.versions  # original five-revision Revisions object
         self.versions={k:1 for k in (
             'case','cycle','catalog','assignment','policy','consent','chain')}
 
@@ -62,7 +63,7 @@ class F02Physical(unittest.TestCase):
         with self.lab.admin() as c:
             return prepare(c,{**self.q,**(edits or {})},
                 scope=self.scope,principal=self.principal,
-                m09_versions=self.versions,
+                m09_versions=self.m09_versions,
                 expected=expected or self.versions7())
 
     def versions7(self):
@@ -94,7 +95,7 @@ class F02Physical(unittest.TestCase):
         with self.lab.admin() as c:
             return review(c,proposal,q=req or self.q,
                           scope=self.scope,principal=self.principal,
-                          m09_versions=self.versions,
+                          m09_versions=self.m09_versions,
                           expected=expected or self.versions7())
 
     def deny(self,x):
@@ -278,7 +279,7 @@ class F02Physical(unittest.TestCase):
         try:
             with self.lab.admin() as c:
                 x=prepare(c,self.q,scope=self.scope,
-                          principal=self.principal,m09_versions=self.versions,
+                          principal=self.principal,m09_versions=self.m09_versions,
                           expected=self.versions7())
                 self.assertEqual(x['decision'],'LAB_REQUEST_RECORDED_NO_MODEL')
                 raise RuntimeError('unknown commit')
@@ -299,7 +300,7 @@ class F02Physical(unittest.TestCase):
             with self.lab.admin() as c:
                 gate.wait(timeout=8)
                 return prepare(c,self.q,scope=self.scope,principal=self.principal,
-                       m09_versions=self.versions,
+                       m09_versions=self.m09_versions,
                        expected=self.versions7())['decision']
         with ThreadPoolExecutor(max_workers=2) as pool:
             xs=[pool.submit(job) for _ in range(2)]
