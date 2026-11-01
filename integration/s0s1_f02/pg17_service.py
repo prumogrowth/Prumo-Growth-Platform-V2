@@ -65,6 +65,11 @@ def require(ok,why):
         raise Rejected(why)
 
 
+def _ms(dt):
+    # OFF04 accepts at most millisecond precision; persist exactly that unit.
+    return dt.replace(microsecond=(dt.microsecond//1000)*1000)
+
+
 def _iso(dt):
     return dt.astimezone(timezone.utc).isoformat(
         timespec='milliseconds').replace('+00:00','Z')
@@ -273,9 +278,9 @@ def prepare_in_admin_transaction(c,q,*,scope,principal,m09_versions,expected):
              1,expected['case'],expected['assignment'],expected['policy'],
              expected['consent'],expected['catalog'],expected['chain'],
              source_hash,
-             now+timedelta(seconds=q['start_after_seconds']),
-             now+timedelta(seconds=q['start_after_seconds'],
-                            minutes=q['duration_minutes']),
+             _ms(now+timedelta(seconds=q['start_after_seconds'])),
+             _ms(now+timedelta(seconds=q['start_after_seconds'],
+                            minutes=q['duration_minutes'])),
              deadline,q['max_attempts']))
         for i,t in enumerate(templates,1):
             c.execute("""
