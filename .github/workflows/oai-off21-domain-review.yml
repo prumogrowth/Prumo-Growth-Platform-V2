@@ -1,0 +1,86 @@
+name: OAI OFF21 safe Responses to F01-F03 domain review
+on:
+  push:
+    branches:
+      - feat/oai-off21-safe-response-evaluation-20261101
+permissions:
+  contents: read
+concurrency:
+  group: oai-off21-safe-domain
+  cancel-in-progress: false
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout isolated OFF21 branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify exact OFF20 ancestry and 5-file change boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          base=03b0ca7173dacdbe75eb1fc5d06f286dcb291f54
+          git merge-base --is-ancestor "$base" HEAD
+          git diff --name-only "$base" HEAD | sort > /tmp/off21-changed
+          cat > /tmp/off21-allowed <<'EOF'
+          .github/workflows/oai-off21-domain-review.yml
+          docs/integracoes/openai/OAI_OFF21_RESPONSES_DOMAIN_REVIEW_2026_11_01.md
+          docs/integracoes/openai/OAI_ROTEIRO_PROGRESSO_2026_11_01.md
+          docs/integracoes/openai/e04_offline_lab/response-domain-review-lab.mjs
+          docs/integracoes/openai/e04_offline_lab/tests/response-domain-review-lab.test.mjs
+          EOF
+          diff -u /tmp/off21-allowed /tmp/off21-changed
+          test -z "$(git diff --name-only "$base" HEAD -- backend/ integration/ integrations/ frontend/ supabase/)"
+      - name: Node 22.16.0
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - name: Syntax and 1028 cumulative OpenAI offline tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check docs/integracoes/openai/e04_offline_lab/response-domain-review-lab.mjs
+          node --check docs/integracoes/openai/e04_offline_lab/tests/response-domain-review-lab.test.mjs
+          npm --prefix docs/integracoes/openai/e04_offline_lab test | tee /tmp/off21-node.tap
+      - name: Require exact Node tests, zero skips/fails
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=commonjs - <<'NODE'
+          const fs=require('node:fs');
+          const s=fs.readFileSync('/tmp/off21-node.tap','utf8');
+          const val=k=>{const m=s.match(new RegExp('# '+k+' (\\d+)'));return m?Number(m[1]):null;};
+          const v={tests:val('tests'),pass:val('pass'),fail:val('fail'),skipped:val('skipped')};
+          console.log(JSON.stringify({status:'OAI_OFF21_SAFE_REVIEW_ONLY_NOT_AUTHORIZED',
+            inherited:990,off21:38,...v}));
+          if(v.tests!==1028||v.pass!==1028||v.fail!==0||v.skipped!==0)process.exit(2);
+          NODE
+      - name: Verify pinned S0 F02 exact source and 24 independent Python tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          sha=31e88ec2632e861d55c2e0ae4766f8a0a4362e22
+          git cat-file -e "$sha^{commit}"
+          git show "$sha:integration/s0s1_f02/pg17_service.py" > /tmp/off21-s0-f02.py
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+          assert hashlib.sha256(Path('/tmp/off21-s0-f02.py').read_bytes()).hexdigest()=='766a19a949e72935f4e7e120603032275de23eb9fa5fa6b94041fb8393f3b298'
+          PY
+          S0_F02_PINNED_SOURCE=/tmp/off21-s0-f02.py python3 docs/integracoes/openai/e04_offline_lab/tests/off18_s0_f02_independent_cycle_review.py -v 2>&1 | tee /tmp/off21-python.log
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('/tmp/off21-python.log').read_text()
+          assert re.findall(r'Ran (\d+) tests? in',s)==['24']
+          assert re.search(r'(?m)^OK\s*$',s)
+          print('OFF21_S0_F02_SOURCE_REVIEW_24_PASS')
+          PY
+      - name: State non-operational boundary
+        if: always()
+        run: |
+          echo 'All S0 assertions, model responses and receipts are synthetic; no raw output exposed by OFF21.'
+          echo 'No S0 operational permission, Meta/Graph, actual OpenAI API, database, production, merge or deploy.'
