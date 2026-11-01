@@ -31,7 +31,7 @@ A saída não inclui ticket interno WA-26, lead, caso, identificador de concessi
 
 `integrations/whatsapp-meta/wa15-f02-planner-preview.test.ts`: **40 casos M15-01..40** de isolamento entre lojas/WABAs, variante de idioma, template pendente/pausado, digest ou versão divergente, mudança de ator/caso/campanha, consentimento/opt-out, concessão ausente, política WA-26 versus M14, fornecedor alegado M13 desatualizado, dados inválidos/getters, anti-vazamento e múltiplos candidatos ordenados.
 
-**Evidência funcional:** registrar SHA exato e CI completo após confirmação; o teste de Graph PG17 físico histórico é de **outro** escopo e não testa M15. A nova suíte deve totalizar 1.553 Meta offline (base 1.513 + 40 M15), sem somar PG17.
+**Evidência funcional:** SHA de código e testes `82f78394a30cf90a31eb5e3790084c9a5f29d0d1`, [CI 41268095439](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41268095439) completo/success: **1.553/1.553 Meta offline** (1.513 base + 40 M15), 18/18 PG17 físicos históricos de **outro escopo**, dois jobs `success` e scanner ACK lexical aprovado. O CI inicial da suíte `1a3e7647` acusou dois erros de *fixture* quando testes reatribuíam `state.templates`, mas as portas simuladas continuavam observando o objeto antigo. A fixture foi corrigida para compartilhar a instância de estado; nenhum comportamento produtivo foi alterado. O teste de Graph PG17 físico histórico não testa M15.
 
 ## M15-C — Fronteiras contratuais
 
