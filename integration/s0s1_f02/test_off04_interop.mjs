@@ -149,6 +149,11 @@ test('S0F02-OFF04-10 exact PG17 private envelope works with pinned OFF04',
  {skip:!source||!evidence},()=>{
   const {view,handle,input}=prepare();
   assert.ok(input.nowMs>1_700_000_000_000);
+  // F02 independent physical sources are intentionally unequal.
+  assert.equal(input.scope.expectedVersions.cycle,3);
+  assert.equal(input.scope.expectedVersions.assignment,7);
+  assert.equal(input.scope.currentVersions.cycle,3);
+  assert.equal(input.scope.currentVersions.assignment,7);
   assert.equal(evidence.expected_aliases[0].alias,'tpl_001');
   const out=evalPlan(handle,view,input,modelReply(view));
   assert.equal(out.status,'S0_RECHECK_ONLY');
@@ -157,4 +162,20 @@ test('S0F02-OFF04-10 exact PG17 private envelope works with pinned OFF04',
   assert.equal(out.attempts[0].templateVersion,
                evidence.expected_aliases[0].version_ref);
   assert.equal(out.sendAuthorized,false);
+});
+
+test('S0F02-OFF04-11 separately stale cycle and assignment denied',
+ {skip:!source||!evidence},()=>{
+  const {handle,view,input}=prepare();
+  for(const key of ['cycle','assignment']){
+    const scoped=structuredClone(input.scope);
+    scoped.currentVersions[key]+=1;
+    const out=source.evaluateF02Model(handle,modelReply(view),{
+      nowMs:input.nowMs+1,scope:scoped
+    });
+    assert.equal(out.status,'STALE',key);
+    assert.equal(out.sendAuthorized,false);
+    assert.equal(out.schedulingAuthorized,false);
+    assert.equal(out.commercialTransitionAuthorized,false);
+  }
 });
