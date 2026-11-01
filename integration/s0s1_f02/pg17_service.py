@@ -20,7 +20,7 @@ from integration.s0s1_m09_registry.port import HostScope,M2MPrincipal,Revisions
 
 VER_KEYS=('case','cycle','catalog','assignment','policy','consent','chain')
 REQ_KEYS=frozenset({
- 'request_ref','case_ref','service_ref','purpose_ref','consent_purpose_ref',
+ 'request_ref','case_ref','flow_ref','service_ref','purpose_ref','consent_purpose_ref',
  'owner_route','instructions_text','instructions_version',
  'start_after_seconds','duration_minutes','max_attempts'
 })
@@ -116,7 +116,7 @@ def _sources(c,q,s,p,expected):
     cycle=c.execute(
         'SELECT cycle_revision,flow_ref FROM s0_f02_lab.case_cycles '
         'WHERE case_ref=%s FOR UPDATE',(q['case_ref'],)).fetchone()
-    require(cycle is not None and cycle['flow_ref']=='flow_A',
+    require(cycle is not None and cycle['flow_ref']==q['flow_ref'],
             'CYCLE_SOURCE_MISSING_OR_CHANGED')
     require(case['case_revision']==expected['case']
             and cycle['cycle_revision']==expected['cycle']
