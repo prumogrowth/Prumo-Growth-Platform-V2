@@ -1,0 +1,64 @@
+name: OAI OFF16 Responses API no-key preflight
+on:
+  push:
+    branches:
+      - test/oai-off16-responses-api-contract-preflight-20261101
+permissions:
+  contents: read
+concurrency:
+  group: oai-off16-api-preflight
+  cancel-in-progress: false
+jobs:
+  synthetic-preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout isolated branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Validate OFF15 ancestry and strictly isolated diff
+        shell: bash
+        run: |
+          set -euo pipefail
+          base=ff871525b9817246dafce243af6f67afd756f4d8
+          git merge-base --is-ancestor "$base" HEAD
+          git diff --name-only "$base" HEAD | sort > /tmp/oai16-changed
+          cat > /tmp/oai16-expected <<'EOF'
+          .github/workflows/oai-off16-responses-preflight.yml
+          docs/integracoes/openai/OAI_OFF16_API_RESPONSES_PREFLIGHT_2026_11_01.md
+          docs/integracoes/openai/OAI_ROTEIRO_PROGRESSO_2026_11_01.md
+          docs/integracoes/openai/e04_offline_lab/responses-shape-preflight-lab.mjs
+          docs/integracoes/openai/e04_offline_lab/tests/responses-shape-preflight-lab.test.mjs
+          EOF
+          diff -u /tmp/oai16-expected /tmp/oai16-changed
+          test -z "$(git diff --name-only "$base" HEAD -- backend/ integrations/ frontend/ supabase/)"
+      - name: Set Node 22.16.0
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - name: Static syntax and full cumulative offline regression
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check docs/integracoes/openai/e04_offline_lab/responses-shape-preflight-lab.mjs
+          node --check docs/integracoes/openai/e04_offline_lab/tests/responses-shape-preflight-lab.test.mjs
+          npm --prefix docs/integracoes/openai/e04_offline_lab test | tee /tmp/oai16.tap
+      - name: Require exactly 950 PASS and zero skips
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=commonjs - <<'NODE'
+          const fs=require('node:fs');
+          const s=fs.readFileSync('/tmp/oai16.tap','utf8');
+          const val=k=>{const x=s.match(new RegExp('# '+k+' (\\d+)'));return x?Number(x[1]):null;};
+          const facts={tests:val('tests'),pass:val('pass'),fail:val('fail'),skipped:val('skipped')};
+          console.log(JSON.stringify({status:'OFF16_RESPONSES_NO_KEY_NO_COST',inherited:908,newTests:42,...facts}));
+          if(facts.tests!==950||facts.pass!==950||facts.fail!==0||facts.skipped!==0)process.exit(2);
+          NODE
+      - name: No network or secrets for OpenAI canaries
+        if: always()
+        run: |
+          echo 'No OpenAI SDK, key, model request, network, customer data, tokens, billing, retry or production.'
+          echo 'No permission from synthetic lab response. API execution separately approved.'
