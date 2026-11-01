@@ -251,7 +251,7 @@ class PreDispatchPhysical(unittest.TestCase):
         self._denied(self._reserve(),'GRANT_DENIED')
         with self.lab.admin() as c:
             c.execute('UPDATE s0_pre_dispatch_lab.grants SET active=true')
-        self._denied(self._reserve({'service_ref':'forged'}),'GRANT_DENIED')
+        self._denied(self._reserve({'service_ref':'forged'}),'SCOPE_CHANGED')
 
     def test_16_m09_binding_revoked_denies_before_policy(self):
         from integration.s0s1_m09_registry.pg17_registry import revoke_channel_in_admin_transaction
