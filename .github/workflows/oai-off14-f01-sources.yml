@@ -1,0 +1,64 @@
+name: OAI OFF14 F01 commercial sources offline regression
+on:
+  push:
+    branches:
+      - feat/oai-off14-f01-commercial-source-review-20261101
+permissions:
+  contents: read
+concurrency:
+  group: oai-off14-f01-commercial-sources
+  cancel-in-progress: false
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact isolated OpenAI candidate
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Check OFF13 base and strictly isolated changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          base=4efb643d8e6264caef55d21eeb4efb8b3f481a10
+          git merge-base --is-ancestor "$base" HEAD
+          git diff --name-only "$base" HEAD | sort > /tmp/oai14-changed
+          cat > /tmp/oai14-expected <<'EOF'
+          .github/workflows/oai-off14-f01-sources.yml
+          docs/integracoes/openai/OAI_OFF14_F01_FONTES_COMERCIAIS_REVIEW_2026_11_01.md
+          docs/integracoes/openai/OAI_ROTEIRO_PROGRESSO_2026_11_01.md
+          docs/integracoes/openai/e04_offline_lab/f01-commercial-source-review-lab.mjs
+          docs/integracoes/openai/e04_offline_lab/tests/f01-commercial-source-review-lab.test.mjs
+          EOF
+          diff -u /tmp/oai14-expected /tmp/oai14-changed
+          test -z "$(git diff --name-only "$base" HEAD -- backend/ integrations/ frontend/ supabase/)"
+      - name: Node 22.16.0
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - name: Static validation and cumulative OFF01 to OFF14 tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check docs/integracoes/openai/e04_offline_lab/f01-commercial-source-review-lab.mjs
+          node --check docs/integracoes/openai/e04_offline_lab/tests/f01-commercial-source-review-lab.test.mjs
+          npm --prefix docs/integracoes/openai/e04_offline_lab test | tee /tmp/oai-off14.tap
+      - name: Require exactly 864 PASS and no fails/skips
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=commonjs - <<'NODE'
+          const fs=require('node:fs');
+          const s=fs.readFileSync('/tmp/oai-off14.tap','utf8');
+          const val=k=>{const x=s.match(new RegExp('# '+k+' (\\d+)'));return x?Number(x[1]):null;};
+          const facts={tests:val('tests'),pass:val('pass'),fail:val('fail'),skipped:val('skipped')};
+          console.log(JSON.stringify({status:'OAI_OFF14_LAB_NO_S0_AUTHORITY',previous:819,newTests:45,...facts}));
+          if(facts.tests!==864||facts.pass!==864||facts.fail!==0||facts.skipped!==0)process.exit(2);
+          NODE
+      - name: State nonproduction boundary
+        if: always()
+        run: |
+          echo 'Only synthetic F01 knowledge-source metadata: no content grant, semantic proof, S0 readback, model invocation, publication or production.'
+          echo 'No S0/Meta/Frontend code changes, no merge, deploy or real message.'
