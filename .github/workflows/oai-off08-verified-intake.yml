@@ -1,0 +1,98 @@
+name: OAI OFF08 archive intake, integrity and offline regression
+on:
+  push:
+    branches: [test/oai-off08-payload-staging-20261031]
+    paths:
+      - docs/integracoes/openai/_incoming/OAI_OFF_02_A_08_PATCH_AUDITADO_2026_10_31.zip
+permissions:
+  contents: write
+concurrency:
+  group: oai-off08-intake-20261031
+  cancel-in-progress: false
+jobs:
+  verified-intake:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout staging
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Setup Node 22.16.0
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - name: Verify archive and retain it outside the worktree
+        shell: bash
+        run: |
+          set -euo pipefail
+          incoming='docs/integracoes/openai/_incoming/OAI_OFF_02_A_08_PATCH_AUDITADO_2026_10_31.zip'
+          echo '9116f713198d9c8b3061874d9c6c2dcb2a4045c384b02feaad4ca334b39b0feb  '"$incoming" | sha256sum -c -
+          cp "$incoming" "$RUNNER_TEMP/off08.zip"
+          cp docs/integracoes/openai/OAI_OFF10_COPIA_MANIFESTO_SHA256_STAGING.json "$RUNNER_TEMP/staging-manifest.json"
+      - name: Restore exact OFF01 and validate every patch file before writing
+        shell: bash
+        run: |
+          set -euo pipefail
+          base=394512327cd3756dfbe61ff970a6279c354b6565
+          test "$(git rev-parse "$base^{tree}")" = 87a3ce85b2ead682038d4bee104ca47dd006c971
+          git checkout --detach "$base"
+          git clean -fdx
+          python3 - <<'PY'
+          import hashlib,json,os,re,zipfile
+          from pathlib import Path
+          archive=Path(os.environ['RUNNER_TEMP'])/'off08.zip'
+          saved=Path(os.environ['RUNNER_TEMP'])/'staging-manifest.json'
+          with zipfile.ZipFile(archive) as z:
+              infos=[i for i in z.infolist() if not i.is_dir()]
+              names=[i.filename for i in infos]
+              mp='docs/integracoes/openai/e04_offline_lab/patch-files.sha256.json'
+              if len(names)!=28 or len(set(names))!=28 or mp not in names:
+                  raise SystemExit('WRONG_ARCHIVE_COUNT')
+              m=json.loads(z.read(mp))
+              if m!=json.loads(saved.read_text()):
+                  raise SystemExit('MANIFEST_DIFFERS_FROM_STAGING')
+              if m['base_commit']!='394512327cd3756dfbe61ff970a6279c354b6565' or m['base_tree']!='87a3ce85b2ead682038d4bee104ca47dd006c971' or m['expected_full_tests']!=678:
+                  raise SystemExit('BASE_OR_TARGET_CHANGED')
+              files={x['path']:x['sha256'] for x in m['files']}
+              if len(files)!=27 or set(names)!=(set(files)|{mp}):raise SystemExit('FILE_SET_MISMATCH')
+              for info in infos:
+                  p=info.filename
+                  if not p.startswith('docs/integracoes/openai/') or not re.fullmatch(r'[A-Za-z0-9_./-]+',p) or '..' in Path(p).parts or (info.external_attr>>16)&0o170000==0o120000:
+                      raise SystemExit('UNSAFE_FILE')
+                  raw=z.read(p)
+                  if p in files and hashlib.sha256(raw).hexdigest()!=files[p]:raise SystemExit('HASH_MISMATCH')
+                  dst=Path(p)
+                  if dst.exists() or dst.is_symlink():raise SystemExit('OVERWRITE_OR_LINK')
+                  dst.parent.mkdir(parents=True,exist_ok=True)
+                  dst.write_bytes(raw)
+          print('28 archive files, 27 content hashes verified')
+          PY
+      - name: Require 678 tests on clean inherited base and patch before commit
+        run: node docs/integracoes/openai/e04_offline_lab/patch-preflight.mjs
+      - name: Commit exact patch then require 678 tests again
+        shell: bash
+        run: |
+          set -euo pipefail
+          branch=feat/oai-off02-off08-offline-20261031
+          if git ls-remote --exit-code --heads origin "refs/heads/$branch" >/dev/null 2>&1; then echo BRANCH_EXISTS; exit 4; fi
+          git switch -c "$branch"
+          python3 - <<'PY'
+          import json,subprocess
+          doc=json.load(open('docs/integracoes/openai/e04_offline_lab/patch-files.sha256.json'))
+          names=sorted([x['path'] for x in doc['files']]+['docs/integracoes/openai/e04_offline_lab/patch-files.sha256.json'])
+          subprocess.run(['git','add','--',*names],check=True)
+          assert subprocess.check_output(['git','diff','--cached','--name-only'],text=True).splitlines()==names
+          PY
+          git -c user.name=herdeirosdoalento -c user.email=herdeirosdoalento@users.noreply.github.com commit -m 'feat(oai): OFF02-OFF08 audited offline candidate'
+          test "$(git rev-parse HEAD^)" = 394512327cd3756dfbe61ff970a6279c354b6565
+          node docs/integracoes/openai/e04_offline_lab/patch-preflight.mjs
+          test -z "$(git status --porcelain)"
+      - name: Publish candidate only if both gates passed
+        shell: bash
+        run: |
+          set -euo pipefail
+          git push origin HEAD:refs/heads/feat/oai-off02-off08-offline-20261031
+          echo "PUBLISHED_SHA=$(git rev-parse HEAD)"
+          echo 'NOT_MERGED_NOT_DEPLOYED_NOT_HOMOLOGATED'
