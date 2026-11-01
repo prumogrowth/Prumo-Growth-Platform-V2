@@ -226,3 +226,23 @@ test('FV-UI-032: O5 móvel foca Voltar na conversa destino',()=>{
   assert.equal(get('visual-app').dataset.mobileView,'list');
   assert.equal(env.document.activeElement,get('search-input'));
 });
+
+test('FV-COR-07 R01: celular preserva rascunho ao voltar ao mesmo caso via Banco',()=>{
+  reset();env.openCase('Exemplo 02');
+  const input=get('message-input');input.value='Rascunho da conversa A 🙂';
+  get('thread-back').click();
+  assert.equal(get('visual-app').dataset.mobileView,'list');
+  assert.equal(input.value,'Rascunho da conversa A 🙂');
+  get('bank-nav-mobile').click();
+  assert.equal(get('visual-app').dataset.module,'bank');
+  get('bank-close').click();
+  assert.equal(get('visual-app').dataset.module,'conversations');
+  env.openCase('Exemplo 02');
+  assert.equal(get('visual-app').dataset.mobileView,'thread');
+  assert.equal(input.value,'Rascunho da conversa A 🙂');
+  get('thread-back').click();
+  env.openCase('Exemplo 08');
+  assert.equal(input.value,'','outro caso exige descarte de rascunho');
+  get('thread-back').click();env.openCase('Exemplo 02');
+  assert.equal(input.value,'','rascunho do caso anterior não revive após troca real');
+});
