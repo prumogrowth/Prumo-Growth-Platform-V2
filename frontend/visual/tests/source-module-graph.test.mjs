@@ -13,7 +13,7 @@ const order = [
   'fixtures.mjs', 'view-model.mjs', 'cf-op-02.mjs',
   'registration-view.mjs', 'human-cycle-view.mjs', 'operation-feedback.mjs', 'bank-view.mjs', 'postmark-view.mjs',
   'team-operations.mjs', 'team-pause-preview.mjs', 'team-monitor.mjs',
-  'batch-monitor.mjs', 'distribution-view.mjs', 'transport-state-view.mjs', 'conversation-attention.mjs', 'team-monitoring.mjs', 'local-audio.mjs', 'communication-composer.mjs', 'revision-fixtures.mjs', 'relationship-view.mjs', 'app.mjs'
+  'batch-monitor.mjs', 'distribution-view.mjs', 'transport-state-view.mjs', 'conversation-attention.mjs', 'team-monitoring.mjs', 'local-audio.mjs', 'communication-composer.mjs', 'revision-fixtures.mjs', 'relationship-view.mjs', 'bank-ready-list.mjs', 'app.mjs'
 ];
 const src = Object.fromEntries(order.map(name=>[name,read(name)]));
 const smoke = read('tests/browser.smoke.py');
