@@ -142,7 +142,9 @@ function checkedEntry(raw:unknown):Wa13S0Entry|null{
  const x=record(raw,ENTRY);
  if(!x||!key(x.template_ref)||!key(x.version_ref)||!pos(x.template_revision)||
     !pid(x.provider_template_id)||typeof x.template_name!=='string'||
-    !NAME.test(x.template_name)||!SHA.test(x.provider_components_sha256 as string)||
+    !NAME.test(x.template_name)||
+    typeof x.provider_components_sha256!=='string'||
+    !SHA.test(x.provider_components_sha256)||
     typeof x.language_code!=='string'||
     !LOCALE.test(x.language_code)||!CATS.includes(x.meta_category as string)||
     !STATES.includes(x.local_status as string)||
