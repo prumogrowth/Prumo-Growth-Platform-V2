@@ -566,7 +566,7 @@ function renderAiCommunications(item){
       const meanings={partial_confirmed:'Atualização parcial confirmada na simulação',accepted:'Resultado confirmado na simulação',failed:'Processamento falhou na simulação',stale:'Versão desatualizada na simulação'};
       details.append(el('summary','',entry.source+' · resultado da extração'),
         el('p','',meanings[f03[1]]??'Resultado técnico disponível na demonstração'),
-        el('small','technical-detail','Estado técnico: '+f03[1]+' · versão: '+f03[2]+'. A F03 não conversa com o cliente.'));
+        el('small','technical-detail','Estado técnico: '+f03[1]+' · versão: '+f03[2]+' · referência: '+entry.time+'. A F03 não conversa com o cliente.'));
     }else details.append(el('summary','',entry.source+' · '+entry.time),el('p','',entry.content));
     section.append(details);
   }
