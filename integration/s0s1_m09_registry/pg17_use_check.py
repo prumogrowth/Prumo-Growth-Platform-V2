@@ -104,6 +104,18 @@ def record_control_check_in_admin_transaction(
         or binding['tenant'] != principal_row['tenant']):
         return _response('DENIED','STALE_OR_REVOKED')
 
+    phone_rows = connection.execute(
+        'SELECT route FROM s0_meta_lab.bindings WHERE phone=%s ORDER BY route FOR SHARE',
+        (scope.phone_number_id,)
+    ).fetchall()
+    waba_rows = connection.execute(
+        'SELECT route FROM s0_meta_lab.bindings WHERE waba=%s ORDER BY route FOR SHARE',
+        (scope.waba_id,)
+    ).fetchall()
+    if (len(phone_rows) != 1 or not waba_rows
+        or any(row['route'] != scope.route_ref for row in waba_rows)):
+        return _response('DENIED','AMBIGUOUS_BINDING')
+
     app = connection.execute(
         'SELECT app_ref,route_ref,concessionaria_id,tenant,revision,active,'
         'valid_from,valid_until FROM s0_m09_lab.apps '
