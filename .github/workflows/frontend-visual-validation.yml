@@ -9,6 +9,7 @@ on:
       - codex/fv-cor-07-pos-auditoria-20261031
       - fix/fv-cor-08-unicode-20261031
       - fix/fv-coe-01-coerencia-20261031
+      - feat/fv-banco-fila-aptos-20261101
     paths:
       - "frontend/visual/**"
       - "frontend/preview/**"
@@ -20,7 +21,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   native-checkout:
-    if: github.ref == 'refs/heads/feat/frontend-plataforma-visual' || github.ref == 'refs/heads/codex/fv-ux-01-comunicacao-20261027' || github.ref == 'refs/heads/codex/fv-rev-01-conversas-20261030' || github.ref == 'refs/heads/codex/fv-rev-01-modulos-20261030' || github.ref == 'refs/heads/codex/fv-cor-07-pos-auditoria-20261031' || github.ref == 'refs/heads/fix/fv-cor-08-unicode-20261031' || github.ref == 'refs/heads/fix/fv-coe-01-coerencia-20261031'
+    if: github.ref == 'refs/heads/feat/frontend-plataforma-visual' || github.ref == 'refs/heads/codex/fv-ux-01-comunicacao-20261027' || github.ref == 'refs/heads/codex/fv-rev-01-conversas-20261030' || github.ref == 'refs/heads/codex/fv-rev-01-modulos-20261030' || github.ref == 'refs/heads/codex/fv-cor-07-pos-auditoria-20261031' || github.ref == 'refs/heads/fix/fv-cor-08-unicode-20261031' || github.ref == 'refs/heads/fix/fv-coe-01-coerencia-20261031' || github.ref == 'refs/heads/feat/fv-banco-fila-aptos-20261101'
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
@@ -113,7 +114,7 @@ jobs:
           import hashlib, json, os, subprocess
           from pathlib import Path
           folder = Path('out')
-          comparison_base = '59481887cec5af02f1243b83652865cdd6ad3a25' if os.environ['GITHUB_REF_NAME']=='fix/fv-coe-01-coerencia-20261031' else 'dbad7a6e13bffb51b01875fcd8de43fe49a1791b' if os.environ['GITHUB_REF_NAME']=='fix/fv-cor-08-unicode-20261031' else '2efa2d5c3df0df05bd0193a715e2e958b71cd816' if os.environ['GITHUB_REF_NAME']=='codex/fv-cor-07-pos-auditoria-20261031' else '17336799ddf4c8575c790f09eb64570d6460733c'
+          comparison_base = 'ca262179e180c635fb7f44aaa37e4c1214f9ba12' if os.environ['GITHUB_REF_NAME']=='feat/fv-banco-fila-aptos-20261101' else '59481887cec5af02f1243b83652865cdd6ad3a25' if os.environ['GITHUB_REF_NAME']=='fix/fv-coe-01-coerencia-20261031' else 'dbad7a6e13bffb51b01875fcd8de43fe49a1791b' if os.environ['GITHUB_REF_NAME']=='fix/fv-cor-08-unicode-20261031' else '2efa2d5c3df0df05bd0193a715e2e958b71cd816' if os.environ['GITHUB_REF_NAME']=='codex/fv-cor-07-pos-auditoria-20261031' else '17336799ddf4c8575c790f09eb64570d6460733c'
           provenance = {
               'head': os.environ['GITHUB_SHA'],
               'branch': os.environ['GITHUB_REF_NAME'],
