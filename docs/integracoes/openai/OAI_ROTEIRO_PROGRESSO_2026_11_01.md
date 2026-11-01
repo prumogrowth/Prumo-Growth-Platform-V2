@@ -34,6 +34,7 @@
 | OFF-17 / 08B | Revisão de candidatos PG17 S0 F01/F02 e reprodução do acoplamento `cycle`/`assignment` na F02 | FEITO_OFFLINE | [CI 41322638549](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41322638549): 950/950 Node e 20/20 Python source-level **separados**; divergência F02 ainda não corrigida; aguardando decisão #7 | 
 | OFF-18 / 08B | Reavaliar correção S0 de revisões independentes F02 | FEITO_OFFLINE | [CI 41328784758](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41328784758): 950/950 Node + 24/24 Python AST, suites distintas; **mapeamento tecnicamente compatível em laboratório**; aceite operacional ainda pendente | 
 | OFF-19 / AUDITORIA GERAL | Revisão transversal OFF01..OFF18 e hardening legado de versões/relógio | FEITO_OFFLINE | [CI 41338979377](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41338979377): 968/968 Node (950+18), 24/24 Python AST pinados; 2 defeitos corrigidos, riscos operacionais documentados | 
+| OFF-20 / REMEDIAÇÃO | Endurecimento de validadores legados + quarentena de resposta OpenAI sem campo bruto | EM_TESTE | Branch `audit/oai-off20-remediate-boundaries-20261101`; meta 990 Node acumulados + 24 Python AST separados; requer CI antes de FEITO_OFFLINE | 
 | FV-REV-021 / Issue #13 | Resumos **pequenos e objetivos** de F01/F02/F03 no histórico acumulativo do **Resumo** do Frontend | FUTURO | [Issue #13](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/13), **não desenvolver agora** |
 
 ## Visibilidade de bloqueios
@@ -50,6 +51,10 @@ A concepção do projeto inclui **IA Vendedora**, **IA Analista/Otimizadora** (m
 ## Auditoria corretiva OFF-19
 
 [Relatório geral da frente](./OAI_OFF19_AUDITORIA_GERAL_CORRETIVA_2026_11_01.md) registra AUD19-01 (chaves de versões herdadas), AUD19-02 (relógio implícito em oferta), bloqueios e cobertura parcial. **Marcada FEITO_OFFLINE após CI 41338979377 verde**; nenhuma permissão produtiva foi concedida. Compatibilidade operacional F01/02/03, dados reais, Meta/Graph, modelos reais e implantação seguem condicionados a contratos e homologação.
+
+## Remediação OFF-20 antes de novas integrações
+
+A [correção pós-auditoria OFF-20](./OAI_OFF20_CORRECOES_POS_AUDITORIA_2026_11_01.md) trata AUD19-P2/P3: `core.mjs` rejeita entradas hostis antes de acessar campos de negócio; o preflight Responses deixa de devolver `candidateRaw` (resultado `0.2-lab`). Isso **não** cria sink de execução autorizado nem fornece uma API OpenAI real. Manter 08B/08C, 09–11 e 12B/12C como pendentes de homologação externa.
 
 ## Gate futuro de uso da API OpenAI
 
