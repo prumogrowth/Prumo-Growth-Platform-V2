@@ -192,4 +192,20 @@ class PDReadbackPhysical(unittest.TestCase):
   self.sql("UPDATE s0_pre_dispatch_lab.suppressions "
      "SET active=true WHERE purpose_ref='lead_followup'")
   self.assertEqual(self.rb()['reason'],'SUPPRESSED')
+ def test_25_quota_observation_changed_without_revision_invalidates(self):
+  self.act()
+  self.sql("UPDATE s0_pd_v02_lab.quotas "
+           "SET observed_at=observed_at-interval '1 second'")
+  self.assertEqual(self.rb()['reason'],'QUOTA_REVOKED_OR_EXPIRED')
+ def test_26_quota_window_end_changed_without_revision_invalidates(self):
+  self.act()
+  self.sql("UPDATE s0_pd_v02_lab.quotas "
+           "SET valid_until=valid_until+interval '1 second'")
+  self.assertEqual(self.rb()['reason'],'QUOTA_REVOKED_OR_EXPIRED')
+ def test_27_stale_quota_after_reservation_never_grants_send(self):
+  self.act()
+  self.sql("UPDATE s0_pd_v02_lab.quotas SET revision=revision+1")
+  r=self.rb()
+  self.assertEqual(r['status'],'LAB_STALE_NO_DISPATCH')
+  self.safe(r)
 if __name__=='__main__':unittest.main()
