@@ -45,9 +45,13 @@ class F02Physical(unittest.TestCase):
         pretest.PreDispatchPhysical.setUp(self)
         with self.lab.admin() as c:
             c.execute('TRUNCATE s0_f02_lab.reviews,s0_f02_lab.aliases,'
-                      's0_f02_lab.requests CASCADE')
+                      's0_f02_lab.requests,s0_f02_lab.case_cycles CASCADE')
+            c.execute("INSERT INTO s0_f02_lab.case_cycles "
+                      "(case_ref,cycle_revision,flow_ref) "
+                      "VALUES ('case_A',1,'flow_A')")
         self.q={
           'request_ref':'request_A','case_ref':'case_A',
+          'flow_ref':'flow_A',
           'service_ref':'M09_KEY_A','purpose_ref':'followup_message',
           'consent_purpose_ref':'lead_followup','owner_route':'human',
           'instructions_text':'Plan only authorized template aliases.',
