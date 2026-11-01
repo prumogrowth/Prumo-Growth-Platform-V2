@@ -270,6 +270,42 @@ function graphAnswer(
   retry_external:false,graph_dispatch_authorized:false,
   production_authorized:false,commercial_transition_authorized:false});
 }
+/** Snapshot untrusted MOCK Graph JSON without invoking nested getters.
+ * A bounded data-only copy is not authenticity or a provider response. */
+function cloneMock(value:unknown,seen=new WeakSet<object>(),
+ depth=0,budget={count:0}):unknown{
+ if(++budget.count>80||depth>6)throw Error('MOCK_TOO_LARGE');
+ if(value===null||typeof value==='boolean')return value;
+ if(typeof value==='number'&&Number.isFinite(value))return value;
+ if(typeof value==='string'){
+  if(value.length>2048)throw Error('MOCK_STRING_TOO_LARGE');
+  return value;
+ }
+ if(!value||typeof value!=='object'||seen.has(value))
+  throw Error('MOCK_BAD_OBJECT');
+ const arr=Array.isArray(value),proto=Object.getPrototypeOf(value);
+ if(arr?proto!==Array.prototype:proto!==Object.prototype&&proto!==null)
+  throw Error('MOCK_BAD_PROTO');
+ const d=Object.getOwnPropertyDescriptors(value),keys=Reflect.ownKeys(value);
+ if(keys.some(k=>typeof k!=='string'||
+  !Object.hasOwn(d[k],'value')))throw Error('MOCK_GETTER');
+ if(arr){
+  const n=d.length?.value;
+  if(!Number.isSafeInteger(n)||n>12||keys.length!==n+1||
+     Array.from({length:n},(_,i)=>String(i)).some(k=>!Object.hasOwn(d,k)))
+   throw Error('MOCK_SPARSE');
+ }else if(keys.length>20)throw Error('MOCK_OBJECT_TOO_LARGE');
+ seen.add(value);
+ const out:any=arr?[]:Object.create(null);
+ for(const k of keys){
+  if(arr&&k==='length')continue;
+  Object.defineProperty(out,k,{value:cloneMock(d[k].value,seen,depth+1,budget),
+   enumerable:true,writable:false,configurable:false});
+ }
+ seen.delete(value);
+ return Object.freeze(out);
+}
+
 /** Classification of an INJECTED mock observation only, never transport.
  * API 2xx/wamid does not prove sent, and timeout never authorizes resend. */
 export function classifyWa18GraphMockOffline(
@@ -285,10 +321,11 @@ export function classifyWa18GraphMockOffline(
  if(o.kind==='transport_error')
   return graphAnswer('LAB_EXTERNAL_UNCERTAIN',true);
  try{
+  const mock=cloneMock(o.response_json);
   const classified=classifyGraphSendResult(
    i.attempt_ref as string,i.intent_ref as string,
    {kind:'http_response',http_status:o.http_status as number,
-    response_json:o.response_json});
+    response_json:mock});
   return graphAnswer(
    classified.send_state==='API_ACCEPTED'?'LAB_API_ACCEPTED_NOT_SENT':
    classified.send_state==='PROVIDER_REJECTED'?
