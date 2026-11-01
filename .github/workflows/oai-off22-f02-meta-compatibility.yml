@@ -1,0 +1,85 @@
+name: OAI OFF22 F02 Meta M19 M20 schema compatibility lab
+on:
+  push:
+    branches:
+      - feat/oai-off22-m19-m20-f02-compatibility-20261101
+permissions:
+  contents: read
+concurrency:
+  group: oai-off22-m19-m20-f02
+  cancel-in-progress: false
+jobs:
+  synthetic-meta-compatibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact isolated candidate
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify OFF21 base and exact 5-file OpenAI delta
+        shell: bash
+        run: |
+          set -euo pipefail
+          base=457c7b70eabaa0097350ac708f7768e07da785cf
+          git merge-base --is-ancestor "$base" HEAD
+          git diff --name-only "$base" HEAD | sort > /tmp/oai22-changed
+          cat > /tmp/oai22-expected <<'EOF'
+          .github/workflows/oai-off22-f02-meta-compatibility.yml
+          docs/integracoes/openai/OAI_OFF22_F02_META_M19_M20_CONTRATOS_2026_11_01.md
+          docs/integracoes/openai/OAI_ROTEIRO_PROGRESSO_2026_11_01.md
+          docs/integracoes/openai/e04_offline_lab/f02-meta-m19-m20-compatibility-lab.mjs
+          docs/integracoes/openai/e04_offline_lab/tests/f02-meta-m19-m20-compatibility-lab.test.mjs
+          EOF
+          diff -u /tmp/oai22-expected /tmp/oai22-changed
+          test -z "$(git diff --name-only "$base" HEAD -- backend/ integration/ integrations/ frontend/ supabase/)"
+      - name: Node 22.16.0
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - name: Syntax and full offline regression
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check docs/integracoes/openai/e04_offline_lab/f02-meta-m19-m20-compatibility-lab.mjs
+          node --check docs/integracoes/openai/e04_offline_lab/tests/f02-meta-m19-m20-compatibility-lab.test.mjs
+          npm --prefix docs/integracoes/openai/e04_offline_lab test | tee /tmp/oai22-node.tap
+      - name: Require 1068 pass and zero fails/skips
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=commonjs - <<'NODE'
+          const fs=require('node:fs'),s=fs.readFileSync('/tmp/oai22-node.tap','utf8');
+          const v=k=>{const m=s.match(new RegExp('# '+k+' (\\d+)'));return m?Number(m[1]):null;};
+          const x={tests:v('tests'),pass:v('pass'),fail:v('fail'),skipped:v('skipped')};
+          console.log(JSON.stringify({status:'OFF22_M19_M20_LAB_HOLD_ONLY',inherited:1028,newCases:40,...x}));
+          if(x.tests!==1068||x.pass!==1068||x.fail!==0||x.skipped!==0)process.exit(2);
+          NODE
+      - name: Recheck exact S0 source and 24 distinct Python cases
+        shell: bash
+        run: |
+          set -euo pipefail
+          s0=31e88ec2632e861d55c2e0ae4766f8a0a4362e22
+          git cat-file -e "$s0^{commit}"
+          git show "$s0:integration/s0s1_f02/pg17_service.py" > /tmp/off22-s0.py
+          python3 - <<'PY'
+          import hashlib
+          from pathlib import Path
+          h=hashlib.sha256(Path('/tmp/off22-s0.py').read_bytes()).hexdigest()
+          assert h=='766a19a949e72935f4e7e120603032275de23eb9fa5fa6b94041fb8393f3b298',h
+          PY
+          S0_F02_PINNED_SOURCE=/tmp/off22-s0.py python3 docs/integracoes/openai/e04_offline_lab/tests/off18_s0_f02_independent_cycle_review.py -v 2>&1 | tee /tmp/off22-py.log
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          s=Path('/tmp/off22-py.log').read_text()
+          assert re.findall(r'Ran (\d+) tests? in',s)==['24']
+          assert re.search(r'(?m)^OK\s*$',s)
+          print('OFF22_S0_PINNED_SOURCE_24_PASS')
+          PY
+      - name: Explain restrictions
+        if: always()
+        run: |
+          echo 'M19 and M20 statuses are unauthenticated claims, not S0 WA39 projection.'
+          echo 'No callback, HTTP, OpenAI/Meta SDK, Graph send, SQL hosted, merge or deploy.'
