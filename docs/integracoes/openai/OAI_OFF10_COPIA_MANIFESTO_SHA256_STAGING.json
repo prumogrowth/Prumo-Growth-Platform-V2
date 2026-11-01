@@ -1,0 +1,117 @@
+{
+  "schema": "prumo.openai.offline-patch-manifest/0.1-candidate",
+  "base_commit": "394512327cd3756dfbe61ff970a6279c354b6565",
+  "base_tree": "87a3ce85b2ead682038d4bee104ca47dd006c971",
+  "files": [
+    {
+      "path": "docs/integracoes/openai/OAI_AUDITORIA_OFF02_OFF03_2026_10_31_v0_1.md",
+      "sha256": "6d56298a2a8e38ee0871b6e1633ae2ce9b21168dc1c77bd7345c049a720c0e36"
+    },
+    {
+      "path": "docs/integracoes/openai/OAI_OFF_02_FRONTEIRA_TIPADA_CANDIDATA_v0_1.md",
+      "sha256": "3ec4876e1a7c81d829c71c3fbe055ec079de83a61981c83eaee62797acc1232a"
+    },
+    {
+      "path": "docs/integracoes/openai/OAI_OFF_02_MATRIZ_E02_ESTRUTURAL_v0_1.md",
+      "sha256": "b307b39e3ee76209cf0829c6259663b3925533725ff7ec24906f26655516c56c"
+    },
+    {
+      "path": "docs/integracoes/openai/OAI_OFF_02_RELATORIO_EXECUCAO_v0_1.md",
+      "sha256": "414bcc37ac7a8068f288f1140064f34d624aa5165331349f8468362e9f25cdee"
+    },
+    {
+      "path": "docs/integracoes/openai/OAI_OFF_03_DELTA_S0_E_RASTREABILIDADE_v0_1.md",
+      "sha256": "f3f6925b072566cbdee4ece8286f76cd145ee4e34232e8194f20badfb81f7e78"
+    },
+    {
+      "path": "docs/integracoes/openai/OAI_OFF_03_HISTORICO_PROVENIENCIA_CANDIDATO_v0_1.md",
+      "sha256": "80b3298e2e6e5c0a93026e85bda10d17ae2db4df80d64e54a91b64c2f7182ee4"
+    },
+    {
+      "path": "docs/integracoes/openai/OAI_OFF_03_HISTORICO_PROVENIENCIA_CANDIDATO_v0_2.md",
+      "sha256": "f5e633621d3b469e07bf1be4936f7968b4893c97f45f166ed237c1bf1d138700"
+    },
+    {
+      "path": "docs/integracoes/openai/OAI_OFF_03_RELATORIO_EXECUCAO_v0_1.md",
+      "sha256": "039d1e114b44b61c6a0e644e62f63d16cb78477fa271a79e7dd41143fb66024c"
+    },
+    {
+      "path": "docs/integracoes/openai/OAI_OFF_04_EVIDENCIA_NODE_TEST_2026_10_31.txt",
+      "sha256": "ed8a7cf44d3e7fdcb6d9f19a7a131ed0611b9665f0aa19ff96c6eb399c066326"
+    },
+    {
+      "path": "docs/integracoes/openai/OAI_OFF_04_PLANEJAMENTO_F02_CANDIDATO_v0_1.md",
+      "sha256": "1f582cceb4f4c4fa4bee4842e36a1143e7d416c9e1823e1879347d29d8fa2586"
+    },
+    {
+      "path": "docs/integracoes/openai/OAI_OFF_04_RELATORIO_EXECUCAO_v0_1.md",
+      "sha256": "6cc6303316f16ab05df17dd2e6fb3792a7848155685119839cb0914983f9ad44"
+    },
+    {
+      "path": "docs/integracoes/openai/OAI_OFF_05_ATENDIMENTO_F01_CANDIDATO_v0_1.md",
+      "sha256": "a0b65159fcc70f85beafcc9ac893455f5923a4f7f4e1ce1557a0c87004c44be1"
+    },
+    {
+      "path": "docs/integracoes/openai/OAI_OFF_05_EVIDENCIA_NODE_TEST_2026_10_31.txt",
+      "sha256": "f7a9cdb7acba43d5f7d471ac9b30404e733baf0177a137a4c17903cd58b0207d"
+    },
+    {
+      "path": "docs/integracoes/openai/OAI_OFF_05_RELATORIO_EXECUCAO_v0_1.md",
+      "sha256": "3237a513c1f6ffdab5c3e8652093b9ed596f4cc3bef916651d7ba3857d6015f7"
+    },
+    {
+      "path": "docs/integracoes/openai/OAI_OFF_06_GATE_REPRODUCAO_E_PENDENCIAS_2026_10_31.md",
+      "sha256": "808da14ee0595f47978a9d2236068e3b434255bd2b96baf8f1215f62f9d237fa"
+    },
+    {
+      "path": "docs/integracoes/openai/OAI_STATUS_FRENTE_OPENAI_2026_10_31_v0_1.md",
+      "sha256": "f1042352999419abd235c1eb4b1205187fd9f6a292ce7079d346734276778c71"
+    },
+    {
+      "path": "docs/integracoes/openai/OAI_STATUS_FRENTE_OPENAI_2026_10_31_v0_2.md",
+      "sha256": "d235bab162837671ca8e0696834d9f005dc6bea6763bbe21f46c810aa9478b32"
+    },
+    {
+      "path": "docs/integracoes/openai/e04_offline_lab/f01-sales-boundary.mjs",
+      "sha256": "7c8112d45c70bdd1472559dbbc9b5fd60b8e3e00915fa08dc01fe88c236e6637"
+    },
+    {
+      "path": "docs/integracoes/openai/e04_offline_lab/f02-plan-boundary.mjs",
+      "sha256": "d134a5c00d9746bd0779cb3deb1fa0335ed3257942b3da72d1527d43706cb754"
+    },
+    {
+      "path": "docs/integracoes/openai/e04_offline_lab/f03-history-boundary.mjs",
+      "sha256": "aaecf75492d36b9cd07c5d373182ad2a7f00355c50d9f424427b7dc20851fffd"
+    },
+    {
+      "path": "docs/integracoes/openai/e04_offline_lab/patch-preflight.mjs",
+      "sha256": "a199fb37b2f9559c70e573c5b49e02965476d8248565088f0578b24a12fffa16"
+    },
+    {
+      "path": "docs/integracoes/openai/e04_offline_lab/s2-guard-links.mjs",
+      "sha256": "d5f90719934c3d23d3ea278097d7c3b96df23fc6e52d6d911e97002f64a4cc0e"
+    },
+    {
+      "path": "docs/integracoes/openai/e04_offline_lab/tests/f01-sales-boundary.test.mjs",
+      "sha256": "75e5fd0304d0cc8fa9d4d3abd15a491c188f17797c139e45678acf292be013c8"
+    },
+    {
+      "path": "docs/integracoes/openai/e04_offline_lab/tests/f02-plan-boundary.test.mjs",
+      "sha256": "7fe036320381f6bc0900711326354d97f884dbb20f9df0d1f223083af43b66b8"
+    },
+    {
+      "path": "docs/integracoes/openai/e04_offline_lab/tests/f03-history-boundary.test.mjs",
+      "sha256": "a1b62e0db64c8ddbf788b606909f1b4dbeddce4b40a82ff841480cf3e46ce347"
+    },
+    {
+      "path": "docs/integracoes/openai/e04_offline_lab/tests/typed-boundary.test.mjs",
+      "sha256": "1fed1a2f88efb61641a7c8d788037894a44c4ca7cea2b52cefc5aaf773e31715"
+    },
+    {
+      "path": "docs/integracoes/openai/e04_offline_lab/typed-boundary.mjs",
+      "sha256": "3cad56fe21b2077c4f240f6f539311ed7a8934a92022e05d29226c181894dbef"
+    }
+  ],
+  "expected_full_tests": 678,
+  "label": "offline-candidate-not-production"
+}
