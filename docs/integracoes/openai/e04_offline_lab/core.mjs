@@ -9,13 +9,40 @@ export function onlyKeys(x,keys){return isRecord(x)&&Object.keys(x).every(k=>key
 
 export function verdict(status){return Object.freeze({status});}
 
+// OFF-19 corrective audit: reject inherited/alias keys and accessors on S0
+// version fixtures. A caller-provided authentication claim is NOT a real grant.
 export function versionGate(ctx){
-  if(!isRecord(ctx)||ctx.authenticated!==true||ctx.authorized!==true||ctx.tenantAllowed!==true){return verdict("DENIED");}
-  if(!isId(ctx.storeId)||!isId(ctx.caseId)||!isRecord(ctx.expected)||!isRecord(ctx.current)){return verdict("INVALID_INPUT");}
-  const names=Object.keys(ctx.expected);
-  if(!names.length||names.length!==Object.keys(ctx.current).length||names.some(k=>!["case","cycle","form","catalog","assignment","policy"].includes(k)||!Number.isSafeInteger(ctx.expected[k])||ctx.expected[k]<0||!Number.isSafeInteger(ctx.current[k])||ctx.current[k]<0||!(k in ctx.current))){return verdict("INVALID_INPUT");}
-  if(names.some(k=>ctx.expected[k]!==ctx.current[k])){return verdict("STALE");}
-  return verdict("READY");
+  try{
+    if(!isRecord(ctx))return verdict("DENIED");
+    const value=(o,k)=>{
+      if(!isRecord(o))return undefined;
+      const d=Object.getOwnPropertyDescriptor(o,k);
+      return d&&Object.prototype.hasOwnProperty.call(d,"value")?d.value:undefined;
+    };
+    if(value(ctx,"authenticated")!==true||value(ctx,"authorized")!==true||
+       value(ctx,"tenantAllowed")!==true)return verdict("DENIED");
+    const store=value(ctx,"storeId"),caseId=value(ctx,"caseId");
+    const expected=value(ctx,"expected"),current=value(ctx,"current");
+    if(!isId(store)||!isId(caseId)||!isRecord(expected)||!isRecord(current))
+      return verdict("INVALID_INPUT");
+    const protoOk=o=>Object.getPrototypeOf(o)===Object.prototype||Object.getPrototypeOf(o)===null;
+    if(!protoOk(expected)||!protoOk(current))return verdict("INVALID_INPUT");
+    const expectedKeys=Reflect.ownKeys(expected),currentKeys=Reflect.ownKeys(current);
+    const allowed=["case","cycle","form","catalog","assignment","policy"];
+    if(!expectedKeys.length||expectedKeys.length!==currentKeys.length||
+       expectedKeys.some(k=>typeof k!=="string"||!allowed.includes(k)||!currentKeys.includes(k))||
+       currentKeys.some(k=>typeof k!=="string"||!allowed.includes(k)||!expectedKeys.includes(k)))
+      return verdict("INVALID_INPUT");
+    for(const k of expectedKeys){
+      const e=Object.getOwnPropertyDescriptor(expected,k),c=Object.getOwnPropertyDescriptor(current,k);
+      if(!e||!c||!Object.prototype.hasOwnProperty.call(e,"value")||
+         !Object.prototype.hasOwnProperty.call(c,"value")||
+         !Number.isSafeInteger(e.value)||e.value<0||
+         !Number.isSafeInteger(c.value)||c.value<0)return verdict("INVALID_INPUT");
+      if(e.value!==c.value)return verdict("STALE");
+    }
+    return verdict("READY");
+  }catch{return verdict("INVALID_INPUT");}
 }
 
 export function validateF01(req,proposal){
@@ -31,7 +58,11 @@ export function validateF01(req,proposal){
   if(!onlyKeys(proposal,["text","sourceIds","commercial","handoffAdvisory","modality"])||typeof proposal.text!=="string"||proposal.text.trim()===""||!Array.isArray(proposal.sourceIds)||typeof proposal.commercial!=="boolean"||!["text","audio"].includes(proposal.modality))return verdict("SCHEMA_INVALID");
   if(proposal.sourceIds.some(id=>!seen.has(id)))return verdict("SOURCE_INVALID");
   if(proposal.commercial && proposal.sourceIds.length===0)return verdict("SOURCE_INVALID");
-  if(proposal.sourceIds.some(id=>{const s=req.sources.find(y=>y.id===id);return !s.active||s.mode!=="current"||(s.validUntil!==undefined&&(!Number.isFinite(Date.parse(s.validUntil))||Date.parse(s.validUntil)<=(req.nowMs??Date.now())));}))return verdict("SOURCE_INVALID");
+  // Never substitute the process clock for a missing S0 observation time.
+  // Legacy direct callers must supply a deterministic clock for expiring offers.
+  if(proposal.sourceIds.some(id=>req.sources.find(s=>s.id===id)?.validUntil!==undefined)&&
+     (!Number.isSafeInteger(req.nowMs)||req.nowMs<0))return verdict("INVALID_INPUT");
+  if(proposal.sourceIds.some(id=>{const s=req.sources.find(y=>y.id===id);return !s.active||s.mode!=="current"||(s.validUntil!==undefined&&(!Number.isFinite(Date.parse(s.validUntil))||Date.parse(s.validUntil)<=req.nowMs));}))return verdict("SOURCE_INVALID");
   return verdict("PROPOSED");
 }
 
