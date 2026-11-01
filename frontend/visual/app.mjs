@@ -537,14 +537,11 @@ function bankSelectedCase(){
 }
 function applyModuleRoute(module){
   state.activeModule=module;
-  const workspace=$('visual-app').querySelector('.workspace');
-  workspace.dataset.module=module;
   app.dataset.module=module;
   for(const [key,id] of [['conversations','conversations-nav'],['bank','bank-nav'],['team','team-nav']]){
     const nav=$(id);
-    nav.classList.toggle('active',key===module);
-    if(key===module)nav.setAttribute('aria-current','page');
-    else nav.removeAttribute('aria-current');
+    if(key===module)nav.classList.add('active');else nav.classList.remove('active');
+    nav.setAttribute('aria-current',key===module?'page':'false');
   }
   const mayTeam=canSeeTeamSummary(state.actorId,state.shopId);
   document.querySelectorAll('[data-team-route]').forEach(control=>{control.hidden=!mayTeam;});
@@ -576,7 +573,8 @@ function renderBank(){
     const option=el('option','',row.name);option.value=row.id;return option;
   }));
   select.hidden=rows.length===0;
-  select.previousElementSibling.hidden=rows.length===0;
+  const label=select.previousElementSibling;
+  if(label)label.hidden=rows.length===0;
   $('bank-ready-empty').hidden=rows.length!==0;
   if(rows.length)select.value=state.bankCaseId;
   const target=$('bank-content'),item=bankSelectedCase();
