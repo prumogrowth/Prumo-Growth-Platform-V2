@@ -1,0 +1,62 @@
+name: OAI OFF15 independent cross-boundary regression
+on:
+  push:
+    branches:
+      - test/oai-off15-cross-boundary-hardening-20261101
+permissions:
+  contents: read
+concurrency:
+  group: oai-off15-cross-boundary
+  cancel-in-progress: false
+jobs:
+  cross-boundary-offline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout isolated candidate
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Assert OFF14 ancestry and test-only scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          base=df5a2ecafbd468cc0f45a83a2a21826ad4d96c75
+          git merge-base --is-ancestor "$base" HEAD
+          git diff --name-only "$base" HEAD | sort > /tmp/changed
+          cat > /tmp/expected <<'EOF'
+          .github/workflows/oai-off15-cross-boundary.yml
+          docs/integracoes/openai/OAI_OFF15_TESTES_TRANSVERSAIS_2026_11_01.md
+          docs/integracoes/openai/OAI_ROTEIRO_PROGRESSO_2026_11_01.md
+          docs/integracoes/openai/e04_offline_lab/tests/off15-cross-boundary-regression.test.mjs
+          EOF
+          diff -u /tmp/expected /tmp/changed
+          test -z "$(git diff --name-only "$base" HEAD -- backend/ integrations/ frontend/ supabase/)"
+      - name: Node 22.16.0
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - name: Syntax and cumulative offline regression
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check docs/integracoes/openai/e04_offline_lab/tests/off15-cross-boundary-regression.test.mjs
+          npm --prefix docs/integracoes/openai/e04_offline_lab test | tee /tmp/off15.tap
+      - name: Require exactly 908 PASS and zero failed/skipped
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=commonjs - <<'NODE'
+          const fs=require('node:fs');
+          const s=fs.readFileSync('/tmp/off15.tap','utf8');
+          const val=k=>{const m=s.match(new RegExp('# '+k+' (\\d+)'));return m?Number(m[1]):null;};
+          const v={tests:val('tests'),pass:val('pass'),fail:val('fail'),skipped:val('skipped')};
+          console.log(JSON.stringify({label:'OFF15_STAGE12A_OFFLINE_NO_AUTHORITY',base:864,newTests:44,...v}));
+          if(v.tests!==908||v.pass!==908||v.fail!==0||v.skipped!==0)process.exit(1);
+          NODE
+      - name: Record non-operational scope
+        if: always()
+        run: |
+          echo 'Stage 12A only. Offline contract isolation and no-authority tests.'
+          echo 'No authenticated physical integration, S0/Meta acceptance, merge, deploy or customer traffic.'
