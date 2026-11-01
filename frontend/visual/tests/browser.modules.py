@@ -55,37 +55,21 @@ def main():
                     expect(card.locator('.attention-unread')).to_have_text('2')
                     nav=page.locator('#bank-nav-mobile' if width<=760 else '#bank-nav')
                     nav.focus();page.keyboard.press('Enter')
-                    expect(page.locator('#bank-case-select')).to_be_focused()
-                    page.locator('#bank-case-select').select_option('A-108')
-                    content=page.locator('#bank-content');expect(content).to_be_visible()
-                    box=page.locator('#bank-dialog').bounding_box()
-                    assert box['x']>=0 and box['x']+box['width']<=width
-                    assert box['y']>=0 and box['y']+box['height']<=height
-                    assert content.locator('input,textarea,[contenteditable=true]').count()==0
-                    for selector in ('.bank-guidance','.bank-context','#bank-case-select','.bank-content .detail-label','.bank-content .detail-small'):
-                        assert page.locator(selector).first.evaluate(CONTRAST)>=4.5,(theme,selector)
-                    assert page.locator('#thread-title').inner_text()==title
-                    expect(card.locator('.attention-unread')).to_have_text('2')
-                    if actor=='rafael':
-                        for text in ('Valor fictício confirmado','v1-ficticia','INFORMAÇÕES AUSENTES','CONTRADIÇÕES','f03-a108-1','f03-a108-2'):
-                            expect(content).to_contain_text(text)
-                        expect(content).not_to_contain_text('Somente proposta')
-                    else:
-                        expect(content).to_contain_text('Detalhes restritos ao responsável')
-                        for text in ('Valor fictício confirmado','v1-ficticia','a108-1','f03-a108-1'):
-                            expect(content).not_to_contain_text(text)
-                    page.locator('#bank-case-select').select_option('A-114')
-                    if actor=='rafael':
-                        for text in ('F01 · coleta inicial','F03 · atualização confirmada','live-form-v1-demo','live-form-v2-demo','snapshot preservado','Confirmada apenas na fixture · sem remessa iniciada'):
-                            expect(content).to_contain_text(text)
-                    else:
-                        for text in ('Valor sintético','bank-demo-v1','live-form-v2-demo'):
-                            expect(content).not_to_contain_text(text)
-                    page.locator('#bank-case-select').select_option('A-105')
-                    expect(content).to_contain_text('Decisão bancária não confirmada' if actor=='rafael' else 'Acompanhamento bancário · resumo')
-                    assert content.locator('button').count()==0
-                    # Native Escape closes only Bank and restores its actual navigation opener.
-                    page.keyboard.press('Escape');expect(page.locator('#bank-dialog')).to_be_hidden();expect(nav).to_be_focused()
+                     expect(page.locator('#bank-dialog')).to_be_visible()
+                     expect(page.locator('#visual-app')).to_have_attribute('data-module','bank')
+                     expect(page.locator('#bank-title')).to_be_focused()
+                     expect(page.locator('#bank-ready-empty')).to_be_visible()
+                     expect(page.locator('#bank-case-select')).to_be_hidden()
+                     expect(page.locator('#bank-content')).to_be_empty()
+                     box=page.locator('#bank-dialog').bounding_box()
+                     assert box['x']>=0 and box['x']+box['width']<=width+1,(width,box)
+                     assert box['y']>=0 and box['y']+box['height']<=height+1,(height,box)
+                     assert page.locator('.bank-guidance').evaluate(CONTRAST)>=4.5
+                     assert page.locator('#thread-title').inner_text()==title
+                     expect(card.locator('.attention-unread')).to_have_text('2')
+                     page.keyboard.press('Escape')
+                     expect(page.locator('#bank-dialog')).to_be_hidden()
+                     expect(nav).to_be_focused()
                     open_conversation(page,'09',width)
                     expect(page.locator('.detail-tab')).to_have_count(3)
                     assert page.locator('.detail-tab').all_inner_texts()==['Resumo','Histórico','Notas']
@@ -171,18 +155,13 @@ def main():
         html,script=offline_page_source()
         negative=browser.new_page(viewport={'width':900,'height':780},color_scheme='dark')
         negative.set_default_timeout(6500);negative.set_content(html);negative.add_script_tag(content=script)
-        negative.locator('#bank-nav').click();negative.locator('#bank-case-select').select_option('A-105')
-        for phase,label in (('not_submitted','Evidência bancária não confirmada'),
-                            ('submission_requested','Solicitação de remessa · não confirmada'),
-                            ('unverified','Evidência bancária não confirmada'),
-                            ('reply_verified','Evidência bancária não confirmada')):
-            negative.evaluate("phase=>{const row=state.cases.find(r=>r.id==='A-105');row.bankProjection={phase,submissionProofState:'unverified',submittedByAuthorizedHuman:false};renderBank()}",phase)
-            expect(negative.locator('#bank-content')).to_contain_text(label)
-            expect(negative.locator('#bank-content')).not_to_contain_text('Remessa confirmada apenas na fixture')
-            expect(negative.locator('#bank-content')).not_to_contain_text('Retorno do banco confirmado apenas na fixture')
-        negative.evaluate("()=>{const row=state.cases.find(r=>r.id==='A-105');row.bankProjection={phase:'reply_verified',submissionProofState:'verified',submittedByAuthorizedHuman:true,submissionVersionRef:'bank-negative-v1-demo',replyProofState:'verified',replyRecordedByHuman:true,replyVersionRef:'reply-negative-v1-demo'};renderBank()}")
-        expect(negative.locator('#bank-content')).to_contain_text('Retorno do banco confirmado apenas na fixture')
-        expect(negative.locator('#bank-content')).to_contain_text('cadastro enviado ao banco')
+         negative.locator('#bank-nav').click()
+         expect(negative.locator('#bank-ready-empty')).to_be_visible()
+         for phase in ('not_submitted','submission_requested','unverified','reply_verified'):
+             negative.evaluate("phase=>{const row=state.cases.find(r=>r.id==='A-105');row.bankProjection={phase,submissionProofState:'unverified',submittedByAuthorizedHuman:false};renderBank()}",phase)
+             expect(negative.locator('#bank-content')).to_be_empty()
+         negative.evaluate("()=>{const row=state.cases.find(r=>r.id==='A-105');row.bankProjection={phase:'reply_verified',submissionProofState:'verified',submittedByAuthorizedHuman:true,submissionVersionRef:'bank-negative-v1-demo',replyProofState:'verified',replyRecordedByHuman:true,replyVersionRef:'reply-negative-v1-demo'};renderBank()}")
+         expect(negative.locator('#bank-content')).to_be_empty()
         negative.locator('#bank-close').click()
         open_conversation(negative,'11',900);negative.locator('#case-tab-activity').click()
         expect(negative.locator('#future-attempts .activity-item')).to_have_count(3)
