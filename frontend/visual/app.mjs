@@ -527,7 +527,8 @@ function focusExtractionAfterRerender(caseId,notice){
     ($('bank-case-select').hidden?$('bank-title'):$('bank-case-select')).focus();
   }else if(state.activeModule==='conversations'){
     // Após recriação da árvore, nunca focar um botão da conclusão já removido.
-    $('detail-content').querySelector('#registration-diagnostics summary')?.focus();
+    const panel=$('detail-content').querySelector('#registration-diagnostics');
+    if(panel){panel.open=true;panel.querySelector('summary')?.focus();}
   }
   announceCurrentContext(notice);
 }
