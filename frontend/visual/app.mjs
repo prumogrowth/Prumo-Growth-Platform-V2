@@ -1371,15 +1371,39 @@ $('bank-case-select').addEventListener('change',event=>{
   }
   state.bankCaseId=event.target.value;renderBank();$('bank-case-select').focus();
 });
-$('bank-close').addEventListener('click',openConversations);
+function closeBankPage(){
+  if(state.activeModule!=='bank')return;
+  applyModuleRoute('conversations');
+  if($('bank-dialog').open)$('bank-dialog').close();
+  const opener=document.getElementById(bankOpener);
+  if(opener && (opener.isConnected!==false))opener.focus();
+  else $('search-input').focus();
+}
+$('bank-close').addEventListener('click',closeBankPage);
 $('bank-dialog').addEventListener('close',()=>{
   if(state.activeModule==='bank'){applyModuleRoute('conversations');$('search-input').focus();}
 });
 $('team-nav').addEventListener('click',openTeamSummary);
 $('team-nav-mobile').addEventListener('click',openTeamSummary);
-$('team-close').addEventListener('click',openConversations);
+function closeTeamPage(){
+  if(state.activeModule!=='team')return;
+  applyModuleRoute('conversations');
+  if($('team-dialog').open)$('team-dialog').close();
+  (window.matchMedia('(max-width:760px)').matches?$('team-nav-mobile'):$('team-nav')).focus();
+}
+$('team-close').addEventListener('click',closeTeamPage);
 $('team-dialog').addEventListener('close',()=>{
   if(state.activeModule==='team'){applyModuleRoute('conversations');$('search-input').focus();}
+});
+// Telas in-flow não ficam no top-layer: Escape volta à área Conversas
+// somente quando nenhuma confirmação modal pontual está ativa.
+document.addEventListener('keydown',event=>{
+  if(event.key!=='Escape' || state.activeModule==='conversations')return;
+  for(const id of ['demo-dialog','completion-dialog','message-preview-dialog',
+                   'template-dialog','intake-dialog','queue-action-dialog'])
+    if($(id).open)return;
+  event.preventDefault();event.stopPropagation?.();
+  if(state.activeModule==='bank')closeBankPage();else closeTeamPage();
 });
 $('intake-dialog').addEventListener('close',()=>{
   const confirm=$('intake-dialog').returnValue==='confirm';
