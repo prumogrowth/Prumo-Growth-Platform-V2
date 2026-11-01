@@ -31,8 +31,8 @@ O parser anterior aceitava `decision:'LAB_RESERVATION_RECORDED_NO_DISPATCH'` com
 ## Evidências
 
 - Base anterior: **44 testes M18**, **1.749 testes Meta offline**, [CI 41312483230](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41312483230) íntegro e dois jobs `success`.
-- Após auditoria: **18 regressões AUD-M18-45..62**, total **62 testes M18** e **1.767/1.767 Meta offline**, no SHA de código/testes `0676f536182687fea6b35198142c39013baea23f`. [CI funcional 41322471887](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41322471887): job Meta **success**, 0 fail, scanner ACK lexical aprovado.
-- As **18 verificações PG17 físicas históricas** quando verdes pertencem exclusivamente à prova de ingresso S0/Meta, **não** ao novo anteparo M18 nem à integração Graph. Verificar job PG17 independente e CI documental final antes de declarar estado final de branch.
+- Após auditoria: **18 regressões AUD-M18-45..62**, total **62 testes M18** e **1.767/1.767 Meta offline**, no SHA de código/testes `0676f536182687fea6b35198142c39013baea23f`. [CI funcional 41322471887](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41322471887): **dois jobs `success`**, 0 fail: Meta offline + PG17 histórico independente, scanner ACK lexical aprovado.
+- As **18/18 verificações PG17 físicas históricas** aprovadas pertencem exclusivamente à prova de ingresso S0/Meta, **não** ao novo anteparo M18 nem à integração Graph. A execução documental final é verificada separadamente.
 - Os testes novos exercitam deriva de relógio/idade e timestamps da reserva e orçamento, S0 positivo incoerente, `attempt_correlation_valid:false` sob 200, 400 e timeout, shapes contraditórios de mocks, versão de saída antiga e negativas de grant/campos extra.
 
 ## Segurança mantida e bloqueios
