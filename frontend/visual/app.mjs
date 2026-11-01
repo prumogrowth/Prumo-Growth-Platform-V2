@@ -561,7 +561,13 @@ function renderAiCommunications(item){
   const entries=aiCommunicationsFor(item,state.cases,state.actorId,state.shopId);
   for(const entry of entries){
     const details=el('details','ai-communication');details.dataset.source=entry.source;
-    details.append(el('summary','',entry.source+' · '+entry.time),el('p','',entry.content));
+    const f03=entry.source==='F03' && /^Resultado ([a-z_]+) · versão (.+)\. Projeção autorizada; nenhum diálogo da F03 com o cliente\.$/.exec(entry.content);
+    if(f03){
+      const meanings={partial_confirmed:'Atualização parcial confirmada na simulação',accepted:'Resultado confirmado na simulação',failed:'Processamento falhou na simulação',stale:'Versão desatualizada na simulação'};
+      details.append(el('summary','',entry.source+' · resultado da extração'),
+        el('p','',meanings[f03[1]]??'Resultado técnico disponível na demonstração'),
+        el('small','technical-detail','Estado técnico: '+f03[1]+' · versão: '+f03[2]+'. A F03 não conversa com o cliente.'));
+    }else details.append(el('summary','',entry.source+' · '+entry.time),el('p','',entry.content));
     section.append(details);
   }
   if(!entries.length)section.append(el('p','detail-small','Nenhuma comunicação autorizada disponível.'));
