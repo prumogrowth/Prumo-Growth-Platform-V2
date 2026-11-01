@@ -29,7 +29,7 @@ Todas as respostas, mesmo positivas, mantêm `identity_verified=false`, `authori
 
 `integrations/whatsapp-meta/wa17-human-message-signature-offline.test.ts` inclui **56 cenários M17-01..56** para Consultor/Gestor/Diretor, nomes com acento, isolamento de concessionária/WABA/caso, atuação de humano distinto, janela fechada, opt-out, atribuição/handoff, observações antigas/futuras, supressão de mensagem IA/sistema/template/mídia, tentativa de forjar cargo/nome no request ou no corpo, getters não executados, caracteres invisíveis, limites de tamanho e recheck após troca de ator/cargo/versão, sem mensagem parcial.
 
-**Evidência CI:** registrar o run final após aprovação dos dois jobs. O conjunto anterior da Meta tinha 1.629 testes; com 56 testes M17 espera-se **1.685 Meta offline**. O conjunto de 18 provas físicas históricas PG17 é do **ingresso S0/Meta**, não testa a autoria humana M17.
+**Evidência CI funcional:** commit `7dc162669155adb7333e059d25803a1784ac1c56`, [GitHub Actions 41302273275](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41302273275), com **56/56 M17, 1.685/1.685 testes Meta offline**, 18/18 PG17 históricos em escopo **separado de ingresso S0/Meta**, dois jobs `success` e scanner ACK lexical aprovado. Um run intermediário (`41302142058`) falhou por leitura lexical de apóstrofo em expressão regular pelo canary; foi corrigido sem reduzir a segurança e um CI completo posterior passou. Os 18 PG17 não autenticam a autoria humana M17.
 
 ## M17-C — Fronteira S0 e integração futura
 
