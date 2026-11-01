@@ -829,7 +829,7 @@ function renderBankStatus(item){
     if(projection.visibility==='summary'){
       bank.append(el('p','detail-small','Supervisão da Prumo: sem acesso a documentos, provas bancárias, referências ou campos D4 nesta visualização.'));
     }else if(projection.visibility==='detail'){
-      bank.append(prop('Situação operacional fictícia',projection.phase));
+      bank.append(prop('Situação operacional fictícia',bankPhaseDisplayLabel(projection.phase)));
       if(projection.submissionSummary){
         bank.append(prop('Remessa na projeção',projection.submissionSummary.label));
         bank.append(prop('Versão técnica fictícia',projection.submissionSummary.versionRef));
