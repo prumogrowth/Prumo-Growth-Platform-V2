@@ -94,6 +94,9 @@ export function installMockDOM({ mobile = false, tablet = false, prefersDark = f
     return [id,new MockNode(tag)];
   }));
   for (const [id, node] of nodes) node.id = id;
+  // Reproduzir o HTML inicial: o seletor de emoji começa fechado, e
+  // não depende da antiga limpeza incondicional ao reabrir o mesmo caso.
+  nodes.get('emoji-picker').hidden = true;
   // Fiel à árvore básica do painel para testes de foco/contains em tablet.
   nodes.get('detail-pane').append(nodes.get('detail-content'));
   const inbox = ['active','history','all'].map(value => {const n=new MockNode('button'); n.dataset.inbox=value; return n;});
