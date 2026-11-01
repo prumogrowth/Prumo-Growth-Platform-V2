@@ -43,11 +43,23 @@ def main(output):
                             panel={'gestao-equipe':'members','gestao-monitoramento':'monitor','gestao-lotes':'batches','gestao-fila':'queue'}[scene]
                             page.locator('#team-show-'+panel).click()
                             expect(page.locator('#team-dialog')).to_be_visible()
-                        elif scene.startswith('banco'):
+                        elif scene=='banco-ficha':
+                            # Não inventar ficha elegível: a lista da demo está vazia.
                             page.locator('#bank-nav-mobile' if width<=760 else '#bank-nav').click()
-                            page.locator('#bank-case-select').select_option('A-114' if scene in ('banco-ficha','banco-versoes') else 'A-105')
                             expect(page.locator('#bank-dialog')).to_be_visible()
-                            assert page.locator('#bank-content input,#bank-content textarea').count()==0
+                            expect(page.locator('#bank-ready-empty')).to_be_visible()
+                            expect(page.locator('#bank-content')).to_be_empty()
+                        elif scene in ('banco-versoes','banco-remessa'):
+                            # Versão F03 e remessa anterior pertencem ao Resumo,
+                            # nunca à lista exclusiva de cadastros aptos.
+                            number='14' if scene=='banco-versoes' else '05'
+                            page.get_by_role('button',name='Abrir conversa Cliente Exemplo '+number,exact=False).click()
+                            page.locator('#thread-title').click()
+                            page.locator('#case-tab-overview').click()
+                            target='#registration-diagnostics' if scene=='banco-versoes' else '.prior-bank-history'
+                            expect(page.locator(target+' summary')).to_be_visible()
+                            page.locator(target).evaluate('e=>e.open=true')
+                            expect(page.locator('#bank-dialog')).to_be_hidden()
                         else:
                             number={'resumo-ias':'09','historico':'09','notas':'02','continuidade':'05','recontatos':'11','recontatos-realizados':'11'}[scene]
                             page.get_by_role('button',name='Abrir conversa Cliente Exemplo '+number,exact=False).click()
@@ -66,7 +78,7 @@ def main(output):
                         # Capture the top of the independently scrollable surface, with a second
                         # scroll position for recontact planning so future and past are both reviewable.
                         if scene=='recontatos':page.locator('#future-attempts').scroll_into_view_if_needed()
-                        if scene=='banco-versoes' and actor=='rafael':page.locator('#bank-content .detail-label').filter(has_text='FICHA VIVA POR').scroll_into_view_if_needed()
+                        if scene=='banco-versoes' and actor=='rafael':page.locator('#registration-diagnostics summary').scroll_into_view_if_needed()
                         name=f'{width}x{height}-{actor}-{theme}-{scene}.png'
                         page.screenshot(path=str(output/name),full_page=True,animations='disabled')
                         captures.append({'file':name,'width':width,'height':height,'role':actor,'theme':theme,'scene':scene,
