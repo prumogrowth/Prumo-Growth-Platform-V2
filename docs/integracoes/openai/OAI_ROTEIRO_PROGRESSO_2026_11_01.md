@@ -35,7 +35,7 @@
 | OFF-18 / 08B | Reavaliar correção S0 de revisões independentes F02 | FEITO_OFFLINE | [CI 41328784758](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41328784758): 950/950 Node + 24/24 Python AST, suites distintas; **mapeamento tecnicamente compatível em laboratório**; aceite operacional ainda pendente | 
 | OFF-19 / AUDITORIA GERAL | Revisão transversal OFF01..OFF18 e hardening legado de versões/relógio | FEITO_OFFLINE | [CI 41338979377](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41338979377): 968/968 Node (950+18), 24/24 Python AST pinados; 2 defeitos corrigidos, riscos operacionais documentados | 
 | OFF-20 / REMEDIAÇÃO | Endurecimento de validadores legados + quarentena de resposta OpenAI sem campo bruto | FEITO_OFFLINE | [CI 41345415665](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41345415665): 990/990 Node (968+22), 24/24 Python AST separados, sem falhas; não há sink real nem autorização de produção | 
-| OFF-21 / 12A | Ponte Responses → F01/F02/F03 que exige avaliadores existentes e não revela texto/rascunho | EM_TESTE | Branch `feat/oai-off21-safe-response-evaluation-20261101`, alvo 1028 Node acumulados (990+38) + 24 Python AST separados, sem API real | 
+| OFF-21 / 12A | Ponte Responses → F01/F02/F03 com avaliadores existentes, sem rascunho externo | FEITO_OFFLINE | [CI 41357833214](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41357833214): 1028/1028 Node (990+38), 24/24 Python AST independentes, 0 falhas/ignorados; sem API real | 
 | FV-REV-021 / Issue #13 | Resumos **pequenos e objetivos** de F01/F02/F03 no histórico acumulativo do **Resumo** do Frontend | FUTURO | [Issue #13](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/13), **não desenvolver agora** |
 
 ## Visibilidade de bloqueios
@@ -59,7 +59,7 @@ A [correção pós-auditoria OFF-20](./OAI_OFF20_CORRECOES_POS_AUDITORIA_2026_11
 
 ## OFF-21 — passagem Responses → F01/F02/F03 (laboratório)
 
-A [OFF-21](./OAI_OFF21_RESPONSES_DOMAIN_REVIEW_2026_11_01.md) encadeia preflight sem exposição de conteúdo → avaliador F0x já existente → apenas parecer genérico sem dados/autoridade. Não implementa envios, autenticação S0, validação semântica ou commit de ficha. É preparação da **etapa 12A**, sem alterar o estado das etapas 08C/09–11/12B–C.
+A [OFF-21](./OAI_OFF21_RESPONSES_DOMAIN_REVIEW_2026_11_01.md) encadeia preflight sem exposição de conteúdo → avaliador F0x já existente → apenas parecer genérico sem dados/autoridade. Não implementa envios, autenticação S0, validação semântica ou commit de ficha. É preparação da **etapa 12A** validada em [CI 41357833214](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41357833214), sem alterar o estado das etapas 08C/09–11/12B–C.
 
 ## Gate futuro de uso da API OpenAI
 
@@ -67,6 +67,6 @@ A chave da API não é necessária para 12A/contratos. Eventual teste do modelo 
 
 ## Regra de atualização
 
-A cada lote, registrar branch, commit exato, run GitHub Actions, testes executados, falhas e escopo. Nunca somar testes executados em bases diferentes como se fossem regressão conjunta; **CI 678, CI 724, CI 774, CI 819, CI 864, CI 908, CI 950, CI 968 e CI 990 são cumulativos em bases sucessivas**; OFF-17 acrescenta 20 verificações Python distintas sobre fonte S0 pinada e não devem ser apresentadas como 970 casos de integração física, não adicionais. OFF-12 foi atualizado para `FEITO_OFFLINE` após confirmar no log do GitHub Actions 774/774 PASS, 0 FAIL, 0 SKIP no run 41293073729. A OFF-13 foi atualizada para `FEITO_OFFLINE` após [819/819 no CI](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41295745349), zero falhas e ignorados. O CI da OFF-14 comprovou 864/864 PASS, zero falhas e ignorados, mas **não ratifica** S0/Meta nem autoriza produção.
+A cada lote, registrar branch, commit exato, run GitHub Actions, testes executados, falhas e escopo. Nunca somar testes executados em bases diferentes como se fossem regressão conjunta; **CI 678, CI 724, CI 774, CI 819, CI 864, CI 908, CI 950, CI 968, CI 990 e CI 1028 são cumulativos em bases sucessivas**; OFF-17 acrescenta 20 verificações Python distintas sobre fonte S0 pinada e não devem ser apresentadas como 970 casos de integração física, não adicionais. OFF-12 foi atualizado para `FEITO_OFFLINE` após confirmar no log do GitHub Actions 774/774 PASS, 0 FAIL, 0 SKIP no run 41293073729. A OFF-13 foi atualizada para `FEITO_OFFLINE` após [819/819 no CI](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41295745349), zero falhas e ignorados. O CI da OFF-14 comprovou 864/864 PASS, zero falhas e ignorados, mas **não ratifica** S0/Meta nem autoriza produção.
 
 **Próxima obrigação externa:** ratificar contratos operacionais S0 autenticados F02 #7, fontes/autoridade F01 #11/#12 e prosseguir com manifesto/commit F03 #5/#6, WA39 e PRE_DISPATCH #9/#10. Sem inventar interfaces autoritativas nem criar Issues duplicadas.
