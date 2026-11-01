@@ -36,12 +36,14 @@
 | OFF-19 / AUDITORIA GERAL | Revisão transversal OFF01..OFF18 e hardening legado de versões/relógio | FEITO_OFFLINE | [CI 41338979377](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41338979377): 968/968 Node (950+18), 24/24 Python AST pinados; 2 defeitos corrigidos, riscos operacionais documentados | 
 | OFF-20 / REMEDIAÇÃO | Endurecimento de validadores legados + quarentena de resposta OpenAI sem campo bruto | FEITO_OFFLINE | [CI 41345415665](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41345415665): 990/990 Node (968+22), 24/24 Python AST separados, sem falhas; não há sink real nem autorização de produção | 
 | OFF-21 / 12A | Ponte Responses → F01/F02/F03 com avaliadores existentes, sem rascunho externo | FEITO_OFFLINE | [CI 41357833214](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41357833214): 1028/1028 Node (990+38), 24/24 Python AST independentes, 0 falhas/ignorados; sem API real | 
+| OFF-22 / 08B | Compatibilidade F02 com Meta M19 A/B v0.2 e M20 v0.2, sem atribuir `sent`/WDC13/C09 | EM_TESTE | Branch `feat/oai-off22-m19-m20-f02-compatibility-20261101`; alvo 1068 Node acumulados + 24 Python AST separados; sem validação S0 operacional | 
 | FV-REV-021 / Issue #13 | Resumos **pequenos e objetivos** de F01/F02/F03 no histórico acumulativo do **Resumo** do Frontend | FUTURO | [Issue #13](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/13), **não desenvolver agora** |
 
 ## Visibilidade de bloqueios
 
 - **08A:** compatibilidade estrutural offline concluída até OFF-14.
 - **08B:** **houve avanço externo verificável**: S0 publicou candidatos PG17 F01 posse [#11](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/11), fontes [#12](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/12) e pedido F02 [#7](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/7), todos com interop e CI próprios. OpenAI OFF-17 identificou o acoplamento `cycle/assignment`; **S0 respondeu na #7 com correção laboratório em `31e88ec`**, criando `case_cycles`/`cycle_revision` independentes. **OFF-18 comprovou em laboratório que o mapeamento pinado diferencia ciclo e atribuição** (950 Node + 24 Python source-level), sem aceite operacional. Ainda não há interface hospedada ratificada.
+- **08B / Meta M19–M20:** os contratos Meta de saída v0.2 têm estado LAB não autenticado; OFF-22 ensaia o consumo fail-closed dos formatos atuais, sem inferir status definitivo/WDC-13/C09. Issue #9 continua aberta.
 - **08C:** aceite dos contratos e integração autorizada pendente; **não** progredir com credenciais ou dados reais.
 - **12A:** OFF-15 e OFF-16 concluídas offline, sem API real. Regressão transversal OFF-15 validada no [CI 41309774616](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41309774616) (908 PASS, 0 FAIL, 0 SKIP); **12B** (física/autenticada) depende de S0/Meta; **12C** (aceite) não iniciado.
 
@@ -60,6 +62,10 @@ A [correção pós-auditoria OFF-20](./OAI_OFF20_CORRECOES_POS_AUDITORIA_2026_11
 ## OFF-21 — passagem Responses → F01/F02/F03 (laboratório)
 
 A [OFF-21](./OAI_OFF21_RESPONSES_DOMAIN_REVIEW_2026_11_01.md) encadeia preflight sem exposição de conteúdo → avaliador F0x já existente → apenas parecer genérico sem dados/autoridade. Não implementa envios, autenticação S0, validação semântica ou commit de ficha. É preparação da **etapa 12A** validada em [CI 41357833214](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41357833214), sem alterar o estado das etapas 08C/09–11/12B–C.
+
+## OFF-22 — compatibilidade Meta M19/M20 com F02
+
+[OFF-22](./OAI_OFF22_F02_META_M19_M20_CONTRATOS_2026_11_01.md) examina v0.2 dos snapshots M19 Graph, M19 binding e M20 cadence juntamente ao OFF-11 WA39, bloqueando qualquer promoção de alegações para a F02 sem correlacionamento e autenticação S0. Não altera status principal 08/10.
 
 ## Gate futuro de uso da API OpenAI
 
