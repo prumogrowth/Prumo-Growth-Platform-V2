@@ -115,7 +115,8 @@ function snapshotCandidate(raw:unknown):Wa16Snapshot|null{
  const c=record(raw,CAND);
  if(!c||c.contract_version!=='wa16-frozen-snapshot.lab.v0.1'||
    !id(c.selection_ref)||typeof c.concessionaria_id!=='string'||
-   !UUID.test(c.concessionaria_id)||!NUM.test(c.waba_ref as string)||
+   !UUID.test(c.concessionaria_id)||
+   typeof c.waba_ref!=='string'||!NUM.test(c.waba_ref)||
    !id(c.template_ref)||!id(c.version_ref)||
    !positiveInt(c.content_version)||!positiveInt(c.mapping_revision)||
    !nonneg(c.media_revision)||!nonneg(c.slot_count)||
