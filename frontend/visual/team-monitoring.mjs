@@ -38,7 +38,7 @@ export function projectTeamMonitoring(managerId, records) {
         operator.leadIntakeProjection==='receiving'?'receiving':'unknown',
       activeCount:open.length,
       historicalCount:own.filter(record=>record.inboxProjection==='historical').length,
-      unreadCount:open.filter(record=>record.unread>0).length,
+      unreadCount:open.filter(isUnread).length,
       windowAttentionCount:open.filter(isWindowIssue).length,
       shopsCount:operator.shops.length
     });
