@@ -1615,4 +1615,4 @@ window.addEventListener('resize',()=>{
 
 if(window.matchMedia('(max-width:1040px)').matches){app.classList.add('details-hidden');setDetailsExpanded(false);}
 applyTheme(state.theme);
-updateSelectors();render();announceCurrentContext('Demonstração local iniciada');
+updateSelectors();applyModuleRoute('conversations');render();announceCurrentContext('Demonstração local iniciada');
