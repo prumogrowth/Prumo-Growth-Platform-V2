@@ -7,6 +7,7 @@ const SHOP='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const OTHER_SHOP='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
 const ID='dddddddd-dddd-4ddd-8ddd-dddddddddddd';
 const img=(kind='IMAGE')=>({
+ concessionaria_id:SHOP,waba_ref:'100001',
  kind,asset_ref:'asset_demo_123456',mime_type:'image/jpeg',
  sha256:'a'.repeat(64),asset_revision:4,
  valid_from_ms:NOW-20000,valid_until_ms:NOW+20000,
@@ -274,4 +275,18 @@ test('M16-42 media evidence cannot be treated as verified Meta upload',()=>{
  assert.equal(c.media_verified,false);
  assert.equal(c.meta_approval_verified,false);
  assert.equal(c.mcp_execution_authorized,false);
+});
+
+test('M16-43 media from another shop cannot be accepted',()=>{
+ const f:any=fixture();f.authoring.header={
+  kind:'IMAGE',asset_ref:'asset_demo_123456'};
+ f.media_revision=4;f.media_evidence={...img(),
+  concessionaria_id:OTHER_SHOP};
+ denied(inspect(f),'MEDIA_EVIDENCE_DENIED');
+});
+test('M16-44 media from another WABA cannot be accepted',()=>{
+ const f:any=fixture();f.authoring.header={
+  kind:'IMAGE',asset_ref:'asset_demo_123456'};
+ f.media_revision=4;f.media_evidence={...img(),waba_ref:'100002'};
+ denied(inspect(f),'MEDIA_EVIDENCE_DENIED');
 });
