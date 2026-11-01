@@ -23,13 +23,17 @@ function expectZero(o){
     'publishAuthorized','schedulingAuthorized','sendAuthorized','fieldApplicationAuthorized',
     'productionAuthorized','costApproved','liveApiCalled'])assert.equal(o[k],false,k);
   assert.equal(o.requiresS0Recheck,true);
+  assert.equal(o.candidateRawExposed,false);
+  assert.equal(o.requiresDomainEvaluation,true);
+  assert.equal(Object.hasOwn(o,'candidateRaw'),false);
   assert.equal(Object.isFrozen(o),true);
 }
 for(const kind of ['F01','F02','F03'])test('OFF16 positive untrusted JSON candidate '+kind,()=>{
   const data=fixture(kind),res=inspect(data);
   assert.equal(res.status,'UNTRUSTED_JSON_CANDIDATE');
   assert.equal(res.operation,kind);
-  assert.equal(res.candidateRaw,data.response.output[0].content[0].text);
+  assert.equal(Object.hasOwn(res,'candidateRaw'),false);
+  assert.equal(JSON.stringify(res).includes(data.response.output[0].content[0].text),false);
   expectZero(res);
 });
 const cases=[
