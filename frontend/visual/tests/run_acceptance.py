@@ -79,7 +79,7 @@ def check_git_revision(expected_head):
                        and not changes.stdout.strip()})
         result["passed"] = (
             actual_head == expected_head.lower()
-            and actual_branch in {"feat/frontend-plataforma-visual", "codex/fv-ux-01-comunicacao-20261027", "codex/fv-rev-01-conversas-20261030", "codex/fv-rev-01-modulos-20261030", "codex/fv-cor-07-pos-auditoria-20261031", "fix/fv-cor-08-unicode-20261031", "fix/fv-coe-01-coerencia-20261031"}
+            and actual_branch in {"feat/frontend-plataforma-visual", "codex/fv-ux-01-comunicacao-20261027", "codex/fv-rev-01-conversas-20261030", "codex/fv-rev-01-modulos-20261030", "codex/fv-cor-07-pos-auditoria-20261031", "fix/fv-cor-08-unicode-20261031", "fix/fv-coe-01-coerencia-20261031", "feat/fv-banco-fila-aptos-20261101"}
             and result["clean_frontend_visual"]
         )
         if not result["passed"]:
@@ -122,7 +122,7 @@ def check_native_blob_manifest(expected_head, revision_ok):
             raise ValueError("manifest is not a literal json.loads call")
         manifest = json.loads(call.args[0].value)
         source = manifest.get("source_head", "")
-        if (manifest.get("source_branch") not in {"feat/frontend-plataforma-visual", "codex/fv-ux-01-comunicacao-20261027", "codex/fv-rev-01-conversas-20261030", "codex/fv-rev-01-modulos-20261030", "codex/fv-cor-07-pos-auditoria-20261031", "fix/fv-cor-08-unicode-20261031", "fix/fv-coe-01-coerencia-20261031"}
+        if (manifest.get("source_branch") not in {"feat/frontend-plataforma-visual", "codex/fv-ux-01-comunicacao-20261027", "codex/fv-rev-01-conversas-20261030", "codex/fv-rev-01-modulos-20261030", "codex/fv-cor-07-pos-auditoria-20261031", "fix/fv-cor-08-unicode-20261031", "fix/fv-coe-01-coerencia-20261031", "feat/fv-banco-fila-aptos-20261101"}
                 or not isinstance(source, str)
                 or not re.fullmatch(r"[0-9a-f]{40}", source)):
             raise ValueError("manifest provenance invalid")
@@ -194,7 +194,7 @@ def main():
         "modules.dom.test.mjs", "relationship-view.test.mjs",
         "revision-conversations.test.mjs",
         "local-audio.test.mjs", "communication-composer.test.mjs",
-        "app.dom.test.mjs", "app.mobile.dom.test.mjs", "app.tablet.dom.test.mjs", "bank-view.test.mjs",
+        "app.dom.test.mjs", "app.mobile.dom.test.mjs", "app.tablet.dom.test.mjs", "bank-view.test.mjs", "bank-ready-list.test.mjs",
         "batch-monitor.test.mjs", "cf-op-02.test.mjs", "fixtures.test.mjs",
         "postmark-view.test.mjs", "registration-view.test.mjs", "human-cycle-view.test.mjs",
         "source-contract.test.mjs", "source-module-graph.test.mjs",
