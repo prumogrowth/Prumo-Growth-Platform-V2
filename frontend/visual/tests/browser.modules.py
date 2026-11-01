@@ -130,8 +130,10 @@ def main():
                         page.locator('#detail-close').click()
                         field=page.locator('#message-input');field.fill('Mensagem 🙂 preservada')
                         page.locator('#thread-title').click();page.locator('#case-tab-overview').click()
-                        page.locator('#open-bank-case').click();expect(page.locator('#bank-dialog')).to_be_visible()
-                        page.locator('#bank-close').click();expect(page.locator('#open-bank-case')).to_be_focused()
+                        page.locator('#open-bank-case').click()
+                        expect(page.locator('#registration-diagnostics')).to_be_visible()
+                        expect(page.locator('#registration-diagnostics summary')).to_be_focused()
+                        expect(page.locator('#bank-dialog')).to_be_hidden()
                         page.locator('#case-tab-notes').click();expect(page.locator('#note-text')).to_have_value('Rascunho interno preservado')
                         expect(field).to_have_value('Mensagem 🙂 preservada')
                         assert page.locator('.detail-row').filter(has_text='Rascunho interno preservado').count()==0
