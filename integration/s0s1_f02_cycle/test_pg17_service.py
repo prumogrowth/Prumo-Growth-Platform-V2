@@ -193,4 +193,37 @@ class F02CyclePhysical(unittest.TestCase):
    with psycopg.connect(self.lab.runtime_dsn) as c:
     with self.assertRaises(psycopg.Error):
      c.execute('SELECT * FROM s0_f02_cycle_lab.'+name)
+ def test_19_invalid_array_action_denied_without_exception(self):
+  q,s=self.cmd()
+  q['action']=['REVOKE']
+  with self.lab.admin() as c:
+   out=transition(c,request=q,signature=s,host=self.host)
+  self.assertEqual(out['status'],'DENIED')
+ def test_20_expired_and_future_signed_command_denied(self):
+  for attrs in ({'issued_ms':self.now-60000,'expires_ms':self.now-1},
+                {'issued_ms':self.now+50000,'expires_ms':self.now+70000}):
+   q,s=self.cmd(**attrs)
+   self.assertEqual(self.apply(q,s)['reason'],'EXPIRED_OR_FUTURE')
+  self.assertEqual(self.count(),0)
+ def test_21_disabled_actor_cannot_advance(self):
+  q,s=self.cmd()
+  self.change("UPDATE s0_f02_cycle_lab.authorities "
+              "SET actor_enabled=false WHERE case_ref='case_A'")
+  self.assertEqual(self.apply(q,s)['reason'],'ACTOR_OR_SCOPE_DENIED')
+ def test_22_consent_revision_changed_requires_new_command(self):
+  q,s=self.cmd()
+  self.change("UPDATE s0_pre_dispatch_lab.consents "
+              "SET revision=2 WHERE case_ref='case_A'")
+  self.assertEqual(self.apply(q,s)['reason'],'STALE_VERSIONS')
+ def test_23_old_command_readback_cannot_authorize_new_cycle(self):
+  old,so=self.cmd('ADVANCE');self.apply(old,so)
+  new,sn=self.cmd('PAUSE',expected_cycle=2);self.apply(new,sn)
+  self.assertEqual(self.rb(old)['status'],'LAB_COMMAND_SUPERSEDED')
+  self.assertEqual(self.rb(new)['state'],'PAUSED')
+ def test_24_pause_allowed_after_consent_revocation(self):
+  self.change("UPDATE s0_pre_dispatch_lab.consents "
+              "SET state='REVOKED' WHERE case_ref='case_A'")
+  q,s=self.cmd('PAUSE')
+  self.assertEqual(self.apply(q,s)['status'],'LAB_CYCLE_STAGED_BEFORE_COMMIT')
+  self.assertEqual(self.rb(q)['state'],'PAUSED')
 if __name__=='__main__':unittest.main()
