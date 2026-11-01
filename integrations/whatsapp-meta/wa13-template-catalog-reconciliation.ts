@@ -9,6 +9,7 @@
  * S0-authenticated, revision-locked catalog may present eligible templates.
  * Fail the ENTIRE snapshot on inconsistent identities/versions/scope.
  */
+import {createHash} from 'node:crypto';
 import {inspectMetaTemplateProviderRecord}
  from './graph-template-provider-observation.ts';
 
@@ -20,6 +21,8 @@ export type Wa13HostScope=Readonly<{
 export type Wa13S0Entry=Readonly<{
  template_ref:string;version_ref:string;template_revision:number;
  provider_template_id:string;template_name:string;language_code:string;
+ /** LAB-only binding: SHA-256 over normalized supported components. */
+ provider_components_sha256:string;
  meta_category:'MARKETING'|'UTILITY';
  local_status:'PENDING'|'APPROVED'|'REJECTED'|'PAUSED'|'DISABLED';
  locally_active:boolean;current_version:boolean;
@@ -39,14 +42,17 @@ export type Wa13ProviderSnapshot=Readonly<{
 export type Wa13Candidate=Readonly<{
  template_ref:string;version_ref:string;template_revision:number;
  catalog_revision:number;provider_template_id:string;
+ concessionaria_id:string;app_ref:string;waba_id:string;
  template_name:string;language_code:string;
+ provider_components_sha256:string;
  meta_category:'MARKETING'|'UTILITY';
  approval_verified:false;send_authorized:false;
  production_authorized:false;requires_s0_recheck:true;
 }>;
 type Reason='INVALID_INPUT'|'SCOPE_MISMATCH'|'STALE_OR_FUTURE_SNAPSHOT'|
  'DUPLICATE_OR_CONFLICTING_TEMPLATE'|'INCOMPLETE_PROVIDER_DETAILS'|
- 'PROVIDER_IDENTITY_MISMATCH'|'PROVIDER_SHAPE_DENIED';
+ 'PROVIDER_IDENTITY_MISMATCH'|'PROVIDER_SHAPE_DENIED'|
+ 'COMPONENT_VERSION_MISMATCH';
 const FLAGS=Object.freeze({
  meta_approval_verified:false,provider_source_authenticated:false,
  s0_source_authenticated:false,tenant_binding_verified:false,
@@ -72,6 +78,12 @@ const ID=/^[A-Za-z0-9_.:-]{1,128}$/;
 const P_ID=/^[0-9]{5,25}$/;
 const NAME=/^[a-z][a-z0-9_]{0,127}$/;
 const LOCALE=/^[a-z]{2}(?:_[A-Z]{2})?$/;
+const SHA=/^[a-f0-9]{64}$/;
+/** LAB-only, versioned normalization provided by the existing Graph detail
+ * inspector. It authenticates neither the provider nor an S0 release. */
+export function wa13NormalizedComponentsDigest(components:readonly unknown[]):string{
+ return createHash('sha256').update(JSON.stringify(components),'utf8').digest('hex');
+}
 const STATES=['PENDING','APPROVED','REJECTED','PAUSED','DISABLED'];
 const CATS=['MARKETING','UTILITY'];
 const key=(x:unknown):x is string=>typeof x==='string'&&ID.test(x);
@@ -81,18 +93,22 @@ const pos=(x:unknown):x is number=>typeof x==='number'&&
 const nonneg=(x:unknown):x is number=>typeof x==='number'&&
  Number.isSafeInteger(x)&&x>=0;
 /** Own descriptors only, with exact keys; no accessor, extra or symbol. */
-function record(raw:unknown,expected:readonly string[]):Record<string,unknown>|null{
+function record(raw:unknown,expected:readonly string[],
+ optional:readonly string[]=[]):Record<string,unknown>|null{
  try{
   if(!raw||typeof raw!=='object'||Array.isArray(raw))return null;
   const proto=Object.getPrototypeOf(raw);
   if(proto!==Object.prototype&&proto!==null)return null;
   const desc=Object.getOwnPropertyDescriptors(raw);
   const own=Reflect.ownKeys(raw);
-  if(own.length!==expected.length||
-     own.some(x=>typeof x!=='string'||!expected.includes(x))||
-     expected.some(x=>!Object.hasOwn(desc,x)||!Object.hasOwn(desc[x],'value')))
+  if(own.length<expected.length||
+     own.length>expected.length+optional.length||
+     own.some(x=>typeof x!=='string'||
+      (!expected.includes(x)&&!optional.includes(x))||
+      !Object.hasOwn(desc[x],'value'))||
+     expected.some(x=>!Object.hasOwn(desc,x)))
    return null;
-  return Object.fromEntries(expected.map(x=>[x,desc[x].value]));
+  return Object.fromEntries((own as string[]).map(x=>[x,desc[x].value]));
  }catch{return null;}
 }
 /** Bound dense, own-data element copy; avoids getters, sparse arrays or symbols. */
@@ -119,14 +135,15 @@ const S0=['contract_version','concessionaria_id','app_ref','waba_id',
  'catalog_revision','observed_at_ms','templates'] as const;
 const PROVIDER=['contract_version','waba_id','observed_at_ms','details'] as const;
 const ENTRY=['template_ref','version_ref','template_revision',
- 'provider_template_id','template_name','language_code','meta_category',
+ 'provider_template_id','template_name','language_code','provider_components_sha256','meta_category',
  'local_status','locally_active','current_version','valid_from_ms',
  'valid_until_ms'] as const;
 function checkedEntry(raw:unknown):Wa13S0Entry|null{
  const x=record(raw,ENTRY);
  if(!x||!key(x.template_ref)||!key(x.version_ref)||!pos(x.template_revision)||
     !pid(x.provider_template_id)||typeof x.template_name!=='string'||
-    !NAME.test(x.template_name)||typeof x.language_code!=='string'||
+    !NAME.test(x.template_name)||!SHA.test(x.provider_components_sha256 as string)||
+    typeof x.language_code!=='string'||
     !LOCALE.test(x.language_code)||!CATS.includes(x.meta_category as string)||
     !STATES.includes(x.local_status as string)||
     typeof x.locally_active!=='boolean'||typeof x.current_version!=='boolean'||
@@ -188,10 +205,9 @@ export function reconcileWa13CatalogOffline(
   const candidates:Wa13Candidate[]=[];
   for(const raw of details){
    const identity=record(raw,['id','name','language','status','category',
-     'components']);
-   // Supported Meta detail fields are deliberately strict in this v0.1
-   // reconciliation. An optional provider field would require a versioned
-   // schema update rather than being silently treated as authority.
+     'components'],['parameter_format','quality_score','rejected_reason']);
+   // Accept only OPTIONAL detail metadata already recognized by the existing
+   // provider shape inspector; it is NEVER used to assert approval or rights.
    if(!identity)return deny('PROVIDER_SHAPE_DENIED');
    if(!pid(identity.id)||visited.has(identity.id))
     return deny('DUPLICATE_OR_CONFLICTING_TEMPLATE');
@@ -207,6 +223,11 @@ export function reconcileWa13CatalogOffline(
    if(observed.observed.reported_category!==t.meta_category||
       observed.observed.reported_status!==t.local_status)
     return deny('PROVIDER_IDENTITY_MISMATCH');
+   // A reported APPROVED status is not enough to bind the exact reviewed
+   // component version: BODY/HEADER/FOOTER/BUTTONS must match S0's LAB digest.
+   if(wa13NormalizedComponentsDigest(
+     observed.observed.approved_components_candidate)!==t.provider_components_sha256)
+    return deny('COMPONENT_VERSION_MISMATCH');
    if(t.local_status!=='APPROVED'||!t.locally_active||!t.current_version||
       t.valid_from_ms>now||t.valid_until_ms<=now)continue;
    candidates.push(Object.freeze({
@@ -214,6 +235,9 @@ export function reconcileWa13CatalogOffline(
     template_revision:t.template_revision,
     catalog_revision:host.catalog_revision as number,
     provider_template_id:t.provider_template_id,
+    concessionaria_id:host.concessionaria_id as string,
+    app_ref:host.app_ref as string,waba_id:host.waba_id as string,
+    provider_components_sha256:t.provider_components_sha256,
     template_name:t.template_name,language_code:t.language_code,
     meta_category:t.meta_category,approval_verified:false as const,
     send_authorized:false as const,production_authorized:false as const,
@@ -228,4 +252,47 @@ export function reconcileWa13CatalogOffline(
    withheld_entries:parsed.length-candidates.length,
   });
  }catch{return deny('INVALID_INPUT');}
+}
+
+/** One extra LAB-only read comparison; not an S0 transaction or reservation.
+ * Candidate snapshots NEVER become grants, even when recheck matches. */
+export type Wa13RecheckResult=Readonly<typeof FLAGS & {
+ decision:'DENIED'|'LAB_RECHECKED_UNVERIFIED';
+ reason:null|'INVALID_CANDIDATE'|'CURRENT_CATALOG_DENIED'|'STALE_OR_REVOKED';
+}>;
+const CANDIDATE=['template_ref','version_ref','template_revision',
+ 'catalog_revision','provider_template_id','concessionaria_id','app_ref','waba_id',
+ 'template_name','language_code','provider_components_sha256','meta_category',
+ 'approval_verified','send_authorized','production_authorized',
+ 'requires_s0_recheck'] as const;
+const denyRecheck=(reason:Exclude<Wa13RecheckResult['reason'],null>):
+ Wa13RecheckResult=>Object.freeze({
+ ...FLAGS,decision:'DENIED' as const,reason,
+});
+export function recheckWa13CandidateOffline(
+ rawCandidate:unknown,freshHost:unknown,freshS0:unknown,freshProvider:unknown,
+):Wa13RecheckResult{
+ try{
+  const c=record(rawCandidate,CANDIDATE);
+  if(!c||!key(c.template_ref)||!key(c.version_ref)||
+     !pos(c.template_revision)||!pos(c.catalog_revision)||
+     !pid(c.provider_template_id)||!key(c.concessionaria_id)||
+     !key(c.app_ref)||!pid(c.waba_id)||
+     typeof c.template_name!=='string'||!NAME.test(c.template_name)||
+     typeof c.language_code!=='string'||!LOCALE.test(c.language_code)||
+     typeof c.provider_components_sha256!=='string'||
+     !SHA.test(c.provider_components_sha256)||
+     !CATS.includes(c.meta_category as string)||
+     c.approval_verified!==false||c.send_authorized!==false||
+     c.production_authorized!==false||c.requires_s0_recheck!==true)
+   return denyRecheck('INVALID_CANDIDATE');
+  const checked=reconcileWa13CatalogOffline(freshHost,freshS0,freshProvider);
+  if(checked.decision==='DENIED')return denyRecheck('CURRENT_CATALOG_DENIED');
+  const isCurrent=checked.candidates.some(f=>
+   CANDIDATE.every(k=>f[k as keyof Wa13Candidate]===c[k]));
+  if(!isCurrent)return denyRecheck('STALE_OR_REVOKED');
+  return Object.freeze({
+   ...FLAGS,decision:'LAB_RECHECKED_UNVERIFIED' as const,reason:null,
+  });
+ }catch{return denyRecheck('INVALID_CANDIDATE');}
 }
