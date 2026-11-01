@@ -117,8 +117,8 @@ def reserve(c,request,*,scope,principal,m09_versions):
     'store_ref,app_ref,route_ref,channel_ref,phone_ref,waba_ref,case_ref,'
     'service_ref,consent_purpose_ref,template_ref,template_version,campaign_ref,'
     'destination_sha256,body_sha256,expected_versions,m09_versions,'
-    'window_ref,quota_revision,quota_slot,expires_at) VALUES '
-    '(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,'
+    'window_ref,quota_revision,quota_observed_at,quota_valid_until,quota_slot,expires_at) VALUES '
+    '(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,'
     'to_timestamp(%s/1000.0))',
     (request['attempt_ref'],request['selection_ref'],request['intent_ref'],
      request['nonce'],fingerprint,scphash,
@@ -129,7 +129,8 @@ def reserve(c,request,*,scope,principal,m09_versions):
      request['campaign_ref'],request['destination_sha256'],
      request['body_sha256'],json.dumps(snap),
      json.dumps(identity['m09_revisions']),request['window_ref'],
-     quota['revision'],row['consumed'],request['expires_ms']))
+     quota['revision'],quota['observed_at'],quota['valid_until'],
+     row['consumed'],request['expires_ms']))
   c.execute('RELEASE SAVEPOINT '+sp)
   return out('LAB_RESERVATION_STAGED_BEFORE_COMMIT','READBACK_REQUIRED',
     commit_verified=False,quota_slot_recorded_lab_only=row['consumed'])
@@ -282,6 +283,8 @@ def readback(c,request,*,scope,principal,m09_versions):
       scope.phone_number_id,receipt['window_ref'])).fetchone()
   if not quota or not quota['enabled'] or (
     quota['revision']!=receipt['quota_revision'] or
+    quota['observed_at']!=receipt['quota_observed_at'] or
+    quota['valid_until']!=receipt['quota_valid_until'] or
     now>=quota['valid_until']):
    return out('LAB_STALE_NO_DISPATCH','QUOTA_REVOKED_OR_EXPIRED',
      commit_verified=True)
