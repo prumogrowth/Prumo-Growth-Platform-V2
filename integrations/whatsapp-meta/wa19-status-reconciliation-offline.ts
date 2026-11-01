@@ -232,7 +232,7 @@ export function reconcileWa19S0BindingOffline(
  return success(snapshot(s,b,events));
 }
 /** Full snapshot check, never commit, append, ACK or trusted S0 readback. */
-export function recheckWa19StatusOffline(
+export function recheckWa19S0BindingOffline(
  rawPrevious:unknown,rawScope:unknown,rawBinding:unknown,
  rawEvents:unknown,
 ):Wa19Result{
