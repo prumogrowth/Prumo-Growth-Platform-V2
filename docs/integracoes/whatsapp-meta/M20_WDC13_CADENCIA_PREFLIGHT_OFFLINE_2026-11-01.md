@@ -47,3 +47,5 @@ O resultado contém apenas decisão sintética, contagens e `snapshot_sha256` de
 - **#10 / #8:** autorização PRE_DISPATCH operacional e vault/ativos Meta não foram homologados; os laboratórios M18/M19 continuam sem fonte real. A M20 não preenche essas lacunas e não herda autoridade dos seus snapshots.
 
 **Conclusão:** M20-A/B/C **somente LAB offline**; **M20-D e marco principal permanecem [ ]**. Nenhum contador real WDC-13, janela C09, mudança comercial, serviço S0, Graph, HTTP ACK, dado real, merge ou deploy foi realizado.
+
+**Validação funcional após execução:** [CI 41344917062](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41344917062) — commit `457e50faa1b6cdb02d7d4574d58bae364ef0435a`, 60 M20, 1.962/1.962 Meta offline, dois jobs `success`, 18/18 PG17 históricos independentes e scanner ACK aprovado. O registro de previsão acima foi substituído por este resultado.
