@@ -202,6 +202,8 @@ def review(c,*,request_ref,scope,expected,grant_revision,claims,proposal_aliases
  except ValueError as e:
   return deny(c,sp,str(e))
  except Exception:
+  import traceback
+  traceback.print_exc()  # synthetic disposable CI diagnostic only
   c.execute('ROLLBACK TO SAVEPOINT '+sp)
   c.execute('RELEASE SAVEPOINT '+sp)
   return out('UNAVAILABLE','DEPENDENCY_UNAVAILABLE')
