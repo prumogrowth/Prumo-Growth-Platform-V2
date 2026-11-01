@@ -76,7 +76,7 @@ export type Wa19Status='LAB_NO_OBSERVATIONS'|
  'LAB_READ_OBSERVED_UNVERIFIED'|'LAB_FAILURE_OBSERVED_UNVERIFIED'|
  'LAB_CONFLICT_QUARANTINED'|'LAB_INVALIDATED_OBSERVATION_HOLD';
 export type Wa19Snapshot=Readonly<{
- contract_version:'wa19-status-snapshot.lab.v0.1';
+ contract_version:'wa19-status-snapshot.lab.v0.2';
  snapshot_sha256:string;
  observation_count:number;duplicate_count:number;
  saw_explicit_sent:boolean;saw_delivered:boolean;saw_read:boolean;
@@ -149,20 +149,26 @@ function validEvent(s:RecordData,e:RecordData):boolean{
   e.hmac_verified===false&&e.s0_source_authenticated===false&&
   e.durably_persisted===false;
 }
-const same=(a:RecordData,b:RecordData,fields:readonly string[]):boolean=>
- fields.every(k=>a[k]===b[k]);
 function snapshot(s:RecordData,b:RecordData,events:RecordData[]):Wa19Snapshot{
- const unique=new Map<string,RecordData>();
+ // Retain EACH distinct conflicting variant for forensic hashing. The
+ // previous first-wins map omitted later divergent bytes from the digest,
+ // making recheck silently accept changed quarantined evidence.
+ // Sort before calculating flags, snapshot and collision classification:
+ // permutations of identical LAB evidence must not change the result.
+ const variants=new Map<string,RecordData>(),byRef=new Map<string,string>();
  let duplicates=0,collision=false;
  for(const e of events){
-  const prior=unique.get(e.occurrence_ref as string);
-  if(!prior)unique.set(e.occurrence_ref as string,e);
-  else if(same(prior,e,EVENT))duplicates++;
-  else collision=true;
+  const tuple=JSON.stringify(EVENT.map(k=>e[k]));
+  if(variants.has(tuple)){duplicates++;continue;}
+  variants.set(tuple,e);
+  const ref=e.occurrence_ref as string;
+  const old=byRef.get(ref);
+  if(old!==undefined&&old!==tuple)collision=true;
+  else byRef.set(ref,tuple);
  }
- const canon=[...unique.values()].sort((a,z)=>
-  (a.occurrence_ref as string).localeCompare(z.occurrence_ref as string));
- const kinds=new Set(canon.map(x=>x.provider_kind));
+ const canon=[...variants.entries()].sort(([a],[z])=>
+  a<z?-1:a>z?1:0);
+ const kinds=new Set(canon.map(([,x])=>x.provider_kind));
  const sent=kinds.has('sent'),delivered=kinds.has('delivered'),
   read=kinds.has('read'),failed=kinds.has('failed');
  const ambiguous=collision||(failed&&(sent||delivered||read));
@@ -173,12 +179,14 @@ function snapshot(s:RecordData,b:RecordData,events:RecordData[]):Wa19Snapshot{
   delivered?'LAB_DELIVERED_OBSERVED_UNVERIFIED':
   sent?'LAB_SENT_OBSERVED_UNVERIFIED':
   failed?'LAB_FAILURE_OBSERVED_UNVERIFIED':'LAB_NO_OBSERVATIONS';
- const digest=sha(['WA19_OBSERVATIONS_LAB_V0_1',
+ const digest=sha(['WA19_OBSERVATIONS_LAB_V0_2',
   SCOPE.map(k=>s[k]),BIND.map(k=>b[k]),
-  canon.map(x=>EVENT.map(k=>x[k])),collision]);
+  // Capture ALL different physical-claim variants, including those that
+  // were quarantined for reusing an occurrence ref with changed bytes.
+  canon.map(([tuple])=>tuple),duplicates,collision,status]);
  return Object.freeze({
-  contract_version:'wa19-status-snapshot.lab.v0.1',
-  snapshot_sha256:digest,observation_count:unique.size,
+  contract_version:'wa19-status-snapshot.lab.v0.2',
+  snapshot_sha256:digest,observation_count:byRef.size,
   duplicate_count:duplicates,saw_explicit_sent:sent,
   saw_delivered:delivered,saw_read:read,saw_failed:failed,status,
   quarantine_required:ambiguous||invalidated,requires_s0_recheck:true,
@@ -192,7 +200,7 @@ function snapshot(s:RecordData,b:RecordData,events:RecordData[]):Wa19Snapshot{
 }
 function previous(raw:unknown):Wa19Snapshot|null{
  const v=own(raw,RESULT);
- if(!v||v.contract_version!=='wa19-status-snapshot.lab.v0.1'||
+ if(!v||v.contract_version!=='wa19-status-snapshot.lab.v0.2'||
     typeof v.snapshot_sha256!=='string'||!HEX.test(v.snapshot_sha256)||
     !nonneg(v.observation_count)||v.observation_count>100||
     !nonneg(v.duplicate_count)||v.duplicate_count>100||
