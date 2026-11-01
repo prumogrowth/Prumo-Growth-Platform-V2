@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { copyCFDemoFixtures } from '../cf-op-02.mjs';
-import { bankProjectionFor, bankPhaseCopy, bankCanMockWrite } from '../bank-view.mjs';
+import { bankProjectionFor, bankPhaseCopy, bankPhaseDisplayLabel, bankCanMockWrite } from '../bank-view.mjs';
 
 const record=()=>copyCFDemoFixtures().find(x=>x.id==='A-105');
 
