@@ -21,7 +21,7 @@ A prévia M15 passa a declarar `intended_consumer:'LAB_S0_HOST_STAGING_ONLY'` e 
 
 - **40 testes originais M15-01..40** preservados.
 - **20 novos AUD-M15-41..60** testam alterações intermediárias de consentimentos e supressões por finalidade, revogação de grant, deriva de versão de catálogo ou conteúdo Meta, mudança de requisição, App/WABA e escopo/política WA-26 entre `await`, getter injetado e array esparso, múltiplos templates estáveis, não exposição de PII e exclusão explícita da forma provider OFF-04.
-- **Resultado esperado:** 60 casos M15 próprios, **1.573 testes Meta offline** no total (base 1.553 + 20). Confirmar pela CI completa e associar SHA funcional exato abaixo antes de declarar homologação de testes. As 18 provas PG17 físicas históricas exercitam **ingresso S0↔Meta, não M15/F02**.
+- **Evidência confirmada:** 60 casos M15 próprios e **1.573/1.573 testes Meta offline** no total (base 1.553 + 20), no commit funcional `af8e47196c0a6dc1e079f0c8b040cfbd9a5eb067`, [CI 41292910558](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41292910558), dois jobs `success`, scanner lexical ACK aprovado. As **18/18 provas PG17** físicas históricas exercitam **ingresso S0↔Meta, não M15/F02**. Runs intermediários de implementação antes do ajuste da classificação de getter/array não são evidência final.
 
 ## Dependências pendentes
 
