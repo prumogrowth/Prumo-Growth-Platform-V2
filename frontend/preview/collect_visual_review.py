@@ -120,15 +120,23 @@ def main(output):
                 if scene != 'team':
                     page.locator('#team-show-'+scene).click()
                 expect(page.locator('#team-dialog')).to_be_visible()
+            elif scene == 'bank':
+                # Página Banco é área independente: não seleciona conversa
+                # nem inclui casos de extração pendente ou remessa anterior.
+                page.locator('#bank-nav-mobile' if width <= 760 else '#bank-nav').click()
+                expect(page.locator('#bank-dialog')).to_be_visible()
+                expect(page.locator('#bank-ready-empty')).to_be_visible()
+                expect(page.locator('#bank-content')).to_be_empty()
             elif scene != 'list':
-                number = '08' if scene == 'expired' else '05' if scene in ('unknown','bank','continuation') else '02'
+                number = '08' if scene == 'expired' else '05' if scene in ('unknown','continuation') else '02'
                 page.get_by_role('button', name='Abrir conversa Cliente Exemplo '+number, exact=False).click()
-                if scene in ('details','extraction','notes','history','bank','continuation'):
+                if scene in ('details','extraction','notes','history','continuation'):
                     if width <= 1040:
                         page.locator('#thread-title').click()
-                    if scene in ('extraction','bank'):
+                    if scene == 'extraction':
                         page.locator('#open-bank-case').click()
-                        expect(page.locator('#bank-dialog')).to_be_visible()
+                        expect(page.locator('#registration-diagnostics summary')).to_be_focused()
+                        page.locator('#registration-diagnostics').evaluate('e=>e.open=true')
                     else:
                         tab = {'notes':'Notas','history':'Histórico','continuation':'Histórico'}.get(scene)
                         if tab:page.locator('.detail-tab', has_text=tab).click()
