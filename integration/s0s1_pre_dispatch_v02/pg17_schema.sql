@@ -70,7 +70,7 @@ CREATE INDEX pd_v02_case_receipt ON s0_pd_v02_lab.receipts(case_ref,created_at);
 -- Enforce monotonic consumed at the physical storage boundary. A held or
 -- cancelled receipt does not refund a slot; admin fixture has no bypass.
 CREATE FUNCTION s0_pd_v02_lab.prevent_quota_reset()
-RETURNS trigger LANGUAGE plpgsql SET search_path=pg_catalog AS $
+RETURNS trigger LANGUAGE plpgsql SET search_path=pg_catalog AS $quota_guard$
 BEGIN
  IF NEW.consumed < OLD.consumed THEN
   RAISE EXCEPTION 'PD_V02_QUOTA_NONMONOTONIC';
@@ -79,7 +79,7 @@ BEGIN
   RAISE EXCEPTION 'PD_V02_QUOTA_REVISION_ROLLBACK';
  END IF;
  RETURN NEW;
-END $;
+END $quota_guard$;
 CREATE TRIGGER prevent_quota_reset BEFORE UPDATE
 ON s0_pd_v02_lab.quotas FOR EACH ROW
 EXECUTE FUNCTION s0_pd_v02_lab.prevent_quota_reset();
