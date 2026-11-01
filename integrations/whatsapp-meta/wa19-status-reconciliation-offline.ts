@@ -74,7 +74,7 @@ function dense(raw:unknown):unknown[]|null{
 export type Wa19Status='LAB_NO_OBSERVATIONS'|
  'LAB_SENT_OBSERVED_UNVERIFIED'|'LAB_DELIVERED_OBSERVED_UNVERIFIED'|
  'LAB_READ_OBSERVED_UNVERIFIED'|'LAB_FAILURE_OBSERVED_UNVERIFIED'|
- 'LAB_CONFLICT_QUARANTINED'|'LAB_INVALIDATED_LATE_OBSERVATION';
+ 'LAB_CONFLICT_QUARANTINED'|'LAB_INVALIDATED_OBSERVATION_HOLD';
 export type Wa19Snapshot=Readonly<{
  contract_version:'wa19-status-snapshot.lab.v0.1';
  snapshot_sha256:string;
@@ -140,6 +140,8 @@ function validEvent(s:RecordData,e:RecordData):boolean{
   nonneg(e.position_index)&&e.position_index<=10000&&
   ['sent','delivered','read','failed'].includes(e.provider_kind as string)&&
   iso(e.provider_timestamp)&&
+  (e.provider_kind==='failed'||
+   (e.meta_error_code===null&&e.meta_error_subcode===null))&&
   (e.meta_error_code===null||
    nonneg(e.meta_error_code)&&e.meta_error_code<=999999999)&&
   (e.meta_error_subcode===null||
@@ -166,7 +168,7 @@ function snapshot(s:RecordData,b:RecordData,events:RecordData[]):Wa19Snapshot{
  const ambiguous=collision||(failed&&(sent||delivered||read));
  const invalidated=b.claim_state==='LAB_INVALIDATED'&&canon.length>0;
  const status:Wa19Status=ambiguous?'LAB_CONFLICT_QUARANTINED':
-  invalidated?'LAB_INVALIDATED_LATE_OBSERVATION':
+  invalidated?'LAB_INVALIDATED_OBSERVATION_HOLD':
   read?'LAB_READ_OBSERVED_UNVERIFIED':
   delivered?'LAB_DELIVERED_OBSERVED_UNVERIFIED':
   sent?'LAB_SENT_OBSERVED_UNVERIFIED':
@@ -197,7 +199,7 @@ function previous(raw:unknown):Wa19Snapshot|null{
     !['LAB_NO_OBSERVATIONS','LAB_SENT_OBSERVED_UNVERIFIED',
     'LAB_DELIVERED_OBSERVED_UNVERIFIED','LAB_READ_OBSERVED_UNVERIFIED',
     'LAB_FAILURE_OBSERVED_UNVERIFIED','LAB_CONFLICT_QUARANTINED',
-    'LAB_INVALIDATED_LATE_OBSERVATION'].includes(v.status as string)||
+    'LAB_INVALIDATED_OBSERVATION_HOLD'].includes(v.status as string)||
     !['saw_explicit_sent','saw_delivered','saw_read','saw_failed',
       'quarantine_required'].every(k=>typeof v[k]==='boolean')||
     v.requires_s0_recheck!==true||
@@ -222,7 +224,9 @@ export function reconcileWa19StatusOffline(
  const events:RecordData[]=[];
  for(const x of arr){
   const e=own(x,EVENT);
-  if(!e||!validEvent(s,e))return denied('EVENT_SCOPE_DENIED');
+  if(!e||!validEvent(s,e)||
+     Date.parse(e.provider_timestamp as string)>now)
+   return denied('EVENT_SCOPE_DENIED');
   events.push(e);
  }
  return success(snapshot(s,b,events));
