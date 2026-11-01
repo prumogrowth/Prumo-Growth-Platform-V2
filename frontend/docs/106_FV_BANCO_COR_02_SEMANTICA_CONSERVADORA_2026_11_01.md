@@ -6,7 +6,7 @@
 
 - BAN-AUD-01: `bankProjection.phase === 'unavailable'` é **desconhecido**, não remessa ausente. Exigir `not_submitted` explícito no seletor; solicitação não comprovada, retorno pendente e todos os outros estados são excluídos.
 - BAN-AUD-02: enquanto a S0 não definir quais lacunas são opcionais, o seletor exige ficha `persisted` confirmada, sem `missing` e sem `conflicts`, além de aptidão confirmada e versionada. É uma **restrição apenas do protótipo**, não regra comercial definitiva. Não inferir aptidão pela aparência da ficha.
-- BAN-AUD-03/07: um novo caso vinculado a remessa anterior ou com snapshot bancário existente **não representa autorização de segunda remessa**. Excluir esses cenários até a S0 fornecer operação/ciclo autorizado com prova versionada.
+- BAN-AUD-03/07: um novo caso de continuação pós-marco (inclusive pós-venda ou pós-remessa), ou com snapshot bancário existente **não representa autorização de segunda remessa**. Excluir esses cenários até a S0 fornecer operação/ciclo autorizado com prova versionada.
 - BAN-AUD-04: testes negativos incluídos; testes positivos usam um caso novo **estritamente local ao teste**, sem simular concessão S0 produtiva. A fixture `A-114` pós-remessa deixa de aparecer como cadastro novo apto.
 - O padrão autorizado de lista é `{id,name}` (ID somente chave interna), sem rótulo de pronto ou PII no item.
 
