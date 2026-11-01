@@ -102,3 +102,13 @@ test('operador não designado não recebe nem resumo operacional de banco',()=>{
   assert.equal(p.submissionSummary,null);
   assert.equal(p.replySummary,null);
 });
+
+test('COE-06: remessa confirmada com retorno pendente exibe o próximo marco corretamente',()=>{
+ const recordA105=record(),p=bankProjectionFor(recordA105,'rafael','aurora');
+ const copy=bankPhaseCopy(p);
+ assert.match(copy.title,/aguardando retorno bancário/i);
+ assert.match(copy.title,/remessa comprovada/i);
+ assert.match(copy.description,/não há decisão bancária confirmada/i);
+ assert.equal(bankPhaseDisplayLabel(p.phase),'Aguardando retorno');
+ assert.equal(bankPhaseDisplayLabel('unavailable'),'Informação indisponível');
+});
