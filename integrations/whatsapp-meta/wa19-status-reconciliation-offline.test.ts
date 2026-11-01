@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {reconcileWa19StatusOffline as reconcile,
+import {reconcileWa19S0BindingOffline as reconcile,
  recheckWa19StatusOffline as recheck}
  from './wa19-status-reconciliation-offline.ts';
 
