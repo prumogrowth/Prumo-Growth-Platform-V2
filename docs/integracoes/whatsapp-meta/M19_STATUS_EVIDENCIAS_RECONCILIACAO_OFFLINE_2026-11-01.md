@@ -18,10 +18,10 @@ A base existente **não foi substituída**: `status-evidence.ts` valida sintaxe;
 
 ## M19-B — testes adversariais
 
-- **52 testes** no módulo `wa19-status-reconciliation-offline.test.ts` de vínculo S0 fake, isolamento de WABA/loja/número/canal/intent/tentativa, dedupe e colisão de ocorrência, status fora de ordem e contraditórios, observação invalidada, fonte falsificada, getter, stale/future e recheck, sem efeito comercial.
+- **57 testes** no módulo `wa19-status-reconciliation-offline.test.ts` de vínculo S0 fake, isolamento de WABA/loja/número/canal/intent/tentativa, dedupe e colisão de ocorrência, status fora de ordem e contraditórios, observação invalidada, fonte falsificada, getter, stale/future e recheck, sem efeito comercial.
 - **56 testes** no módulo `wa19-status-evidence-reconciliation-offline.test.ts` de interação de Graph fake com callback, `API_ACCEPTED` versus `sent`, timeout/estado desconhecido, duplicata/reordenação por posição física, `read` isolado, conflito `failed`/progresso, revogação tardia, `131049`, tenant/canal/template cruzados, getters, lotes esparsos/excessivos e recheck.
 
-**Resultado de referência conjunto:** [CI 41328742682](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41328742682), commit `49b157ad4f39494e0b1cc3f0fe2d22d033376f95`: **1.875/1.875 testes Meta offline** (=1.767 anteriores +108 M19), **18/18 verificações PG17** históricas de ingresso S0/Meta em job distinto, dois jobs `success`, scanner ACK lexical aprovado. Runs intermediários com regressões em fixtures não são evidência final. CI do último commit documental é verificado independentemente. Esses 108 testes não equivalem a 108 cenários autenticados de operação real.
+**Resultado de referência conjunto:** [CI 41328742682](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41328742682), commit `49b157ad4f39494e0b1cc3f0fe2d22d033376f95`: **1.880/1.880 testes Meta offline** (=1.767 anteriores +113 M19), **18/18 verificações PG17** históricas de ingresso S0/Meta em job distinto, dois jobs `success`, scanner ACK lexical aprovado. Runs intermediários com regressões em fixtures não são evidência final. CI do último commit documental é verificado independentemente. Esses 108 testes não equivalem a 113 cenários autenticados de operação real.
 
 ## M19-C — invariantes de WA-39 e contrato pendente
 
