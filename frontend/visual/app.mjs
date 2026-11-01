@@ -21,6 +21,7 @@ import { presentMockMessageTransport } from './transport-state-view.mjs';
 import { projectMockHumanCycleHistory, projectMockClarificationScene,
   stageMockRepeatCompletion, projectMockCustomerDossier } from './human-cycle-view.mjs';
 import { bankProjectionFor, bankPhaseCopy, bankPhaseDisplayLabel } from './bank-view.mjs';
+import { projectBankReadyList, bankReadyCaseForSelection } from './bank-ready-list.mjs';
 import { postmarkViewFor, postmarkCopy, mayMockOperateContinuation } from './postmark-view.mjs';
 import { projectManagedTeam, requestMockIntake } from './team-operations.mjs';
 import { projectSharedNewLeadQueue, requestMockQueueAction } from './distribution-view.mjs';
@@ -46,7 +47,7 @@ const initialDemoActor = new URLSearchParams(window.location?.search ?? '').get(
 const state = {
   actorId: initialDemoActor, shopId: 'aurora', filter: 'all', statusFilter: 'all', detailTab: 'overview', query: '',
   selectedId: initialDemoActor === 'rafael' ? 'A-102' : null, cases: withRevisionScenes(copyCFDemoFixtures()), processing: {}, reviewScenes: {}, followupRequests: {}, inboxView: 'all',
-  bankCaseId:null, noteDrafts:{}, mobileView: 'list', listLoading:false, theme: systemColorScheme.matches ? 'dark' : 'light', themeOverride:false,
+  activeModule:'conversations', bankCaseId:null, noteDrafts:{}, mobileView: 'list', listLoading:false, theme: systemColorScheme.matches ? 'dark' : 'light', themeOverride:false,
   dialogContext: { completion: null, template: null, message: null }, intakeDialogContext:null, queueDialogContext:null, queueRequests:{}, teamRequests:{}, teamPanel:'members'
 };
 const communication = installCommunicationComposer({
@@ -521,8 +522,8 @@ function callout(title,text,tone='') {
  * A operação é local; só orientar o foco no mesmo caso com painel visível.
  */
 function focusExtractionAfterRerender(caseId,notice){
-  if(bankSelectedCase()?.id!==caseId || !$('bank-dialog').open)return;
-  $('bank-case-select').focus();
+  if(state.activeModule!=='bank' || bankSelectedCase()?.id!==caseId || !$('bank-dialog').open)return;
+  ($('bank-case-select').hidden?$('bank-title'):$('bank-case-select')).focus();
   announceCurrentContext(notice);
 }
 function noteDraftKey(item){return state.actorId+'|'+state.shopId+'|'+item.id;}
@@ -531,29 +532,59 @@ function caseForBank(id){
   const review=base && state.reviewScenes[base.id];
   return review && review.shopId===base.shopId && review.assignedTo===base.assignedTo ? review : base;
 }
-function bankSelectedCase(){return caseForBank(state.bankCaseId);}
+function bankSelectedCase(){
+  return bankReadyCaseForSelection(state.cases,state.actorId,state.shopId,state.bankCaseId);
+}
+function applyModuleRoute(module){
+  state.activeModule=module;
+  const workspace=$('visual-app').querySelector('.workspace');
+  workspace.dataset.module=module;
+  app.dataset.module=module;
+  for(const [key,id] of [['conversations','conversations-nav'],['bank','bank-nav'],['team','team-nav']]){
+    const nav=$(id);
+    nav.classList.toggle('active',key===module);
+    if(key===module)nav.setAttribute('aria-current','page');
+    else nav.removeAttribute('aria-current');
+  }
+  const mayTeam=canSeeTeamSummary(state.actorId,state.shopId);
+  document.querySelectorAll('[data-team-route]').forEach(control=>{control.hidden=!mayTeam;});
+}
 let bankOpener='bank-nav';
+function openConversations(){
+  applyModuleRoute('conversations');
+  if($('bank-dialog').open)$('bank-dialog').close();
+  if($('team-dialog').open)$('team-dialog').close();
+  $('search-input').focus();
+}
 function openBank(caseId=null,opener=null){
-  const rows=accessible();
+  const rows=projectBankReadyList(state.cases,state.actorId,state.shopId);
   state.bankCaseId=rows.some(row=>row.id===caseId)?caseId:
-    rows.some(row=>row.id===state.bankCaseId)?state.bankCaseId:
-    rows.some(row=>row.id===state.selectedId)?state.selectedId:rows[0]?.id??null;
+    rows.some(row=>row.id===state.bankCaseId)?state.bankCaseId:rows[0]?.id??null;
   bankOpener=opener ?? (window.matchMedia('(max-width:760px)').matches?'bank-nav-mobile':'bank-nav');
   communication.suspend();
+  applyModuleRoute('bank');
+  if($('team-dialog').open)$('team-dialog').close();
   renderBank();
-  if(!$('bank-dialog').open)$('bank-dialog').showModal();
-  $('bank-case-select').focus();
+  if(!$('bank-dialog').open)$('bank-dialog').show();
+  ($('bank-case-select').hidden?$('bank-title'):$('bank-case-select')).focus();
 }
 function renderBank(){
   const select=$('bank-case-select');
-  select.replaceChildren(...accessible().map(row=>{const option=el('option','',row.name+' · '+row.id+' · '+getShop(row.shopId).name);option.value=row.id;return option;}));
-  select.value=state.bankCaseId??'';
+  const rows=projectBankReadyList(state.cases,state.actorId,state.shopId);
+  if(!rows.some(row=>row.id===state.bankCaseId))state.bankCaseId=rows[0]?.id??null;
+  select.replaceChildren(...rows.map(row=>{
+    const option=el('option','',row.name);option.value=row.id;return option;
+  }));
+  select.hidden=rows.length===0;
+  select.previousElementSibling.hidden=rows.length===0;
+  $('bank-ready-empty').hidden=rows.length!==0;
+  if(rows.length)select.value=state.bankCaseId;
   const target=$('bank-content'),item=bankSelectedCase();
-  if(!item){target.replaceChildren(el('p','detail-placeholder','Nenhuma ficha autorizada neste contexto.'));return;}
-  const identity=el('p','bank-context',item.name+' · caso '+item.id+' · '+getShop(item.shopId).name);
+  if(!item){target.replaceChildren();return;}
+  const identity=el('p','bank-context',item.name);
   const consultation=renderRegistration(item);
-  const banking=renderBankStatus(item);
-  target.replaceChildren(identity,consultation,banking);
+  const note=el('p','detail-small','Cadastro bancário externo e registro de envio ainda não habilitados nesta demonstração. Nenhuma operação foi realizada.');
+  target.replaceChildren(identity,consultation,note);
 }
 function renderAiCommunications(item){
   const section=detailSection('COMUNICAÇÕES DAS IAs');section.id='ai-communications';
@@ -924,12 +955,13 @@ function renderFollowupSummary(item){
     return followup;
 }
 
-function render(){renderList();renderThread();renderDetails();app.dataset.mobileView=state.mobileView;}
+function render(){renderList();renderThread();renderDetails();app.dataset.mobileView=state.mobileView;if(state.activeModule==='bank')renderBank();}
 function changeActor(actorId){
   const actor=getActor(actorId);if(!actor)return;
   closeTransientDialogs();
   state.listLoading=false;$('demo-list-state').value='ready';
   if($('team-dialog').open)$('team-dialog').close();
+  applyModuleRoute('conversations');
   // Não deixar carteira do gestor anterior, nem mesmo oculta no DOM da demo.
   $('team-list').replaceChildren();$('team-monitor').replaceChildren();$('team-batches').replaceChildren();$('team-queue').replaceChildren();
   // FVA-02: pedido local de template/cadeia nunca atravessa perfil fictício.
@@ -946,7 +978,7 @@ $('shop-select').addEventListener('change',event=>{
   state.listLoading=false;$('demo-list-state').value='ready';
   closeTransientDialogs();
   // FVA-02: solicitação ainda não confirmada por serviço pertence à loja anterior.
-  state.noteDrafts={};state.bankCaseId=null;if($('bank-dialog').open)$('bank-dialog').close();$('bank-content').replaceChildren();$('bank-case-select').replaceChildren();
+  state.noteDrafts={};state.bankCaseId=null;applyModuleRoute('conversations');if($('bank-dialog').open)$('bank-dialog').close();if($('team-dialog').open)$('team-dialog').close();$('bank-content').replaceChildren();$('bank-case-select').replaceChildren();
   state.queueRequests={};state.followupRequests={};state.reviewScenes={};state.shopId=event.target.value;state.selectedId=null;state.detailTab='overview';state.statusFilter='all';state.inboxView='all';$('status-filter').value='all';state.query='';$('search-input').value='';goto('list');render();announceCurrentContext('Concessionária alterada');
 });
 $('search-input').addEventListener('input',event=>{state.query=event.target.value;renderList();});
@@ -1271,7 +1303,7 @@ function renderSharedQueue(){
  * quando a janela de equipe estiver fechada ou o perfil for inelegível.
  */
 function announceTeamActionAndRestoreFocus(tabId,announcement){
-  if(!$('team-dialog').open || !canSeeTeamSummary(state.actorId,state.shopId))return;
+  if(state.activeModule!=='team'||!$('team-dialog').open || !canSeeTeamSummary(state.actorId,state.shopId))return;
   $('team-action-announcement').textContent=announcement;
   $(tabId).focus();
 }
@@ -1319,26 +1351,38 @@ function openTeamSummary(){
   if(!canSeeTeamSummary(state.actorId,state.shopId)){
     showToast('A visão da equipe está disponível somente no perfil fictício de gestor.');return;
   }
-  communication.reset();
+  communication.suspend();
   switchTeamPanel('members');
   $('team-action-announcement').textContent='';
-  const dialog=$('team-dialog');dialog.returnValue='';dialog.showModal();
+  applyModuleRoute('team');
+  if($('bank-dialog').open)$('bank-dialog').close();
+  const dialog=$('team-dialog');dialog.returnValue='';if(!dialog.open)dialog.show();
+  $('team-title').focus();
 }
 $('bank-nav').addEventListener('click',()=>openBank());
 $('bank-nav-mobile').addEventListener('click',()=>openBank());
-$('conversations-nav').addEventListener('click',()=>{$('search-input').focus();});
+$('conversations-nav').addEventListener('click',openConversations);
+ document.querySelectorAll('[data-route-module]').forEach(control=>control.addEventListener('click',()=>{
+   if(control.dataset.routeModule==='bank')openBank();
+   else if(control.dataset.routeModule==='team')openTeamSummary();
+   else openConversations();
+ }));
 $('bank-case-select').addEventListener('change',event=>{
-  if(!accessible().some(row=>row.id===event.target.value))return;
+  if(!bankReadyCaseForSelection(state.cases,state.actorId,state.shopId,event.target.value)){
+    state.bankCaseId=null;renderBank();return;
+  }
   state.bankCaseId=event.target.value;renderBank();$('bank-case-select').focus();
 });
-$('bank-close').addEventListener('click',()=>$('bank-dialog').close());
+$('bank-close').addEventListener('click',openConversations);
 $('bank-dialog').addEventListener('close',()=>{
-  const target=document.getElementById(bankOpener);
-  if(!document.querySelector('dialog[open]'))(target??$('bank-nav-mobile')).focus();
+  if(state.activeModule==='bank'){applyModuleRoute('conversations');$('search-input').focus();}
 });
 $('team-nav').addEventListener('click',openTeamSummary);
 $('team-nav-mobile').addEventListener('click',openTeamSummary);
-$('team-close').addEventListener('click',()=>$('team-dialog').close());
+$('team-close').addEventListener('click',openConversations);
+$('team-dialog').addEventListener('close',()=>{
+  if(state.activeModule==='team'){applyModuleRoute('conversations');$('search-input').focus();}
+});
 $('intake-dialog').addEventListener('close',()=>{
   const confirm=$('intake-dialog').returnValue==='confirm';
   $('intake-dialog').returnValue='';
