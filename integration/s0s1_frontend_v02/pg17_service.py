@@ -144,7 +144,9 @@ def readback(c,*,open_ref,case_ref,store_ref,actor_ref,role,allowed_stores,
         actual=cursor(c,case_ref,actor_ref)
         if actual<checkpoint:
             return result('DENIED','CURSOR_INCONSISTENT')
-        snapshot=attention(k,events(c,case_ref),actual)
+        # The receipt always reconstructs the ORIGINAL attempt's view,
+        # not a newer cursor advanced by another independent open.
+        snapshot=attention(k,events(c,case_ref),checkpoint)
         # Even if other legitimate opens advanced the cursor, this attempt
         # proves only its own original cutoff, NOT a subsequent message.
         later=any(x['event_kind']=='INBOUND' and x['inbound_visible']
