@@ -226,7 +226,7 @@ test('M19-42 malicious source getter not invoked',()=>{
  const s:any=scope();let calls=0;
  Object.defineProperty(s,'app_ref',{enumerable:true,
   get(){calls++;return 'APP_A';}});
- denied(run(s),'INVALID_INPUT');assert.equal(calls,0);
+ denied(run(s,binding(),[]),'INVALID_INPUT');assert.equal(calls,0);
 });
 test('M19-43 stale attempt binding denied',()=>{
  const b=binding();b.observed_at_ms=NOW-60001;
