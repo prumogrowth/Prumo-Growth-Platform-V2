@@ -49,7 +49,7 @@ export function projectDemoAttention(record, actorId, shopId) {
   const confirmed = confirmedDemoMessages(record, actorId, shopId);
   const inbound = confirmed.filter(message => message.side === 'in');
   const lastHumanRelevant = confirmed.filter(message => ['in', 'out'].includes(message.side)).at(-1);
-  return stageConversationAttention({
+  const attention = stageConversationAttention({
     schema_version: ATTENTION_PROPOSAL_VERSION,
     unread_inbound_count: inbound.length ? record.unread : 0,
     operator_read_confirmed: record.demoReadByAssigned === true &&
