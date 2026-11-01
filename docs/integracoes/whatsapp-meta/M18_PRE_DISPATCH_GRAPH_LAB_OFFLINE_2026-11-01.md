@@ -57,3 +57,17 @@ O resultado da classificação tem `sent_verified=false`, `delivered_verified=fa
 - [ ] **Aceite:** revisão interfrentes documentada, prova E2E isolada com autorização expressa, auditoria de concorrência/timeout/commit incerto e homologação; sem merge/deploy/produção até decisões de proprietário/Infra.
 
 **Conclusão:** M18-A/B/C no **laboratório sintético e sem autoridade**; **M18-D e o marco principal [ ]**. Este incremento não envia mensagens, não autentica origem S0, não chama Graph e não modifica a S0, a OpenAI ou qualquer ambiente produtivo.
+
+
+## Adendo de auditoria — 01/11/2026
+
+A [auditoria corretiva M18](AUDITORIA_M18_DESPACHO_GRAPH_OFFLINE_2026-11-01.md) identificou e corrigiu quatro pontos laboratoriais:
+
+- `candidate_sha256` agora inclui os timestamps de observação da reserva S0 e do orçamento de taxa, o relógio do pedido e sua janela de idade. Antes, uma nova observação com os mesmos contadores poderia passar pelo recheck sem mudar o digest. O **contrato de saída** foi versionado como `wa18-dispatch-preview.lab.v0.2`; a entrada LAB permanece v0.1.
+- `attempt_correlation_valid` permanece **false em qualquer classificação Graph mock**, pois o módulo não lê uma tentativa persistida/autenticada S0. Um `wamid` sintático não comprova vínculo, `sent` nem entrega.
+- `transport_error` e `http_response` são formas **mutuamente exclusivas**, recusando observações com campos contraditórios ou resposta HTTP incompleta.
+- O parser do retorno S0 recusa `LAB_RESERVATION_RECORDED_NO_DISPATCH` com `reason` diferente de `null`; sucesso artificial não pode conter motivo de negativa.
+
+**Evidência:** [CI 41322471887](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41322471887), SHA funcional `0676f536182687fea6b35198142c39013baea23f`, **62 testes M18** (44 anteriores + 18 AUD-M18-45..62), **1.767/1.767 Meta offline**, **18/18 verificações PG17 históricas de ingresso em job separado**, dois jobs `success` e scanner ACK estático aprovado. Os números de 44/1.749 acima se referem à implementação inicial.
+
+**M18-D e marco principal continuam abertos.** Os hashes e o retorno `LAB_RECHECKED_NOT_AUTHORIZED` não são autorização S0, garantia de quota, transação/lease externa, proteção ABA nem prova de Graph. Nenhum envio, segredo, produção ou deploy foi autorizado.
