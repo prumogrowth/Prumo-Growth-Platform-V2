@@ -1,0 +1,35 @@
+name: OAI OFF-01 inherited offline regression (isolated)
+on:
+  push:
+    branches:
+      - test/oai-off01-inherited-regression-20261031
+permissions:
+  contents: read
+concurrency:
+  group: oai-off01-inherited-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  inherited-node:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact isolated branch
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify ancestry
+        run: |
+          git merge-base --is-ancestor 394512327cd3756dfbe61ff970a6279c354b6565 HEAD
+          git cat-file -t 394512327cd3756dfbe61ff970a6279c354b6565
+          test "$(git rev-parse 394512327cd3756dfbe61ff970a6279c354b6565^{tree})" = "87a3ce85b2ead682038d4bee104ca47dd006c971"
+      - name: Node 22.16.0
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - name: Run inherited OFF-01 S2 suite
+        run: npm --prefix docs/integracoes/openai/e04_offline_lab test
+      - name: State the limit
+        if: always()
+        run: |
+          echo "This job checks inherited OFF-01 only. It does not include OFF-02..OFF-08 patches."
+          echo "No external API, data, production grant, deploy, merge or S0 integration."
