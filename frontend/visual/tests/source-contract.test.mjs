@@ -713,3 +713,15 @@ test('FV-UX-BG-01: preview offline e Chromium smoke usam exatamente os mesmos m�
   assert.ok(previewModules.includes('bank-ready-list.mjs'));
   assert.ok(previewModules.indexOf('bank-ready-list.mjs')<previewModules.indexOf('app.mjs'));
 });
+
+test('FV-UX-BG-01: coletores de revisão não ressuscitam a janela Banco nem selecionam não aptos',()=>{
+  const base = get('../preview/collect_visual_review.py');
+  const modules = get('../preview/collect_modules_review.py');
+  for(const source of [base,modules]){
+    assert.doesNotMatch(source, /bank-case-select[^\\n]*select_option/);
+    assert.match(source, /bank-ready-empty/);
+    assert.match(source, /registration-diagnostics/);
+  }
+  assert.match(modules,/prior-bank-history/);
+  assert.match(modules,/number='15' if scene=='banco-versoes'/);
+});
