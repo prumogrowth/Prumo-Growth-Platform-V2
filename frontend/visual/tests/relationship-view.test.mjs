@@ -189,3 +189,12 @@ test('COR07 N04/N05: projeções explícitas não ampliam escopo nem aceitam ver
    Object.assign(publication,original);
  }
 });
+
+test('COE-08: tentativa com horário indefinido não é apresentada como agendada',()=>{
+ const rows=scene(),history=operationalHistoryFor(row(rows,'A-110'),rows,'rafael','aurora');
+ const pending=history.future.find(e=>e.state==='pending');
+ const scheduled=history.future.find(e=>e.state==='scheduled');
+ assert.match(pending.statusLabel,/não agendada.*horário pendente/i);
+ assert.match(scheduled.statusLabel,/agendada/i);
+ assert.equal(pending.state,'pending');
+});
