@@ -343,11 +343,84 @@ test('M19-56 no claim is proof of HMAC or durable receipt',()=>{
 
 test('M19-57 Graph LAB snapshot has distinct version from S0 binding snapshot',()=>{
  const s=good(run(q(),graph(),[]),'LAB_NO_CALLBACK_UNVERIFIED','NONE');
- assert.equal(s.contract_version,'wa19-graph-status-snapshot.lab.v0.1');
+ assert.equal(s.contract_version,'wa19-graph-status-snapshot.lab.v0.2');
  assert.notEqual(s.contract_version,'wa19-status-snapshot.lab.v0.1');
 });
 test('M19-58 old ambiguous Graph request contract is rejected',()=>{
  const old:any=q();
  old.contract_version='wa19-status-request.lab.v0.1';
  fail(run(old,graph(old),[]),'INVALID_INPUT');
+});
+
+
+test('AUD-M19-GRAPH-59 conflict variants cannot hide body changes',()=>{
+ const a=item(q(),'sent',0);
+ const b={...a,provider_status:'failed',error_code:131049};
+ const c={...b,body_sha256:'c'.repeat(64)};
+ const x=good(run(q(),graph(),[a,b]),'LAB_QUARANTINED_CONFLICT','CONFLICT');
+ fail(recheck(x,q(),graph(),batch([a,c])),'SNAPSHOT_CHANGED');
+});
+test('AUD-M19-GRAPH-60 conflicting permutations have equal snapshot',()=>{
+ const a=item(q(),'sent',0);
+ const b={...a,provider_status:'failed',error_code:131049};
+ const x=good(run(q(),graph(),[a,b]),'LAB_QUARANTINED_CONFLICT','CONFLICT');
+ const y=good(run(q(),graph(),[b,a]),'LAB_QUARANTINED_CONFLICT','CONFLICT');
+ assert.equal(x.snapshot_sha256,y.snapshot_sha256);
+ assert.equal(x.conflict_occurrences,y.conflict_occurrences);
+});
+test('AUD-M19-GRAPH-61 flags reflect all quarantined variants',()=>{
+ const a=item(q(),'sent',0);
+ const b={...a,provider_status:'failed',error_code:131049};
+ const x=good(run(q(),graph(),[a,b]),'LAB_QUARANTINED_CONFLICT','CONFLICT');
+ assert.equal(x.sent_observed_lab,true);assert.equal(x.failed_observed_lab,true);
+ assert.equal(x.sent_verified,false);
+});
+test('AUD-M19-GRAPH-62 identical retry of conflicting variant is counted once',()=>{
+ const a=item(q(),'sent',0);
+ const b={...a,provider_status:'failed',error_code:131049};
+ const x=good(run(q(),graph(),[a,b]),'LAB_QUARANTINED_CONFLICT','CONFLICT');
+ const y=good(run(q(),graph(),[a,b,b]),'LAB_QUARANTINED_CONFLICT','CONFLICT');
+ assert.equal(y.unique_occurrences,x.unique_occurrences);
+ assert.equal(y.exact_replays,x.exact_replays+1);
+});
+test('AUD-M19-GRAPH-63 equal physical position different refs quarantined',()=>{
+ const a=item(q(),'sent',0);
+ const b={...a,occurrence_ref:'EVENT_B',body_sha256:'c'.repeat(64)};
+ const x=good(run(q(),graph(),[a,b]),'LAB_QUARANTINED_CONFLICT','CONFLICT');
+ assert.equal(x.conflict_occurrences,1);
+});
+test('AUD-M19-GRAPH-64 ref and physical position collisions deterministic',()=>{
+ const a=item(q(),'sent',0);
+ const b={...item(q(),'delivered',1),occurrence_ref:a.occurrence_ref};
+ const c={...a,occurrence_ref:'EVENT_C',body_sha256:'c'.repeat(64)};
+ const x=good(run(q(),graph(),[a,b,c]),'LAB_QUARANTINED_CONFLICT','CONFLICT');
+ const y=good(run(q(),graph(),[c,b,a]),'LAB_QUARANTINED_CONFLICT','CONFLICT');
+ assert.equal(x.snapshot_sha256,y.snapshot_sha256);
+});
+test('AUD-M19-GRAPH-65 changed quarantined failure code changes hash',()=>{
+ const a=item(q(),'sent',0);
+ const b={...a,provider_status:'failed',error_code:131049};
+ const c={...b,error_code:131050};
+ const x=good(run(q(),graph(),[a,b]),'LAB_QUARANTINED_CONFLICT','CONFLICT');
+ const y=good(run(q(),graph(),[a,c]),'LAB_QUARANTINED_CONFLICT','CONFLICT');
+ assert.notEqual(x.snapshot_sha256,y.snapshot_sha256);
+});
+test('AUD-M19-GRAPH-66 legacy Graph status v0.1 snapshot refused',()=>{
+ const x=good(run(q(),graph(),[]),'LAB_NO_CALLBACK_UNVERIFIED','NONE');
+ fail(recheck({...x,contract_version:'wa19-graph-status-snapshot.lab.v0.1'},
+ q(),graph(),batch([])),'INVALID_PREVIOUS');
+});
+test('AUD-M19-GRAPH-67 new Graph status snapshot v0.2 explicit',()=>{
+ const x=good(run(q(),graph(),[]),'LAB_NO_CALLBACK_UNVERIFIED','NONE');
+ assert.equal(x.contract_version,'wa19-graph-status-snapshot.lab.v0.2');
+});
+test('AUD-M19-GRAPH-68 unchanged quarantined evidence is stable and not sent',()=>{
+ const a=item(q(),'sent',0);
+ const b={...a,provider_status:'failed',error_code:131049};
+ const x=good(run(q(),graph(),[a,b]),'LAB_QUARANTINED_CONFLICT','CONFLICT');
+ const y=recheck(x,q(),graph(),batch([b,a]));
+ assert.equal(y.decision,'LAB_QUARANTINED_CONFLICT');
+ assert.equal(y.snapshot?.snapshot_sha256,x.snapshot_sha256);
+ assert.equal(y.snapshot?.sent_verified,false);
+ assert.equal(y.snapshot?.wdc13_increment_authorized,false);
 });
