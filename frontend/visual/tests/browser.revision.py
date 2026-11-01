@@ -144,6 +144,7 @@ def main():
                     page.locator('#detail-close').click()
                     bank_nav=page.locator('#bank-nav-mobile' if width<=760 else '#bank-nav')
                     bank_nav.click()
+                    assert not errors,{'browser_errors':errors,'module':page.evaluate('state.activeModule')}
                     expect(page.locator('#visual-app')).to_have_attribute('data-module','bank')
                     expect(page.locator('#bank-dialog')).to_be_visible()
                     expect(page.locator('#bank-ready-empty')).to_be_visible()
