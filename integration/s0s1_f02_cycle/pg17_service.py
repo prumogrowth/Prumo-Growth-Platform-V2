@@ -160,16 +160,16 @@ def transition(c,*,request,signature,host):
         next_state=states.get((auth['state'],request['action']))
         refuse(next_state is None,'INVALID_TRANSITION')
         next_rev=auth['cycle_revision']+1
-        c.execute('UPDATE s0_f02_lab.case_cycles SET cycle_revision=%s '
+        updated_cycle=c.execute('UPDATE s0_f02_lab.case_cycles SET cycle_revision=%s '
             'WHERE case_ref=%s AND cycle_revision=%s',
             (next_rev,request['case_ref'],auth['cycle_revision']))
-        refuse(c.rowcount!=1,'CYCLE_CAS_FAILED')
-        c.execute('UPDATE s0_f02_cycle_lab.authorities '
+        refuse(updated_cycle.rowcount!=1,'CYCLE_CAS_FAILED')
+        updated_authority=c.execute('UPDATE s0_f02_cycle_lab.authorities '
             'SET cycle_revision=%s,state=%s,generation=generation+1,'
             'last_command_ref=%s WHERE case_ref=%s AND cycle_revision=%s',
             (next_rev,next_state,request['command_ref'],request['case_ref'],
              auth['cycle_revision']))
-        refuse(c.rowcount!=1,'AUTHORITY_CAS_FAILED')
+        refuse(updated_authority.rowcount!=1,'AUTHORITY_CAS_FAILED')
         c.execute('INSERT INTO s0_f02_cycle_lab.commands '
             '(command_ref,case_ref,nonce,request_digest,action,'
             'before_revision,after_revision,after_state,actor_ref,'
