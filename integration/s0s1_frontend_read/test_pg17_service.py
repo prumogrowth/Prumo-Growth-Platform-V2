@@ -133,7 +133,8 @@ class FrontendReadPhysical(unittest.TestCase):
     def test_07_unverified_human_reply_is_not_accepted(self):
         self.open()
         self.append(kind='HUMAN_REPLY_PUBLISHED',visible=False,verified=False)
-        self.assertEqual(self.queue()['rows'][0]['human_reply_pending'],'DOT')
+        item=next(x for x in self.queue()['rows'] if x['case_ref']=='case_A')
+        self.assertEqual(item['human_reply_pending'],'DOT')
 
     def test_08_historical_read_without_composer(self):
         x=self.open(ref='old',case='case_B')
