@@ -14,7 +14,7 @@ Essa comparação é **apenas prova de consistência entre fixtures**, sem assin
 
 - `M14-01..50` — cobertura anterior preservada.
 - `AUD-M14-51..66` — **16 novas regressões**: alteração de consentimento de outra finalidade com mesma revisão, ativação de opt-out de outra finalidade, adição/remoção e revogação de grant alheio, mudança de prazo de consentimento e de revisão individual, inserção de supressão, permissões de audiência, ordenação inócua de listas, preservação de razões de denegação explícitas e ausência de dados pessoais na resposta.
-- A suíte Meta deve aumentar de **1.497 para 1.513** casos offline, com **66 M14 específicos**. Registrar SHA e CI exatos confirmados após execução. Os testes PG17 históricos são uma prova **separada do ingresso S0↔Meta**, não exercitam este ledger M14.
+- **Evidência confirmada:** commit funcional `640e73f591946970a8a169685c8771a237c2472d`, [CI 41266701159](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41266701159): **1.513/1.513 testes Meta offline** (incluindo 66 M14), **18/18 verificações físicas PG17** independentes, dois jobs `success`, scanner ACK lexical aprovado. Os testes PG17 são prova **separada do ingresso S0↔Meta histórico**, não autenticam nem exercitam este ledger M14. O commit intermediário de correção sem os testes completos (`99a1377e`) teve CI vermelho e não é usado como prova.
 
 ## Limites e dependências irredutíveis
 
