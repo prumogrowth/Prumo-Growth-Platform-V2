@@ -332,6 +332,152 @@ class F02Physical(unittest.TestCase):
         self.assertEqual(out['reason'],'ALIAS_CHANGED')
         self.assertEqual(self.counts(),(1,1,0))
 
+    def test_26_distinct_cycle_2_assignment_7_accepted_end_to_end(self):
+        with self.lab.admin() as c:
+            c.execute("UPDATE s0_f02_lab.case_cycles "
+                      "SET cycle_revision=2 WHERE case_ref='case_A'")
+            c.execute("UPDATE s0_pre_dispatch_lab.cases "
+                      "SET assignment_revision=7 WHERE case_ref='case_A'")
+        self.versions['cycle']=2
+        self.versions['assignment']=7
+        out=self.create()
+        self.assertEqual(out['decision'],'LAB_REQUEST_RECORDED_NO_MODEL')
+        self.assertEqual(out['private']['scope']['expectedVersions']['cycle'],2)
+        self.assertEqual(out['private']['scope']['expectedVersions']['assignment'],7)
+        with self.lab.admin() as c:
+            row=c.execute('SELECT cycle_revision,assignment_revision '
+                          'FROM s0_f02_lab.requests').fetchone()
+        self.assertEqual((row['cycle_revision'],row['assignment_revision']),(2,7))
+        proposal=self.candidate_from_private(out['private'])
+        self.assertEqual(self.assess(proposal)['decision'],
+                         'LAB_PROPOSAL_RECORDED_REVIEW_ONLY')
+        self.assertEqual(self.counts(),(1,1,1))
+
+    def candidate_from_private(self,p):
+        t=p['request']['templates'][0]
+        return {
+            'status':'S0_RECHECK_ONLY',
+            'schemaVersion':'prumo.openai.f02-plan-candidate/0.1',
+            'requestId':self.q['request_ref'],'chainRef':'synthetic_chain',
+            'expectedVersions':self.versions7(),
+            'attempts':[{'templateId':t['id'],'templateVersion':t['version'],
+                         'purpose':self.q['purpose_ref'],
+                         'at':p['request']['windowStart']}],
+            'finalTemplate':None,'sendAuthorized':False,
+            'schedulingAuthorized':False,
+            'commercialTransitionAuthorized':False
+        }
+
+    def test_27_distinct_cycle_5_assignment_1_accepted(self):
+        with self.lab.admin() as c:
+            c.execute("UPDATE s0_f02_lab.case_cycles SET cycle_revision=5 "
+                      "WHERE case_ref='case_A'")
+        self.versions['cycle']=5
+        result=self.create()
+        self.assertEqual(result['decision'],'LAB_REQUEST_RECORDED_NO_MODEL')
+        self.assertEqual(self.assess(self.candidate_from_private(
+            result['private']))['decision'],'LAB_PROPOSAL_RECORDED_REVIEW_ONLY')
+
+    def test_28_distinct_cycle_1_assignment_9_accepted(self):
+        with self.lab.admin() as c:
+            c.execute("UPDATE s0_pre_dispatch_lab.cases "
+                      "SET assignment_revision=9 WHERE case_ref='case_A'")
+        self.versions['assignment']=9
+        out=self.create()
+        self.assertEqual(out['decision'],'LAB_REQUEST_RECORDED_NO_MODEL')
+        self.assertEqual(out['private']['scope']['expectedVersions']['cycle'],1)
+        self.assertEqual(out['private']['scope']['expectedVersions']['assignment'],9)
+
+    def test_29_wrong_cycle_rejected_independently_of_assignment(self):
+        with self.lab.admin() as c:
+            c.execute("UPDATE s0_f02_lab.case_cycles SET cycle_revision=2 "
+                      "WHERE case_ref='case_A'")
+        out=self.create()
+        self.deny(out)
+        self.assertEqual(out['reason'],'STALE_OR_CHANGED')
+        self.assertEqual(self.counts(),(0,0,0))
+
+    def test_30_wrong_assignment_rejected_independently_of_cycle(self):
+        with self.lab.admin() as c:
+            c.execute("UPDATE s0_pre_dispatch_lab.cases "
+                      "SET assignment_revision=7 WHERE case_ref='case_A'")
+        out=self.create()
+        self.deny(out)
+        self.assertEqual(out['reason'],'STALE_OR_CHANGED')
+        self.assertEqual(self.counts(),(0,0,0))
+
+    def test_31_cycle_changed_after_plan_denies_review(self):
+        proposal=self.candidate()
+        with self.lab.admin() as c:
+            c.execute("UPDATE s0_f02_lab.case_cycles "
+                      "SET cycle_revision=cycle_revision+1 "
+                      "WHERE case_ref='case_A'")
+        out=self.assess(proposal)
+        self.deny(out)
+        self.assertEqual(out['reason'],'STALE_OR_CHANGED')
+        self.assertEqual(self.counts(),(1,1,0))
+
+    def test_32_assignment_changed_after_plan_denies_review(self):
+        proposal=self.candidate()
+        with self.lab.admin() as c:
+            c.execute("UPDATE s0_pre_dispatch_lab.cases "
+                      "SET assignment_revision=assignment_revision+1 "
+                      "WHERE case_ref='case_A'")
+        out=self.assess(proposal)
+        self.deny(out)
+        self.assertEqual(out['reason'],'STALE_OR_CHANGED')
+        self.assertEqual(self.counts(),(1,1,0))
+
+    def test_33_cycle_source_absent_denies_even_if_assignment_matches(self):
+        with self.lab.admin() as c:
+            c.execute("DELETE FROM s0_f02_lab.case_cycles WHERE case_ref='case_A'")
+        out=self.create()
+        self.deny(out)
+        self.assertEqual(out['reason'],'CYCLE_SOURCE_MISSING_OR_CHANGED')
+
+    def test_34_wrong_flow_binding_denied_without_case_alias(self):
+        out=self.create({'flow_ref':'flow_B'})
+        self.deny(out)
+        self.assertEqual(out['reason'],'CYCLE_SOURCE_MISSING_OR_CHANGED')
+        self.assertEqual(self.counts(),(0,0,0))
+
+    def test_35_exact_replay_with_distinct_versions_preserves_binding(self):
+        with self.lab.admin() as c:
+            c.execute("UPDATE s0_f02_lab.case_cycles SET cycle_revision=4 "
+                      "WHERE case_ref='case_A'")
+            c.execute("UPDATE s0_pre_dispatch_lab.cases "
+                      "SET assignment_revision=8 WHERE case_ref='case_A'")
+        self.versions['cycle']=4
+        self.versions['assignment']=8
+        first=self.create()
+        second=self.create()
+        self.assertEqual(second['decision'],'LAB_REQUEST_REPLAY_REVIEW_ONLY')
+        self.assertEqual(first['private']['providerTag'],
+                         second['private']['providerTag'])
+        self.assertEqual(second['private']['scope']['expectedVersions']['cycle'],4)
+        self.assertEqual(second['private']['scope']['expectedVersions']['assignment'],8)
+        self.assertEqual(self.counts(),(1,1,0))
+
+    def test_36_runtime_cannot_read_cycle_source(self):
+        with psycopg.connect(self.lab.runtime_dsn) as c:
+            with self.assertRaises(psycopg.Error):
+                c.execute('SELECT * FROM s0_f02_lab.case_cycles')
+
+    def test_37_distinct_versions_recheck_rejects_source_change(self):
+        with self.lab.admin() as c:
+            c.execute("UPDATE s0_f02_lab.case_cycles SET cycle_revision=3 "
+                      "WHERE case_ref='case_A'")
+            c.execute("UPDATE s0_pre_dispatch_lab.cases "
+                      "SET assignment_revision=5 WHERE case_ref='case_A'")
+        self.versions['cycle']=3
+        self.versions['assignment']=5
+        proposal=self.candidate()
+        with self.lab.admin() as c:
+            c.execute("UPDATE s0_f02_lab.case_cycles "
+                      "SET cycle_revision=4 WHERE case_ref='case_A'")
+        self.assertEqual(self.assess(proposal)['reason'],'STALE_OR_CHANGED')
+        self.assertEqual(self.counts(),(1,1,0))
+
     def test_24_absent_consent_cannot_be_opt_in(self):
         with self.lab.admin() as c:
             c.execute('DELETE FROM s0_pre_dispatch_lab.consents')
