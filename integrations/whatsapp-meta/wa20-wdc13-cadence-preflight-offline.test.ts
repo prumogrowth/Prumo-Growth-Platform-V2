@@ -342,3 +342,99 @@ test('M20-60 cross-App attempt cannot count',()=>{
  const a=fail2();a.app_ref='APP_OTHER';
  denied(run(context(),[fail(),a]),'ATTEMPT_SCOPE_DENIED');
 });
+
+
+test('AUD-M20-61 reused event_ref cannot count as two failures',()=>{
+ const a=fail(),b=fail2();b.event_ref=a.event_ref;
+ denied(run(context(),[a,b]),'SEQUENCE_GAP_OR_DUPLICATE');
+});
+test('AUD-M20-62 reused event_ref cannot turn a failure into sent reset',()=>{
+ const a=fail(),b=sent(2);b.event_ref=a.event_ref;
+ denied(run(context(),[a,b]),'SEQUENCE_GAP_OR_DUPLICATE');
+});
+test('AUD-M20-63 same event_ref on unknown and sent remains denied',()=>{
+ const a=unknown(),b=sent(2);b.event_ref=a.event_ref;
+ denied(run(context(),[a,b]),'SEQUENCE_GAP_OR_DUPLICATE');
+});
+test('AUD-M20-64 same event_ref with changed hash is still reuse',()=>{
+ const a=fail(),b=fail2();
+ b.event_ref=a.event_ref;b.event_sha256='b'.repeat(64);
+ denied(run(context(),[a,b]),'SEQUENCE_GAP_OR_DUPLICATE');
+});
+test('AUD-M20-65 same body digest on different event refs is not proof',()=>{
+ const a=fail(),b=fail2();
+ const snap=safe(run(context(),[a,b]),
+  'LAB_TWO_FAILURES_CANDIDATE_UNVERIFIED');
+ assert.equal(a.event_sha256,b.event_sha256);
+ assert.equal(snap.wdc13_increment_authorized,false);
+});
+test('AUD-M20-66 attempt observed after alleged S0 snapshot is denied',()=>{
+ const a=fail();a.observed_at_ms=NOW-999;
+ denied(run(context(),[a]),'ATTEMPT_SCOPE_DENIED');
+});
+test('AUD-M20-67 event observed equal to S0 context is permitted LAB',()=>{
+ const a=fail();a.observed_at_ms=NOW-1000;
+ safe(run(context(),[a]),'LAB_BELOW_TWO_UNVERIFIED');
+});
+test('AUD-M20-68 event observed before S0 context is permitted LAB',()=>{
+ const a=fail();a.observed_at_ms=NOW-2000;
+ safe(run(context(),[a]),'LAB_BELOW_TWO_UNVERIFIED');
+});
+test('AUD-M20-69 recheck refuses newer event after unchanged S0 context',()=>{
+ const old=safe(run(context(),[fail()]));
+ const a=fail();a.observed_at_ms=NOW-999;
+ denied(recheck(old,context(),[a]),'ATTEMPT_SCOPE_DENIED');
+});
+test('AUD-M20-70 no failure preceding first sent means no reset',()=>{
+ const snap=safe(run(context(),[sent()]),'LAB_BELOW_TWO_UNVERIFIED');
+ assert.equal(snap.claimed_sent_reset_count,0);
+});
+test('AUD-M20-71 two standalone sent claims do not imply two resets',()=>{
+ const snap=safe(run(context(),[sent(),sent(2)]),'LAB_BELOW_TWO_UNVERIFIED');
+ assert.equal(snap.claimed_sent_reset_count,0);
+});
+test('AUD-M20-72 failure followed by sent counts one LAB reset',()=>{
+ const snap=safe(run(context(),[fail(),sent(2)]),'LAB_BELOW_TWO_UNVERIFIED');
+ assert.equal(snap.claimed_sent_reset_count,1);
+});
+test('AUD-M20-73 unknown followed by sent resolves one LAB hold',()=>{
+ const snap=safe(run(context(),[unknown(),sent(2)]),
+  'LAB_BELOW_TWO_UNVERIFIED');
+ assert.equal(snap.claimed_sent_reset_count,1);
+});
+test('AUD-M20-74 consecutive holds before one sent are one reset',()=>{
+ const snap=safe(run(context(),[fail(),unknown(2),sent(3)]),
+  'LAB_BELOW_TWO_UNVERIFIED');
+ assert.equal(snap.claimed_sent_reset_count,1);
+});
+test('AUD-M20-75 two separate failure to sent cycles count two resets',()=>{
+ const snap=safe(run(context(),[fail(),sent(2),
+  attempt('LAB_DEFINITIVE_FAILURE_CLAIM',3),sent(4)]),
+ 'LAB_BELOW_TWO_UNVERIFIED');
+ assert.equal(snap.claimed_sent_reset_count,2);
+});
+test('AUD-M20-76 sent then two failures still candidate without reset',()=>{
+ const snap=safe(run(context(),[sent(),fail2(),
+  attempt('LAB_DEFINITIVE_FAILURE_CLAIM',3)]),
+ 'LAB_TWO_FAILURES_CANDIDATE_UNVERIFIED');
+ assert.equal(snap.claimed_sent_reset_count,0);
+});
+test('AUD-M20-77 snapshot is versioned v0.2 after semantic change',()=>{
+ const snap=safe(run());
+ assert.equal(snap.contract_version,'wa20-wdc13-snapshot.lab.v0.2');
+});
+test('AUD-M20-78 previous v0.1 snapshots cannot recheck under v0.2',()=>{
+ const old=safe(run(context(),[fail(),fail2()]));
+ denied(recheck({...old,contract_version:'wa20-wdc13-snapshot.lab.v0.1'},
+  context(),[fail(),fail2()]),'INVALID_PREVIOUS');
+});
+test('AUD-M20-79 changing evidence reference on fresh snapshot denies',()=>{
+ const old=safe(run(context(),[fail(),fail2()]));
+ const a=fail(),b=fail2();b.event_ref='EVENT_FRESH_2';
+ denied(recheck(old,context(),[a,b]),'SNAPSHOT_OR_CONTEXT_CHANGED');
+});
+test('AUD-M20-80 reused event reference cannot masquerade as a reset',()=>{
+ const a=sent(),b=fail2();
+ b.event_ref=a.event_ref;
+ denied(run(context(),[a,b]),'SEQUENCE_GAP_OR_DUPLICATE');
+});
