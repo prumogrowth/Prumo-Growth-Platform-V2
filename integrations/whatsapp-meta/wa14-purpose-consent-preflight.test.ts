@@ -279,3 +279,130 @@ test('M14-50 consent granted to multiple purposes remains separate',()=>{
   ledger({consents:[granted(),granted('MARKETING')]})),
   'GRANT_DENIED');
 });
+
+
+test('AUD-M14-51 unchanged revisions with unrelated purpose consent drift denied',()=>{
+ const prior=ledger({consents:[granted(),{
+  ...granted('MARKETING'),state:'DENIED',
+ }]});
+ const after=ledger({observed_at_ms:NOW,consents:[
+  granted(),granted('MARKETING'),
+ ]});
+ denied(revisit(request(),prior,request({now_ms:NOW+1000}),after),
+  'REVISION_OR_CONTEXT_CHANGED');
+});
+test('AUD-M14-52 unrelated opt-out newly active at same revision denied',()=>{
+ const prior=ledger({suppressions:[suppressed('MARKETING',false)]});
+ const after=ledger({observed_at_ms:NOW,suppressions:[
+  suppressed('MARKETING',true),
+ ]});
+ denied(revisit(request(),prior,request({now_ms:NOW+1000}),after),
+  'REVISION_OR_CONTEXT_CHANGED');
+});
+test('AUD-M14-53 unrelated new grant without global revision change denied',()=>{
+ const additional=activeGrant({template_ref:'TPL_OTHER'});
+ const after=ledger({observed_at_ms:NOW,grants:[activeGrant(),additional]});
+ denied(revisit(request(),ledger(),request({now_ms:NOW+1000}),after),
+  'REVISION_OR_CONTEXT_CHANGED');
+});
+test('AUD-M14-54 selected consent window extended without revision denied',()=>{
+ const after=ledger({observed_at_ms:NOW,consents:[{
+  ...granted(),valid_until_ms:NOW+90000,
+ }]});
+ denied(revisit(request(),ledger(),request({now_ms:NOW+1000}),after),
+  'REVISION_OR_CONTEXT_CHANGED');
+});
+test('AUD-M14-55 changed selected grant item revision with same global denied',()=>{
+ const after=ledger({observed_at_ms:NOW,grants:[activeGrant({
+  revision:6,
+ })]});
+ denied(revisit(request(),ledger(),request({now_ms:NOW+1000}),after),
+  'REVISION_OR_CONTEXT_CHANGED');
+});
+test('AUD-M14-56 changed other grant active to revoked without revision denied',()=>{
+ const extra=activeGrant({template_ref:'TPL_OTHER',state:'ACTIVE'});
+ const before=ledger({grants:[activeGrant(),extra]});
+ const after=ledger({observed_at_ms:NOW,grants:[
+  activeGrant(),{...extra,state:'REVOKED'},
+ ]});
+ denied(revisit(request(),before,request({now_ms:NOW+1000}),after),
+  'REVISION_OR_CONTEXT_CHANGED');
+});
+test('AUD-M14-57 unrelated active suppression inserted without revision denied',()=>{
+ const after=ledger({observed_at_ms:NOW,suppressions:[
+  suppressed('MARKETING'),
+ ]});
+ denied(revisit(request(),ledger(),request({now_ms:NOW+1000}),after),
+  'REVISION_OR_CONTEXT_CHANGED');
+});
+test('AUD-M14-58 change in nonselected consent state preserves scope but denies',()=>{
+ const original={...granted('MARKETING'),state:'UNKNOWN'};
+ const prior=ledger({consents:[granted(),original]});
+ const after=ledger({observed_at_ms:NOW,consents:[
+  granted(),{...original,state:'REVOKED'},
+ ]});
+ denied(revisit(request(),prior,request({now_ms:NOW+1000}),after),
+  'REVISION_OR_CONTEXT_CHANGED');
+});
+test('AUD-M14-59 reordering consent rows does not fabricate drift',()=>{
+ const prior=ledger({consents:[granted(),granted('MARKETING')]});
+ const after=ledger({observed_at_ms:NOW,
+  consents:[granted('MARKETING'),granted()]});
+ ok(revisit(request(),prior,request({now_ms:NOW+1000}),after),
+  'LAB_RECHECKED_UNVERIFIED');
+});
+test('AUD-M14-60 reordering suppression and grant rows does not drift',()=>{
+ const optionalGrant=activeGrant({template_ref:'TPL_OTHER'});
+ const prior=ledger({
+  suppressions:[suppressed('MARKETING',false),suppressed('SERVICE',false)],
+  grants:[activeGrant(),optionalGrant],
+ });
+ const after=ledger({observed_at_ms:NOW,
+  suppressions:[suppressed('SERVICE',false),suppressed('MARKETING',false)],
+  grants:[optionalGrant,activeGrant()],
+ });
+ ok(revisit(request(),prior,request({now_ms:NOW+1000}),after),
+  'LAB_RECHECKED_UNVERIFIED');
+});
+test('AUD-M14-61 changed status of selected grant still reports explicit denial',()=>{
+ denied(revisit(request(),ledger(),request({now_ms:NOW+1000}),
+  ledger({observed_at_ms:NOW,grants:[activeGrant({state:'REVOKED'})]})),
+  'GRANT_DENIED');
+});
+test('AUD-M14-62 changed selected consent still reports explicit denial',()=>{
+ denied(revisit(request(),ledger(),request({now_ms:NOW+1000}),
+  ledger({observed_at_ms:NOW,consents:[{
+   ...granted(),state:'REVOKED',
+  }]})),'CONSENT_DENIED');
+});
+test('AUD-M14-63 shop-wide opt-out after PLAN reports explicit suppression',()=>{
+ denied(revisit(request(),ledger(),request({now_ms:NOW+1000}),
+  ledger({observed_at_ms:NOW,suppressions:[suppressed(null)]})),
+  'SUPPRESSED');
+});
+test('AUD-M14-64 changed selected audience eligibility reports explicit denial',()=>{
+ denied(revisit(request(),ledger(),request({now_ms:NOW+1000}),
+  ledger({observed_at_ms:NOW,audience_eligible:false})),
+  'CASE_OR_AUDIENCE_DENIED');
+});
+test('AUD-M14-65 empty unrelated consent removed without revision denied',()=>{
+ const prior=ledger({consents:[granted(),granted('MARKETING')]});
+ const after=ledger({observed_at_ms:NOW,consents:[granted()]});
+ denied(revisit(request(),prior,request({now_ms:NOW+1000}),after),
+  'REVISION_OR_CONTEXT_CHANGED');
+});
+test('AUD-M14-66 no personal identifiers in recheck drift denial',()=>{
+ const prior=ledger({consents:[granted(),granted('MARKETING')]});
+ const after=ledger({observed_at_ms:NOW,consents:[granted()]});
+ const result=revisit(request(),prior,request({now_ms:NOW+1000}),after);
+ denied(result,'REVISION_OR_CONTEXT_CHANGED');
+ assert.deepEqual(Object.keys(result).sort(),[
+  'ack_allowed','automatic_retry_authorized','campaign_authorized',
+  'consent_source_authenticated','consent_verified','decision',
+  'grant_source_authenticated','graph_dispatch_authorized',
+  'http_response_authorized','principal_verified','production_authorized',
+  'reason','s0_source_authenticated','s0_write_authorized',
+  'send_authorized','suppression_source_authenticated',
+  'template_approval_verified','tenant_binding_verified',
+ ].sort());
+});
