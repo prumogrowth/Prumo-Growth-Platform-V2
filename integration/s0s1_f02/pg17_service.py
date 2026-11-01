@@ -352,6 +352,19 @@ def review_in_admin_transaction(c,proposal,*,q,scope,principal,m09_versions,
             'catalog':[(t['template_ref'],t['template_version'],
                         t['revision'],t['grant_revision']) for t in templates]
         }), 'STALE_OR_CHANGED')
+        # Durable aliases are the authority for translating OFF04 proposals.
+        # A changed or incomplete map is NOT silently rebuilt or accepted.
+        stored_aliases=c.execute(
+            'SELECT alias,template_ref,version_ref,template_revision '
+            'FROM s0_f02_lab.aliases WHERE request_ref=%s '
+            'ORDER BY alias FOR SHARE',(q['request_ref'],)).fetchall()
+        expected_aliases=[(
+            f'tpl_{i:03d}',t['template_ref'],t['template_version'],
+            t['revision']) for i,t in enumerate(templates,1)]
+        require([
+            (a['alias'],a['template_ref'],a['version_ref'],
+             a['template_revision']) for a in stored_aliases
+        ]==expected_aliases,'ALIAS_CHANGED')
         require(proposal['chainRef']=='synthetic_chain',
                 'INVALID_PROPOSAL')
         require(len(proposal['attempts'])<=saved['max_attempts'],
