@@ -294,7 +294,7 @@ function renderList() {
   $('list-context').textContent = currentActor.teamState !== 'active' ? 'Acesso fictício suspenso' : currentActor.role === 'gestor' ? 'Visão de supervisão' : 'Atribuídos a mim';
   const activeRows=projectInbox(state.cases,state.actorId,state.shopId,'active');
   const summary={total:activeRows.length,unread:activeRows.filter(x=>demoAttentionFor(x).kind==='unread').length,human:activeRows.filter(x=>x.status==='em atendimento pelo operador').length};
-  const tiles=[['Total de ativos',summary.total],['Não lidas',summary.unread],['Em atendimento',summary.human]];
+  const tiles=[['Total de ativos',summary.total],['Não lidas',summary.unread],['Na etapa humana',summary.human]];
   $('queue-summary').setAttribute('aria-label','Indicadores fictícios dos atendimentos ativos autorizados');
   $('queue-summary').replaceChildren(...tiles.map(([label,value])=>{
     const tile=el('div','summary-tile');tile.append(el('strong','',value),el('span','',label));return tile;
