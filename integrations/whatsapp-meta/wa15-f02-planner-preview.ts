@@ -36,6 +36,10 @@ export type Wa15PreviewCandidate=Readonly<{
 }>;
 export type Wa15PlannerPreview=Readonly<{
  contract_version:'wa15-f02-preview.lab.v0.1';
+ /** This internal LAB staging projection is NOT the OpenAI/F02 provider view.
+  * OFF-04 provider view uses opaque aliases and hides original template IDs. */
+ intended_consumer:'LAB_S0_HOST_STAGING_ONLY';
+ openai_provider_payload_compatible:false;
  planning_flow_ref:string;campaign_ref:string|null;
  plan_revision:number;catalog_revision:number;
  candidates:readonly Wa15PreviewCandidate[];
@@ -321,6 +325,8 @@ export async function prepareWa15F02PreviewOffline(
   out.sort((a,b)=>a.template_ref<b.template_ref?-1:a.template_ref>b.template_ref?1:0);
   const preview:Wa15PlannerPreview=Object.freeze({
    contract_version:'wa15-f02-preview.lab.v0.1',
+   intended_consumer:'LAB_S0_HOST_STAGING_ONLY',
+   openai_provider_payload_compatible:false,
    planning_flow_ref:q.flow_ref,campaign_ref:q.campaign_ref,
    plan_revision:q.plan_revision,catalog_revision:q.catalog_revision,
    candidates:Object.freeze(out),send_authorized:false,
