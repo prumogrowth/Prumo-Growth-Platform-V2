@@ -40,3 +40,17 @@ A base existente **não foi substituída**: `status-evidence.ts` valida sintaxe;
 - [ ] **Homologação E2E:** casos de late/out-of-order, retries de webhook, duplicata de bytes, conflito de escopo, commit incerto e tampering, antes de merge/deploy/Graph. A autorização de envio real do M18-D segue pendente na #10.
 
 **Situação:** M19-A/B/C exercitados somente **offline**, nenhum status real homologado; **M19-D e M19 principal abertos**. Nenhum Graph, credencial, dado real, mensagem, banco produtivo, HTTP ACK, merge ou deploy.
+
+
+## Adendo de auditoria corretiva — 01/11/2026
+
+A [auditoria M19](AUDITORIA_M19_RECONCILIACAO_STATUS_2026-11-01.md) corrigiu duas lacunas de integridade nos laboratórios complementares, **sem integrá-los**:
+
+- No módulo de vínculo S0, o estado de quarentena antes registrava no hash somente o primeiro evento visto para um `occurrence_ref`; variantes conflitantes posteriores eram sinalizadas como conflito, mas podiam mudar de corpo, status, timestamp ou erro sem mudar a fotografia. Agora **todas as variantes distintas** entram no hash de forma canônica, com duplicatas exatas contabilizadas; `saw_*` inclui as variantes conflitantes, sem conferir `sent`.
+- No módulo Graph/callback, a seleção da primeira ocorrência na posição/identificador poderia fazer o snapshot depender da ordem de chegada e omitir uma variante em conflito. Agora todas as variantes distintas são preservadas e ordenadas antes da detecção de colisão; **a quarentena continua obrigatória** e o hash cobre todos os campos de todas as variantes.
+
+Por mudança semântica dos hashes, saídas de snapshot recebem versões distintas **`wa19-status-snapshot.lab.v0.2`** (vínculo S0) e **`wa19-graph-status-snapshot.lab.v0.2`** (Graph/callback); `v0.1` é recusada no recheck. As entradas dos dois ensaios conservam suas versões de laboratório anteriores e **não são convertíveis entre si**. A identificação do item físico pelo S0 continua insuficiente (falta identidade do lote/posição completa), e a origem Meta não está autenticada.
+
+**Evidência funcional auditada:** SHA `3311caaa91034e93da533ce7748370e239538ecb`, [CI 41338646961](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41338646961), **1.902/1.902 Meta offline**: 67 testes S0 binding M19 (57 + 10 de auditoria), 68 testes Graph/callback M19 (58 + 10 de auditoria), total **135 M19**. Dois jobs `success`, scanner ACK lexical aprovado e **18/18 PG17 históricos independentes** de ingresso. Valores anteriores (115 M19/1.882 Meta) eram o estado antes da auditoria.
+
+M19-D e marco principal continuam **[ ]**, sem serviço de status S0, HMAC real, prova `sent`, projeção F02, Graph, ACK, merge ou deploy.
