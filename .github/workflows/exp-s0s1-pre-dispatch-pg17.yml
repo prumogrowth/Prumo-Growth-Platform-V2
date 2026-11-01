@@ -1,0 +1,75 @@
+name: S0 PRE_DISPATCH physical policy control lab
+on:
+  push:
+    branches: [exp/s0s1-pre-dispatch-pg17-20261101]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  scope-and-unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Verify S0-only exact diff and Python scripts
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          python3 -B - <<'PY'
+          import ast,subprocess,pathlib
+          base='0925aa46df6fcafd6ac7551fe2f33a35691b2622'
+          files=set(subprocess.check_output(
+              ['git','diff','--name-only',base,'HEAD'],text=True).splitlines())
+          required={
+              'integration/s0s1_pre_dispatch/pg17_schema.sql',
+              'integration/s0s1_pre_dispatch/pg17_service.py',
+              'integration/s0s1_pre_dispatch/test_pg17_service.py',
+              '.github/workflows/exp-s0s1-pre-dispatch-pg17.yml'}
+          optional={'docs/contratos/s0_pre_dispatch/S0_PRE_DISPATCH_PG17_LAB_20261101.md'}
+          assert required<=files and files<=required|optional,sorted(files^required)
+          for name in ('pg17_service.py','test_pg17_service.py'):
+              ast.parse((pathlib.Path('integration/s0s1_pre_dispatch')/name).read_text())
+          print('S0 PRE_DISPATCH scoped code PASS')
+          PY
+      - name: M09-01 synthetic stable source regression
+        run: python3 -B -m unittest integration.s0s1_m09_registry.test_port -q
+  pg17-consent-reservation:
+    needs: scope-and-unit
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      M09_PG17_DISPOSABLE: 'YES'
+      M09_PINNED_SOURCE: ${{ github.workspace }}/_m09_pin
+      PYTHONPATH: ${{ github.workspace }}
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 01ffdb093013664b73b18d23f92aac2202578210
+          path: _m09_pin
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Verify immutable PG17 source and frozen dependencies
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git -C _m09_pin rev-parse HEAD)" = 01ffdb093013664b73b18d23f92aac2202578210
+          python3 -m pip install 'psycopg[binary]==3.2.13' 'cryptography==46.0.3'
+      - name: Physical consent/template/grant case CAS and race suite
+        run: python3 -B -m unittest integration.s0s1_pre_dispatch.test_pg17_service -v
+      - name: Prior M09-08 18 technical point-of-use regressions
+        run: python3 -B -m unittest integration.s0s1_m09_registry.test_pg17_use_check -q
+      - name: Verify inherited source preserved and disposable cleanup
+        if: always()
+        run: |
+          test -z "$(git -C _m09_pin status --porcelain)"
+          test -z "$(git status --porcelain --untracked-files=no)"
