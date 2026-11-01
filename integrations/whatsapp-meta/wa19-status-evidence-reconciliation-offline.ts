@@ -39,7 +39,7 @@ type Decision='LAB_NO_CALLBACK_UNVERIFIED'|'LAB_OBSERVATION_UNVERIFIED'|
 type Progress='NONE'|'SENT_OBSERVED'|'DELIVERED_OBSERVED'|'READ_OBSERVED'|
  'FAILED_OBSERVED'|'CONFLICT';
 export type Wa19Snapshot=Readonly<{
- contract_version:'wa19-status-snapshot.lab.v0.1';
+ contract_version:'wa19-graph-status-snapshot.lab.v0.1';
  snapshot_sha256:string;decision:Exclude<Decision,'DENIED'>;
  progress:Progress;unique_occurrences:number;exact_replays:number;
  conflict_occurrences:number;
@@ -102,7 +102,7 @@ function sameScope(a:Record<string,unknown>,b:Record<string,unknown>):boolean{
  return scope.every(k=>a[k]===b[k]);
 }
 function request(x:Record<string,unknown>):boolean{
- return x.contract_version==='wa19-status-request.lab.v0.1'&&validScope(x)&&
+ return x.contract_version==='wa19-graph-status-request.lab.v0.1'&&validScope(x)&&
   ['case_revision','template_revision','assignment_revision','consent_revision']
    .every(k=>POS(x[k]))&&NONNEG(x.now_ms)&&POS(x.max_age_ms)&&
   (x.max_age_ms as number)<=300000&&
@@ -208,7 +208,7 @@ export function reconcileWa19StatusOffline(
   // claimed fields, timestamps, positions and error codes affect the hash.
   const canonical=unique.map(x=>eventTuple(x)).sort();
   const snapshot:Wa19Snapshot=Object.freeze({
-   contract_version:'wa19-status-snapshot.lab.v0.1',
+   contract_version:'wa19-graph-status-snapshot.lab.v0.1',
    snapshot_sha256:sha(['WA19_STATUS_LAB_V0_1',K_REQUEST.map(k=>q[k]),
     K_GRAPH.map(k=>g[k]),canonical,replay,conflict,decision,progress]),
    decision,progress,unique_occurrences:unique.length,exact_replays:replay,
@@ -223,7 +223,7 @@ export function reconcileWa19StatusOffline(
 }
 function previous(raw:unknown):Record<string,unknown>|null{
  const x=record(raw,K_RESULT);
- if(!x||x.contract_version!=='wa19-status-snapshot.lab.v0.1'||
+ if(!x||x.contract_version!=='wa19-graph-status-snapshot.lab.v0.1'||
     typeof x.snapshot_sha256!=='string'||!HEX.test(x.snapshot_sha256)||
     !['LAB_NO_CALLBACK_UNVERIFIED','LAB_OBSERVATION_UNVERIFIED',
       'LAB_LATE_HISTORICAL_UNVERIFIED','LAB_QUARANTINED_CONFLICT']
