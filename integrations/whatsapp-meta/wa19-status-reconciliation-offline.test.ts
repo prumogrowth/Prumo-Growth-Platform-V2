@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {reconcileWa19S0BindingOffline as reconcile,
- recheckWa19StatusOffline as recheck}
+ recheckWa19S0BindingOffline as recheck}
  from './wa19-status-reconciliation-offline.ts';
 
 const NOW=1800000000000,SHOP='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
