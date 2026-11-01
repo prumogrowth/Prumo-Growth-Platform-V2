@@ -688,7 +688,9 @@ with sync_playwright() as p:
     leave_bank(focus_page)
     focus_page.locator('#list-extra').evaluate('e=>e.open=false')
     focus_page.get_by_role('button',name='Abrir conversa Cliente Exemplo 02',exact=False).click()
-    assert focus_page.locator('#message-input').input_value() == ''
+    # Voltar ao MESMO caso por Escape não configura troca de titular/caso;
+    # preserva rascunho local. Outro caso continua limpando (regressão Node).
+    assert focus_page.locator('#message-input').input_value() == 'Rascunho de teste não enviado'
     focus_page.locator('#thread-title').click()
     focus_page.locator('#detail-back').focus()
     focus_page.keyboard.press('Escape')
