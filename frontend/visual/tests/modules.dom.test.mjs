@@ -95,3 +95,10 @@ test('COR07 OBS01: resumo de contadores explicita ativos independente do filtro'
    assert.match(get('queue-summary').textContent,/Total de ativos/);
  }
 });
+
+test('FV-UX: banco exibe somente lista elegivel',()=>{
+ reset();get('bank-nav').click();
+ assert.equal(get('bank-content').textContent,'');
+ assert.equal(get('bank-case-select').hidden,true);
+ get('bank-close').click();
+});
