@@ -86,7 +86,13 @@ function record(raw:unknown,keys:readonly string[]):Record<string,unknown>|null{
  * exotic objects, cycles, unsafe numbers and resource amplification. */
 function clone(raw:unknown,n={nodes:0},level=0,anc=new WeakSet<object>()):any{
  if(++n.nodes>5000||level>20)throw Error('LAB_CAP');
- if(raw===null||typeof raw==='string'||typeof raw==='boolean')return raw;
+ if(raw===null||typeof raw==='boolean')return raw;
+ // Reject oversized string values before copying or hashing the source
+ // registry and component metadata. WA-17B has tighter content limits.
+ if(typeof raw==='string'){
+  if(raw.length>8192)throw Error('LAB_STRING_LIMIT');
+  return raw;
+ }
  if(typeof raw==='number'&&Number.isSafeInteger(raw))return raw;
  if(!raw||typeof raw!=='object'||anc.has(raw))throw Error('BAD_VALUE');
  const array=Array.isArray(raw),proto=Object.getPrototypeOf(raw);
@@ -193,9 +199,13 @@ function produce(raw:unknown):Wa16Result{
   // sorted mapping by actual position, NOT registry insertion order;
   // every positional slot is bound to an allowlisted source in the fixture.
   const bindSha=digest([s.content_version,s.mapping_revision,
-   draft.slots.map(slot=>[slot.slot_key,draft.mappings[slot.slot_key]])]);
-  const finalSha=digest([s.concessionaria_id,s.waba_ref,s.template_ref,
-   s.version_ref,s.content_version,s.mapping_revision,s.media_revision,
+   draft.slots.map(slot=>[slot.slot_key,draft.mappings[slot.slot_key]]),
+   // Include the WHOLE alleged source registry, not only sources currently
+   // referenced by slots. Reordering is harmless; changes are rejected.
+   [...(registry as string[])].sort()]);
+  const finalSha=digest([s.selection_ref,s.concessionaria_id,s.waba_ref,
+   s.template_ref,s.version_ref,
+   s.content_version,s.mapping_revision,s.media_revision,
    compSha,bindSha,mediaSha,kind,s.review_state]);
   const candidate:Wa16Snapshot=Object.freeze({
    contract_version:'wa16-frozen-snapshot.lab.v0.1',
