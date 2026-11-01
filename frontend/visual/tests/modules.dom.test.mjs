@@ -12,31 +12,32 @@ test('REV-018/022: somente três abas e nenhum nome duplicado no painel',()=>{
  assert.doesNotMatch(get('detail-content').textContent,/Cliente Exemplo 02|REGRAS DA EXPERIÊNCIA/);
  assert.match(get('detail-content').textContent,/Rafael Lima/);
 });
-test('REV-002/024: consultar Banco não seleciona nem lê a conversa',()=>{
+test('REV-002/024: Banco independente não marca conversa lida nem expõe não aptos',()=>{
  reset();const title=get('thread-title').textContent;
- const unread=env.cards().find(n=>n.textContent.includes('Exemplo 02')).textContent;
+ const before=env.cards().find(n=>n.textContent.includes('Exemplo 02')).textContent;
  get('bank-nav').click();assert.equal(get('bank-dialog').open,true);
+ assert.equal(get('visual-app').dataset.module,'bank');
+ assert.equal(get('bank-case-select').hidden,true);
+ assert.equal(get('bank-content').textContent,'');
  get('bank-case-select').value='A-108';get('bank-case-select').fire('change');
- assert.match(get('bank-content').textContent,/Valor fictício confirmado|v1-ficticia/);
+ assert.equal(get('bank-content').textContent,'');
  assert.equal(get('thread-title').textContent,title);
- assert.equal(env.cards().find(n=>n.textContent.includes('Exemplo 02')).textContent,unread);
- assert.equal(bank().some(n=>['INPUT','TEXTAREA'].includes(n.tagName)),false);
- get('bank-close').click();assert.equal(env.document.activeElement,get('bank-nav'));
+ assert.equal(env.cards().find(n=>n.textContent.includes('Exemplo 02')).textContent,before);
+ get('bank-close').click();assert.equal(get('visual-app').dataset.module,'conversations');
 });
-test('AT-01/02: ficha inicial F01, atualização F03, versões e snapshot coexistem',()=>{
- reset();env.openCase('Exemplo 15');env.openArea('Banco');
- const text=get('bank-content').textContent;
- for(const part of ['F01 · coleta inicial','F03 · atualização confirmada','live-form-v1-demo','live-form-v2-demo','bank-demo-v1','snapshot preservado','Aptidão para remessa','Confirmada apenas na fixture · sem remessa iniciada','Decisão bancária não confirmada'])assert.ok(text.includes(part),part);
+test('AT-01/02: ciclo com remessa anterior não reaparece como novo cadastro a enviar',()=>{
+ reset();env.openCase('Exemplo 15');get('bank-nav').click();
+ assert.equal(get('bank-case-select').hidden,true);
+ assert.equal(get('bank-content').textContent,'');
  assert.equal(bank().some(n=>n.tagName==='INPUT'),false);
 });
-test('AT-01: supervisão não obtém D3/D4 ao usar o novo destino',()=>{
+test('AT-01: Gestão não concede consulta cadastral D3/D4 em Banco',()=>{
  reset();env.selectActor('marina');get('bank-nav').click();
- for(const id of ['A-108','A-114','A-105']){
+ for(const id of ['A-108','A-114','A-105','B-201']){
    get('bank-case-select').value=id;get('bank-case-select').fire('change');
-   assert.doesNotMatch(get('bank-content').textContent,/Valor fictício confirmado|v1-ficticia|bank-demo-v1|f03-form-v2-demo|Valor sintético/);
+   assert.equal(get('bank-content').textContent,'');
  }
- get('bank-case-select').value='B-201';get('bank-case-select').fire('change');
- assert.doesNotMatch(get('bank-content').textContent,/Horizonte/);
+ assert.equal(get('bank-case-select').hidden,true);
 });
 test('REV-021: comunicações acumulativas mantêm cada resultado autorizado',()=>{
  reset();env.openCase('Exemplo 09');
@@ -75,10 +76,10 @@ test('REV-036: gestão mantém módulos e supervisão não se torna operação',
  env.selectActor('rafael');get('team-nav').click();assert.equal(get('team-dialog').open,false);
 });
 
-test('COR07 N02: esclarecimento em Banco B conserva texto e seleção da conversa A',()=>{
+test('COR07 N02: Banco somente aptos preserva rascunho e seleção da conversa A',()=>{
  reset();env.openCase('Exemplo 02');get('message-input').value='Rascunho A 🙂';
- get('bank-nav').click();get('bank-case-select').value='A-108';get('bank-case-select').fire('change');
- bank().find(n=>n.id==='show-clarification-demo').click();get('bank-close').click();
+ get('bank-nav').click();assert.equal(get('bank-content').textContent,'');
+ get('bank-close').click();
  assert.match(get('thread-meta').textContent,/Caso A-102/);
  assert.equal(get('message-input').value,'Rascunho A 🙂');
 });
