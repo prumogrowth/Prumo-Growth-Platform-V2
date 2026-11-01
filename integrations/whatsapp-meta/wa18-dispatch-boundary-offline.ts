@@ -58,7 +58,7 @@ export type Wa18Rate=Readonly<{
  budget_state:'LAB_AVAILABLE'|'LAB_THROTTLED'|'LAB_UNKNOWN';
 }>;
 export type Wa18Candidate=Readonly<{
- contract_version:'wa18-dispatch-preview.lab.v0.1';
+ contract_version:'wa18-dispatch-preview.lab.v0.2';
  candidate_sha256:string;scope_sha256:string;
  rate_revision:number;registry_revision:number;
  rate_budget_evaluated:true;reservation_claim_coherent:true;
@@ -160,7 +160,9 @@ function validS0(x:Record<string,unknown>):boolean{
    .every(k=>x[k]===false)&&
    (x.reason===null||(typeof x.reason==='string'&&REF.test(x.reason)))&&
    x.lab_reservation_recorded===
-    (x.decision==='LAB_RESERVATION_RECORDED_NO_DISPATCH');
+    (x.decision==='LAB_RESERVATION_RECORDED_NO_DISPATCH')&&
+   (x.decision!=='LAB_RESERVATION_RECORDED_NO_DISPATCH'||
+    x.reason===null);
 }
 function validBinding(b:Record<string,unknown>,i:Record<string,unknown>):boolean{
  return b.contract_version==='wa18-s0-binding-claim.lab.v0.1'&&
@@ -180,7 +182,7 @@ function validRate(r:Record<string,unknown>,i:Record<string,unknown>):boolean{
    r.budget_state as string);
 }
 function validCandidate(x:Record<string,unknown>):boolean{
- return x.contract_version==='wa18-dispatch-preview.lab.v0.1'&&
+ return x.contract_version==='wa18-dispatch-preview.lab.v0.2'&&
   typeof x.candidate_sha256==='string'&&HEX.test(x.candidate_sha256)&&
   typeof x.scope_sha256==='string'&&HEX.test(x.scope_sha256)&&
   positive(x.rate_revision)&&positive(x.registry_revision)&&
@@ -193,13 +195,17 @@ function validCandidate(x:Record<string,unknown>):boolean{
   'send_authorized','production_authorized',
   'automatic_retry_authorized','ack_allowed'].every(k=>x[k]===false);
 }
-function candidate(i:Record<string,unknown>,rate:Record<string,unknown>):Wa18Candidate{
- const scopeSha=hash(['WA18_SCOPE_LAB_V0_1',scope.map(k=>i[k])]);
- const candidateSha=hash(['WA18_DISPATCH_NO_AUTH_V0_1',scopeSha,
+function candidate(i:Record<string,unknown>,binding:Record<string,unknown>,
+ rate:Record<string,unknown>):Wa18Candidate{
+ const scopeSha=hash(['WA18_SCOPE_LAB_V0_2',scope.map(k=>i[k])]);
+ // Recheck must bind the exact observation instants and freshness window,
+ // not just claimed revision counters and slots. This is still NOT CAS.
+ const candidateSha=hash(['WA18_DISPATCH_NO_AUTH_V0_2',scopeSha,
+  i.now_ms,i.max_age_ms,binding.observed_at_ms,rate.observed_at_ms,
   rate.rate_revision,rate.available_slots,rate.throttled_until_ms,
   rate.budget_state]);
  return Object.freeze({
-  contract_version:'wa18-dispatch-preview.lab.v0.1',
+  contract_version:'wa18-dispatch-preview.lab.v0.2',
   candidate_sha256:candidateSha,scope_sha256:scopeSha,
   rate_revision:rate.rate_revision as number,
   registry_revision:i.registry_revision as number,
@@ -236,7 +242,7 @@ export function inspectWa18DispatchOffline(
   return deny('RATE_LIMIT_OR_UNKNOWN');
  return Object.freeze({...FLAGS,
   decision:'LAB_DISPATCH_COHERENT_NOT_AUTHORIZED',
-  reason:null,candidate:candidate(i,rate)});
+  reason:null,candidate:candidate(i,binding,rate)});
 }
 /** Rechecks exact same scoped request against fresh LAB data. It is NOT S0
  * transactional PRE_DISPATCH and never obtains an external send lease. */
@@ -256,15 +262,16 @@ export function recheckWa18DispatchOffline(
 export type Wa18GraphLabResult=Readonly<{
  decision:'LAB_API_ACCEPTED_NOT_SENT'|'LAB_PROVIDER_REJECTED_UNVERIFIED'|
   'LAB_EXTERNAL_UNCERTAIN'|'DENIED';
- attempt_correlation_valid:boolean;provider_status_verified:false;
+ /** Pure mock can never verify correlation to a persisted S0 attempt. */
+ attempt_correlation_valid:false;provider_status_verified:false;
  sent_verified:false;delivered_verified:false;read_verified:false;
  retry_external:false;graph_dispatch_authorized:false;
  production_authorized:false;commercial_transition_authorized:false;
 }>;
 function graphAnswer(
- decision:Wa18GraphLabResult['decision'],correlated:boolean,
+ decision:Wa18GraphLabResult['decision'],
 ):Wa18GraphLabResult{
- return Object.freeze({decision,attempt_correlation_valid:correlated,
+ return Object.freeze({decision,attempt_correlation_valid:false,
   provider_status_verified:false,sent_verified:false,
   delivered_verified:false,read_verified:false,
   retry_external:false,graph_dispatch_authorized:false,
@@ -312,14 +319,14 @@ export function classifyWa18GraphMockOffline(
  rawIntent:unknown,rawObservation:unknown,
 ):Wa18GraphLabResult{
  const i=own(rawIntent,K_INTENT);
- if(!i||!validIntent(i))return graphAnswer('DENIED',false);
+ if(!i||!validIntent(i))return graphAnswer('DENIED');
  const o=own(rawObservation,['kind','http_status','response_json'])||
   own(rawObservation,['kind']);
- if(!o)return graphAnswer('DENIED',false);
+ if(!o)return graphAnswer('DENIED');
  if(o.kind!=='transport_error'&&o.kind!=='http_response')
-  return graphAnswer('DENIED',false);
+  return graphAnswer('DENIED');
  if(o.kind==='transport_error')
-  return graphAnswer('LAB_EXTERNAL_UNCERTAIN',true);
+  return graphAnswer('LAB_EXTERNAL_UNCERTAIN');
  try{
   const mock=cloneMock(o.response_json);
   const classified=classifyGraphSendResult(
@@ -329,6 +336,6 @@ export function classifyWa18GraphMockOffline(
   return graphAnswer(
    classified.send_state==='API_ACCEPTED'?'LAB_API_ACCEPTED_NOT_SENT':
    classified.send_state==='PROVIDER_REJECTED'?
-    'LAB_PROVIDER_REJECTED_UNVERIFIED':'LAB_EXTERNAL_UNCERTAIN',true);
- }catch{return graphAnswer('DENIED',false);}
+    'LAB_PROVIDER_REJECTED_UNVERIFIED':'LAB_EXTERNAL_UNCERTAIN');
+ }catch{return graphAnswer('DENIED');}
 }
