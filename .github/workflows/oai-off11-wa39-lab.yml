@@ -1,0 +1,64 @@
+name: OAI OFF11 WA39 offline compatibility regression
+on:
+  push:
+    branches:
+      - feat/oai-off11-wa39-consumer-lab-20261101
+permissions:
+  contents: read
+concurrency:
+  group: oai-off11-wa39-\${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  offline-lab:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout isolated OpenAI branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify OFF08 base and strictly isolated delta
+        shell: bash
+        run: |
+          set -euo pipefail
+          base=1f8157838c11a7b59456a3b178a8ade21a17b42b
+          git merge-base --is-ancestor "$base" HEAD
+          git diff --diff-filter=ACMR --name-only "$base" HEAD | sort > /tmp/oai-changed
+          cat > /tmp/oai-expected <<'EOF'
+          .github/workflows/oai-off11-wa39-lab.yml
+          docs/integracoes/openai/OAI_OFF11_WA39_COMPATIBILIDADE_LAB_2026_11_01.md
+          docs/integracoes/openai/e04_offline_lab/f02-wa39-consumer-lab.mjs
+          docs/integracoes/openai/e04_offline_lab/tests/f02-wa39-consumer-lab.test.mjs
+          EOF
+          diff -u /tmp/oai-expected /tmp/oai-changed
+          test "$(git rev-parse "$base^")" = 394512327cd3756dfbe61ff970a6279c354b6565
+          test -z "$(git diff --name-only "$base" HEAD -- backend/ integrations/ frontend/)"
+      - name: Setup Node 22.16.0
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - name: Static syntax and all inherited plus OFF11 tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check docs/integracoes/openai/e04_offline_lab/f02-wa39-consumer-lab.mjs
+          node --check docs/integracoes/openai/e04_offline_lab/tests/f02-wa39-consumer-lab.test.mjs
+          npm --prefix docs/integracoes/openai/e04_offline_lab test | tee /tmp/oai-off11.tap
+      - name: Enforce exact test count and zero failures
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=commonjs - <<'NODE'
+          const fs = require('node:fs');
+          const s = fs.readFileSync('/tmp/oai-off11.tap','utf8');
+          const val = k => {const x=s.match(new RegExp('# '+k+' (\\d+)'));return x?Number(x[1]):null};
+          const facts = {tests:val('tests'),pass:val('pass'),fail:val('fail'),skipped:val('skipped')};
+          console.log(JSON.stringify({status:'OAI_OFF11_LAB_NOT_PRODUCTION',baseTests:678,newTests:46,...facts}));
+          if(facts.tests!==724||facts.pass!==724||facts.fail!==0||facts.skipped!==0)process.exit(2);
+          NODE
+      - name: Lab scope only
+        if: always()
+        run: |
+          echo 'OFF11 is structural lab compatibility only: no S0 authentication, Meta dispatch, C09, WDC13 or production grants.'
+          echo 'No merge, deploy or production changes.'
