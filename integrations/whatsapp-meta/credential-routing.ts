@@ -121,22 +121,22 @@ function snapshotRegistry(raw:unknown):TrustedMetaRegistry|null{
   for(const input of channels){
    const c=values(input,['canal_id','waba_id','phone_number_id','active']);
    if(!c)return null;
-   checked.push(c as TrustedChannel);
+   checked.push(c as unknown as TrustedChannel);
   }
   total+=checked.length;
-  result.push({...app,secret_slots:slots,channels:checked} as TrustedAppRecord);
+  result.push({...app,secret_slots:slots,channels:checked} as unknown as TrustedAppRecord);
  }
  return {contract_version:root.contract_version as TrustedMetaRegistry['contract_version'],apps:result};
 }
 function snapshotCredentialCommand(raw:unknown):MetaCredentialRequest|null{
  const short=values(raw,['purpose','trusted_route_ref','at_ms','expected_revision']);
  if(short&&(short.purpose==='GET_VERIFY_TOKEN'||short.purpose==='POST_APP_SECRET'))
-  return short as MetaCredentialRequest;
+  return short as unknown as MetaCredentialRequest;
  const full=values(raw,['purpose','trusted_scope','at_ms','expected_revision']);
  if(!full||full.purpose!=='GRAPH_ACCESS_TOKEN')return null;
  const scope=values(full.trusted_scope,['app_ref','concessionaria_id',
   'canal_id','waba_id','phone_number_id']);
- return scope?{...full,trusted_scope:scope} as MetaCredentialRequest:null;
+ return scope?{...full,trusted_scope:scope} as unknown as MetaCredentialRequest:null;
 }
 
 function validRegistry(reg: TrustedMetaRegistry): boolean {
@@ -223,11 +223,11 @@ export function resolveSignedMetaChannel(reg: TrustedMetaRegistry, query: {
    'waba_id','phone_number_id','at_ms','expected_revision']);
   if(!q||!id(q.trusted_route_ref)||!id(q.authenticated_app_ref)||
    !id(q.waba_id)||typeof q.phone_number_id!=='string'||
-   !/^\\d{5,25}$/.test(q.phone_number_id)||
+   !/^\d{5,25}$/.test(q.phone_number_id)||
    !millis(q.at_ms)||!revision(q.expected_revision))return fail('INVALID_INPUT');
   const safe=snapshotRegistry(reg);
   if(!safe||!validRegistry(safe))return fail('INVALID_REGISTRY');
-  reg=safe;query=q as typeof query;
+  reg=safe;query=q as unknown as typeof query;
   const app = reg.apps.find(x => x.route_ref === query.trusted_route_ref &&
     x.app_ref === query.authenticated_app_ref);
   if (!app) return fail('NO_MATCH');
