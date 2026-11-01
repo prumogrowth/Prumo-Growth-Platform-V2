@@ -28,14 +28,15 @@ def leave_bank(page):
     if page.locator('#bank-dialog').is_visible():page.locator('#bank-close').click()
 
 def case_content(page):
-    return page.locator('#bank-content' if page.locator('#bank-dialog').is_visible() else '#detail-content')
+    return page.locator('#detail-content')
 
 def open_area(page, title):
     if title in ('Extração','Banco'):
         if not page.locator('#detail-pane').is_visible():page.locator('#thread-title').click()
         page.locator('#case-tab-overview').click()
-        page.locator('#open-bank-case').click()
-        expect(page.locator('#bank-dialog')).to_be_visible()
+        target='#registration-diagnostics' if title=='Extração' else '.prior-bank-history'
+        page.locator(target).evaluate('e=>e.open=true')
+        expect(page.locator(target)).to_be_visible()
     else:
         page.locator('#case-tab-activity' if title in ('Novo contato','Recontatos') else '#case-tab-'+{'Resumo':'overview','Histórico':'activity','Notas':'notes'}[title]).click()
 
@@ -108,10 +109,11 @@ with sync_playwright() as p:
         assert page.locator('.conversation-card').filter(has_text='Cliente Exemplo 02').locator('.attention-pending').count() == 1
         page.locator('#request-completion').click()
         page.locator('#completion-form button[value=confirm]').click()
-        expect(page.locator('#bank-dialog')).to_be_visible()
+        expect(page.locator('#bank-dialog')).to_be_hidden()
+        expect(page.locator('#registration-diagnostics')).to_be_visible()
         page.get_by_role('button',name='Retorno parcial').click()
-        # FV-UI-032: resultado recria o DOM; aba persistente retoma o foco.
-        expect(page.locator('#bank-case-select')).to_be_focused()
+        # FV-UI-032: resultado recria o DOM; foco retorna ao resumo expandido.
+        expect(page.locator('#registration-diagnostics summary')).to_be_focused()
         assert 'Resultado técnico fictício Retorno parcial' in page.locator('#context-announcement').inner_text()
         leave_bank(page)
         if not page.locator('#detail-pane').is_visible():page.locator('#thread-title').click()
@@ -531,16 +533,16 @@ with sync_playwright() as p:
     assert 'f03-a108-2' in case_content(cycle_page).inner_text()
     cycle_page.locator('#show-clarification-demo').click()
     # FV-UI-032: esclarecimento recriado mantém foco na aba.
-    expect(cycle_page.locator('#bank-case-select')).to_be_focused()
+    expect(cycle_page.locator('#registration-diagnostics summary')).to_be_focused()
     assert 'Cenário de esclarecimento fictício' in cycle_page.locator('#context-announcement').inner_text()
     assert 'CENÁRIO ALTERNATIVO' in cycle_page.locator('#workflow-bar').inner_text()
     leave_bank(cycle_page)
     cycle_page.locator('#request-completion').click()
     cycle_page.locator('#completion-form button[value=confirm]').click()
     expect(cycle_page.locator('#completion-dialog')).to_be_hidden()
-    # O evento close nativo abre Banco; não escolher um locator do painel anterior
-    # enquanto o callback de conclusão ainda está na fila de eventos.
-    expect(cycle_page.locator('#bank-dialog')).to_be_visible()
+    # Conclusão técnica permanece no Resumo da conversa, não na fila de prontos.
+    expect(cycle_page.locator('#bank-dialog')).to_be_hidden()
+    expect(cycle_page.locator('#registration-diagnostics summary')).to_be_focused()
     expect(case_content(cycle_page)).to_contain_text('a108-3')
     expect(case_content(cycle_page)).to_contain_text(re.compile('corte apenas candidato',re.I))
     details=case_content(cycle_page).inner_text()
