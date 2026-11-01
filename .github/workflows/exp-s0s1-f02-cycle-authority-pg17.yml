@@ -1,0 +1,100 @@
+name: S0 F02 signed cycle and guarded PRE_DISPATCH lab
+on:
+  push:
+    branches: [exp/s0s1-f02-cycle-authority-pg17-20261101]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  scope-and-off04:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      S0_F02_OFF04_PIN: ${{ github.workspace }}/_oai_pin
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 1f8157838c11a7b59456a3b178a8ade21a17b42b
+          path: _oai_pin
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Verify F02 cycle-only diff and pinned original OFF04
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git -C _oai_pin rev-parse HEAD)" = 1f8157838c11a7b59456a3b178a8ade21a17b42b
+          python3 -B - <<'PY'
+          import ast,pathlib,subprocess
+          base='31e88ec2632e861d55c2e0ae4766f8a0a4362e22'
+          actual=set(subprocess.check_output(['git','diff','--name-only',base,'HEAD'],text=True).splitlines())
+          required={'.github/workflows/exp-s0s1-f02-cycle-authority-pg17.yml',
+             'integration/s0s1_f02_cycle/pg17_schema.sql',
+             'integration/s0s1_f02_cycle/pg17_service.py',
+             'integration/s0s1_f02_cycle/test_pg17_service.py'}
+          optional={'docs/contratos/s0_f02/S0_F02_CYCLE_AUTHORITY_PG17_20261101.md'}
+          assert required<=actual and actual<=required|optional,sorted(actual^required)
+          for name in ('pg17_service.py','test_pg17_service.py'):
+           ast.parse((pathlib.Path('integration/s0s1_f02_cycle')/name).read_text())
+          print('F02 cycle authority exact delta PASS')
+          PY
+      - name: Original OpenAI OFF04 regressions (unchanged)
+        run: node --test _oai_pin/docs/integracoes/openai/e04_offline_lab/tests/f02-plan-boundary.test.mjs
+      - name: Existing OFF04 S0 interop (unchanged)
+        run: node --test integration/s0s1_f02/test_off04_interop.mjs
+      - name: Preserve source checkout
+        if: always()
+        run: test -z "$(git -C _oai_pin status --porcelain)"
+  disposable-pg17:
+    needs: scope-and-off04
+    runs-on: ubuntu-latest
+    timeout-minutes: 28
+    env:
+      M09_PG17_DISPOSABLE: 'YES'
+      M09_PINNED_SOURCE: ${{ github.workspace }}/_m09_pin
+      S0_F02_OFF04_PIN: ${{ github.workspace }}/_oai_pin
+      PYTHONPATH: ${{ github.workspace }}
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 01ffdb093013664b73b18d23f92aac2202578210
+          path: _m09_pin
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 1f8157838c11a7b59456a3b178a8ade21a17b42b
+          path: _oai_pin
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Pinned PG17 source and fixed dependencies
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git -C _m09_pin rev-parse HEAD)" = 01ffdb093013664b73b18d23f92aac2202578210
+          test "$(git -C _oai_pin rev-parse HEAD)" = 1f8157838c11a7b59456a3b178a8ade21a17b42b
+          python3 -m pip install 'psycopg[binary]==3.2.13' 'cryptography==46.0.3'
+      - name: Signed cycle CAS, independent readback and F02/consent guard
+        run: python3 -B -m unittest integration.s0s1_f02_cycle.test_pg17_service -v
+      - name: Inherited F02 independent revision regressions
+        run: python3 -B -m unittest integration.s0s1_f02.test_pg17_service -q
+      - name: Inherited PRE_DISPATCH consent/regression
+        run: python3 -B -m unittest integration.s0s1_pre_dispatch.test_pg17_service -q
+      - name: Verify no protected source mutations
+        if: always()
+        run: |
+          test -z "$(git -C _m09_pin status --porcelain)"
+          test -z "$(git -C _oai_pin status --porcelain)"
+          test -z "$(git status --porcelain --untracked-files=no)"
