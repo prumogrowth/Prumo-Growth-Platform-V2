@@ -31,7 +31,7 @@ test('OFF11 02 fields of result contain no tenant, case, provider, template or r
 test('OFF11 03 final template marker does not grant C09',()=>{
   const x=project(base());assert.equal(x.observations[0].finalTemplateCandidate,true);assert.equal(x.c09Authorized,false);
 });
-test('OFF11 04 graph API accepted is not sent',()=>check(x=>x.snapshot.events=[ev('API_ACCEPTED')],'LAB_UNVERIFIED_PROJECTION').observations[0].observation==='API_ACCEPTED_NOT_SENT');
+test('OFF11 04 graph API accepted is not sent',()=>assert.equal(check(x=>x.snapshot.events=[ev('API_ACCEPTED')],'LAB_UNVERIFIED_PROJECTION').observations[0].observation,'API_ACCEPTED_NOT_SENT'));
 test('OFF11 05 graph queued is not sent',()=>assert.equal(check(x=>x.snapshot.events=[ev('QUEUED')],'LAB_UNVERIFIED_PROJECTION').observations[0].observation,'QUEUED_NOT_SENT'));
 test('OFF11 06 unknown is not definitive failure',()=>assert.equal(check(x=>x.snapshot.events=[ev('UNKNOWN')],'LAB_UNVERIFIED_PROJECTION').observations[0].observation,'AWAITING_TRANSPORT_RECONCILIATION'));
 test('OFF11 07 pending correlation blocked from proof',()=>assert.equal(check(x=>x.snapshot.events=[ev('PENDING_CORRELATION')],'LAB_UNVERIFIED_PROJECTION').observations[0].observation,'AWAITING_S0_CORRELATION'));
