@@ -17,6 +17,9 @@ const context=()=>({
 });
 const attempt=(status='LAB_DEFINITIVE_FAILURE_CLAIM',n=1)=>({
  contract_version:'wa20-attempt-claim.lab.v0.1',
+ concessionaria_id:SHOP,app_ref:'APP_A',waba_ref:'WABA_A',
+ phone_number_id:'10000001',case_ref:'CASE_A',
+ flow_ref:'FLOW_A',plan_ref:'PLAN_A',cadence_ref:'CADENCE_A',
  attempt_ref:'ATTEMPT_'+n,intent_ref:'INTENT_'+n,sequence_no:n,
  template_ref:'TPL_A',template_version_ref:'TPL_V1',
  is_final_template:false,event_ref:'EVT_'+n,
@@ -304,4 +307,38 @@ test('M20-52 claimed sent of final template does not create C09 window',()=>{
  const s=safe(run(context(),[a]),'LAB_BELOW_TWO_UNVERIFIED');
  assert.equal(s.c09_window_authorized,false);
  assert.equal(s.f02_replan_authorized,false);
+});
+
+
+test('M20-53 cross-concessionaria attempt cannot count',()=>{
+ const a=fail2();a.concessionaria_id='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
+ denied(run(context(),[fail(),a]),'ATTEMPT_SCOPE_DENIED');
+});
+test('M20-54 cross-WABA attempt cannot count',()=>{
+ const a=fail2();a.waba_ref='WABA_FOREIGN';
+ denied(run(context(),[fail(),a]),'ATTEMPT_SCOPE_DENIED');
+});
+test('M20-55 cross-sender attempt cannot count',()=>{
+ const a=fail2();a.phone_number_id='10000009';
+ denied(run(context(),[fail(),a]),'ATTEMPT_SCOPE_DENIED');
+});
+test('M20-56 cross-case attempt cannot count',()=>{
+ const a=fail2();a.case_ref='CASE_OTHER';
+ denied(run(context(),[fail(),a]),'ATTEMPT_SCOPE_DENIED');
+});
+test('M20-57 cross-cadence attempt cannot count',()=>{
+ const a=fail2();a.cadence_ref='CADENCE_OTHER';
+ denied(run(context(),[fail(),a]),'ATTEMPT_SCOPE_DENIED');
+});
+test('M20-58 cross-plan attempt cannot count',()=>{
+ const a=fail2();a.plan_ref='PLAN_OTHER';
+ denied(run(context(),[fail(),a]),'ATTEMPT_SCOPE_DENIED');
+});
+test('M20-59 cross-flow attempt cannot count',()=>{
+ const a=fail2();a.flow_ref='FLOW_OTHER';
+ denied(run(context(),[fail(),a]),'ATTEMPT_SCOPE_DENIED');
+});
+test('M20-60 cross-App attempt cannot count',()=>{
+ const a=fail2();a.app_ref='APP_OTHER';
+ denied(run(context(),[fail(),a]),'ATTEMPT_SCOPE_DENIED');
 });
