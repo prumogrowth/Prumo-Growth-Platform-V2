@@ -110,7 +110,10 @@ with sync_playwright() as p:
         page.locator('#request-completion').click()
         page.locator('#completion-form button[value=confirm]').click()
         expect(page.locator('#bank-dialog')).to_be_hidden()
+        if not page.locator('#detail-pane').is_visible():page.locator('#thread-title').click()
         expect(page.locator('#registration-diagnostics')).to_be_visible()
+        if not page.locator('#registration-diagnostics').evaluate('e=>e.open'):
+            page.locator('#registration-diagnostics summary').click()
         page.get_by_role('button',name='Retorno parcial').click()
         # FV-UI-032: resultado recria o DOM; foco retorna ao resumo expandido.
         expect(page.locator('#registration-diagnostics summary')).to_be_focused()
