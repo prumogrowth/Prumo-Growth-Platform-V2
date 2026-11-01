@@ -718,7 +718,7 @@ test('FV-UX-BG-01: coletores de revisão não ressuscitam a janela Banco nem sel
   const base = get('../preview/collect_visual_review.py');
   const modules = get('../preview/collect_modules_review.py');
   for(const source of [base,modules]){
-    assert.doesNotMatch(source, /bank-case-select[^\\n]*select_option/);
+    assert.doesNotMatch(source, /bank-case-select.*select_option/);
     assert.match(source, /bank-ready-empty/);
     assert.match(source, /registration-diagnostics/);
   }
