@@ -229,6 +229,22 @@ def main():
                      if file.name not in expected_tests)
     missing += [f"NOT_REGISTERED:{name}" for name in unknown]
     inventory_ok = not missing
+    # Verificação de sintaxe ANTES dos ensaios Chromium longos: erros de
+    # indentação nos roteiros não devem consumir toda a matriz visual.
+    syntax_errors = []
+    for script_path in sorted(TESTS.glob("browser*.py")):
+        try:
+            ast.parse(script_path.read_text(encoding="utf-8"), filename=str(script_path))
+        except (SyntaxError, UnicodeError, OSError) as error:
+            syntax_errors.append(f"{script_path.name}: {error}")
+    browser_syntax_ok = not syntax_errors
+    report["steps"].append({
+        "name": "Chromium Python source syntax",
+        "passed": browser_syntax_ok,
+        "executed": True,
+        "errors": syntax_errors,
+    })
+    inventory_ok = inventory_ok and browser_syntax_ok
     report["steps"].append({
         "name": "FV-UI-013 checkout inventory", "passed": inventory_ok,
         "executed": True, "missing": missing,
