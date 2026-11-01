@@ -24,7 +24,7 @@ A [WA-21](wa21-papeis-diretor-gestor-consultor-assinatura-2026-10-21.md) define 
 
 `integrations/whatsapp-meta/wa21-human-handoff-f01-f03-offline.test.ts`: **60 casos M21** cobrindo handoff irreversível, F01 sem retorno, ingressos e eventos históricos, fechamento humano explícito, janela Meta diferente de cutoff, `opt_out` sem opt-in inferido, C09 independente, fronteira do ator humano, isolamento por loja/App/WABA/número/caso/lead, leitura stale/future, getters, permissão falsificada, revisões, recheck e proteção de conteúdo em saída.
 
-**CI:** a execução final deve ser vinculada ao SHA exato após ambos os jobs aprovados. Baseline Meta antes de M21: **2.012 Meta offline** e **377 interface**; com 60 testes, espera-se **2.072 Meta offline**. Os 18 PG17 físicos históricos pertencem ao **ingresso S0**, não testam handoff F01/F03 integrado.
+**CI funcional:** commit `bc63bd4ed2e340c0b623c35b0cac91e94ce8bd3b`, [GitHub Actions 41363919177](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41363919177): **60/60 M21**, **2.072/2.072 Meta offline** (2.012 baseline + 60), **377/377 testes de interface**, dois jobs `success`, scanner ACK estático aprovado e **18/18 PG17 históricos** em escopo separado de **ingresso S0/Meta**. Não significa que F01/F03 ou Graph foram integrados. Revalidar CI do último HEAD documental em execução específica.
 
 ## M21-C — fronteiras, aceites e bloqueios
 
