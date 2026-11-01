@@ -20,7 +20,9 @@ const K_CONTEXT=['contract_version','concessionaria_id','app_ref','waba_ref',
  'now_ms','max_age_ms','cadence_state','s0_source_authenticated',
  'attempt_correlation_verified','definitive_classification_verified',
  'durable_evidence_verified'] as const;
-const K_ATTEMPT=['contract_version','attempt_ref','intent_ref','sequence_no',
+const K_ATTEMPT=['contract_version','concessionaria_id','app_ref','waba_ref',
+ 'phone_number_id','case_ref','flow_ref','plan_ref','cadence_ref',
+ 'attempt_ref','intent_ref','sequence_no',
  'template_ref','template_version_ref','is_final_template','event_ref',
  'event_sha256','provider_error_code','status_claim','observed_at_ms'] as const;
 const K_SNAPSHOT=['contract_version','snapshot_sha256','decision',
@@ -113,6 +115,10 @@ function validContext(c:RecordData):boolean{
 }
 function validAttempt(a:RecordData,c:RecordData):boolean{
  return a.contract_version==='wa20-attempt-claim.lab.v0.1'&&
+  typeof a.concessionaria_id==='string'&&UUID.test(a.concessionaria_id)&&
+  typeof a.phone_number_id==='string'&&PHONE.test(a.phone_number_id)&&
+  ['concessionaria_id','app_ref','waba_ref','phone_number_id',
+   'case_ref','flow_ref','plan_ref','cadence_ref'].every(k=>a[k]===c[k])&&
   ['attempt_ref','intent_ref','template_ref','template_version_ref',
    'event_ref'].every(k=>id(a[k]))&&
   pos(a.sequence_no)&&a.sequence_no<=40&&
