@@ -225,8 +225,9 @@ function announceCurrentContext(detail=''){
 }
 function goto(view) {
   if (view !== 'thread' && window.matchMedia('(max-width:760px)').matches) {
-    if(view==='detail')communication.suspend(); // Same case consultation, no silent draft loss.
-    else communication.reset(); // Leaving conversation context still invalidates audio.
+    // Trocar de painel do MESMO caso suspende captação, mas preserva
+    // rascunho/áudio pronto. A troca efetiva de caso, loja ou ator descarta.
+    communication.suspend();
   }
   state.mobileView = view;
   app.dataset.mobileView = view;
@@ -332,7 +333,12 @@ function renderList() {
     center.append(row,foot);
     card.append(center);
     card.addEventListener('click', () => {
-      closeTransientDialogs();state.selectedId = item.id; acknowledgeDemoReadByAssignee(item);state.detailTab='overview';
+      // Voltar ao mesmo caso no celular NÃO constitui troca de contexto:
+      // preservar texto/áudio ainda não enviado. Diferente caso continua
+      // limpando todos os rascunhos antes de carregar seu conteúdo.
+      if(state.selectedId!==item.id || state.shopId!==item.shopId)
+        closeTransientDialogs();
+      state.selectedId = item.id; acknowledgeDemoReadByAssignee(item);state.detailTab='overview';
       goto('thread'); render();
       announceCurrentContext('Caso '+item.id+' aberto na demonstração');
       if(window.matchMedia('(max-width:760px)').matches)$('thread-back').focus();
