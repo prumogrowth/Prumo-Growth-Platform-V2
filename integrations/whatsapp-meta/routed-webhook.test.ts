@@ -231,3 +231,69 @@ test('ROUTE-28 S0 channel id is globally unique across apps',async()=>{
  const {ports}=mkPorts({registry:()=>registry});
  assert.equal((await send(undefined,{ports})).ok,false);
 });
+
+
+test('AUD-GLOBAL-ROUTE-01 GET route getter never invoked',async()=>{
+ let calls=0;const req:any={raw_query:query()};
+ Object.defineProperty(req,'route',{enumerable:true,get(){
+  calls++;throw Error('SIDE_EFFECT');}});
+ const res=await inspectRoutedMetaGet(req,mkPorts().ports);
+ assert.equal(res.ok,false);assert.equal(calls,0);
+});
+test('AUD-GLOBAL-ROUTE-02 POST route nested getter never invoked',async()=>{
+ let calls=0;const route:any={...routeA};
+ Object.defineProperty(route,'expected_revision',{enumerable:true,get(){
+  calls++;return 3;}});
+ const raw_body=body();
+ const res=await inspectRoutedMetaPost({route,raw_body,
+  signature_header:await sign(raw_body)},mkPorts().ports);
+ assert.equal(res.ok,false);assert.equal(calls,0);
+});
+test('AUD-GLOBAL-ROUTE-03 POST body getter never invoked',async()=>{
+ let calls=0;const req:any={route:routeA,
+  signature_header:'sha256='+('0'.repeat(64))};
+ Object.defineProperty(req,'raw_body',{enumerable:true,get(){
+  calls++;return body();}});
+ const res=await inspectRoutedMetaPost(req,mkPorts().ports);
+ assert.equal(res.ok,false);assert.equal(calls,0);
+});
+test('AUD-GLOBAL-ROUTE-04 signature getter never invoked',async()=>{
+ let calls=0;const req:any={route:routeA,raw_body:body()};
+ Object.defineProperty(req,'signature_header',{enumerable:true,get(){
+  calls++;return 'sha256='+('0'.repeat(64));}});
+ const res=await inspectRoutedMetaPost(req,mkPorts().ports);
+ assert.equal(res.ok,false);assert.equal(calls,0);
+});
+test('AUD-GLOBAL-ROUTE-05 GET raw query getter never invoked',async()=>{
+ let calls=0;const req:any={route:routeA};
+ Object.defineProperty(req,'raw_query',{enumerable:true,get(){
+  calls++;return query();}});
+ const res=await inspectRoutedMetaGet(req,mkPorts().ports);
+ assert.equal(res.ok,false);assert.equal(calls,0);
+});
+test('AUD-GLOBAL-ROUTE-06 extra client authority field denied',async()=>{
+ const req:any={route:routeA,raw_query:query(),production_authorized:true};
+ const res=await inspectRoutedMetaGet(req,mkPorts().ports);
+ assert.equal(res.ok,false);assert.equal(res.production_authorized,false);
+});
+test('AUD-GLOBAL-ROUTE-07 mutation of request route in resolver cannot redirect POST',async()=>{
+ const raw_body=body();const req={route:{...routeA},
+  signature_header:await sign(raw_body),raw_body};
+ const {ports}=mkPorts({resolver:async slot=>{
+  req.route.route_ref='TRUSTED_ROUTE_B';
+  req.route.expected_revision=5;
+  return fakeVault[slot];
+ }});
+ const res=await inspectRoutedMetaPost(req,ports);
+ assert.equal(res.ok,true);
+ if(res.ok)assert.equal(res.authenticated_app_ref,'APP_A');
+ assert.equal(res.ack_allowed,false);
+});
+test('AUD-GLOBAL-ROUTE-08 prototype/polluted route cannot choose App',async()=>{
+ const raw_body=body();
+ const route=Object.create({route_ref:'TRUSTED_ROUTE_A',
+  expected_revision:3});
+ const res=await inspectRoutedMetaPost({route,raw_body,
+  signature_header:await sign(raw_body)} as any,mkPorts().ports);
+ assert.equal(res.ok,false);assert.equal(res.ack_allowed,false);
+});
