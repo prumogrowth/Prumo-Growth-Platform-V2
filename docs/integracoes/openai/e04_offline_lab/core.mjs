@@ -5,7 +5,42 @@ export function isRecord(x){return x!==null && typeof x==="object" && !Array.isA
 
 export function isId(x){return typeof x==="string" && x.length>0 && x.length<=160 && !/[\u0000-\u001f]/.test(x);}
 
-export function onlyKeys(x,keys){return isRecord(x)&&Object.keys(x).every(k=>keys.includes(k));}
+// Legacy shape checks must not execute getters or inherit application data.
+export function onlyKeys(x,keys){
+  try{
+    if(!isRecord(x))return false;
+    const proto=Object.getPrototypeOf(x);
+    if(proto!==Object.prototype&&proto!==null)return false;
+    return Reflect.ownKeys(x).every(k=>typeof k==='string'&&
+      !['__proto__','prototype','constructor'].includes(k)&&keys.includes(k)&&
+      Object.prototype.hasOwnProperty.call(Object.getOwnPropertyDescriptor(x,k),'value'));
+  }catch{return false;}
+}
+
+// Fail-closed traversal BEFORE any legacy validator reads caller-owned fields.
+// No toJSON, accessor, proxy-free guarantee or clock read; pure data only.
+function safeTree(x,depth=0,seen=new Set()){
+  if(depth>14)return false;
+  if(x===null||typeof x==='string'||typeof x==='boolean')return true;
+  if(typeof x==='number')return Number.isFinite(x);
+  if(typeof x!=='object'||seen.has(x))return false;
+  const arr=Array.isArray(x);
+  if(!arr&&!isRecord(x))return false;
+  const proto=Object.getPrototypeOf(x);
+  if(arr?proto!==Array.prototype:(proto!==Object.prototype&&proto!==null))return false;
+  if(arr&&(x.length>128||Object.keys(x).length!==x.length))return false;
+  seen.add(x);
+  try{
+    for(const k of Reflect.ownKeys(x)){
+      if(typeof k!=='string'||['__proto__','prototype','constructor'].includes(k))return false;
+      if(arr&&k!=='length'&&(!/^(0|[1-9]\\d*)$/.test(k)||Number(k)>=x.length))return false;
+      const d=Object.getOwnPropertyDescriptor(x,k);
+      if(!d||!Object.prototype.hasOwnProperty.call(d,'value'))return false;
+      if(!safeTree(d.value,depth+1,seen))return false;
+    }
+    return true;
+  }catch{return false;}finally{seen.delete(x);}
+}
 
 export function verdict(status){return Object.freeze({status});}
 
@@ -46,6 +81,8 @@ export function versionGate(ctx){
 }
 
 export function validateF01(req,proposal){
+  if(!safeTree(req))return verdict("INVALID_INPUT");
+  if(!safeTree(proposal))return verdict("SCHEMA_INVALID");
   const gate=versionGate(req?.scope);if(gate.status!=="READY")return gate;
   if(req.owner!=="ai"||req.handoff!==false||req.humanized!==false)return verdict("DENIED");
   if("staffRoster" in req || "consultantNames" in req || "staffAvailability" in req)return verdict("INVALID_INPUT");
@@ -69,6 +106,8 @@ export function validateF01(req,proposal){
 export function validTime(x){return typeof x==="string" && /(Z|[+-]\d{2}:\d{2})$/.test(x) && Number.isFinite(Date.parse(x));}
 
 export function validateF02(req,proposal){
+  if(!safeTree(req))return verdict("INVALID_INPUT");
+  if(!safeTree(proposal))return verdict("SCHEMA_INVALID");
   const gate=versionGate(req?.scope);if(gate.status!=="READY")return gate;
   if(req.explicitS0Request!==true||req.optOut!==false||req.handoffPlanReuse===true||!["human","seller_ai"].includes(req.ownerRoute)||(req.purpose==="post_human"&&req.ownerRoute!=="human"))return verdict("DENIED");
   if(!isId(req.purpose)||!Array.isArray(req.allowedTemplates)||!Number.isSafeInteger(req.maxAttempts)||req.maxAttempts<0||!validTime(req.windowStart)||!validTime(req.windowEnd)||Date.parse(req.windowStart)>=Date.parse(req.windowEnd))return verdict("INVALID_INPUT");
@@ -92,6 +131,7 @@ export function validateF02(req,proposal){
 }
 
 export function prepareF03History(req){
+  if(!safeTree(req))return verdict("INVALID_INPUT");
   const gate=versionGate(req?.scope);if(gate.status!=="READY")return gate;
   if(req.humanClosed!==true||req.closureAuthenticated!==true||!isId(req.closureId))return verdict("DENIED");
   if(["case","cycle","form","catalog","assignment"].some(k=>!(k in req.scope.expected)))return verdict("INVALID_INPUT");
@@ -111,6 +151,8 @@ export function prepareF03History(req){
 }
 
 export function validateF03Proposal(req,snapshot,proposal){
+  if(!safeTree(req)||!safeTree(snapshot))return verdict("INVALID_INPUT");
+  if(!safeTree(proposal))return verdict("SCHEMA_INVALID");
   const gate=versionGate(req?.scope);if(gate.status!=="READY")return gate;
   if(!isRecord(snapshot)||snapshot.status!=="READY"||snapshot.closureId!==req.closureId||snapshot.storeId!==req.scope.storeId||snapshot.personId!==req.personId||snapshot.cutoffSequence!==req.cutoffSequence||JSON.stringify(snapshot.expectedVersions)!==JSON.stringify(req.scope.expected))return verdict("INVALID_INPUT");
   if(!Array.isArray(req.catalog)||!Array.isArray(snapshot.sources))return verdict("INVALID_INPUT");
