@@ -144,3 +144,64 @@ def prepare(c,*,request_ref,scope,expected,grant_revision,claims):
   c.execute('ROLLBACK TO SAVEPOINT '+sp)
   c.execute('RELEASE SAVEPOINT '+sp)
   return out('UNAVAILABLE','DEPENDENCY_UNAVAILABLE')
+
+
+def review(c,*,request_ref,scope,expected,grant_revision,claims,proposal_aliases):
+ """Checks unchanged full catalog, alias map and F01 owner. NO publish."""
+ if not request_ok(request_ref,scope,expected,grant_revision,claims) or (
+    type(proposal_aliases) is not list or not 0<len(proposal_aliases)<=24
+    or not all(type(v) is dict and
+      set(v)=={'alias','claimCode','usage'} and
+      valid(v['alias']) and type(v['claimCode']) is str and
+      CODE.fullmatch(v['claimCode']) and v['usage'] in
+      ('commercial','interpretive') for v in proposal_aliases)):
+  return out('DENIED','INVALID_REQUEST')
+ sp='f01_sources_review'
+ c.execute('SAVEPOINT '+sp)
+ try:
+  sources,full_hash=read(c,request_ref,scope,expected,grant_revision,claims)
+  selection=c.execute('SELECT * FROM s0_f01_sources_lab.selections '
+     'WHERE request_ref=%s FOR UPDATE',(request_ref,)).fetchone()
+  fail_if(not selection,'SELECTION_MISSING')
+  fail_if(selection['request_fingerprint']!=binding(
+       scope,expected,grant_revision,claims),'REQUEST_COLLISION')
+  fail_if(selection['snapshot_fingerprint']!=full_hash,'SOURCES_CHANGED')
+  got=c.execute('SELECT alias_ref,source_ref,source_version,claim_code,usage '
+     'FROM s0_f01_sources_lab.aliases WHERE request_ref=%s '
+     'ORDER BY alias_ref,claim_code,usage FOR SHARE',
+     (request_ref,)).fetchall()
+  versions={v['source_ref']:v['source_version'] for v in sources}
+  expected_rows=sorted((a,s,versions[s],code,usage)
+      for a,s,code,usage in aliases(claims))
+  fail_if(sorted((x['alias_ref'],x['source_ref'],x['source_version'],
+      x['claim_code'],x['usage']) for x in got)!=expected_rows,
+      'ALIAS_CHANGED')
+  received=sorted((v['alias'],v['claimCode'],v['usage'])
+                  for v in proposal_aliases)
+  intended=sorted((x['alias'],x['claimCode'],x['usage'])
+                  for x in provider_rows(claims))
+  fail_if(received!=intended,'CLAIMS_NOT_EXACT')
+  candidate=hashx(dict(request=request_ref,sources=full_hash,claims=received))
+  owner=f01_review(c,turn_ref=request_ref,scope=scope,expected=expected,
+                   candidate_digest=candidate)
+  fail_if(owner['status'] not in (
+      'LAB_RECHECK_RECORDED_NO_PUBLISH','LAB_RECHECK_REPLAY_NO_PUBLISH'),
+      'F01_OWNER_CHANGED')
+  prior=c.execute('SELECT * FROM s0_f01_sources_lab.reviews '
+        'WHERE request_ref=%s FOR UPDATE',(request_ref,)).fetchone()
+  if prior:
+   fail_if(prior['proposal_fingerprint']!=candidate,'REVIEW_COLLISION')
+   decision='LAB_REVIEW_REPLAY_NO_PUBLISH'
+  else:
+   c.execute('INSERT INTO s0_f01_sources_lab.reviews '
+      '(request_ref,proposal_fingerprint) VALUES(%s,%s)',
+      (request_ref,candidate))
+   decision='LAB_REVIEW_RECORDED_NO_PUBLISH'
+  c.execute('RELEASE SAVEPOINT '+sp)
+  return out(decision,'SEMANTIC_AND_OPERATIONAL_GATES_MISSING')
+ except ValueError as e:
+  return deny(c,sp,str(e))
+ except Exception:
+  c.execute('ROLLBACK TO SAVEPOINT '+sp)
+  c.execute('RELEASE SAVEPOINT '+sp)
+  return out('UNAVAILABLE','DEPENDENCY_UNAVAILABLE')
