@@ -699,3 +699,17 @@ test('FV-UI-058: atalho de foco restrito a resultados visiveis e documentado',()
   assert.match(app,/event\.preventDefault\(\);first\.focus\(\)/);
   assert.match(browserSmoke,/FV-UI-058 foco do primeiro caso pela seta em 8 cenarios: PASS/);
 });
+
+test('FV-UX-BG-01: preview offline e Chromium smoke usam exatamente os mesmos módulos na mesma ordem',()=>{
+  const preview = get('../preview/collect_visual_review.py');
+  const match = preview.match(/MODULES = \\(([\\s\\S]*?)\\n\\)/);
+  assert.ok(match, 'Lista de módulos do preview não encontrada');
+  const previewModules = [...match[1].matchAll(/'([^']+\\.mjs)'/g)].map(x=>x[1]);
+  const smokeModulesLine = browserSmoke.split('\\n').find(x=>
+    x.includes('script = ') && x.includes("'fixtures.mjs'"));
+  assert.ok(smokeModulesLine, 'Lista de módulos do Chromium smoke não encontrada');
+  const browserModules = [...smokeModulesLine.matchAll(/'([^']+\\.mjs)'/g)].map(x=>x[1]);
+  assert.deepEqual(previewModules,browserModules);
+  assert.ok(previewModules.includes('bank-ready-list.mjs'));
+  assert.ok(previewModules.indexOf('bank-ready-list.mjs')<previewModules.indexOf('app.mjs'));
+});
