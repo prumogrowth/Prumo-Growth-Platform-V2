@@ -112,8 +112,21 @@ class RemediatedAuditPhysical(unittest.TestCase):
   # No second receipt in same quota epoch may reuse slot=1.
   with self.assertRaises(psycopg.Error):
    with self.t.lab.admin() as c:
-    c.execute("UPDATE s0_pd_v02_lab.receipts SET attempt_ref='fake' "
-       "WHERE attempt_ref='attempt_A'")
-  # FK integrity protects attempt identity too; any errors abort txn.
+    c.execute("INSERT INTO s0_pre_dispatch_lab.reservations "
+      "(attempt_ref,selection_ref,case_ref,concessionaria_id,template_ref,"
+      "template_version,template_purpose_ref) "
+      "SELECT 'attempt_B','selection_B',case_ref,concessionaria_id,"
+      "template_ref,template_version,template_purpose_ref "
+      "FROM s0_pre_dispatch_lab.reservations WHERE attempt_ref='attempt_A'")
+    c.execute("INSERT INTO s0_pd_v02_lab.receipts "
+      "SELECT 'attempt_B','selection_B','intent_B','nonce_0002',"
+      "request_digest,scope_digest,store_ref,app_ref,route_ref,channel_ref,"
+      "phone_ref,waba_ref,case_ref,service_ref,consent_purpose_ref,"
+      "template_ref,template_version,campaign_ref,destination_sha256,"
+      "body_sha256,expected_versions,m09_versions,window_ref,"
+      "quota_revision,quota_observed_at,quota_valid_until,quota_slot,"
+      "created_at,expires_at,state,cancel_reason "
+      "FROM s0_pd_v02_lab.receipts WHERE attempt_ref='attempt_A'")
+  # The duplicate quota-slot uniqueness guard rejects re-issuance.
   self.assertEqual(self.t.rb()['status'],'LAB_COMMITTED_RECEIPT_NO_DISPATCH')
 if __name__=='__main__':unittest.main()
