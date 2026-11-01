@@ -50,6 +50,8 @@ CREATE TABLE s0_pd_v02_lab.receipts(
  m09_versions jsonb NOT NULL,
  window_ref text NOT NULL,
  quota_revision bigint NOT NULL,
+ quota_observed_at timestamptz NOT NULL,
+ quota_valid_until timestamptz NOT NULL,
  quota_slot integer NOT NULL CHECK(quota_slot>0),
  created_at timestamptz NOT NULL DEFAULT clock_timestamp(),
  expires_at timestamptz NOT NULL,
