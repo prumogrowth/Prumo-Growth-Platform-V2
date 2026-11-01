@@ -1,0 +1,424 @@
+TAP version 13
+# Subtest: OFF04 01 valid private request and frozen preparation
+ok 1 - OFF04 01 valid private request and frozen preparation
+  ---
+  duration_ms: 3.246184
+  type: 'test'
+  ...
+# Subtest: OFF04 02 provider view minimized, aliases only and no sensitive IDs
+ok 2 - OFF04 02 provider view minimized, aliases only and no sensitive IDs
+  ---
+  duration_ms: 0.461864
+  type: 'test'
+  ...
+# Subtest: OFF04 03 success is proposal, never an effect
+ok 3 - OFF04 03 success is proposal, never an effect
+  ---
+  duration_ms: 1.235959
+  type: 'test'
+  ...
+# Subtest: OFF04 04 unauthorized before stale
+ok 4 - OFF04 04 unauthorized before stale
+  ---
+  duration_ms: 0.205424
+  type: 'test'
+  ...
+# Subtest: OFF04 05 stale private version
+ok 5 - OFF04 05 stale private version
+  ---
+  duration_ms: 0.281237
+  type: 'test'
+  ...
+# Subtest: OFF04 06 explicit S0 request required
+ok 6 - OFF04 06 explicit S0 request required
+  ---
+  duration_ms: 0.23645
+  type: 'test'
+  ...
+# Subtest: OFF04 07 optout blocks plan
+ok 7 - OFF04 07 optout blocks plan
+  ---
+  duration_ms: 0.259294
+  type: 'test'
+  ...
+# Subtest: OFF04 08 handoff forbids seller-ai ownership
+ok 8 - OFF04 08 handoff forbids seller-ai ownership
+  ---
+  duration_ms: 0.172145
+  type: 'test'
+  ...
+# Subtest: OFF04 09 handoff requires prior ai plan cancelled
+ok 9 - OFF04 09 handoff requires prior ai plan cancelled
+  ---
+  duration_ms: 0.33788
+  type: 'test'
+  ...
+# Subtest: OFF04 10 post human cannot change purpose route
+ok 10 - OFF04 10 post human cannot change purpose route
+  ---
+  duration_ms: 0.472739
+  type: 'test'
+  ...
+# Subtest: OFF04 11 template tenant isolation
+ok 11 - OFF04 11 template tenant isolation
+  ---
+  duration_ms: 0.226685
+  type: 'test'
+  ...
+# Subtest: OFF04 12 inactive template
+ok 12 - OFF04 12 inactive template
+  ---
+  duration_ms: 0.201959
+  type: 'test'
+  ...
+# Subtest: OFF04 13 unapproved template
+ok 13 - OFF04 13 unapproved template
+  ---
+  duration_ms: 0.725314
+  type: 'test'
+  ...
+# Subtest: OFF04 14 ineligible template
+ok 14 - OFF04 14 ineligible template
+  ---
+  duration_ms: 0.159746
+  type: 'test'
+  ...
+# Subtest: OFF04 15 duplicate template version
+ok 15 - OFF04 15 duplicate template version
+  ---
+  duration_ms: 0.134249
+  type: 'test'
+  ...
+# Subtest: OFF04 16 template purpose not allowed
+ok 16 - OFF04 16 template purpose not allowed
+  ---
+  duration_ms: 0.173066
+  type: 'test'
+  ...
+# Subtest: OFF04 17 unsupported Meta category
+ok 17 - OFF04 17 unsupported Meta category
+  ---
+  duration_ms: 0.181879
+  type: 'test'
+  ...
+# Subtest: OFF04 18 refused extra field at nested level
+ok 18 - OFF04 18 refused extra field at nested level
+  ---
+  duration_ms: 0.128631
+  type: 'test'
+  ...
+# Subtest: OFF04 19 no fifth instruction field / F01 behavior
+ok 19 - OFF04 19 no fifth instruction field / F01 behavior
+  ---
+  duration_ms: 0.131344
+  type: 'test'
+  ...
+# Subtest: OFF04 20 cannot move chain version
+ok 20 - OFF04 20 cannot move chain version
+  ---
+  duration_ms: 0.144785
+  type: 'test'
+  ...
+# Subtest: OFF04 21 invalid day rejected
+ok 21 - OFF04 21 invalid day rejected
+  ---
+  duration_ms: 0.113879
+  type: 'test'
+  ...
+# Subtest: OFF04 22 nonexistent timezone rejected
+ok 22 - OFF04 22 nonexistent timezone rejected
+  ---
+  duration_ms: 0.110554
+  type: 'test'
+  ...
+# Subtest: OFF04 23 getter on envelope never executed
+ok 23 - OFF04 23 getter on envelope never executed
+  ---
+  duration_ms: 0.247596
+  type: 'test'
+  ...
+# Subtest: OFF04 24 getter on scope never executed
+ok 24 - OFF04 24 getter on scope never executed
+  ---
+  duration_ms: 0.090765
+  type: 'test'
+  ...
+# Subtest: OFF04 25 anonymous handle blocked
+ok 25 - OFF04 25 anonymous handle blocked
+  ---
+  duration_ms: 0.057925
+  type: 'test'
+  ...
+# Subtest: OFF04 26 provider tag mismatch
+ok 26 - OFF04 26 provider tag mismatch
+  ---
+  duration_ms: 0.282618
+  type: 'test'
+  ...
+# Subtest: OFF04 27 unknown template alias
+ok 27 - OFF04 27 unknown template alias
+  ---
+  duration_ms: 0.313254
+  type: 'test'
+  ...
+# Subtest: OFF04 28 tampered version
+ok 28 - OFF04 28 tampered version
+  ---
+  duration_ms: 0.302467
+  type: 'test'
+  ...
+# Subtest: OFF04 29 extra slots in model response
+ok 29 - OFF04 29 extra slots in model response
+  ---
+  duration_ms: 0.271842
+  type: 'test'
+  ...
+# Subtest: OFF04 30 stale S0 at result
+ok 30 - OFF04 30 stale S0 at result
+  ---
+  duration_ms: 0.296999
+  type: 'test'
+  ...
+# Subtest: OFF04 31 S0 authorization revoked at result
+ok 31 - OFF04 31 S0 authorization revoked at result
+  ---
+  duration_ms: 0.302197
+  type: 'test'
+  ...
+# Subtest: OFF04 32 result wrong tenant denied
+ok 32 - OFF04 32 result wrong tenant denied
+  ---
+  duration_ms: 0.225884
+  type: 'test'
+  ...
+# Subtest: OFF04 33 timeout/late result
+ok 33 - OFF04 33 timeout/late result
+  ---
+  duration_ms: 0.208769
+  type: 'test'
+  ...
+# Subtest: OFF04 34 attempts beyond maximum
+ok 34 - OFF04 34 attempts beyond maximum
+  ---
+  duration_ms: 0.504606
+  type: 'test'
+  ...
+# Subtest: OFF04 35 duplicate JSON key blocked
+ok 35 - OFF04 35 duplicate JSON key blocked
+  ---
+  duration_ms: 0.248678
+  type: 'test'
+  ...
+# Subtest: OFF04 36 escaped alias duplicate JSON key blocked
+ok 36 - OFF04 36 escaped alias duplicate JSON key blocked
+  ---
+  duration_ms: 0.222529
+  type: 'test'
+  ...
+# Subtest: OFF04 37 duplicate attempt time
+ok 37 - OFF04 37 duplicate attempt time
+  ---
+  duration_ms: 0.399481
+  type: 'test'
+  ...
+# Subtest: OFF04 38 final before earlier attempt
+ok 38 - OFF04 38 final before earlier attempt
+  ---
+  duration_ms: 0.359152
+  type: 'test'
+  ...
+# Subtest: OFF04 39 outside window
+ok 39 - OFF04 39 outside window
+  ---
+  duration_ms: 0.277901
+  type: 'test'
+  ...
+# Subtest: OFF04 40 malformed JSON blocked
+ok 40 - OFF04 40 malformed JSON blocked
+  ---
+  duration_ms: 0.464177
+  type: 'test'
+  ...
+# Subtest: OFF04 41 no model grants
+ok 41 - OFF04 41 no model grants
+  ---
+  duration_ms: 1.014231
+  type: 'test'
+  ...
+# Subtest: OFF04 42 no model toolcalls
+ok 42 - OFF04 42 no model toolcalls
+  ---
+  duration_ms: 0.241017
+  type: 'test'
+  ...
+# Subtest: OFF04 43 zero attempts with final allowed under explicit window
+ok 43 - OFF04 43 zero attempts with final allowed under explicit window
+  ---
+  duration_ms: 0.382586
+  type: 'test'
+  ...
+# Subtest: OFF04 44 null final with empty attempt accepted only as candidate
+ok 44 - OFF04 44 null final with empty attempt accepted only as candidate
+  ---
+  duration_ms: 0.379091
+  type: 'test'
+  ...
+# Subtest: OFF04 45 success continuation returns review only
+ok 45 - OFF04 45 success continuation returns review only
+  ---
+  duration_ms: 0.772573
+  type: 'test'
+  ...
+# Subtest: OFF04 46 continuation denied before stale
+ok 46 - OFF04 46 continuation denied before stale
+  ---
+  duration_ms: 0.082472
+  type: 'test'
+  ...
+# Subtest: OFF04 47 duplicate event replay idempotent
+ok 47 - OFF04 47 duplicate event replay idempotent
+  ---
+  duration_ms: 0.207757
+  type: 'test'
+  ...
+# Subtest: OFF04 48 event ID contradictory
+ok 48 - OFF04 48 event ID contradictory
+  ---
+  duration_ms: 0.144013
+  type: 'test'
+  ...
+# Subtest: OFF04 49 equal sequence different event IDs conflict
+ok 49 - OFF04 49 equal sequence different event IDs conflict
+  ---
+  duration_ms: 0.134209
+  type: 'test'
+  ...
+# Subtest: OFF04 50 technical status API_ACCEPTED not sent
+ok 50 - OFF04 50 technical status API_ACCEPTED not sent
+  ---
+  duration_ms: 0.172155
+  type: 'test'
+  ...
+# Subtest: OFF04 51 unknown status awaits proof
+ok 51 - OFF04 51 unknown status awaits proof
+  ---
+  duration_ms: 0.14166
+  type: 'test'
+  ...
+# Subtest: OFF04 52 Meta 131049 requires review
+ok 52 - OFF04 52 Meta 131049 requires review
+  ---
+  duration_ms: 0.247055
+  type: 'test'
+  ...
+# Subtest: OFF04 53 optout cancels
+ok 53 - OFF04 53 optout cancels
+  ---
+  duration_ms: 0.152786
+  type: 'test'
+  ...
+# Subtest: OFF04 54 template revoked cancels
+ok 54 - OFF04 54 template revoked cancels
+  ---
+  duration_ms: 0.148069
+  type: 'test'
+  ...
+# Subtest: OFF04 55 customer inbound requires review
+ok 55 - OFF04 55 customer inbound requires review
+  ---
+  duration_ms: 0.116633
+  type: 'test'
+  ...
+# Subtest: OFF04 56 handoff cancels old seller AI route
+ok 56 - OFF04 56 handoff cancels old seller AI route
+  ---
+  duration_ms: 0.287145
+  type: 'test'
+  ...
+# Subtest: OFF04 57 unverified event blocks
+ok 57 - OFF04 57 unverified event blocks
+  ---
+  duration_ms: 0.133878
+  type: 'test'
+  ...
+# Subtest: OFF04 58 wrong chain blocked
+ok 58 - OFF04 58 wrong chain blocked
+  ---
+  duration_ms: 0.136472
+  type: 'test'
+  ...
+# Subtest: OFF04 59 conflict sent and failure for same attempt
+ok 59 - OFF04 59 conflict sent and failure for same attempt
+  ---
+  duration_ms: 0.222039
+  type: 'test'
+  ...
+# Subtest: OFF04 60 prior exact S0 synthetic replay
+ok 60 - OFF04 60 prior exact S0 synthetic replay
+  ---
+  duration_ms: 0.264101
+  type: 'test'
+  ...
+# Subtest: OFF04 61 prior replay altered fingerprint blocked
+ok 61 - OFF04 61 prior replay altered fingerprint blocked
+  ---
+  duration_ms: 0.141029
+  type: 'test'
+  ...
+# Subtest: OFF04 62 wrong tenant in timeline denied
+ok 62 - OFF04 62 wrong tenant in timeline denied
+  ---
+  duration_ms: 0.11518
+  type: 'test'
+  ...
+# Subtest: OFF04 63 version changed in timeline
+ok 63 - OFF04 63 version changed in timeline
+  ---
+  duration_ms: 0.110683
+  type: 'test'
+  ...
+# Subtest: OFF04 64 unknown event field rejected
+ok 64 - OFF04 64 unknown event field rejected
+  ---
+  duration_ms: 0.128901
+  type: 'test'
+  ...
+# Subtest: OFF04 65 no real clock, network, filesystem or process use on public functions
+ok 65 - OFF04 65 no real clock, network, filesystem or process use on public functions
+  ---
+  duration_ms: 0.5744
+  type: 'test'
+  ...
+# Subtest: OFF04 66 event from another store denied by synthetic preflight
+ok 66 - OFF04 66 event from another store denied by synthetic preflight
+  ---
+  duration_ms: 0.147268
+  type: 'test'
+  ...
+# Subtest: OFF04 67 event from another customer refused
+ok 67 - OFF04 67 event from another customer refused
+  ---
+  duration_ms: 0.130163
+  type: 'test'
+  ...
+# Subtest: OFF04 68 sent receipt cannot make chain available for another send
+ok 68 - OFF04 68 sent receipt cannot make chain available for another send
+  ---
+  duration_ms: 0.13524
+  type: 'test'
+  ...
+# Subtest: OFF04 69 transport uncertainty has precedence over confirmed sent
+ok 69 - OFF04 69 transport uncertainty has precedence over confirmed sent
+  ---
+  duration_ms: 0.26361
+  type: 'test'
+  ...
+1..69
+# tests 69
+# suites 0
+# pass 69
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 120.468096
