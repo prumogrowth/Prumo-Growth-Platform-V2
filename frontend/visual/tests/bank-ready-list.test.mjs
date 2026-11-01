@@ -69,6 +69,7 @@ test('BANCO-02: remessa anterior do próprio ciclo ou dossiê exige contrato S0 
  const {records,candidate}=isolatedNewSubmission();
  for(const [title,mutation] of [
   ['postmark',{postmarkProjection:{direction:'continuation',source:'bank_submitted',originCaseRef:'A-105'}}],
+  ['post-sale continuation',{postmarkProjection:{direction:'continuation',source:'sold',originCaseRef:'A-115'}}],
   ['snapshot',{customerDossierProjection:{bankSnapshots:[{bankSubmissionVersionRef:'remessa-anterior'}]}}]
  ]){
    const altered={...candidate,...mutation},rows=records.map(x=>x.id===candidate.id?altered:x);
