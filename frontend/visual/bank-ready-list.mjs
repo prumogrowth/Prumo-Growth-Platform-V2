@@ -23,7 +23,7 @@ export function isBankReadyForRegistration(record, records, actorId, shopId) {
       registration.conflicts.length!==0) return false;
   // Até a S0 tipar operação e autorização de reenvio, o novo ciclo após
   // remessa ou dossiê com snapshot bancário prévio não pode entrar nesta fila.
-  if (record.postmarkProjection?.source==='bank_submitted' ||
+  if (record.postmarkProjection?.direction==='continuation' ||
       (Array.isArray(record.customerDossierProjection?.bankSnapshots) &&
        record.customerDossierProjection.bankSnapshots.length>0)) return false;
   const bank=bankProjectionFor(record,actorId,shopId);
