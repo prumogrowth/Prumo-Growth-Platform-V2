@@ -522,8 +522,13 @@ function callout(title,text,tone='') {
  * A operação é local; só orientar o foco no mesmo caso com painel visível.
  */
 function focusExtractionAfterRerender(caseId,notice){
-  if(state.activeModule!=='bank' || bankSelectedCase()?.id!==caseId || !$('bank-dialog').open)return;
-  ($('bank-case-select').hidden?$('bank-title'):$('bank-case-select')).focus();
+  if(selectedCase()?.id!==caseId)return;
+  if(state.activeModule==='bank' && $('bank-dialog').open){
+    ($('bank-case-select').hidden?$('bank-title'):$('bank-case-select')).focus();
+  }else if(state.activeModule==='conversations'){
+    // Após recriação da árvore, nunca focar um botão da conclusão já removido.
+    $('detail-content').querySelector('#registration-diagnostics summary')?.focus();
+  }
   announceCurrentContext(notice);
 }
 function noteDraftKey(item){return state.actorId+'|'+state.shopId+'|'+item.id;}
@@ -688,6 +693,19 @@ function renderDetails() {
     if(isSyntheticBankProtected(item)) group.append(callout('Marco bancário protegido','Silêncio de cliente ou janela Meta expirada não representa negativa da instituição financeira.','warning'));
     group.append(prop('Caso fictício',item.id));
     content.append(group,renderAiCommunications(item));
+    // Fichas em processamento, parciais e históricos bancários nunca entram
+    // na fila de prontos; sua consulta técnica permanece no Resumo do caso.
+    if(item.registrationProjection || state.processing[item.id]){
+      const diagnostics=el('details','registration-diagnostics');
+      diagnostics.id='registration-diagnostics';
+      diagnostics.append(el('summary','','Situação cadastral · somente leitura'),renderRegistration(item));
+      content.append(diagnostics);
+    }
+    if(item.status==='cadastro enviado ao banco'){
+      const prior=el('details','prior-bank-history');
+      prior.append(el('summary','','Remessa anterior · acompanhamento'),renderBankStatus(item));
+      content.append(prior);
+    }
   } else if(state.detailTab==='activity'){
     content.append(renderOperationalHistory(item));
   } else if(state.detailTab==='notes'){
