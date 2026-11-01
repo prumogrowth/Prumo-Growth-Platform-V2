@@ -39,7 +39,9 @@ export function confirmedDemoMessages(record, actorId, shopId) {
 }
 
 export function latestConfirmedDemoMessage(record, actorId, shopId) {
-  return confirmedDemoMessages(record, actorId, shopId).at(-1) ?? null;
+  // A prévia representa a última mensagem de conversa, não um evento interno.
+  return confirmedDemoMessages(record, actorId, shopId)
+    .filter(message => ['in','out','ai'].includes(message.side)).at(-1) ?? null;
 }
 
 export function projectDemoAttention(record, actorId, shopId) {
