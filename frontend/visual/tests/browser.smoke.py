@@ -110,7 +110,8 @@ with sync_playwright() as p:
         page.locator('#request-completion').click()
         page.locator('#completion-form button[value=confirm]').click()
         expect(page.locator('#bank-dialog')).to_be_hidden()
-        if not page.locator('#detail-pane').is_visible():page.locator('#thread-title').click()
+        # A resposta de close e a navegação móvel são assíncronas no Chromium.
+        expect(page.locator('#detail-pane')).to_be_visible()
         expect(page.locator('#registration-diagnostics')).to_be_visible()
         if not page.locator('#registration-diagnostics').evaluate('e=>e.open'):
             page.locator('#registration-diagnostics summary').click()
@@ -119,7 +120,7 @@ with sync_playwright() as p:
         expect(page.locator('#registration-diagnostics summary')).to_be_focused()
         assert 'Resultado técnico fictício Retorno parcial' in page.locator('#context-announcement').inner_text()
         leave_bank(page)
-        if not page.locator('#detail-pane').is_visible():page.locator('#thread-title').click()
+        expect(page.locator('#detail-pane')).to_be_visible()
         page.locator('.detail-tab',has_text='Histórico').click()
         assert page.locator('.activity-item').filter(has_text=re.compile('extração',re.I)).count()==1
         assert not errors, 'Erros JavaScript durante jornada: '+repr(errors)
