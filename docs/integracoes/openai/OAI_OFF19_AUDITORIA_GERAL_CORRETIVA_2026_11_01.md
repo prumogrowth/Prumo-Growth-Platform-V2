@@ -1,6 +1,6 @@
 # AUD-OAI-19 — Auditoria geral corretiva da frente OpenAI (OFF-01…OFF-18)
 
-**Data:** 01/11/2026. **Origem:** pedido do proprietário de revisar não somente o que foi testado, mas o alinhamento da frente com a visão LiberaCred, falhas de segurança e pontos desenvolvidos sem auditoria posterior. **Classificação:** `AUDITORIA_PARCIAL_REPRODUZIVEL_COM_CORRECOES`, não laudo de produção, parecer jurídico, pentest completo ou aceite de S0/Meta.
+**Data:** 01/11/2026. **Origem:** pedido do proprietário de revisar não somente o que foi testado, mas o alinhamento da frente com a visão LiberaCred, falhas de segurança e pontos desenvolvidos sem auditoria posterior. **Classificação:** `AUDITORIA_CORRETIVA_OFFLINE_APROVADA_COM_RESTRICOES`, não laudo de produção, parecer jurídico, pentest completo ou aceite de S0/Meta.
 
 ## 1. Bases e métodos
 
@@ -17,7 +17,7 @@
 | AUD19-01 | **Leitura de versão herdada/mascarada** na implementação legada `core.mjs/versionGate` | A comparação usava `k in ctx.current` (também verdadeiro para propriedade herdada) e apenas conferia a contagem de chaves próprias. Um objeto `current` com `case` herdada e uma chave substituta podia ser interpretado como `READY`. Accessors de versão podiam executar código do chamador. | Agora requer **mesmo conjunto exato de chaves próprias**, descritores de dados, versões inteiras válidas e protótipo simples/nulo. Rejeita getters sem chamá-los; mantém distinção `STALE/INVALID_INPUT/DENIED`. | **Alta se futuramente usado em entrada externa**; alcance atual somente laboratório E04, não bypass de S0 real |
 | AUD19-02 | **Relógio implícito na validade de oferta da F01 legada** | `validateF01` usava `req.nowMs ?? Date.now()` para expiração de fonte; a mesma fixture podia mudar de veredicto conforme relógio do runner. | Para fonte com validade, agora exige `req.nowMs` inteiro não negativo; expiração compara apenas o instante injetado pela S0/fixture. Sem relógio de processo. | **Média**, risco de falso positivo/negativo em planejamento de integração |
 
-Os **18 testes OFF-19** validam chaves herdadas, acessores, falsas flags de autenticação, símbolos, distinção de revisões de ciclo/atribuição, propagação F01/F02/F03 e relógio explícito. O novo gate CI exige **968/968 testes Node** (950 herdados + 18 novos), fail=0, skipped=0, e **24/24 auditorias Python** da origem S0 pinada `31e88ec` (conjuntos separados). Aprovado **somente** após o CI desta branch ficar verde.
+Os **18 testes OFF-19** validam chaves herdadas, acessores, falsas flags de autenticação, símbolos, distinção de revisões de ciclo/atribuição, propagação F01/F02/F03 e relógio explícito. O novo gate CI exige **968/968 testes Node** (950 herdados + 18 novos), fail=0, skipped=0, e **24/24 auditorias Python** da origem S0 pinada `31e88ec` (conjuntos separados). **Primeiro CI validado:** [GitHub Actions 41338979377](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41338979377): 968/968 Node PASS, 0 FAIL, 0 SKIP, e 24/24 verificações Python PASS, source-level e separadas. A CI é repetida após o commit de fechamento deste relatório e do roteiro.
 
 ## 3. Inspeção por entrega
 
@@ -63,4 +63,4 @@ Os **18 testes OFF-19** validam chaves herdadas, acessores, falsas flags de aute
 4. Prioridade próxima após a auditoria: **revisar arquitetura de sink seguro entre Responses preflight e avaliadores F01/F02/F03**; seguir integração WA39 apenas com fontes autenticadas, sem tratar `candidateRaw` como proposta aprovada.
 5. Não pedir chave, não fazer chamadas pagas e não dar status de produção. Antes da API real, submeter missão limitada a aprovação expressa, orçamento e segredo em serviço autorizado.
 
-**Conclusão de auditoria:** a frente é coerente com a estratégia de IA sob controle do orquestrador, **mas NÃO está pronta para produção**. Dois defeitos de hardening foram corrigidos no código de laboratório, e há lacunas materiais de integração, fonte oficial, segurança e roadmap que permanecem bloqueadas ou futuras. Não afirmar "sem falhas" só porque o CI está verde.
+**Conclusão de auditoria (condicionada aos limites acima):** a frente é coerente com a estratégia de IA sob controle do orquestrador, **mas NÃO está pronta para produção**. Dois defeitos de hardening foram corrigidos no código de laboratório, e há lacunas materiais de integração, fonte oficial, segurança e roadmap que permanecem bloqueadas ou futuras. Não afirmar "sem falhas" só porque o CI está verde.
