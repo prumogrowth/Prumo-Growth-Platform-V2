@@ -466,3 +466,40 @@ test('AUD-M15-56 policy mismatch must remain explicit and never expose PII',asyn
  const out=await deny(f,'UNTRUSTED_SCOPE');
  assert.equal(JSON.stringify(out).includes('LEAD_A'),false);
 });
+
+
+test('AUD-M15-57 preview is S0-host staging only, never OFF-04 provider payload',async()=>{
+ const view=await success(factory());
+ assert.equal(view.intended_consumer,'LAB_S0_HOST_STAGING_ONLY');
+ assert.equal(view.openai_provider_payload_compatible,false);
+ assert.notEqual(view.contract_version,
+  'prumo.openai.f02-plan-provider/0.1-candidate');
+ for(const key of ['schemaVersion','providerTag','instructions',
+  'planning','attempts','finalTemplate','aliases','privateRefs'])
+  assert.equal(key in view,false,key);
+ assert.equal(view.candidates[0].template_ref,'TEMPLATE_1');
+});
+test('AUD-M15-58 nested provider accessor fails closed without invocation',async()=>{
+ const f=factory();let reads=0;
+ Object.defineProperty(f.m13Provider.details[0].components[0],'text',{
+  enumerable:true,get(){reads++;return 'Sample 1';},
+ });
+ const out=await run(f);
+ assert.equal(out.decision,'DENIED');assert.equal(out.preview,null);
+ assert.equal(reads,0);
+});
+test('AUD-M15-59 cyclic WA26 catalog cannot reach F02 preview',async()=>{
+ const f=factory();const extra:any={};
+ extra.self=extra;
+ f.templates[0].grants.push(extra);
+ await deny(f,'WA26_POLICY_OR_CATALOG_DENIED');
+});
+test('AUD-M15-60 no root-level PII in host staging preview',async()=>{
+ const out=await run(factory());
+ assert.equal(out.decision,'LAB_F02_PREVIEW_UNVERIFIED');
+ assert.equal('case_ref' in out,false);
+ assert.equal('lead_ref' in out,false);
+ assert.equal('concessionaria_id' in out,false);
+ assert.equal('internal_tickets' in out,false);
+ assert.equal('recipient' in out,false);
+});
