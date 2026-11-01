@@ -140,8 +140,8 @@ test('S0M09-META-13 reject stale, float, unsafe, null, boolean versions',()=>{
 test('S0M09-META-14 rejects extra, missing, symbol, inherited and non-data fields',()=>{
   const x=fixture();x.extra_field='TOKEN';
   rejected(inspect(x,scope,revs));
-  const y=fixture();delete y.snapshot.grant;
-  rejected(inspect(y,scope,revs)); // no extraneous property required
+  const y=fixture();delete y.snapshot.source_revision;
+  rejected(inspect(y,scope,revs));
   const z=Object.assign(Object.create({inherited:true}),fixture());
   rejected(inspect(z,scope,revs));
   const w=fixture();w[Symbol('secret')]='token';
