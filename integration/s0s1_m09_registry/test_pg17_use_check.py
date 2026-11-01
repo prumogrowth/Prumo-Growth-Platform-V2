@@ -17,7 +17,7 @@ except ImportError:
 from .pg17_use_check import record_control_check_in_admin_transaction as checkpoint
 from .pg17_registry import revoke_channel_in_admin_transaction
 from .port import HostScope, M2MPrincipal, Revisions, FLAGS
-from .test_pg17_m2m import PhysicalM09Signed
+from . import test_pg17_m2m as m2mtests
 
 
 @unittest.skipUnless(os.environ.get('M09_PG17_DISPOSABLE')=='YES' and psycopg,
@@ -25,7 +25,7 @@ from .test_pg17_m2m import PhysicalM09Signed
 class PhysicalPointOfUse(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.base=PhysicalM09Signed
+        cls.base=m2mtests.PhysicalM09Signed
         cls.base.setUpClass.__func__(cls)
         try:
             filename=cls.origin/'integration/s0s1_m09_registry/pg17_use_check.sql'
