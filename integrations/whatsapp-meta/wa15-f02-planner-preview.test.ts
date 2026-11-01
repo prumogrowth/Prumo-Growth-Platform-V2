@@ -102,7 +102,7 @@ const factory=()=>{
    state.reads.push('catalog:'+phase);return state.templates;
   },
  };
- return {...state,ports};
+ return Object.assign(state,{ports});
 };
 type Factory=ReturnType<typeof factory>;
 const run=(f:Factory)=>prepare(f.q,f.ports,
