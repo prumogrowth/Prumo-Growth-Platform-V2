@@ -250,6 +250,26 @@ class FrontendV02Physical(unittest.TestCase):
   x=self.proof(ref='never_opened')
   self.assertEqual(x['status'],'LAB_COMMIT_UNRESOLVED')
   self.assertFalse(x['display_read_confirmed'])
+ def test_27_old_receipt_never_inherits_newer_open_cutoff(self):
+  self.stage()
+  self.inbound()
+  v={**self.v,'inbox_revision':2}
+  self.assertEqual(self.stage(ref='newer',v=v)['read_through_seq'],2)
+  old=self.proof()
+  self.assertEqual(old['status'],'LAB_COMMITTED_READBACK')
+  self.assertEqual(old['read_through_seq'],1)
+  self.assertEqual(old['unread_inbound_count'],1)
+  self.assertEqual(old['human_reply_pending'],'COUNT')
+  self.assertFalse(old['display_read_confirmed'])
+  self.assertTrue(self.proof(ref='newer',v=v)['display_read_confirmed'])
+ def test_28_reassigned_historical_case_not_visible_to_old_owner(self):
+  self.stage(ref='historic',case='case_B')
+  with self.lab.admin() as c:
+   c.execute("UPDATE s0_frontend_lab.cases SET owner_ref='new_owner', "
+             "assignment_revision=2 WHERE case_ref='case_B'")
+  self.assertEqual(self.proof(ref='historic',case='case_B')['reason'],
+                   'STALE_OR_REASSIGNED')
+  self.assertNotIn('case_B',[z['case_ref'] for z in self.history()['rows']])
  def test_26_bad_versions_and_non_owner_roles_fail_closed(self):
   self.assertEqual(self.stage(v={'inbox_revision':1})['status'],'DENIED')
   self.assertEqual(self.proof(role='operator')['status'],'DENIED')
