@@ -305,3 +305,76 @@ test('M19-S0-57 failed with unknown error code is still unverified',()=>{
  'LAB_FAILURE_OBSERVED_UNVERIFIED');
  assert.equal(p.definitive_failure_count_increment,false);
 });
+
+
+test('AUD-M19-S0-58 conflicting variant bytes change invalidates recheck',()=>{
+ const original=occurrence('sent','EVENT_A');
+ const second={...original,provider_kind:'failed',meta_error_code:131049};
+ const first=safe(run(scope(),binding(),[original,second]),
+  'LAB_CONFLICT_QUARANTINED');
+ const changed={...second,body_sha256:'c'.repeat(64)};
+ denied(recheck(first,scope(),binding(),[original,changed]),
+  'SNAPSHOT_OR_CONTEXT_CHANGED');
+});
+test('AUD-M19-S0-59 conflicting event permutation has same digest',()=>{
+ const a=occurrence('sent','EVENT_A');
+ const b={...a,provider_kind:'failed',meta_error_code:131049};
+ const x=safe(run(scope(),binding(),[a,b]),'LAB_CONFLICT_QUARANTINED');
+ const y=safe(run(scope(),binding(),[b,a]),'LAB_CONFLICT_QUARANTINED');
+ assert.equal(x.snapshot_sha256,y.snapshot_sha256);
+ assert.equal(x.observation_count,1);
+});
+test('AUD-M19-S0-60 collision variants contribute to digest',()=>{
+ const a=occurrence('sent','EVENT_A');
+ const b={...a,provider_kind:'failed',meta_error_code:131049};
+ const c={...b,meta_error_code:131050};
+ const x=safe(run(scope(),binding(),[a,b]),'LAB_CONFLICT_QUARANTINED');
+ const y=safe(run(scope(),binding(),[a,c]),'LAB_CONFLICT_QUARANTINED');
+ assert.notEqual(x.snapshot_sha256,y.snapshot_sha256);
+});
+test('AUD-M19-S0-61 flags reflect all conflicting variants',()=>{
+ const a=occurrence('sent','EVENT_A');
+ const b={...a,provider_kind:'failed',meta_error_code:131049};
+ const x=safe(run(scope(),binding(),[a,b]),'LAB_CONFLICT_QUARANTINED');
+ assert.equal(x.saw_explicit_sent,true);assert.equal(x.saw_failed,true);
+ assert.equal(x.sent_verified,false);
+});
+test('AUD-M19-S0-62 repeated conflicting variant replay is detected',()=>{
+ const a=occurrence('sent','EVENT_A');
+ const b={...a,provider_kind:'failed',meta_error_code:131049};
+ const x=safe(run(scope(),binding(),[a,b]),'LAB_CONFLICT_QUARANTINED');
+ const y=safe(run(scope(),binding(),[a,b,{...b}]),'LAB_CONFLICT_QUARANTINED');
+ assert.equal(y.duplicate_count,x.duplicate_count+1);
+ assert.notEqual(x.snapshot_sha256,y.snapshot_sha256);
+});
+test('AUD-M19-S0-63 legacy v0.1 snapshot is rejected',()=>{
+ const x=safe(run());
+ denied(recheck({...x,contract_version:'wa19-status-snapshot.lab.v0.1'},
+ scope(),binding(),[]),'PREVIOUS_SNAPSHOT_INVALID');
+});
+test('AUD-M19-S0-64 new snapshot contract explicit v0.2',()=>{
+ const x=safe(run());
+ assert.equal(x.contract_version,'wa19-status-snapshot.lab.v0.2');
+});
+test('AUD-M19-S0-65 unchanged quarantined evidence rechecks LAB only',()=>{
+ const a=occurrence('sent','EVENT_A'),b={...a,body_sha256:'c'.repeat(64)};
+ const x=safe(run(scope(),binding(),[a,b]),'LAB_CONFLICT_QUARANTINED');
+ const y=recheck(x,scope(),binding(),[b,a]);
+ assert.equal(y.decision,'LAB_RECHECKED_UNVERIFIED');
+ assert.equal(y.snapshot?.snapshot_sha256,x.snapshot_sha256);
+});
+test('AUD-M19-S0-66 old digest changes when conflict variant appended',()=>{
+ const a=occurrence('sent','EVENT_A');
+ const b={...a,body_sha256:'c'.repeat(64)};
+ const c={...a,body_sha256:'d'.repeat(64)};
+ const old=safe(run(scope(),binding(),[a,b]),'LAB_CONFLICT_QUARANTINED');
+ denied(recheck(old,scope(),binding(),[a,b,c]),
+ 'SNAPSHOT_OR_CONTEXT_CHANGED');
+});
+test('AUD-M19-S0-67 quarantined evidence cannot authorize WDC or C09',()=>{
+ const a=occurrence('sent','EVENT_A'),b={...a,body_sha256:'c'.repeat(64)};
+ const x=safe(run(scope(),binding(),[a,b]),'LAB_CONFLICT_QUARANTINED');
+ assert.equal(x.definitive_failure_count_increment,false);
+ assert.equal(x.case_transition_authorized,false);
+ assert.equal(x.ack_allowed,false);
+});
