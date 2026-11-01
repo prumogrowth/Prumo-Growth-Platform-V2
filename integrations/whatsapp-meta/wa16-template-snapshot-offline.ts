@@ -19,7 +19,8 @@ const RAW_KEYS=['contract_version','selection_ref','concessionaria_id','waba_ref
  'template_ref','version_ref','content_version','mapping_revision',
  'media_revision','now_ms','max_age_ms','authoring','bindings',
  'source_registry','media_evidence','review_state'] as const;
-const MEDIA=['asset_ref','kind','mime_type','sha256','asset_revision',
+const MEDIA=['concessionaria_id','waba_ref','asset_ref','kind',
+ 'mime_type','sha256','asset_revision',
  'valid_from_ms','valid_until_ms','observed_at_ms','state'] as const;
 const CAND=['contract_version','selection_ref','concessionaria_id','waba_ref',
  'template_ref','version_ref','content_version','mapping_revision',
@@ -169,7 +170,9 @@ function produce(raw:unknown):Wa16Result{
   if(authoring.header&&authoring.header.kind!=='TEXT'){
    kind=authoring.header.kind;
    const m=record(s.media_evidence,MEDIA);
-   if(!m||m.asset_ref!==authoring.header.asset_ref||
+   if(!m||m.concessionaria_id!==s.concessionaria_id||
+      m.waba_ref!==s.waba_ref||
+      m.asset_ref!==authoring.header.asset_ref||
       m.kind!==kind||typeof m.mime_type!=='string'||
       !(MIME[kind] as readonly string[]).includes(m.mime_type)||
       typeof m.sha256!=='string'||!SHA.test(m.sha256)||
@@ -181,7 +184,8 @@ function produce(raw:unknown):Wa16Result{
       m.valid_from_ms>s.now_ms||m.valid_until_ms<=s.now_ms||
       m.state!=='LAB_READY')
     return deny('MEDIA_EVIDENCE_DENIED');
-   mediaSha=digest([kind,m.asset_ref,m.mime_type,m.sha256,m.asset_revision,
+   mediaSha=digest([s.concessionaria_id,s.waba_ref,
+    kind,m.asset_ref,m.mime_type,m.sha256,m.asset_revision,
     m.valid_from_ms,m.valid_until_ms,m.observed_at_ms,m.state]);
   }else if(s.media_evidence!==null||s.media_revision!==0)
    return deny('MEDIA_EVIDENCE_DENIED');
