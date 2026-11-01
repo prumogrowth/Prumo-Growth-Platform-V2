@@ -33,7 +33,7 @@ export type Wa16Reason='INVALID_INPUT'|'SCOPE_MISMATCH'|
  'COMPONENTS_OR_BINDINGS_DENIED'|'MEDIA_EVIDENCE_DENIED'|
  'INVALID_CANDIDATE'|'VERSION_OR_SNAPSHOT_CHANGED';
 export type Wa16Snapshot=Readonly<{
- contract_version:'wa16-frozen-snapshot.lab.v0.1';
+ contract_version:'wa16-frozen-snapshot.lab.v0.2';
  selection_ref:string;concessionaria_id:string;waba_ref:string;
  template_ref:string;version_ref:string;content_version:number;
  mapping_revision:number;media_revision:number;
@@ -120,7 +120,7 @@ function clone(raw:unknown,n={nodes:0},level=0,anc=new WeakSet<object>()):any{
 }
 function snapshotCandidate(raw:unknown):Wa16Snapshot|null{
  const c=record(raw,CAND);
- if(!c||c.contract_version!=='wa16-frozen-snapshot.lab.v0.1'||
+ if(!c||c.contract_version!=='wa16-frozen-snapshot.lab.v0.2'||
    !id(c.selection_ref)||typeof c.concessionaria_id!=='string'||
    !UUID.test(c.concessionaria_id)||
    typeof c.waba_ref!=='string'||!NUM.test(c.waba_ref)||
@@ -208,7 +208,7 @@ function produce(raw:unknown):Wa16Result{
    s.content_version,s.mapping_revision,s.media_revision,
    compSha,bindSha,mediaSha,kind,s.review_state]);
   const candidate:Wa16Snapshot=Object.freeze({
-   contract_version:'wa16-frozen-snapshot.lab.v0.1',
+   contract_version:'wa16-frozen-snapshot.lab.v0.2',
    selection_ref:s.selection_ref as string,
    concessionaria_id:s.concessionaria_id as string,
    waba_ref:s.waba_ref as string,template_ref:s.template_ref as string,
