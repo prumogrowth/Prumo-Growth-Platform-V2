@@ -8,6 +8,7 @@ on:
       - codex/fv-rev-01-modulos-20261030
       - codex/fv-cor-07-pos-auditoria-20261031
       - fix/fv-cor-08-unicode-20261031
+      - fix/fv-coe-01-coerencia-20261031
     paths:
       - "frontend/visual/**"
       - "frontend/preview/**"
