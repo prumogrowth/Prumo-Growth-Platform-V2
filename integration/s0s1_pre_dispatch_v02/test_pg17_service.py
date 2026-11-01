@@ -52,7 +52,8 @@ class PDReadbackPhysical(unittest.TestCase):
           principal=self.principal,m09_versions=self.versions)
  def stop(self,reason='CANCELLED_BY_S0_LAB'):
   with self.lab.admin() as c:
-   return cancel(c,attempt_ref='attempt_A',scope=self.scope,reason=reason)
+   return cancel(c,attempt_ref='attempt_A',scope=self.scope,
+     principal=self.principal,m09_versions=self.versions,reason=reason)
  def sql(self,statement):
   with self.lab.admin() as c:c.execute(statement)
  def totals(self):
