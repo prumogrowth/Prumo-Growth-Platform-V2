@@ -586,7 +586,13 @@ function renderOperationalHistory(item){
   const addEntry=(entry,container,future=false)=>{
     const card=el('div','activity-item'+(future?' future-event':'')+' event-'+entry.state);
     card.dataset.state=entry.state;card.dataset.kind=entry.kind;
-    card.append(el('strong','',entry.label),el('span','event-state',entry.statusLabel),el('span','',entry.time));container.append(card);
+    const syntheticOrder=typeof entry.time==='string' && entry.time.startsWith('Sequência fictícia');
+    const syntheticCutoff=typeof entry.time==='string' && entry.time.startsWith('Recorte confirmado na fixture');
+    const displayedTime=syntheticOrder||syntheticCutoff?'Horário não informado':entry.time;
+    card.append(el('strong','',entry.label),el('span','event-state',entry.statusLabel),el('span','',displayedTime));
+    if(syntheticOrder)card.append(el('small','technical-detail','Referência de ordem causal: '+entry.time));
+    if(syntheticCutoff)card.append(el('small','technical-detail','Referência de corte: '+entry.time));
+    container.append(card);
   };
   const ordered=el('div','timeline-ordered');
   for(const entry of view.events.filter(entry=>entry.sequenceConfirmed))addEntry(entry,ordered);
