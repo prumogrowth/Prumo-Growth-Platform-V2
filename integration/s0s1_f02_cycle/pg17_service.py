@@ -91,16 +91,12 @@ def _locked(c,q,*,at_ms,require_policy):
     refuse(not source or source['flow_ref']!=q['flow_ref'] or
        source['cycle_revision']!=auth['cycle_revision'],
        'CYCLE_SOURCE_DIVERGED')
-    refuse(auth['cycle_revision']!=q['expected_cycle'] or
-       case['assignment_revision']!=q['expected_assignment'] or
-       case['policy_revision']!=q['expected_policy'] or
-       case['suppression_revision']!=q['expected_suppression'],
-       'STALE_VERSIONS')
+    # Freshness is checked *after* signature and prior-command lookup.
+    # This permits exact idempotent replay without applying any new mutation.
     consent=c.execute('SELECT * FROM s0_pre_dispatch_lab.consents '
        'WHERE case_ref=%s AND purpose_ref=%s FOR UPDATE',
        (q['case_ref'],q['purpose_ref'])).fetchone()
-    refuse(not consent or consent['revision']!=q['expected_consent'],
-       'CONSENT_SOURCE_MISSING_OR_STALE')
+    refuse(not consent,'CONSENT_SOURCE_MISSING_OR_STALE')
     suppression=c.execute('SELECT purpose_ref,active FROM '
        's0_pre_dispatch_lab.suppressions WHERE case_ref=%s '
        'ORDER BY purpose_ref FOR UPDATE',(q['case_ref'],)).fetchall()
@@ -147,6 +143,12 @@ def transition(c,*,request,signature,host):
             return reply('LAB_PREVIOUSLY_RECORDED_NOT_AUTHORITY',
                 'IDEMPOTENT_READBACK_REQUIRED',
                 recorded_revision=existing[0]['after_revision'])
+        refuse(auth['cycle_revision']!=request['expected_cycle'] or
+            case['assignment_revision']!=request['expected_assignment'] or
+            case['policy_revision']!=request['expected_policy'] or
+            case['suppression_revision']!=request['expected_suppression'] or
+            consent['revision']!=request['expected_consent'],
+            'STALE_VERSIONS')
         refuse(auth['state']=='REVOKED','CYCLE_TERMINAL_REVOKED')
         states={
           ('ACTIVE','ADVANCE'):'ACTIVE',
