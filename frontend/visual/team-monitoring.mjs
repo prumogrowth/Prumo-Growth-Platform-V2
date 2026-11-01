@@ -16,6 +16,7 @@ export function projectTeamMonitoring(managerId, records) {
   const cases=[...new Map(allowed.map(record=>[record.id,record])).values()];
   const active=cases.filter(isInActiveInbox);
   const historical=cases.filter(record=>record.inboxProjection==='historical');
+  const isUnread=record=>projectDemoAttention(record,managerId,record.shopId).kind==='unread';
   const isWindowIssue=record=>isInActiveInbox(record) &&
     record.metaWindowProjection==='expired' &&
     record.humanCompletionProjection==='pending';
