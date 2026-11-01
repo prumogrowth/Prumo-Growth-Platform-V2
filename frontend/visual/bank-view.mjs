@@ -66,6 +66,8 @@ export function bankPhaseCopy(projection) {
     return { title:'Acompanhamento bancário · resumo', description:'O gestor visualiza o marco operacional, sem documento, dados bancários nem conteúdo D4.' };
   if (projection.replyConfirmed)
     return { title:'Retorno comprovado · demonstração', description:'Evidência e ação humana verificadas na fixture. Não alterar status comercial na interface.' };
+  if (projection.phase==='reply_pending' && projection.submissionConfirmed)
+    return { title:'Aguardando retorno bancário · remessa comprovada na demonstração', description:'A remessa possui prova sintética, mas não há decisão bancária confirmada. Não inferir aprovação, recusa ou venda.' };
   if (projection.submissionConfirmed)
     return { title:'Remessa comprovada · demonstração', description:'Somente a remessa está ilustrada como comprovada; não há decisão bancária inferida.' };
   if (projection.phase === 'submission_requested')
