@@ -45,6 +45,8 @@ class F02CyclePhysical(unittest.TestCase):
        serialization.Encoding.Raw,serialization.PublicFormat.Raw),1,'ACTIVE'))
    self.now=now_ms(c)
   self.seq=0
+ def versions7(self):
+  return dict(self.versions)
  def cmd(self,action='ADVANCE',**edits):
   self.seq+=1
   q=dict(version=SCHEMA,command_ref=f'cmd_{self.seq}',
