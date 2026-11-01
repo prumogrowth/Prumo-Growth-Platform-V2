@@ -1,0 +1,108 @@
+name: S0 F01 commercial sources PG17 and pinned OFF14 review
+on:
+  push:
+    branches: [exp/s0s1-f01-commercial-pg17-20261101]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  immutable-off14:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      S0_F01_OFF14_PIN: ${{ github.workspace }}/_oai_pin
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: df5a2ecafbd468cc0f45a83a2a21826ad4d96c75
+          path: _oai_pin
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Verify original OFF14 source and exact S0-only file delta
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git -C _oai_pin rev-parse HEAD)" = df5a2ecafbd468cc0f45a83a2a21826ad4d96c75
+          test "$(git -C _oai_pin rev-parse HEAD:docs/integracoes/openai/e04_offline_lab/f01-commercial-source-review-lab.mjs)" = 3cf4edef458ec12fd11647b1896df040f076da19
+          python3 -B - <<'PY'
+          import ast,subprocess,pathlib
+          base='caf58eac889481bb96354bdcdaa740c8e48d9755'
+          actual=set(subprocess.check_output(['git','diff','--name-only',base,'HEAD'],text=True).splitlines())
+          required={
+            '.github/workflows/exp-s0s1-f01-commercial-pg17.yml',
+            'integration/s0s1_f01_sources/pg17_schema.sql',
+            'integration/s0s1_f01_sources/pg17_service.py',
+            'integration/s0s1_f01_sources/test_pg17_service.py',
+            'integration/s0s1_f01_sources/emit_off14_evidence.py',
+            'integration/s0s1_f01_sources/test_off14_interop.mjs'}
+          optional={'docs/contratos/s0_f01/S0_F01_COMMERCIAL_SOURCES_PG17_20261101.md'}
+          assert required<=actual and actual<=required|optional,sorted(actual^required)
+          for f in ('pg17_service.py','test_pg17_service.py','emit_off14_evidence.py'):
+           ast.parse((pathlib.Path('integration/s0s1_f01_sources')/f).read_text())
+          print('F01 source exact delta PASS')
+          PY
+      - name: Original OpenAI OFF14 45 regressions
+        run: node --test _oai_pin/docs/integracoes/openai/e04_offline_lab/tests/f01-commercial-source-review-lab.test.mjs
+      - name: S0 candidate to unchanged OFF14 offline contract
+        run: node --test integration/s0s1_f01_sources/test_off14_interop.mjs
+      - name: Verify source tree unmodified
+        if: always()
+        run: test -z "$(git -C _oai_pin status --porcelain)"
+  physical-pg17:
+    needs: immutable-off14
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      M09_PG17_DISPOSABLE: 'YES'
+      M09_PINNED_SOURCE: ${{ github.workspace }}/_m09_pin
+      S0_F01_OFF14_PIN: ${{ github.workspace }}/_oai_pin
+      PYTHONPATH: ${{ github.workspace }}
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 01ffdb093013664b73b18d23f92aac2202578210
+          path: _m09_pin
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: df5a2ecafbd468cc0f45a83a2a21826ad4d96c75
+          path: _oai_pin
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Validate pinned source SHAs and install pinned physical dependencies
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git -C _m09_pin rev-parse HEAD)" = 01ffdb093013664b73b18d23f92aac2202578210
+          test "$(git -C _oai_pin rev-parse HEAD)" = df5a2ecafbd468cc0f45a83a2a21826ad4d96c75
+          python3 -m pip install 'psycopg[binary]==3.2.13' 'cryptography==46.0.3'
+      - name: Physical 20 cases of source scope, expiration, aliases and F01 owner
+        run: python3 -B -m unittest integration.s0s1_f01_sources.test_pg17_service -v
+      - name: Store private PG17 fixture only in runner temp
+        run: echo "S0_F01_SOURCE_EVIDENCE=$RUNNER_TEMP/s0-f01-sources.json" >> "$GITHUB_ENV"
+      - name: PG17 physical observations to original OFF14 module
+        run: |
+          python3 -B -m integration.s0s1_f01_sources.emit_off14_evidence
+          node --test integration/s0s1_f01_sources/test_off14_interop.mjs
+      - name: Inherited irreversible F01 owner physical regression
+        run: python3 -B -m unittest integration.s0s1_f01_ownership.test_pg17_service -q
+      - name: Clean evidence and check original sources untouched
+        if: always()
+        run: |
+          if test -n "$S0_F01_SOURCE_EVIDENCE"; then rm -f "$S0_F01_SOURCE_EVIDENCE"; fi
+          test -z "$(git -C _m09_pin status --porcelain)"
+          test -z "$(git -C _oai_pin status --porcelain)"
+          test -z "$(git status --porcelain --untracked-files=no)"
