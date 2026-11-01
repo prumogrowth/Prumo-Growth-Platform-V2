@@ -34,7 +34,7 @@
     <div class="rail-logo" aria-label="Prumo — identificação técnica provisória">P<span class="logo-dot"></span></div>
     <nav class="rail-nav" aria-label="Navegação">
       <button class="rail-icon active" title="Conversas" aria-label="Conversas" aria-current="page" type="button" id="conversations-nav"><svg class="icon"><use href="#i-message"/></svg></button>
-      <button class="rail-icon" type="button" id="bank-nav" title="Banco · consulta demonstrativa" aria-label="Banco: consulta demonstrativa" aria-haspopup="dialog" aria-controls="bank-dialog"><svg class="icon"><use href="#i-bank"/></svg></button>
+      <button class="rail-icon" type="button" id="bank-nav" title="Banco · consulta demonstrativa" aria-label="Banco: consulta demonstrativa" aria-controls="bank-dialog"><svg class="icon"><use href="#i-bank"/></svg></button>
       <div class="rail-divider"></div>
       <div class="rail-label">CENTRAL</div>
       <button class="rail-icon" title="Gestão · equipe e operação demonstrativas" aria-label="Gestão: equipe demonstrativa" type="button" id="team-nav"><svg class="icon"><use href="#i-people"/></svg></button>
@@ -44,7 +44,7 @@
 
   <main class="workspace" aria-label="Central de atendimento visual">
     <section class="list-pane" id="conversation-list" aria-labelledby="inbox-title" tabindex="-1">
-      <nav class="mobile-module-nav" aria-label="Módulos da plataforma"><span aria-current="page">Conversas</span><button type="button" id="bank-nav-mobile" aria-haspopup="dialog" aria-controls="bank-dialog">Banco</button><button type="button" id="team-nav-mobile" class="mobile-team-button" hidden aria-haspopup="dialog" aria-controls="team-dialog">Gestão</button></nav>
+      <nav class="mobile-module-nav" aria-label="Módulos da plataforma"><span aria-current="page">Conversas</span><button type="button" id="bank-nav-mobile" aria-controls="bank-dialog">Banco</button><button type="button" id="team-nav-mobile" class="mobile-team-button" hidden aria-controls="team-dialog">Gestão</button></nav>
       <header class="list-heading">
         <div class="list-topline"><div><h1 id="inbox-title">Conversas</h1></div>
           <div class="list-header-actions">
@@ -105,26 +105,17 @@
       <header class="detail-heading"><button type="button" class="icon-button detail-back" id="detail-back" aria-label="Voltar à conversa"><svg class="icon"><use href="#i-arrow-left"/></svg></button><div><p class="eyebrow">CONTEXTO DO CASO</p><h2 id="detail-title">Informações</h2></div><button type="button" class="icon-button detail-close" id="detail-close" aria-label="Fechar detalhes"><svg class="icon"><use href="#i-close"/></svg></button></header>
       <div class="detail-scroll" id="detail-content"></div>
     </aside>
-  </main>
-</div>
-
-<dialog id="demo-dialog" class="completion-dialog" aria-labelledby="demo-title">
-  <h2 id="demo-title">Ambiente demonstrativo</h2>
-  <p>Dados fictícios. A seleção de perfil não autentica nem altera permissões reais.</p>
-  <div class="actor-control"><label for="actor-select">Perfil da demonstração</label><div class="select-wrap"><select id="actor-select" aria-label="Selecionar perfil fictício"></select><svg class="icon small"><use href="#i-chevron"/></svg></div></div>
-  <div class="actor-control"><label for="demo-list-state">Carregamento da lista (simulação)</label><select id="demo-list-state"><option value="ready">Lista pronta</option><option value="loading">Lista carregando</option></select></div>
-  <div class="dialog-actions"><button id="reset-app" class="btn btn-light" type="button">Restaurar simulação</button><button id="demo-close" class="btn btn-primary" type="button">Voltar às conversas</button></div>
-</dialog>
-
 <dialog id="bank-dialog" class="bank-dialog" aria-labelledby="bank-title">
-  <header class="bank-heading"><div><p class="eyebrow">CONSULTA E ACOMPANHAMENTO · DEMONSTRAÇÃO</p><h2 id="bank-title">Banco</h2></div><button type="button" id="bank-close" class="icon-button" aria-label="Fechar Banco e voltar"><svg class="icon"><use href="#i-close"/></svg></button></header>
-  <p class="bank-guidance" role="note">Dados fictícios · ficha somente leitura. Consulta não inicia conversa ou processamento. Não há remessa ou integração bancária real.</p>
-  <label for="bank-case-select" class="field-label">Atendimento autorizado na concessionária selecionada</label><select id="bank-case-select" aria-controls="bank-content"></select>
-  <div id="bank-content" class="bank-content" role="region" aria-label="Ficha, processamento e acompanhamento bancário"></div>
+  <nav class="module-page-navigation" aria-label="Áreas da plataforma"><button type="button" data-route-module="conversations">Conversas</button><span aria-current="page">Banco</span><button type="button" data-route-module="team" data-team-route hidden>Gestão</button></nav>
+  <header class="bank-heading"><div><p class="eyebrow">CONSULTA E ACOMPANHAMENTO · DEMONSTRAÇÃO</p><h2 id="bank-title" tabindex="-1">Banco</h2></div><button type="button" id="bank-close" class="icon-button" aria-label="Fechar Banco e voltar"><svg class="icon"><use href="#i-close"/></svg></button></header>
+  <p class="bank-guidance" role="note">Somente cadastros aptos ao encaminhamento, em demonstração. Fichas somente leitura. Nenhum envio bancário real.</p>
+  <label for="bank-case-select" class="field-label">Clientes aptos ao encaminhamento</label><select id="bank-case-select" aria-controls="bank-content" aria-label="Selecionar cliente apto"></select><p id="bank-ready-empty" class="detail-placeholder" hidden>Nenhum cadastro apto para encaminhamento nesta concessionária.</p>
+  <div id="bank-content" class="bank-content" role="region" aria-label="Ficha de cliente apto"></div>
 </dialog>
 
 <dialog id="team-dialog" class="team-dialog" aria-labelledby="team-title">
-  <div class="team-dialog-header"><div><p class="eyebrow">EQUIPE DA PRUMO · DEMONSTRAÇÃO</p><h2 id="team-title">Gestão · equipe e operação</h2></div><button type="button" class="icon-button" id="team-close" aria-label="Fechar visão da equipe"><svg class="icon"><use href="#i-close"/></svg></button></div>
+  <nav class="module-page-navigation" aria-label="Áreas da plataforma"><button type="button" data-route-module="conversations">Conversas</button><button type="button" data-route-module="bank">Banco</button><span aria-current="page">Gestão</span></nav>
+  <div class="team-dialog-header"><div><p class="eyebrow">EQUIPE DA PRUMO · DEMONSTRAÇÃO</p><h2 id="team-title" tabindex="-1">Gestão · equipe e operação</h2></div><button type="button" class="icon-button" id="team-close" aria-label="Fechar visão da equipe"><svg class="icon"><use href="#i-close"/></svg></button></div>
   <p class="team-hint team-intro">Gestão por Consultor, independente do filtro de loja. Ações fictícias: não alteram acesso, distribuição ou carteira.</p>
   <details class="team-help"><summary>Entenda o alcance e os limites</summary>
     <p>Equipe organizada por Consultores da Prumo, independentemente do filtro de concessionária. Lojas são concessões somente leitura, definidas pelo Diretor. Solicitar pausa ou retomada de novos leads alcança TODAS as lojas autorizadas do Consultor. Nenhuma solicitação desta demonstração altera disponibilidade, acesso, distribuição ou carteira; esses efeitos dependem de S0/S1-002.</p>
@@ -141,6 +132,17 @@
   <div id="team-batches" aria-label="Acompanhamento fictício dos lotes autorizados para a equipe" hidden></div>
   <div id="team-queue" aria-label="Fila sintética compartilhada por gestores autorizados à concessionária selecionada" hidden></div>
 </dialog>
+  </main>
+</div>
+
+<dialog id="demo-dialog" class="completion-dialog" aria-labelledby="demo-title">
+  <h2 id="demo-title">Ambiente demonstrativo</h2>
+  <p>Dados fictícios. A seleção de perfil não autentica nem altera permissões reais.</p>
+  <div class="actor-control"><label for="actor-select">Perfil da demonstração</label><div class="select-wrap"><select id="actor-select" aria-label="Selecionar perfil fictício"></select><svg class="icon small"><use href="#i-chevron"/></svg></div></div>
+  <div class="actor-control"><label for="demo-list-state">Carregamento da lista (simulação)</label><select id="demo-list-state"><option value="ready">Lista pronta</option><option value="loading">Lista carregando</option></select></div>
+  <div class="dialog-actions"><button id="reset-app" class="btn btn-light" type="button">Restaurar simulação</button><button id="demo-close" class="btn btn-primary" type="button">Voltar às conversas</button></div>
+</dialog>
+
 <dialog id="queue-action-dialog" class="completion-dialog" aria-labelledby="queue-action-title">
   <form method="dialog" id="queue-action-form">
     <p class="eyebrow">FILA COMPARTILHADA · SOMENTE DEMONSTRAÇÃO</p>
