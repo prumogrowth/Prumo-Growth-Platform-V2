@@ -67,7 +67,7 @@ const yes=(preview:Wa17Preview,rechecked=false):Wa17Result=>
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const DIGITS=/^[0-9]{5,25}$/,REF=/^[A-Za-z0-9_.:-]{1,128}$/;
 const NAME=/^\p{L}[\p{L}\p{M}]+(?:[ \x27\-]\p{L}[\p{L}\p{M}]+)*$/u;
-const SIGNATURE=/^(?:Consultor|Gestor|Diretor)\s+[^\n:]{1,120}:\s*\n/iu;
+const SIGNATURE=/^(?:Consultor|Gestor|Diretor)[ \t]+[^\n:]{1,120}:/iu;
 const NUMERIC=(x:unknown):x is number=>typeof x==='number'&&
  Number.isSafeInteger(x)&&x>0;
 const NONNEG=(x:unknown):x is number=>typeof x==='number'&&
