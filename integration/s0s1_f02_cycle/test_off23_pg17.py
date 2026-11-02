@@ -6,10 +6,10 @@ from integration.s0s1_f02_cycle import test_pg17_service as inherited
 class F02Off23Physical(unittest.TestCase):
  @classmethod
  def setUpClass(cls):
-  inherited.F02CyclePhysical.setUpClass.__func__(cls)
+  inherited.F02CyclePhysical.setUpClass()
  @classmethod
  def tearDownClass(cls):
-  inherited.F02CyclePhysical.tearDownClass.__func__(cls)
+  inherited.F02CyclePhysical.tearDownClass()
  def setUp(self):
   self.t=inherited.F02CyclePhysical('test_01_signed_transition_and_independent_readback')
   self.t.setUp()
