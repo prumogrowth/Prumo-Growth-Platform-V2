@@ -166,6 +166,27 @@ def main():
             expect(negative.locator('#bank-content')).to_be_empty()
         negative.evaluate("()=>{const row=state.cases.find(r=>r.id==='A-105');row.bankProjection={phase:'reply_verified',submissionProofState:'verified',submittedByAuthorizedHuman:true,submissionVersionRef:'bank-negative-v1-demo',replyProofState:'verified',replyRecordedByHuman:true,replyVersionRef:'reply-negative-v1-demo'};renderBank()}")
         expect(negative.locator('#bank-content')).to_be_empty()
+        # Caso isolado apto; a lista mostra nomes, nunca status redundante.
+        negative.evaluate("""()=>{
+          const prev=state.cases.find(r=>r.id==='A-114');
+          const row=structuredClone(prev);row.id='A-118';row.name='Cliente apto fictício';
+          row.postmarkProjection=undefined;row.customerDossierProjection=undefined;
+          row.bankProjection={phase:'not_submitted'};
+          row.bankReadinessProjection={...prev.bankReadinessProjection,caseId:'A-118'};
+          state.cases.push(row);renderBank();
+        }""")
+        choices=negative.locator('#bank-ready-list .bank-ready-choice')
+        expect(choices).to_have_count(1)
+        expect(choices).to_have_text('Cliente apto fictício')
+        choices.click()
+        expect(choices).to_have_attribute('aria-pressed','true')
+        expect(choices).to_be_focused()
+        expect(negative.locator('#bank-content')).to_contain_text('Cliente apto fictício')
+        assert 'Cadastro pronto' not in negative.locator('#bank-ready-list').inner_text()
+        negative.evaluate("()=>{state.cases.find(r=>r.id==='A-118').bankProjection={phase:'submission_requested'};renderBank()}")
+        expect(choices).to_have_count(0)
+        expect(negative.locator('#bank-ready-empty')).to_be_visible()
+        expect(negative.locator('#bank-content')).to_be_empty()
         negative.locator('#bank-close').click()
         open_conversation(negative,'11',900);negative.locator('#case-tab-activity').click()
         expect(negative.locator('#future-attempts .activity-item')).to_have_count(3)
