@@ -38,7 +38,7 @@
 | OFF-21 / 12A | Ponte Responses → F01/F02/F03 com avaliadores existentes, sem rascunho externo | FEITO_OFFLINE | [CI 41357833214](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41357833214): 1028/1028 Node (990+38), 24/24 Python AST independentes, 0 falhas/ignorados; sem API real | 
 | OFF-22 / 08B | Compatibilidade F02 com Meta M19 A/B v0.2 e M20 v0.2, sem atribuir `sent`/WDC13/C09 | FEITO_OFFLINE | [CI 41360087872](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41360087872): 1068/1068 Node (1028+40), 24/24 Python AST separados, 0 falhas/ignorados; S0 operacional não homologada | 
 | OFF-23 / 08B | Auditoria pinada do controlador de ciclos S0 F02: readback de estado/ator | FEITO_OFFLINE | [CI 41370145342](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41370145342): 1068 Node + 24 Python antigos + 22 Python novos, suites separadas, sem falhas; **2 achados reproduzidos, NÃO corrigidos na S0; Issue #7 pendente** | 
-| OFF-24 / 08B | Revalidar correção S0 dos achados de readback F02 OFF-23 | EM_TESTE | S0 entregou `fcbff8e265e4cba32ccd3236e3e0d94a7864856e` com 12 novos PG17; meta 1068 Node herdados + 24 AST anteriores + 30 AST novos (separados), sem aceite operacional | 
+| OFF-24 / 08B | Revalidar correção S0 dos achados OFF-23 do readback F02 | FEITO_OFFLINE | [CI 41379155585](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41379155585): 1068/1068 Node, 24/24 Python AST anteriores e 30/30 AST sobre correção S0, separados; aceite técnico candidato **somente do readback**, sem autorização F02 operacional | 
 | FV-REV-021 / Issue #13 | Resumos **pequenos e objetivos** de F01/F02/F03 no histórico acumulativo do **Resumo** do Frontend | FUTURO | [Issue #13](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/13), **não desenvolver agora** |
 
 ## Visibilidade de bloqueios
@@ -76,7 +76,7 @@ A [OFF-21](./OAI_OFF21_RESPONSES_DOMAIN_REVIEW_2026_11_01.md) encadeia preflight
 
 ## OFF-24 — retorno da correção de readback F02
 
-[Relatório da revalidação OFF-24](./OAI_OFF24_REVISAO_CORRECAO_S0_F02_READBACK_2026_11_01.md). A S0 respondeu aos dois achados OFF-23 em SHA `fcbff8e...` com comparações de estado/ator/chave e regressões PG17. A frente OpenAI executa teste independente do código exato, mas **não** promove a fachada do controlador nem libera modelo/send. Etapa 08 segue em revisão.
+[Relatório da revalidação OFF-24](./OAI_OFF24_REVISAO_CORRECAO_S0_F02_READBACK_2026_11_01.md). A S0 respondeu aos dois achados OFF-23 em SHA `fcbff8e...` com comparações de estado/ator/chave e regressões PG17. [CI 41379155585](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41379155585) confirmou a revalidação independente do código exato, mas **não** promove a fachada do controlador nem libera modelo/send. Etapa 08 segue em revisão.
 
 ## Gate futuro de uso da API OpenAI
 
