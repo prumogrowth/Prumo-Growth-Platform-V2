@@ -1163,7 +1163,7 @@ function renderTeamSummary(){
     card.append(el('span','',`${staffState} · ${leadState} · ${member.cases} ${member.cases===1?'caso':'casos'}`));
     if(member.intake==='paused_confirmed') card.append(el('span','',
       'Redistribuição não confirmada.'));
-    card.append(el('span','',`Lojas: ${member.shops.map(id=>getShop(id)?.name??id).join(', ')}`));
+    card.append(el('span','',`Lojas concedidas pelo Diretor: ${member.shops.map(id=>getShop(id)?.name??id).join(', ')}`));
     const preview=projectManagerPausePreview(state.actorId,member.id,state.cases);
     if(preview.visibility==='ready'){
       const details=el('details','team-pause-preview');
@@ -1181,7 +1181,7 @@ function renderTeamSummary(){
     }
     const requested=state.teamRequests[member.id];
     if(requested){
-      card.append(el('span','',`SOLICITADO LOCALMENTE · ${requested.action==='pause'?'Pausar novos leads':'Retomar novos leads'} · sem alteração real.`));
+      card.append(el('span','',`SOLICITADO LOCALMENTE · ${requested.action==='pause'?'Pausar novos leads':'Retomar novos leads'} · todas as lojas concedidas · NÃO aplicado.`));
     }else if(member.teamState==='active' && ['receiving','paused_confirmed'].includes(member.intake)){
       const action=member.intake==='receiving'?'pause':'resume';
       const button=el('button','btn btn-light',action==='pause'?'Solicitar pausa de novos leads':'Solicitar retomada de novos leads');
