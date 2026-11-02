@@ -765,6 +765,9 @@ body[data-theme="dark"] .bank-dialog :is(button,select,summary):focus-visible{ou
   .visual-app[data-theme="dark"] .module-page-navigation button{
     background:#303030;color:#eee;border-color:#555;
   }
+  .visual-app[data-theme="dark"] .module-page-navigation [aria-current="page"]{
+    color:#f3f3f3;
+  }
 }
 
 /* FV-UX-AUD-01: conteúdo essencial primeiro; informações técnicas sob demanda. */
