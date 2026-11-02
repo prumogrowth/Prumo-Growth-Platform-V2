@@ -38,7 +38,7 @@ def pinned_manifest():
                 and isinstance(value.args[0], ast.Constant)
                 and isinstance(value.args[0].value, str)):
             manifest = json.loads(value.args[0].value)
-            if manifest.get("source_branch") not in {"feat/frontend-plataforma-visual", "codex/fv-ux-01-comunicacao-20261027", "codex/fv-rev-01-conversas-20261030", "codex/fv-rev-01-modulos-20261030", "codex/fv-cor-07-pos-auditoria-20261031", "fix/fv-cor-08-unicode-20261031", "fix/fv-coe-01-coerencia-20261031", "feat/fv-banco-fila-aptos-20261101", "fix/fv-banco-aud-02-fail-closed-20261101", "feat/fv-modulos-telas-proprias-20261101"}:
+            if manifest.get("source_branch") not in {"feat/frontend-plataforma-visual", "codex/fv-ux-01-comunicacao-20261027", "codex/fv-rev-01-conversas-20261030", "codex/fv-rev-01-modulos-20261030", "codex/fv-cor-07-pos-auditoria-20261031", "fix/fv-cor-08-unicode-20261031", "fix/fv-coe-01-coerencia-20261031", "feat/fv-banco-fila-aptos-20261101", "fix/fv-banco-aud-02-fail-closed-20261101", "feat/fv-modulos-telas-proprias-20261101", "fix/fv-ux-aud-01-functional-minimal-color-20261101"}:
                 raise ValueError("Unrecognized source branch")
             return manifest
     raise ValueError("No valid pinned manifest")
