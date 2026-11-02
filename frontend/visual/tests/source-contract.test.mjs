@@ -728,7 +728,8 @@ test('FV-UX-BG-01: coletores de revisão não ressuscitam a janela Banco nem sel
 
 test('FV-UX-COPY-01: Banco e Gestão priorizam ações e textos curtos',()=>{
   assert.match(markup,/class="bank-guidance" role="note">Consulta · sem envio real</);
-  assert.match(markup,/class="field-label">Clientes<\/label>/);
+  assert.match(markup,/id="bank-queue-title">Clientes<\/h3>/);
+  assert.match(markup,/id="bank-ready-list" role="list"/);
   assert.match(markup,/Nenhum cadastro para enviar\./);
   assert.match(markup,/id="team-title" tabindex="-1">Gestão<\/h2>/);
   assert.match(markup,/class="team-hint team-intro">Simulação · sem alterações reais/);
@@ -736,6 +737,9 @@ test('FV-UX-COPY-01: Banco e Gestão priorizam ações e textos curtos',()=>{
   assert.match(app,/projectBankReadyList\(state\.cases,state\.actorId,state\.shopId\)/);
   assert.match(app,/bankReadyCaseForSelection\(state\.cases,state\.actorId,state\.shopId,state\.bankCaseId\)/);
   assert.match(app,/Envio ao banco indisponível nesta demonstração/);
+  assert.match(app,/button\.addEventListener\('click',\(\)=>\{/);
+  assert.match(app,/bankReadyCaseForSelection\(state\.cases,state\.actorId,state\.shopId,row\.id\)/);
+  assert.match(styles,/\.bank-ready-choice\[aria-pressed="true"\]/);
 });
 test('FV-UX-COLOR-01: mensagens não lidas e lidas sem resposta têm indicação acessível',()=>{
   assert.match(styles,/--attention-unread:#137847;--attention-awaiting:#b55b08/);
