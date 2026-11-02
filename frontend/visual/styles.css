@@ -786,3 +786,18 @@ body[data-theme="dark"] .bank-ready-choice:hover{background:#353535}
 body[data-theme="dark"] .bank-ready-choice[aria-pressed="true"]{background:#393939;border-color:#bcbcbc;box-shadow:inset 3px 0 #c8c8c8}
 body[data-theme="dark"] .bank-ready-choice:focus-visible{outline-color:#ddd}
 @media(max-width:760px){.bank-workspace{grid-template-columns:minmax(0,1fr);gap:16px}}
+
+/* Dados objetivos no Banco; proveniência técnica só se expandida. */
+.bank-workspace .bank-content{display:block}
+.bank-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.bank-field{min-width:0;padding:12px 14px;border:1px solid #e3e3e3;border-radius:10px;background:#fafafa}
+.bank-field-label{display:block;color:#666;font-size:11px;line-height:1.35}
+.bank-field-value{display:block;margin-top:5px;color:#292929;font-size:13px;overflow-wrap:anywhere}
+.bank-field-origin,.bank-form-version{font-size:11px;color:#656565;margin-top:9px}
+.bank-field-origin summary,.bank-form-version summary{cursor:pointer;width:fit-content;min-height:32px;padding:5px 0}
+.bank-field-origin small,.bank-form-version small{display:block;overflow-wrap:anywhere;font-size:11px}
+.bank-form-version{grid-column:1/-1}
+body[data-theme="dark"] .bank-field{background:#292929;border-color:#4b4b4b}
+body[data-theme="dark"] .bank-field-label,body[data-theme="dark"] :is(.bank-field-origin,.bank-form-version){color:#c6c6c6}
+body[data-theme="dark"] .bank-field-value{color:#f1f1f1}
+@media(max-width:500px){.bank-fields{grid-template-columns:minmax(0,1fr)}}
