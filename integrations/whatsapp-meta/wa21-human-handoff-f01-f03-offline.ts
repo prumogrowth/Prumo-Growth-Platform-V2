@@ -14,7 +14,8 @@ const CASE_FIELDS=['contract_version','concessionaria_id','app_ref','waba_ref',
  'phone_number_id','case_ref','lead_ref','case_revision','assignment_revision',
  'handoff_revision','f03_cutoff_revision','case_state',
  'handoff_ever_definitive','handoff_at_ms','human_assignment_ref',
- 'meta_window_claim','opt_out_claim','observed_at_ms','now_ms',
+ 'closure_revision','closure_ref','closure_actor_ref','closure_at_ms',
+ 'closure_cutoff_ms','meta_window_claim','opt_out_claim','observed_at_ms','now_ms',
  'max_age_ms','s0_source_authenticated','case_authority_verified'] as const;
 const EVENT_FIELDS=['contract_version','concessionaria_id','app_ref','waba_ref',
  'phone_number_id','case_ref','lead_ref','event_ref','event_digest',
@@ -36,7 +37,8 @@ type Decision='LAB_F01_ACTIVE_UNVERIFIED'|
  'LAB_PRE_HANDOFF_EVENT_HOLD';
 type Reason='INVALID_INPUT'|'SCOPE_MISMATCH'|'TIMELINE_INCOHERENT'|
  'DEF_HANDOFF_CANNOT_RESUME_F01'|'CLOSURE_NOT_EXPLICIT'|
- 'CLOSURE_IN_WRONG_STATE'|'PREVIOUS_INVALID'|'CONTEXT_CHANGED';
+ 'CLOSURE_IN_WRONG_STATE'|'CLOSURE_CONTEXT_MISMATCH'|
+ 'PREVIOUS_INVALID'|'CONTEXT_CHANGED';
 const NEVER=Object.freeze({
  source_authenticated:false,case_verified:false,closure_verified:false,
  f01_invocation_authorized:false,f03_invocation_authorized:false,
@@ -45,7 +47,7 @@ const NEVER=Object.freeze({
  c09_window_authorized:false,ack_allowed:false,production_authorized:false,
 } as const);
 export type Wa21Snapshot=Readonly<typeof NEVER & {
- contract_version:'wa21-human-handoff-snapshot.lab.v0.1';
+ contract_version:'wa21-human-handoff-snapshot.lab.v0.2';
  snapshot_sha256:string;decision:Decision;
  f01_resume_denied:boolean;
  f03_requires_explicit_human_closure:true;
@@ -81,14 +83,19 @@ function scope(x:Data):boolean{
 const sameScope=(a:Data,b:Data)=>['concessionaria_id','app_ref','waba_ref',
  'phone_number_id','case_ref','lead_ref'].every(k=>a[k]===b[k]);
 function validCase(x:Data):boolean{
- return x.contract_version==='wa21-s0-case-state.lab.v0.1'&&scope(x)&&
-  ['case_revision','assignment_revision','handoff_revision','f03_cutoff_revision']
+ return x.contract_version==='wa21-s0-case-state.lab.v0.2'&&scope(x)&&
+  ['case_revision','assignment_revision','handoff_revision','f03_cutoff_revision',
+   'closure_revision']
    .every(k=>POS(x[k]))&&
   ['LAB_F01_ACTIVE','LAB_HUMAN_HANDOFF_DEFINITIVE','LAB_HUMAN_CLOSED']
    .includes(x.case_state as string)&&
   typeof x.handoff_ever_definitive==='boolean'&&
   (x.handoff_at_ms===null||INT(x.handoff_at_ms))&&
   (x.human_assignment_ref===null||REF_OK(x.human_assignment_ref))&&
+  (x.closure_ref===null||REF_OK(x.closure_ref))&&
+  (x.closure_actor_ref===null||REF_OK(x.closure_actor_ref))&&
+  (x.closure_at_ms===null||INT(x.closure_at_ms))&&
+  (x.closure_cutoff_ms===null||INT(x.closure_cutoff_ms))&&
   ['LAB_OPEN','LAB_CLOSED','LAB_UNKNOWN'].includes(x.meta_window_claim as string)&&
   typeof x.opt_out_claim==='boolean'&&INT(x.observed_at_ms)&&
   INT(x.now_ms)&&POS(x.max_age_ms)&&Number(x.max_age_ms)<=300000&&
@@ -129,12 +136,31 @@ export function inspectWa21HandoffOffline(rawCase:unknown,rawEvent:unknown):Wa21
   !REF_OK(c.human_assignment_ref)||
   Number(c.handoff_at_ms)>Number(c.observed_at_ms)))
   return denied('TIMELINE_INCOHERENT');
+ const closed=c.case_state==='LAB_HUMAN_CLOSED';
+ // A declared closed case must anchor its single explicit human closure,
+ // independently from a possibly spoofed event supplied alongside it.
+ if(closed){
+  if(!REF_OK(c.closure_ref)||!REF_OK(c.closure_actor_ref)||
+     !INT(c.closure_at_ms)||!INT(c.closure_cutoff_ms)||
+     Number(c.closure_at_ms)>Number(c.observed_at_ms)||
+     Number(c.closure_at_ms)<Number(c.handoff_at_ms)||
+     Number(c.closure_cutoff_ms)<Number(c.handoff_at_ms)||
+     Number(c.closure_cutoff_ms)>Number(c.closure_at_ms))
+   return denied('TIMELINE_INCOHERENT');
+ }else if(c.closure_ref!==null||c.closure_actor_ref!==null||
+          c.closure_at_ms!==null||c.closure_cutoff_ms!==null)
+  return denied('CLOSURE_IN_WRONG_STATE');
  const closure=e.event_kind==='LAB_HUMAN_CLOSURE_EXPLICIT';
  if(closure && c.case_state!=='LAB_HUMAN_CLOSED')
   return denied('CLOSURE_IN_WRONG_STATE');
- if(closure && (Number(e.closure_cutoff_ms)!==Number(e.event_at_ms)||
+ if(closure && (Number(e.closure_cutoff_ms)>Number(e.event_at_ms)||
     Number(e.closure_cutoff_ms)<Number(c.handoff_at_ms)))
   return denied('TIMELINE_INCOHERENT');
+ if(closure && (e.closure_ref!==c.closure_ref||
+    e.actor_ref!==c.closure_actor_ref||
+    e.event_at_ms!==c.closure_at_ms||
+    e.closure_cutoff_ms!==c.closure_cutoff_ms))
+  return denied('CLOSURE_CONTEXT_MISMATCH');
  // No Meta event (inbound, timeout, template or human-sent) can trigger F03.
  const decision:Decision=!isActive&&!closure&&
   Number(e.event_at_ms)<Number(c.handoff_at_ms)?
@@ -146,8 +172,8 @@ export function inspectWa21HandoffOffline(rawCase:unknown,rawEvent:unknown):Wa21
   e.event_kind==='LAB_INBOUND_MESSAGE'?'LAB_F01_ACTIVE_UNVERIFIED':
    'LAB_NON_CLOSURE_EVENT_HOLD';
  const snap:Wa21Snapshot=Object.freeze({
-  contract_version:'wa21-human-handoff-snapshot.lab.v0.1',
-  snapshot_sha256:digest(['WA21_HANDOFF_LAB_V0_1',
+  contract_version:'wa21-human-handoff-snapshot.lab.v0.2',
+  snapshot_sha256:digest(['WA21_HANDOFF_LAB_V0_2',
     CASE_FIELDS.map(k=>c[k]),EVENT_FIELDS.map(k=>e[k]),decision]),
   decision,f01_resume_denied:hasDef,
   f03_requires_explicit_human_closure:true,
@@ -157,7 +183,7 @@ export function inspectWa21HandoffOffline(rawCase:unknown,rawEvent:unknown):Wa21
  return allowed(snap);
 }
 function validSnapshot(x:Data):boolean{
- return x.contract_version==='wa21-human-handoff-snapshot.lab.v0.1'&&
+ return x.contract_version==='wa21-human-handoff-snapshot.lab.v0.2'&&
   typeof x.snapshot_sha256==='string'&&SHA.test(x.snapshot_sha256)&&
   ['LAB_F01_ACTIVE_UNVERIFIED','LAB_HUMAN_ROUTE_ONLY_UNVERIFIED',
    'LAB_F03_CUTOFF_CANDIDATE_UNVERIFIED','LAB_POST_CLOSURE_HOLD',
