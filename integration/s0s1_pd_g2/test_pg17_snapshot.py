@@ -154,4 +154,51 @@ class SnapshotReadbackPhysical(unittest.TestCase):
   self.assertEqual(x['status'],'DENIED')
   self.assertEqual(x['reason'],'DISPOSABLE_PG17_REQUIRED')
   self.safe(x)
+ def test_13_same_connection_read_only_forbids_source_update(self):
+  import psycopg
+  self.reserve()
+  with self.t.lab.admin() as c:
+   def illegal_same_txn_write():
+    c.execute("UPDATE s0_pre_dispatch_lab.consents SET state='REVOKED' "
+              "WHERE case_ref='case_A'")
+   denied=run(c,self.t.req2,scope=self.t.scope,
+       principal=self.t.principal,m09_versions=self.t.versions,
+       _lab_interleave=illegal_same_txn_write)
+   self.assertEqual(denied['status'],'UNAVAILABLE')
+   self.assertIsNone(denied['classification'])
+   self.safe(denied)
+   self.assertEqual(c.execute('SHOW transaction_isolation').fetchone()[
+       'transaction_isolation'],'read committed')
+  self.assertEqual(self.snap()['classification']['status'],
+                   'LAB_COMMITTED_RECEIPT_NO_DISPATCH')
+ def test_14_cancel_waits_for_receipt_lock_and_remains_no_dispatch(self):
+  import threading,time
+  from concurrent.futures import ThreadPoolExecutor
+  self.reserve()
+  held=threading.Event();release=threading.Event()
+  def updater():
+   with self.t.lab.admin() as c:
+    c.execute("SELECT attempt_ref FROM s0_pd_v02_lab.receipts "
+      "WHERE attempt_ref='attempt_A' FOR UPDATE")
+    held.set()
+    if not release.wait(9): raise TimeoutError('release not signaled')
+    c.execute("UPDATE s0_pd_v02_lab.receipts "
+     "SET state='LAB_CANCELLED_NO_DISPATCH',"
+     "cancel_reason='CANCELLED_BY_S0_LAB' "
+     "WHERE attempt_ref='attempt_A'")
+   return 'COMMITTED'
+  with ThreadPoolExecutor(max_workers=2) as pool:
+   locked=pool.submit(updater)
+   self.assertTrue(held.wait(8))
+   pending=pool.submit(self.t.stop)
+   try:
+    time.sleep(.15)
+    self.assertFalse(pending.done(),'cancel did not await PG17 lock')
+   finally:
+    release.set()
+   self.assertEqual(locked.result(timeout=12),'COMMITTED')
+   self.assertEqual(pending.result(timeout=12)['status'],
+                    'LAB_CANCEL_STAGED_BEFORE_COMMIT')
+  self.assertEqual(self.snap()['classification']['status'],
+                   'LAB_CANCELLED_NO_DISPATCH')
 if __name__=='__main__':unittest.main()
