@@ -801,3 +801,11 @@ body[data-theme="dark"] .bank-field{background:#292929;border-color:#4b4b4b}
 body[data-theme="dark"] .bank-field-label,body[data-theme="dark"] :is(.bank-field-origin,.bank-form-version){color:#c6c6c6}
 body[data-theme="dark"] .bank-field-value{color:#f1f1f1}
 @media(max-width:500px){.bank-fields{grid-template-columns:minmax(0,1fr)}}
+
+/* Na navegação móvel o nome da área atual deve ser legível em ambos os temas. */
+.visual-app[data-theme="dark"] .module-page-navigation [aria-current="page"]{
+  color:#f2f2f2;background:#383838;border:1px solid #727272
+}
+.visual-app[data-theme="light"] .module-page-navigation [aria-current="page"]{
+  color:#343434;background:#ededed;border:1px solid #d0d0d0
+}
