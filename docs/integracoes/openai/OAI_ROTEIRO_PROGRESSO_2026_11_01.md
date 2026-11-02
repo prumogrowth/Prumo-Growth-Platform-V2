@@ -38,6 +38,7 @@
 | OFF-21 / 12A | Ponte Responses → F01/F02/F03 com avaliadores existentes, sem rascunho externo | FEITO_OFFLINE | [CI 41357833214](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41357833214): 1028/1028 Node (990+38), 24/24 Python AST independentes, 0 falhas/ignorados; sem API real | 
 | OFF-22 / 08B | Compatibilidade F02 com Meta M19 A/B v0.2 e M20 v0.2, sem atribuir `sent`/WDC13/C09 | FEITO_OFFLINE | [CI 41360087872](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41360087872): 1068/1068 Node (1028+40), 24/24 Python AST separados, 0 falhas/ignorados; S0 operacional não homologada | 
 | OFF-23 / 08B | Auditoria pinada do controlador de ciclos S0 F02: readback de estado/ator | FEITO_OFFLINE | [CI 41370145342](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41370145342): 1068 Node + 24 Python antigos + 22 Python novos, suites separadas, sem falhas; **2 achados reproduzidos, NÃO corrigidos na S0; Issue #7 pendente** | 
+| OFF-24 / 08B | Revalidar correção S0 dos achados de readback F02 OFF-23 | EM_TESTE | S0 entregou `fcbff8e265e4cba32ccd3236e3e0d94a7864856e` com 12 novos PG17; meta 1068 Node herdados + 24 AST anteriores + 30 AST novos (separados), sem aceite operacional | 
 | FV-REV-021 / Issue #13 | Resumos **pequenos e objetivos** de F01/F02/F03 no histórico acumulativo do **Resumo** do Frontend | FUTURO | [Issue #13](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/13), **não desenvolver agora** |
 
 ## Visibilidade de bloqueios
@@ -45,7 +46,7 @@
 - **08A:** compatibilidade estrutural offline concluída até OFF-14.
 - **08B:** **houve avanço externo verificável**: S0 publicou candidatos PG17 F01 posse [#11](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/11), fontes [#12](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/12) e pedido F02 [#7](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/7), todos com interop e CI próprios. OpenAI OFF-17 identificou o acoplamento `cycle/assignment`; **S0 respondeu na #7 com correção laboratório em `31e88ec`**, criando `case_cycles`/`cycle_revision` independentes. **OFF-18 comprovou em laboratório que o mapeamento pinado diferencia ciclo e atribuição** (950 Node + 24 Python source-level), sem aceite operacional. Ainda não há interface hospedada ratificada.
 - **08B / Meta M19–M20:** os contratos Meta de saída v0.2 têm estado LAB não autenticado; OFF-22 ensaia o consumo fail-closed dos formatos atuais, sem inferir status definitivo/WDC-13/C09. Issue #9 continua aberta.
-- **08B / S0 controlador de ciclos:** após OFF-18, S0 entregou controlador PG17 aditivo `054261b...`; OFF-23 audita o `readback` e encontrou contraprovas de estado atual e ator do evento não comparados, ainda sujeitas a correção S0 #7. **Não existe aceite deste controlador.**
+- **08B / S0 controlador de ciclos:** após OFF-18, S0 entregou controlador PG17 aditivo `054261b...`; OFF-23 audita o `readback` e encontrou contraprovas de estado atual e ator do evento não comparados, ainda sujeitas a correção S0 #7. **OFF-24 analisa o reparo S0 do recibo corrente**, sem aceitar o controlador completo até homologação operacional.
 - **08C:** aceite dos contratos e integração autorizada pendente; **não** progredir com credenciais ou dados reais.
 - **12A:** OFF-15 e OFF-16 concluídas offline, sem API real. Regressão transversal OFF-15 validada no [CI 41309774616](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41309774616) (908 PASS, 0 FAIL, 0 SKIP); **12B** (física/autenticada) depende de S0/Meta; **12C** (aceite) não iniciado.
 
@@ -72,6 +73,10 @@ A [OFF-21](./OAI_OFF21_RESPONSES_DOMAIN_REVIEW_2026_11_01.md) encadeia preflight
 ## OFF-23 — auditoria do readback do controlador de ciclos S0
 
 [Relatório OFF-23](./OAI_OFF23_AUDITORIA_S0_F02_CYCLE_READBACK_2026_11_01.md): 22 contraprovas/regressões source-level aprovadas em [CI 41370145342](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41370145342) sobre a função S0 pinada, sem PostgreSQL real e sem alterar implementação de outras frentes. Enquanto não forem sanadas, manter a porta de ciclo **em revisão** e F02 operacional pendente. Os testes da auditoria registram o comportamento observado; CI verde não significa que os achados foram corrigidos.
+
+## OFF-24 — retorno da correção de readback F02
+
+[Relatório da revalidação OFF-24](./OAI_OFF24_REVISAO_CORRECAO_S0_F02_READBACK_2026_11_01.md). A S0 respondeu aos dois achados OFF-23 em SHA `fcbff8e...` com comparações de estado/ator/chave e regressões PG17. A frente OpenAI executa teste independente do código exato, mas **não** promove a fachada do controlador nem libera modelo/send. Etapa 08 segue em revisão.
 
 ## Gate futuro de uso da API OpenAI
 
