@@ -4,13 +4,15 @@ import {inspectWa21HandoffOffline as inspect,
  recheckWa21HandoffOffline as recheck} from './wa21-human-handoff-f01-f03-offline.ts';
 const NOW=1800000000000,SHOP='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const c=()=>({
- contract_version:'wa21-s0-case-state.lab.v0.1',
+ contract_version:'wa21-s0-case-state.lab.v0.2',
  concessionaria_id:SHOP,app_ref:'APP_A',waba_ref:'WABA_A',
  phone_number_id:'10000001',case_ref:'CASE_A',lead_ref:'LEAD_A',
  case_revision:6,assignment_revision:4,handoff_revision:2,
  f03_cutoff_revision:3,case_state:'LAB_HUMAN_HANDOFF_DEFINITIVE',
  handoff_ever_definitive:true,handoff_at_ms:NOW-4000,
- human_assignment_ref:'HUMAN_A',meta_window_claim:'LAB_OPEN',
+ human_assignment_ref:'HUMAN_A',closure_revision:3,closure_ref:null,
+ closure_actor_ref:null,closure_at_ms:null,closure_cutoff_ms:null,
+ meta_window_claim:'LAB_OPEN',
  opt_out_claim:false,observed_at_ms:NOW-1000,now_ms:NOW,
  max_age_ms:60000,s0_source_authenticated:false,
  case_authority_verified:false,
@@ -30,7 +32,9 @@ const ev=(kind='LAB_INBOUND_MESSAGE')=>({
 const active=()=>({...c(),case_state:'LAB_F01_ACTIVE',
  handoff_ever_definitive:false,handoff_at_ms:null,
  human_assignment_ref:null});
-const closed=()=>({...c(),case_state:'LAB_HUMAN_CLOSED'});
+const closed=()=>({...c(),case_state:'LAB_HUMAN_CLOSED',
+ closure_ref:'CLOSURE_A',closure_actor_ref:'HUMAN_A',
+ closure_at_ms:NOW-2000,closure_cutoff_ms:NOW-2000});
 const run=(ctx:any=c(),event:any=ev())=>inspect(ctx,event);
 function good(x:any,decision:string){
  assert.equal(x.decision,decision);assert.equal(x.reason,null);
@@ -314,4 +318,101 @@ test('M21-60 claims of human handoff never prove Meta sent',()=>{
  'LAB_HUMAN_ROUTE_ONLY_UNVERIFIED');
  assert.equal(s.graph_dispatch_authorized,false);
  assert.equal(s.human_dispatch_authorized,false);
+});
+
+
+test('AUD-M21-61 closure ref differing from case closure is refused',()=>{
+ const e=ev('LAB_HUMAN_CLOSURE_EXPLICIT');e.closure_ref='CLOSURE_B';
+ denied(run(closed(),e),'CLOSURE_CONTEXT_MISMATCH');
+});
+test('AUD-M21-62 closure actor differing from S0 case claim is refused',()=>{
+ const e=ev('LAB_HUMAN_CLOSURE_EXPLICIT');e.actor_ref='HUMAN_B';
+ denied(run(closed(),e),'CLOSURE_CONTEXT_MISMATCH');
+});
+test('AUD-M21-63 forged event time does not match closed case record',()=>{
+ const e=ev('LAB_HUMAN_CLOSURE_EXPLICIT');
+ e.event_at_ms=NOW-1900;e.closure_cutoff_ms=NOW-1900;
+ denied(run(closed(),e),'CLOSURE_CONTEXT_MISMATCH');
+});
+test('AUD-M21-64 cutoff disagreement with case closure record denied',()=>{
+ const e=ev('LAB_HUMAN_CLOSURE_EXPLICIT');
+ e.closure_cutoff_ms=NOW-2100;
+ denied(run(closed(),e),'CLOSURE_CONTEXT_MISMATCH');
+});
+test('AUD-M21-65 cutoff strictly earlier than closure is permitted if case agrees',()=>{
+ const q=closed();q.closure_cutoff_ms=NOW-2500;
+ const e=ev('LAB_HUMAN_CLOSURE_EXPLICIT');e.closure_cutoff_ms=NOW-2500;
+ const s=good(run(q,e),'LAB_F03_CUTOFF_CANDIDATE_UNVERIFIED');
+ assert.equal(s.f03_invocation_authorized,false);
+});
+test('AUD-M21-66 closed case without closure_ref denied',()=>{
+ const q=closed();q.closure_ref=null;
+ denied(run(q,ev()),'TIMELINE_INCOHERENT');
+});
+test('AUD-M21-67 closed case without closure actor denied',()=>{
+ const q=closed();q.closure_actor_ref=null;
+ denied(run(q,ev()),'TIMELINE_INCOHERENT');
+});
+test('AUD-M21-68 closed case without closure timestamp denied',()=>{
+ const q=closed();q.closure_at_ms=null;
+ denied(run(q,ev()),'TIMELINE_INCOHERENT');
+});
+test('AUD-M21-69 closed case without cutoff timestamp denied',()=>{
+ const q=closed();q.closure_cutoff_ms=null;
+ denied(run(q,ev()),'TIMELINE_INCOHERENT');
+});
+test('AUD-M21-70 closure after S0 observation cannot be accepted',()=>{
+ const q=closed();q.closure_at_ms=NOW;
+ denied(run(q,ev()),'TIMELINE_INCOHERENT');
+});
+test('AUD-M21-71 closure cutoff before definitive human handoff denied',()=>{
+ const q=closed();q.closure_cutoff_ms=NOW-5000;
+ denied(run(q,ev()),'TIMELINE_INCOHERENT');
+});
+test('AUD-M21-72 closure cutoff after closure instant denied',()=>{
+ const q=closed();q.closure_cutoff_ms=NOW-1900;
+ denied(run(q,ev()),'TIMELINE_INCOHERENT');
+});
+test('AUD-M21-73 active F01 with forged closed metadata is refused',()=>{
+ const q=active();q.closure_ref='CLOSURE_A';
+ denied(run(q,ev()),'CLOSURE_IN_WRONG_STATE');
+});
+test('AUD-M21-74 human handoff case with forged closure metadata refused',()=>{
+ const q=c();q.closure_at_ms=NOW-2000;
+ denied(run(q,ev()),'CLOSURE_IN_WRONG_STATE');
+});
+test('AUD-M21-75 changed closure revision makes recheck stale',()=>{
+ const q=closed(),e=ev('LAB_HUMAN_CLOSURE_EXPLICIT');
+ const old=good(run(q,e),'LAB_F03_CUTOFF_CANDIDATE_UNVERIFIED');
+ const next=closed();next.closure_revision++;
+ denied(recheck(old,next,e),'CONTEXT_CHANGED');
+});
+test('AUD-M21-76 changed alleged closure actor makes recheck stale',()=>{
+ const q=closed(),e=ev('LAB_HUMAN_CLOSURE_EXPLICIT');
+ const old=good(run(q,e),'LAB_F03_CUTOFF_CANDIDATE_UNVERIFIED');
+ const next=closed();next.closure_actor_ref='HUMAN_B';
+ denied(recheck(old,next,e),'CLOSURE_CONTEXT_MISMATCH');
+});
+test('AUD-M21-77 old v0.1 snapshot rejected after v0.2 semantics',()=>{
+ const old=good(run(),'LAB_HUMAN_ROUTE_ONLY_UNVERIFIED');
+ denied(recheck({...old,contract_version:'wa21-human-handoff-snapshot.lab.v0.1'},
+ c(),ev()),'PREVIOUS_INVALID');
+});
+test('AUD-M21-78 old v0.1 case input rejected after versioned shape change',()=>{
+ const q=c();q.contract_version='wa21-s0-case-state.lab.v0.1';
+ denied(run(q,ev()),'INVALID_INPUT');
+});
+test('AUD-M21-79 v0.2 output remains LAB only despite matched closure',()=>{
+ const snap=good(run(closed(),ev('LAB_HUMAN_CLOSURE_EXPLICIT')),
+ 'LAB_F03_CUTOFF_CANDIDATE_UNVERIFIED');
+ assert.equal(snap.contract_version,'wa21-human-handoff-snapshot.lab.v0.2');
+ assert.equal(snap.closure_verified,false);
+ assert.equal(snap.human_closure_apply_authorized,false);
+});
+test('AUD-M21-80 invalid closure metadata getter never executed',()=>{
+ const q:any=closed();let hits=0;
+ Object.defineProperty(q,'closure_actor_ref',{enumerable:true,get(){
+  hits++;return 'HUMAN_A';}});
+ denied(run(q,ev('LAB_HUMAN_CLOSURE_EXPLICIT')),'INVALID_INPUT');
+ assert.equal(hits,0);
 });
