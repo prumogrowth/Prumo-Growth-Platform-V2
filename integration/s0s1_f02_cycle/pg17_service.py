@@ -215,6 +215,17 @@ def readback(c,*,command_ref,host,request_hash):
             return reply('DENIED','SCOPE_CHANGED')
         if event['request_digest']!=request_hash:
             return reply('DENIED','COMMAND_COLLISION')
+        source=c.execute('SELECT * FROM s0_f02_lab.case_cycles '
+          'WHERE case_ref=%s',(event['case_ref'],)).fetchone()
+        if not source or source['flow_ref']!=host.flow_ref or (
+            source['cycle_revision']!=auth['cycle_revision']):
+            return reply('DENIED','CYCLE_SOURCE_DIVERGED')
+        if auth['cycle_revision']!=event['after_revision'] or (
+            auth['last_command_ref']!=command_ref):
+            return reply('LAB_COMMAND_SUPERSEDED','NEWER_CYCLE_TRANSITION',
+                commit_verified=True,
+                original_revision=event['after_revision'],
+                latest_revision=auth['cycle_revision'])
         # OFF-23: the same committed command must bind the current
         # authority's state and actor, not merely its revision/ref.
         # A rotated key is NOT a newly authenticated previous command.
@@ -228,17 +239,6 @@ def readback(c,*,command_ref,host,request_hash):
             return reply('DENIED','EVENT_STATE_DIVERGED')
         if (event['before_revision']+1!=event['after_revision']):
             return reply('DENIED','EVENT_REVISION_CHAIN_DIVERGED')
-        source=c.execute('SELECT * FROM s0_f02_lab.case_cycles '
-          'WHERE case_ref=%s',(event['case_ref'],)).fetchone()
-        if not source or source['flow_ref']!=host.flow_ref or (
-            source['cycle_revision']!=auth['cycle_revision']):
-            return reply('DENIED','CYCLE_SOURCE_DIVERGED')
-        if auth['cycle_revision']!=event['after_revision'] or (
-            auth['last_command_ref']!=command_ref):
-            return reply('LAB_COMMAND_SUPERSEDED','NEWER_CYCLE_TRANSITION',
-                commit_verified=True,
-                original_revision=event['after_revision'],
-                latest_revision=auth['cycle_revision'])
         return reply('LAB_COMMITTED_CYCLE_READBACK',
             'DURABLE_PG17_LAB_OBSERVATION',commit_verified=True,
             cycle_revision=event['after_revision'],state=event['after_state'])
