@@ -215,6 +215,19 @@ def readback(c,*,command_ref,host,request_hash):
             return reply('DENIED','SCOPE_CHANGED')
         if event['request_digest']!=request_hash:
             return reply('DENIED','COMMAND_COLLISION')
+        # OFF-23: the same committed command must bind the current
+        # authority's state and actor, not merely its revision/ref.
+        # A rotated key is NOT a newly authenticated previous command.
+        if (event['actor_ref']!=host.actor_ref or
+            event['actor_ref']!=auth['actor_ref']):
+            return reply('DENIED','EVENT_ACTOR_DIVERGED')
+        if (event['actor_key_revision']!=auth['actor_key_revision']):
+            return reply('DENIED','EVENT_ACTOR_KEY_REVISION_CHANGED')
+        if (event['after_state'] not in ('ACTIVE','PAUSED','REVOKED') or
+            event['after_state']!=auth['state']):
+            return reply('DENIED','EVENT_STATE_DIVERGED')
+        if (event['before_revision']+1!=event['after_revision']):
+            return reply('DENIED','EVENT_REVISION_CHAIN_DIVERGED')
         source=c.execute('SELECT * FROM s0_f02_lab.case_cycles '
           'WHERE case_ref=%s',(event['case_ref'],)).fetchone()
         if not source or source['flow_ref']!=host.flow_ref or (
