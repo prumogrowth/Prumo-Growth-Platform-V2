@@ -191,4 +191,31 @@ class CooperativePhysical(unittest.TestCase):
   r=self.revoke(3,2)
   self.assertEqual(r['reason'],'CONSENT_ALREADY_REVOKED')
   self.assertEqual(self.gens(),3)
+ def test_15_same_reservation_replay_no_new_generation(self):
+  self.start()
+  duplicate=self.reserve(2)
+  self.assertEqual(duplicate['status'],'LAB_G2B_REPLAY_HOLD_NO_DISPATCH')
+  self.safe(duplicate)
+  self.assertEqual(self.gens(),2)
+  self.assertEqual(self.t.totals(),(1,1,1,1))
+ def test_16_cancel_replay_no_new_generation_or_quota_refund(self):
+  self.start()
+  self.cancel()
+  duplicate=self.cancel(3)
+  self.assertEqual(duplicate['status'],'LAB_G2B_ALREADY_CANCELLED_HOLD')
+  self.safe(duplicate)
+  self.assertEqual(self.gens(),3)
+  self.assertEqual(self.t.totals(),(1,1,1,1))
+ def test_17_cancelled_replay_wrong_waba_still_denied(self):
+  from dataclasses import replace
+  self.start()
+  self.cancel()
+  other=replace(self.t.scope,waba_id='DIFFERENT_WABA')
+  with self.t.lab.admin() as c:
+   x=cancel(c,attempt_ref='attempt_A',case_ref='case_A',
+      scope=other,principal=self.t.principal,
+      m09_versions=self.t.versions,expected_generation=3)
+  self.assertEqual(x['reason'],'CANCEL_SCOPE_DENIED',x)
+  self.assertEqual(self.gens(),3)
+  self.safe(x)
 if __name__=='__main__':unittest.main()
