@@ -35,3 +35,14 @@ A [WA-21](wa21-papeis-diretor-gestor-consultor-assinatura-2026-10-21.md) define 
 - **Homologação:** testes cruzados com caso transferido, inbound tardio, retry/replay/concorrência, casos distintos da mesma pessoa, cutoff E1/E2, mídia ausente, opt-out e revogação antes de promover `F03` ou operação real. Sem migração, nova Issue, conta real, credencial, Graph, envio, merge, deploy, HTTP ACK ou efeito comercial.
 
 **Checklist M21:** [x] A módulo LAB, [x] B testes LAB, [x] C limites/contratos, [ ] D integração autenticada/autorização S0/OpenAI/Infra, [ ] marco principal M21 operacional.
+
+
+## Adendo da auditoria M21 — 01/11/2026
+
+A [auditoria corretiva](AUDITORIA_M21_HANDOFF_F01_F03_2026-11-01.md) detectou que um evento de fechamento F03 podia se declarar explícito em caso aparentemente fechado sem comprovar **coincidência com uma ocorrência de fechamento na própria alegação S0 do caso**. Em LAB, isso permitia `LAB_F03_CUTOFF_CANDIDATE_UNVERIFIED` para autor, referência ou horário não correlacionado. O resultado nunca autorizava F03, mas sua semântica era permissiva demais.
+
+Corrigido: entrada de caso **`wa21-s0-case-state.lab.v0.2`** com `closure_revision`, `closure_ref`, `closure_actor_ref`, `closure_at_ms`, `closure_cutoff_ms`. Em caso `LAB_HUMAN_CLOSED`, todos precisam estar presentes/coerentes e corresponder ao evento explícito. Caso não fechado com campos de fechamento é recusado. O cutoff pode preceder o instante da conclusão, mas não o handoff; deve coincidir nos dois objetos e não pode ser posterior à conclusão. A entrada de evento continua `wa21-case-event.lab.v0.1`. Saída passa a **`wa21-human-handoff-snapshot.lab.v0.2`**, com domínio de hash próprio e rejeição de v0.1 no recheck.
+
+**20 regressões adicionais AUD-M21-61..80**: divergência de fechamento por referência, autor, horário e cutoff; ausência de registro; causalidade; recheck de revisões; versões antigas; getter hostil; permissões sempre falsas. **Evidência funcional:** commit `b84c5972a2705901433b91e885a01a28c5e3485f`, [CI 41370100369](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41370100369), **80 M21, 2.092/2.092 testes Meta offline**, **377/377 de interface**, **18/18 PG17 históricos independentes de ingresso**, dois jobs `success`, scanner ACK estático aprovado.
+
+Os novos campos são **alegações de laboratório**, não fonte S0 autenticada nem autorização de fechamento. A titularidade do manifesto/cutoff F03, competência humana, identidade multicases e aplicação de campos continuam nas [#5](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/5) e [#6](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/6). **M21-D e marco operacional permanecem [ ]**. Os 60/2.072 resultados anteriores acima eram anteriores à auditoria.
