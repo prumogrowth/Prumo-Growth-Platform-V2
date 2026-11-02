@@ -65,6 +65,11 @@ def reserve(c,request,*,scope,principal,m09_versions,expected_generation):
   gate=_check(c,request['case_ref'],scope.concessionaria_id,expected_generation)
   original=original_reserve(c,request,scope=scope,principal=principal,
                            m09_versions=m09_versions)
+  if original['status']=='LAB_REPLAY_REQUIRES_READBACK':
+   # Exact replay is a historical hold; it is NOT a second reservation or
+   # generation change and cannot assert the prior transaction committed.
+   return result('LAB_G2B_REPLAY_HOLD_NO_DISPATCH',
+      'READBACK_REQUIRED_NO_NEW_GENERATION')
   if original['status']!='LAB_RESERVATION_STAGED_BEFORE_COMMIT':
    return result('DENIED' if original['status']=='DENIED' else 'UNAVAILABLE',
      'V02_'+original['reason'])
@@ -108,10 +113,13 @@ def cancel(c,*,attempt_ref,case_ref,scope,principal,m09_versions,
   return result('DENIED','INVALID_REQUEST')
  def operation():
   gate=_check(c,case_ref,scope.concessionaria_id,expected_generation)
-  receipt=c.execute('SELECT case_ref FROM s0_pd_v02_lab.receipts '
+  receipt=c.execute('SELECT case_ref,state FROM s0_pd_v02_lab.receipts '
     'WHERE attempt_ref=%s FOR UPDATE',(attempt_ref,)).fetchone()
   if not receipt or receipt['case_ref']!=case_ref:
    raise Refused('RECEIPT_CASE_SCOPE_DENIED')
+  if receipt['state']=='LAB_CANCELLED_NO_DISPATCH':
+   return result('LAB_G2B_ALREADY_CANCELLED_HOLD',
+                 'NO_NEW_GENERATION_OR_REFUND')
   original=original_cancel(c,attempt_ref=attempt_ref,scope=scope,
     principal=principal,m09_versions=m09_versions)
   if original['status']!='LAB_CANCEL_STAGED_BEFORE_COMMIT':
