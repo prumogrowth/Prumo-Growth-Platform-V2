@@ -1,0 +1,110 @@
+name: OAI OFF24 independent review of repaired S0 F02 cycle readback
+on:
+  push:
+    branches:
+      - feat/oai-off24-s0-f02-readback-repair-review-20261101
+permissions:
+  contents: read
+concurrency:
+  group: oai-off24-s0-readback
+  cancel-in-progress: false
+jobs:
+  source-level-revalidation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout isolated OpenAI OFF24 candidate
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Guard OFF23 parent and four-file review delta
+        shell: bash
+        run: |
+          set -euo pipefail
+          base=0bd2021e033a232f78de2cac484d7ef7edf30f7a
+          git merge-base --is-ancestor "$base" HEAD
+          git diff --name-only "$base" HEAD | sort > /tmp/off24-changed
+          cat > /tmp/off24-allowed <<'EOF'
+          .github/workflows/oai-off24-s0-cycle-readback-repair-review.yml
+          docs/integracoes/openai/OAI_OFF24_REVISAO_CORRECAO_S0_F02_READBACK_2026_11_01.md
+          docs/integracoes/openai/OAI_ROTEIRO_PROGRESSO_2026_11_01.md
+          docs/integracoes/openai/e04_offline_lab/tests/off24_s0_cycle_readback_repair_review.py
+          EOF
+          diff -u /tmp/off24-allowed /tmp/off24-changed
+          test -z "$(git diff --name-only "$base" HEAD -- backend/ integration/ integrations/ frontend/ supabase/)"
+      - name: Node 22.16.0
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - name: Recheck cumulative 1068 OpenAI Node tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm --prefix docs/integracoes/openai/e04_offline_lab test | tee /tmp/off24-node.tap
+          node --input-type=commonjs - <<'NODE'
+          const fs=require('node:fs'),s=fs.readFileSync('/tmp/off24-node.tap','utf8');
+          const n=k=>{const m=s.match(new RegExp('# '+k+' (\\d+)'));return m?Number(m[1]):null;};
+          const facts={tests:n('tests'),pass:n('pass'),fail:n('fail'),skipped:n('skipped')};
+          console.log(JSON.stringify({suite:'OAI_OFF24_INHERITED_NODE',...facts}));
+          if(facts.tests!==1068||facts.pass!==1068||facts.fail!==0||facts.skipped!==0)process.exit(2);
+          NODE
+      - name: Load prior and fixed S0 source by exact immutable commits
+        shell: bash
+        run: |
+          set -euo pipefail
+          old=31e88ec2632e861d55c2e0ae4766f8a0a4362e22
+          fixed=fcbff8e265e4cba32ccd3236e3e0d94a7864856e
+          git cat-file -e "$old^{commit}"
+          git cat-file -e "$fixed^{commit}"
+          git show "$old:integration/s0s1_f02/pg17_service.py" > /tmp/oai24-old.py
+          git show "$fixed:integration/s0s1_f02_cycle/pg17_service.py" > /tmp/oai24-fixed.py
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib,ast
+          old=hashlib.sha256(Path('/tmp/oai24-old.py').read_bytes()).hexdigest()
+          assert old=='766a19a949e72935f4e7e120603032275de23eb9fa5fa6b94041fb8393f3b298',old
+          new=Path('/tmp/oai24-fixed.py')
+          tree=ast.parse(new.read_text())
+          assert sum(isinstance(n,ast.FunctionDef) and n.name=='readback' for n in tree.body)==1
+          print('OFF24_FIXED_S0_SOURCE_SHA256='+hashlib.sha256(new.read_bytes()).hexdigest())
+          PY
+      - name: Verify 24 older independent cycle and assignment source tests
+        shell: bash
+        env:
+          S0_F02_PINNED_SOURCE: /tmp/oai24-old.py
+        run: |
+          set -euo pipefail
+          python3 docs/integracoes/openai/e04_offline_lab/tests/off18_s0_f02_independent_cycle_review.py -v 2>&1 | tee /tmp/off24-older.log
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          s=Path('/tmp/off24-older.log').read_text()
+          assert re.findall(r'Ran (\d+) tests? in',s)==['24']
+          assert re.search(r'(?m)^OK\s*$',s)
+          print('OFF24_PRIOR_S0_MAPPING_24_PASS')
+          PY
+      - name: Require 30 repaired source readback tests in independent AST
+        shell: bash
+        env:
+          S0_CYCLE_PINNED_SOURCE: /tmp/oai24-fixed.py
+        run: |
+          set -euo pipefail
+          python3 docs/integracoes/openai/e04_offline_lab/tests/off24_s0_cycle_readback_repair_review.py -v 2>&1 | tee /tmp/off24-fixed.log
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          s=Path('/tmp/off24-fixed.log').read_text()
+          assert re.findall(r'Ran (\d+) tests? in',s)==['30']
+          assert re.search(r'(?m)^OK\s*$',s)
+          for marker in ('test_02_state_drift_to_paused_is_now_denied',
+                         'test_05_journal_actor_mismatch_is_now_denied',
+                         'test_24_current_key_rotation_without_cycle_is_now_denied'):
+            assert marker in s, marker
+          print('OFF24_S0_READBACK_FIXED_AST_30_PASS')
+          PY
+      - name: Report non-authority
+        if: always()
+        run: |
+          echo 'This proves source behavior of S0 readback candidate, not hosted auth, PG17, Graph, S0 permission or operational F02.'
+          echo 'No code S0/Meta changed, no model key, merge, deploy or customer data.'
