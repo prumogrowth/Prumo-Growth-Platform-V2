@@ -29,7 +29,7 @@ const shaGit=data=>createHash('sha1')
 test('FV-UI-023: manifesto oficial identifica branch e revisão pinadas',()=>{
   assert.ok(manifest,'Manifesto ZIP pinado não encontrado no verificador');
   assert.match(manifest.source_head,/^[0-9a-f]{40}$/);
-  assert.ok(['feat/frontend-plataforma-visual','codex/fv-ux-01-comunicacao-20261027','codex/fv-rev-01-conversas-20261030','codex/fv-rev-01-modulos-20261030', 'codex/fv-cor-07-pos-auditoria-20261031', 'fix/fv-cor-08-unicode-20261031', 'fix/fv-coe-01-coerencia-20261031', 'feat/fv-banco-fila-aptos-20261101', 'fix/fv-banco-aud-02-fail-closed-20261101', 'feat/fv-modulos-telas-proprias-20261101'].includes(manifest.source_branch));
+  assert.ok(['feat/frontend-plataforma-visual','codex/fv-ux-01-comunicacao-20261027','codex/fv-rev-01-conversas-20261030','codex/fv-rev-01-modulos-20261030', 'codex/fv-cor-07-pos-auditoria-20261031', 'fix/fv-cor-08-unicode-20261031', 'fix/fv-coe-01-coerencia-20261031', 'feat/fv-banco-fila-aptos-20261101', 'fix/fv-banco-aud-02-fail-closed-20261101', 'feat/fv-modulos-telas-proprias-20261101', 'audit/fv-ux-funcional-enxuta-20261101'].includes(manifest.source_branch));
 });
 
 test('FV-UI-023: manifesto cobre cada fonte/teste e rejeita inventário antigo',()=>{
