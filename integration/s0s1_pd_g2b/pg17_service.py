@@ -117,13 +117,15 @@ def cancel(c,*,attempt_ref,case_ref,scope,principal,m09_versions,
     'WHERE attempt_ref=%s FOR UPDATE',(attempt_ref,)).fetchone()
   if not receipt or receipt['case_ref']!=case_ref:
    raise Refused('RECEIPT_CASE_SCOPE_DENIED')
-  if receipt['state']=='LAB_CANCELLED_NO_DISPATCH':
-   return result('LAB_G2B_ALREADY_CANCELLED_HOLD',
-                 'NO_NEW_GENERATION_OR_REFUND')
+  # Always perform the ORIGINAL complete WABA/principal/key-revision
+  # authorization check, even for already-cancelled receipt replays.
   original=original_cancel(c,attempt_ref=attempt_ref,scope=scope,
     principal=principal,m09_versions=m09_versions)
   if original['status']!='LAB_CANCEL_STAGED_BEFORE_COMMIT':
    raise Refused('CANCEL_'+original['reason'])
+  if receipt['state']=='LAB_CANCELLED_NO_DISPATCH':
+   return result('LAB_G2B_ALREADY_CANCELLED_HOLD',
+                 'NO_NEW_GENERATION_OR_REFUND')
   newer=_bump(c,case_ref,gate['generation'])
   return result('LAB_G2B_CANCEL_STAGED_BEFORE_COMMIT',
     'READBACK_REQUIRED',generation_after_stage=newer)
