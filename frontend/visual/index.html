@@ -109,8 +109,15 @@
   <nav class="module-page-navigation" aria-label="Áreas da plataforma"><button type="button" data-route-module="conversations">Conversas</button><span aria-current="page">Banco</span><button type="button" data-route-module="team" data-team-route hidden>Gestão</button></nav>
   <header class="bank-heading"><div><h2 id="bank-title" tabindex="-1">Banco</h2></div><button type="button" id="bank-close" class="icon-button" aria-label="Fechar Banco e voltar"><svg class="icon"><use href="#i-close"/></svg></button></header>
   <p class="bank-guidance" role="note">Consulta · sem envio real</p>
-  <label for="bank-case-select" class="field-label">Clientes</label><select id="bank-case-select" aria-controls="bank-content" aria-label="Selecionar cliente apto"></select><p id="bank-ready-empty" class="detail-placeholder" hidden>Nenhum cadastro para enviar.</p>
-  <div id="bank-content" class="bank-content" role="region" aria-label="Ficha de cliente apto"></div>
+  <div class="bank-workspace">
+    <section class="bank-queue" aria-labelledby="bank-queue-title">
+      <h3 class="field-label" id="bank-queue-title">Clientes</h3>
+      <div class="bank-ready-list" id="bank-ready-list" role="list" aria-label="Clientes aptos"></div>
+      <select id="bank-case-select" aria-label="Selecionar cliente apto" aria-controls="bank-content" hidden></select>
+      <p id="bank-ready-empty" class="detail-placeholder" hidden>Nenhum cadastro para enviar.</p>
+    </section>
+    <div id="bank-content" class="bank-content" role="region" aria-label="Ficha de cliente apto"></div>
+  </div>
 </dialog>
 
 <dialog id="team-dialog" class="team-dialog" aria-labelledby="team-title">
