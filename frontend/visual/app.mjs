@@ -530,7 +530,7 @@ function callout(title,text,tone='') {
 function focusExtractionAfterRerender(caseId,notice){
   if(selectedCase()?.id!==caseId)return;
   if(state.activeModule==='bank' && $('bank-dialog').open){
-    ($('bank-case-select').hidden?$('bank-title'):$('bank-case-select')).focus();
+    focusBankReadyItem();
   }else if(state.activeModule==='conversations'){
     // Após recriação da árvore, nunca focar um botão da conclusão já removido.
     const panel=$('detail-content').querySelector('#registration-diagnostics');
@@ -565,6 +565,11 @@ function openConversations(){
   if($('team-dialog').open)$('team-dialog').close();
   $('search-input').focus();
 }
+function focusBankReadyItem(){
+  const selected=Array.from($('bank-ready-list').children)
+    .find(row=>row.dataset.caseId===state.bankCaseId);
+  (selected?.children[0] ?? $('bank-title')).focus();
+}
 function openBank(caseId=null,opener=null){
   const rows=projectBankReadyList(state.cases,state.actorId,state.shopId);
   state.bankCaseId=rows.some(row=>row.id===caseId)?caseId:
@@ -575,7 +580,7 @@ function openBank(caseId=null,opener=null){
   if($('team-dialog').open)$('team-dialog').close();
   renderBank();
   if(!$('bank-dialog').open)$('bank-dialog').show();
-  ($('bank-case-select').hidden?$('bank-title'):$('bank-case-select')).focus();
+  focusBankReadyItem();
 }
 function renderBank(){
   const select=$('bank-case-select');
@@ -584,9 +589,25 @@ function renderBank(){
   select.replaceChildren(...rows.map(row=>{
     const option=el('option','',row.name);option.value=row.id;return option;
   }));
-  select.hidden=rows.length===0;
-  const label=select.previousElementSibling;
-  if(label)label.hidden=rows.length===0;
+  select.hidden=true; // Apenas adaptador da demonstração; a lista visível usa botões.
+  $('bank-ready-list').replaceChildren(...rows.map(row=>{
+    const item=el('div','bank-ready-item');
+    item.dataset.caseId=row.id;
+    item.setAttribute('role','listitem');
+    const button=el('button','bank-ready-choice',row.name);
+    button.setAttribute('type','button');
+    button.setAttribute('aria-pressed',String(state.bankCaseId===row.id));
+    button.addEventListener('click',()=>{
+      if(!bankReadyCaseForSelection(state.cases,state.actorId,state.shopId,row.id)){
+        renderBank();return;
+      }
+      state.bankCaseId=row.id;
+      renderBank();
+      focusBankReadyItem();
+    });
+    item.append(button);
+    return item;
+  }));
   $('bank-ready-empty').hidden=rows.length!==0;
   if(rows.length)select.value=state.bankCaseId;
   const target=$('bank-content'),item=bankSelectedCase();
@@ -994,7 +1015,7 @@ function changeActor(actorId){
   // FVA-02: pedido local de template/cadeia nunca atravessa perfil fictício.
   state.teamRequests={};state.queueRequests={};state.followupRequests={};state.reviewScenes={};state.processing={};state.teamPanel='members';
   state.noteDrafts={};state.bankCaseId=null;
-  if($('bank-dialog').open)$('bank-dialog').close();$('bank-content').replaceChildren();$('bank-case-select').replaceChildren();
+  if($('bank-dialog').open)$('bank-dialog').close();$('bank-content').replaceChildren();$('bank-case-select').replaceChildren();$('bank-ready-list').replaceChildren();
   state.actorId=actor.id;state.shopId=actor.shops[0];state.selectedId=null;state.detailTab='overview';state.statusFilter='all';state.inboxView='all';
   state.filter='all';state.query='';$('search-input').value='';goto('list');updateSelectors();render();announceCurrentContext('Perfil alterado');
 }
@@ -1005,7 +1026,7 @@ $('shop-select').addEventListener('change',event=>{
   state.listLoading=false;$('demo-list-state').value='ready';
   closeTransientDialogs();
   // FVA-02: solicitação ainda não confirmada por serviço pertence à loja anterior.
-  state.noteDrafts={};state.bankCaseId=null;applyModuleRoute('conversations');if($('bank-dialog').open)$('bank-dialog').close();if($('team-dialog').open)$('team-dialog').close();$('bank-content').replaceChildren();$('bank-case-select').replaceChildren();
+  state.noteDrafts={};state.bankCaseId=null;applyModuleRoute('conversations');if($('bank-dialog').open)$('bank-dialog').close();if($('team-dialog').open)$('team-dialog').close();$('bank-content').replaceChildren();$('bank-case-select').replaceChildren();$('bank-ready-list').replaceChildren();
   state.queueRequests={};state.followupRequests={};state.reviewScenes={};state.shopId=event.target.value;state.selectedId=null;state.detailTab='overview';state.statusFilter='all';state.inboxView='all';$('status-filter').value='all';state.query='';$('search-input').value='';goto('list');render();announceCurrentContext('Concessionária alterada');
 });
 $('search-input').addEventListener('input',event=>{state.query=event.target.value;renderList();});
