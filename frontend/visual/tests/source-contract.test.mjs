@@ -148,7 +148,7 @@ test('G2 tem equipes de operadores e a loja do gestor é somente filtro', () => 
   assert.match(fixtureTeam, /record\.teamManagerId===actorId/);
   assert.match(app, /projectManagedTeam\(state\.actorId,state\.cases\)/);
   assert.match(markup, /Concessionária/);
-  assert.match(markup, /Solicitar pausa ou retomada de novos leads alcança TODAS as lojas/);
+  assert.match(markup, /Pedir pausa ou retomada de novos leads abrange todas as lojas do Consultor/);
 });
 
 test('G2 exige pertencimento à equipe e pausa global só é solicitada, nunca aplicada no navegador', () => {
@@ -228,8 +228,8 @@ test('G4 não executa uploads, edição de concessão ou mudança de status come
 });
 
 test('FV-UI-013 UX: intro detalhável, contraste e toque, indicadores gerenciais priorizados',()=>{
-  assert.match(markup, /<details class="team-help"><summary>Entenda o alcance e os limites<\/summary>/);
-  assert.match(markup, /Solicitar pausa ou retomada de novos leads alcança TODAS as lojas/);
+  assert.match(markup, /<details class="team-help"><summary>Permissões<\/summary>/);
+  assert.match(markup, /Pedir pausa ou retomada de novos leads abrange todas as lojas do Consultor/);
   assert.match(styles, /\.team-mode \.btn\{min-height:44px/);
   assert.match(styles, /\.team-dialog \.icon-button\{width:44px;height:44px/);
   assert.match(styles, /\.team-dialog \.team-monitor-metric span\{color:#696969;font-size:11px/);
