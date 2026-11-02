@@ -725,3 +725,23 @@ test('FV-UX-BG-01: coletores de revisão não ressuscitam a janela Banco nem sel
   assert.match(modules,/prior-bank-history/);
   assert.match(modules,/number='15' if scene=='banco-versoes'/);
 });
+
+test('FV-UX-COPY-01: Banco e Gestão priorizam ações e textos curtos',()=>{
+  assert.match(markup,/class="bank-guidance" role="note">Consulta · sem envio real</);
+  assert.match(markup,/class="field-label">Clientes<\/label>/);
+  assert.match(markup,/Nenhum cadastro para enviar\./);
+  assert.match(markup,/id="team-title" tabindex="-1">Gestão<\/h2>/);
+  assert.match(markup,/class="team-hint team-intro">Simulação · sem alterações reais/);
+  assert.doesNotMatch(markup,/class="bank-guidance"[^<]*Fichas somente leitura/);
+  assert.match(app,/projectBankReadyList\(state\.cases,state\.actorId,state\.shopId\)/);
+  assert.match(app,/bankReadyCaseForSelection\(state\.cases,state\.actorId,state\.shopId,state\.bankCaseId\)/);
+  assert.match(app,/Envio ao banco indisponível nesta demonstração/);
+});
+test('FV-UX-COLOR-01: mensagens não lidas e lidas sem resposta têm indicação acessível',()=>{
+  assert.match(styles,/--attention-unread:#137847;--attention-awaiting:#b55b08/);
+  assert.match(styles,/\.visual-app\[data-theme="dark"\]\{--attention-unread:#238251;--attention-awaiting:#d17c24\}/);
+  assert.match(styles,/\.attention-pending\{background:var\(--attention-awaiting\)/);
+  assert.match(app,/badge\.setAttribute\('aria-label',attention\.label\)/);
+  assert.match(app,/badge\.setAttribute\('title',attention\.label\)/);
+  assert.match(app,/attention\.kind==='unread'\?'unread attention-unread':'unread attention-pending'/);
+});
