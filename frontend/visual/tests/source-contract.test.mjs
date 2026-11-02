@@ -725,3 +725,26 @@ test('FV-UX-BG-01: coletores de revisão não ressuscitam a janela Banco nem sel
   assert.match(modules,/prior-bank-history/);
   assert.match(modules,/number='15' if scene=='banco-versoes'/);
 });
+
+test('FV-UX-AUD-01: Banco apresenta ficha objetiva, aviso curto e origem recolhida',()=>{
+  assert.match(markup,/Somente leitura · sem envio real\./);
+  assert.match(markup,/Nenhum cadastro apto no momento\./);
+  assert.doesNotMatch(markup,/Somente cadastros aptos ao encaminhamento, em demonstração\. Fichas/);
+  const start=app.indexOf('function renderBank(){');
+  const end=app.indexOf('\nfunction renderAiCommunications(',start);
+  assert.ok(start>=0 && end>start);
+  const view=app.slice(start,end);
+  assert.match(view,/detailSection\('Ficha cadastral'\)/);
+  assert.match(view,/el\('details','bank-provenance'\)/);
+  assert.match(view,/registration\.visibility!=='detail'/);
+  assert.doesNotMatch(view,/renderRegistration\(item\)/);
+  assert.doesNotMatch(view,/Envio ao banco indisponível/);
+});
+test('FV-UX-AUD-01: indicadores distintos em claro e escuro sem depender só de cor',()=>{
+  assert.match(styles,/\.attention-unread\{background:#1f6b45!important;color:#fff!important\}/);
+  assert.match(styles,/\.attention-pending\{border:2px solid currentColor;background:#fff0c2!important/);
+  assert.match(styles,/\[data-theme="dark"\] \.attention-unread\{background:#9bddb4!important/);
+  assert.match(styles,/\[data-theme="dark"\] \.attention-pending\{color:#ffd083!important/);
+  assert.match(app,/attention\.kind==='unread'\?attention\.count:''/);
+  assert.match(app,/badge\.setAttribute\('aria-label',attention\.label\)/);
+});
