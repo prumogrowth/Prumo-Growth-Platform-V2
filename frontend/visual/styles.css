@@ -768,3 +768,21 @@ body[data-theme="dark"] .bank-dialog :is(button,select,summary):focus-visible{ou
     background:#303030;color:#eee;border-color:#555;
   }
 }
+
+/* FV-UX-20261101: fila do Banco é uma lista de nomes clicáveis, sem tags. */
+.bank-workspace{display:grid;grid-template-columns:minmax(170px,250px) minmax(0,1fr);gap:20px;align-items:start}
+.bank-queue{min-width:0}
+.bank-queue-title{margin:0}
+.bank-ready-list{display:flex;flex-direction:column;gap:7px;margin-top:9px}
+.bank-ready-choice{display:block;width:100%;min-height:44px;padding:10px 12px;text-align:left;
+  font-size:13px;font-weight:680;color:#323232;background:#fff;border:1px solid #d5d5d5;
+  border-radius:9px;overflow-wrap:anywhere}
+.bank-ready-choice:hover{background:#f5f5f5}
+.bank-ready-choice[aria-pressed="true"]{background:#ececec;border-color:#777;box-shadow:inset 3px 0 #5a5a5a}
+.bank-ready-choice:focus-visible{outline:3px solid #5c5c5c;outline-offset:2px}
+.bank-workspace > .bank-content{min-width:0}
+body[data-theme="dark"] .bank-ready-choice{color:#eee;background:#292929;border-color:#595959}
+body[data-theme="dark"] .bank-ready-choice:hover{background:#353535}
+body[data-theme="dark"] .bank-ready-choice[aria-pressed="true"]{background:#393939;border-color:#bcbcbc;box-shadow:inset 3px 0 #c8c8c8}
+body[data-theme="dark"] .bank-ready-choice:focus-visible{outline-color:#ddd}
+@media(max-width:760px){.bank-workspace{grid-template-columns:minmax(0,1fr);gap:16px}}
