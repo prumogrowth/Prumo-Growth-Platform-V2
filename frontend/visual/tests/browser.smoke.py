@@ -412,7 +412,8 @@ with sync_playwright() as p:
         assert mobile.locator('.team-help').evaluate('(e) => !e.open'), 'Explicação deve iniciar recolhida'
         mobile.locator('.team-help summary').click()
         assert mobile.locator('.team-help').evaluate('(e) => e.open'), 'Ajuda deve abrir via toque'
-        assert 'S0/S1-002' in mobile.locator('.team-help').inner_text()
+        assert 'abrange todas as lojas do Consultor' in mobile.locator('.team-help').inner_text()
+        assert 'Nenhuma alteração real' in mobile.locator('.team-help').inner_text()
         mobile.locator('.team-help summary').click()
         mobile.locator('.team-help summary').focus()
         mobile.keyboard.press('Enter')
