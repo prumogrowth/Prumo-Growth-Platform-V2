@@ -58,6 +58,8 @@ def main():
                     expect(page.locator('#bank-dialog')).to_be_visible()
                     expect(page.locator('#visual-app')).to_have_attribute('data-module','bank')
                     expect(page.locator('#bank-title')).to_be_focused()
+                    if width<=760:
+                        assert page.locator('#bank-dialog .module-page-navigation [aria-current=page]').evaluate(CONTRAST)>=4.5
                     expect(page.locator('#bank-ready-empty')).to_be_visible()
                     expect(page.locator('#bank-case-select')).to_be_hidden()
                     expect(page.locator('#bank-content')).to_be_empty()
@@ -145,6 +147,8 @@ def main():
                     if actor=='marina':
                         team_nav=page.locator('#team-nav-mobile' if width<=760 else '#team-nav')
                         team_nav.click();expect(page.locator('#team-dialog')).to_be_visible()
+                        if width<=760:
+                            assert page.locator('#team-dialog .module-page-navigation [aria-current=page]').evaluate(CONTRAST)>=4.5
                         for panel in ('members','monitor','batches','queue'):
                             page.locator('#team-show-'+panel).click()
                             expect(page.locator({'members':'#team-list','monitor':'#team-monitor','batches':'#team-batches','queue':'#team-queue'}[panel])).to_be_visible()
