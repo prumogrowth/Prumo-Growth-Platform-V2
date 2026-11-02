@@ -752,7 +752,7 @@ test('FV-UX-AUD-01: indicadores distintos em claro e escuro sem depender só de 
 test('FV-UX-AUD-01: Gestão tem cartões curtos e preserva escopo e confirmações',()=>{
   assert.match(app,/const staffState=member\.teamState==='active'\?'Ativo':'Suspenso'/);
   assert.match(app,/member\.intake==='receiving'\?'Recebendo leads':'Sem novos leads'/);
-  assert.match(app,/\`Lojas: \$\{member\.shops/);
+  assert.match(app,/\`Lojas concedidas pelo Diretor: \$\{member\.shops/);
   assert.doesNotMatch(app,/Conta ativa \(fictícia\)/);
   assert.doesNotMatch(app,/Concessionárias concedidas pelo Diretor \(somente leitura\):/);
   assert.match(markup,/Entenda o alcance e os limites/);
