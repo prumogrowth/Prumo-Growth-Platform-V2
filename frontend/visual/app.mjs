@@ -407,7 +407,7 @@ function renderThread() {
   $('composer-demo-guidance').hidden=!terminal.hidden;
   if (!item) {
     const empty = el('div','thread-placeholder');
-    empty.append(el('h2','', 'Sua central de conversas'),el('p','', 'Selecione um atendimento na lista. Apenas dados fictícios serão exibidos.'));
+    empty.append(el('h2','', 'Sua central de conversas'),el('p','', 'Selecione uma conversa.'));
     body.replaceChildren(empty); bar.replaceChildren(); input.disabled = true; button.disabled = true;
     $('composer-availability').hidden = true;
     return;
@@ -593,12 +593,12 @@ function renderBank(){
   if(!item){target.replaceChildren();return;}
   const identity=el('p','bank-context',item.name);
   const consultation=renderRegistration(item);
-  const note=el('p','detail-small','Cadastro bancário externo e registro de envio ainda não habilitados nesta demonstração. Nenhuma operação foi realizada.');
+  const note=el('p','detail-small','Envio ao banco indisponível nesta demonstração.');
   target.replaceChildren(identity,consultation,note);
 }
 function renderAiCommunications(item){
   const section=detailSection('COMUNICAÇÕES DAS IAs');section.id='ai-communications';
-  section.append(el('p','detail-small','Histórico acumulativo fictício. Resultados da F03 não são mensagens ao cliente.'));
+  section.append(el('p','detail-small','Registro interno · F03 não envia mensagens.'));
   const entries=aiCommunicationsFor(item,state.cases,state.actorId,state.shopId);
   for(const entry of entries){
     const details=el('details','ai-communication');details.dataset.source=entry.source;
