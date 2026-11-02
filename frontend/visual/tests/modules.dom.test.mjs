@@ -110,3 +110,27 @@ test('FV-UX: inicialização identifica Conversas como módulo ativo',()=>{
  assert.equal(get('bank-dialog').open,false);
  assert.equal(get('team-dialog').open,false);
 });
+
+test('FV-UX-AUD-01: tema, navegação e abas de Gestão executam ações reais da demo',()=>{
+ reset();
+ get('theme-dark').click();
+ assert.equal(get('visual-app').dataset.theme,'dark');
+ assert.equal(get('theme-dark').getAttribute('aria-pressed'),'true');
+ get('theme-light').click();
+ assert.equal(get('visual-app').dataset.theme,'light');
+ assert.equal(get('theme-light').getAttribute('aria-pressed'),'true');
+ get('bank-nav').click();
+ assert.equal(get('visual-app').dataset.module,'bank');
+ assert.equal(get('bank-case-select').hidden,true);
+ get('bank-close').click();
+ assert.equal(get('visual-app').dataset.module,'conversations');
+ env.selectActor('marina');
+ get('team-nav').click();
+ assert.equal(get('visual-app').dataset.module,'team');
+ for(const button of ['team-show-members','team-show-monitor','team-show-batches','team-show-queue']){
+   get(button).click();
+   assert.equal(get(button).getAttribute('aria-pressed'),'true');
+ }
+ get('team-close').click();
+ assert.equal(get('visual-app').dataset.module,'conversations');
+});
