@@ -126,8 +126,10 @@
 .team-dialog .team-member span{color:#636363;font-size:12px}
 .team-dialog .team-monitor-tile span{color:#616161;font-size:11px}
 
-/* Demonstração: um único indicador, duas semânticas. Cores provisórias. */
-:root{--attention-unread:#8d8d8d;--attention-awaiting:#737373}
+/* A cor reforça a informação: número = não lida; ponto = lida sem resposta.
+   Não depende da cor para comunicar estado, inclusive nos dois temas. */
+:root{--attention-unread:#137847;--attention-awaiting:#b55b08}
+.visual-app[data-theme="dark"]{--attention-unread:#238251;--attention-awaiting:#d17c24}
 .attention-unread{background:var(--attention-unread)}
 .attention-pending{background:var(--attention-awaiting);min-width:15px;width:15px;height:15px;padding:0;border:2px solid white;outline:1px solid var(--attention-awaiting)}
 
