@@ -1,0 +1,108 @@
+name: OAI OFF23 S0 F02 cycle readback forensic source audit
+on:
+  push:
+    branches:
+      - audit/oai-off23-s0-cycle-readback-review-20261101
+permissions:
+  contents: read
+concurrency:
+  group: oai-off23-s0-cycle-readback
+  cancel-in-progress: false
+jobs:
+  pinned-cycle-source-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout isolated OpenAI audit branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Guard OFF22 parent and four-file audit-only delta
+        shell: bash
+        run: |
+          set -euo pipefail
+          base=cede31bc531179ca560129d36f38b60c173ca709
+          git merge-base --is-ancestor "$base" HEAD
+          git diff --name-only "$base" HEAD | sort > /tmp/off23-changed
+          cat > /tmp/off23-allowed <<'EOF'
+          .github/workflows/oai-off23-s0-cycle-readback-review.yml
+          docs/integracoes/openai/OAI_OFF23_AUDITORIA_S0_F02_CYCLE_READBACK_2026_11_01.md
+          docs/integracoes/openai/OAI_ROTEIRO_PROGRESSO_2026_11_01.md
+          docs/integracoes/openai/e04_offline_lab/tests/off23_s0_cycle_readback_source_audit.py
+          EOF
+          diff -u /tmp/off23-allowed /tmp/off23-changed
+          test -z "$(git diff --name-only "$base" HEAD -- backend/ integration/ integrations/ frontend/ supabase/)"
+      - name: Node 22.16.0
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - name: Recheck all 1068 inherited OpenAI Node tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm --prefix docs/integracoes/openai/e04_offline_lab test | tee /tmp/off23-node.tap
+          node --input-type=commonjs - <<'NODE'
+          const fs=require('node:fs'),s=fs.readFileSync('/tmp/off23-node.tap','utf8');
+          const n=k=>{const m=s.match(new RegExp('# '+k+' (\\d+)'));return m?Number(m[1]):null;};
+          const stats={tests:n('tests'),pass:n('pass'),fail:n('fail'),skipped:n('skipped')};
+          console.log(JSON.stringify({suite:'OAI_OFF23_INHERITED_NODE',...stats}));
+          if(stats.tests!==1068||stats.pass!==1068||stats.fail!==0||stats.skipped!==0)process.exit(2);
+          NODE
+      - name: Pin exact S0 candidate and prior S0 F02 source
+        shell: bash
+        run: |
+          set -euo pipefail
+          candidate=054261b23b312421a6956b51ff5b37d36f10babb
+          prior=31e88ec2632e861d55c2e0ae4766f8a0a4362e22
+          git cat-file -e "$candidate^{commit}"
+          git cat-file -e "$prior^{commit}"
+          git show "$candidate:integration/s0s1_f02_cycle/pg17_service.py" > /tmp/off23-cycle-source.py
+          git show "$prior:integration/s0s1_f02/pg17_service.py" > /tmp/off23-prior-source.py
+          python3 - <<'PY'
+          from pathlib import Path
+          import ast,hashlib
+          candidate=Path('/tmp/off23-cycle-source.py')
+          tree=ast.parse(candidate.read_text())
+          assert sum(isinstance(n,ast.FunctionDef) and n.name=='readback' for n in tree.body)==1
+          print('OFF23_S0_CYCLE_SHA256='+hashlib.sha256(candidate.read_bytes()).hexdigest())
+          h=hashlib.sha256(Path('/tmp/off23-prior-source.py').read_bytes()).hexdigest()
+          assert h=='766a19a949e72935f4e7e120603032275de23eb9fa5fa6b94041fb8393f3b298',h
+          PY
+      - name: Recheck 24 independently pinned earlier F02 AST cases
+        shell: bash
+        env:
+          S0_F02_PINNED_SOURCE: /tmp/off23-prior-source.py
+        run: |
+          set -euo pipefail
+          python3 docs/integracoes/openai/e04_offline_lab/tests/off18_s0_f02_independent_cycle_review.py -v 2>&1 | tee /tmp/off23-old.log
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('/tmp/off23-old.log').read_text()
+          assert re.findall(r'Ran (\d+) tests? in',s)==['24']
+          assert re.search(r'(?m)^OK\s*$',s)
+          print('OFF23_PRIOR_F02_24_PASS')
+          PY
+      - name: Reproduce 22 S0 readback observations from exact source AST
+        shell: bash
+        env:
+          S0_CYCLE_PINNED_SOURCE: /tmp/off23-cycle-source.py
+        run: |
+          set -euo pipefail
+          python3 docs/integracoes/openai/e04_offline_lab/tests/off23_s0_cycle_readback_source_audit.py -v 2>&1 | tee /tmp/off23-new.log
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('/tmp/off23-new.log').read_text()
+          assert re.findall(r'Ran (\d+) tests? in',s)==['22']
+          assert re.search(r'(?m)^OK\s*$',s)
+          assert 'test_02_state_drift_to_paused' in s
+          assert 'test_05_journal_actor_differs' in s
+          print('OFF23_SOURCE_COUNTEREXAMPLES_22_OBSERVED_NOT_FIXED')
+          PY
+      - name: Scope reminder
+        if: always()
+        run: |
+          echo 'Passing tests CONFIRM source-level mismatch on pinned S0 cycle readback; NOT a fix or PG17 authentication.'
+          echo 'No S0/Meta implementation changes, no API key, Graph send, production, merge or deploy.'
