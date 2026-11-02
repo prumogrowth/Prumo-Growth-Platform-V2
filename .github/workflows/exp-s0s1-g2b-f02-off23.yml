@@ -101,7 +101,7 @@ jobs:
         run: python3 -B -m unittest integration.s0s1_f02_cycle.test_off23_pg17 -v
       - name: Original F02 cycle 24 regression
         run: python3 -B -m unittest integration.s0s1_f02_cycle.test_pg17_service -q
-      - name: G2B cooperative PG17 generation CAS and contention
+      - name: G2B 17 PG17 generation, replay, cancellation and contention cases
         run: python3 -B -m unittest integration.s0s1_pd_g2b.test_pg17_service -v
       - name: G2A snapshots and PRE_DISPATCH original inherited regressions
         run: |
