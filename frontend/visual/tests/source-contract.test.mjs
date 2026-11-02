@@ -758,3 +758,8 @@ test('FV-UX-AUD-01: Gestão tem cartões curtos e preserva escopo e confirmaçõ
   assert.match(markup,/Entenda o alcance e os limites/);
   assert.match(app,/SOLICITADO LOCALMENTE/);
 });
+
+test('FV-UX-AUD-01: navegação móvel ativa tem contraste próprio no tema escuro',()=>{
+  assert.match(styles,/\.visual-app\[data-theme="dark"\] \.module-page-navigation \[aria-current="page"\]/);
+  assert.match(get('tests/browser.modules.py'),/module-page-navigation \[aria-current=page\]/);
+});
