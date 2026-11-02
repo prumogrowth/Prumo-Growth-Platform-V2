@@ -1157,17 +1157,17 @@ function renderTeamSummary(){
   team.replaceChildren(...rows.map(member=>{
     const card=el('div','team-member');
     card.append(el('strong','',member.name));
-    const staffState=member.teamState==='active'?'Conta ativa (fictícia)':'Conta suspensa (fictícia)';
-    const leadState=member.intake==='paused_confirmed'?'Novos leads pausados (projeção fictícia)':
-      member.intake==='receiving'?'Apto a receber novos leads (projeção fictícia)':'Indisponível para receber';
-    card.append(el('span','',`${staffState} · ${leadState} · ${member.cases} caso(s) na equipe`));
+    const staffState=member.teamState==='active'?'Ativo':'Suspenso';
+    const leadState=member.intake==='paused_confirmed'?'Leads pausados':
+      member.intake==='receiving'?'Recebendo leads':'Sem novos leads';
+    card.append(el('span','',`${staffState} · ${leadState} · ${member.cases} ${member.cases===1?'caso':'casos'}`));
     if(member.intake==='paused_confirmed') card.append(el('span','',
-      'Pausa da entrada confirmada somente na fixture; redistribuição de casos NÃO comprovada.'));
-    card.append(el('span','',`Concessionárias concedidas pelo Diretor (somente leitura): ${member.shops.map(id=>getShop(id)?.name??id).join(', ')}`));
+      'Redistribuição não confirmada.'));
+    card.append(el('span','',`Lojas: ${member.shops.map(id=>getShop(id)?.name??id).join(', ')}`));
     const preview=projectManagerPausePreview(state.actorId,member.id,state.cases);
     if(preview.visibility==='ready'){
       const details=el('details','team-pause-preview');
-      details.append(el('summary','','Prévia da carteira durante pausa · '+preview.summary.total+' caso(s)'));
+      details.append(el('summary','','Prévia da pausa · '+preview.summary.total+' casos'));
       const indicators=el('p','team-pause-counts',
         `Mantidos após contato: ${preview.summary.started} · Sem substituto: ${preview.summary.noRecipient} · Sem prova: ${preview.summary.unverified} · Ciclos protegidos: ${preview.summary.protected} · Candidatos à transferência: ${preview.summary.candidates}`);
       const rows=el('ul','team-pause-cases');
@@ -1181,7 +1181,7 @@ function renderTeamSummary(){
     }
     const requested=state.teamRequests[member.id];
     if(requested){
-      card.append(el('span','',`SOLICITADO LOCALMENTE: ${requested.action==='pause'?'pausar novos leads':'retomar novos leads'} em todas as lojas concedidas. NÃO aplicado; redistribuição NÃO executada.`));
+      card.append(el('span','',`SOLICITADO LOCALMENTE · ${requested.action==='pause'?'Pausar novos leads':'Retomar novos leads'} · sem alteração real.`));
     }else if(member.teamState==='active' && ['receiving','paused_confirmed'].includes(member.intake)){
       const action=member.intake==='receiving'?'pause':'resume';
       const button=el('button','btn btn-light',action==='pause'?'Solicitar pausa de novos leads':'Solicitar retomada de novos leads');
