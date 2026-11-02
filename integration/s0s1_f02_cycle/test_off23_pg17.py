@@ -1,5 +1,6 @@
 """OFF-23 F02 controlled PG17 mutation tests for current-event readback."""
 import os,unittest
+import psycopg
 from integration.s0s1_f02_cycle import test_pg17_service as inherited
 
 @unittest.skipUnless(os.getenv('M09_PG17_DISPOSABLE')=='YES','PG17 disposable only')
@@ -55,11 +56,14 @@ class F02Off23Physical(unittest.TestCase):
   self.t.change("UPDATE s0_f02_cycle_lab.authorities SET actor_key_revision=2 "
      "WHERE case_ref='case_A'")
   self.deny(q,'EVENT_ACTOR_KEY_REVISION_CHANGED')
- def test_off23_07_nonadjacent_journal_revision_denied(self):
+ def test_off23_07_nonadjacent_journal_revision_denied_by_pg_constraint(self):
   q=self.stage()
-  self.t.change("UPDATE s0_f02_cycle_lab.commands SET before_revision=5 "
-     "WHERE command_ref='cmd_1'")
-  self.deny(q,'EVENT_REVISION_CHAIN_DIVERGED')
+  # PostgreSQL itself prohibits a broken before/after sequence; it cannot
+  # be used as an artificial counterexample in the readback layer.
+  with self.assertRaises(psycopg.errors.CheckViolation):
+   self.t.change("UPDATE s0_f02_cycle_lab.commands SET before_revision=5 "
+      "WHERE command_ref='cmd_1'")
+  self.assertEqual(self.t.rb(q)['status'],'LAB_COMMITTED_CYCLE_READBACK')
  def test_off23_08_valid_pause_readback_unchanged(self):
   q=self.stage('PAUSE')
   self.assertEqual(self.t.rb(q)['state'],'PAUSED')
