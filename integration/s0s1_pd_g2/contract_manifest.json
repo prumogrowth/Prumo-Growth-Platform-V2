@@ -1,0 +1,92 @@
+{
+  "manifest_version": "prumo.s0.pd.g2.contract-manifest/0.1-lab",
+  "scope": "LAB_ONLY_NONAUTHORITATIVE",
+  "base_s0_sha": "fb06741b16eee9f9709acaed412daf5ea73a6d19",
+  "pinned_m09_ingress_sha": "01ffdb093013664b73b18d23f92aac2202578210",
+  "pinned_meta_m18_sha": "2a535ceb543418a76bb753a368eabc45bdbe4b0f",
+  "interfaces": {
+    "s0_reservation": "prumo.s0.pre-dispatch.readback/0.2-lab",
+    "s0_g2_snapshot": "prumo.s0.pre-dispatch.g2.snapshot/0.1-lab",
+    "s0_m18_evidence": "prumo.s0.meta.m18-v02-evidence.lab.v0.1",
+    "meta_m18_intent": "wa18-dispatch-intent.lab.v0.1",
+    "meta_m18_pre_dispatch": "prumo.s0.pre-dispatch.pg17/0.1-lab-only"
+  },
+  "version_semantics": {
+    "m09_revision_keys": [
+      "route",
+      "app",
+      "binding",
+      "grant",
+      "principal"
+    ],
+    "pre_dispatch_revision_keys": [
+      "expected_case_revision",
+      "expected_assignment_revision",
+      "expected_policy_revision",
+      "expected_suppression_revision",
+      "expected_consent_revision",
+      "expected_template_revision",
+      "expected_campaign_revision",
+      "expected_grant_revision"
+    ],
+    "quota_revision_independent": true,
+    "cycle_revision_independent": true,
+    "assignment_revision_independent": true,
+    "can_replace_m09_five_with_meta_registry_scalar": false,
+    "can_replace_f02_cycle_with_assignment_revision": false,
+    "can_map_store_A_fixture_to_tenant_uuid": false,
+    "can_alias_body_sha256_to_content_sha256_without_canonicalization": false,
+    "can_alias_destination_sha256_to_recipient_sha256_without_canonicalization": false,
+    "can_convert_s0_v02_to_s0_v01": false
+  },
+  "handoff_policy": {
+    "meta_m18_original_accepts_s0_v02": false,
+    "meta_m18_original_accepts_g2_snapshot": false,
+    "g2_snapshot_is_historical_only": true,
+    "g2_snapshot_linearizable_for_hosted_writers": false,
+    "g2_snapshot_is_authorization": false,
+    "m18_dispatch_candidate": null,
+    "may_issue_graph_lease": false,
+    "may_send_message": false,
+    "may_auto_retry_commit_unknown": false,
+    "requires_meta_consumer_review": true,
+    "requires_hosted_identity": true,
+    "requires_real_consent_provenance": true,
+    "requires_writer_atomicity_and_postcommit_CAS": true,
+    "requires_outbox_and_wamid_correlation": true
+  },
+  "state_examples": [
+    {
+      "s0_v02": "LAB_RESERVATION_STAGED_BEFORE_COMMIT",
+      "g2_classification": null,
+      "meaning": "PRE_COMMIT_ONLY_NO_AUTHORITY"
+    },
+    {
+      "s0_v02": "LAB_COMMIT_UNKNOWN",
+      "g2_classification": "LAB_COMMIT_UNKNOWN",
+      "meaning": "NO_EXTERNAL_RETRY"
+    },
+    {
+      "s0_v02": "LAB_COMMITTED_RECEIPT_NO_DISPATCH",
+      "g2_classification": "LAB_COMMITTED_RECEIPT_NO_DISPATCH",
+      "meaning": "HISTORICAL_PG17_ONLY_NO_GRAPH"
+    },
+    {
+      "s0_v02": "LAB_STALE_NO_DISPATCH",
+      "g2_classification": "LAB_STALE_NO_DISPATCH",
+      "meaning": "REVALIDATION_REQUIRED"
+    },
+    {
+      "s0_v02": "LAB_CANCELLED_NO_DISPATCH",
+      "g2_classification": "LAB_CANCELLED_NO_DISPATCH",
+      "meaning": "TERMINAL_NO_DISPATCH"
+    }
+  ],
+  "ownership": {
+    "s0": "PRE_DISPATCH readback, snapshot and simulated transactions",
+    "meta": "M18-D acceptance, real Graph / WA39 correlation and operational template approval",
+    "infra": "hosted principal, KMS and authorization, writer serializability, outbox and PG migrations",
+    "openai": "F02 cycle/assignment consistency and proposal projection",
+    "frontend": "read/human reply projection and owner confirmation"
+  }
+}
