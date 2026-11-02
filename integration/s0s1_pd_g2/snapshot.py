@@ -57,11 +57,12 @@ def classify_historical_snapshot(connection,request,*,scope,principal,
         # First SELECT actually establishes the MVCC snapshot.
         gate=connection.execute(
           "SELECT current_database() AS db, "
-          "current_setting('s0_meta.disposable',true) AS disposable, "
+          "current_user AS role, "
+          "to_regclass('s0_pd_v02_lab.receipts') IS NOT NULL AS schema_ready, "
           "current_setting('transaction_isolation') AS iso, "
           "current_setting('transaction_read_only') AS readonly, "
           "pg_current_snapshot()::text AS snapshot").fetchone()
-        if (gate['db']!='s0_meta_ingress_lab' or gate['disposable']!='YES'
+        if (gate['db']!='s0_meta_ingress_lab' or gate['role']!='postgres' or not gate['schema_ready']
             or gate['iso']!='repeatable read' or gate['readonly']!='on'
             or not gate['snapshot']):
             connection.execute('ROLLBACK')
