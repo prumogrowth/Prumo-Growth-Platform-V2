@@ -94,7 +94,7 @@ jobs:
           test "$(git -C _m09_pin rev-parse HEAD)" = 01ffdb093013664b73b18d23f92aac2202578210
           test "$(git -C _meta_pin rev-parse HEAD)" = 2a535ceb543418a76bb753a368eabc45bdbe4b0f
           python3 -m pip install 'psycopg[binary]==3.2.13' 'cryptography==46.0.3'
-      - name: G2 twelve PG17 snapshot and interleaving tests
+      - name: G2 fourteen PG17 snapshot and interleaving tests
         run: python3 -B -m unittest integration.s0s1_pd_g2.test_pg17_snapshot -v
       - name: G1 physical audit fixes and PRE_DISPATCH regressions
         run: |
