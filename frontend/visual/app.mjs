@@ -582,6 +582,28 @@ function openBank(caseId=null,opener=null){
   if(!$('bank-dialog').open)$('bank-dialog').show();
   focusBankReadyItem();
 }
+/** Apenas a ficha confirmada do cliente apto; diagnóstico F03 permanece no Resumo. */
+function renderBankRegistration(item){
+  const registration=registrationProjectionFor(item,state.actorId,state.shopId);
+  if(registration.visibility!=='detail' || !registration.confirmedPersisted ||
+     registration.state!=='persisted' || registration.missing.length ||
+     registration.conflicts.length)return el('p','detail-placeholder','Ficha indisponível');
+  const fields=el('div','bank-fields');
+  for(const field of registration.fields){
+    const row=el('div','bank-field');
+    row.append(el('span','bank-field-label',field.label),
+               el('strong','bank-field-value',field.safeDisplayValue));
+    const origin=el('details','bank-field-origin');
+    origin.append(el('summary','','Origem'),
+      el('small','',field.sourceLabel+' · '+field.sourceRef));
+    row.append(origin);fields.append(row);
+  }
+  if(!registration.fields.length)fields.append(el('p','detail-placeholder','Sem campos confirmados.'));
+  const version=el('details','bank-form-version');
+  version.append(el('summary','','Versão'),el('small','',registration.formVersionRef));
+  fields.append(version);
+  return fields;
+}
 function renderBank(){
   const select=$('bank-case-select');
   const rows=projectBankReadyList(state.cases,state.actorId,state.shopId);
@@ -613,9 +635,8 @@ function renderBank(){
   const target=$('bank-content'),item=bankSelectedCase();
   if(!item){target.replaceChildren();return;}
   const identity=el('p','bank-context',item.name);
-  const consultation=renderRegistration(item);
-  const note=el('p','detail-small','Envio ao banco indisponível nesta demonstração.');
-  target.replaceChildren(identity,consultation,note);
+  const consultation=renderBankRegistration(item);
+  target.replaceChildren(identity,consultation);
 }
 function renderAiCommunications(item){
   const section=detailSection('COMUNICAÇÕES DAS IAs');section.id='ai-communications';
