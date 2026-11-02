@@ -736,7 +736,9 @@ test('FV-UX-COPY-01: Banco e Gestão priorizam ações e textos curtos',()=>{
   assert.doesNotMatch(markup,/class="bank-guidance"[^<]*Fichas somente leitura/);
   assert.match(app,/projectBankReadyList\(state\.cases,state\.actorId,state\.shopId\)/);
   assert.match(app,/bankReadyCaseForSelection\(state\.cases,state\.actorId,state\.shopId,state\.bankCaseId\)/);
-  assert.match(app,/Envio ao banco indisponível nesta demonstração/);
+  assert.match(app,/function renderBankRegistration\(item\)/);
+  assert.match(app,/target\.replaceChildren\(identity,consultation\)/);
+  assert.match(app,/origin\.append\(el\('summary','','Origem'\)/);
   assert.match(app,/button\.addEventListener\('click',\(\)=>\{/);
   assert.match(app,/bankReadyCaseForSelection\(state\.cases,state\.actorId,state\.shopId,row\.id\)/);
   assert.match(styles,/\.bank-ready-choice\[aria-pressed="true"\]/);
