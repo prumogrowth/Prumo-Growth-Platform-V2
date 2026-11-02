@@ -34,10 +34,10 @@
     <div class="rail-logo" aria-label="Prumo — identificação técnica provisória">P<span class="logo-dot"></span></div>
     <nav class="rail-nav" aria-label="Navegação">
       <button class="rail-icon active" title="Conversas" aria-label="Conversas" aria-current="page" type="button" id="conversations-nav"><svg class="icon"><use href="#i-message"/></svg></button>
-      <button class="rail-icon" type="button" id="bank-nav" title="Banco · consulta demonstrativa" aria-label="Banco: consulta demonstrativa" aria-controls="bank-dialog"><svg class="icon"><use href="#i-bank"/></svg></button>
+      <button class="rail-icon" type="button" id="bank-nav" title="Banco" aria-label="Banco" aria-controls="bank-dialog"><svg class="icon"><use href="#i-bank"/></svg></button>
       <div class="rail-divider"></div>
       <div class="rail-label">CENTRAL</div>
-      <button class="rail-icon" title="Gestão · equipe e operação demonstrativas" aria-label="Gestão: equipe demonstrativa" type="button" id="team-nav"><svg class="icon"><use href="#i-people"/></svg></button>
+      <button class="rail-icon" title="Gestão" aria-label="Gestão" type="button" id="team-nav"><svg class="icon"><use href="#i-people"/></svg></button>
     </nav>
     <div class="rail-bottom" aria-hidden="true"></div>
   </aside>
@@ -107,16 +107,16 @@
     </aside>
 <dialog id="bank-dialog" class="bank-dialog" aria-labelledby="bank-title">
   <nav class="module-page-navigation" aria-label="Áreas da plataforma"><button type="button" data-route-module="conversations">Conversas</button><span aria-current="page">Banco</span><button type="button" data-route-module="team" data-team-route hidden>Gestão</button></nav>
-  <header class="bank-heading"><div><p class="eyebrow">CONSULTA E ACOMPANHAMENTO · DEMONSTRAÇÃO</p><h2 id="bank-title" tabindex="-1">Banco</h2></div><button type="button" id="bank-close" class="icon-button" aria-label="Fechar Banco e voltar"><svg class="icon"><use href="#i-close"/></svg></button></header>
-  <p class="bank-guidance" role="note">Somente cadastros aptos ao encaminhamento, em demonstração. Fichas somente leitura. Nenhum envio bancário real.</p>
-  <label for="bank-case-select" class="field-label">Clientes aptos ao encaminhamento</label><select id="bank-case-select" aria-controls="bank-content" aria-label="Selecionar cliente apto"></select><p id="bank-ready-empty" class="detail-placeholder" hidden>Nenhum cadastro apto para encaminhamento nesta concessionária.</p>
+  <header class="bank-heading"><div><h2 id="bank-title" tabindex="-1">Banco</h2></div><button type="button" id="bank-close" class="icon-button" aria-label="Fechar Banco e voltar"><svg class="icon"><use href="#i-close"/></svg></button></header>
+  <p class="bank-guidance" role="note">Consulta · sem envio real</p>
+  <label for="bank-case-select" class="field-label">Clientes</label><select id="bank-case-select" aria-controls="bank-content" aria-label="Selecionar cliente apto"></select><p id="bank-ready-empty" class="detail-placeholder" hidden>Nenhum cadastro para enviar.</p>
   <div id="bank-content" class="bank-content" role="region" aria-label="Ficha de cliente apto"></div>
 </dialog>
 
 <dialog id="team-dialog" class="team-dialog" aria-labelledby="team-title">
   <nav class="module-page-navigation" aria-label="Áreas da plataforma"><button type="button" data-route-module="conversations">Conversas</button><button type="button" data-route-module="bank">Banco</button><span aria-current="page">Gestão</span></nav>
-  <div class="team-dialog-header"><div><p class="eyebrow">EQUIPE DA PRUMO · DEMONSTRAÇÃO</p><h2 id="team-title" tabindex="-1">Gestão · equipe e operação</h2></div><button type="button" class="icon-button" id="team-close" aria-label="Fechar visão da equipe"><svg class="icon"><use href="#i-close"/></svg></button></div>
-  <p class="team-hint team-intro">Gestão por Consultor, independente do filtro de loja. Ações fictícias: não alteram acesso, distribuição ou carteira.</p>
+  <div class="team-dialog-header"><div><h2 id="team-title" tabindex="-1">Gestão</h2></div><button type="button" class="icon-button" id="team-close" aria-label="Fechar visão da equipe"><svg class="icon"><use href="#i-close"/></svg></button></div>
+  <p class="team-hint team-intro">Simulação · sem alterações reais</p>
   <details class="team-help"><summary>Entenda o alcance e os limites</summary>
     <p>Equipe organizada por Consultores da Prumo, independentemente do filtro de concessionária. Lojas são concessões somente leitura, definidas pelo Diretor. Solicitar pausa ou retomada de novos leads alcança TODAS as lojas autorizadas do Consultor. Nenhuma solicitação desta demonstração altera disponibilidade, acesso, distribuição ou carteira; esses efeitos dependem de S0/S1-002.</p>
   </details>
