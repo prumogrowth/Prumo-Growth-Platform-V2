@@ -319,7 +319,8 @@ test('G2: pedido local de retomada de Bianca mantém pausa confirmada na fixture
   const team=get('team-list'),button=env.descendants(team).find(n=>n.tagName==='BUTTON' &&
     n.textContent.includes('Solicitar retomada'));
   assert.ok(button);button.click();get('intake-dialog').close('confirm');
-  assert.ok(team.textContent.includes('Novos leads pausados (projeção fictícia)'));
+  assert.ok(team.textContent.includes('Leads pausados'));
+  // Solicitação da simulação não desativa a pausa confirmada na fixture.
   assert.ok(team.textContent.includes('SOLICITADO LOCALMENTE'));
   assert.equal(env.descendants(team).filter(n=>n.tagName==='BUTTON').length,0);
   get('team-dialog').close();
