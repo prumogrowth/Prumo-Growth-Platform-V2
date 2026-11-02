@@ -591,10 +591,28 @@ function renderBank(){
   if(rows.length)select.value=state.bankCaseId;
   const target=$('bank-content'),item=bankSelectedCase();
   if(!item){target.replaceChildren();return;}
-  const identity=el('p','bank-context',item.name);
-  const consultation=renderRegistration(item);
-  const note=el('p','detail-small','Cadastro bancário externo e registro de envio ainda não habilitados nesta demonstração. Nenhuma operação foi realizada.');
-  target.replaceChildren(identity,consultation,note);
+  // A fila é a lista de nomes; o detalhe é a ficha, sem diagnóstico F03
+  // ou mensagens técnicas extensas. Proveniência continua sob demanda.
+  const registration=registrationProjectionFor(item,state.actorId,state.shopId);
+  if(registration.visibility!=='detail' || registration.confirmedPersisted!==true ||
+     registration.state!=='persisted' || registration.missing.length ||
+     registration.conflicts.length){
+    target.replaceChildren();return;
+  }
+  const identity=el('h3','bank-customer-name',item.name);
+  const sheet=detailSection('Ficha cadastral');
+  for(const field of registration.fields){
+    sheet.append(prop(field.label,field.safeDisplayValue));
+  }
+  const provenance=el('details','bank-provenance');
+  provenance.append(el('summary','','Versão e origens'));
+  if(registration.formVersionRef){
+    provenance.append(prop('Versão',registration.formVersionRef));
+  }
+  for(const field of registration.fields){
+    provenance.append(prop(field.label,field.sourceLabel+' · '+field.sourceRef));
+  }
+  target.replaceChildren(identity,sheet,provenance);
 }
 function renderAiCommunications(item){
   const section=detailSection('COMUNICAÇÕES DAS IAs');section.id='ai-communications';
