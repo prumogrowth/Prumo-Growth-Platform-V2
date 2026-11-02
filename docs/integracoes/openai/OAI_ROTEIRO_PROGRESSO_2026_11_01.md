@@ -37,7 +37,7 @@
 | OFF-20 / REMEDIAÇÃO | Endurecimento de validadores legados + quarentena de resposta OpenAI sem campo bruto | FEITO_OFFLINE | [CI 41345415665](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41345415665): 990/990 Node (968+22), 24/24 Python AST separados, sem falhas; não há sink real nem autorização de produção | 
 | OFF-21 / 12A | Ponte Responses → F01/F02/F03 com avaliadores existentes, sem rascunho externo | FEITO_OFFLINE | [CI 41357833214](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41357833214): 1028/1028 Node (990+38), 24/24 Python AST independentes, 0 falhas/ignorados; sem API real | 
 | OFF-22 / 08B | Compatibilidade F02 com Meta M19 A/B v0.2 e M20 v0.2, sem atribuir `sent`/WDC13/C09 | FEITO_OFFLINE | [CI 41360087872](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41360087872): 1068/1068 Node (1028+40), 24/24 Python AST separados, 0 falhas/ignorados; S0 operacional não homologada | 
-| OFF-23 / 08B | Revisão independente do controlador de ciclos S0 F02: readback de estado/ator | EM_TESTE | Fonte pinada S0 `054261b23b312421a6956b51ff5b37d36f10babb`; alvo 1068 Node + 24 Python antigos + 22 Python novos, conjuntos separados; contraprovas indicam possível bug do recibo não corrigido | 
+| OFF-23 / 08B | Auditoria pinada do controlador de ciclos S0 F02: readback de estado/ator | FEITO_OFFLINE | [CI 41370145342](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41370145342): 1068 Node + 24 Python antigos + 22 Python novos, suites separadas, sem falhas; **2 achados reproduzidos, NÃO corrigidos na S0; Issue #7 pendente** | 
 | FV-REV-021 / Issue #13 | Resumos **pequenos e objetivos** de F01/F02/F03 no histórico acumulativo do **Resumo** do Frontend | FUTURO | [Issue #13](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/issues/13), **não desenvolver agora** |
 
 ## Visibilidade de bloqueios
@@ -71,7 +71,7 @@ A [OFF-21](./OAI_OFF21_RESPONSES_DOMAIN_REVIEW_2026_11_01.md) encadeia preflight
 
 ## OFF-23 — auditoria do readback do controlador de ciclos S0
 
-[Relatório OFF-23](./OAI_OFF23_AUDITORIA_S0_F02_CYCLE_READBACK_2026_11_01.md): contraprovas source-level sobre a função S0 pinada, sem PostgreSQL real e sem alterar implementação de outras frentes. Enquanto não forem sanadas, manter a porta de ciclo **em revisão** e F02 operacional pendente. Os testes da auditoria registram o comportamento observado; CI verde não significa que os achados foram corrigidos.
+[Relatório OFF-23](./OAI_OFF23_AUDITORIA_S0_F02_CYCLE_READBACK_2026_11_01.md): 22 contraprovas/regressões source-level aprovadas em [CI 41370145342](https://github.com/prumogrowth/Prumo-Growth-Platform-V2/actions/runs/41370145342) sobre a função S0 pinada, sem PostgreSQL real e sem alterar implementação de outras frentes. Enquanto não forem sanadas, manter a porta de ciclo **em revisão** e F02 operacional pendente. Os testes da auditoria registram o comportamento observado; CI verde não significa que os achados foram corrigidos.
 
 ## Gate futuro de uso da API OpenAI
 
